@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <setting id="ipaddress" type="text" label="20000" default="127.0.0.1"/>
+</settings>

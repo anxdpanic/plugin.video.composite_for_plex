@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon  id="plugin.video.plexbmc/addon.xml" 
+        name="PleXBMC" 
+        version="1.0" 
+        provider-name="Harley Hooligan">
+  <requires>
+    <import addon="xbmc.python" version="1.0"/>
+    <import addon="script.module.beautifulsoup" version="3.0.8"/>
+  </requires>
+  <extension    point="xbmc.python.pluginsource"
+                library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <minversion>1</minversion>
+    <summary lang="en">Browse and play local media files managed by Plex Media Server.</summary>
+    <description lang="en">Browse and play local media files managed by Plex Media Server.</description>
+  </extension>
+</addon>
