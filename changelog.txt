@@ -1,6 +1,5 @@
-[B]Version 0.2[/B] - Added support for TV shows.  Altered packaging to allow installation as an XBMC addon
-[B]Version 0.1[/B]
- - first version.
+[B] Version 1.1 [/B] Updated version, and verified installation as a plugin
+[B] Version 1.0.1 [/B] Updated version with streaming option and view fixes
+[B] Version 1.0 [/B] Initial release
 
-
-Uses code originally created by Maruchan as the iTunes Streamer plugin
+This plugin conmtains code from bluecop and Mike M.
