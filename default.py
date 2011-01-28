@@ -1,4 +1,4 @@
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
+﻿import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
 import os,datetime
 from BeautifulSoup import BeautifulStoneSoup
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
@@ -55,7 +55,7 @@ def addDir(name,url,mode,iconimage='',plot=''):
 
 ################################ Root listing
 def ROOT():
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         host=g_host
         
@@ -89,6 +89,22 @@ def ROOT():
                     mode=3
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
                 addDir(name,s_url,mode)
+			#Add Plex plugin handling - Simply check if plugin are present.  If so, create a link to drill down later.
+			#One link is created for each PMS server available
+            pluginurl='http://'+server[1]+':32400/video'
+            pluginhtml=getURL(pluginurl)
+            plugintree=BeautifulStoneSoup(pluginhtml, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+            head = plugintree.find('mediacontainer')
+            #print str(head)
+            items = head['size']
+			
+            if items > 0:
+                s_url=pluginurl
+                mode=7
+                name="Plex Plugins: "+ server[0]
+                addDir(name, s_url, mode)
+		
+		
         xbmcplugin.endOfDirectory(pluginhandle)  
                 
 ################################ Movies listing            
@@ -275,7 +291,74 @@ def EPISODES(url):
 
         xbmcplugin.endOfDirectory(pluginhandle)
         
+def PlexPlugins(url):
+        xbmcplugin.setContent(pluginhandle, 'video')
+
+        print '=============='
+        print 'Getting Plugin Details'
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+
+        server=url.split('/')[2]
+        print server
+        html=getURL(url)
+        tree= BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        head = tree.find('mediacontainer')
+        print "head " + str(head)
+		
+        try:
+            #Look for plugin content
+            content = head.get('content')
+        except:
+            content = "None"
+		
+        print "content is " + str(content)
         
+        if content == "plugins":
+            #then we have found an initial plugin list
+            print "Found plugin list"
+            DirectoryTags=tree.findAll('directory')
+            for links in DirectoryTags:
+                id=links.get('key')
+                name=links.get('title').encode('utf-8')
+                mode=7
+                try:thumb='http://'+server+links.get('thumb').encode('utf-8')
+                except:pass	
+                d_url=url+'/'+id
+                addDir(name, d_url, mode, thumb)
+        else:
+            print "Found plugin details"
+            #this is either a list of plugin menus (directory) or a list of plugin video (or a mix)
+            DirectoryTags=tree.findAll('directory')
+            VideoTags=tree.findAll('video')
+            print "Found some dirs: " + str(DirectoryTags)
+            print "Found some videos: " + str(VideoTags)
+            
+            if DirectoryTags:
+                #We have directories, in which case process as adddirs
+                for tags in DirectoryTags:
+                    print str(tags)
+                    id=tags.get('key')
+                    name=tags.get('name').encode('utf-8')
+                    mode=7
+                    try:thumb='http://'+server+tags.get('thumb').encode('utf')
+                    except:pass	
+                    d_url='http://'+server+id
+                    print "url is " + d_url
+                    addDir(name, d_url, mode, thumb)
+            
+            if VideoTags:
+                #We have video items, that we need to addlinks for 
+                for tags in VideoTags:
+                    id=tags.get('key')
+                    name=tags.get('title').encode('utf-8')
+                    mode=5
+                    try:thumb='http://'+server+tags.get('thumb').encode('utf')
+                    except:pass	
+                    v_url='http://'+server+id    
+                    addLink(name, v_url, mode, thumb)
+           
+        xbmcplugin.endOfDirectory(pluginhandle)
+ 
         
         
         
@@ -294,18 +377,32 @@ def PLAY(vid):
 def get_params():
         param=[]
         paramstring=sys.argv[2]
+        print "param string is " + paramstring
         if len(paramstring)>=2:
+                print "param bigger than 2"
                 params=sys.argv[2]
-                cleanedparams=params.replace('?','')
+                #Rather than replace ? with ' ' - I split of the first char, which is always a ? (hopefully)
+                #Could always add a check as well..
+                cleanedparams=params[1:] #.replace('?','')
+                print "Cleaned params is " + cleanedparams
                 if (params[len(params)-1]=='/'):
+                        print "not sure what this does"
                         params=params[0:len(params)-2]
                 pairsofparams=cleanedparams.split('&')
+                print "pair of params" + str(pairsofparams)
                 param={}
                 for i in range(len(pairsofparams)):
+                        print "i is " + str(i)
                         splitparams={}
+                        #Right, extended urls that contain = do not parse correctly and this tops plugins from working
+                        #Need to think of a better way to do the split, at the moment i'm hacking this by gluing the
+                        #two bits back togethers.. nasty...
                         splitparams=pairsofparams[i].split('=')
+                        print "spilt is " + str(splitparams)
                         if (len(splitparams))==2:
                                 param[splitparams[0]]=splitparams[1]
+                        elif (len(splitparams))==3:
+                                param[splitparams[0]]=splitparams[1]+"="+splitparams[2]
                                 
         return param
 
@@ -352,5 +449,7 @@ elif mode==5:
         PLAYEPISODE(url)
 elif mode==6:
         EPISODES(url)
+elif mode==7:
+		PlexPlugins(url)
         
 sys.modules.clear()
