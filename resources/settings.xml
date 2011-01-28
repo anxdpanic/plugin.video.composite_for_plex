@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <setting id="ipaddress" type="text" label="20000" default="127.0.0.1"/>
-    <setting id="streaming" type="text" label="Stream from PMS" default="true"/>
+    <setting id="streaming" type="bool" label="20001" default="true"/>
 </settings>
