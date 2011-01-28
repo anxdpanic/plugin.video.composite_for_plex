@@ -2,7 +2,7 @@
 <addon  id="plugin.video.plexbmc" 
         name="PleXBMC" 
         version="1.1" 
-        provider-name="Harley Hooligan">
+        provider-name="Harley Hooligan and Hippojay">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
     <import addon="script.module.beautifulsoup" version="3.0.8"/>
