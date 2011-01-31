@@ -32,7 +32,9 @@ def getURL( url ):
         return link
 
 def addLink(name,url,mode,iconimage='',plot='',season=0,episode=0,showname=''):
+        url=urllib.quote(str(url))
         u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+
         ok=True
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
         liz.setInfo( type="Video", infoLabels={ "Title": name,
