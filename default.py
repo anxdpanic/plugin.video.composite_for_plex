@@ -1,5 +1,5 @@
 ﻿import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
-import os,datetime
+import os,datetime, time
 from BeautifulSoup import BeautifulStoneSoup
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 g_host = __settings__.getSetting('ipaddress')
@@ -31,17 +31,26 @@ def getURL( url ):
     else:
         return link
 
-def addLink(name,url,mode,iconimage='',plot='',season=0,episode=0,showname=''):
+def addLink(name,url,mode,movietime,genre,viewcount=0, resume=-1, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
         u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
         ok=True
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
         liz.setInfo( type="Video", infoLabels={ "Title": name,
-                                                "Plot":plot,
+                                                #"Overlay": 7,   Placeholder for the watched/unwatched code
+                                                "Plot":plot ,
                                                 "Season":season,
                                                 "Episode":episode,
-                                                "TVShowTitle":showname})
+                                                "TVShowTitle":showname,
+                                                "Studio": studio,
+                                                "mpaa": certificate,
+                                                "year": year,
+                                                "tagline": tagline,
+                                                "duration": movietime,
+                                                "Genre": genre,
+                                                "Rating": rating})
         liz.setProperty('IsPlayable', 'true')
-        ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
+       
+        ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)  
         return ok
 
 def addDir(name,url,mode,iconimage='',plot=''):
@@ -124,14 +133,47 @@ def Movies(url):
             id=movie.get('ratingKey')
             name=movie.get('title').encode('utf-8')
             summary=movie.get('summary').encode('utf-8')
+            try:viewcount=movie.get('viewcount')
+            except: pass
+            
+            try: 
+                temprating=movie.get('rating')
+                rating = float(temprating)
+            except: rating=0.0
+            
+            try:resume=movie.get('viewoffset')
+            except:resume=-1
+            
+            try:studio=movie.get('studio').encode('utf-8')
+            except:pass
+            
+            try: certificate=movie.get('contentrating')
+            except:pass
+            
+            try: year=int(movie.get('year'))
+            except:pass
+            
+            try: tagline=movie.get('tagline').encode('utf-8')
+            except:pass
+            
+            try: 
+                duration=movie.get('duration')
+                movietime = str(datetime.timedelta(milliseconds=int(duration)))
+            except: 
+                movietime = "Unknown"
+            
             try:thumb='http://'+server+movie.get('thumb').encode('utf')
             except:pass
+            
+            genreList=[]
+            
             try:
-                genres=[]
-                tempgenres=movie.findAll('genres').encode('utf-8')
+                tempgenres=movie.findAll('genre')  #.encode('utf-8')
                 for item in tempgenres:
-                    genres.append(item.get('tag'))
-            except:genres=[]
+                    genreList.append(item.get('tag'))
+            except: pass
+      
+            genre = ",".join(genreList)
             
             if g_stream == "true":
                 location=movie.findAll('part')[0].get('key')
@@ -152,11 +194,21 @@ def Movies(url):
                 continue
             else:
                 print '============='
-                print name
-                print url
-                print thumb
-                print summary
-                addLink(name,url,mode,thumb,summary,seasonNum,episodeNum,showname)
+                print "name = "+ name
+                print "url = "+ url
+                print "thumb = "+ thumb
+                print "summary = "+ summary
+                if rating: print "Rating is " + str(rating)
+                if viewcount: print "viewcount = "+ viewcount
+                if resume: print "resume = "+ resume
+                if studio: print "studio = "+ studio
+                if certificate: print "certificate = "+ certificate
+                if year: print "year = "+ str(year)
+                if tagline: print "tagline = "+ tagline
+                print "movietime = "+ movietime
+                print "genre " + genre
+                
+                addLink(name,url,mode,movietime, genre, viewcount, resume, rating, studio, certificate, year, tagline, thumb,summary,seasonNum,episodeNum,showname)
         xbmcplugin.endOfDirectory(pluginhandle)
     
 ################################ TV Shows listing            
@@ -366,7 +418,12 @@ def PlexPlugins(url):
 def PLAYEPISODE(vids):
         url = vids
         item = xbmcgui.ListItem(path=url)
-        return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        test = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        #Start of monitor code for library updates - not yet though
+        #print "test is " + str(test)
+        #time.sleep(15)
+        #print xbmc.Player().getPlayingFile()
+
     
 def PLAY(vid):
         url = vids
