@@ -427,23 +427,26 @@ def PLAYEPISODE(vids,seek):
         
         
         if resume > 0:
-            resumeseconds = int(resume/1000)
+            resumeseconds = resume/1000
             displayTime = str(datetime.timedelta(seconds=int(resumeseconds)))
             dialogOptions = [ "Resume from " + str(displayTime) , "Start from beginning"]
             print "We are part way through this video!"
             startTime = xbmcgui.Dialog()
             result = startTime.select('',dialogOptions)
-            print "result is " + str(result)
             if result == -1:
                 return
         
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
         
-        time.sleep(10) # UGLY!!!!!!
+        while not xbmc.Player().isPlaying():
+            print "not playing yet...sleep for 2"
+            time.sleep(2)
+        
+        #If we get this far, then XBMC must be playing
         
         if result == 0:
             #Need to skip forward (seconds)
-            xbmc.Player().seekTime((resume/1000))
+                xbmc.Player().seekTime((resumeseconds)) 
             
         return
     
