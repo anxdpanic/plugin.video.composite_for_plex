@@ -31,9 +31,9 @@ def getURL( url ):
     else:
         return link
 
-def addLink(name,url,mode,movietime,genre,viewcount=0, resume=0, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
+def addLink(id,name,url,mode,movietime,genre,viewcount=0, resume=0, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
         url=urllib.quote(str(url))
-        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(resume)
+        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(resume)+"&id="+id
         ok=True
         
         overlay = 6 #set initially to an unwatched film.
@@ -139,7 +139,7 @@ def Movies(url):
         tree= BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         MovieTags=tree.findAll('video')
         for movie in MovieTags:
-            id=movie.get('ratingKey')
+            id=movie.get('ratingkey')
             name=movie.get('title').encode('utf-8')
             summary=movie.get('summary').encode('utf-8')
             try:viewcount=movie.get('viewcount')
@@ -217,7 +217,7 @@ def Movies(url):
                 print "movietime = "+ movietime
                 print "genre " + genre
                 
-                addLink(name,url,mode,movietime, genre, viewcount, resume, rating, studio, certificate, year, tagline, thumb,summary,seasonNum,episodeNum,showname)
+                addLink(id,name,url,mode,movietime, genre, viewcount, resume, rating, studio, certificate, year, tagline, thumb,summary,seasonNum,episodeNum,showname)
         xbmcplugin.endOfDirectory(pluginhandle)
     
 ################################ TV Shows listing            
@@ -419,7 +419,7 @@ def PlexPlugins(url):
            
         xbmcplugin.endOfDirectory(pluginhandle)
          
-def PLAYEPISODE(vids,seek):
+def PLAYEPISODE(id,vids,seek):
         url = vids
         resume = seek
         item = xbmcgui.ListItem(path=url)
@@ -446,9 +446,49 @@ def PLAYEPISODE(vids,seek):
         
         if result == 0:
             #Need to skip forward (seconds)
-                xbmc.Player().seekTime((resumeseconds)) 
-            
+            xbmc.Player().seekTime((resumeseconds)) 
+        
+        #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
+        monitorPlayback(id,url, resume)
+        
         return
+
+def monitorPlayback(id, url, resume):
+    #Need to monitor the running playback, so we can determine a few things:
+    #1. If the file has completed normally (i.e. the movie has finished)
+    #2. If the file has been stopped halfway through - need to record the stop time.
+    
+    server=url.split('/')[2]
+    currentTime=resume
+    
+    if xbmc.Player().isPlaying():
+        noOfSecs = xbmc.Player().getTotalTime()
+    
+    while xbmc.Player().isPlaying():
+        currentTime = int(xbmc.Player().getTime())
+        progress = (currentTime*100)/(noOfSecs*100)
+        #print "Progress: " + str(progress) + "% completed"
+        time.sleep(5)
+          
+    #If we get this far, playback has stopped
+    print "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%."
+    if progress >= 95:
+        #Then we were 95% of the way through, so we mark teh file as watched
+        watchedURL="http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library"
+        print "WatchURL = " + watchedURL
+    else:
+        #we were less then 95% of the way through, so use the resume time
+        resumeURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)
+        print "resumeURL = " + resumeURL
+        output = getURL(resumeURL)
+        print "output is " + str(output)
+    
+    #Execute a refresh so that the new resume time/watched status shows immediately.  
+    #Would be better if we could refesh this one listing. possible?
+    xbmc.executebuiltin("Container.Refresh") 
+    #Can we reselect the previous object?
+     
+    return
     
 def PLAY(vid):
         url = vids
@@ -495,6 +535,7 @@ url=None
 name=None
 mode=None
 resume=None
+id=None
 
 try:
         url=urllib.unquote_plus(params["url"])
@@ -516,10 +557,15 @@ try:
         resume=int(params["resume"])
 except:
         resume=0
+try:
+        id=params["id"]
+except:
+        pass
 
 print "Mode: "+str(mode)
 print "URL: "+str(url)
 print "Name: "+str(name)
+print "ID: "+ str(id)
 
 
 if mode==None or url==None or len(url)<1:
@@ -533,7 +579,7 @@ elif mode==3:
 elif mode==4:
         Seasons(url)
 elif mode==5:
-        PLAYEPISODE(url,resume)
+        PLAYEPISODE(id,url,resume)
 elif mode==6:
         EPISODES(url)
 elif mode==7:
