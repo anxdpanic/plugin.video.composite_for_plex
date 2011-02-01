@@ -33,7 +33,7 @@ def getURL( url ):
 
 def addLink(name,url,mode,movietime,genre,viewcount=0, resume=0, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
         url=urllib.quote(str(url))
-        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(resume)
         ok=True
         
         overlay = 6 #set initially to an unwatched film.
@@ -186,7 +186,7 @@ def Movies(url):
             
             if g_stream == "true":
                 location=movie.findAll('part')[0].get('key')
-                url='http://'+server+":32400"+location
+                url='http://'+server+location
             else:
                 location=movie.findAll('part')[0].get('file')
                 location=location.replace("Volumes",server)
@@ -271,7 +271,6 @@ def SHOWS(url):
  
 ################################ TV Season listing            
          
-
 def Seasons(url):
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
@@ -419,20 +418,34 @@ def PlexPlugins(url):
                     addLink(name, v_url, mode, thumb)
            
         xbmcplugin.endOfDirectory(pluginhandle)
- 
-        
-        
-        
-        
-def PLAYEPISODE(vids):
+         
+def PLAYEPISODE(vids,seek):
         url = vids
+        resume = seek
         item = xbmcgui.ListItem(path=url)
-        test = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
-        #Start of monitor code for library updates - not yet though
-        #print "test is " + str(test)
-        #time.sleep(15)
-        #print xbmc.Player().getPlayingFile()
-
+        result=1
+        
+        
+        if resume > 0:
+            resumeseconds = int(resume/1000)
+            displayTime = str(datetime.timedelta(seconds=int(resumeseconds)))
+            dialogOptions = [ "Resume from " + str(displayTime) , "Start from beginning"]
+            print "We are part way through this video!"
+            startTime = xbmcgui.Dialog()
+            result = startTime.select('',dialogOptions)
+            print "result is " + str(result)
+            if result == -1:
+                return
+        
+        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        
+        time.sleep(10) # UGLY!!!!!!
+        
+        if result == 0:
+            #Need to skip forward (seconds)
+            xbmc.Player().seekTime((resume/1000))
+            
+        return
     
 def PLAY(vid):
         url = vids
@@ -478,6 +491,7 @@ print params
 url=None
 name=None
 mode=None
+resume=None
 
 try:
         url=urllib.unquote_plus(params["url"])
@@ -495,6 +509,10 @@ try:
         thumbnail=urllib.unquote_plus(params["thumbnail"])
 except:
         thumbnail=''
+try:
+        resume=int(params["resume"])
+except:
+        resume=0
 
 print "Mode: "+str(mode)
 print "URL: "+str(url)
@@ -512,7 +530,7 @@ elif mode==3:
 elif mode==4:
         Seasons(url)
 elif mode==5:
-        PLAYEPISODE(url)
+        PLAYEPISODE(url,resume)
 elif mode==6:
         EPISODES(url)
 elif mode==7:
