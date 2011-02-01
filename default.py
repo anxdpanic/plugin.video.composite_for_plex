@@ -31,13 +31,21 @@ def getURL( url ):
     else:
         return link
 
-def addLink(name,url,mode,movietime,genre,viewcount=0, resume=-1, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
+def addLink(name,url,mode,movietime,genre,viewcount=0, resume=0, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
         url=urllib.quote(str(url))
         u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
         ok=True
+        
+        overlay = 6 #set initially to an unwatched film.
+        
+        if viewcount > 0:
+            #we have a watched film.  I can't see a way of displaying a partial like Plex, which uses resume time to decide.
+            overlay=7 # watched icon
+            
+        
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
         liz.setInfo( type="Video", infoLabels={ "Title": name,
-                                                #"Overlay": 7,   Placeholder for the watched/unwatched code
+                                                "Overlay": overlay,
                                                 "Plot":plot ,
                                                 "Season":season,
                                                 "Episode":episode,
@@ -143,7 +151,7 @@ def Movies(url):
             except: rating=0.0
             
             try:resume=movie.get('viewoffset')
-            except:resume=-1
+            except:pass
             
             try:studio=movie.get('studio').encode('utf-8')
             except:pass
