@@ -31,11 +31,16 @@ def getURL( url ):
     else:
         return link
 
-def addLink(id,name,url,mode,movietime,genre,viewcount=0, resume=0, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
+def addLink(id,name,url,mode,duration,genre,viewcount=0, resume=0, rating=0.0, studio='', certificate='', year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname=''):
         url=urllib.quote(str(url))
-        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(resume)+"&id="+id
+        filmLength=int(duration/1000)
+        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(resume)+"&id="+id+"&duration="+str(filmLength)
         ok=True
         
+        if filmLength==0:
+            movietime = "Unknown"
+        else:
+            movietime = str(datetime.timedelta(milliseconds=int(duration)))
         overlay = 6 #set initially to an unwatched film.
         
         if viewcount > 0:
@@ -200,10 +205,10 @@ def Movies(url):
             except:pass
             
             try: 
-                duration=movie.get('duration')
-                movietime = str(datetime.timedelta(milliseconds=int(duration)))
+                duration=int(movie.findAll('media')[0].get('duration'))
+                #movietime = str(datetime.timedelta(milliseconds=int(duration)))
             except: 
-                movietime = "Unknown"
+                duration = 0
             
             try:thumb='http://'+server+movie.get('thumb').encode('utf')
             except:pass
@@ -251,10 +256,10 @@ def Movies(url):
                 if certificate: print "certificate = "+ certificate
                 if year: print "year = "+ str(year)
                 if tagline: print "tagline = "+ tagline
-                print "movietime = "+ movietime
+                print "duration = "+ str(duration)
                 print "genre " + genre
                 
-                addLink(id,name,url,mode,movietime, genre, viewcount, resume, rating, studio, certificate, year, tagline, thumb,summary,seasonNum,episodeNum,showname)
+                addLink(id,name,url,mode,duration, genre, viewcount, resume, rating, studio, certificate, year, tagline, thumb,summary,seasonNum,episodeNum,showname)
         xbmcplugin.endOfDirectory(pluginhandle)
     
 ################################ TV Shows listing            
@@ -456,12 +461,14 @@ def PlexPlugins(url):
            
         xbmcplugin.endOfDirectory(pluginhandle)
          
-def PLAYEPISODE(id,vids,seek):
+def PLAYEPISODE(id,vids,seek, duration):
         url = vids
         resume = seek
         item = xbmcgui.ListItem(path=url)
         result=1
-        
+    
+        #if not duration:
+        #    duration = 0
         
         if resume > 0:
             resumeseconds = resume/1000
@@ -492,39 +499,48 @@ def PLAYEPISODE(id,vids,seek):
             xbmc.Player().seekTime((resumeseconds)) 
         
         #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
-        monitorPlayback(id,url, resume)
+        monitorPlayback(id,url, resume, duration)
         
         return
 
-def monitorPlayback(id, url, resume):
+def monitorPlayback(id, url, resume, duration):
     #Need to monitor the running playback, so we can determine a few things:
     #1. If the file has completed normally (i.e. the movie has finished)
     #2. If the file has been stopped halfway through - need to record the stop time.
     
     server=url.split('/')[2]
-    currentTime=resume
+    currentTime=int(resume)
     
-    if xbmc.Player().isPlaying():
-        noOfSecs = xbmc.Player().getTotalTime()
+    if duration == 0 and xbmc.Player().isPlaying():
+        duration = int(xbmc.Player().getTotalTime())
     
     while xbmc.Player().isPlaying():
         currentTime = int(xbmc.Player().getTime())
-        progress = (currentTime*100)/(noOfSecs*100)
+        progress = int((float(currentTime)/float(duration))*100)
         #print "Progress: " + str(progress) + "% completed"
         time.sleep(5)
           
     #If we get this far, playback has stopped
     print "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%."
-    if progress >= 95:
-        #Then we were 95% of the way through, so we mark teh file as watched
-        watchedURL="http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library"
-        print "WatchURL = " + watchedURL
+    if progress <= 5:
+        #Then we hadn't watched enough to make any changes
+        print "Less than 5% played, so do no store resume time but ensure that film is marked unwatched"
+        updateURL="http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library"
+        print "updateURL = " + updateURL
+    elif progress >= 95:
+        #Then we were 95% of the way through, so we mark the file as watched
+        print "More than 95% completed, so mark as watched"
+        updateURL="http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library"
+        print "updateURL = " + updateURL
     else:
-        #we were less then 95% of the way through, so use the resume time
-        resumeURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)
-        print "resumeURL = " + resumeURL
-        output = getURL(resumeURL)
-        print "output is " + str(output)
+        #we were more than 5% and less then 95% of the way through, store the resume time
+        print "More than 5% and less than 95% of the way through, so store resume time"
+        updateURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)
+        print "updateURL = " + updateURL
+        
+    #Submit the update URL    
+    output = getURL(updateURL)
+    print "output is " + str(output)
     
     #Execute a refresh so that the new resume time/watched status shows immediately.  
     #Would be better if we could refesh this one listing. possible?
@@ -579,6 +595,7 @@ name=None
 mode=None
 resume=None
 id=None
+duration=None
 
 try:
         url=urllib.unquote_plus(params["url"])
@@ -604,11 +621,16 @@ try:
         id=params["id"]
 except:
         pass
-
+try:
+        duration=params["duration"]
+except:
+        duration=0
+        
 print "Mode: "+str(mode)
 print "URL: "+str(url)
 print "Name: "+str(name)
 print "ID: "+ str(id)
+print "Duration: " + str(duration)
 
 
 if mode==None or url==None or len(url)<1:
@@ -622,7 +644,7 @@ elif mode==3:
 elif mode==4:
         Seasons(url)
 elif mode==5:
-        PLAYEPISODE(id,url,resume)
+        PLAYEPISODE(id,url,resume, duration)
 elif mode==6:
         EPISODES(url)
 elif mode==7:
