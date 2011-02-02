@@ -475,10 +475,16 @@ def PLAYEPISODE(id,vids,seek):
         
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
         
+        count = 0
         while not xbmc.Player().isPlaying():
             print "not playing yet...sleep for 2"
-            time.sleep(2)
-        
+            count = count + 2
+            if count >= 15:
+                #Waited 15 seconds and still no movie playing - assume it isn't going to..
+                return
+            else:
+                time.sleep(2)
+                   
         #If we get this far, then XBMC must be playing
         
         if result == 0:
