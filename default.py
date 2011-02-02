@@ -124,7 +124,41 @@ def ROOT():
 		
 		
         xbmcplugin.endOfDirectory(pluginhandle)  
-                
+################################ Movies listing            
+def StartMovies():
+        print '=========================='
+        print 'Starting with Movies'
+        host=g_host
+        url = 'http://'+host+':32400/library/sections'
+        html=getURL(url)
+        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        SectionTags=tree.findAll('directory')
+        for object in SectionTags:
+            key=object.get('key')
+            name=object.get('title')
+            type=object.get('type')
+            if type== 'movie':
+                url='http://'+host+':32400/library/sections/'+key+'/all'
+                Movies(url)
+
+
+################################ Movies listing            
+def StartTV():
+        print '=========================='
+        print 'Starting with TV Shows'
+        host=g_host
+        url = 'http://'+host+':32400/library/sections'
+        html=getURL(url)
+        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        SectionTags=tree.findAll('directory')
+        for object in SectionTags:
+            key=object.get('key')
+            name=object.get('title')
+            type=object.get('type')
+            if type== 'show':
+                url='http://'+host+':32400/library/sections/'+key+'/all'
+                SHOWS(url)
+
 ################################ Movies listing            
 def Movies(url):
         xbmcplugin.setContent(pluginhandle, 'movies')
@@ -203,6 +237,9 @@ def Movies(url):
                 continue
             else:
                 print '============='
+                if  name.find('&apos;') >0:
+                    name = name.replace(u"&apos;",u"'")
+                    print 'name: ' +name
                 print "name = "+ name
                 print "url = "+ url
                 print "thumb = "+ thumb
@@ -584,5 +621,9 @@ elif mode==6:
         EPISODES(url)
 elif mode==7:
 		PlexPlugins(url)
+elif mode==10:
+        StartMovies()
+elif mode==11:
+        StartTV()
         
 sys.modules.clear()
