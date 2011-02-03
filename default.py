@@ -8,8 +8,6 @@ print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
 pluginhandle = int(sys.argv[1])
 
-
-
 ################################ Common
 def getURL( url ):
     try:
@@ -31,60 +29,26 @@ def getURL( url ):
     else:
         return link
 
-def addLink(id,name,url,mode,duration=0,genre='',viewcount=0, resume=0, rating=0.0, studio="", certificate="", year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname='', aired=''):
-        
+#def addLink(id,name,url,mode,duration=0,genre='',viewcount=0, resume=0, rating=0.0, studio="", certificate="", year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname='', aired=''):
+def addLink(id,name,url,mode,properties,arguments):       
         url=urllib.quote(str(url))
-        
-        if duration==0:
-            movietime = "Unknown"
-            filmLength = 0
-        else:
-            filmLength=int(duration)/1000
-            movietime = str(datetime.timedelta(milliseconds=int(duration)))
             
-        
-        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(resume)+"&id="+id+"&duration="+str(filmLength)
-        print "addLInk url is " + str(u)
+        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(arguments['resume'])+"&id="+id+"&duration="+str(arguments['duration'])
         ok=True
-        
-        overlay = 6 #set initially to an unwatched film.  
-        if viewcount > 0:
+          
+        if properties['playcount'] > 0:
             #we have a watched film.  I can't see a way of displaying a partial like Plex, which uses resume time to decide.
             print "Watched file, setting overlay to 7"
-            overlay=7 # watched icon
+            properties['overlay']=7 # watched icon
+            
         print "Setting up ListItem"
-        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-        print "Setting thumbnail as " + iconimage
-        print "Setting info labels as:"
-        print name
-        print overlay
-        print plot
-        print season
-        print episode
-        print showname
-        print studio
-        print certificate
-        print year
-        print tagline
-        print movietime
-        print genre
-        print rating
-        print "End info label"
+        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
         
-        liz.setInfo( type="Video", infoLabels={ "Title": name,
-                                                "Overlay": overlay,
-                                                "Plot":plot ,
-                                                "Season":season,
-                                                "Episode":episode,
-                                                "TVShowTitle":showname,
-                                                "Studio": studio,
-                                                "mpaa": certificate,
-                                                "year": year,
-                                                "tagline": tagline,
-                                                "duration": movietime,
-                                                "Genre": genre,
-                                                "Rating": rating,
-                                                "aired": aired})
+        print "Setting thumbnail as " + arguments['thumb']              
+        print "Property is " + str(properties)
+        
+        liz.setInfo( type="Video", infoLabels=properties ) 
+        
         print "setting as a Playable file"
         liz.setProperty('IsPlayable', 'true')
         print "Adding to list"
@@ -197,7 +161,7 @@ def StartTV():
 ################################ Movies listing            
 def Movies(url):
         xbmcplugin.setContent(pluginhandle, 'movies')
-
+        
         print '=============='
         print 'Getting Movies'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
@@ -208,49 +172,62 @@ def Movies(url):
         tree= BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         MovieTags=tree.findAll('video')
         for movie in MovieTags:
+        
+            properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties (i.e. ListItem properties)
+            arguments={'type': "movies", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+   
             id=movie.get('ratingkey')
-            name=movie.get('title').encode('utf-8')
-            summary=movie.get('summary').encode('utf-8')
+            arguments['id']=id
             
-            try:
-                viewcount=movie.get('viewcount')
-            except: 
-                viewcount=0
+            name=movie.get('title')
+            arguments['name']=name.encode('utf-8')
+            if  arguments['name'].find('&apos;') >0:
+                arguments['name'] = arguments['name'].replace("&apos;","'")
             
-            try: 
-                temprating=movie.get('rating')
-                rating = float(temprating)
-            except: 
-                rating=0.0
+            plot=movie.get('summary')
+            if plot is not None:
+                properties['plot']=plot.encode('utf-8')
+                if  properties['plot'].find('&apos;') >0:
+                    properties['plot'] = properties['plot'].replace("&apos;","'")
+          
+            playcount=movie.get('viewcount')
+            if playcount is not None:
+                properties['playcount']=int(playcount)
             
-            try:
-                resume=movie.get('viewoffset')
-            except:
-                resume=0
+            rating=movie.get('rating')
+            if rating is not None:
+                properties['rating']=float(rating)
             
-            try:studio=movie.get('studio').encode('utf-8')
-            except:studio=""
+            resume=movie.get('viewoffset')
+            if resume is not None:
+                arguments['resume']=resume
+            
+            studio=movie.get('studio') 
+            if studio is not None:
+                properties['studio']=studio.encode('utf-8')
             
             certificate=movie.get('contentrating')
-            if certificate is None:
-                certificate = ""
+            if certificate is not None:
+                properties['certificate'] = certificate
             
-            try: year=int(movie.get('year'))
-            except:pass
+            year=movie.get('year')
+            if year is not None:           
+                properties['year']=int(year)
             
-            try: tagline=movie.get('tagline').encode('utf-8')
-            except:pass
+            tagline=movie.get('tagline')
+            if tagline is not None:
+                properties['tagline']=tagline.encode('utf-8')
             
-            try: 
-                duration=int(movie.findAll('media')[0].get('duration'))
-            except: 
-                duration = 0
-            
-            try:thumb='http://'+server+movie.get('thumb').encode('utf')
-            except:pass
+            duration=movie.findAll('media')[0].get('duration')
+            if duration is not None:           
+                arguments['duration']=int(duration)
+                properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
+                
+            thumb='http://'+server+movie.get('thumb').encode('utf')
+            if thumb is not None:
+                arguments['thumb']=thumb
             
             genreList=[]
-            
             try:
                 tempgenres=movie.findAll('genre')  #.encode('utf-8')
                 for item in tempgenres:
@@ -258,6 +235,7 @@ def Movies(url):
             except: pass
       
             genre = ",".join(genreList)
+            properties['genre']=genre
             
             if g_stream == "true":
                 location=movie.findAll('part')[0].get('key')
@@ -269,33 +247,16 @@ def Movies(url):
                 url='smb:/'+location
 				
             mode=5
-            seasonNum=0
-            episodeNum=0
-            showname=""
             strUrl=str(url)
             print strUrl
             if strUrl.find('.strm') >0:
                 continue
             else:
-                print '============='
-                if  name.find('&apos;') >0:
-                    name = name.replace(u"&apos;",u"'")
-                    print 'name: ' +name
-                print "name = "+ name
-                print "url = "+ url
-                print "thumb = "+ thumb
-                print "summary = "+ summary
-                if rating: print "Rating is " + str(rating)
-                if viewcount: print "viewcount = "+ viewcount
-                if resume: print "resume = "+ resume
-                if studio: print "studio = "+ studio
-                if certificate: print "certificate = "+ certificate
-                if year: print "year = "+ str(year)
-                if tagline: print "tagline = "+ tagline
-                print "duration = "+ str(duration)
-                print "genre " + genre
-                
-                addLink(id,name,url,mode,duration, genre, viewcount, resume, rating, studio, certificate, year, tagline, thumb,summary,seasonNum,episodeNum,showname)
+                print '============='        
+                print "properties is " + str(properties)
+                print "arguments is " + str(arguments)    
+                 
+                addLink(id,arguments['name'],url,mode,properties,arguments)        
         xbmcplugin.endOfDirectory(pluginhandle)
     
 ################################ TV Shows listing            
@@ -312,6 +273,7 @@ def SHOWS(url):
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         ShowTags=tree.findAll('directory')
         for show in ShowTags:
+
             id=show.get('ratingkey').encode('utf-8')
             try:name=show.get('title').encode('utf-8')
             except:pass
@@ -398,7 +360,9 @@ def EPISODES(url):
         print '=============='
         print url
         print 'Getting TV Episodes'
+        
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
+        
         server=url.split('/')[2]
         target=url.split('/')[-1]
         print server
@@ -419,6 +383,10 @@ def EPISODES(url):
         
         for show in ShowTags:
             print show
+            
+            properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties (i.e. ListItem properties)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            
             id=show.get('ratingkey')
             episode=show.get('index')
             name=show.get('title').encode('utf-8')
@@ -450,24 +418,23 @@ def EPISODES(url):
             if resume is None:
                 resume=0
             
-            try:thumb='http://'+server+show.get('thumb').encode('utf')
-            except:thumb=''
-            try:
-                rating=float(show.get('rating'))
-            except: 
-                rating=0.0
+            thumb='http://'+server+show.get('thumb').encode('utf')
+            if thumb is not None:
+                arguments['thumb']=thumb
+
+            rating=show.get('rating')
+            if rating is not None:
+                properties['rating']=float(rating)
             
             aired=show.get('originallyavailableat')
-            if aired is None:
-                aired=''
-			
-            try: 
-                duration=int(show.findAll('media')[0].get('duration'))
-            except: 
-                duration = 0
-            
-            
-            
+            if aired is not None:
+                properties['aired']=aired
+			            
+            duration=show.findAll('media')[0].get('duration')
+            if duration is not None:           
+                arguments['duration']=int(duration)
+                properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
+                     
             if g_stream == "true":
                 location=show.findAll('part')[0].get('key')
                 url='http://'+server+location
@@ -501,7 +468,8 @@ def EPISODES(url):
                 print "Studio = " + str(studio)
                 print "rating = " + str(rating)
                 print "showname = " + showname
-                addLink(id,name,url,mode,duration,genre,viewcount, resume, rating, studio, certificate, year, tagline,thumb,summary,season,episode,showname, aired)
+                addLink(id,arguments['name'],url,mode,properties,arguments)        
+                #addLink(id,name,url,mode,duration,genre,viewcount, resume, rating, studio, certificate, year, tagline,thumb,summary,season,episode,showname, aired)
 
         xbmcplugin.endOfDirectory(pluginhandle)
         
