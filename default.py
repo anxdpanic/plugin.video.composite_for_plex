@@ -121,7 +121,7 @@ def ROOT():
         Servers=[]
         Sections=[]
         for object in LibraryTags:
-            name=object.get('name')
+            name=object.get('name').encode('utf-8')
             host=object.get('host')
             Servers.append([name,host])
         
