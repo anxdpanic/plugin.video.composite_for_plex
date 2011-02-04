@@ -56,16 +56,23 @@ def addLink(id,name,url,mode,properties,arguments):
         print "Done setting, return was " + str(ok)
         return ok
 
-def addDir(name,url,mode,iconimage='',plot='', episodes=0, aired='', genre=''):
+#def addDir(name,url,mode,iconimage='',plot='', episodes=0, aired='', genre=''):
+def addDir(name,url,mode,properties,arguments):   #iconimage='',plot='', episodes=0, aired='', genre=''):
+
         u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
         ok=True
-        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": name,
-                                                "Plot": plot, 
-                                                "episode": episodes,
-                                                "aired": aired,
-                                                "Genre": genre})
+        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+        liz.setInfo( type="Video", infoLabels=properties ) #{ "Title": name,
+                                                #"Plot": plot, 
+                                                #"episode": episodes,
+                                                #"aired": aired,
+                                                #"Genre": genre})
         print 'harley:'+ u
+        
+        if arguments.has_key('WatchedEpisodes'):
+            liz.setProperty('WatchedEpisodes', str(arguments['WatchedEpisodes']))
+            liz.setProperty('UnWatchedEpisodes', str(arguments['UnWatchedEpisodes']))
+        
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
         return ok
 
@@ -89,13 +96,18 @@ def ROOT():
             Servers.append([name,host])
         
         for server in Servers:
+                    
             url='http://'+server[1]+':32400/library/sections'
             html=getURL(url)
             tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
             SectionTags=tree.findAll('directory')
             for object in SectionTags:
+            
+                arguments={'thumb':''}
+                properties={}
+
                 key=object.get('key')
-                name=object.get('title')
+                properties['title']=arguments['name']=object.get('title')
                 type=object.get('type')
                 if type == 'show':
                     mode=1
@@ -104,7 +116,7 @@ def ROOT():
                 if type == 'artist':
                     mode=3
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
-                addDir(name,s_url,mode)
+                addDir(arguments['name'],s_url,mode, properties,arguments)
                 
 			#Add Plex plugin handling - Simply check if plugin are present.  If so, create a link to drill down later.
 			#One link is created for each PMS server available
@@ -116,10 +128,14 @@ def ROOT():
             items = head['size']
 			
             if items > 0:
+            
+                arguments={'thumb':''}
+                properties={}
+
                 s_url=pluginurl
                 mode=7
-                name="Plex Plugins: "+ server[0]
-                addDir(name, s_url, mode)
+                properties['title']="Plex Plugins: "+ server[0]
+                addDir(properties['title'], s_url, mode, properties,arguments)
 		
 		
         xbmcplugin.endOfDirectory(pluginhandle)  
@@ -282,7 +298,8 @@ def SHOWS(url):
         ShowTags=tree.findAll('directory')
         for show in ShowTags:
 
-            arguments={}
+            properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
         
             id=show.get('ratingkey').encode('utf-8')
             
@@ -291,51 +308,60 @@ def SHOWS(url):
             if  arguments['name'].find('&apos;') >0:
                 arguments['name'] = arguments['name'].replace("&apos;","'")
             
-            name=arguments['name']
+            properties['title']=properties['showname']=arguments['name']
             
-            #try:name=show.get('title').encode('utf-8')
-            #except:pass
-            try:studio=show.get('studio').encode('utf-8')
-            except:pass
-            summary=show.get('summary').encode('utf-8')
+            studio=show.get('studio')
+            if studio is not None:
+                properties['studio']=studio.encode('utf-8')
+            
+            
+            plot=show.get('summary')
+            if plot is not None:
+                properties['plot']=plot.encode('utf-8')
+           
+           
+            contentrating=show.get('contentrating')
+            if contentrating is not None:
+                properties['mpaa']=contentrating.encode('utf-8')
+                
+           
+            episodes=show.get('leafcount')
+            if episodes is not None:
+                properties['episode']=int(episodes)
+            
+            watched=show.get('viewedleafcount')
+            if watched is not None:
+                arguments['WatchedEpisodes']=int(watched)
+                arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
+                        
+            genreList=[]            
             try:
-                contentrating=show.get('contentrating').encode('utf-8')
-            except:pass
-            
-            try: episodes=int(show.get('leafcount'))
-            except: episodes=0
-            
-            genreList=[]
-            
-            try:
-                tempgenres=show.findAll('genre')  #.encode('utf-8')
+                tempgenres=show.findAll('genre')
                 for item in tempgenres:
                     genreList.append(item.get('tag'))
             except: pass
       
             genre = " / ".join(genreList)
 
-            try:aired=show.get('originallyavailableat')
-            except:pass
-            try:thumb='http://'+server+show.get('thumb').encode('utf-8')
-            except:pass
+            properties['genre']=genre
+            
+            aired=show.get('originallyavailableat')
+            if aired is not None:
+                properties['aired']=aired
+
+            thumb='http://'+server+show.get('thumb').encode('utf')
+            if thumb is not None:
+                arguments['thumb']=thumb
+
             url='http://'+server+'/library/metadata/'+id+'/children'
             mode=4
-            season=0
-            #episode=0
-            showname=name
+            
             print '============='
-            print "name: " + name
-            print "url: " + url
-            print "thumb: " + thumb
-            print "summary: " + summary
-            print "Episodes: " + str(episodes)
-            print "Aired: "+ aired
-            print "Genre: " + genre
             strUrl=str(url)
             print strUrl
-            
-            addDir(name,url,mode,thumb,summary, episodes, aired, genre)
+            print "properties is " + str(properties)
+            print "Arguments are " + str(arguments)
+            addDir(arguments['name'],url,mode,properties,arguments) #thumb,summary, episodes, aired, genre)
         xbmcplugin.endOfDirectory(pluginhandle)
  
 ################################ TV Season listing            
@@ -352,23 +378,43 @@ def Seasons(url):
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         ShowTags=tree.findAll('directory')
         for show in ShowTags:
+        
+            properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+
             id=show.get('key').encode('utf-8')
-            try:name=show.get('title').encode('utf-8')
-            except:pass
-            try:thumb='http://'+server+show.get('thumb').encode('utf-8')
-            except:thumb=''
-            try: episodes=int(show.get('leafcount'))
-            except: episodes=0
+ 
+            name=show.get('title')
+            arguments['name']=name.encode('utf-8')
+            if  arguments['name'].find('&apos;') >0:
+                arguments['name'] = arguments['name'].replace("&apos;","'")
+            
+            properties['title']=properties['showname']=arguments['name']
+
+            thumb='http://'+server+show.get('thumb').encode('utf')
+            if thumb is not None:
+                arguments['thumb']=thumb
+
+            episodes=show.get('leafcount')
+            if episodes is not None:
+                properties['episode']=int(episodes)
+            
+            watched=show.get('viewedleafcount')
+            if watched is not None:
+                arguments['WatchedEpisodes']=int(watched)
+                arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
+    
+            plot=show.get('summary')
+            if plot is not None:
+                properties['plot']=plot.encode('utf-8')
+
+
             url='http://'+server+id
             mode=6
             season=0
-            showname=name
-            summary=""
+    
             print '============='
-            print name
-            print url
-            print thumb
-            addDir(name,url,mode,thumb,summary, episodes)
+            addDir(name,url,mode,properties,arguments) #thumb,summary, episodes)
         xbmcplugin.endOfDirectory(pluginhandle)
  
 ################################ TV Episode listing 
@@ -527,13 +573,27 @@ def PlexPlugins(url):
             print "Found plugin list"
             DirectoryTags=tree.findAll('directory')
             for links in DirectoryTags:
+            
+                properties={}
+                arguments={'thumb':''}
+            
                 id=links.get('key')
-                name=links.get('title').encode('utf-8')
+                #name=links.get('title').encode('utf-8')
+                
+                name=links.get('title')
+                arguments['name']=name.encode('utf-8')
+                if  arguments['name'].find('&apos;') >0:
+                    arguments['name'] = arguments['name'].replace("&apos;","'")
+                properties['title']=arguments['name']
+
                 mode=7
-                try:thumb='http://'+server+links.get('thumb').encode('utf-8')
-                except:pass	
+                
+                thumb='http://'+server+links.get('thumb').encode('utf')
+                if thumb is not None:
+                    arguments['thumb']=thumb
+                    
                 d_url=url+'/'+id
-                addDir(name, d_url, mode, thumb)
+                addDir(name, d_url, mode, properties, arguments)
         else:
             print "Found plugin details"
             #this is either a list of plugin menus (directory) or a list of plugin video (or a mix)
@@ -545,15 +605,28 @@ def PlexPlugins(url):
             if DirectoryTags:
                 #We have directories, in which case process as adddirs
                 for tags in DirectoryTags:
+                
+                    properties={}
+                    arguments={'thumb':''}
+                
                     print str(tags)
                     id=tags.get('key')
-                    name=tags.get('name').encode('utf-8')
+                    
+                    name=tags.get('title')
+                    arguments['name']=name.encode('utf-8')
+                    if  arguments['name'].find('&apos;') >0:
+                        arguments['name'] = arguments['name'].replace("&apos;","'")
+                    properties['title']=arguments['name']
+
                     mode=7
-                    try:thumb='http://'+server+tags.get('thumb').encode('utf')
-                    except:pass	
+                
+                    thumb='http://'+server+tags.get('thumb').encode('utf')
+                    if thumb is not None:
+                        arguments['thumb']=thumb
+                                        
                     d_url='http://'+server+id
                     print "url is " + d_url
-                    addDir(name, d_url, mode, thumb)
+                    addDir(name, d_url, mode, properties, arguments)
             
             if VideoTags:
                 #We have video items, that we need to addlinks for 
