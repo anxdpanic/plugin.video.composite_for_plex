@@ -4,6 +4,7 @@ from BeautifulSoup import BeautifulStoneSoup
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
+g_extended = __settings__.getSetting('extended')
 g_loc = "special://home/addon/plugin.video.plexbmc"
 print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
@@ -265,16 +266,34 @@ def Movies(url):
             fanart=movie.get('art')
             if fanart is not None:
                 arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
+            
+            
+            if g_extended == "true":
+                extended={}
+                extended=getextendedmetadata('http://'+server+'/library/metadata/'+id)
                 
-            genreList=[]
-            try:
-                tempgenres=movie.findAll('genre') 
-                for item in tempgenres:
-                    genreList.append(item.get('tag'))
-            except: pass
+                if extended.has_key('genre'):
+                    properties['genre']=extended['genre']
+                    
+                if extended.has_key('writer'):
+                    properties['writer']=extended['writer']
+                    
+                if extended.has_key('director'):
+                    properties['director']=extended['director']
+                    
+                if extended.has_key('cast'):
+                    properties['castandrole']=extended['cast']
+                                
+            else:
+                genreList=[]
+                try:
+                    tempgenres=movie.findAll('genre') 
+                    for item in tempgenres:
+                        genreList.append(item.get('tag'))
+                except: pass
       
-            genre = " / ".join(genreList)
-            properties['genre']=genre
+                genre = " / ".join(genreList)
+                properties['genre']=genre
             
             if g_stream == "true":
                 location=movie.findAll('part')[0].get('key')
@@ -299,6 +318,44 @@ def Movies(url):
         xbmcplugin.endOfDirectory(pluginhandle)
     
 ################################ TV Shows listing            
+
+def getextendedmetadata(url):
+    print "=========="
+    print "Getting extended metadata"
+    
+    html=getURL(url)
+    tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+    
+    genrelist=[]
+    writerlist=[]
+    directorlist=[]
+    castlist=[]
+    
+    genreTag=tree.findAll('genre')
+    for tags in genreTag:
+        genrelist.append(tags.get('tag'))
+    genrestring=" / ".join(genrelist)
+    
+    writerTag=tree.findAll('writer')
+    for tags in writerTag:
+        writerlist.append(tags.get('tag'))
+    writerstring=" / ".join(writerlist)
+    
+    directorTag=tree.findAll('director')
+    for tags in directorTag:
+        directorlist.append(tags.get('tag'))
+    directorstring=" / ".join(directorlist)
+    
+    castTag=tree.findAll('role')
+    for tags in castTag:
+        person=tags.get('tag')
+        role=tags.get('role')
+        castlist.append(person+' as '+role)
+        
+    returnlist={'genre':genrestring , 'writer':writerstring, 'director' : directorstring , 'cast' : castlist}
+    
+    return returnlist
+    
 
 def SHOWS(url):
         xbmcplugin.setContent(pluginhandle, 'tvshows')
@@ -351,7 +408,9 @@ def SHOWS(url):
             if watched is not None:
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
-                        
+            
+
+            
             genreList=[]            
             try:
                 tempgenres=show.findAll('genre')
