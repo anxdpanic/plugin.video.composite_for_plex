@@ -4,6 +4,7 @@ from BeautifulSoup import BeautifulStoneSoup
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
+g_loc = "special://home/addon/plugin.video.plexbmc"
 print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
 pluginhandle = int(sys.argv[1])
@@ -243,10 +244,16 @@ def Movies(url):
                     arguments['duration']=int(duration)/1000
                     properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
                 
-            thumb='http://'+server+movie.get('thumb').encode('utf')
-            if thumb is not None:
-                arguments['thumb']=thumb
             
+            thumb=movie.get('thumb')
+            if thumb is not None:
+                arguments['thumb']='http://'+server+thumb.encode('utf')
+            else:  
+                thumb=g_loc+'/resources/movie.png'  
+                print thumb  
+                arguments['thumb']=thumb
+                
+                
             genreList=[]
             try:
                 tempgenres=movie.findAll('genre') 
