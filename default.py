@@ -242,7 +242,7 @@ def Movies(url):
                     genreList.append(item.get('tag'))
             except: pass
       
-            genre = ",".join(genreList)
+            genre = " / ".join(genreList)
             properties['genre']=genre
             
             if g_stream == "true":
