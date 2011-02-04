@@ -56,17 +56,13 @@ def addLink(id,name,url,mode,properties,arguments):
         print "Done setting, return was " + str(ok)
         return ok
 
-#def addDir(name,url,mode,iconimage='',plot='', episodes=0, aired='', genre=''):
-def addDir(name,url,mode,properties,arguments):   #iconimage='',plot='', episodes=0, aired='', genre=''):
+def addDir(name,url,mode,properties,arguments):
 
         u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
         ok=True
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
-        liz.setInfo( type="Video", infoLabels=properties ) #{ "Title": name,
-                                                #"Plot": plot, 
-                                                #"episode": episodes,
-                                                #"aired": aired,
-                                                #"Genre": genre})
+        liz.setInfo( type="Video", infoLabels=properties ) 
+        
         print 'harley:'+ u
         
         if arguments.has_key('WatchedEpisodes'):
@@ -253,7 +249,7 @@ def Movies(url):
             
             genreList=[]
             try:
-                tempgenres=movie.findAll('genre')  #.encode('utf-8')
+                tempgenres=movie.findAll('genre') 
                 for item in tempgenres:
                     genreList.append(item.get('tag'))
             except: pass
@@ -361,7 +357,7 @@ def SHOWS(url):
             print strUrl
             print "properties is " + str(properties)
             print "Arguments are " + str(arguments)
-            addDir(arguments['name'],url,mode,properties,arguments) #thumb,summary, episodes, aired, genre)
+            addDir(arguments['name'],url,mode,properties,arguments) 
         xbmcplugin.endOfDirectory(pluginhandle)
  
 ################################ TV Season listing            
@@ -414,7 +410,7 @@ def Seasons(url):
             season=0
     
             print '============='
-            addDir(name,url,mode,properties,arguments) #thumb,summary, episodes)
+            addDir(name,url,mode,properties,arguments) 
         xbmcplugin.endOfDirectory(pluginhandle)
  
 ################################ TV Episode listing 
@@ -578,7 +574,6 @@ def PlexPlugins(url):
                 arguments={'thumb':''}
             
                 id=links.get('key')
-                #name=links.get('title').encode('utf-8')
                 
                 name=links.get('title')
                 arguments['name']=name.encode('utf-8')
