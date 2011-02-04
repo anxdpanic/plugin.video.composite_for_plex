@@ -1,6 +1,8 @@
 ﻿import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
 import os,datetime, time
 from BeautifulSoup import BeautifulStoneSoup
+
+#Get the setting from the appropriate file.
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
@@ -11,6 +13,7 @@ print "Settings streaming: " + g_stream
 pluginhandle = int(sys.argv[1])
 
 ################################ Common
+# Connect to a server and retrieve the HTML page
 def getURL( url ):
     try:
         
@@ -30,123 +33,171 @@ def getURL( url ):
         return False
     else:
         return link
-
+        
+#Used to add playable media files to directory listing
+#properties is a dictionary {} which contains a list of setInfo properties to apply
+#Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addLink(id,name,url,mode,properties,arguments):       
         url=urllib.quote(str(url))
-            
+        
+        #Build url to activate playback.
         u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(arguments['resume'])+"&id="+id+"&duration="+str(arguments['duration'])
         ok=True
           
+        #If we have a positive playcount, then set the watched icon to watched (overlay 7).  Overlay 6 is unwatched  
         if properties['playcount'] > 0:
             #we have a watched film.  I can't see a way of displaying a partial like Plex, which uses resume time to decide.
             print "Watched file, setting overlay to 7"
             properties['overlay']=7 # watched icon
             
-        print "Setting up ListItem"
+        #Create ListItem object, which is what is displayed on screen
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
         
         print "Setting thumbnail as " + arguments['thumb']              
         print "Property is " + str(properties)
         
+        #Set properties of the listitem object, such as name, plot, rating, content type, etc
         liz.setInfo( type="Video", infoLabels=properties ) 
         
-        print "setting as a Playable file"
+        #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
-        print "Adding to list"
         
+        #Set the fanart image if it has been enabled
         if arguments.has_key('fanart_image'):
             print "Setting fan art"
             liz.setProperty('fanart_image', str(arguments['fanart_image']))
         
+        #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
-        print "Done setting, return was " + str(ok)
+        
         return ok
 
+#Used to add directory item to the listing.  These are non-playable items.  They can be mixed with playable items created above.
+#properties is a dictionary {} which contains a list of setInfo properties to apply
+#Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addDir(name,url,mode,properties,arguments):
 
+        #Create the URL to pass to the item
         u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
         ok=True
+        
+        #Create the ListItem that will be displayed
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+        
+        #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo( type="Video", infoLabels=properties ) 
         
         print 'harley:'+ u
         
+        #If we have set a number of watched episodes per season
         if arguments.has_key('WatchedEpisodes'):
+            #Then set the number of watched and unwatched, which will be displayed per season
             liz.setProperty('WatchedEpisodes', str(arguments['WatchedEpisodes']))
             liz.setProperty('UnWatchedEpisodes', str(arguments['UnWatchedEpisodes']))
         
+        #Set the fanart image if it has been enabled
         if arguments.has_key('fanart_image'):
             print "Setting fan art to " + str(arguments['fanart_image'])
             liz.setProperty('fanart_image', str(arguments['fanart_image']))
 
-        
+        #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
         return ok
 
 ################################ Root listing
+# Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
 def ROOT():
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
+        #Get the global host variable set in settings
         host=g_host
         
+        #Get the HTML for the URL
         url = 'http://'+host+':32400/servers'
         html=getURL(url)
+        
+        #Pass HTML to BSS to convert it into a nice parasble tree.
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        
+        #Now, find all those server tags
         LibraryTags=tree.findAll('server')
         print tree
         print LibraryTags
         Servers=[]
         Sections=[]
+        
+        #Now, for each tag, pull out the name of the server and it's network name
         for object in LibraryTags:
             name=object.get('name').encode('utf-8')
             host=object.get('host')
             Servers.append([name,host])
         
+        #For each of the servers we have identified
         for server in Servers:
                     
+            #dive into the library section with BS        
             url='http://'+server[1]+':32400/library/sections'
             html=getURL(url)
             tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+            
+            #Find all the directory tags, as they contain further levels to follow
+            #For each directory tag we find, build an onscreen link to drill down into the library
             SectionTags=tree.findAll('directory')
             for object in SectionTags:
             
+                #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
                 arguments={'thumb':''}
                 properties={}
 
+                #Start pulling out information from the parsed XML output. Assign to various variables
                 key=object.get('key')
                 properties['title']=arguments['name']=object.get('title')
                 type=object.get('type')
+                
+                #Determine what we are going to do process after a link is selected by the user, based on the content we find
                 if type == 'show':
                     mode=1
                 if type == 'movie':
                     mode=2
                 if type == 'artist':
                     mode=3
+                    
+                #Build URL with the mode to use and key to further XML data in the library
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
+                
+                #Build that listing..
                 addDir(arguments['name'],s_url,mode, properties,arguments)
                 
-			#Add Plex plugin handling - Simply check if plugin are present.  If so, create a link to drill down later.
-			#One link is created for each PMS server available
+			#Plex plugin handling 
+            #Simple check if any plugins are present.  
+            #If so, create a link to drill down later. One link is created for each PMS server available
+            #Plugin data is held in /videos directory (well, video data is anyway)
             pluginurl='http://'+server[1]+':32400/video'
             pluginhtml=getURL(pluginurl)
             plugintree=BeautifulStoneSoup(pluginhtml, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
             head = plugintree.find('mediacontainer')
 
+            #Check the number of items in the mediacontainer tag.
             items = head['size']
 			
+            #If we have at least one item listed, then we have some plugin.  In which case, create a link
             if items > 0:
             
                 arguments={'thumb':''}
                 properties={}
 
+                #URL contains the location of the server plugin.  We'll display the content later
                 s_url=pluginurl
                 mode=7
                 properties['title']="Plex Plugins: "+ server[0]
+                
+                #Add an on screen link
                 addDir(properties['title'], s_url, mode, properties,arguments)
 		
-		
+        #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
-################################ Movies listing            
+################################ Movies listing  
+#Used by the skin to automatically start a movie listing.  Might not be needed now - copies functionality in ROOT          
 def StartMovies():
         print '=========================='
         print 'Starting with Movies'
@@ -164,7 +215,8 @@ def StartMovies():
                 Movies(url)
 
 
-################################ Movies listing            
+################################ TV listing            
+#Used by the skin to automatically start a TV listing.  Might not be needed now - copies functionality in ROOT          
 def StartTV():
         print '=========================='
         print 'Starting with TV Shows'
@@ -182,6 +234,7 @@ def StartTV():
                 SHOWS(url)
 
 ################################ Movies listing            
+# Used to display movie on screen.
 def Movies(url):
         xbmcplugin.setContent(pluginhandle, 'movies')
         
@@ -189,19 +242,27 @@ def Movies(url):
         print 'Getting Movies'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
 
+        #get the server name from the URL, which was passed via the on screen listing..
         server=url.split('/')[2]
         print server
+        
+        #Get some XML and parse it
         html=getURL(url)
         tree= BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        
+        #Find all the video tags, as they contain the data we need to link to a file.
         MovieTags=tree.findAll('video')
         for movie in MovieTags:
         
+            #Create some structures to pass to Addlink
             properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties (i.e. ListItem properties)
             arguments={'type': "movies", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
    
+            #get the ID
             id=movie.get('ratingkey')
             arguments['id']=id
             
+            #Get name
             name=movie.get('title')
             arguments['name']=name.encode('utf-8')
             if  arguments['name'].find('&apos;') >0:
@@ -209,69 +270,83 @@ def Movies(url):
             
             properties['title']=arguments['name']
             
+            #Get the Plot
             plot=movie.get('summary')
             if plot is not None:
                 properties['plot']=plot.encode('utf-8')
                 if  properties['plot'].find('&apos;') >0:
                     properties['plot'] = properties['plot'].replace("&apos;","'")
           
+            #Get the watched status
             playcount=movie.get('viewcount')
             if playcount is not None:
                 properties['playcount']=int(playcount)
             
+            #Get how good it is, based on your votes...
             rating=movie.get('rating')
             if rating is not None:
                 properties['rating']=float(rating)
             
+            #Get the last played position
             resume=movie.get('viewoffset')
             if resume is not None:
                 arguments['resume']=resume
             
+            #Get the studio 
             studio=movie.get('studio') 
             if studio is not None:
                 properties['studio']=studio.encode('utf-8')
             
+            #Get the Movie certificate, so you know if the kids can watch it.
             certificate=movie.get('contentrating')
             if certificate is not None:
                 properties['certificate'] = certificate
             
+            #year
             year=movie.get('year')
             if year is not None:           
                 properties['year']=int(year)
             
+            #That memorable 6 word summary..
             tagline=movie.get('tagline')
             if tagline is not None:
                 properties['tagline']=tagline.encode('utf-8')
             
+            #Get the length of the film, directly from the media analysis
             duration=movie.findAll('media')[0].get('duration')
             if duration is not None:           
+                #If we've found a duration, convert it into something we can read..
                 arguments['duration']=int(duration)/1000
                 properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
             else:
-                #Fall back to the standard duration as discovered by PMS
+                #Fall back to the standard duration as discovered by PMS if we can analyse media
                 duration=movie.get('duration')
                 if duration is not None:           
                     arguments['duration']=int(duration)/1000
                     properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
                 
-            
+            #Get the picture to use
             thumb=movie.get('thumb')
             if thumb is not None:
                 arguments['thumb']='http://'+server+thumb.encode('utf')
             else:  
+                #Or use a stock default one
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
                 arguments['thumb']=thumb
                
+            #Get a nice big picture   
             fanart=movie.get('art')
             if fanart is not None:
                 arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
             
-            
+            #Get the extended metadata, based on the g_extended setting.  It's a bit slow...
             if g_extended == "true":
                 extended={}
+                #Call another function and store the returned data ina dictionary
                 extended=getextendedmetadata('http://'+server+'/library/metadata/'+id)
                 
+                #Check for data before adding it to the property list
                 if extended.has_key('genre'):
                     properties['genre']=extended['genre']
                     
@@ -285,6 +360,7 @@ def Movies(url):
                     properties['castandrole']=extended['cast']
                                 
             else:
+                #Else just used the shortened genre list, which is easy to do
                 genreList=[]
                 try:
                     tempgenres=movie.findAll('genre') 
@@ -292,21 +368,26 @@ def Movies(url):
                         genreList.append(item.get('tag'))
                 except: pass
       
+                #Join that data with a / becuase that is what XBMC use as default..
                 genre = " / ".join(genreList)
                 properties['genre']=genre
             
+            #If the streaming option is true, then get the virtual listing
             if g_stream == "true":
                 location=movie.findAll('part')[0].get('key')
                 url='http://'+server+location
             else:
+                #Else get the actual location, and use this via SMB if configured
                 location=movie.findAll('part')[0].get('file')
                 location=location.replace("Volumes",server)
                 location=location.replace(":32400","")
                 url='smb:/'+location
-				
+			
+            #This is playable media, so link to a path to a play function
             mode=5
             strUrl=str(url)
             print strUrl
+            #Can't play strm files, so lets not bother listing them.  
             if strUrl.find('.strm') >0:
                 continue
             else:
@@ -314,15 +395,19 @@ def Movies(url):
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
                  
+                #Right, add that link...and loop around for another entry
                 addLink(id,arguments['name'],url,mode,properties,arguments)        
+        
+        #If we get here, then we've been through teh XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
     
 ################################ TV Shows listing            
-
+#How to get that extended metadata.  It comes from a seperate XML request.
 def getextendedmetadata(url):
     print "=========="
     print "Getting extended metadata"
     
+    #USe URL to get XML, and parse.
     html=getURL(url)
     tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
     
@@ -331,50 +416,63 @@ def getextendedmetadata(url):
     directorlist=[]
     castlist=[]
     
+    #Find all the genre tag.  Build into a list, then join list into a sting.  Done
     genreTag=tree.findAll('genre')
     for tags in genreTag:
         genrelist.append(tags.get('tag'))
     genrestring=" / ".join(genrelist)
     
+    #Same as abaove but for writers
     writerTag=tree.findAll('writer')
     for tags in writerTag:
         writerlist.append(tags.get('tag'))
     writerstring=" / ".join(writerlist)
     
+    #And again for directors
     directorTag=tree.findAll('director')
     for tags in directorTag:
         directorlist.append(tags.get('tag'))
     directorstring=" / ".join(directorlist)
     
+    #Cast is returned as a list of strings (containing people and roles)
     castTag=tree.findAll('role')
     for tags in castTag:
         person=tags.get('tag')
         role=tags.get('role')
+        #Pop the string into the list
         castlist.append(person+' as '+role)
         
+    #Return the entire data set as a dictionary    
     returnlist={'genre':genrestring , 'writer':writerstring, 'director' : directorstring , 'cast' : castlist}
     
     return returnlist
     
-
+#This is the function use to parse the top level list of TV shows
 def SHOWS(url):
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
         print '=============='
         print 'Getting TV Shows'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        
+        #Get the URL and server name.  Get the XML and parse
         server=url.split('/')[2]
         print server
         html=getURL(url)
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        
+        #For each directory tag we find
         ShowTags=tree.findAll('directory')
         for show in ShowTags:
 
+            #Create the basic data structures to pass up
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
             arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
         
+            #Get the ID
             id=show.get('ratingkey').encode('utf-8')
             
+            #get the name
             name=show.get('title')
             arguments['name']=name.encode('utf-8')
             if  arguments['name'].find('&apos;') >0:
@@ -382,35 +480,39 @@ def SHOWS(url):
             
             properties['title']=properties['showname']=arguments['name']
             
+            #Get the studio
             studio=show.get('studio')
             if studio is not None:
                 properties['studio']=studio.encode('utf-8')
             
-            
+            #Get the plot
             plot=show.get('summary')
             if plot is not None:
                 properties['plot']=plot.encode('utf-8')
            
+            #get some fan art
             fanart=show.get('art')
             if fanart is not None:
                 arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
 
+            #Get the certificate to see how scary it is..
             contentrating=show.get('contentrating')
             if contentrating is not None:
                 properties['mpaa']=contentrating.encode('utf-8')
                 
-           
+            #Get the total number of episodes    
             episodes=show.get('leafcount')
             if episodes is not None:
                 properties['episode']=int(episodes)
             
+            #Get the number of watched episodes
             watched=show.get('viewedleafcount')
             if watched is not None:
+                #And then work out the number of unwatched ones..
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
             
-
-            
+            #Get the Genre info
             genreList=[]            
             try:
                 tempgenres=show.findAll('genre')
@@ -419,18 +521,20 @@ def SHOWS(url):
             except: pass
       
             genre = " / ".join(genreList)
-
             properties['genre']=genre
-            
+
+            #get the aired date
             aired=show.get('originallyavailableat')
             if aired is not None:
                 properties['aired']=aired
 
+            #get the picture
             thumb='http://'+server+show.get('thumb').encode('utf')
             if thumb is not None:
                 arguments['thumb']=thumb
 
             url='http://'+server+'/library/metadata/'+id+'/children'
+            #Pass mode 4, which will be used for season display
             mode=4
             
             print '============='
@@ -438,29 +542,40 @@ def SHOWS(url):
             print strUrl
             print "properties is " + str(properties)
             print "Arguments are " + str(arguments)
+            
+            #Add a directory link for each TV show
             addDir(arguments['name'],url,mode,properties,arguments) 
+            
+        #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
  
 ################################ TV Season listing            
-         
+#Used to display the season data         
 def Seasons(url):
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
         print '=============='
         print 'Getting TV Seasons'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        
+        #Get URL, XML and parse
         server=url.split('/')[2]
         print server
         html=getURL(url)
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        
+        #For all the directory tags
         ShowTags=tree.findAll('directory')
         for show in ShowTags:
         
+            #Build basic data structures
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
             arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
 
+            #get the ID
             id=show.get('key').encode('utf-8')
  
+            #get the show name
             name=show.get('title')
             arguments['name']=name.encode('utf-8')
             if  arguments['name'].find('&apos;') >0:
@@ -468,33 +583,43 @@ def Seasons(url):
             
             properties['title']=properties['showname']=arguments['name']
 
+            #Get the season picture
             thumb='http://'+server+show.get('thumb').encode('utf')
             if thumb is not None:
                 arguments['thumb']=thumb
 
+            #Get number of episodes in season
             episodes=show.get('leafcount')
             if episodes is not None:
                 properties['episode']=int(episodes)
             
+            #Get number of watched episodes
             watched=show.get('viewedleafcount')
             if watched is not None:
+                #and work out the number of unwatched ones
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
     
+            #Get the plot, although there isn;t one for seasons.  But just in case....
             plot=show.get('summary')
             if plot is not None:
                 properties['plot']=plot.encode('utf-8')
 
-
             url='http://'+server+id
+            
+            #Set the mode to episodes, as that is what's next 
             mode=6
-            season=0
     
             print '============='
+            
+            #Build teh screen directory listing
             addDir(name,url,mode,properties,arguments) 
+            
+        #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
  
 ################################ TV Episode listing 
+#Displays teh actual playable media
 def EPISODES(url):
         xbmcplugin.setContent(pluginhandle, 'episodes')
 
@@ -504,111 +629,146 @@ def EPISODES(url):
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
         
+        
+        #Get the server
         server=url.split('/')[2]
+        
+        #Get the end part of teh URL, as we need to get different data if parsing "All Episodes"
         target=url.split('/')[-1]
         print server
         print target
+        
+        #Get URL, XML and Parse
         html=getURL(url)
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         ShowTags=tree.findAll('video')
         print "using Tags: " + str(ShowTags)
+        
+        #get a bit of metadata that sits inside the main mediacontainer
+        #If it doesn't exist, we'll check later and get it from elsewhere
         MainTag=tree.findAll('mediacontainer')[0]
          
+        #Name of the show
         showname=MainTag.get('grandparenttitle')
+        
+        #the kiddie rating
         certificate = MainTag.get('grandparentcontentrating')
+        
+        #the studio
         studio = MainTag.get('grandparentstudio')
 
+        #If we are processing individual season, then get the season number, else we'll get it later
         if target != "allLeaves":
             season=MainTag.get('parentindex')
 
-        
+        #right, not for each show we find
         for show in ShowTags:
             print show
             
+            #Set basic structure with some defaults.  Overlay 6 is unwatched
             properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
             arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
             
+            #get ID
             id=show.get('ratingkey')
             arguments['id']=id
             
+            #Get the episode number
             episode=show.get('index')
             if episode is not None:
                 properties['episode']=int(episode)
 
+            #get the episode name
             name=show.get('title')
             arguments['name']=name.encode('utf-8')
             if  arguments['name'].find('&apos;') >0:
                 arguments['name'] = arguments['name'].replace("&apos;","'")
             properties['title']=arguments['name']
 
+            #Get plot
             plot=show.get('summary')
             if plot is not None:
                 properties['plot']=plot.encode('utf-8')
                 if  properties['plot'].find('&apos;') >0:
                     properties['plot'] = properties['plot'].replace("&apos;","'")
             
+            #If we are processing an "All Episodes" directory, then get the season from the video tag
             if target == "allLeaves":
                 season = show.get('parentindex')
                 if season is not None:
                     properties['season']=int(season)
             else:    
                 properties['season']=int(season)
-                
+             
+            #check if we got the kiddie rating from the main tag
             if certificate:
                 properties['mpaa']=certificate
             else:
+                #If not, get it from teh video tag instead
                 print "cert not set"
                 certificate = show.get('contentrating')
                 if certificate is not None:
                     properties['mpaa']=certificate
                     
-                    
+            #Check if we got the showname from the main tag        
             if showname:
                 properties['showname']=showname
             else:
+                #if not then get it form video tag
                 print "showname not set"
                 showname = show.get('grandparenttitle')
                 if certificate is not None:
                     properties['showname']=showname
             
+            #check if we got the studio from the main tag.
             if studio:
                 properties['studio']=studio
             else:
+                #if not, then get from the video tag
                 print "studio not set"
                 studio = show.get('studio')
                 if studio is not None:
                     properties['studio']=studio
             
+            #Get the last played position
             resume=show.get('viewoffset')
             if resume is not None:
                 arguments['resume']=resume
                 
+            #get the picture
             thumb='http://'+server+show.get('thumb').encode('utf')
             if thumb is not None:
                 arguments['thumb']=thumb
 
+            #get the rating out of 10...
             rating=show.get('rating')
             if rating is not None:
                 properties['rating']=float(rating)
             
+            #get the air date
             aired=show.get('originallyavailableat')
             if aired is not None:
                 properties['aired']=aired
-			            
+			
+            #get the length 
             duration=show.findAll('media')[0].get('duration')
-            if duration is not None:           
+            if duration is not None:
+                #Set both a number and human readable time
                 arguments['duration']=int(duration)/1000
                 properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
-                     
+            
+            #If we are streaming, then get the virtual location
             if g_stream == "true":
                 location=show.findAll('part')[0].get('key')
                 url='http://'+server+location
             else:	
+                #Else get the actual location to use with SMB
                 location=show.findAll('part')[0].get('file')
                 location=location.replace("Volumes",server)
                 location=location.replace(":32400","")
                 url='smb:/'+location
 			            
+            #Set mode 5, which is play            
             mode=5
             strUrl=str(url)
             print strUrl
@@ -619,10 +779,13 @@ def EPISODES(url):
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
 
+                #Build a file link and loop
                 addLink(id,arguments['name'],url,mode,properties,arguments)        
-
-        xbmcplugin.endOfDirectory(pluginhandle)
         
+        #End the listing
+        xbmcplugin.endOfDirectory(pluginhandle)
+
+#What to do to process Plex Plugin structures        
 def PlexPlugins(url):
         xbmcplugin.setContent(pluginhandle, 'video')
 
@@ -630,6 +793,7 @@ def PlexPlugins(url):
         print 'Getting Plugin Details'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
 
+        #get the serverm URL, XML and parse
         server=url.split('/')[2]
         print server
         html=getURL(url)
@@ -637,6 +801,7 @@ def PlexPlugins(url):
         head = tree.find('mediacontainer')
         print "head " + str(head)
 		
+        #In the mediacontainer, check for the contents type.
         try:
             #Look for plugin content
             content = head.get('content')
@@ -645,111 +810,153 @@ def PlexPlugins(url):
 		
         print "content is " + str(content)
         
+        #If the contents is plugins, we have a top level dir.
         if content == "plugins":
             #then we have found an initial plugin list
             print "Found plugin list"
             DirectoryTags=tree.findAll('directory')
             for links in DirectoryTags:
             
+                #Set up teh baxic structures
                 properties={}
                 arguments={'thumb':''}
             
+                #get the ID
                 id=links.get('key')
                 
+                #get the plugin name
                 name=links.get('title')
                 arguments['name']=name.encode('utf-8')
                 if  arguments['name'].find('&apos;') >0:
                     arguments['name'] = arguments['name'].replace("&apos;","'")
                 properties['title']=arguments['name']
 
+                #Set the mode to 7, which is running thie function again
                 mode=7
                 
+                #Get the picture
                 thumb='http://'+server+links.get('thumb').encode('utf')
                 if thumb is not None:
                     arguments['thumb']=thumb
-                    
+                
+                #Build the next level URL and add the link on screen
                 d_url=url+'/'+id
                 addDir(name, d_url, mode, properties, arguments)
         else:
             print "Found plugin details"
-            #this is either a list of plugin menus (directory) or a list of plugin video (or a mix)
+            #this is either a secondary list of plugin menus (directory) or a list of plugin video (or even a mix)
+            
+            #Find all the directory links
             DirectoryTags=tree.findAll('directory')
+            
+            #Find all the video files
             VideoTags=tree.findAll('video')
             print "Found some dirs: " + str(DirectoryTags)
             print "Found some videos: " + str(VideoTags)
             
+            #For the directory tags we found
             if DirectoryTags:
                 #We have directories, in which case process as adddirs
                 for tags in DirectoryTags:
                 
+                    #As normal, build the structures
                     properties={}
                     arguments={'thumb':''}
                 
                     print str(tags)
                     id=tags.get('key')
                     
+                    #get the name
                     name=tags.get('title')
                     arguments['name']=name.encode('utf-8')
                     if  arguments['name'].find('&apos;') >0:
                         arguments['name'] = arguments['name'].replace("&apos;","'")
                     properties['title']=arguments['name']
 
+                    #Set the mode, to loop back into here again
                     mode=7
                 
+                    #get the picture
                     thumb='http://'+server+tags.get('thumb').encode('utf')
                     if thumb is not None:
                         arguments['thumb']=thumb
                                         
+                    #Set the URL and build the directory link                    
                     d_url='http://'+server+id
                     print "url is " + d_url
                     addDir(name, d_url, mode, properties, arguments)
             
+            #If we have some video links as well
             if VideoTags:
                 #We have video items, that we need to addlinks for 
                 for tags in VideoTags:
                     
+                    #build structures
                     properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
                     arguments={'type': "video", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
                     
                     id=tags.get('key')
                     
+                    #get name
                     name=tags.get('title')
                     arguments['name']=name.encode('utf-8')
                     if  arguments['name'].find('&apos;') >0:
                         arguments['name'] = arguments['name'].replace("&apos;","'")
                     properties['title']=arguments['name']
 
+                    #Set the mode to play them this time
                     mode=12
                     
+                    #Get picture
                     thumb='http://'+server+tags.get('thumb')
                     if thumb is not None:
                         arguments['thumb']=thumb.encode('utf')
                     
+                    #Build the URl and add a link to the file
                     v_url='http://'+server+id    
             
                     addLink(id,name, v_url, mode, properties, arguments)
-           
+        
+        #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
-         
+        
+#Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
+#Only use this to play stuff you want to update in the library        
 def PLAYEPISODE(id,vids,seek, duration):
         #Use this to play PMS library items that you want up dated (Movies, TV shows)
         url = vids
         resume = seek
+        
+        #Build a listitem, based on the url of the file
         item = xbmcgui.ListItem(path=url)
         result=1
             
+        #If we passed a positive resume time, then we need to display the dialog box to ask the user what they want to do    
         if resume > 0:
             resumeseconds = resume/1000
+            
+            #Human readable time
             displayTime = str(datetime.timedelta(seconds=int(resumeseconds)))
+            
+            #Build the dialog text
             dialogOptions = [ "Resume from " + str(displayTime) , "Start from beginning"]
             print "We are part way through this video!"
+            
+            #Create a dialog object
             startTime = xbmcgui.Dialog()
+            
+            #Box displaying resume time or start at beginning
             result = startTime.select('',dialogOptions)
+            
+            #result contains an integer based on the selected text.
             if result == -1:
+                #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
                 return
         
+        #ok - this will start playback for the file pointed to by the url
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
         
+        #Set a loop to wait for positive confirmation of playback
         count = 0
         while not xbmc.Player().isPlaying():
             print "not playing yet...sleep for 2"
@@ -762,6 +969,7 @@ def PLAYEPISODE(id,vids,seek, duration):
                    
         #If we get this far, then XBMC must be playing
         
+        #If the user chose to resume...
         if result == 0:
             #Need to skip forward (seconds)
             xbmc.Player().seekTime((resumeseconds)) 
@@ -770,22 +978,33 @@ def PLAYEPISODE(id,vids,seek, duration):
         monitorPlayback(id,url, resume, duration)
         
         return
-
+        
+#Monitor function so we can update PMS
 def monitorPlayback(id, url, resume, duration):
     #Need to monitor the running playback, so we can determine a few things:
     #1. If the file has completed normally (i.e. the movie has finished)
     #2. If the file has been stopped halfway through - need to record the stop time.
     
+    #Get the server name to update
     server=url.split('/')[2]
+    
+    #Get the current time (either the resumed time or 0)
     currentTime=int(resume)
     
+    #If we didn;t get a duration time (for whatever reason) read it from the playing file
     if duration == 0 and xbmc.Player().isPlaying():
+        #This sometimes fails.  Don't know why probably a timing issue
         duration = int(xbmc.Player().getTotalTime())
     
+    #Whilst the file is playing back
     while xbmc.Player().isPlaying():
+        #Get the current playback time
         currentTime = int(xbmc.Player().getTime())
+        
+        #Convert it into a percentage done, using the total length of the film
         progress = int((float(currentTime)/float(duration))*100)
-        #print "Progress: " + str(progress) + "% completed"
+        
+        #Now sleep for 5 seconds
         time.sleep(5)
           
     #If we get this far, playback has stopped
@@ -817,13 +1036,14 @@ def monitorPlayback(id, url, resume, duration):
      
     return
     
+#Just a standard playback 
 def PLAY(vids):
         #This is for playing standard non-PMS library files (such as Plugins)
         url = vids
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-
+#Function to parse the arguments passed to the plugin..
 def get_params():
         param=[]
         paramstring=sys.argv[2]
@@ -856,9 +1076,13 @@ def get_params():
                                 
         return param
 
-              
+##So this is where we really start the plugin.
+
+#first thing, parse the arguments, as this has the data we need to use.              
 params=get_params()
 print params
+
+#Set up some variables
 url=None
 name=None
 mode=None
@@ -866,6 +1090,7 @@ resume=None
 id=None
 duration=None
 
+#Now try and assign some data to them
 try:
         url=urllib.unquote_plus(params["url"])
 except:
@@ -901,6 +1126,8 @@ print "Name: "+str(name)
 print "ID: "+ str(id)
 print "Duration: " + str(duration)
 
+#Run a function based on the mode variable that was passed in the URL
+
 if mode==None or url==None or len(url)<1:
         ROOT()
 elif mode==1:
@@ -924,4 +1151,5 @@ elif mode==11:
 elif mode==12:
         PLAY(url)
         
+#clear done and exit.        
 sys.modules.clear()
