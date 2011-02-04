@@ -29,7 +29,6 @@ def getURL( url ):
     else:
         return link
 
-#def addLink(id,name,url,mode,duration=0,genre='',viewcount=0, resume=0, rating=0.0, studio="", certificate="", year=0, tagline='',iconimage='',plot='',season=0,episode=0,showname='', aired=''):
 def addLink(id,name,url,mode,properties,arguments):       
         url=urllib.quote(str(url))
             
@@ -106,13 +105,14 @@ def ROOT():
                     mode=3
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
                 addDir(name,s_url,mode)
+                
 			#Add Plex plugin handling - Simply check if plugin are present.  If so, create a link to drill down later.
 			#One link is created for each PMS server available
             pluginurl='http://'+server[1]+':32400/video'
             pluginhtml=getURL(pluginurl)
             plugintree=BeautifulStoneSoup(pluginhtml, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
             head = plugintree.find('mediacontainer')
-            #print str(head)
+
             items = head['size']
 			
             if items > 0:
@@ -184,6 +184,8 @@ def Movies(url):
             if  arguments['name'].find('&apos;') >0:
                 arguments['name'] = arguments['name'].replace("&apos;","'")
             
+            properties['title']=arguments['name']
+            
             plot=movie.get('summary')
             if plot is not None:
                 properties['plot']=plot.encode('utf-8')
@@ -220,8 +222,14 @@ def Movies(url):
             
             duration=movie.findAll('media')[0].get('duration')
             if duration is not None:           
-                arguments['duration']=int(duration)
+                arguments['duration']=int(duration)/1000
                 properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
+            else:
+                #Fall back to the standard duration as discovered by PMS
+                duration=movie.get('duration')
+                if duration is not None:           
+                    arguments['duration']=int(duration)/1000
+                    properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
                 
             thumb='http://'+server+movie.get('thumb').encode('utf')
             if thumb is not None:
@@ -234,7 +242,7 @@ def Movies(url):
                     genreList.append(item.get('tag'))
             except: pass
       
-            genre = ",".join(genreList)
+            genre = " / ".join(genreList)
             properties['genre']=genre
             
             if g_stream == "true":
@@ -274,9 +282,19 @@ def SHOWS(url):
         ShowTags=tree.findAll('directory')
         for show in ShowTags:
 
+            arguments={}
+        
             id=show.get('ratingkey').encode('utf-8')
-            try:name=show.get('title').encode('utf-8')
-            except:pass
+            
+            name=show.get('title')
+            arguments['name']=name.encode('utf-8')
+            if  arguments['name'].find('&apos;') >0:
+                arguments['name'] = arguments['name'].replace("&apos;","'")
+            
+            name=arguments['name']
+            
+            #try:name=show.get('title').encode('utf-8')
+            #except:pass
             try:studio=show.get('studio').encode('utf-8')
             except:pass
             summary=show.get('summary').encode('utf-8')
@@ -361,7 +379,7 @@ def EPISODES(url):
         print url
         print 'Getting TV Episodes'
         
-        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
         
         server=url.split('/')[2]
         target=url.split('/')[-1]
@@ -384,40 +402,64 @@ def EPISODES(url):
         for show in ShowTags:
             print show
             
-            properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties (i.e. ListItem properties)
+            properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
             arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
             
             id=show.get('ratingkey')
-            episode=show.get('index')
-            name=show.get('title').encode('utf-8')
-            summary=show.get('summary').encode('utf-8')
-
-            if target == "allLeaves":
-                    season = show.get('parentindex')
-                    if season is None:
-                        season = 0
+            arguments['id']=id
             
-            if not certificate:
+            episode=show.get('index')
+            if episode is not None:
+                properties['episode']=int(episode)
+
+            name=show.get('title')
+            arguments['name']=name.encode('utf-8')
+            if  arguments['name'].find('&apos;') >0:
+                arguments['name'] = arguments['name'].replace("&apos;","'")
+            properties['title']=arguments['name']
+
+            plot=show.get('summary')
+            if plot is not None:
+                properties['plot']=plot.encode('utf-8')
+                if  properties['plot'].find('&apos;') >0:
+                    properties['plot'] = properties['plot'].replace("&apos;","'")
+            
+            if target == "allLeaves":
+                season = show.get('parentindex')
+                if season is not None:
+                    properties['season']=int(season)
+            else:    
+                properties['season']=int(season)
+                
+            if certificate:
+                properties['mpaa']=certificate
+            else:
                 print "cert not set"
                 certificate = show.get('contentrating')
-                if certificate is None:
-                    certificate = ""
+                if certificate is not None:
+                    properties['mpaa']=certificate
                     
-            if not showname:
+                    
+            if showname:
+                properties['showname']=showname
+            else:
                 print "showname not set"
                 showname = show.get('grandparenttitle')
-                if showname is None:
-                    showname = ""
+                if certificate is not None:
+                    properties['showname']=showname
             
-            if not studio:
+            if studio:
+                properties['studio']=studio
+            else:
+                print "studio not set"
                 studio = show.get('studio')
-                if studio is None:
-                    studio = ""
+                if studio is not None:
+                    properties['studio']=studio
             
             resume=show.get('viewoffset')
-            if resume is None:
-                resume=0
-            
+            if resume is not None:
+                arguments['resume']=resume
+                
             thumb='http://'+server+show.get('thumb').encode('utf')
             if thumb is not None:
                 arguments['thumb']=thumb
@@ -432,7 +474,7 @@ def EPISODES(url):
 			            
             duration=show.findAll('media')[0].get('duration')
             if duration is not None:           
-                arguments['duration']=int(duration)
+                arguments['duration']=int(duration)/1000
                 properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
                      
             if g_stream == "true":
@@ -443,33 +485,18 @@ def EPISODES(url):
                 location=location.replace("Volumes",server)
                 location=location.replace(":32400","")
                 url='smb:/'+location
-			
-            genre=''
-            viewcount=0
-            year=0
-            tagline=''
-            
+			            
             mode=5
-            season=int(season)
-            episode=int(episode)
             strUrl=str(url)
             print strUrl
             if strUrl.find('.strm') >0:
                 continue
             else:
-                print '============='
-                print "id = " + str(id)
-                print "name = " + name
-                print "url = " + url
-                print "thumb = " + thumb
-                print "summary = " + summary
-                print "duration = " + str(duration)
-                print "certificate = " + str(certificate)
-                print "Studio = " + str(studio)
-                print "rating = " + str(rating)
-                print "showname = " + showname
+                print '============='        
+                print "properties is " + str(properties)
+                print "arguments is " + str(arguments)    
+
                 addLink(id,arguments['name'],url,mode,properties,arguments)        
-                #addLink(id,name,url,mode,duration,genre,viewcount, resume, rating, studio, certificate, year, tagline,thumb,summary,season,episode,showname, aired)
 
         xbmcplugin.endOfDirectory(pluginhandle)
         
@@ -531,14 +558,27 @@ def PlexPlugins(url):
             if VideoTags:
                 #We have video items, that we need to addlinks for 
                 for tags in VideoTags:
+                    
+                    properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
+                    arguments={'type': "video", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+                    
                     id=tags.get('key')
-                    name=tags.get('title').encode('utf-8')
+                    
+                    name=tags.get('title')
+                    arguments['name']=name.encode('utf-8')
+                    if  arguments['name'].find('&apos;') >0:
+                        arguments['name'] = arguments['name'].replace("&apos;","'")
+                    properties['title']=arguments['name']
+
                     mode=12
-                    try:thumb='http://'+server+tags.get('thumb').encode('utf')
-                    except:pass	
+                    
+                    thumb='http://'+server+tags.get('thumb')
+                    if thumb is not None:
+                        arguments['thumb']=thumb.encode('utf')
+                    
                     v_url='http://'+server+id    
             
-                    addLink(id,name, v_url, mode, iconimage=thumb)
+                    addLink(id,name, v_url, mode, properties, arguments)
            
         xbmcplugin.endOfDirectory(pluginhandle)
          
@@ -548,10 +588,7 @@ def PLAYEPISODE(id,vids,seek, duration):
         resume = seek
         item = xbmcgui.ListItem(path=url)
         result=1
-    
-        #if not duration:
-        #    duration = 0
-        
+            
         if resume > 0:
             resumeseconds = resume/1000
             displayTime = str(datetime.timedelta(seconds=int(resumeseconds)))
@@ -568,8 +605,8 @@ def PLAYEPISODE(id,vids,seek, duration):
         while not xbmc.Player().isPlaying():
             print "not playing yet...sleep for 2"
             count = count + 2
-            if count >= 15:
-                #Waited 15 seconds and still no movie playing - assume it isn't going to..
+            if count >= 20:
+                #Waited 20 seconds and still no movie playing - assume it isn't going to..
                 return
             else:
                 time.sleep(2)
@@ -626,7 +663,7 @@ def monitorPlayback(id, url, resume, duration):
     
     #Execute a refresh so that the new resume time/watched status shows immediately.  
     #Would be better if we could refesh this one listing. possible?
-    xbmc.executebuiltin("Container.Refresh") 
+    xbmc.executebuiltin("Container.refresh") 
     #Can we reselect the previous object?
      
     return
