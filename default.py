@@ -53,6 +53,10 @@ def addLink(id,name,url,mode,properties,arguments):
         liz.setProperty('IsPlayable', 'true')
         print "Adding to list"
         
+        if arguments.has_key('fanart_image'):
+            print "Setting fan art"
+            liz.setProperty('fanart_image', str(arguments['fanart_image']))
+        
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
         print "Done setting, return was " + str(ok)
         return ok
@@ -69,6 +73,11 @@ def addDir(name,url,mode,properties,arguments):
         if arguments.has_key('WatchedEpisodes'):
             liz.setProperty('WatchedEpisodes', str(arguments['WatchedEpisodes']))
             liz.setProperty('UnWatchedEpisodes', str(arguments['UnWatchedEpisodes']))
+        
+        if arguments.has_key('fanart_image'):
+            print "Setting fan art to " + str(arguments['fanart_image'])
+            liz.setProperty('fanart_image', str(arguments['fanart_image']))
+
         
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
         return ok
@@ -252,7 +261,10 @@ def Movies(url):
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
                 arguments['thumb']=thumb
-                
+               
+            fanart=movie.get('art')
+            if fanart is not None:
+                arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
                 
             genreList=[]
             try:
@@ -322,7 +334,10 @@ def SHOWS(url):
             if plot is not None:
                 properties['plot']=plot.encode('utf-8')
            
-           
+            fanart=show.get('art')
+            if fanart is not None:
+                arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
+
             contentrating=show.get('contentrating')
             if contentrating is not None:
                 properties['mpaa']=contentrating.encode('utf-8')
