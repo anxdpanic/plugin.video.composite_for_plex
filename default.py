@@ -491,7 +491,7 @@ def SHOWS(url):
             if  arguments['name'].find('&apos;') >0:
                 arguments['name'] = arguments['name'].replace("&apos;","'")
             
-            properties['title']=properties['showname']=arguments['name']
+            properties['title']=properties['tvshowtitle']=arguments['name']
             
             #Get the studio
             studio=show.get('studio')
@@ -568,7 +568,7 @@ def SHOWS(url):
 ################################ TV Season listing            
 #Used to display the season data         
 def Seasons(url):
-        xbmcplugin.setContent(pluginhandle, 'tvshows')
+        xbmcplugin.setContent(pluginhandle, 'seasons')
 
         print '=============='
         print 'Getting TV Seasons'
@@ -597,7 +597,7 @@ def Seasons(url):
             if  arguments['name'].find('&apos;') >0:
                 arguments['name'] = arguments['name'].replace("&apos;","'")
             
-            properties['title']=properties['showname']=arguments['name']
+            properties['title']=properties['tvshowtitle']=arguments['name']
 
             #Get the season picture
             thumb='http://'+server+show.get('thumb').encode('utf')
@@ -727,13 +727,13 @@ def EPISODES(url):
                     
             #Check if we got the showname from the main tag        
             if showname:
-                properties['showname']=showname
+                properties['tvshowtitle']=showname
             else:
                 #if not then get it form video tag
                 print "showname not set"
                 showname = show.get('grandparenttitle')
                 if certificate is not None:
-                    properties['showname']=showname
+                    properties['tvshowtitle']=showname
             
             #check if we got the studio from the main tag.
             if studio:
