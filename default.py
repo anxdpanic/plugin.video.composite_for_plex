@@ -256,7 +256,7 @@ def Movies(url):
         
             #Create some structures to pass to Addlink
             properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties (i.e. ListItem properties)
-            arguments={'type': "movies", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "movies", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
    
             #get the ID
             id=movie.get('ratingkey')
@@ -479,7 +479,7 @@ def SHOWS(url):
 
             #Create the basic data structures to pass up
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
         
             #Get the ID
             try:id=show.get('ratingkey').encode('utf-8') # These not so much, unless there's a bunch of them
@@ -546,10 +546,10 @@ def SHOWS(url):
                 properties['aired']=aired
 
             #get the picture
-            thumb="nothing"
-            if show.get('thumb') is not None:
-                thumb='http://'+server+show.get('thumb').encode('utf')
-            arguments['thumb']=thumb
+            thumb=show.get('thumb')
+            if thumb is not None:
+                arguments['thumb']='http://'+server+thumb.encode('utf')
+           
 
             strid=str(id)
             print 'id: '+strid
@@ -586,7 +586,7 @@ def Seasons(url):
         
             #Build basic data structures
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb': ''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
 
             #get the ID
             id=show.get('key').encode('utf-8')
@@ -600,9 +600,9 @@ def Seasons(url):
             properties['title']=properties['tvshowtitle']=arguments['name']
 
             #Get the season picture
-            thumb='http://'+server+show.get('thumb').encode('utf')
+            thumb=show.get('thumb')
             if thumb is not None:
-                arguments['thumb']=thumb
+                arguments['thumb']='http://'+server+thumb.encode('utf')
 
             #Get number of episodes in season
             episodes=show.get('leafcount')
@@ -682,7 +682,7 @@ def EPISODES(url):
             
             #Set basic structure with some defaults.  Overlay 6 is unwatched
             properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
             
             #get ID
             id=show.get('ratingkey')
@@ -753,7 +753,7 @@ def EPISODES(url):
             #get the picture
             thumb=show.get('thumb')
             if thumb is not None:
-                thumb=('http://'+server+thumb).encode('utf')
+                thumb='http://'+server+thumb.encode('utf')
                 arguments['thumb']=thumb
 
             #get the rating out of 10...
@@ -854,13 +854,13 @@ def PlexPlugins(url):
                 mode=7
                 
                 #Get the picture
-                thumb='http://'+server+links.get('thumb').encode('utf')
+                thumb=links.get('thumb')
                 if thumb is not None:
-                    arguments['thumb']=thumb
+                    arguments['thumb']='http://'+server+thumb.encode('utf')
                 
                 #Build the next level URL and add the link on screen
                 d_url=url+'/'+id
-                addDir(name, d_url, mode, properties, arguments)
+                addDir(arguments['name'], d_url, mode, properties, arguments)
         else:
             print "Found plugin details"
             #this is either a secondary list of plugin menus (directory) or a list of plugin video (or even a mix)
@@ -896,14 +896,14 @@ def PlexPlugins(url):
                     mode=7
                 
                     #get the picture
-                    thumb='http://'+server+tags.get('thumb').encode('utf')
+                    thumb=tags.get('thumb')
                     if thumb is not None:
-                        arguments['thumb']=thumb
+                        arguments['thumb']='http://'+server+thumb.encode('utf')
                                         
                     #Set the URL and build the directory link                    
                     d_url='http://'+server+id
                     print "url is " + d_url
-                    addDir(name, d_url, mode, properties, arguments)
+                    addDir(arguments['name'], d_url, mode, properties, arguments)
             
             #If we have some video links as well
             if VideoTags:
@@ -912,7 +912,7 @@ def PlexPlugins(url):
                     
                     #build structures
                     properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-                    arguments={'type': "video", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+                    arguments={'type': "video", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
                     
                     id=tags.get('key')
                     
@@ -927,14 +927,14 @@ def PlexPlugins(url):
                     mode=12
                     
                     #Get picture
-                    thumb='http://'+server+tags.get('thumb')
+                    thumb=tags.get('thumb')
                     if thumb is not None:
-                        arguments['thumb']=thumb.encode('utf')
+                        arguments['thumb']='http://'+server+thumb.encode('utf')
                     
                     #Build the URl and add a link to the file
                     v_url='http://'+server+id    
             
-                    addLink(id,name, v_url, mode, properties, arguments)
+                    addLink(id,arguments['name'], v_url, mode, properties, arguments)
         
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
