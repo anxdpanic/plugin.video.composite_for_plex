@@ -616,7 +616,7 @@ def Seasons(url):
             print '============='
             
             #Build teh screen directory listing
-            addDir(name,url,mode,properties,arguments) 
+            addDir(arguments['name'],url,mode,properties,arguments) 
             
         #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -844,7 +844,7 @@ def PlexPlugins(url):
                 
                 #Build the next level URL and add the link on screen
                 d_url=url+'/'+id
-                addDir(name, d_url, mode, properties, arguments)
+                addDir(arguments['name'], d_url, mode, properties, arguments)
         else:
             print "Found plugin details"
             #this is either a secondary list of plugin menus (directory) or a list of plugin video (or even a mix)
@@ -887,7 +887,7 @@ def PlexPlugins(url):
                     #Set the URL and build the directory link                    
                     d_url='http://'+server+id
                     print "url is " + d_url
-                    addDir(name, d_url, mode, properties, arguments)
+                    addDir(arguments['name'], d_url, mode, properties, arguments)
             
             #If we have some video links as well
             if VideoTags:
@@ -918,7 +918,7 @@ def PlexPlugins(url):
                     #Build the URl and add a link to the file
                     v_url='http://'+server+id    
             
-                    addLink(id,name, v_url, mode, properties, arguments)
+                    addLink(id,arguments['name'], v_url, mode, properties, arguments)
         
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
