@@ -1,4 +1,4 @@
-﻿import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
 import os,datetime, time
 from BeautifulSoup import BeautifulStoneSoup
 
@@ -151,7 +151,7 @@ def ROOT():
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 key=object.get('key')
-                properties['title']=arguments['name']=object.get('title').encode('utf-8')
+                properties['title']=arguments['name']=object.get('title')
                 type=object.get('type')
                 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
@@ -164,9 +164,6 @@ def ROOT():
                     
                 #Build URL with the mode to use and key to further XML data in the library
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
-                
-                print "arguments are " + str(arguments)
-                print "properties are " + str(properties)
                 
                 #Build that listing..
                 addDir(arguments['name'],s_url,mode, properties,arguments)
@@ -331,17 +328,25 @@ def Movies(url):
             #Get the picture to use
             thumb=movie.get('thumb')
             if thumb is not None:
-                arguments['thumb']='http://'+server+thumb.encode('utf')
+                thumb_url='http://'+server+thumb.encode('utf')
             else:  
                 #Or use a stock default one
-                thumb=g_loc+'/resources/movie.png'  
+                thumb_url=g_loc+'/resources/movie.png'  
                 print thumb  
-                arguments['thumb']=thumb
+            arguments['thumb']=thumb_url
                
             #Get a nice big picture   
             fanart=movie.get('art')
             if fanart is not None:
-                arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
+                fanart=fanart.split('?')[0] #drops the guid from the fanart image
+                art_url='http://'+server+fanart.encode('utf-8')
+                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+            else:  
+                #or use a stock default one
+                art_url=g_loc+'/resources/movie_art.jpg'  
+            
+            print art_url  
+            arguments['fanart_image']=art_url
             
             #Get the extended metadata, based on the g_extended setting.  It's a bit slow...
             if g_extended == "true":
@@ -373,7 +378,7 @@ def Movies(url):
       
                 #Join that data with a / becuase that is what XBMC use as default..
                 genre = " / ".join(genreList)
-                properties['genre']=genre.encode('utf-8')
+                properties['genre']=genre
             
             #If the streaming option is true, then get the virtual listing
             if g_stream == "true":
@@ -388,7 +393,10 @@ def Movies(url):
 			
             #This is playable media, so link to a path to a play function
             mode=5
-            strUrl=str(url)
+            
+            #required to grab to check if file is a .strm file
+            location=movie.findAll('part')[0].get('file')
+            strUrl=str(location)
             print strUrl
             #Can't play strm files, so lets not bother listing them.  
             if strUrl.find('.strm') >0:
@@ -401,10 +409,10 @@ def Movies(url):
                 #Right, add that link...and loop around for another entry
                 addLink(id,arguments['name'],url,mode,properties,arguments)        
         
-        #If we get here, then we've been through teh XML and it's time to finish.
+        #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
     
-################################ TV Shows listing            
+################################ Grabs Extended metadata           
 #How to get that extended metadata.  It comes from a seperate XML request.
 def getextendedmetadata(url):
     print "=========="
@@ -423,25 +431,25 @@ def getextendedmetadata(url):
     genreTag=tree.findAll('genre')
     for tags in genreTag:
         genrelist.append(tags.get('tag'))
-    genrestring=" / ".join(genrelist).encode('utf-8')
+    genrestring=" / ".join(genrelist)
     
     #Same as abaove but for writers
     writerTag=tree.findAll('writer')
     for tags in writerTag:
         writerlist.append(tags.get('tag'))
-    writerstring=" / ".join(writerlist).encode('utf-8')
+    writerstring=" / ".join(writerlist)
     
     #And again for directors
     directorTag=tree.findAll('director')
     for tags in directorTag:
         directorlist.append(tags.get('tag'))
-    directorstring=" / ".join(directorlist).encode('utf-8')
+    directorstring=" / ".join(directorlist)
     
     #Cast is returned as a list of strings (containing people and roles)
     castTag=tree.findAll('role')
     for tags in castTag:
-        person=tags.get('tag').encode('utf-8')
-        role=tags.get('role').encode('utf-8')
+        person=tags.get('tag')
+        role=tags.get('role')
         #Pop the string into the list
         castlist.append(person+' as '+role)
         
@@ -450,6 +458,7 @@ def getextendedmetadata(url):
     
     return returnlist
     
+################################ TV Show Listings
 #This is the function use to parse the top level list of TV shows
 def SHOWS(url):
         xbmcplugin.setContent(pluginhandle, 'tvshows')
@@ -465,15 +474,16 @@ def SHOWS(url):
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         
         #For each directory tag we find
-        ShowTags=tree.findAll('directory')
+        ShowTags=tree.findAll('directory') # These type of calls seriously slow down plugins
         for show in ShowTags:
 
             #Create the basic data structures to pass up
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
         
             #Get the ID
-            id=show.get('ratingkey').encode('utf-8')
+            try:id=show.get('ratingkey').encode('utf-8') # These not so much, unless there's a bunch of them
+            except: id=show.get('key')
             
             #get the name
             name=show.get('title')
@@ -496,6 +506,7 @@ def SHOWS(url):
             #get some fan art
             fanart=show.get('art')
             if fanart is not None:
+                fanart
                 arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
 
             #Get the certificate to see how scary it is..
@@ -524,7 +535,7 @@ def SHOWS(url):
             except: pass
       
             genre = " / ".join(genreList)
-            properties['genre']=genre.encode('utf-8')
+            properties['genre']=genre
 
             #get the aired date
             aired=show.get('originallyavailableat')
@@ -532,21 +543,20 @@ def SHOWS(url):
                 properties['aired']=aired
 
             #get the picture
-            thumb=show.get('thumb')
-            if thumb is not None:
-                arguments['thumb']='http://'+server+thumb.encode('utf')
+            thumb="nothing"
+            if show.get('thumb') is not None:
+                thumb='http://'+server+show.get('thumb').encode('utf')
+            arguments['thumb']=thumb
 
-            url='http://'+server+'/library/metadata/'+id+'/children'
-            #Pass mode 4, which will be used for season display
-            mode=4
+            strid=str(id)
+            print 'id: '+strid
+            if str(id).find('allLeaves') >0:
+                mode=6 # grab episodes
+                url='http://'+server+id
+            else:
+                mode=6 # grab episodes
+                url='http://'+server+'/library/metadata/'+id+'/children'
             
-            print '============='
-            strUrl=str(url)
-            print strUrl
-            print "properties is " + str(properties)
-            print "Arguments are " + str(arguments)
-            
-            #Add a directory link for each TV show
             addDir(arguments['name'],url,mode,properties,arguments) 
             
         #End the listing    
@@ -573,7 +583,7 @@ def Seasons(url):
         
             #Build basic data structures
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
 
             #get the ID
             id=show.get('key').encode('utf-8')
@@ -587,9 +597,9 @@ def Seasons(url):
             properties['title']=properties['showname']=arguments['name']
 
             #Get the season picture
-            thumb=show.get('thumb')
+            thumb='http://'+server+show.get('thumb').encode('utf')
             if thumb is not None:
-                arguments['thumb']='http://'+server+thumb.encode('utf')
+                arguments['thumb']=thumb
 
             #Get number of episodes in season
             episodes=show.get('leafcount')
@@ -609,7 +619,6 @@ def Seasons(url):
                 properties['plot']=plot.encode('utf-8')
 
             url='http://'+server+id
-            
             #Set the mode to episodes, as that is what's next 
             mode=6
     
@@ -645,7 +654,7 @@ def EPISODES(url):
         html=getURL(url)
         tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         ShowTags=tree.findAll('video')
-        print "using Tags: " + str(ShowTags)
+        #print "using Tags: " + str(ShowTags)
         
         #get a bit of metadata that sits inside the main mediacontainer
         #If it doesn't exist, we'll check later and get it from elsewhere
@@ -666,11 +675,11 @@ def EPISODES(url):
 
         #right, not for each show we find
         for show in ShowTags:
-            print show
+            #print show
             
             #Set basic structure with some defaults.  Overlay 6 is unwatched
             properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0,'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "tvshows", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
             
             #get ID
             id=show.get('ratingkey')
@@ -705,33 +714,33 @@ def EPISODES(url):
              
             #check if we got the kiddie rating from the main tag
             if certificate:
-                properties['mpaa']=certificate.encode('utf-8')
+                properties['mpaa']=certificate
             else:
                 #If not, get it from teh video tag instead
                 print "cert not set"
                 certificate = show.get('contentrating')
                 if certificate is not None:
-                    properties['mpaa']=certificate.encode('utf-8')
+                    properties['mpaa']=certificate
                     
             #Check if we got the showname from the main tag        
             if showname:
-                properties['showname']=showname.encode('utf-8')
+                properties['showname']=showname
             else:
                 #if not then get it form video tag
                 print "showname not set"
                 showname = show.get('grandparenttitle')
                 if certificate is not None:
-                    properties['showname']=showname.encode('utf-8')
+                    properties['showname']=showname
             
             #check if we got the studio from the main tag.
             if studio:
-                properties['studio']=studio.encode('utf-8')
+                properties['studio']=studio
             else:
                 #if not, then get from the video tag
                 print "studio not set"
                 studio = show.get('studio')
                 if studio is not None:
-                    properties['studio']=studio.encode('utf-8')
+                    properties['studio']=studio
             
             #Get the last played position
             resume=show.get('viewoffset')
@@ -741,7 +750,8 @@ def EPISODES(url):
             #get the picture
             thumb=show.get('thumb')
             if thumb is not None:
-                arguments['thumb']='http://'+server+thumb.encode('utf')
+                thumb=('http://'+server+thumb).encode('utf')
+                arguments['thumb']=thumb
 
             #get the rating out of 10...
             rating=show.get('rating')
@@ -770,14 +780,17 @@ def EPISODES(url):
                 location=location.replace("Volumes",server)
                 location=location.replace(":32400","")
                 url='smb:/'+location
-			            
-            #Set mode 5, which is play            
-            mode=5
-            strUrl=str(url)
+			
+            location=show.findAll('part')[0].get('file')
+            #Required to check if file is a PlexFlix stream
+            strUrl=str(location)
             print strUrl
             if strUrl.find('.strm') >0:
                 continue
             else:
+                            
+                #Set mode 5, which is play            
+                mode=5
                 print '============='        
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
@@ -820,7 +833,7 @@ def PlexPlugins(url):
             DirectoryTags=tree.findAll('directory')
             for links in DirectoryTags:
             
-                #Set up the basic structures
+                #Set up teh baxic structures
                 properties={}
                 arguments={'thumb':''}
             
@@ -838,9 +851,9 @@ def PlexPlugins(url):
                 mode=7
                 
                 #Get the picture
-                thumb=links.get('thumb')
+                thumb='http://'+server+links.get('thumb').encode('utf')
                 if thumb is not None:
-                    arguments['thumb']='http://'+server+thumb.encode('utf')
+                    arguments['thumb']=thumb
                 
                 #Build the next level URL and add the link on screen
                 d_url=url+'/'+id
@@ -880,9 +893,9 @@ def PlexPlugins(url):
                     mode=7
                 
                     #get the picture
-                    thumb=tags.get('thumb')
+                    thumb='http://'+server+tags.get('thumb').encode('utf')
                     if thumb is not None:
-                        arguments['thumb']='http://'+server+thumb.encode('utf')
+                        arguments['thumb']=thumb
                                         
                     #Set the URL and build the directory link                    
                     d_url='http://'+server+id
@@ -896,7 +909,7 @@ def PlexPlugins(url):
                     
                     #build structures
                     properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-                    arguments={'type': "video", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+                    arguments={'type': "video", 'resume': 0, 'duration': 0}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
                     
                     id=tags.get('key')
                     
@@ -911,9 +924,9 @@ def PlexPlugins(url):
                     mode=12
                     
                     #Get picture
-                    thumb=tags.get('thumb')
+                    thumb='http://'+server+tags.get('thumb')
                     if thumb is not None:
-                        arguments['thumb']='http://'+server+thumb.encode('utf')
+                        arguments['thumb']=thumb.encode('utf')
                     
                     #Build the URl and add a link to the file
                     v_url='http://'+server+id    
