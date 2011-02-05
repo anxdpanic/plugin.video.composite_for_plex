@@ -161,7 +161,9 @@ def ROOT():
                     mode=2
                 if type == 'artist':
                     mode=3
-                    
+                
+                print "directory contains " + str(type)
+                
                 #Build URL with the mode to use and key to further XML data in the library
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
                 
