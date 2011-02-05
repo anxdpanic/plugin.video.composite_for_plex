@@ -151,7 +151,7 @@ def ROOT():
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 key=object.get('key')
-                properties['title']=arguments['name']=object.get('title')
+                properties['title']=arguments['name']=object.get('title').encode('utf-8')
                 type=object.get('type')
                 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
@@ -164,6 +164,9 @@ def ROOT():
                     
                 #Build URL with the mode to use and key to further XML data in the library
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
+                
+                print "arguments are " + str(arguments)
+                print "properties are " + str(properties)
                 
                 #Build that listing..
                 addDir(arguments['name'],s_url,mode, properties,arguments)
