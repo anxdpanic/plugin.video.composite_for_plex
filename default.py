@@ -502,6 +502,9 @@ def SHOWS(url):
             plot=show.get('summary')
             if plot is not None:
                 properties['plot']=plot.encode('utf-8')
+            if properties['plot'].find('&apos;') > 0:
+                properties['plot'] = properties['plot'].replace("&apos;","'")
+
            
             #get some fan art
             fanart=show.get('art')
