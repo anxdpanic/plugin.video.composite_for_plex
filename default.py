@@ -311,6 +311,8 @@ def Movies(url):
             tagline=movie.get('tagline')
             if tagline is not None:
                 properties['tagline']=tagline.encode('utf-8')
+                if  properties['tagline'].find('&apos;') >0:
+                    properties['tagline'] = properties['tagline'].replace("&apos;","'")
             
             #Get the length of the film, directly from the media analysis
             duration=movie.findAll('media')[0].get('duration')
