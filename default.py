@@ -161,9 +161,7 @@ def ROOT():
                     mode=2
                 if type == 'artist':
                     mode=3
-                
-                print "directory contains " + str(type)
-                
+                    
                 #Build URL with the mode to use and key to further XML data in the library
                 s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
                 
@@ -553,10 +551,10 @@ def SHOWS(url):
             strid=str(id)
             print 'id: '+strid
             if str(id).find('allLeaves') >0:
-                mode=6 # grab episodes
+                mode=4 # grab episodes
                 url='http://'+server+id
             else:
-                mode=6 # grab episodes
+                mode=4 # grab episodes
                 url='http://'+server+'/library/metadata/'+id+'/children'
             
             addDir(arguments['name'],url,mode,properties,arguments) 
@@ -627,7 +625,7 @@ def Seasons(url):
             print '============='
             
             #Build teh screen directory listing
-            addDir(arguments['name'],url,mode,properties,arguments) 
+            addDir(name,url,mode,properties,arguments) 
             
         #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -859,7 +857,7 @@ def PlexPlugins(url):
                 
                 #Build the next level URL and add the link on screen
                 d_url=url+'/'+id
-                addDir(arguments['name'], d_url, mode, properties, arguments)
+                addDir(name, d_url, mode, properties, arguments)
         else:
             print "Found plugin details"
             #this is either a secondary list of plugin menus (directory) or a list of plugin video (or even a mix)
@@ -902,7 +900,7 @@ def PlexPlugins(url):
                     #Set the URL and build the directory link                    
                     d_url='http://'+server+id
                     print "url is " + d_url
-                    addDir(arguments['name'], d_url, mode, properties, arguments)
+                    addDir(name, d_url, mode, properties, arguments)
             
             #If we have some video links as well
             if VideoTags:
@@ -933,7 +931,7 @@ def PlexPlugins(url):
                     #Build the URl and add a link to the file
                     v_url='http://'+server+id    
             
-                    addLink(id,arguments['name'], v_url, mode, properties, arguments)
+                    addLink(id,name, v_url, mode, properties, arguments)
         
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
