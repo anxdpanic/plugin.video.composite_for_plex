@@ -8,6 +8,7 @@ g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
 g_extended = __settings__.getSetting('extended')
 g_loc = "special://home/addon/plugin.video.plexbmc"
+
 print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
 pluginhandle = int(sys.argv[1])
@@ -946,7 +947,24 @@ def PlexPlugins(url):
 def PLAYEPISODE(id,vids,seek, duration):
         #Use this to play PMS library items that you want up dated (Movies, TV shows)
         url = vids
-        resume = seek
+       
+        print "current resume is " + str(seek)
+       
+        resumeSetting=__settings__.getSetting('resume')
+        print "resumeSetting is " + str(resumeSetting)
+        if len(resumeSetting) > 0:
+            resumeid, resumetime = resumeSetting.split("|")
+            print "resumeid = " + resumeid
+            print "resumetime = " + resumetime
+            if resumeid == id:
+                print "matching IDs, setting nee resume"
+                resume = int(resumetime)
+            else:
+                resume = seek
+        else:
+            resume = seek
+        
+        print "resume set to " + str(resume)
         
         #Build a listitem, based on the url of the file
         item = xbmcgui.ListItem(path=url)
@@ -1050,9 +1068,12 @@ def monitorPlayback(id, url, resume, duration):
     output = getURL(updateURL)
     print "output is " + str(output)
     
+    print "Creating a temporary new resume time"
+    __settings__.setSetting('resume', str(id)+"|"+str(currentTime*1000))
+    
     #Execute a refresh so that the new resume time/watched status shows immediately.  
     #Would be better if we could refesh this one listing. possible?
-    xbmc.executebuiltin("Container.refresh") 
+    #xbmc.executebuiltin("Container.refresh") 
     #Can we reselect the previous object?
      
     return
@@ -1148,6 +1169,9 @@ print "ID: "+ str(id)
 print "Duration: " + str(duration)
 
 #Run a function based on the mode variable that was passed in the URL
+
+if mode!=5:
+    __settings__.setSetting('resume', '')
 
 if mode==None or url==None or len(url)<1:
         ROOT()
