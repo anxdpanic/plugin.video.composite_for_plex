@@ -91,7 +91,6 @@ def addDir(name,url,mode,properties,arguments):
             liz.setProperty('UnWatchedEpisodes', str(arguments['UnWatchedEpisodes']))
         except: pass
         
-        
         #Set the fanart image if it has been enabled
         try:
             liz.setProperty('fanart_image', str(arguments['fanart_image']))
@@ -364,7 +363,7 @@ def MoviesET(url):
                 art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg'  
+                art_url=g_loc+'/resources/movie_art.jpg'
             
             #print art_url  
             arguments['fanart_image']=art_url
@@ -438,96 +437,92 @@ def SHOWS(url):
         server=url.split('/')[2]
         print server
         html=getURL(url)
-        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
         
+        tree=etree.fromstring(html)
         #For each directory tag we find
-        ShowTags=tree.findAll('directory') # These type of calls seriously slow down plugins
+        ShowTags=tree.findall('Directory') # These type of calls seriously slow down plugins
         for show in ShowTags:
 
+            arguments=dict(show.items())
+        
+            tempgenre=[]
+            
+            #Lets grab all the info we can quickly through either a dictionary, or assignment to a list
+            #We'll process it later
+            for child in show:
+                try:
+                    tempgenre.append(child.get('tag'))
+                except:pass
+                
             #Create the basic data structures to pass up
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
-        
-            #Get the ID
-            try:id=show.get('ratingkey').encode('utf-8') # These not so much, unless there's a bunch of them
-            except: id=show.get('key')
             
-            #get the name
-            name=show.get('title')
-            arguments['name']=name.encode('utf-8')
-            if  arguments['name'].find('&apos;') >0:
-                arguments['name'] = arguments['name'].replace("&apos;","'")
-            
-            properties['title']=properties['tvshowtitle']=arguments['name']
+            #Get name
+            try:
+                properties['title']=properties['tvshowname']=arguments['title'].encode('utf-8')
+            except: pass
             
             #Get the studio
-            studio=show.get('studio')
-            if studio is not None:
-                properties['studio']=studio.encode('utf-8')
+            try:
+                properties['studio']=arguments['studio']
+            except:pass
             
-            #Get the plot
-            plot=show.get('summary')
-            if plot is not None:
-                properties['plot']=plot.encode('utf-8')
-            if properties['plot'].find('&apos;') > 0:
-                properties['plot'] = properties['plot'].replace("&apos;","'")
-
-           
-            #get some fan art
-            fanart=show.get('art')
-            if fanart is not None:
-                fanart
-                arguments['fanart_image']='http://'+server+fanart.encode('utf-8')
+            #Get the Plot          
+            try:
+                properties['plot']=arguments['summary']
+            except: pass
 
             #Get the certificate to see how scary it is..
-            contentrating=show.get('contentrating')
-            if contentrating is not None:
-                properties['mpaa']=contentrating.encode('utf-8')
+            try:
+                properties['mpaa']=arguments['contentrating']
+            except:pass
                 
-            #Get the total number of episodes    
-            episodes=show.get('leafcount')
-            if episodes is not None:
-                properties['episode']=int(episodes)
+            #Get number of episodes in season
+            try:
+                 properties['episode']=int(arguments['leafCount'])
+            except:pass
             
-            #Get the number of watched episodes
-            watched=show.get('viewedleafcount')
-            if watched is not None:
-                #And then work out the number of unwatched ones..
+            #Get number of watched episodes
+            try:
+                watched=arguments['viewedLeafCount']
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
+            except:pass
             
-            #Get the Genre info
-            genreList=[]            
+            #get Genre
             try:
-                tempgenres=show.findAll('genre')
-                for item in tempgenres:
-                    genreList.append(item.get('tag'))
-            except: pass
-      
-            genre = " / ".join(genreList)
-            properties['genre']=genre
+                properties['genre']=" / ".join(tempgenre)
+            except:pass
+                
+            #get the air date
+            try:
+                properties['aired']=arguments['originallyAvailableAt']
+            except:pass
 
-            #get the aired date
-            aired=show.get('originallyavailableat')
-            if aired is not None:
-                properties['aired']=aired
+            #Get the picture to use
+            try:
+                arguments['thumb']='http://'+server+arguments['thumb']
+            except:
+                thumb=g_loc+'/resources/movie.png'  
+                print thumb  
+                arguments['thumb']=thumb
+               
+            #Get a nice big picture  
+            try:
+                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
+                art_url='http://'+server+fanart.encode('utf-8')
+                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+            except:  
+                #or use a stock default one
+                art_url=g_loc+'/resources/movie_art.jpg' 
 
-            #get the picture
-            thumb=show.get('thumb')
-            if thumb is not None:
-                arguments['thumb']='http://'+server+thumb.encode('utf')
+            arguments['fanart_image']=art_url
            
 
-            strid=str(id)
-            print 'id: '+strid
-            if str(id).find('allLeaves') >0:
-                mode=4 # grab episodes
-                url='http://'+server+id
-            else:
-                mode=4 # grab episodes
-                url='http://'+server+'/library/metadata/'+id+'/children'
+            mode=4 # grab season details
+            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'
             
-            addDir(arguments['name'],url,mode,properties,arguments) 
+            addDir(properties['title'],url,mode,properties,arguments) 
             
         #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -545,63 +540,76 @@ def Seasons(url):
         server=url.split('/')[2]
         print server
         html=getURL(url)
-        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        tree= etree.fromstring(html)
         
         #For all the directory tags
-        ShowTags=tree.findAll('directory')
+        ShowTags=tree.findall('Directory')
         for show in ShowTags:
         
+            arguments=dict(show.items());
             #Build basic data structures
             properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb': ''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
-
-            #get the ID
-            id=show.get('key').encode('utf-8')
  
-            #get the show name
-            name=show.get('title')
-            arguments['name']=name.encode('utf-8')
-            if  arguments['name'].find('&apos;') >0:
-                arguments['name'] = arguments['name'].replace("&apos;","'")
-            
-            properties['title']=properties['tvshowtitle']=arguments['name']
+            #Get name
+            try:
+                properties['tvshowtitle']=properties['title']=arguments['title'].encode('utf-8')
+            except: pass
+       
 
-            #Get the season picture
-            thumb=show.get('thumb')
-            if thumb is not None:
-                arguments['thumb']='http://'+server+thumb.encode('utf')
+            #Get the picture to use
+            try:
+                arguments['thumb']='http://'+server+arguments['thumb']
+            except:
+                thumb=g_loc+'/resources/movie.png'  
+                print thumb  
+                arguments['thumb']=thumb
+               
+            #Get a nice big picture  
+            try:
+                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
+                art_url='http://'+server+fanart.encode('utf-8')
+                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+            except:  
+                #or use a stock default one
+                art_url=g_loc+'/resources/movie_art.jpg' 
+
+            arguments['fanart_image']=art_url
 
             #Get number of episodes in season
-            episodes=show.get('leafcount')
-            if episodes is not None:
-                properties['episode']=int(episodes)
+            try:
+                 properties['episode']=int(arguments['leafCount'])
+            except:pass
             
             #Get number of watched episodes
-            watched=show.get('viewedleafcount')
-            if watched is not None:
-                #and work out the number of unwatched ones
+            try:
+                watched=arguments['viewedLeafCount']
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
+            except:pass
     
-            #Get the plot, although there isn;t one for seasons.  But just in case....
-            plot=show.get('summary')
-            if plot is not None:
-                properties['plot']=plot.encode('utf-8')
+            #Get the Plot          
+            try:
+                properties['plot']=arguments['summary']
+            except: pass
 
-            url='http://'+server+id
+            url='http://'+server+arguments['key']
             #Set the mode to episodes, as that is what's next 
             mode=6
     
             print '============='
+            print "properties is " + str(properties)
+            print "arguments are " + str(arguments)
             
-            #Build teh screen directory listing
-            addDir(name,url,mode,properties,arguments) 
+            u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+
+            #Build the screen directory listing
+            addDir(properties['title'],url,mode,properties,arguments) 
             
         #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
  
 ################################ TV Episode listing 
-#Displays teh actual playable media
+#Displays the actual playable media
 def EPISODES(url):
         xbmcplugin.setContent(pluginhandle, 'episodes')
 
@@ -779,6 +787,8 @@ def EPISODES(url):
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
 
+            arguments['fanart_image']=art_url    
+                
             #Assign standard metadata
             #Cast
             properties['cast']=tempcast
