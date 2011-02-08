@@ -74,7 +74,7 @@ def addLink(id,name,url,mode,properties,arguments):
 def addDir(name,url,mode,properties,arguments):
 
         #Create the URL to pass to the item
-        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+        u=sys.argv[0]+"?url="+str(url)
         ok=True
         
         #Create the ListItem that will be displayed
@@ -161,7 +161,7 @@ def ROOT():
                     mode=3
                     
                 #Build URL with the mode to use and key to further XML data in the library
-                s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'
+                s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
                 
                 #Build that listing..
                 addDir(arguments['title'],s_url,mode, properties,arguments)
@@ -187,7 +187,7 @@ def ROOT():
                 properties={}
 
                 #URL contains the location of the server plugin.  We'll display the content later
-                s_url=pluginurl
+                s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
                 mode=7
                 properties['title']="Plex Plugins: "+ server[0]
                 
@@ -523,7 +523,7 @@ def SHOWS(url):
            
 
             mode=4 # grab season details
-            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'
+            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
             
             addDir(properties['title'],url,mode,properties,arguments) 
             
@@ -595,15 +595,17 @@ def Seasons(url):
                 properties['plot']=arguments['summary']
             except: pass
 
-            url='http://'+server+arguments['key']
-            #Set the mode to episodes, as that is what's next 
             mode=6
+            
+            url='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+            #Set the mode to episodes, as that is what's next 
+        
     
             print '============='
             print "properties is " + str(properties)
             print "arguments are " + str(arguments)
             
-            u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+         
 
             #Build the screen directory listing
             addDir(properties['title'],url,mode,properties,arguments) 
@@ -916,7 +918,7 @@ def PlexPlugins(url):
                     arguments['thumb']='http://'+server+thumb.encode('utf')
                 
                 #Build the next level URL and add the link on screen
-                d_url=url+'/'+id
+                d_url=url+'/'+id+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
                 addDir(arguments['name'], d_url, mode, properties, arguments)
         else:
             print "Found plugin details"
@@ -958,7 +960,7 @@ def PlexPlugins(url):
                         arguments['thumb']='http://'+server+thumb.encode('utf')
                                         
                     #Set the URL and build the directory link                    
-                    d_url='http://'+server+id
+                    d_url='http://'+server+id+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
                     print "url is " + d_url
                     addDir(arguments['name'], d_url, mode, properties, arguments)
             
