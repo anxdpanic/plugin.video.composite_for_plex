@@ -85,15 +85,18 @@ def addDir(name,url,mode,properties,arguments):
         print 'harley:'+ u
         
         #If we have set a number of watched episodes per season
-        if arguments.has_key('WatchedEpisodes'):
+        try:
             #Then set the number of watched and unwatched, which will be displayed per season
             liz.setProperty('WatchedEpisodes', str(arguments['WatchedEpisodes']))
             liz.setProperty('UnWatchedEpisodes', str(arguments['UnWatchedEpisodes']))
+        except: pass
+        
         
         #Set the fanart image if it has been enabled
-        if arguments.has_key('fanart_image'):
-            print "Setting fan art to " + str(arguments['fanart_image'])
+        try:
             liz.setProperty('fanart_image', str(arguments['fanart_image']))
+            print "Setting fan art"
+        except: pass
 
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
