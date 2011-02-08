@@ -42,14 +42,8 @@ def getURL( url ):
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addLink(id,name,url,mode,properties,arguments):       
-        url=urllib.quote(str(url))
-        
-        print str(url)
-        
-        #Build url to activate playback.
-        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(arguments['viewoffset'])+"&id="+id+"&duration="+str(arguments['duration'])
         ok=True
-            
+        
         #Create ListItem object, which is what is displayed on screen
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
         
@@ -69,7 +63,7 @@ def addLink(id,name,url,mode,properties,arguments):
         except: pass
         
         #Finally add the item to the on screen list, with url created above
-        ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
+        ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=url,listitem=liz)
         
         return ok
 
@@ -287,7 +281,6 @@ def MoviesET(url):
             print "Media is " + str(mediaarguments)
             print "Part is " + str(partarguments)
             
-            
             #Create structure to pass to listitem/setinfo.  Set defaults
             properties={'overlay': 6, 'playcount': 0}   
    
@@ -417,12 +410,18 @@ def MoviesET(url):
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
                  
+                u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(arguments['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+ 
+                print "url is " + u
+                
                 #Right, add that link...and loop around for another entry
-                addLink(arguments['ratingKey'],arguments['title'],url,mode,properties,arguments)        
+                addLink(arguments['ratingKey'],arguments['title'],u,mode,properties,arguments)        
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
     
+
+		
     
 ################################ TV Show Listings
 #This is the function use to parse the top level list of TV shows
