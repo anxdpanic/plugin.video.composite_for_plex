@@ -8,6 +8,7 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
 g_extended = __settings__.getSetting('extended')
+g_secondary = True
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
 print "Settings hostname: " + g_host
@@ -104,7 +105,6 @@ def addDir(name,url,mode,properties,arguments):
 ################################ Root listing
 # Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
 def ROOT():
-        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get the global host variable set in settings
         host=g_host
@@ -114,10 +114,10 @@ def ROOT():
         html=getURL(url)
         
         #Pass HTML to BSS to convert it into a nice parasble tree.
-        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        tree=etree.fromstring(html)
         
         #Now, find all those server tags
-        LibraryTags=tree.findAll('server')
+        LibraryTags=tree.findall('Server')
         print tree
         print LibraryTags
         Servers=[]
@@ -135,35 +135,36 @@ def ROOT():
             #dive into the library section with BS        
             url='http://'+server[1]+':32400/library/sections'
             html=getURL(url)
-            tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+            tree = etree.fromstring(html)
             
             #Find all the directory tags, as they contain further levels to follow
             #For each directory tag we find, build an onscreen link to drill down into the library
-            SectionTags=tree.findAll('directory')
+            SectionTags=tree.findall('Directory')
             for object in SectionTags:
             
+                arguments=dict(object.items())
+                arguments['thumb']=""
                 #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
-                arguments={'thumb':''}
                 properties={}
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
-                key=object.get('key')
-                properties['title']=arguments['name']=object.get('title')
-                type=object.get('type')
+                try:
+                    properties['title']=arguments['title']
+                except:pass
                 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
-                if type == 'show':
+                if arguments['type'] == 'show':
                     mode=1
-                if type == 'movie':
+                if  arguments['type'] == 'movie':
                     mode=2
-                if type == 'artist':
+                if  arguments['type'] == 'artist':
                     mode=3
                     
                 #Build URL with the mode to use and key to further XML data in the library
-                s_url='http://'+server[1]+':32400/library/sections/'+key+'/all'
+                s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'
                 
                 #Build that listing..
-                addDir(arguments['name'],s_url,mode, properties,arguments)
+                addDir(arguments['title'],s_url,mode, properties,arguments)
                 
 			#Plex plugin handling 
             #Simple check if any plugins are present.  
@@ -171,12 +172,14 @@ def ROOT():
             #Plugin data is held in /videos directory (well, video data is anyway)
             pluginurl='http://'+server[1]+':32400/video'
             pluginhtml=getURL(pluginurl)
-            plugintree=BeautifulStoneSoup(pluginhtml, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
-            head = plugintree.find('mediacontainer')
+            plugintree=etree.fromstring(pluginhtml)
 
             #Check the number of items in the mediacontainer tag.
-            items = head['size']
-			
+            try:
+                items = plugintree.get('size')
+            except:
+                items=0
+            
             #If we have at least one item listed, then we have some plugin.  In which case, create a link
             if items > 0:
             
