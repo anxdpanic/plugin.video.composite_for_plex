@@ -1,5 +1,6 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
-import os,datetime, time
+import os,datetime, time, profile
+import  elementtree.ElementTree as etree
 from BeautifulSoup import BeautifulStoneSoup
 
 #Get the setting from the appropriate file.
@@ -19,6 +20,7 @@ def getURL( url ):
     try:
         
         print 'PleXBMC--> getURL :: url = '+url
+        print "getting URL"
         txdata = None
         txheaders = {
                     'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'	
@@ -26,6 +28,7 @@ def getURL( url ):
         req = urllib2.Request(url, txdata, txheaders)
         response = urllib2.urlopen(req)
         link=response.read()
+        print "URL done"
         response.close()
     except urllib2.URLError, e:
         error = 'Error code: '+ str(e.code)
@@ -41,15 +44,11 @@ def getURL( url ):
 def addLink(id,name,url,mode,properties,arguments):       
         url=urllib.quote(str(url))
         
+        print str(url)
+        
         #Build url to activate playback.
-        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(arguments['resume'])+"&id="+id+"&duration="+str(arguments['duration'])
+        u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&resume="+str(arguments['viewoffset'])+"&id="+id+"&duration="+str(arguments['duration'])
         ok=True
-          
-        #If we have a positive playcount, then set the watched icon to watched (overlay 7).  Overlay 6 is unwatched  
-        if properties['playcount'] > 0:
-            #we have a watched film.  I can't see a way of displaying a partial like Plex, which uses resume time to decide.
-            print "Watched file, setting overlay to 7"
-            properties['overlay']=7 # watched icon
             
         #Create ListItem object, which is what is displayed on screen
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
@@ -64,9 +63,10 @@ def addLink(id,name,url,mode,properties,arguments):
         liz.setProperty('IsPlayable', 'true')
         
         #Set the fanart image if it has been enabled
-        if arguments.has_key('fanart_image'):
-            print "Setting fan art"
+        try:
             liz.setProperty('fanart_image', str(arguments['fanart_image']))
+            print "Setting fan art"
+        except: pass
         
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
@@ -257,7 +257,7 @@ def Movies(url):
         
             #Create some structures to pass to Addlink
             properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties (i.e. ListItem properties)
-            arguments={'type': "movies", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "movies", 'viewoffset': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
    
             #get the ID
             id=movie.get('ratingkey')
@@ -291,7 +291,7 @@ def Movies(url):
             #Get the last played position
             resume=movie.get('viewoffset')
             if resume is not None:
-                arguments['resume']=resume
+                arguments['viewoffset']=resume
             
             #Get the studio 
             studio=movie.get('studio') 
@@ -414,7 +414,195 @@ def Movies(url):
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
+
+def MoviesET(url):
+        xbmcplugin.setContent(pluginhandle, 'movies')
+        
+        print '=============='
+        print 'Getting Movies'
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+
+        #get the server name from the URL, which was passed via the on screen listing..
+        server=url.split('/')[2]
+        print server
+        
+        #Get some XML and parse it
+        html=getURL(url)
+		
+        tree = etree.fromstring(html)
+        #elementTree = tree.getroot()
+        #tree= BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        
+        #Find all the video tags, as they contain the data we need to link to a file.
+        MovieTags=tree.findall('Video')
+        for movie in MovieTags:
+            
+            arguments=dict(movie.items())
+            tempgenre=[]
+            tempcast=[]
+            tempdir=[]
+            tempwriter=[]
+            
+            #Lets grab all the info we can quickly through either a dictionary, or assignment to a list
+            #We'll process it later
+            for child in movie:
+                if child.tag == "Media":
+                    mediaarguments = dict(child.items())
+                        
+                    for babies in child:
+                        if babies.tag == "Part":
+                            partarguments=(dict(babies.items()))
+                elif child.tag == "Genre":
+                    tempgenre.append(child.get('tag'))
+                elif child.tag == "Writer":
+                    tempwriter.append(child.get('tag'))
+                elif child.tag == "Director":
+                    tempdir.append(child.get('tag'))
+                elif child.tag == "Role":
+                    tempcast.append(child.get('tag'))
+                            
+            print "args is " + str(movie.items())
+            print "Media is " + str(mediaarguments)
+            print "Part is " + str(partarguments)
+            
+            
+            #Create structure to pass to listitem/setinfo.  Set defaults
+            properties={'overlay': 6, 'playcount': 0}   
+   
+            print "Arguments are " + str(arguments)
+            
+            #Get name
+            try:
+                properties['title']=arguments['title']
+            except: pass
+            
+            #Get the Plot          
+            try:
+                properties['plot']=arguments['summary']
+            except: pass
+            
+            #Get the watched status
+            try:
+                properties['playcount']=int(arguments['viewCount'])
+                if properties['playcount'] > 0:
+                    properties['overlay']=7
+            except: pass
+            
+            #Get how good it is, based on your votes...
+            try:
+                properties['rating']=float(arguments['rating'])
+            except: pass
+            
+            #Get the last played position  
+            try:
+                arguments['viewoffset']
+            except:
+                arguments['viewoffset']=0
+                        
+            #Get the studio 
+            try:
+                properties['studio']=arguments['studio']
+            except: pass
+                        
+            #Get the Movie certificate, so you know if the kids can watch it.
+            try:
+                properties['mpaa']=arguments['contentrating']
+            except: pass
+            
+            #year
+            try:
+                properties['year']=int(arguments['year'])
+            except: pass
+            
+            #That memorable 6 word summary..
+            try:
+                properties['tagline']=arguments['tagline']
+            except: pass
+                
+            #Set the film duration 
+            try:
+                arguments['duration']=mediaarguments['duration']
+            except KeyError:
+                try:
+                    arguments['duration']
+                except:
+                    arguments['duration']=0
+             
+            arguments['duration']=int(arguments['duration'])/1000
+            properties['duration']=str(datetime.timedelta(seconds=int(arguments['duration'])))
+           
+            #Get the picture to use
+            try:
+                arguments['thumb']='http://'+server+arguments['thumb']
+            except:
+                thumb=g_loc+'/resources/movie.png'  
+                print thumb  
+                arguments['thumb']=thumb
+               
+            #Get a nice big picture  
+            try:
+                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
+                art_url='http://'+server+fanart.encode('utf-8')
+                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+            except:  
+                #or use a stock default one
+                art_url=g_loc+'/resources/movie_art.jpg'  
+            
+            #print art_url  
+            arguments['fanart_image']=art_url
+            
+            #Assign standard metadata
+            #Cast
+            properties['cast']=tempcast
+            
+            #director
+            properties['director']=" / ".join(tempdir)
+            
+            #Writer
+            properties['writer']=" / ".join(tempwriter)
+            
+            #Genre        
+            properties['genre']=" / ".join(tempgenre)                
+            
+            #If the streaming option is true, then get the virtual listing
+            if g_stream == "true":
+                try:
+                    #print "location is " + str(partarguments['key']) 
+                    url='http://'+server+str(partarguments['key'])
+                except:
+                    print "Error: no stream location"
+                    continue
+            else:
+                #Else get the actual location, and use this via SMB if configured
+                try:
+                    location=str(partarguments['key'])
+                    location=location.replace("Volumes",server)
+                    location=location.replace(":32400","")
+                    url='smb:/'+location
+                except:
+                    print "Error: No file location"
+                    continue
+            
+            #This is playable media, so link to a path to a play function
+            mode=5
+            
+            #required to grab to check if file is a .strm file
+            #Can't play strm files, so lets not bother listing them.  
+            if url.find('.strm') >0:
+                continue
+            else:
+                print '============='        
+                print "properties is " + str(properties)
+                print "arguments is " + str(arguments)    
+                 
+                #Right, add that link...and loop around for another entry
+                addLink(arguments['ratingKey'],arguments['title'],url,mode,properties,arguments)        
+        
+        #If we get here, then we've been through the XML and it's time to finish.
+        xbmcplugin.endOfDirectory(pluginhandle)
     
+
+		
 ################################ Grabs Extended metadata           
 #How to get that extended metadata.  It comes from a seperate XML request.
 def getextendedmetadata(url):
@@ -685,7 +873,7 @@ def EPISODES(url):
             
             #Set basic structure with some defaults.  Overlay 6 is unwatched
             properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+            arguments={'type': "tvshows", 'viewoffset': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
             
             #get ID
             id=show.get('ratingkey')
@@ -751,7 +939,7 @@ def EPISODES(url):
             #Get the last played position
             resume=show.get('viewoffset')
             if resume is not None:
-                arguments['resume']=resume
+                arguments['viewoffset']=resume
                 
             #get the picture
             thumb=show.get('thumb')
@@ -915,7 +1103,7 @@ def PlexPlugins(url):
                     
                     #build structures
                     properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-                    arguments={'type': "video", 'resume': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
+                    arguments={'type': "video", 'viewoffset': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
                     
                     id=tags.get('key')
                     
@@ -972,7 +1160,7 @@ def PLAYEPISODE(id,vids,seek, duration):
             
         #If we passed a positive resume time, then we need to display the dialog box to ask the user what they want to do    
         if resume > 0:
-            resumeseconds = resume/1000
+            resumeseconds = resume
             
             #Human readable time
             displayTime = str(datetime.timedelta(seconds=int(resumeseconds)))
@@ -1178,7 +1366,7 @@ if mode==None or url==None or len(url)<1:
 elif mode==1:
         SHOWS(url)
 elif mode==2:
-        Movies(url)
+        MoviesET(url)
 elif mode==3:
         Artist(name,url)
 elif mode==4:
