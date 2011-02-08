@@ -45,7 +45,7 @@ def addLink(id,name,url,mode,properties,arguments):
         ok=True
         
         #Create ListItem object, which is what is displayed on screen
-        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+        liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
         
         print "Setting thumbnail as " + arguments['thumb']              
         print "Property is " + str(properties)
@@ -410,10 +410,9 @@ def MoviesET(url):
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
                  
-                u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(arguments['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+                u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
  
                 print "url is " + u
-                
                 #Right, add that link...and loop around for another entry
                 addLink(arguments['ratingKey'],arguments['title'],u,mode,properties,arguments)        
         
@@ -620,140 +619,215 @@ def EPISODES(url):
         
         #Get URL, XML and Parse
         html=getURL(url)
-        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
-        ShowTags=tree.findAll('video')
-        #print "using Tags: " + str(ShowTags)
+        #tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
+        tree=etree.fromstring(html)
+        ShowTags=tree.findall('Video')
+        
+        #print "tree is " + tree.tag
         
         #get a bit of metadata that sits inside the main mediacontainer
         #If it doesn't exist, we'll check later and get it from elsewhere
-        MainTag=tree.findAll('mediacontainer')[0]
+        #MainTag=tree.findAll('mediacontainer')[0]
          
         #Name of the show
-        showname=MainTag.get('grandparenttitle')
+        try:
+            showname=tree.get('grandparentTitle')
+        except:
+            showname=None
         
         #the kiddie rating
-        certificate = MainTag.get('grandparentcontentrating')
+        try:
+            certificate = tree.get('grandparentContentRating')
+        except:
+            certificate=None
         
         #the studio
-        studio = MainTag.get('grandparentstudio')
-
+        try:
+            studio = tree.get('grandparentStudio')
+        except:
+            studio = None
+            
         #If we are processing individual season, then get the season number, else we'll get it later
-        if target != "allLeaves":
-            season=MainTag.get('parentindex')
-
+        #if target != "allLeaves":
+        try:
+            season=tree.get('parentIndex')
+        except:pass
+            
+         
         #right, not for each show we find
         for show in ShowTags:
             #print show
             
+            arguments=dict(show.items())
+            tempgenre=[]
+            tempcast=[]
+            tempdir=[]
+            tempwriter=[]
+            
+            #Lets grab all the info we can quickly through either a dictionary, or assignment to a list
+            #We'll process it later
+            for child in show:
+                if child.tag == "Media":
+                    mediaarguments = dict(child.items())
+                        
+                    for babies in child:
+                        if babies.tag == "Part":
+                            partarguments=(dict(babies.items()))
+                elif child.tag == "Genre":
+                    tempgenre.append(child.get('tag'))
+                elif child.tag == "Writer":
+                    tempwriter.append(child.get('tag'))
+                elif child.tag == "Director":
+                    tempdir.append(child.get('tag'))
+                elif child.tag == "Role":
+                    tempcast.append(child.get('tag'))
+                            
+            print "args is " + str(arguments)
+            print "Media is " + str(mediaarguments)
+            print "Part is " + str(partarguments)
+            print "Extra info is " + str(tempgenre) + str(tempwriter) + str(tempcast) + str(tempdir)
+            
             #Set basic structure with some defaults.  Overlay 6 is unwatched
             properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-            arguments={'type': "tvshows", 'viewoffset': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
-            
-            #get ID
-            id=show.get('ratingkey')
-            arguments['id']=id
+            #arguments={'type': "tvshows", 'viewoffset': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
             
             #Get the episode number
-            episode=show.get('index')
-            if episode is not None:
-                properties['episode']=int(episode)
+            try:
+                properties['episode']=int(arguments['index'])
+            except: pass
 
-            #get the episode name
-            name=show.get('title')
-            arguments['name']=name.encode('utf-8')
-            if  arguments['name'].find('&apos;') >0:
-                arguments['name'] = arguments['name'].replace("&apos;","'")
-            properties['title']=arguments['name']
-
-            #Get plot
-            plot=show.get('summary')
-            if plot is not None:
-                properties['plot']=plot.encode('utf-8')
-                if  properties['plot'].find('&apos;') >0:
-                    properties['plot'] = properties['plot'].replace("&apos;","'")
+            #Get name
+            try:
+                properties['title']=arguments['title'].encode('utf-8')
+            except: pass
             
+            #Get the Plot          
+            try:
+                properties['plot']=arguments['summary']
+            except: pass
+            
+            #Get the watched status
+            try:
+                properties['playcount']=int(arguments['viewCount'])
+                if properties['playcount'] > 0:
+                    properties['overlay']=7
+            except: pass
+            
+            #Get how good it is, based on your votes...
+            try:
+                properties['rating']=float(arguments['rating'])
+            except: pass
+            
+            #Get the last played position  
+            try:
+                arguments['viewoffset']
+            except:
+                arguments['viewoffset']=0
+
+                        
             #If we are processing an "All Episodes" directory, then get the season from the video tag
+            
             if target == "allLeaves":
-                season = show.get('parentindex')
-                if season is not None:
-                    properties['season']=int(season)
+                try:
+                    properties['season']=int(arguments['parentIndex'])
+                except:pass
             else:    
                 properties['season']=int(season)
              
             #check if we got the kiddie rating from the main tag
-            if certificate:
-                properties['mpaa']=certificate
+            if certificate is None:
+                try:
+                    properties['mpaa']=arguments['contentRating']
+                except:pass
             else:
-                #If not, get it from teh video tag instead
-                print "cert not set"
-                certificate = show.get('contentrating')
-                if certificate is not None:
-                    properties['mpaa']=certificate
+                properties['mpaa']=certificate
                     
             #Check if we got the showname from the main tag        
-            if showname:
-                properties['tvshowtitle']=showname
+            if showname is None:
+                try:
+                    properties['tvshowtitle']=arguments['grandparentTitle']
+                except: pass
             else:
-                #if not then get it form video tag
-                print "showname not set"
-                showname = show.get('grandparenttitle')
-                if certificate is not None:
-                    properties['tvshowtitle']=showname
+                properties['tvshowtitle']=showname
             
             #check if we got the studio from the main tag.
-            if studio:
-                properties['studio']=studio
+            if studio is None:
+                try:
+                    properties['studio']=arguments['studio']
+                except:pass
             else:
-                #if not, then get from the video tag
-                print "studio not set"
-                studio = show.get('studio')
-                if studio is not None:
-                    properties['studio']=studio
+                properties['studio']=studio
             
-            #Get the last played position
-            resume=show.get('viewoffset')
-            if resume is not None:
-                arguments['viewoffset']=resume
                 
-            #get the picture
-            thumb=show.get('thumb')
-            if thumb is not None:
-                thumb='http://'+server+thumb.encode('utf')
+            #Get the picture to use
+            try:
+                arguments['thumb']='http://'+server+arguments['thumb']
+            except:
+                thumb=g_loc+'/resources/movie.png'  
+                print thumb  
                 arguments['thumb']=thumb
+               
+            #Get a nice big picture  
+            try:
+                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
+                art_url='http://'+server+fanart.encode('utf-8')
+                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+            except:  
+                #or use a stock default one
+                art_url=g_loc+'/resources/movie_art.jpg' 
 
-            #get the rating out of 10...
-            rating=show.get('rating')
-            if rating is not None:
-                properties['rating']=float(rating)
+            #Assign standard metadata
+            #Cast
+            properties['cast']=tempcast
+            
+            #director
+            properties['director']=" / ".join(tempdir)
+            
+            #Writer
+            properties['writer']=" / ".join(tempwriter)
+            
+            #Genre        
+            properties['genre']=" / ".join(tempgenre) 
             
             #get the air date
-            aired=show.get('originallyavailableat')
-            if aired is not None:
-                properties['aired']=aired
-			
-            #get the length 
-            duration=show.findAll('media')[0].get('duration')
-            if duration is not None:
-                #Set both a number and human readable time
-                arguments['duration']=int(duration)/1000
-                properties['duration']=str(datetime.timedelta(milliseconds=int(duration)))
+            try:
+                properties['aired']=arguments['originallyAvailableAt']
+            except:pass
+            
+            #Set the film duration 
+            try:
+                arguments['duration']=mediaarguments['duration']
+            except KeyError:
+                try:
+                    arguments['duration']
+                except:
+                    arguments['duration']=0
+             
+            arguments['duration']=int(arguments['duration'])/1000
+            properties['duration']=str(datetime.timedelta(seconds=int(arguments['duration'])))
             
             #If we are streaming, then get the virtual location
             if g_stream == "true":
-                location=show.findAll('part')[0].get('key')
-                url='http://'+server+location
-            else:	
-                #Else get the actual location to use with SMB
-                location=show.findAll('part')[0].get('file')
-                location=location.replace("Volumes",server)
-                location=location.replace(":32400","")
-                url='smb:/'+location
+                try:
+                    #print "location is " + str(partarguments['key']) 
+                    url='http://'+server+str(partarguments['key'])
+                except:
+                    print "Error: no stream location"
+                    continue
+            else:
+                #Else get the actual location, and use this via SMB if configured
+                try:
+                    location=str(partarguments['key'])
+                    location=location.replace("Volumes",server)
+                    location=location.replace(":32400","")
+                    url='smb:/'+location
+                except:
+                    print "Error: No file location"
+                    continue
 			
-            location=show.findAll('part')[0].get('file')
+     
             #Required to check if file is a PlexFlix stream
-            strUrl=str(location)
-            print strUrl
-            if strUrl.find('.strm') >0:
+            if url.find('.strm') >0:
                 continue
             else:
                             
@@ -763,8 +837,10 @@ def EPISODES(url):
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
 
+                u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+                
                 #Build a file link and loop
-                addLink(id,arguments['name'],url,mode,properties,arguments)        
+                addLink(id,arguments['title'],url,mode,properties,arguments)        
         
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -1032,11 +1108,6 @@ def monitorPlayback(id, url, resume, duration):
     
     print "Creating a temporary new resume time"
     __settings__.setSetting('resume', str(id)+"|"+str(currentTime*1000))
-    
-    #Execute a refresh so that the new resume time/watched status shows immediately.  
-    #Would be better if we could refesh this one listing. possible?
-    #xbmc.executebuiltin("Container.refresh") 
-    #Can we reselect the previous object?
      
     return
     
