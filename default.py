@@ -288,7 +288,7 @@ def MoviesET(url):
             
             #Get name
             try:
-                properties['title']=arguments['title']
+                properties['title']=arguments['title'].encode('utf-8')
             except: pass
             
             #Get the Plot          
