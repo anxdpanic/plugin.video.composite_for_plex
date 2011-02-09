@@ -44,8 +44,11 @@ def getURL( url ):
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addLink(id,name,url,mode,properties,arguments):       
+        u=sys.argv[0]+"?url="+str(url)
         ok=True
-        
+
+        print 'harley:'+ u
+
         #Create ListItem object, which is what is displayed on screen
         liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
         
@@ -65,7 +68,7 @@ def addLink(id,name,url,mode,properties,arguments):
         except: pass
         
         #Finally add the item to the on screen list, with url created above
-        ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=url,listitem=liz)
+        ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
         
         return ok
 
@@ -194,8 +197,8 @@ def ROOT():
                 properties={}
 
                 #URL contains the location of the server plugin.  We'll display the content later
-                s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
                 mode=7
+                s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
                 properties['title']="Plex Plugins: "+ server[0]
                 
                 #Add an on screen link
@@ -424,7 +427,7 @@ def MoviesET(url='',tree=etree,server=''):
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
                  
-                u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+                u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
  
                 print "url is " + u
                 #Right, add that link...and loop around for another entry
@@ -869,7 +872,7 @@ def EPISODES(url='',tree=etree,server=''):
                 print "properties is " + str(properties)
                 print "arguments is " + str(arguments)    
 
-                u=sys.argv[0]+"?url="+str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+                u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
                 #Build a file link and loop
                 addLink(id,arguments['title'],url,mode,properties,arguments)        
@@ -879,7 +882,7 @@ def EPISODES(url='',tree=etree,server=''):
 
 #What to do to process Plex Plugin structures        
 def PlexPlugins(url):
-        xbmcplugin.setContent(pluginhandle, 'video')
+        xbmcplugin.setContent(pluginhandle, 'movies')
 
         print '=============='
         print 'Getting Plugin Details'
@@ -889,125 +892,62 @@ def PlexPlugins(url):
         server=url.split('/')[2]
         print server
         html=getURL(url)
-        tree= BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
-        head = tree.find('mediacontainer')
-        print "head " + str(head)
-		
-        #In the mediacontainer, check for the contents type.
-        try:
-            #Look for plugin content
-            content = head.get('content')
-        except:
-            content = "None"
-		
-        print "content is " + str(content)
-        
-        #If the contents is plugins, we have a top level dir.
-        if content == "plugins":
-            #then we have found an initial plugin list
-            print "Found plugin list"
-            DirectoryTags=tree.findAll('directory')
-            for links in DirectoryTags:
-            
-                #Set up teh baxic structures
-                properties={}
-                arguments={'thumb':''}
-            
-                #get the ID
-                id=links.get('key')
-                
-                #get the plugin name
-                name=links.get('title')
-                arguments['name']=name.encode('utf-8')
-                if  arguments['name'].find('&apos;') >0:
-                    arguments['name'] = arguments['name'].replace("&apos;","'")
-                properties['title']=arguments['name']
+        tree=etree.fromstring(html)
+		        
+        for orange in tree:
+               
+            arguments=dict(orange.items())
+            print "arguments is " + str(arguments)
 
-                #Set the mode to 7, which is running thie function again
-                mode=7
-                
-                #Get the picture
-                thumb=links.get('thumb')
-                if thumb is not None:
-                    arguments['thumb']='http://'+server+thumb.encode('utf')
-                
+            #Set up the basic structures
+            properties={'overlay':6}
+                        
+            try: 
+                properties['title']=arguments['title'].encode('utf-8')
+            except:
+                try:
+                    properties['title']=arguments['name'].encode('utf-8')
+                except:
+                    properties['title']="unknown"
+                    
+            try:
+                arguments['thumb']='http://'+server+arguments['thumb']
+            except:
+                thumb=g_loc+'/resources/movie.png'  
+                print thumb  
+                arguments['thumb']=thumb
+
+            
+            if arguments['key'][0] == '/':
+                #The key begins with a slah, there is absolute
+                p_url='http://'+server+str(arguments['key'])
+            else:
                 #Build the next level URL and add the link on screen
-                d_url=url+'/'+id+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-                addDir(arguments['name'], d_url, mode, properties, arguments)
-        else:
-            print "Found plugin details"
-            #this is either a secondary list of plugin menus (directory) or a list of plugin video (or even a mix)
-            
-            #Find all the directory links
-            DirectoryTags=tree.findAll('directory')
-            
-            #Find all the video files
-            VideoTags=tree.findAll('video')
-            print "Found some dirs: " + str(DirectoryTags)
-            print "Found some videos: " + str(VideoTags)
-            
-            #For the directory tags we found
-            if DirectoryTags:
-                #We have directories, in which case process as adddirs
-                for tags in DirectoryTags:
-                
-                    #As normal, build the structures
-                    properties={}
-                    arguments={'thumb':''}
-                
-                    print str(tags)
-                    id=tags.get('key')
-                    
-                    #get the name
-                    name=tags.get('title')
-                    arguments['name']=name.encode('utf-8')
-                    if  arguments['name'].find('&apos;') >0:
-                        arguments['name'] = arguments['name'].replace("&apos;","'")
-                    properties['title']=arguments['name']
+                p_url=url+'/'+str(arguments['key'])
 
-                    #Set the mode, to loop back into here again
-                    mode=7
-                
-                    #get the picture
-                    thumb=tags.get('thumb')
-                    if thumb is not None:
-                        arguments['thumb']='http://'+server+thumb.encode('utf')
-                                        
-                    #Set the URL and build the directory link                    
-                    d_url='http://'+server+id+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-                    print "url is " + d_url
-                    addDir(arguments['name'], d_url, mode, properties, arguments)
             
+            if orange.tag == "Directory":
+                #We have a directory tag, so come back into this function
+                mode=7   
+                s_url=p_url+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
+                
+
+                print "properties is " + str(properties)
+                
+                addDir(properties['title'], s_url, mode, properties, arguments)
+                    
             #If we have some video links as well
-            if VideoTags:
-                #We have video items, that we need to addlinks for 
-                for tags in VideoTags:
+            elif orange.tag == "Video":
+             
+                #Set the mode to play them this time
+                mode=12                       
                     
-                    #build structures
-                    properties={'overlay': 6, 'playcount': 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
-                    arguments={'type': "video", 'viewoffset': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
-                    
-                    id=tags.get('key')
-                    
-                    #get name
-                    name=tags.get('title')
-                    arguments['name']=name.encode('utf-8')
-                    if  arguments['name'].find('&apos;') >0:
-                        arguments['name'] = arguments['name'].replace("&apos;","'")
-                    properties['title']=arguments['name']
+                #Build the URl and add a link to the file
+                v_url=p_url+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])    
 
-                    #Set the mode to play them this time
-                    mode=12
-                    
-                    #Get picture
-                    thumb=tags.get('thumb')
-                    if thumb is not None:
-                        arguments['thumb']='http://'+server+thumb.encode('utf')
-                    
-                    #Build the URl and add a link to the file
-                    v_url='http://'+server+id    
-            
-                    addLink(id,arguments['name'], v_url, mode, properties, arguments)
+                print "properties is " + str(properties)
+                
+                addLink(id,properties['title'], v_url, mode, properties, arguments)
         
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
