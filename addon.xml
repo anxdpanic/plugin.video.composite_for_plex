@@ -5,7 +5,6 @@
         provider-name="Harley Hooligan and Hippojay">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
-    <import addon="script.module.beautifulsoup" version="3.0.8"/>
 	<import addon="script.module.elementtree" />
   </requires>
   <extension    point="xbmc.python.pluginsource"

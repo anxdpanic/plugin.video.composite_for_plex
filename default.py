@@ -1,7 +1,6 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
 import os,datetime, time, profile
 import  elementtree.ElementTree as etree
-from BeautifulSoup import BeautifulStoneSoup
 
 #Get the setting from the appropriate file.
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
@@ -214,8 +213,8 @@ def StartMovies():
         host=g_host
         url = 'http://'+host+':32400/library/sections'
         html=getURL(url)
-        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
-        SectionTags=tree.findAll('directory')
+        tree=etree.fromstring(html)
+        SectionTags=tree.findall('Directory')
         for object in SectionTags:
             key=object.get('key')
             name=object.get('title')
@@ -233,8 +232,8 @@ def StartTV():
         host=g_host
         url = 'http://'+host+':32400/library/sections'
         html=getURL(url)
-        tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
-        SectionTags=tree.findAll('directory')
+        tree=etree.fromstring(html)
+        SectionTags=tree.findall('Directory')
         for object in SectionTags:
             key=object.get('key')
             name=object.get('title')
