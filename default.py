@@ -13,6 +13,7 @@ g_loc = "special://home/addon/plugin.video.plexbmc"
 
 print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
+print "Setting secondary: " + g_secondary
 pluginhandle = int(sys.argv[1])
 
 ################################ Common
@@ -163,7 +164,7 @@ def ROOT():
                 if  arguments['type'] == 'artist':
                     mode=3
                 
-                if g_secondary == True:
+                if g_secondary == "true":
                     s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(name)
                 else:
                     #Build URL with the mode to use and key to further XML data in the library
@@ -1191,9 +1192,26 @@ def getDirectory(url):
     
     print "process by getDirectory"
     
-    html=getURL(url)
     server=url.split('/')[2]
+    lastbit=url.split('/')[-1]
+    
+    if lastbit.startswith('search'):
+        #Found search URL.  Bring up keyboard and get input for query string
+        print "Found a search URL."
+        kb = xbmc.Keyboard('', 'heading')
+        kb.setHeading('Enter search term') # optional
+        kb.doModal()
+        if (kb.isConfirmed()):
+            text = kb.getText()
+            url=url+'&query='+text
+        else:
+            return
+     
+    
+    html=getURL(url)
     tree=etree.fromstring(html)
+    
+    
     
     arguments=dict(tree.items())
     
