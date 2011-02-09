@@ -121,7 +121,7 @@ def ROOT():
         
         #Pass HTML to BSS to convert it into a nice parasble tree.
         tree=etree.fromstring(html)
-        
+                
         #Now, find all those server tags
         LibraryTags=tree.findall('Server')
         print tree
@@ -129,6 +129,7 @@ def ROOT():
         Servers=[]
         Sections=[]
         
+       
         #Now, for each tag, pull out the name of the server and it's network name
         for object in LibraryTags:
             name=object.get('name').encode('utf-8')
@@ -274,13 +275,14 @@ def MoviesET(url='',tree=etree,server=''):
             tempcast=[]
             tempdir=[]
             tempwriter=[]
+            mediacount=0
             
             #Lets grab all the info we can quickly through either a dictionary, or assignment to a list
             #We'll process it later
             for child in movie:
                 if child.tag == "Media":
                     mediaarguments = dict(child.items())
-                        
+                    mediacount+=1    
                     for babies in child:
                         if babies.tag == "Part":
                             partarguments=(dict(babies.items()))
@@ -406,7 +408,7 @@ def MoviesET(url='',tree=etree,server=''):
             else:
                 #Else get the actual location, and use this via SMB if configured
                 try:
-                    location=str(partarguments['key'])
+                    location=str(partarguments['file'])
                     location=location.replace("Volumes",server)
                     location=location.replace(":32400","")
                     url='smb:/'+location
@@ -428,9 +430,14 @@ def MoviesET(url='',tree=etree,server=''):
                  
                 u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
  
+                if mediacount > 1:
+                    #We have more than one media file to play.  Build link to go to selectMedia
+                    mode=13
+                    u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+                    
                 print "url is " + u
                 #Right, add that link...and loop around for another entry
-                addLink(arguments['ratingKey'],arguments['title'],u,mode,properties,arguments)        
+                addLink(arguments['ratingKey'],properties['title'],u,mode,properties,arguments)        
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -893,6 +900,8 @@ def PlexPlugins(url):
         html=getURL(url)
         tree=etree.fromstring(html)
 		        
+                
+        print html        
         for orange in tree:
                
             arguments=dict(orange.items())
@@ -994,7 +1003,7 @@ def PLAYEPISODE(id,vids,seek, duration):
             startTime = xbmcgui.Dialog()
             
             #Box displaying resume time or start at beginning
-            result = startTime.select('',dialogOptions)
+            result = startTime.select('Resuming playback..',dialogOptions)
             
             #result contains an integer based on the selected text.
             if result == -1:
@@ -1026,6 +1035,69 @@ def PLAYEPISODE(id,vids,seek, duration):
         monitorPlayback(id,url, resume, duration)
         
         return
+
+def selectMedia(id,url,seek,duration):
+    #if we have two or more files for teh same movie, then present a screen
+
+    options=[]
+    server=url.split('/')[2]
+    html=getURL(url)
+    newtree=etree.fromstring(html)
+       
+    video=newtree.findall('Video')
+    
+    #Nasty code - but can;t for the life of me work out how to get the Part Tags only!!!!
+    for file in video:
+    
+        print file.tag
+        for crap in file:
+            print str(crap.tag)
+            if crap.tag == "Media":
+                print "havce foud media"
+                for stuff in crap:
+                    print str(stuff.tag)
+                    if stuff.tag == "Part":
+                        print "have found Part"
+                        bits=stuff.get('key'), stuff.get('file')
+                        print "bit is " + str(bits)
+                        options.append(bits)
+            
+    
+    dialogOptions=[]
+    for items in options:
+        print "item is " + str(items)
+        name=items[1].split('/')[-1]
+        dialogOptions.append(name)
+    
+    #Build the dialog text
+    print "we have a decision to make!"
+            
+    #Create a dialog object
+    startTime = xbmcgui.Dialog()
+            
+    #Box displaying resume time or start at beginning
+    result = startTime.select('Choose which file',dialogOptions)
+            
+    #result contains an integer based on the selected text.
+    if result == -1:
+        #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
+        return
+    else:
+        if g_stream == "true":
+            play=options[result][0]
+            newurl='http://'+server+str(play)
+        else:
+            play=options[result][1]
+            play=play.replace("Volumes",server)
+            play=play.replace(":32400","")
+            newurl='smb://'+play
+    
+    print "url is " + newurl
+    PLAYEPISODE(id,newurl,seek, duration)
+    return
+    
+    
+    
         
 #Monitor function so we can update PMS
 def monitorPlayback(id, url, resume, duration):
@@ -1198,7 +1270,6 @@ mode=None
 resume=None
 id=None
 duration=None
-type=None
 
 #Now try and assign some data to them
 try:
@@ -1229,17 +1300,13 @@ try:
         duration=params["duration"]
 except:
         duration=0
-#try:
-#        type=param['type']
-#except:
-#        pass
         
 print "Mode: "+str(mode)
 print "URL: "+str(url)
 print "Name: "+str(name)
 print "ID: "+ str(id)
 print "Duration: " + str(duration)
-#print "type: " + str(type)
+
 #Run a function based on the mode variable that was passed in the URL
 
 if mode!=5:
@@ -1269,6 +1336,8 @@ elif mode==11:
         StartTV()
 elif mode==12:
         PLAY(url)
+elif mode==13:
+        selectMedia(id,url,resume,duration)
         
 #clear done and exit.        
 sys.modules.clear()
