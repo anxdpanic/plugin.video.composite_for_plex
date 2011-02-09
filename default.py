@@ -850,7 +850,6 @@ def EPISODES(url='',tree=etree,server=''):
             #If we are streaming, then get the virtual location
             if g_stream == "true":
                 try:
-                    #print "location is " + str(partarguments['key']) 
                     url='http://'+server+str(partarguments['key'])
                 except:
                     print "Error: no stream location"
@@ -858,7 +857,7 @@ def EPISODES(url='',tree=etree,server=''):
             else:
                 #Else get the actual location, and use this via SMB if configured
                 try:
-                    location=str(partarguments['key'])
+                    location=str(partarguments['file'])
                     location=location.replace("Volumes",server)
                     location=location.replace(":32400","")
                     url='smb:/'+location
