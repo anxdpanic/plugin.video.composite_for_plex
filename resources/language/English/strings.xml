@@ -3,4 +3,5 @@
     <string id="20000">Plex Media Server Hostname</string>
 	<string id="20001">Stream from PMS</string>
     <string id="20002">Get extended metadata from PMS</string>
+    <string id="20003">Enable extra filter menus</string>
 </strings>

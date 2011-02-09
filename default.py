@@ -8,7 +8,7 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
 g_extended = __settings__.getSetting('extended')
-g_secondary = True
+g_secondary = __settings__.getSetting('secondary')
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
 print "Settings hostname: " + g_host
@@ -78,9 +78,12 @@ def addDir(name,url,mode,properties,arguments):
         ok=True
         
         #Create the ListItem that will be displayed
-        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
-        
-        #Set the properties of the item, such as summary, name, season, etc
+        try:
+            liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+        except:
+            liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage='')
+
+            #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo( type="Video", infoLabels=properties ) 
         
         print 'harley:'+ u
@@ -159,9 +162,12 @@ def ROOT():
                     mode=2
                 if  arguments['type'] == 'artist':
                     mode=3
-                    
-                #Build URL with the mode to use and key to further XML data in the library
-                s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+                
+                if g_secondary == True:
+                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(name)
+                else:
+                    #Build URL with the mode to use and key to further XML data in the library
+                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
                 
                 #Build that listing..
                 addDir(arguments['title'],s_url,mode, properties,arguments)
@@ -236,24 +242,26 @@ def StartTV():
 ################################ Movies listing            
 # Used to display movie on screen.
 
-def MoviesET(url):
+def MoviesET(url='',tree=etree,server=''):
         xbmcplugin.setContent(pluginhandle, 'movies')
         
         print '=============='
         print 'Getting Movies'
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        
+        print "url is " + str(url)
+        print "tree is " + str(tree)
+        print "server is " + str(server)
 
         #get the server name from the URL, which was passed via the on screen listing..
-        server=url.split('/')[2]
-        print server
-        
-        #Get some XML and parse it
-        html=getURL(url)
-		
-        tree = etree.fromstring(html)
-        #elementTree = tree.getroot()
-        #tree= BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
-        
+        if not url == '':
+            print "we have no tree passed.."
+            server=url.split('/')[2]
+            print server
+            #Get some XML and parse it
+            html=getURL(url)
+            tree = etree.fromstring(html)
+                    
         #Find all the video tags, as they contain the data we need to link to a file.
         MovieTags=tree.findall('Video')
         for movie in MovieTags:
@@ -429,7 +437,7 @@ def MoviesET(url):
     
 ################################ TV Show Listings
 #This is the function use to parse the top level list of TV shows
-def SHOWS(url):
+def SHOWS(url='',tree=etree,server=''):
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
         print '=============='
@@ -437,11 +445,14 @@ def SHOWS(url):
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get the URL and server name.  Get the XML and parse
-        server=url.split('/')[2]
-        print server
-        html=getURL(url)
+        if not url == '':
         
-        tree=etree.fromstring(html)
+            server=url.split('/')[2]
+            print server
+            html=getURL(url)
+        
+            tree=etree.fromstring(html)
+            
         #For each directory tag we find
         ShowTags=tree.findall('Directory') # These type of calls seriously slow down plugins
         for show in ShowTags:
@@ -523,7 +534,7 @@ def SHOWS(url):
            
 
             mode=4 # grab season details
-            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
             
             addDir(properties['title'],url,mode,properties,arguments) 
             
@@ -615,7 +626,7 @@ def Seasons(url):
  
 ################################ TV Episode listing 
 #Displays the actual playable media
-def EPISODES(url):
+def EPISODES(url='',tree=etree,server=''):
         xbmcplugin.setContent(pluginhandle, 'episodes')
 
         print '=============='
@@ -624,23 +635,24 @@ def EPISODES(url):
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
         
-        
         #Get the server
-        server=url.split('/')[2]
+        try:
+            server=url.split('/')[2]
+            #Get the end part of teh URL, as we need to get different data if parsing "All Episodes"
+            target=url.split('/')[-1]
+            print server
+            print target
+        except: pass
         
-        #Get the end part of teh URL, as we need to get different data if parsing "All Episodes"
-        target=url.split('/')[-1]
-        print server
-        print target
-        
-        #Get URL, XML and Parse
-        html=getURL(url)
-        #tree=BeautifulStoneSoup(html, convertEntities=BeautifulStoneSoup.HTML_ENTITIES)
-        tree=etree.fromstring(html)
-        ShowTags=tree.findall('Video')
-        
-        #print "tree is " + tree.tag
-        
+        try:
+            ShowTags=tree.findall('Video')
+        except:
+            print "no tree, so create from html"
+            #Get URL, XML and Parse
+            html=getURL(url)
+            tree=etree.fromstring(html)
+            ShowTags=tree.findall('Video')
+            
         #get a bit of metadata that sits inside the main mediacontainer
         #If it doesn't exist, we'll check later and get it from elsewhere
         #MainTag=tree.findAll('mediacontainer')[0]
@@ -743,11 +755,12 @@ def EPISODES(url):
                         
             #If we are processing an "All Episodes" directory, then get the season from the video tag
             
-            if target == "allLeaves":
-                try:
-                    properties['season']=int(arguments['parentIndex'])
-                except:pass
-            else:    
+            try:
+                if target == "allLeaves":
+                    try:
+                        properties['season']=int(arguments['parentIndex'])
+                    except:pass
+            except:    
                 properties['season']=int(season)
              
             #check if we got the kiddie rating from the main tag
@@ -1169,6 +1182,52 @@ def get_params():
                                 
         return param
 
+def getDirectory(url):  
+    #We've been called at mode 0, by ROOT becuase we are going to traverse the secondary menus
+    
+    #print "We are going down the " + str(type) + " path...."
+    
+    #First we need to peek at the XML, to see if we've hit any video links yet.
+    
+    print "process by getDirectory"
+    
+    html=getURL(url)
+    server=url.split('/')[2]
+    tree=etree.fromstring(html)
+    
+    arguments=dict(tree.items())
+    
+    if arguments['viewGroup'] == "movie":
+        print "this is a movie XML, passing to MoviesET"
+        MoviesET(tree=tree,server=server)
+        return
+    elif arguments['viewGroup'] == "show":
+        print "this is a tv show XML, passing to SHOW"
+        SHOWS(tree=tree,server=server)
+        return
+    elif arguments['viewGroup'] == "episode":
+        EPISODES(url=url,tree=tree,server=server)
+        return
+    elif arguments['viewGroup'] == 'artist':
+        print "this is music XML, passing to music"
+        music(tree=tree,server=server)
+        return
+        
+    #else we have a secondary, which we'll process here
+    print "We must have some secondaries to process"
+    
+    for apple in tree:
+        arguments=dict(apple.items())
+        properties={}
+        properties['title']=arguments['title']
+        
+        n_url=url+'/'+arguments['key']+'&mode=0'
+
+        addDir(properties['title'],n_url,0,properties,arguments)
+        
+    xbmcplugin.endOfDirectory(pluginhandle)
+                  
+    
 ##So this is where we really start the plugin.
 
 #first thing, parse the arguments, as this has the data we need to use.              
@@ -1182,6 +1241,7 @@ mode=None
 resume=None
 id=None
 duration=None
+type=None
 
 #Now try and assign some data to them
 try:
@@ -1212,13 +1272,17 @@ try:
         duration=params["duration"]
 except:
         duration=0
+#try:
+#        type=param['type']
+#except:
+#        pass
         
 print "Mode: "+str(mode)
 print "URL: "+str(url)
 print "Name: "+str(name)
 print "ID: "+ str(id)
 print "Duration: " + str(duration)
-
+#print "type: " + str(type)
 #Run a function based on the mode variable that was passed in the URL
 
 if mode!=5:
@@ -1226,6 +1290,8 @@ if mode!=5:
 
 if mode==None or url==None or len(url)<1:
         ROOT()
+elif mode == 0:
+        getDirectory(url)
 elif mode==1:
         SHOWS(url)
 elif mode==2:
