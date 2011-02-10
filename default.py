@@ -1,5 +1,5 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
-import os,datetime, time, profile
+import os,datetime, time
 import  elementtree.ElementTree as etree
 
 #Get the setting from the appropriate file.
@@ -294,7 +294,13 @@ def MoviesET(url='',tree=etree,server=''):
                     tempdir.append(child.get('tag'))
                 elif child.tag == "Role":
                     tempcast.append(child.get('tag'))
-                            
+            
+            #required to grab to check if file is a .strm file
+            #Can't play strm files, so lets not bother listing them. 
+            if partarguments['file'].find('.strm')>0:
+                print "Found unsupported .strm file.  Will not list"
+                continue
+             
             print "args is " + str(movie.items())
             print "Media is " + str(mediaarguments)
             print "Part is " + str(partarguments)
@@ -419,25 +425,20 @@ def MoviesET(url='',tree=etree,server=''):
             #This is playable media, so link to a path to a play function
             mode=5
             
-            #required to grab to check if file is a .strm file
-            #Can't play strm files, so lets not bother listing them.  
-            if url.find('.strm') >0:
-                continue
-            else:
-                print '============='        
-                print "properties is " + str(properties)
-                print "arguments is " + str(arguments)    
+            print '============='        
+            print "properties is " + str(properties)
+            print "arguments is " + str(arguments)    
                  
-                u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
  
-                if mediacount > 1:
-                    #We have more than one media file to play.  Build link to go to selectMedia
-                    mode=13
-                    u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            if mediacount > 1:
+                #We have more than one media file to play.  Build link to go to selectMedia
+                mode=13
+                u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                     
-                print "url is " + u
-                #Right, add that link...and loop around for another entry
-                addLink(arguments['ratingKey'],properties['title'],u,mode,properties,arguments)        
+            print "url is " + u
+            #Right, add that link...and loop around for another entry
+            addLink(arguments['ratingKey'],properties['title'],u,mode,properties,arguments)        
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -719,7 +720,13 @@ def EPISODES(url='',tree=etree,server=''):
                     tempdir.append(child.get('tag'))
                 elif child.tag == "Role":
                     tempcast.append(child.get('tag'))
-                            
+            
+            #required to grab to check if file is a .strm file
+            #Can't play strm files, so lets not bother listing them. 
+            if partarguments['file'].find('.strm')>0:
+                print "Found unsupported .strm file.  Will not list"
+                continue
+           
             print "args is " + str(arguments)
             print "Media is " + str(mediaarguments)
             print "Part is " + str(partarguments)
@@ -864,23 +871,17 @@ def EPISODES(url='',tree=etree,server=''):
                 except:
                     print "Error: No file location"
                     continue
-			
-     
-            #Required to check if file is a PlexFlix stream
-            if url.find('.strm') >0:
-                continue
-            else:
                             
-                #Set mode 5, which is play            
-                mode=5
-                print '============='        
-                print "properties is " + str(properties)
-                print "arguments is " + str(arguments)    
+            #Set mode 5, which is play            
+            mode=5
+            print '============='        
+            print "properties is " + str(properties)
+            print "arguments is " + str(arguments)    
 
-                u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
-                #Build a file link and loop
-                addLink(id,arguments['title'],url,mode,properties,arguments)        
+            #Build a file link and loop
+            addLink(id,arguments['title'],url,mode,properties,arguments)        
         
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
