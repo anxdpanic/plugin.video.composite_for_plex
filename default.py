@@ -512,6 +512,8 @@ def SHOWS(url='',tree=etree,server=''):
                 watched=arguments['viewedLeafCount']
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
+                if arguments['UnWatchedEpisodes'] <= 0:
+                    properties['overlay']=7
             except:pass
             
             #get Genre
@@ -610,6 +612,8 @@ def Seasons(url):
                 watched=arguments['viewedLeafCount']
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
+                if arguments['UnWatchedEpisodes'] <= 0:
+                    properties['overlay']=7
             except:pass
     
             #Get the Plot          
