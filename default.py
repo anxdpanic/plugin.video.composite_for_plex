@@ -770,9 +770,9 @@ def EPISODES(url='',tree=etree,server=''):
             
             #Get the last played position  
             try:
-                arguments['viewoffset']
+                arguments['viewOffset']=int(arguments['viewOffset'])/1000
             except:
-                arguments['viewoffset']=0
+                arguments['viewOffset']=0
 
                         
             #If we are processing an "All Episodes" directory, then get the season from the video tag
@@ -883,7 +883,7 @@ def EPISODES(url='',tree=etree,server=''):
             print "properties is " + str(properties)
             print "arguments is " + str(arguments)    
 
-            u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
             #Build a file link and loop
             addLink(id,arguments['title'],u,mode,properties,arguments)        
@@ -1155,7 +1155,7 @@ def monitorPlayback(id, url, resume, duration):
     print "output is " + str(output)
     
     print "Creating a temporary new resume time"
-    __settings__.setSetting('resume', str(id)+"|"+str(currentTime)
+    __settings__.setSetting('resume', str(id)+"|"+str(currentTime))
      
     return
     
