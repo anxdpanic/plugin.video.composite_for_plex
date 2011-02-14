@@ -881,7 +881,7 @@ def EPISODES(url='',tree=etree,server=''):
             u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
             #Build a file link and loop
-            addLink(id,arguments['title'],url,mode,properties,arguments)        
+            addLink(id,arguments['title'],u,mode,properties,arguments)        
         
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
