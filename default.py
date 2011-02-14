@@ -13,6 +13,7 @@ g_loc = "special://home/addon/plugin.video.plexbmc"
 print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
 print "Setting secondary: " + g_secondary
+
 pluginhandle = int(sys.argv[1])
 
 ################################ Common
@@ -1154,7 +1155,7 @@ def monitorPlayback(id, url, resume, duration):
     print "output is " + str(output)
     
     print "Creating a temporary new resume time"
-    __settings__.setSetting('resume', str(id)+"|"+str(currentTime*1000))
+    __settings__.setSetting('resume', str(id)+"|"+str(currentTime)
      
     return
     
