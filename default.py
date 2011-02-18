@@ -150,26 +150,29 @@ def ROOT():
         #Get the global host variable set in settings
         host=g_host
         
-        #Get the HTML for the URL
-        url = 'http://'+host+':32400/servers'
-        html=getURL(url)
-        
-        #Pass HTML to BSS to convert it into a nice parasble tree.
-        tree=etree.fromstring(html)
-                
-        #Now, find all those server tags
-        LibraryTags=tree.findall('Server')
-        print tree
-        print LibraryTags
         Servers=[]
-        Sections=[]
+      
+        #If we have a remote host, then don;t do local discovery as it won't work
+        if g_remote == "false":
+            #Get the HTML for the URL
+            url = 'http://'+host+':32400/servers'
+            html=getURL(url)
         
+            #Pass HTML to BSS to convert it into a nice parasble tree.
+            tree=etree.fromstring(html)
+                
+            #Now, find all those server tags
+            LibraryTags=tree.findall('Server')
+            print tree
+            print LibraryTags        
        
-        #Now, for each tag, pull out the name of the server and it's network name
-        for object in LibraryTags:
-            name=object.get('name').encode('utf-8')
-            host=object.get('host')
-            Servers.append([name,host])
+            #Now, for each tag, pull out the name of the server and it's network name
+            for object in LibraryTags:
+                name=object.get('name').encode('utf-8')
+                host=object.get('host')
+                Servers.append([name,host])
+        else:
+            Servers.append(["remote",g_host])
         
         #For each of the servers we have identified
         for server in Servers:
@@ -191,7 +194,10 @@ def ROOT():
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 try:
-                    properties['title']=server[0]+": "+arguments['title']
+                    if g_remote == "true":
+                        properties['title']=arguments['title']
+                    else:
+                        properties['title']=server[0]+": "+arguments['title']
                 except:pass
                 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
@@ -203,10 +209,10 @@ def ROOT():
                     mode=3
                 
                 if g_secondary == "true":
-                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(name)
+                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
                 else:
                     #Build URL with the mode to use and key to further XML data in the library
-                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
                 
                 #Build that listing..
                 addDir(arguments['title'],s_url,mode, properties,arguments)
@@ -233,9 +239,12 @@ def ROOT():
 
                 #URL contains the location of the server plugin.  We'll display the content later
                 mode=7
-                s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-                properties['title']=server[0]+": Plugins"
-                
+                s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
+                if g_remote == "true":
+                    properties['title']="Plugins"
+                else:
+                    properties['title']=server[0]+": Plugins"
+                                
                 #Add an on screen link
                 addDir(properties['title'], s_url, mode, properties,arguments)
 		
