@@ -1,5 +1,5 @@
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon
-import os,datetime, time
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib
+import os,datetime, time, sha
 import  elementtree.ElementTree as etree
 
 #Get the setting from the appropriate file.
@@ -8,12 +8,32 @@ g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
 g_extended = __settings__.getSetting('extended')
 g_secondary = __settings__.getSetting('secondary')
+g_remote = __settings__.getSetting('remote')
+
 g_loc = "special://home/addon/plugin.video.plexbmc"
+
+g_txheaders = {
+              'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'	
+              }
+
 
 print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
 print "Setting secondary: " + g_secondary
 
+if g_remote == "true":
+    print "Remote library enabled.  Getting user/pass from settings"
+    g_username= __settings__.getSetting('username')
+    g_password =  __settings__.getSetting('password')
+    print "username is " + g_username
+    
+    #Compute the SHA1 just one time.
+    msg=sha.new(g_password.lower())
+    msg2=sha.new(g_username.lower()+msg.hexdigest()).hexdigest()
+            
+    g_txheaders['X-Plex-User']=str(g_username.lower())
+    g_txheaders['X-Plex-Pass']=str(msg2)
+    
 pluginhandle = int(sys.argv[1])
 
 ################################ Common
@@ -24,15 +44,17 @@ def getURL( url ):
         print 'PleXBMC--> getURL :: url = '+url
         print "getting URL"
         txdata = None
-        txheaders = {
-                    'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'	
-                    }
-        req = urllib2.Request(url, txdata, txheaders)
-        response = urllib2.urlopen(req)
-        link=response.read()
-        print "URL done"
-        response.close()
-    except urllib2.URLError, e:
+        
+        server=url.split('/')[2]
+        urlPath="/"+"/".join(url.split('/')[3:])
+             
+        params = "" 
+        conn = httplib.HTTPConnection(server) 
+        conn.request("GET", urlPath, headers=g_txheaders) 
+        data = conn.getresponse() 
+        link = data.read()
+        
+    except httplib.HTTPException, e:
         error = 'Error code: '+ str(e.code)
         xbmcgui.Dialog().ok(error,error)
         print 'Error code: ', e.code
@@ -60,7 +82,7 @@ def addLink(id,name,url,mode,properties,arguments):
         
         #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
-        
+                
         #Set the fanart image if it has been enabled
         try:
             liz.setProperty('fanart_image', str(arguments['fanart_image']))
@@ -1260,8 +1282,8 @@ def getDirectory(url):
         addDir(properties['title'],n_url,0,properties,arguments)
         
     xbmcplugin.endOfDirectory(pluginhandle)
-                  
-    
+        
+   
 ##So this is where we really start the plugin.
 
 #first thing, parse the arguments, as this has the data we need to use.              

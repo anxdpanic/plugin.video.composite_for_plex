@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <setting id="ipaddress" type="text" label="20000" default="127.0.0.1"/>
+	<setting id="remote" type=bool label="20004" default="false" />
+	<setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="20005" />
+	<setting id="password" type=text  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="20006" />
     <setting id="streaming" type="bool" label="20001" default="true"/>
     <setting id="secondary" type="bool" label="20003" default="false"/>
     <setting id="resume" type="text" option=hidden default=""/>
