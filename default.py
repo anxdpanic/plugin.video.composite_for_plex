@@ -191,7 +191,7 @@ def ROOT():
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 try:
-                    properties['title']=arguments['title']
+                    properties['title']=server[0]+": "+arguments['title']
                 except:pass
                 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
@@ -221,7 +221,7 @@ def ROOT():
 
             #Check the number of items in the mediacontainer tag.
             try:
-                items = plugintree.get('size')
+                items = int(plugintree.get('size'))
             except:
                 items=0
             
@@ -234,7 +234,7 @@ def ROOT():
                 #URL contains the location of the server plugin.  We'll display the content later
                 mode=7
                 s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-                properties['title']="Plex Plugins: "+ server[0]
+                properties['title']=server[0]+": Plugins"
                 
                 #Add an on screen link
                 addDir(properties['title'], s_url, mode, properties,arguments)
@@ -1312,7 +1312,7 @@ def transcode(id,url):
     import base64
     
     server=url.split('/')[2]
-    filestream="/"+"/".join(url.split('/')[3:])
+    filestream=urllib.quote_plus("/"+"/".join(url.split('/')[3:]))
 
     
     if g_transcodefmt == "m3u8":
@@ -1368,7 +1368,7 @@ def transcode(id,url):
         session=Tlink.split()[-1]
     
         #Append to URL to create link to m3u8 playlist containing the actual media.
-        sessionurl="http://"+server+":32400/video/:/transcode/segmented/"+session
+        sessionurl="http://"+server+"/video/:/transcode/segmented/"+session
     else: 
         sessionurl=fullURL
     
