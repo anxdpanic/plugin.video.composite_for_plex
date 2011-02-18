@@ -1,5 +1,5 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib
-import os,datetime, time, sha
+import sys,os,datetime, time, sha
 import  elementtree.ElementTree as etree
 
 #Get the setting from the appropriate file.
@@ -15,7 +15,6 @@ g_loc = "special://home/addon/plugin.video.plexbmc"
 g_txheaders = {
               'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'	
               }
-
 
 print "Settings hostname: " + g_host
 print "Settings streaming: " + g_stream
@@ -1283,74 +1282,65 @@ def getDirectory(url):
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def transcode(url=None):
+#Function that will return a m3u8 playlist URL from a PMS stream URL
+def transcode(id,url):
     # First get the time since Epoch
     
-    import base64, sha256, hmacsha256
+    #Had to use some customised modules to get hmac sha256 working on python 2.4
+    import base64
     
-    myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=1216&offset=0&quality=5&url=http%3A%2F%2Flocalhost%3A32400/library/parts/1142/going%2Epostal%2Epart2%2E720p%2Ehdtv%2Ex264-bia.mkv&3g=0&httpCookies=&userAgent=";
+    server=url.split('/')[2]
+    filestream="/"+"/".join(url.split('/')[3:])
+
+    myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality=5&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent=";
     now=str(int(round(time.time(),0)))
     
     msg = myurl+"@"+now
     
+    #These are the DEV API keys - may need to change them on release
     publicKey="KQMIY6GATPC63AIMC4R2"
     privateKey = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
    
     print "public " + str(publicKey)
-    print "private " + str(privateKey)
     print "time " + str(now)
     print "url " + str(myurl)
     print "encoding message " + str(msg)
-   
-    m = sha256.new(privateKey) 
-    # Get string and put into givenString.  
-    m.update(msg) 
-    hash=m.digest() 
-    print "size is " + str(m.digest_size)
     
-    hash=hmacsha256.new(privateKey, msg, digestmod=sha256)
-    print "resulting HMAC is " + hash.hexdigest()
+    #If python is > 2.4 then do this
+    if sys.version_info[:2] > (2,4):
+        import hashlib, hmac
+        hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
+    else:
+        import sha256, hmacsha256
+        hash=hmacsha256.new(privateKey, msg, digestmod=sha256)
     
+    print "HMAC after hash is " + hash.hexdigest()
+    
+    #Encode the binary hash in base64 for transmission
     token=base64.b64encode(hash.digest())
     
-    fullURL="http://192.168.1.200:32400"+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)
+    #Send as part of URL to avoid the case sensitive header issue.
+    fullURL="http://"+server+":32400"+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)
     
-    #print "full URL is " + str(fullURL)
-         
-    print "getting URL"
-    txdata = None
-    txheaders = {}
-    req = urllib2.Request(fullURL, txdata, txheaders)
-    response = urllib2.urlopen(req)
-    link=response.read()
+    #Send request for transcode to PMS
+    Treq = urllib2.Request(fullURL)
+    Tresponse = urllib2.urlopen(req)
+    Tlink=Tresponse.read()
     print "URL done: " + str(link)
-    response.close()   
-    mode=12
-    session=link.split()[-1]
-    sessionurl="http://192.168.1.200:32400/video/:/transcode/segmented/"+session#+"&mode="+str(mode)+"&name=test&resume=0&id=1216&duration=200"
+    Tresponse.close()   
+    
+    #tLink contains initual m3u8 playlist.  Pull out the last entry as the actual stream to use (am assuming only single stream)
+    
+    session=Tlink.split()[-1]
+    
+    #Append to URL to create link to m3u8 playlist containing the actual media.
+    sessionurl="http://"+server+":32400/video/:/transcode/segmented/"+session
     
     print "session url is " + sessionurl
     
-    #get m3u8 playlist and turn into XBMC playlist and see what happens:
-    req=urllib2.Request(sessionurl,txdata,txheaders)
-    response = urllib2.urlopen(req)
-    link=response.read()
+    return sessionurl
 
-    files=re.findall('video.*ts',link,re.M)
     
-    print files
-    
-    pl=xbmc.PlayList(1)
-    pl.clear()
-    
-    for i in files:
-        listitem = xbmcgui.ListItem(i,
-        thumbnailImage='')
-        url = 'http://192.168.1.200:32400/'+i
-        xbmc.PlayList(1).add(url, listitem)
-
-
-    xbmc.Player().play(pl)
      
    
 ##So this is where we really start the plugin.
