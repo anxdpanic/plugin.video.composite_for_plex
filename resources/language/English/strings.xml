@@ -4,8 +4,11 @@
 	<string id="20001">Stream from PMS</string>
     <string id="20002">Get extended metadata from PMS</string>
     <string id="20003">Enable extra filter menus</string>
-	<string id="20004">Enable remote library</string>
+	<string id="20004">Is this a remote library?</string>
 	<string id="20005">PMS Username: </string>
 	<string id="20006">PMS Password: </string>
-			
+    <string id="20007">Enable transcoding </string>
+    <string id="20008">Transcode format </string>
+    <string id="20009">m3u8</string>
+    <string id="20010">flv</string>
 </strings>

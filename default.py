@@ -10,6 +10,19 @@ g_extended = __settings__.getSetting('extended')
 g_secondary = __settings__.getSetting('secondary')
 g_remote = __settings__.getSetting('remote')
 
+g_transcode = __settings__.getSetting('transcode')
+
+if g_transcode == "true":
+    print "We are set to Transcode"
+    g_transcodetype = __settings__.getSetting('transcodefmt')
+    print "type is " + g_transcodetype
+    if g_transcodetype == "0":
+        g_transcodefmt="m3u8"
+    elif g_transcodetype == "1":
+        g_transcodefmt="flv"
+
+    print "Trasncode format is " + g_transcodefmt
+   
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
 g_txheaders = {
@@ -991,7 +1004,14 @@ def PlexPlugins(url):
 def PLAYEPISODE(id,vids,seek, duration):
         #Use this to play PMS library items that you want up dated (Movies, TV shows)
         url = vids
-       
+   
+        print "Initial play URL is " + url
+   
+        if g_transcode == "true":
+            url=transcode(id,url)
+   
+        print "the one I'm going to use is " + url
+        
         print "current resume is " + str(seek)
        
         resumeSetting=__settings__.getSetting('resume')
@@ -1286,13 +1306,23 @@ def getDirectory(url):
 def transcode(id,url):
     # First get the time since Epoch
     
+    print "Transcoding has been selected..."
+    
     #Had to use some customised modules to get hmac sha256 working on python 2.4
     import base64
     
     server=url.split('/')[2]
     filestream="/"+"/".join(url.split('/')[3:])
 
-    myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality=5&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent=";
+    
+    if g_transcodefmt == "m3u8":
+        myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality=5&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent="
+    elif g_transcodefmt == "flv":
+        myurl="/video/:/transcode/generic.flv?format=flv&videoCodec=libx264&vpre=video-embedded-h264&videoBitrate=5000&audioCodec=libfaac&apre=audio-embedded-aac&audioBitrate=128&size=640x480&fakeContentLength=2000000000&url=http%3A%2F%2Flocalhost%3A32400"  + filestream + "&3g=0&httpCookies=&userAgent="
+    else:
+        print "Woah!!  Barmey settings error....Bale....."
+        return url
+
     now=str(int(round(time.time(),0)))
     
     msg = myurl+"@"+now
@@ -1320,27 +1350,32 @@ def transcode(id,url):
     token=base64.b64encode(hash.digest())
     
     #Send as part of URL to avoid the case sensitive header issue.
-    fullURL="http://"+server+":32400"+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)
+    fullURL="http://"+server+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)
     
-    #Send request for transcode to PMS
-    Treq = urllib2.Request(fullURL)
-    Tresponse = urllib2.urlopen(req)
-    Tlink=Tresponse.read()
-    print "URL done: " + str(link)
-    Tresponse.close()   
+    print "full URL is " + fullURL
     
-    #tLink contains initual m3u8 playlist.  Pull out the last entry as the actual stream to use (am assuming only single stream)
+    if g_transcodefmt == "m3u8":
     
-    session=Tlink.split()[-1]
+        #Send request for transcode to PMS
+        Treq = urllib2.Request(fullURL)
+        Tresponse = urllib2.urlopen(Treq)
+        Tlink=Tresponse.read()
+        print "URL done: " + str(Tlink)
+        Tresponse.close()   
     
-    #Append to URL to create link to m3u8 playlist containing the actual media.
-    sessionurl="http://"+server+":32400/video/:/transcode/segmented/"+session
+        #tLink contains initual m3u8 playlist.  Pull out the last entry as the actual stream to use (am assuming only single stream)
     
+        session=Tlink.split()[-1]
+    
+        #Append to URL to create link to m3u8 playlist containing the actual media.
+        sessionurl="http://"+server+":32400/video/:/transcode/segmented/"+session
+    else: 
+        sessionurl=fullURL
+    
+   
     print "session url is " + sessionurl
     
     return sessionurl
-
-    
      
    
 ##So this is where we really start the plugin.
