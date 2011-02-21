@@ -66,7 +66,7 @@ def getURL( url ):
         data = conn.getresponse() 
         link = data.read()
     except httplib.HTTPException:
-        error = "HTTP response error: " + str(conn.status) + " " + str(conn.response)
+        error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
         xbmcgui.Dialog().ok('Error',error)
         raise
         return False
