@@ -1,4 +1,4 @@
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib, socket
 import sys,os,datetime, time, sha
 import  elementtree.ElementTree as etree
 
@@ -65,11 +65,20 @@ def getURL( url ):
         conn.request("GET", urlPath, headers=g_txheaders) 
         data = conn.getresponse() 
         link = data.read()
-        
-    except httplib.HTTPException, e:
-        error = 'Error code: '+ str(e.code)
-        xbmcgui.Dialog().ok(error,error)
-        print 'Error code: ', e.code
+    except httplib.HTTPException:
+        error = "HTTP response error: " + str(conn.status) + " " + str(conn.response)
+        xbmcgui.Dialog().ok('Error',error)
+        raise
+        return False
+    except socket.gaierror :
+        error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
+        xbmcgui.Dialog().ok('Error',error)
+        print error
+        return False
+    except socket.error, msg : 
+        error="Unable to connect to " + server +"\nReason: " + str(msg)
+        xbmcgui.Dialog().ok('Error',error)
+        print error + ": " + msg
         return False
     else:
         return link
