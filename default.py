@@ -50,7 +50,7 @@ pluginhandle = int(sys.argv[1])
 
 ################################ Common
 # Connect to a server and retrieve the HTML page
-def getURL( url ):
+def getURL( url ,error="Error"):
     try:
         
         print 'PleXBMC--> getURL :: url = '+url
@@ -78,11 +78,44 @@ def getURL( url ):
     except socket.error, msg : 
         error="Unable to connect to " + server +"\nReason: " + str(msg)
         xbmcgui.Dialog().ok('Error',error)
-        print error + ": " + msg
+        print error
         return False
     else:
         return link
+ 
+def mediaType(partproperties, server):
+    #Passed a list of <Part /> tag attributes, select the appropriate media to play
+    
+    stream=partproperties['key']
+    file=partproperties['file']
+    
+    # 0 is auto select.  basically check for local file first, then stream if not found
+    if g_stream == "0":
+        #check if the file can be found locally
+        try:
+            print "Checking for local file"
+            exists = open(file, r)
+            exists.close()
+            filelocation=file
+        except:
+            print "no local file, defaulting to stream"
+            filelocation="http://"+server+stream
         
+    # 1 is stream no matter what
+    elif g_stream == "1":
+        print "selecting stream"
+        filelocation="http://"+server+stream
+    # 2 is use SMB 
+    elif g_stream == "2":
+        print "selecting smb"
+        location=file.replace("Volumes",server)
+        filelocation="smb:/"+location.replace(":32400","")
+    
+    print "returning: " + filelocation
+    return filelocation
+    
+    
+ 
 #Used to add playable media files to directory listing
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
@@ -456,24 +489,8 @@ def MoviesET(url='',tree=etree,server=''):
             #Genre        
             properties['genre']=" / ".join(tempgenre)                
             
-            #If the streaming option is true, then get the virtual listing
-            if g_stream == "true":
-                try:
-                    #print "location is " + str(partarguments['key']) 
-                    url='http://'+server+str(partarguments['key'])
-                except:
-                    print "Error: no stream location"
-                    continue
-            else:
-                #Else get the actual location, and use this via SMB if configured
-                try:
-                    location=str(partarguments['file'])
-                    location=location.replace("Volumes",server)
-                    location=location.replace(":32400","")
-                    url='smb:/'+location
-                except:
-                    print "Error: No file location"
-                    continue
+            #Decide what file type to play            
+            url=mediaType(partarguments,server)
             
             #This is playable media, so link to a path to a play function
             mode=5
@@ -912,23 +929,7 @@ def EPISODES(url='',tree=etree,server=''):
             properties['duration']=str(datetime.timedelta(seconds=int(arguments['duration'])))
             
             #If we are streaming, then get the virtual location
-            if g_stream == "true":
-                try:
-                    url='http://'+server+str(partarguments['key'])
-                except:
-                    print "Error: no stream location"
-                    continue
-            else:
-                #Else get the actual location, and use this via SMB if configured
-                try:
-                    location=str(partarguments['file'])
-                    location=location.replace("Volumes",server)
-                    location=location.replace(":32400","")
-                    url='smb:/'+location
-                except:
-                    print "Error: No file location"
-                    continue
-                            
+            url=mediaType(partarguments,server)
             #Set mode 5, which is play            
             mode=5
             print '============='        
@@ -1171,6 +1172,9 @@ def monitorPlayback(id, url, resume, duration):
     
     #Get the server name to update
     server=url.split('/')[2]
+       
+    if len(server.split(':')) == 1:
+        server=server+":32400"
     
     #Get the current time (either the resumed time or 0)
     currentTime=int(resume)
@@ -1210,7 +1214,7 @@ def monitorPlayback(id, url, resume, duration):
         print "updateURL = " + updateURL
         
     #Submit the update URL    
-    output = getURL(updateURL)
+    output = getURL(updateURL, "Updating PMS...")
     print "output is " + str(output)
     
     print "Creating a temporary new resume time"
