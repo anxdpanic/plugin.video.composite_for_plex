@@ -1,8 +1,8 @@
+[B] Version 1.5.3 [/B] Altered file selection logic to search for local media before streaming remotely.
+[B] Version 1.5 [/B] Added transcoding options and also ability to talk to remote PMS library.
 [B] Version 1.4 [/B] Plugin speed up whilst parsing movies and Tv shows.  Added option of extended Plex style menus
 [B] Version 1.3 [/B] Metadata for Movies and TV Shows.  Resume and watched status.  Feed back results into PMS.
 [B] Version 1.2 [/B] Inital support for Plugins
 [B] Version 1.1 [/B] Updated version, and verified installation as a plugin
 [B] Version 1.0.1 [/B] Updated version with streaming option and view fixes
 [B] Version 1.0 [/B] Initial release
-
-This plugin conmtains code from bluecop and Mike M.
