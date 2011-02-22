@@ -57,7 +57,7 @@ pluginhandle = int(sys.argv[1])
 
 ################################ Common
 # Connect to a server and retrieve the HTML page
-def getURL( url ,error="Error"):
+def getURL( url ,title="Error"):
     try:
         
         print 'PleXBMC--> getURL :: url = '+url
@@ -74,17 +74,17 @@ def getURL( url ,error="Error"):
         link = data.read()
     except httplib.HTTPException:
         error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
-        xbmcgui.Dialog().ok('Error',error)
+        xbmcgui.Dialog().ok(title,error)
         raise
         return False
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
-        xbmcgui.Dialog().ok('Error',error)
+        xbmcgui.Dialog().ok(title,error)
         print error
         return False
     except socket.error, msg : 
         error="Unable to connect to " + server +"\nReason: " + str(msg)
-        xbmcgui.Dialog().ok('Error',error)
+        xbmcgui.Dialog().ok(title,error)
         print error
         return False
     else:
@@ -117,6 +117,9 @@ def mediaType(partproperties, server):
         print "selecting smb"
         location=file.replace("Volumes",server)
         filelocation="smb:/"+location.replace(":32400","")
+    else:
+        print "No option detected, streaming is safest to choose"        
+        filelocation="http://"+server+stream
     
     print "returning: " + filelocation
     return filelocation
@@ -126,11 +129,11 @@ def mediaType(partproperties, server):
 #Used to add playable media files to directory listing
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
-def addLink(id,name,url,mode,properties,arguments):       
+def addLink(url,properties,arguments):       
         u=sys.argv[0]+"?url="+str(url)
         ok=True
 
-        print 'harley:'+ u
+        print 'URL to use for listing:'+ u
 
         #Create ListItem object, which is what is displayed on screen
         liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
@@ -158,7 +161,7 @@ def addLink(id,name,url,mode,properties,arguments):
 #Used to add directory item to the listing.  These are non-playable items.  They can be mixed with playable items created above.
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
-def addDir(name,url,mode,properties,arguments):
+def addDir(url,properties,arguments):
 
         #Create the URL to pass to the item
         u=sys.argv[0]+"?url="+str(url)
@@ -173,7 +176,7 @@ def addDir(name,url,mode,properties,arguments):
             #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo( type="Video", infoLabels=properties ) 
         
-        print 'harley:'+ u
+        print 'URL to use for listing:'+ u
         
         #If we have set a number of watched episodes per season
         try:
@@ -264,7 +267,7 @@ def ROOT():
                     s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
                 
                 #Build that listing..
-                addDir(arguments['title'],s_url,mode, properties,arguments)
+                addDir(s_url, properties,arguments)
                 
 			#Plex plugin handling 
             #Simple check if any plugins are present.  
@@ -295,7 +298,7 @@ def ROOT():
                     properties['title']=server[0]+": Plugins"
                                 
                 #Add an on screen link
-                addDir(properties['title'], s_url, mode, properties,arguments)
+                addDir(s_url, properties,arguments)
 		
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
@@ -515,7 +518,7 @@ def MoviesET(url='',tree=etree,server=''):
                     
             print "url is " + u
             #Right, add that link...and loop around for another entry
-            addLink(arguments['ratingKey'],properties['title'],u,mode,properties,arguments)        
+            addLink(u,properties,arguments)        
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -626,7 +629,7 @@ def SHOWS(url='',tree=etree,server=''):
             mode=4 # grab season details
             url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
             
-            addDir(properties['title'],url,mode,properties,arguments) 
+            addDir(url,properties,arguments) 
             
         #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -711,7 +714,7 @@ def Seasons(url):
          
 
             #Build the screen directory listing
-            addDir(properties['title'],url,mode,properties,arguments) 
+            addDir(url,properties,arguments) 
             
         #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -946,7 +949,7 @@ def EPISODES(url='',tree=etree,server=''):
             u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
             #Build a file link and loop
-            addLink(id,arguments['title'],u,mode,properties,arguments)        
+            addLink(u,properties,arguments)        
         
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -1007,7 +1010,7 @@ def PlexPlugins(url):
 
                 print "properties is " + str(properties)
                 
-                addDir(properties['title'], s_url, mode, properties, arguments)
+                addDir(s_url, properties, arguments)
                     
             #If we have some video links as well
             elif orange.tag == "Video":
@@ -1020,7 +1023,7 @@ def PlexPlugins(url):
 
                 print "properties is " + str(properties)
                 
-                addLink(id,properties['title'], v_url, mode, properties, arguments)
+                addLink(v_url, properties, arguments)
         
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -1327,7 +1330,7 @@ def getDirectory(url):
         
         n_url=url+'/'+arguments['key']+'&mode=0'
 
-        addDir(properties['title'],n_url,0,properties,arguments)
+        addDir(n_url,properties,arguments)
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
