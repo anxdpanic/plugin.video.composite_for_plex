@@ -4,7 +4,7 @@
 	<setting id="remote" type=bool label="20004" default="false" />
 	<setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="20005" />
 	<setting id="password" type=text  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="20006" />
-    <setting id="streaming" type="bool" label="20001" default="true"/>
+    <setting id="streaming" type="enum" label="20001" lvalues="20011|20012|20013" default="20011"/>
     <setting id="secondary" type="bool" label="20003" default="false"/>
     <setting id="transcode" type="bool" label="20007" default="false"/>
     <setting id="transcodefmt" type="enum" label="20008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="20009|20010" default="20010" />

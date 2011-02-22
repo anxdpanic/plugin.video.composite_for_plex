@@ -11,4 +11,7 @@
     <string id="20008">Transcode format </string>
     <string id="20009">m3u8</string>
     <string id="20010">flv</string>
+    <string id="20011">auto</string>
+    <string id="20012">stream</string>
+    <string id="20013">smb</string>
 </strings>

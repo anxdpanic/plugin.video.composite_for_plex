@@ -1,9 +1,16 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib, socket
 import sys,os,datetime, time, sha
-import  elementtree.ElementTree as etree
+
+__settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
+__cwd__ = __settings__.getAddonInfo('path')
+BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
+sys.path.append(BASE_RESOURCE_PATH)
+
+import ElementTree as etree
 
 #Get the setting from the appropriate file.
-__settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
+
+
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
 g_extended = __settings__.getSetting('extended')
@@ -21,7 +28,7 @@ if g_transcode == "true":
     elif g_transcodetype == "1":
         g_transcodefmt="flv"
 
-    print "Trasncode format is " + g_transcodefmt
+    print "Transcode format is " + g_transcodefmt
    
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
