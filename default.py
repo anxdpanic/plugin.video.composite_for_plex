@@ -136,13 +136,19 @@ def addLink(url,properties,arguments):
         print 'URL to use for listing:'+ u
 
         #Create ListItem object, which is what is displayed on screen
-        liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+        liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb'])
         
         print "Setting thumbnail as " + arguments['thumb']              
         print "Property is " + str(properties)
         
         #Set properties of the listitem object, such as name, plot, rating, content type, etc
         liz.setInfo( type=arguments['type'], infoLabels=properties ) 
+        
+        try:
+            liz.setProperty('Artist_Genre', properties['genre'])
+            liz.setProperty('Artist_Description', properties['plot'])
+        except: pass
+
         
         #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
@@ -166,17 +172,22 @@ def addDir(url,properties,arguments):
         #Create the URL to pass to the item
         u=sys.argv[0]+"?url="+str(url)
         ok=True
-        
+                
         #Create the ListItem that will be displayed
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb'])
         except:
-            liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage='')
+            liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
 
         #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo( type=arguments['type'], infoLabels=properties ) 
         
         print 'URL to use for listing:'+ u
+        
+        try:
+            liz.setProperty('Artist_Genre', properties['genre'])
+            liz.setProperty('Artist_Description', properties['plot'])
+        except: pass
         
         #If we have set a number of watched episodes per season
         try:
@@ -1468,7 +1479,7 @@ def artist(url='',tree=etree,server=''):
             
             #Get name
             try:
-                properties['title']=arguments['title'].encode('utf-8')
+                properties['title']=properties['artist']=arguments['title'].encode('utf-8')
             except: pass
                         
             #Get the Plot          
@@ -1524,6 +1535,10 @@ def albums(url):
         html=getURL(url)
         tree= etree.fromstring(html)
         
+        try:
+            artist=tree.get('parentTitle')
+        except: pass
+        
         #For all the directory tags
         ShowTags=tree.findall('Directory')
         for show in ShowTags:
@@ -1534,7 +1549,7 @@ def albums(url):
  
             #Get name
             try:
-                properties['title']=arguments['title'].encode('utf-8')
+                properties['title']=properties['album']=arguments['title'].encode('utf-8')
             except: pass
        
 
@@ -1557,6 +1572,10 @@ def albums(url):
 
             arguments['fanart_image']=art_url
 
+            try:
+                properties['artist']=artist
+            except: pass
+            
             #Get number of episodes in season
             #try:
             #     properties['episode']=int(arguments['leafCount'])
@@ -1579,6 +1598,10 @@ def albums(url):
             arguments['type']="Music"
             mode=15
             
+            try:
+                properties['year']=int(arguments['year'])
+            except: pass
+            
             url='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
             #Set the mode to episodes, as that is what's next 
         
@@ -1596,18 +1619,18 @@ def albums(url):
         xbmcplugin.endOfDirectory(pluginhandle)
 
 def tracks(url='',tree=etree,server=''):
-        xbmcplugin.setContent(pluginhandle, 'episodes')
+        xbmcplugin.setContent(pluginhandle, 'songs')
 
         print '=============='
         print url
-        print 'Getting TV Episodes'
+        print 'GettingSongs'
         
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
         
         #Get the server
         try:
             server=url.split('/')[2]
-            #Get the end part of teh URL, as we need to get different data if parsing "All Episodes"
+            #Get the end part of thd URL, as we need to get different data if parsing "All Episodes"
             target=url.split('/')[-1]
             print server
             print target
@@ -1626,17 +1649,19 @@ def tracks(url='',tree=etree,server=''):
         #If it doesn't exist, we'll check later and get it from elsewhere
         #MainTag=tree.findAll('mediacontainer')[0]
          
-        #Name of the show
-        try:
-            artistname=tree.get('grandparentTitle')
-        except:
-            artistname=None
+        print str(tree.items()) 
+ 
+         
+        if not target == "allLeaves":
+            #Name of the show
+            try:
+                artistname=tree.get('grandparentTitle')
+            except: pass
                 
-        #the album
-        try:
-            albumname = tree.get('parentTitle')
-        except:
-            albumname = None            
+            #the album
+            try:
+                albumname = tree.get('parentTitle')
+            except: pass
          
         #right, not for each show we find
         for show in ShowTags:
@@ -1672,7 +1697,7 @@ def tracks(url='',tree=etree,server=''):
             
             #Get the tracknumber number
             try:
-                properties['tracknumber']=int(arguments['index'])
+                properties['TrackNumber']=int(arguments['index'])
             except: pass
 
             #Get name
@@ -1702,21 +1727,16 @@ def tracks(url='',tree=etree,server=''):
             #If we are processing an "All Episodes" directory, then get the season from the video tag
             
             try:
-                if target == "allLeaves":
-                    try:
-                        properties['album']=int(arguments['parentIndex'])
-                    except:pass
-            except:    
-                properties['album']=int(albumname)
-             
+                properties['album']=albumname
+            except: 
+                properties['album']=arguments['parentTitle']
+            
                     
             #Check if we got the showname from the main tag        
-            if artistname is None:
-                try:
-                    properties['artist']=arguments['grandparentTitle']
-                except: pass
-            else:
+            try:
                 properties['artist']=artistname
+            except:
+                properties['artist']=arguments['grandparentTitle']
                 
             #Get the picture to use
             try:
