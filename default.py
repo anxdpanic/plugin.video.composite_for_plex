@@ -6,7 +6,10 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 sys.path.append(BASE_RESOURCE_PATH)
 
-import ElementTree as etree
+try:
+    import elementtree.ElementTree as etree
+except: 
+    import ElementTree as etree
 
 #Get the setting from the appropriate file.
 g_host = __settings__.getSetting('ipaddress')
