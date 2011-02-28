@@ -145,7 +145,7 @@ def addLink(url,properties,arguments):
         print 'URL to use for listing:'+ u
 
         #Create ListItem object, which is what is displayed on screen
-        liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+        liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
         
         print "Setting thumbnail as " + arguments['thumb']              
         print "Property is " + str(properties)
@@ -158,7 +158,7 @@ def addLink(url,properties,arguments):
                 
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']))
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
             print "Setting fan art"
         except: pass
         
@@ -178,7 +178,7 @@ def addDir(url,properties,arguments):
         
         #Create the ListItem that will be displayed
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb'])
+            liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage='')
 
@@ -196,7 +196,7 @@ def addDir(url,properties,arguments):
         
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']))
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
             print "Setting fan art"
         except: pass
 
@@ -1046,15 +1046,19 @@ def PLAYEPISODE(id,vids,seek, duration):
         print "Initial play URL is " + url
    
         server=url.split('/')[2]
+        protocol=url.split('/')[0]
         urlPath="/"+"/".join(url.split('/')[3:])
    
-        if url.split('/')[0] == "file:":
-            print "we are playing a file"
-            url=urlPath
    
         if g_transcode == "true":
             url=transcode(id,url)
    
+        if protocol == "file:":
+            print "we are playing a file"
+            url=urlPath
+        elif protocol == "http:":
+            url=url+XBMCInternalHeaders
+
         print "the one I'm going to use is " + url
         
         print "current resume is " + str(seek)
@@ -1243,7 +1247,7 @@ def monitorPlayback(id, server, resume, duration):
 #Just a standard playback 
 def PLAY(vids):
         #This is for playing standard non-PMS library files (such as Plugins)
-        url = vids
+        url = vids+XBMCInternalHeaders
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
