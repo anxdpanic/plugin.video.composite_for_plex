@@ -9,16 +9,16 @@ sys.path.append(BASE_RESOURCE_PATH)
 import ElementTree as etree
 
 #Get the setting from the appropriate file.
-
-
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
-g_extended = __settings__.getSetting('extended')
 g_secondary = __settings__.getSetting('secondary')
-g_remote = __settings__.getSetting('remote')
 
+print "Settings hostname: " + g_host
+print "Settings streaming: " + g_stream
+print "Setting secondary: " + g_secondary
+
+#Check and set transcoding options
 g_transcode = __settings__.getSetting('transcode')
-
 if g_transcode == "true":
     print "We are set to Transcode"
     g_transcodetype = __settings__.getSetting('transcodefmt')
@@ -32,14 +32,14 @@ if g_transcode == "true":
    
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
+#Create the standard header structure and load with a User Agent to ensure we get back a response.
 g_txheaders = {
               'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'	
               }
 
-print "Settings hostname: " + g_host
-print "Settings streaming: " + g_stream
-print "Setting secondary: " + g_secondary
-
+#Set up the remote access authentication tokens
+g_remote = __settings__.getSetting('remote')
+XBMCInternalHeaders=""
 if g_remote == "true":
     print "Remote library enabled.  Getting user/pass from settings"
     g_username= __settings__.getSetting('username')
@@ -50,8 +50,12 @@ if g_remote == "true":
     msg=sha.new(g_password.lower())
     msg2=sha.new(g_username.lower()+msg.hexdigest()).hexdigest()
             
+    #Load the auth strings into the URL header structure.
     g_txheaders['X-Plex-User']=str(g_username.lower())
     g_txheaders['X-Plex-Pass']=str(msg2)
+    
+    #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
+    XBMCInternalHeaders="|X-Plex-User="+g_txheaders['X-Plex-User']+"&X-Plex-Pass="+g_txheaders['X-Plex-Pass']
     
 pluginhandle = int(sys.argv[1])
 
@@ -1112,7 +1116,7 @@ def PLAYEPISODE(id,vids,seek, duration):
         return
 
 def selectMedia(id,url,seek,duration):
-    #if we have two or more files for teh same movie, then present a screen
+    #if we have two or more files for the same movie, then present a screen
 
     options=[]
     server=url.split('/')[2]
@@ -1128,7 +1132,7 @@ def selectMedia(id,url,seek,duration):
         for crap in file:
             print str(crap.tag)
             if crap.tag == "Media":
-                print "havce foud media"
+                print "have found media"
                 for stuff in crap:
                     print str(stuff.tag)
                     if stuff.tag == "Part":
@@ -1158,15 +1162,9 @@ def selectMedia(id,url,seek,duration):
         #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
         return
     else:
-        if g_stream == "true":
-            play=options[result][0]
-            newurl='http://'+server+str(play)
-        else:
-            play=options[result][1]
-            play=play.replace("Volumes",server)
-            play=play.replace(":32400","")
-            newurl='smb://'+play
-    
+   
+        newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server)
+   
     print "url is " + newurl
     PLAYEPISODE(id,newurl,seek, duration)
     return
