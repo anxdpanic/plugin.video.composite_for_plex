@@ -108,7 +108,7 @@ def mediaType(partproperties, server):
         #check if the file can be found locally
         try:
             print "Checking for local file"
-            exists = open(file, r)
+            exists = open(file, 'r')
             exists.close()
             filelocation=file
         except:
