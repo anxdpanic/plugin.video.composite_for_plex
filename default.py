@@ -23,6 +23,8 @@ print "Setting secondary: " + g_secondary
 #Check and set transcoding options
 g_transcode = __settings__.getSetting('transcode')
 if g_transcode == "true":
+    #If transcode is set, ignore the stream setting for file and smb:
+    g_stream = "1"
     print "We are set to Transcode"
     g_transcodetype = __settings__.getSetting('transcodefmt')
     print "type is " + g_transcodetype
@@ -110,7 +112,7 @@ def mediaType(partproperties, server):
             print "Checking for local file"
             exists = open(file, 'r')
             exists.close()
-            filelocation=file
+            filelocation="file://"+server+file
         except:
             print "no local file, defaulting to stream"
             filelocation="http://"+server+stream
@@ -1043,6 +1045,13 @@ def PLAYEPISODE(id,vids,seek, duration):
    
         print "Initial play URL is " + url
    
+        server=url.split('/')[2]
+        urlPath="/"+"/".join(url.split('/')[3:])
+   
+        if url.split('/')[0] == "file:":
+            print "we are playing a file"
+            url=urlPath
+   
         if g_transcode == "true":
             url=transcode(id,url)
    
@@ -1114,7 +1123,7 @@ def PLAYEPISODE(id,vids,seek, duration):
             xbmc.Player().seekTime((resumeseconds)) 
         
         #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
-        monitorPlayback(id,url, resume, duration)
+        monitorPlayback(id,server, resume, duration)
         
         return
 
@@ -1176,14 +1185,12 @@ def selectMedia(id,url,seek,duration):
     
         
 #Monitor function so we can update PMS
-def monitorPlayback(id, url, resume, duration):
+def monitorPlayback(id, server, resume, duration):
     #Need to monitor the running playback, so we can determine a few things:
     #1. If the file has completed normally (i.e. the movie has finished)
     #2. If the file has been stopped halfway through - need to record the stop time.
     
     #Get the server name to update
-    server=url.split('/')[2]
-       
     if len(server.split(':')) == 1:
         server=server+":32400"
     
@@ -1483,7 +1490,7 @@ elif mode==5:
 elif mode==6:
         EPISODES(url)
 elif mode==7:
-		PlexPlugins(url)
+        PlexPlugins(url)
 elif mode==10:
         StartMovies()
 elif mode==11:
