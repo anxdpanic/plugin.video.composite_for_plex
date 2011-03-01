@@ -145,11 +145,7 @@ def addLink(url,properties,arguments):
         print 'URL to use for listing:'+ u
 
         #Create ListItem object, which is what is displayed on screen
-<<<<<<< HEAD
-        liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
-=======
-        liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb'])
->>>>>>> audio
+        liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
         
         print "Setting thumbnail as " + arguments['thumb']              
         print "Property is " + str(properties)
@@ -188,11 +184,8 @@ def addDir(url,properties,arguments):
                 
         #Create the ListItem that will be displayed
         try:
-<<<<<<< HEAD
-            liz=xbmcgui.ListItem(properties['title'], iconImage="DefaultFolder.png", thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
-=======
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb'])
->>>>>>> audio
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
+
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
 
@@ -1682,6 +1675,10 @@ def tracks(url='',tree=etree,server=''):
             try:
                 albumname = tree.get('parentTitle')
             except: pass
+            
+            try:
+                thumb=tree.get('thumb')
+            except: pass
          
         #right, not for each show we find
         for show in ShowTags:
@@ -1724,14 +1721,7 @@ def tracks(url='',tree=etree,server=''):
             try:
                 properties['title']=arguments['title'].encode('utf-8')
             except: pass
-                        
-            #Get the watched status
-            #try:
-            #    properties['playcount']=int(arguments['viewCount'])
-            #    if properties['playcount'] > 0:
-            #        properties['overlay']=7
-            #except: pass
-            
+                                    
             #Get how good it is, based on your votes...
             try:
                 properties['rating']=float(arguments['rating'])
@@ -1760,11 +1750,14 @@ def tracks(url='',tree=etree,server=''):
                 
             #Get the picture to use
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+thumb
             except:
-                thumb=g_loc+'/resources/movie.png'  
-                print thumb  
-                arguments['thumb']=thumb
+                try:
+                    arguments['thumb']='http://'+server+arguments['thumb']
+                except:
+                    thumb=g_loc+'/resources/movie.png'  
+                    print thumb  
+                    arguments['thumb']=thumb
                
             #Get a nice big picture  
             try:
