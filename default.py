@@ -151,7 +151,10 @@ def addLink(url,properties,arguments):
         print "Property is " + str(properties)
         
         #Set properties of the listitem object, such as name, plot, rating, content type, etc
-        liz.setInfo( type=arguments['type'], infoLabels=properties ) 
+        try:
+            liz.setInfo( type=arguments['type'], infoLabels=properties ) 
+        except:
+            liz.setInfo(type='Video', infoLabels=properties ) 
         
         try:
             liz.setProperty('Artist_Genre', properties['genre'])
@@ -190,8 +193,11 @@ def addDir(url,properties,arguments):
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
 
         #Set the properties of the item, such as summary, name, season, etc
-        liz.setInfo( type=arguments['type'], infoLabels=properties ) 
-        
+        try:
+            liz.setInfo( type=arguments['type'], infoLabels=properties ) 
+        except:
+            liz.setInfo(type='Video', infoLabels=properties ) 
+
         print 'URL to use for listing:'+ u
         
         try:
@@ -1330,6 +1336,7 @@ def getDirectory(url):
     
     server=url.split('/')[2]
     lastbit=url.split('/')[-1]
+    secondtolast=url.split('/')[-2]
     
     if lastbit.startswith('search'):
         #Found search URL.  Bring up keyboard and get input for query string
@@ -1364,9 +1371,18 @@ def getDirectory(url):
         return
     elif arguments['viewGroup'] == 'artist':
         print "this is music XML, passing to music"
-        artist(tree=tree,server=server)
+        if lastbit.startswith('album') or secondtolast.startswith('decade') or secondtolast.startswith('year'):
+            albums(tree=tree, server=server)
+        else:    
+            artist(tree=tree,server=server)
         return
-        
+    elif arguments['viewGroup'] == "track":
+        if lastbit.startswith('recentlyAdded'):
+            albums(tree=tree, server=server)
+        else:
+            tracks(tree=tree, server=server)
+        return
+         
     #else we have a secondary, which we'll process here
     print "We must have some secondaries to process"
     
@@ -1535,28 +1551,31 @@ def artist(url='',tree=etree,server=''):
         #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
 
-def albums(url):
+def albums(url='', tree=etree, server=''):
         xbmcplugin.setContent(pluginhandle, 'albums')
 
         print '=============='
         print 'Getting albums'
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+       
+        if not url == '':
         
-        #Get URL, XML and parse
-        server=url.split('/')[2]
-        print server
-        html=getURL(url)
-        tree= etree.fromstring(html)
+           #Get URL, XML and parse
+            server=url.split('/')[2]
+            print server
+            html=getURL(url)
+            tree= etree.fromstring(html)
         
         try:
-            artist=tree.get('parentTitle')
+            treeargs=dict(tree.items())
+            artist=treeargs['parentTitle']
         except: pass
         
         #For all the directory tags
         ShowTags=tree.findall('Directory')
         for show in ShowTags:
         
-            arguments=dict(show.items());
+            arguments=dict(show.items())
             #Build basic data structures
             properties={}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
  
@@ -1587,13 +1606,12 @@ def albums(url):
 
             try:
                 properties['artist']=artist
-            except: pass
-            
-            #Get number of episodes in season
-            #try:
-            #     properties['episode']=int(arguments['leafCount'])
-            #except:pass
-            
+            except: 
+                try:
+                    properties['artist']=arguments['parentTitle']
+                except:
+                    pass
+                        
             #Get number of watched episodes
             try:
                 watched=arguments['viewedLeafCount']
@@ -1615,7 +1633,7 @@ def albums(url):
                 properties['year']=int(arguments['year'])
             except: pass
             
-            url='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+            url='http://'+server+arguments['key']+"&mode="+str(mode)
             #Set the mode to episodes, as that is what's next 
         
     
@@ -1662,23 +1680,25 @@ def tracks(url='',tree=etree,server=''):
         #If it doesn't exist, we'll check later and get it from elsewhere
         #MainTag=tree.findAll('mediacontainer')[0]
          
-        print str(tree.items()) 
+        treeargs=dict(tree.items()) 
  
-         
-        if not target == "allLeaves":
-            #Name of the show
-            try:
-                artistname=tree.get('grandparentTitle')
-            except: pass
+        try: 
+            if not target == "allLeaves":
+                #Name of the show
+                try:
+                    artistname=tree.get('grandparentTitle')
+                except: pass
                 
-            #the album
-            try:
-                albumname = tree.get('parentTitle')
-            except: pass
+                #the album
+                try:
+                    albumname = tree.get('parentTitle')
+                except: pass
             
-            try:
-                thumb=tree.get('thumb')
-            except: pass
+                try:
+                    thumb=tree.get('thumb')
+                except: pass
+                
+        except: pass
          
         #right, not for each show we find
         for show in ShowTags:
@@ -1805,6 +1825,8 @@ def tracks(url='',tree=etree,server=''):
         
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
+
+  
 		
 ##So this is where we really start the plugin.
 
