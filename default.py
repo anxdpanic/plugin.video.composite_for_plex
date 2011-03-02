@@ -66,7 +66,7 @@ pluginhandle = int(sys.argv[1])
 
 ################################ Common
 # Connect to a server and retrieve the HTML page
-def getURL( url ,title="Error"):
+def getURL( url ,title="Error", surpress=False):
     try:
         
         print 'PleXBMC--> getURL :: url = '+url
@@ -80,13 +80,16 @@ def getURL( url ,title="Error"):
         conn = httplib.HTTPConnection(server) 
         conn.request("GET", urlPath, headers=g_txheaders) 
         data = conn.getresponse() 
-        print "HTTP response code: " + str(data.status)
-        link = data.read()
-    except httplib.HTTPException:
-        error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
-        xbmcgui.Dialog().ok(title,error)
-        raise
-        return False
+        #print "HTTP response code: " + str(data.status)
+        #link = data.read()
+        if int(data.status) >= 400:
+            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
+            if surpress is False:
+                xbmcgui.Dialog().ok(title,error)
+            print error
+            return False
+        else:
+            link=data.read()
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
         xbmcgui.Dialog().ok(title,error)
@@ -141,11 +144,19 @@ def mediaType(partproperties, server):
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addLink(url,properties,arguments):
 
+        print "we have been given " + url
+
         try:
-            if arguments['type']=="Picture":
-                u=url
+            type=arguments['type']
         except:
+            type='Video'
+            
+        if type =="Picture":
+             u=url
+             print "setting to " + u
+        else:
             u=sys.argv[0]+"?url="+str(url)
+            print "instead setting to " + u
         
         ok=True
 
@@ -158,10 +169,7 @@ def addLink(url,properties,arguments):
         print "Property is " + str(properties)
         
         #Set properties of the listitem object, such as name, plot, rating, content type, etc
-        try:
-            liz.setInfo( type=arguments['type'], infoLabels=properties ) 
-        except:
-            liz.setInfo(type='Video', infoLabels=properties ) 
+        liz.setInfo( type=type, infoLabels=properties ) 
         
         try:
             liz.setProperty('Artist_Genre', properties['genre'])
@@ -243,7 +251,10 @@ def ROOT():
             #Get the HTML for the URL
             url = 'http://'+host+':32400/servers'
             html=getURL(url)
-        
+            
+            if html is False:
+                return
+               
             #Pass HTML to BSS to convert it into a nice parasble tree.
             tree=etree.fromstring(html)
                 
@@ -266,6 +277,10 @@ def ROOT():
             #dive into the library section with BS        
             url='http://'+server[1]+':32400/library/sections'
             html=getURL(url)
+            
+            if html is False:
+                return
+                
             tree = etree.fromstring(html)
             
             #Find all the directory tags, as they contain further levels to follow
@@ -311,6 +326,10 @@ def ROOT():
             #Plugin data is held in /videos directory (well, video data is anyway)
             pluginurl='http://'+server[1]+':32400/video'
             pluginhtml=getURL(pluginurl)
+            
+            if pluginhtml is False:
+                return
+           
             plugintree=etree.fromstring(pluginhtml)
 
             #Check the number of items in the mediacontainer tag.
@@ -348,7 +367,18 @@ def ROOT():
             mode=16
             u="http://"+server[1]+":32400/photos&mode="+str(mode)
             addDir(u,properties,arguments)
-		
+
+            #Create music plugin link
+            if g_remote == "true":
+                properties['title']="Music Plugins"
+            else:
+                properties['title']=server[0]+": Music Plugins"
+            arguments['type']="Music"
+            mode=17
+            u="http://"+server[1]+":32400/music&mode="+str(mode)
+            addDir(u,properties,arguments)
+
+            
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
 ################################ Movies listing  
@@ -359,6 +389,10 @@ def StartMovies():
         host=g_host
         url = 'http://'+host+':32400/library/sections'
         html=getURL(url)
+        
+        if html is False:
+            return
+        
         tree=etree.fromstring(html)
         SectionTags=tree.findall('Directory')
         for object in SectionTags:
@@ -378,6 +412,11 @@ def StartTV():
         host=g_host
         url = 'http://'+host+':32400/library/sections'
         html=getURL(url)
+        
+        if html is False:
+            return
+
+        
         tree=etree.fromstring(html)
         SectionTags=tree.findall('Directory')
         for object in SectionTags:
@@ -409,6 +448,10 @@ def MoviesET(url='',tree=etree,server=''):
             print server
             #Get some XML and parse it
             html=getURL(url)
+            
+            if html is False:
+                return
+                
             tree = etree.fromstring(html)
                     
         #Find all the video tags, as they contain the data we need to link to a file.
@@ -594,6 +637,10 @@ def SHOWS(url='',tree=etree,server=''):
             print server
             html=getURL(url)
         
+            if html is False:
+                return
+
+        
             tree=etree.fromstring(html)
             
         #For each directory tag we find
@@ -702,6 +749,11 @@ def Seasons(url):
         server=url.split('/')[2]
         print server
         html=getURL(url)
+        
+        if html is False:
+            return
+
+        
         tree= etree.fromstring(html)
         
         #For all the directory tags
@@ -803,6 +855,11 @@ def EPISODES(url='',tree=etree,server=''):
             print "no tree, so create from html"
             #Get URL, XML and Parse
             html=getURL(url)
+            
+            if html is False:
+                return
+
+            
             tree=etree.fromstring(html)
             ShowTags=tree.findall('Video')
             
@@ -1027,6 +1084,11 @@ def PlexPlugins(url):
         server=url.split('/')[2]
         print server
         html=getURL(url)
+        
+        if html is False:
+            return
+
+        
         tree=etree.fromstring(html)
 		        
                 
@@ -1195,6 +1257,11 @@ def selectMedia(id,url,seek,duration):
     options=[]
     server=url.split('/')[2]
     html=getURL(url)
+    
+    if html is False:
+        return
+
+    
     newtree=etree.fromstring(html)
        
     video=newtree.findall('Video')
@@ -1294,7 +1361,7 @@ def monitorPlayback(id, server, resume, duration):
         print "updateURL = " + updateURL
         
     #Submit the update URL    
-    output = getURL(updateURL, "Updating PMS...")
+    output = getURL(updateURL, "Updating PMS...", true)
     print "output is " + str(output)
     
     print "Creating a temporary new resume time"
@@ -1369,6 +1436,11 @@ def getDirectory(url):
      
     
     html=getURL(url)
+    
+    if html is False:
+        return
+
+    
     tree=etree.fromstring(html)
     
     
@@ -1502,6 +1574,10 @@ def artist(url='',tree=etree,server=''):
             server=url.split('/')[2]
             print server
             html=getURL(url)
+            
+            if html is False:
+                return
+
         
             tree=etree.fromstring(html)
             
@@ -1581,6 +1657,11 @@ def albums(url='', tree=etree, server=''):
             server=url.split('/')[2]
             print server
             html=getURL(url)
+            
+            if html is False:
+                return
+
+            
             tree= etree.fromstring(html)
         
         try:
@@ -1690,6 +1771,11 @@ def tracks(url='',tree=etree,server=''):
             print "no tree, so create from html"
             #Get URL, XML and Parse
             html=getURL(url)
+            
+            if html is False:
+                return
+
+            
             tree=etree.fromstring(html)
             ShowTags=tree.findall('Track')
             
@@ -1848,6 +1934,10 @@ def photo(url):
     server=url.split('/')[2]
     
     html=getURL(url)
+    
+    if html is False:
+        return
+    
     tree=etree.fromstring(html)
     
     
@@ -1931,7 +2021,204 @@ def photo(url):
         addLink(u,properties,arguments)
 
     xbmcplugin.endOfDirectory(pluginhandle)
+
+def music(url):
+
+    xbmcplugin.setContent(pluginhandle, 'artists')
+
+
+    server=url.split('/')[2]
     
+    html=getURL(url)
+    
+    if html is False:
+        return
+
+    
+    tree=etree.fromstring(html)
+    
+    
+    for grapes in tree.findall('Directory'):
+        
+        arguments=dict(grapes.items())
+        properties={}
+        
+        try:
+            properties['title']=properties['name']=arguments['title'].encode('utf-8')
+        except:
+            properties['title']=properties['name']="Unknown"
+            
+        try: 
+            properties['title']=arguments['title'].encode('utf-8')
+        except:
+            try:
+                properties['title']=arguments['name'].encode('utf-8')
+            except:
+                properties['title']="unknown"
+                
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb']
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            print thumb  
+            arguments['thumb']=thumb
+
+            
+        if arguments['key'][0] == '/':
+            #The key begins with a slah, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+        
+        mode=17
+        u=u+"&mode="+str(mode)
+        print "props: " + str(properties)
+        print "Args: " + str(arguments)
+        addDir(u,properties,arguments)
+
+    for strawberrys in tree.findall('Artist'):
+        
+        arguments=dict(strawberrys.items())
+        properties={}
+        
+        try:
+            properties['title']=properties['name']=arguments['artist'].encode('utf-8')
+        except:
+            properties['title']=properties['name']="Unknown"
+                            
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb']
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            print thumb  
+            arguments['thumb']=thumb
+
+        try:
+            properties['genre']=arguments['genre']
+        except: pass
+            
+        if arguments['key'][0] == '/':
+            #The key begins with a slah, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+        
+        arguments['type']="Music"
+        
+        mode=17
+        u=u+"&mode="+str(mode)
+        print "props: " + str(properties)
+        print "Args: " + str(arguments)
+        addDir(u,properties,arguments)
+        
+    for kiwi in tree.findall('Album'):
+        
+        xbmcplugin.setContent(pluginhandle, 'albums')
+    
+        
+        arguments=dict(kiwi.items())
+        properties={}
+        
+        try:
+            properties['title']=properties['name']=arguments['album'].encode('utf-8')
+        except:
+            properties['title']=properties['name']="Unknown"
+            
+        try: 
+            properties['tracknumber']=arguments['index']
+        except:pass
+        
+        try:
+            properties['artist']=arguments['artist']
+        except:pass
+                
+        try:
+            properties['year']=int(arguments['year'])
+        except:pass
+        
+        try:
+            properties['album']=arguments['album']
+        except:pass
+                
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb']
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            print thumb  
+            arguments['thumb']=thumb
+
+            
+        if arguments['key'][0] == '/':
+            #The key begins with a slash, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+        
+                
+        arguments['type']="Music"
+        
+        mode=17
+        u=u+"&mode="+str(mode)
+        print "props: " + str(properties)
+        print "Args: " + str(arguments)
+        addDir(u,properties,arguments)
+        
+    for lemons in tree.findall('Track'):
+    
+        xbmcplugin.setContent(pluginhandle, 'songs')
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
+
+        arguments=dict(lemons.items())
+        properties={}
+        
+        try:
+            properties['title']=properties['name']=arguments['track'].encode('utf-8')
+        except:
+            properties['title']=properties['name']="Unknown"
+            
+                
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb']
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            print thumb  
+            arguments['thumb']=thumb
+            
+            #Set the track length 
+            try:
+                arguments['totalTime']=int(arguments['totalTime'])/1000
+                properties['duration']=arguments['totalTime']
+            except: pass
+           
+        if arguments['key'].split('/')[0] == "http:":
+            u=arguments['key']
+        elif arguments['key'][0] == '/':
+            #The key begins with a slah, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+        
+        try: 
+            properties['tracknumber']=int(arguments['index'])
+        except:pass
+
+        
+        mode=12
+        
+        u=u+"&mode="+str(mode)
+        
+        arguments['type']="Music"
+        addLink(u,properties,arguments)
+
+    xbmcplugin.endOfDirectory(pluginhandle)    
 		
 ##So this is where we really start the plugin.
 
@@ -2020,6 +2307,8 @@ elif mode == 15:
         tracks(url)
 elif mode==16:
         photo(url)
+elif mode==17:
+        music(url)
         
 #clear done and exit.        
 sys.modules.clear()
