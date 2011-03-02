@@ -80,6 +80,7 @@ def getURL( url ,title="Error"):
         conn = httplib.HTTPConnection(server) 
         conn.request("GET", urlPath, headers=g_txheaders) 
         data = conn.getresponse() 
+        print "HTTP response code: " + str(data.status)
         link = data.read()
     except httplib.HTTPException:
         error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
@@ -138,8 +139,14 @@ def mediaType(partproperties, server):
 #Used to add playable media files to directory listing
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
-def addLink(url,properties,arguments):       
-        u=sys.argv[0]+"?url="+str(url)
+def addLink(url,properties,arguments):
+
+        try:
+            if arguments['type']=="Picture":
+                u=url
+        except:
+            u=sys.argv[0]+"?url="+str(url)
+        
         ok=True
 
         print 'URL to use for listing:'+ u
@@ -331,6 +338,16 @@ def ROOT():
                     
                 #Add an on screen link
                 addDir(s_url, properties,arguments)
+                
+            #Create Photo plugin link
+            if g_remote == "true":
+                properties['title']="Photo Plugins"
+            else:
+                properties['title']=server[0]+": Photo Plugins"
+            arguments['type']="Picture"
+            mode=16
+            u="http://"+server[1]+":32400/photos&mode="+str(mode)
+            addDir(u,properties,arguments)
 		
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
@@ -1826,7 +1843,95 @@ def tracks(url='',tree=etree,server=''):
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
 
-  
+def photo(url):
+
+    server=url.split('/')[2]
+    
+    html=getURL(url)
+    tree=etree.fromstring(html)
+    
+    
+    for banana in tree.findall('Directory'):
+        
+        arguments=dict(banana.items())
+        properties={}
+        
+        try:
+            properties['title']=properties['name']=arguments['title'].encode('utf-8')
+        except:
+            properties['title']=properties['name']="Unknown"
+            
+        try: 
+            properties['title']=arguments['title'].encode('utf-8')
+        except:
+            try:
+                properties['title']=arguments['name'].encode('utf-8')
+            except:
+                properties['title']="unknown"
+                
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb']
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            print thumb  
+            arguments['thumb']=thumb
+
+            
+        if arguments['key'][0] == '/':
+            #The key begins with a slah, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+        
+        mode=16
+        u=u+"&mode="+str(mode)
+        print "props: " + str(properties)
+        print "Args: " + str(arguments)
+        addDir(u,properties,arguments)
+    
+    for coconuts in tree.findall('Photo'):
+    
+        arguments=dict(coconuts.items())
+        properties={}
+        
+        try:
+            properties['title']=properties['name']=arguments['title'].encode('utf-8')
+        except:
+            properties['title']=properties['name']="Unknown"
+            
+        try: 
+            properties['title']=arguments['title'].encode('utf-8')
+        except:
+            try:
+                properties['title']=arguments['name'].encode('utf-8')
+            except:
+                properties['title']="unknown"
+                
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb']
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            print thumb  
+            arguments['thumb']=thumb
+
+           
+        if arguments['key'].split('/')[0] == "http:":
+            u=arguments['key']
+        elif arguments['key'][0] == '/':
+            #The key begins with a slah, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+        
+        arguments['type']="Picture"
+        addLink(u,properties,arguments)
+
+    xbmcplugin.endOfDirectory(pluginhandle)
+    
 		
 ##So this is where we really start the plugin.
 
@@ -1913,6 +2018,8 @@ elif mode ==14:
         albums(url)
 elif mode == 15:
         tracks(url)
+elif mode==16:
+        photo(url)
         
 #clear done and exit.        
 sys.modules.clear()
