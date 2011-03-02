@@ -102,7 +102,8 @@ def getURL( url ,title="Error", surpress=False):
         return False
     else:
         return link
- 
+
+        
 def mediaType(partproperties, server):
     #Passed a list of <Part /> tag attributes, select the appropriate media to play
     
@@ -1110,14 +1111,17 @@ def PlexPlugins(url):
                     properties['title']="unknown"
                     
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                if not arguments['thumb'].split('/')[0] == "http:":
+                    arguments['thumb']='http://'+server+arguments['thumb']
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
                 arguments['thumb']=thumb
 
-            
-            if arguments['key'][0] == '/':
+
+            if arguments['key'].split('/')[0] == "http:":
+                p_url=arguments['key']
+            elif arguments['key'][0] == '/':
                 #The key begins with a slah, there is absolute
                 p_url='http://'+server+str(arguments['key'])
             else:
@@ -1142,7 +1146,7 @@ def PlexPlugins(url):
             elif orange.tag == "Video":
              
                 #Set the mode to play them this time
-                mode=12                       
+                mode=18                       
                     
                 #Build the URl and add a link to the file
                 v_url=p_url+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])    
@@ -1309,10 +1313,7 @@ def selectMedia(id,url,seek,duration):
     print "url is " + newurl
     PLAYEPISODE(id,newurl,seek, duration)
     return
-    
-    
-    
-        
+           
 #Monitor function so we can update PMS
 def monitorPlayback(id, server, resume, duration):
     #Need to monitor the running playback, so we can determine a few things:
@@ -1376,6 +1377,29 @@ def PLAY(vids):
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
+def videoPluginPlay(vids):
+        #This is for playing standard non-PMS library files (such as Plugins)
+        
+        header=""
+        if vids.split('/')[4] == "amt":
+            #Apple trailers - need a special UA header 
+            uagent="QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
+            agentHeader="User-Agent="+urllib.quote_plus(uagent)
+                
+            print "headers are " +  XBMCInternalHeaders   
+                
+            if XBMCInternalHeaders == "":
+                header="|"+agentHeader
+            else:
+                header="&"+agentHeader
+            
+        url=vids+XBMCInternalHeaders+header
+        print "resolved URL is " + url
+        
+        item = xbmcgui.ListItem(path=url)
+        return xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
+        
+        
 #Function to parse the arguments passed to the plugin..
 def get_params():
         param=[]
@@ -2309,6 +2333,8 @@ elif mode==16:
         photo(url)
 elif mode==17:
         music(url)
+elif mode==18:
+    videoPluginPlay(url)
         
 #clear done and exit.        
 sys.modules.clear()
