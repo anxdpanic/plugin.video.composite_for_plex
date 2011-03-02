@@ -1361,7 +1361,7 @@ def monitorPlayback(id, server, resume, duration):
         print "updateURL = " + updateURL
         
     #Submit the update URL    
-    output = getURL(updateURL, "Updating PMS...", true)
+    output = getURL(updateURL, "Updating PMS...", True)
     print "output is " + str(output)
     
     print "Creating a temporary new resume time"
