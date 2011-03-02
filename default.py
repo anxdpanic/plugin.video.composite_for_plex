@@ -80,8 +80,6 @@ def getURL( url ,title="Error", surpress=False):
         conn = httplib.HTTPConnection(server) 
         conn.request("GET", urlPath, headers=g_txheaders) 
         data = conn.getresponse() 
-        #print "HTTP response code: " + str(data.status)
-        #link = data.read()
         if int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
             if surpress is False:
@@ -1896,16 +1894,14 @@ def tracks(url='',tree=etree,server=''):
                 properties['artist']=arguments['grandparentTitle']
                 
             #Get the picture to use
-            try:
-                arguments['thumb']='http://'+server+thumb
-            except:
+            if thumb is None:
                 try:
                     arguments['thumb']='http://'+server+arguments['thumb']
                 except:
-                    thumb=g_loc+'/resources/movie.png'  
-                    print thumb  
-                    arguments['thumb']=thumb
-               
+                    arguments['thumb']=g_loc+'/resources/movie.png'
+            else:
+                arguments['thumb']='http://'+server+thumb
+
             #Get a nice big picture  
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
