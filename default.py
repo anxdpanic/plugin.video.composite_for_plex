@@ -1110,7 +1110,7 @@ def PlexPlugins(url):
                 p_url=url+'/'+str(arguments['key'])
 
             
-            if orange.tag == "Directory":
+            if orange.tag == "Directory" or orange.tag == "Podcast":
                 #We have a directory tag, so come back into this function
                 mode=7   
                 s_url=p_url+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
@@ -1133,7 +1133,8 @@ def PlexPlugins(url):
                 arguments['type']="Video"
                
                 addLink(v_url, properties, arguments)
-        
+
+                
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
         
