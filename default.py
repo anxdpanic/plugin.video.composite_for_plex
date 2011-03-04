@@ -1996,6 +1996,11 @@ def music(url):
         properties={}
         
         try:
+            if arguments['key'] == "":
+                continue
+        except: pass
+        
+        try:
             properties['title']=properties['name']=arguments['title'].encode('utf-8')
         except:
             properties['title']=properties['name']="Unknown"
@@ -2031,6 +2036,12 @@ def music(url):
         
         arguments=dict(strawberrys.items())
         properties={}
+
+        try:
+            if arguments['key'] == "":
+                continue
+        except: pass
+
         
         try:
             properties['title']=properties['name']=arguments['artist'].encode('utf-8')
@@ -2068,6 +2079,11 @@ def music(url):
         
         arguments=dict(kiwi.items())
         properties={}
+
+        try:
+            if arguments['key'] == "":
+                continue
+        except: pass
         
         try:
             properties['title']=properties['name']=arguments['album'].encode('utf-8')
@@ -2119,6 +2135,12 @@ def music(url):
 
         arguments=dict(lemons.items())
         properties={}
+
+        try:
+            if arguments['key'] == "":
+                continue
+        except: pass
+
         
         try:
             properties['title']=properties['name']=arguments['track'].encode('utf-8')
@@ -2168,6 +2190,12 @@ def music(url):
         
         arguments=dict(kumquat.items())
         properties={}
+
+        try:
+            if arguments['key'] == "":
+                continue
+        except: pass
+
         
         try:
             properties['title']=properties['name']=arguments['title'].encode('utf-8')
