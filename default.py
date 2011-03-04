@@ -12,28 +12,32 @@ except:
     import ElementTree as etree
 
 #Get the setting from the appropriate file.
+print "===== PLEXBMC START ====="
 g_host = __settings__.getSetting('ipaddress')
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
-
-print "Settings hostname: " + g_host
-print "Settings streaming: " + g_stream
-print "Setting secondary: " + g_secondary
+g_debug = __settings__.getSetting('debug')
+if g_debug == "true":
+    print "PleXBMC -> Settings hostname: " + g_host
+    print "PleXBMC -> Settings streaming: " + g_stream
+    print "PleXBMC -> Setting secondary: " + g_secondary
+    print "PleXBMC -> Setting debug to " + g_debug
+else:
+    print "PleXBMC -> Debug is turned off.  Running silent"
 
 #Check and set transcoding options
 g_transcode = __settings__.getSetting('transcode')
 if g_transcode == "true":
     #If transcode is set, ignore the stream setting for file and smb:
     g_stream = "1"
-    print "We are set to Transcode"
+    if g_debug == "true": print "PleXBMC -> We are set to Transcode"
     g_transcodetype = __settings__.getSetting('transcodefmt')
-    print "type is " + g_transcodetype
     if g_transcodetype == "0":
         g_transcodefmt="m3u8"
     elif g_transcodetype == "1":
         g_transcodefmt="flv"
 
-    print "Transcode format is " + g_transcodefmt
+    if g_debug == "true": print "PleXBMC -> Transcode format is " + g_transcodefmt
    
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
@@ -46,10 +50,10 @@ g_txheaders = {
 g_remote = __settings__.getSetting('remote')
 XBMCInternalHeaders=""
 if g_remote == "true":
-    print "Remote library enabled.  Getting user/pass from settings"
+    if g_debug == "true": print "PleXBMC -> Remote library enabled.  Getting user/pass from settings"
     g_username= __settings__.getSetting('username')
     g_password =  __settings__.getSetting('password')
-    print "username is " + g_username
+    if g_debug == "true": print "PleXBMC -> username is " + g_username
     
     #Compute the SHA1 just one time.
     msg=sha.new(g_password.lower())
@@ -67,10 +71,9 @@ pluginhandle = int(sys.argv[1])
 ################################ Common
 # Connect to a server and retrieve the HTML page
 def getURL( url ,title="Error", surpress=False):
+    printDebug("== ENTER: getURL ==")
     try:
-        
-        print 'PleXBMC--> getURL :: url = '+url
-        print "getting URL"
+        printDebug("url = "+url, getURL.__name__)
         txdata = None
         
         server=url.split('/')[2]
@@ -86,8 +89,11 @@ def getURL( url ,title="Error", surpress=False):
                 xbmcgui.Dialog().ok(title,error)
             print error
             return False
-        else:
+        else:      
             link=data.read()
+            printDebug("====== XML returned =======",getURL.__name__)
+            printDebug(link)
+            printDebug("====== XML finished ======",getURL.__name__)
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
         xbmcgui.Dialog().ok(title,error)
@@ -103,6 +109,8 @@ def getURL( url ,title="Error", surpress=False):
 
         
 def mediaType(partproperties, server):
+    printDebug("== ENTER: mediaType ==")
+    
     #Passed a list of <Part /> tag attributes, select the appropriate media to play
     
     stream=partproperties['key']
@@ -112,39 +120,49 @@ def mediaType(partproperties, server):
     if g_stream == "0":
         #check if the file can be found locally
         try:
-            print "Checking for local file"
+            printDebug("Checking for local file",mediaType.__name__)
             exists = open(file, 'r')
             exists.close()
             filelocation="file://"+server+file
         except:
-            print "no local file, defaulting to stream"
+            printDebug("No local file, defaulting to stream", mediaType.__name__)
             filelocation="http://"+server+stream
         
     # 1 is stream no matter what
     elif g_stream == "1":
-        print "selecting stream"
+        printDebug( "Selecting stream", mediaType.__name__)
         filelocation="http://"+server+stream
     # 2 is use SMB 
     elif g_stream == "2":
-        print "selecting smb"
+        printDebug( "Selecting smb", mediaType.__name__)
         location=file.replace("Volumes",server)
         filelocation="smb:/"+location.replace(":32400","")
     else:
-        print "No option detected, streaming is safest to choose"        
+        printDebug( "No option detected, streaming is safest to choose" , mediaType.__name__)       
         filelocation="http://"+server+stream
     
-    print "returning: " + filelocation
+    printDebug("Returning URL: " + filelocation, mediaType.__name__)
     return filelocation
     
     
+def printDebug(msg,functionname=""):
+    if g_debug == "true":
+        if functionname == "":
+            print msg
+        else:
+            print "PleXBMC -> " + functionname + ": " +msg
  
 #Used to add playable media files to directory listing
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addLink(url,properties,arguments):
-
-        print "we have been given " + url
-
+        printDebug("== ENTER: addLink ==")
+        try:
+            printDebug("Adding link for [" + properties['title'] + "]", addLink.__name__)
+        except: pass
+        printDebug("Passed arguments are " + str(arguments), addLink.__name__)
+        printDebug("Passed properties are " + str(properties), addLink.__name__)
+        
         try:
             type=arguments['type']
         except:
@@ -152,21 +170,19 @@ def addLink(url,properties,arguments):
             
         if type =="Picture":
              u=url
-             print "setting to " + u
         else:
             u=sys.argv[0]+"?url="+str(url)
-            print "instead setting to " + u
         
         ok=True
 
-        print 'URL to use for listing:'+ u
-
+        printDebug("URL to use for listing: " + u, addLink.__name__)
         #Create ListItem object, which is what is displayed on screen
-        liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
-        
-        print "Setting thumbnail as " + arguments['thumb']              
-        print "Property is " + str(properties)
-        
+        try:
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
+            printDebug("Setting thumbnail as " + arguments['thumb'],addLink.__name__)              
+        except:
+            liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
+            
         #Set properties of the listitem object, such as name, plot, rating, content type, etc
         liz.setInfo( type=type, infoLabels=properties ) 
         
@@ -182,7 +198,7 @@ def addLink(url,properties,arguments):
         #Set the fanart image if it has been enabled
         try:
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
-            print "Setting fan art"
+            printDebug( "Setting fan art as " + str(arguments['fanart_image']),addLink.__name__)
         except: pass
         
         #Finally add the item to the on screen list, with url created above
@@ -194,7 +210,14 @@ def addLink(url,properties,arguments):
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addDir(url,properties,arguments):
+        printDebug("== ENTER: addDir ==")
+        try:
+            printDebug("Adding Dir for [" + properties['title'] + "]", addDir.__name__)
+        except: pass
 
+        printDebug("Passed arguments are " + str(arguments), addDir.__name__)
+        printDebug("Passed properties are " + str(properties), addDir.__name__)
+        
         #Create the URL to pass to the item
         u=sys.argv[0]+"?url="+str(url)
         ok=True
@@ -202,17 +225,18 @@ def addDir(url,properties,arguments):
         #Create the ListItem that will be displayed
         try:
             liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
-
+            printDebug("Setting thumbnail as " + arguments['thumb'],addDir.__name__)
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
-
+        
+            
         #Set the properties of the item, such as summary, name, season, etc
         try:
             liz.setInfo( type=arguments['type'], infoLabels=properties ) 
         except:
             liz.setInfo(type='Video', infoLabels=properties ) 
 
-        print 'URL to use for listing:'+ u
+        printDebug("URL to use for listing: " + u, addDir.__name__)
         
         try:
             liz.setProperty('Artist_Genre', properties['genre'])
@@ -229,7 +253,7 @@ def addDir(url,properties,arguments):
         #Set the fanart image if it has been enabled
         try:
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
-            print "Setting fan art"
+            printDebug( "Setting fan art as " + str(arguments['fanart_image']),addDir.__name__)
         except: pass
 
         #Finally add the item to the on screen list, with url created above
@@ -239,7 +263,7 @@ def addDir(url,properties,arguments):
 ################################ Root listing
 # Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
 def ROOT():
-        
+        printDebug("== ENTER: ROOT() ==")
         #Get the global host variable set in settings
         host=g_host
         
@@ -258,9 +282,7 @@ def ROOT():
             tree=etree.fromstring(html)
                 
             #Now, find all those server tags
-            LibraryTags=tree.findall('Server')
-            print tree
-            print LibraryTags        
+            LibraryTags=tree.findall('Server')        
        
             #Now, for each tag, pull out the name of the server and it's network name
             for object in LibraryTags:
@@ -382,18 +404,28 @@ def ROOT():
         xbmcplugin.endOfDirectory(pluginhandle)  
 ################################ Movies listing  
 #Used by the skin to automatically start a movie listing.  Might not be needed now - copies functionality in ROOT          
-def StartMovies(url):
+def StartMovies():
         print '=========================='
         print 'Starting with Movies'
+        host=g_host
+        url = 'http://'+host+':32400/library/sections'
+        html=getURL(url)
         
-        print url
+        if html is False:
+            return
         
-        if g_secondary=="true":
-            getDirectory(url)
-        else:
-            MoviesET(url)
-        
-################################ Start with TV listing            
+        tree=etree.fromstring(html)
+        SectionTags=tree.findall('Directory')
+        for object in SectionTags:
+            key=object.get('key')
+            name=object.get('title')
+            type=object.get('type')
+            if type== 'movie':
+                url='http://'+host+':32400/library/sections/'+key+'/all'
+                Movies(url)
+
+
+################################ TV listing            
 #Used by the skin to automatically start a TV listing.  Might not be needed now - copies functionality in ROOT          
 def StartTV():
         print '=========================='
@@ -401,6 +433,11 @@ def StartTV():
         host=g_host
         url = 'http://'+host+':32400/library/sections'
         html=getURL(url)
+        
+        if html is False:
+            return
+
+        
         tree=etree.fromstring(html)
         SectionTags=tree.findall('Directory')
         for object in SectionTags:
@@ -410,25 +447,19 @@ def StartTV():
             if type== 'show':
                 url='http://'+host+':32400/library/sections/'+key+'/all'
                 SHOWS(url)
+
 ################################ Movies listing            
 # Used to display movie on screen.
 
 def MoviesET(url='',tree=etree,server=''):
+        printDebug("== ENTER: MoviesET() ==")
         xbmcplugin.setContent(pluginhandle, 'movies')
         
-        print '=============='
-        print 'Getting Movies'
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
-        print "url is " + str(url)
-        print "tree is " + str(tree)
-        print "server is " + str(server)
-
         #get the server name from the URL, which was passed via the on screen listing..
         if not url == '':
-            print "we have no tree passed.."
             server=url.split('/')[2]
-            print server
             #Get some XML and parse it
             html=getURL(url)
             
@@ -441,6 +472,7 @@ def MoviesET(url='',tree=etree,server=''):
         MovieTags=tree.findall('Video')
         for movie in MovieTags:
             
+            printDebug("---New Item---", MoviesET.__name__)
             arguments=dict(movie.items())
             tempgenre=[]
             tempcast=[]
@@ -469,18 +501,18 @@ def MoviesET(url='',tree=etree,server=''):
             #required to grab to check if file is a .strm file
             #Can't play strm files, so lets not bother listing them. 
             if partarguments['file'].find('.strm')>0:
-                print "Found unsupported .strm file.  Will not list"
+                try:
+                    print "Found unsupported .strm file for [" + arguments['title'].encode('utf-8') + "].  Will not list"
+                except:
+                    print "Found unsupported .strm file.  Will not list"
                 continue
              
-            print "args is " + str(movie.items())
-            print "Media is " + str(mediaarguments)
-            print "Part is " + str(partarguments)
+            printDebug("Media attributes are " + str(mediaarguments), MoviesET.__name__)
+            printDebug("Part attributes are " + str(partarguments), MoviesET.__name__)
             
             #Create structure to pass to listitem/setinfo.  Set defaults
             properties={'overlay': 6, 'playcount': 0}   
-   
-            print "Arguments are " + str(arguments)
-            
+               
             #Get name
             try:
                 properties['title']=arguments['title'].encode('utf-8')
@@ -582,19 +614,15 @@ def MoviesET(url='',tree=etree,server=''):
             
             #This is playable media, so link to a path to a play function
             mode=5
-            
-            print '============='        
-            print "properties is " + str(properties)
-            print "arguments is " + str(arguments)    
-                 
+                             
             u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
  
             if mediacount > 1:
                 #We have more than one media file to play.  Build link to go to selectMedia
+                printDebug("We have a choice of " + str(mediacount) + " media files.", MoviesET.__name__)
                 mode=13
                 u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                     
-            print "url is " + u
             #Right, add that link...and loop around for another entry
             addLink(u,properties,arguments)        
         
@@ -607,10 +635,9 @@ def MoviesET(url='',tree=etree,server=''):
 ################################ TV Show Listings
 #This is the function use to parse the top level list of TV shows
 def SHOWS(url='',tree=etree,server=''):
+        printDebug("== ENTER: SHOWS() ==")
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
-        print '=============='
-        print 'Getting TV Shows'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get the URL and server name.  Get the XML and parse
@@ -722,15 +749,13 @@ def SHOWS(url='',tree=etree,server=''):
 ################################ TV Season listing            
 #Used to display the season data         
 def Seasons(url):
+        printDebug("== ENTER: season() ==")
         xbmcplugin.setContent(pluginhandle, 'seasons')
 
-        print '=============='
-        print 'Getting TV Seasons'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get URL, XML and parse
         server=url.split('/')[2]
-        print server
         html=getURL(url)
         
         if html is False:
@@ -793,19 +818,12 @@ def Seasons(url):
 
             #Set type
             arguments['type']="Video"
-    
+
+            #Set the mode to episodes, as that is what's next     
             mode=6
             
             url='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-            #Set the mode to episodes, as that is what's next 
         
-    
-            print '============='
-            print "properties is " + str(properties)
-            print "arguments are " + str(arguments)
-            
-         
-
             #Build the screen directory listing
             addDir(url,properties,arguments) 
             
@@ -815,11 +833,8 @@ def Seasons(url):
 ################################ TV Episode listing 
 #Displays the actual playable media
 def EPISODES(url='',tree=etree,server=''):
+        printDebug("== ENTER: EPISODES() ==")
         xbmcplugin.setContent(pluginhandle, 'episodes')
-
-        print '=============='
-        print url
-        print 'Getting TV Episodes'
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
         
@@ -828,27 +843,23 @@ def EPISODES(url='',tree=etree,server=''):
             server=url.split('/')[2]
             #Get the end part of teh URL, as we need to get different data if parsing "All Episodes"
             target=url.split('/')[-1]
-            print server
-            print target
+            printDebug("target URL is " + target, EPISODES.__name__)
         except: pass
         
         try:
             ShowTags=tree.findall('Video')
         except:
-            print "no tree, so create from html"
             #Get URL, XML and Parse
             html=getURL(url)
             
             if html is False:
                 return
-
             
             tree=etree.fromstring(html)
             ShowTags=tree.findall('Video')
             
         #get a bit of metadata that sits inside the main mediacontainer
         #If it doesn't exist, we'll check later and get it from elsewhere
-        #MainTag=tree.findAll('mediacontainer')[0]
          
         #Name of the show
         try:
@@ -869,7 +880,6 @@ def EPISODES(url='',tree=etree,server=''):
             studio = None
             
         #If we are processing individual season, then get the season number, else we'll get it later
-        #if target != "allLeaves":
         try:
             season=tree.get('parentIndex')
         except:pass
@@ -909,10 +919,9 @@ def EPISODES(url='',tree=etree,server=''):
                 print "Found unsupported .strm file.  Will not list"
                 continue
            
-            print "args is " + str(arguments)
-            print "Media is " + str(mediaarguments)
-            print "Part is " + str(partarguments)
-            print "Extra info is " + str(tempgenre) + str(tempwriter) + str(tempcast) + str(tempdir)
+            printDebug("Media attributes are " + str(mediaarguments), EPISODES.__name__)
+            printDebug( "Part is " + str(partarguments), EPISODES.__name__)
+            printDebug( "Extra info is " + str(tempgenre) + str(tempwriter) + str(tempcast) + str(tempdir), EPISODES.__name__)
             
             #Set basic structure with some defaults.  Overlay 6 is unwatched
             properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
@@ -1043,9 +1052,6 @@ def EPISODES(url='',tree=etree,server=''):
             url=mediaType(partarguments,server)
             #Set mode 5, which is play            
             mode=5
-            print '============='        
-            print "properties is " + str(properties)
-            print "arguments is " + str(arguments)    
 
             u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
@@ -1057,29 +1063,23 @@ def EPISODES(url='',tree=etree,server=''):
 
 #What to do to process Plex Plugin structures        
 def PlexPlugins(url):
+        printDebug("== ENTER: PlexPlugins ==")
         xbmcplugin.setContent(pluginhandle, 'movies')
 
-        print '=============='
-        print 'Getting Plugin Details'
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
 
         #get the serverm URL, XML and parse
         server=url.split('/')[2]
-        print server
         html=getURL(url)
         
         if html is False:
             return
 
-        
         tree=etree.fromstring(html)
-		        
-                
-        print html        
+               
         for orange in tree:
                
             arguments=dict(orange.items())
-            print "arguments is " + str(arguments)
 
             #Set up the basic structures
             properties={'overlay':6}
@@ -1097,7 +1097,6 @@ def PlexPlugins(url):
                     arguments['thumb']='http://'+server+arguments['thumb']
             except:
                 thumb=g_loc+'/resources/movie.png'  
-                print thumb  
                 arguments['thumb']=thumb
 
 
@@ -1118,9 +1117,6 @@ def PlexPlugins(url):
                 
                 #Set type
                 arguments['type']="Video"
-
-
-                print "properties is " + str(properties)
                 
                 addDir(s_url, properties, arguments)
                     
@@ -1132,8 +1128,6 @@ def PlexPlugins(url):
                     
                 #Build the URl and add a link to the file
                 v_url=p_url+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])    
-
-                print "properties is " + str(properties)
                 
                 #Set type
                 arguments['type']="Video"
@@ -1146,44 +1140,40 @@ def PlexPlugins(url):
 #Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
 #Only use this to play stuff you want to update in the library        
 def PLAYEPISODE(id,vids,seek, duration):
+        printDebug("== ENTER: PLAYEPISODE ==")
         #Use this to play PMS library items that you want up dated (Movies, TV shows)
         url = vids
-   
-        print "Initial play URL is " + url
-   
+      
         server=url.split('/')[2]
         protocol=url.split('/')[0]
         urlPath="/"+"/".join(url.split('/')[3:])
    
    
         if g_transcode == "true":
+            printDebug("We are going to attempt to transcode this video", PLAYEPISODE.__name__)
             url=transcode(id,url)
    
         if protocol == "file:":
-            print "we are playing a file"
+            printDebug( "We are playing a file", PLAYEPISODE.__name__)
             url=urlPath
         elif protocol == "http:":
             url=url+XBMCInternalHeaders
-
-        print "the one I'm going to use is " + url
         
-        print "current resume is " + str(seek)
+        printDebug( "Current resume is " + str(seek), PLAYEPISODE.__name__)
        
         resumeSetting=__settings__.getSetting('resume')
-        print "resumeSetting is " + str(resumeSetting)
+        printDebug("Stored setting for resume is " + str(resumeSetting), PLAYEPISODE.__name__)
         if len(resumeSetting) > 0:
             resumeid, resumetime = resumeSetting.split("|")
-            print "resumeid = " + resumeid
-            print "resumetime = " + resumetime
             if resumeid == id:
-                print "matching IDs, setting nee resume"
+                printDebug ("ID match, using settings resume time", PLAYEPISODE.__name__)
                 resume = int(resumetime)
             else:
                 resume = seek
         else:
             resume = seek
         
-        print "resume set to " + str(resume)
+        printDebug("Resume has been set to " + str(resume), PLAYEPISODE.__name__)
         
         #Build a listitem, based on the url of the file
         item = xbmcgui.ListItem(path=url)
@@ -1198,7 +1188,7 @@ def PLAYEPISODE(id,vids,seek, duration):
             
             #Build the dialog text
             dialogOptions = [ "Resume from " + str(displayTime) , "Start from beginning"]
-            print "We are part way through this video!"
+            printDebug( "We have part way through video.  Display resume dialog", PLAYEPISODE.__name__)
             
             #Create a dialog object
             startTime = xbmcgui.Dialog()
@@ -1217,7 +1207,7 @@ def PLAYEPISODE(id,vids,seek, duration):
         #Set a loop to wait for positive confirmation of playback
         count = 0
         while not xbmc.Player().isPlaying():
-            print "not playing yet...sleep for 2"
+            printDebug( "Not playing yet...sleep for 2", PLAYEPISODE.__name__)
             count = count + 2
             if count >= 20:
                 #Waited 20 seconds and still no movie playing - assume it isn't going to..
@@ -1238,6 +1228,7 @@ def PLAYEPISODE(id,vids,seek, duration):
         return
 
 def selectMedia(id,url,seek,duration):
+    printDebug("== ENTER: selectMedia ==")
     #if we have two or more files for the same movie, then present a screen
 
     options=[]
@@ -1255,28 +1246,20 @@ def selectMedia(id,url,seek,duration):
     #Nasty code - but can;t for the life of me work out how to get the Part Tags only!!!!
     for file in video:
     
-        print file.tag
         for crap in file:
-            print str(crap.tag)
             if crap.tag == "Media":
-                print "have found media"
                 for stuff in crap:
-                    print str(stuff.tag)
                     if stuff.tag == "Part":
-                        print "have found Part"
                         bits=stuff.get('key'), stuff.get('file')
-                        print "bit is " + str(bits)
                         options.append(bits)
             
-    
     dialogOptions=[]
     for items in options:
-        print "item is " + str(items)
         name=items[1].split('/')[-1]
         dialogOptions.append(name)
     
     #Build the dialog text
-    print "we have a decision to make!"
+    printDebug("Create selection dialog box - we have a decision to make!", selectMedia.__name__)
             
     #Create a dialog object
     startTime = xbmcgui.Dialog()
@@ -1292,12 +1275,13 @@ def selectMedia(id,url,seek,duration):
    
         newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server)
    
-    print "url is " + newurl
+    printDebug("We have selected media at " + newurl, selectMedia.__name__)
     PLAYEPISODE(id,newurl,seek, duration)
     return
            
 #Monitor function so we can update PMS
 def monitorPlayback(id, server, resume, duration):
+    printDebug("== ENTER: monitorPlayback ==")
     #Need to monitor the running playback, so we can determine a few things:
     #1. If the file has completed normally (i.e. the movie has finished)
     #2. If the file has been stopped halfway through - need to record the stop time.
@@ -1326,57 +1310,54 @@ def monitorPlayback(id, server, resume, duration):
         time.sleep(5)
           
     #If we get this far, playback has stopped
-    print "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%."
+    printDebug( "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%.", monitorPlayback.__name__)
     if progress <= 5:
         #Then we hadn't watched enough to make any changes
-        print "Less than 5% played, so do no store resume time but ensure that film is marked unwatched"
+        printDebug( "Less than 5% played, so do no store resume time but ensure that film is marked unwatched", monitorPlayback.__name__)
         updateURL="http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library"
-        print "updateURL = " + updateURL
     elif progress >= 95:
         #Then we were 95% of the way through, so we mark the file as watched
-        print "More than 95% completed, so mark as watched"
+        printDebug( "More than 95% completed, so mark as watched", monitorPlayback.__name__)
         updateURL="http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library"
-        print "updateURL = " + updateURL
     else:
         #we were more than 5% and less then 95% of the way through, store the resume time
-        print "More than 5% and less than 95% of the way through, so store resume time"
+        printDebug( "More than 5% and less than 95% of the way through, so store resume time", monitorPlayback.__name__)
         updateURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)
-        print "updateURL = " + updateURL
         
     #Submit the update URL    
     output = getURL(updateURL, "Updating PMS...", True)
-    print "output is " + str(output)
+    printDebug("Update returned " + str(output), monitorPlayback.__name__)
     
-    print "Creating a temporary new resume time"
+    printDebug("Creating a temporary new resume time of " + str(currentTime), monitorPlayback.__name__) 
     __settings__.setSetting('resume', str(id)+"|"+str(currentTime))
      
     return
     
 #Just a standard playback 
 def PLAY(vids):
+        printDebug("== ENTER: PLAY ==")
         #This is for playing standard non-PMS library files (such as Plugins)
         url = vids+XBMCInternalHeaders
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
 def videoPluginPlay(vids):
+        printDebug("== ENTER: videopluginplay ==")
         #This is for playing standard non-PMS library files (such as Plugins)
         
         header=""
         if vids.split('/')[4] == "amt":
+            printDebug("Adding headers for AMT", videoPluginPlay.__name__)
             #Apple trailers - need a special UA header 
             uagent="QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
             agentHeader="User-Agent="+urllib.quote_plus(uagent)
-                
-            print "headers are " +  XBMCInternalHeaders   
-                
+                                
             if XBMCInternalHeaders == "":
                 header="|"+agentHeader
             else:
                 header="&"+agentHeader
             
         url=vids+XBMCInternalHeaders+header
-        print "resolved URL is " + url
         
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
@@ -1384,30 +1365,24 @@ def videoPluginPlay(vids):
         
 #Function to parse the arguments passed to the plugin..
 def get_params():
+        printDebug("== ENTER: get_params ==")
         param=[]
         paramstring=sys.argv[2]
-        print "param string is " + paramstring
         if len(paramstring)>=2:
-                print "param bigger than 2"
                 params=sys.argv[2]
                 #Rather than replace ? with ' ' - I split of the first char, which is always a ? (hopefully)
                 #Could always add a check as well..
                 cleanedparams=params[1:] #.replace('?','')
-                print "Cleaned params is " + cleanedparams
                 if (params[len(params)-1]=='/'):
-                        print "not sure what this does"
                         params=params[0:len(params)-2]
                 pairsofparams=cleanedparams.split('&')
-                print "pair of params" + str(pairsofparams)
                 param={}
                 for i in range(len(pairsofparams)):
-                        print "i is " + str(i)
                         splitparams={}
                         #Right, extended urls that contain = do not parse correctly and this tops plugins from working
                         #Need to think of a better way to do the split, at the moment i'm hacking this by gluing the
                         #two bits back togethers.. nasty...
                         splitparams=pairsofparams[i].split('=')
-                        print "spilt is " + str(splitparams)
                         if (len(splitparams))==2:
                                 param[splitparams[0]]=splitparams[1]
                         elif (len(splitparams))==3:
@@ -1416,70 +1391,68 @@ def get_params():
         return param
 
 def getDirectory(url):  
+    printDebug("== ENTER: getDirectory ==")
     #We've been called at mode 0, by ROOT becuase we are going to traverse the secondary menus
-    
-    #print "We are going down the " + str(type) + " path...."
-    
+        
     #First we need to peek at the XML, to see if we've hit any video links yet.
-    
-    print "process by getDirectory"
-    
+        
     server=url.split('/')[2]
     lastbit=url.split('/')[-1]
     secondtolast=url.split('/')[-2]
     
     if lastbit.startswith('search'):
         #Found search URL.  Bring up keyboard and get input for query string
-        print "Found a search URL."
+        printDebug("This is a search URL.  Bringing up keyboard", getDirectory.__name__)
         kb = xbmc.Keyboard('', 'heading')
         kb.setHeading('Enter search term') # optional
         kb.doModal()
         if (kb.isConfirmed()):
             text = kb.getText()
+            printDebug("Search term input: "+query, getDirectory.__name__)
             url=url+'&query='+text
         else:
             return
      
-    
     html=getURL(url)
     
     if html is False:
         return
-
-    
+        
     tree=etree.fromstring(html)
-    
-    
-    
+ 
     arguments=dict(tree.items())
     
     if arguments['viewGroup'] == "movie":
-        print "this is a movie XML, passing to MoviesET"
+        printDebug( "this is movie XML, passing to MoviesET", getDirectory.__name__)
         MoviesET(tree=tree,server=server)
         return
     elif arguments['viewGroup'] == "show":
-        print "this is a tv show XML, passing to SHOW"
+        printDebug( "This is tv show XML, passing to SHOW", getDirectory.__name__)
         SHOWS(tree=tree,server=server)
         return
     elif arguments['viewGroup'] == "episode":
+        printDebug("This is TV episode XML, passing to EPISODES", getDirectory.__name__)
         EPISODES(url=url,tree=tree,server=server)
         return
     elif arguments['viewGroup'] == 'artist':
-        print "this is music XML, passing to music"
+        printDebug( "This is music XML, passing to music", getDirectory.__name__)
         if lastbit.startswith('album') or secondtolast.startswith('decade') or secondtolast.startswith('year'):
             albums(tree=tree, server=server)
         else:    
             artist(tree=tree,server=server)
         return
     elif arguments['viewGroup'] == "track":
+        printDebug("This is track XML - checking further", getDirectory.__name__)
         if lastbit.startswith('recentlyAdded'):
+            printDebug("Passing to Albums", getDirectory.__name__)
             albums(tree=tree, server=server)
         else:
+            printDebug("Passing to Tracks", getDirectory.__name__)
             tracks(tree=tree, server=server)
         return
          
     #else we have a secondary, which we'll process here
-    print "We must have some secondaries to process"
+    printDebug("Processing secondary menus", getDirectory.__name__)
     
     for apple in tree:
         arguments=dict(apple.items())
@@ -1494,38 +1467,32 @@ def getDirectory(url):
 
 #Function that will return a m3u8 playlist URL from a PMS stream URL
 def transcode(id,url):
+    printDebug("== ENTER: transcode ==")
     # First get the time since Epoch
-    
-    print "Transcoding has been selected..."
-    
+        
     #Had to use some customised modules to get hmac sha256 working on python 2.4
     import base64
     
     server=url.split('/')[2]
     filestream=urllib.quote_plus("/"+"/".join(url.split('/')[3:]))
-
-    
+  
     if g_transcodefmt == "m3u8":
         myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality=5&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent="
     elif g_transcodefmt == "flv":
         myurl="/video/:/transcode/generic.flv?format=flv&videoCodec=libx264&vpre=video-embedded-h264&videoBitrate=5000&audioCodec=libfaac&apre=audio-embedded-aac&audioBitrate=128&size=640x480&fakeContentLength=2000000000&url=http%3A%2F%2Flocalhost%3A32400"  + filestream + "&3g=0&httpCookies=&userAgent="
     else:
-        print "Woah!!  Barmey settings error....Bale....."
+        printDebug( "Woah!!  Barmey settings error....Bale.....", transcode.__name__)
         return url
 
     now=str(int(round(time.time(),0)))
     
     msg = myurl+"@"+now
+    printDebug("Message to hash is " + msg, transcode.__name__)
     
     #These are the DEV API keys - may need to change them on release
     publicKey="KQMIY6GATPC63AIMC4R2"
     privateKey = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
-   
-    print "public " + str(publicKey)
-    print "time " + str(now)
-    print "url " + str(myurl)
-    print "encoding message " + str(msg)
-    
+       
     #If python is > 2.4 then do this
     if sys.version_info[:2] > (2,4):
         import hashlib, hmac
@@ -1534,7 +1501,7 @@ def transcode(id,url):
         import sha256, hmacsha256
         hash=hmacsha256.new(privateKey, msg, digestmod=sha256)
     
-    print "HMAC after hash is " + hash.hexdigest()
+    printDebug("HMAC after hash is " + hash.hexdigest(), transcode.__name__)
     
     #Encode the binary hash in base64 for transmission
     token=base64.b64encode(hash.digest())
@@ -1542,20 +1509,22 @@ def transcode(id,url):
     #Send as part of URL to avoid the case sensitive header issue.
     fullURL="http://"+server+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)
     
-    print "full URL is " + fullURL
+    printDebug("Transcode URL is " + fullURL, transcode.__name__)
     
     if g_transcodefmt == "m3u8":
     
+        printDebug("Getting m3u8 playlist", transcode.__name__)
         #Send request for transcode to PMS
         Treq = urllib2.Request(fullURL)
         Tresponse = urllib2.urlopen(Treq)
         Tlink=Tresponse.read()
-        print "URL done: " + str(Tlink)
+        printDebug("Initial playlist is " + str(Tlink), transcode.__name__)
         Tresponse.close()   
     
         #tLink contains initual m3u8 playlist.  Pull out the last entry as the actual stream to use (am assuming only single stream)
     
         session=Tlink.split()[-1]
+        printDebug("Getting bandwidth playlist " + session, transcode.__name__)
     
         #Append to URL to create link to m3u8 playlist containing the actual media.
         sessionurl="http://"+server+"/video/:/transcode/segmented/"+session
@@ -1563,15 +1532,14 @@ def transcode(id,url):
         sessionurl=fullURL
     
    
-    print "session url is " + sessionurl
+    printDebug("Transcoded media location URL " + sessionurl, transcode.__name__)
     
     return sessionurl
      
 def artist(url='',tree=etree,server=''):
+        printDebug("== ENTER: artist ==")
         xbmcplugin.setContent(pluginhandle, 'artists')
 
-        print '=============='
-        print 'Getting artists'
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get the URL and server name.  Get the XML and parse
@@ -1640,7 +1608,6 @@ def artist(url='',tree=etree,server=''):
             arguments['fanart_image']=art_url
            
             arguments['type']="Music"
-            print "Arguments are :" + str(arguments)
 
             mode=14 # grab season details
             url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
@@ -1651,10 +1618,9 @@ def artist(url='',tree=etree,server=''):
         xbmcplugin.endOfDirectory(pluginhandle)
 
 def albums(url='', tree=etree, server=''):
+        printDebug("== ENTER: albums ==")
         xbmcplugin.setContent(pluginhandle, 'albums')
 
-        print '=============='
-        print 'Getting albums'
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
        
         if not url == '':
@@ -1739,13 +1705,6 @@ def albums(url='', tree=etree, server=''):
             
             url='http://'+server+arguments['key']+"&mode="+str(mode)
             #Set the mode to episodes, as that is what's next 
-        
-    
-            print '============='
-            print "properties is " + str(properties)
-            print "arguments are " + str(arguments)
-            
-         
 
             #Build the screen directory listing
             addDir(url,properties,arguments) 
@@ -1754,11 +1713,8 @@ def albums(url='', tree=etree, server=''):
         xbmcplugin.endOfDirectory(pluginhandle)
 
 def tracks(url='',tree=etree,server=''):
+        printDebug("== ENTER: tracks ==")
         xbmcplugin.setContent(pluginhandle, 'songs')
-
-        print '=============='
-        print url
-        print 'GettingSongs'
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
         
@@ -1767,14 +1723,12 @@ def tracks(url='',tree=etree,server=''):
             server=url.split('/')[2]
             #Get the end part of thd URL, as we need to get different data if parsing "All Episodes"
             target=url.split('/')[-1]
-            print server
-            print target
+            printDebug("URL target is " + target, tracks.__name__)
         except: pass
         
         try:
             ShowTags=tree.findall('Track')
         except:
-            print "no tree, so create from html"
             #Get URL, XML and Parse
             html=getURL(url)
             
@@ -1921,9 +1875,6 @@ def tracks(url='',tree=etree,server=''):
             url=mediaType(partarguments,server)
             #Set mode 5, which is play            
             mode=12
-            print '============='        
-            print "properties is " + str(properties)
-            print "arguments is " + str(arguments)    
 
             u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
@@ -1934,7 +1885,7 @@ def tracks(url='',tree=etree,server=''):
         xbmcplugin.endOfDirectory(pluginhandle)
 
 def photo(url):
-
+    printDebug("== ENTER: photos ==")
     server=url.split('/')[2]
     
     html=getURL(url)
@@ -1968,7 +1919,6 @@ def photo(url):
                 arguments['thumb']='http://'+server+arguments['thumb']
         except:
             thumb=g_loc+'/resources/movie.png'  
-            print thumb  
             arguments['thumb']=thumb
 
             
@@ -1981,8 +1931,6 @@ def photo(url):
         
         mode=16
         u=u+"&mode="+str(mode)
-        print "props: " + str(properties)
-        print "Args: " + str(arguments)
         addDir(u,properties,arguments)
     
     for coconuts in tree.findall('Photo'):
@@ -2008,7 +1956,6 @@ def photo(url):
                 arguments['thumb']='http://'+server+arguments['thumb']
         except:
             thumb=g_loc+'/resources/movie.png'  
-            print thumb  
             arguments['thumb']=thumb
 
            
@@ -2027,7 +1974,7 @@ def photo(url):
     xbmcplugin.endOfDirectory(pluginhandle)
 
 def music(url):
-
+    printDebug("== ENTER: music ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
 
 
@@ -2065,7 +2012,6 @@ def music(url):
                 arguments['thumb']='http://'+server+arguments['thumb']
         except:
             thumb=g_loc+'/resources/movie.png'  
-            print thumb  
             arguments['thumb']=thumb
 
             
@@ -2078,8 +2024,6 @@ def music(url):
         
         mode=17
         u=u+"&mode="+str(mode)
-        print "props: " + str(properties)
-        print "Args: " + str(arguments)
         addDir(u,properties,arguments)
 
     for strawberrys in tree.findall('Artist'):
@@ -2097,7 +2041,6 @@ def music(url):
                 arguments['thumb']='http://'+server+arguments['thumb']
         except:
             thumb=g_loc+'/resources/movie.png'  
-            print thumb  
             arguments['thumb']=thumb
 
         try:
@@ -2115,8 +2058,6 @@ def music(url):
         
         mode=17
         u=u+"&mode="+str(mode)
-        print "props: " + str(properties)
-        print "Args: " + str(arguments)
         addDir(u,properties,arguments)
         
     for kiwi in tree.findall('Album'):
@@ -2153,7 +2094,6 @@ def music(url):
                 arguments['thumb']='http://'+server+arguments['thumb']
         except:
             thumb=g_loc+'/resources/movie.png'  
-            print thumb  
             arguments['thumb']=thumb
 
             
@@ -2169,8 +2109,6 @@ def music(url):
         
         mode=17
         u=u+"&mode="+str(mode)
-        print "props: " + str(properties)
-        print "Args: " + str(arguments)
         addDir(u,properties,arguments)
         
     for lemons in tree.findall('Track'):
@@ -2245,7 +2183,6 @@ def music(url):
                 arguments['thumb']='http://'+server+arguments['thumb']
         except:
             thumb=g_loc+'/resources/movie.png'  
-            print thumb  
             arguments['thumb']=thumb
 
             
@@ -2261,8 +2198,6 @@ def music(url):
         
         mode=17
         u=u+"&mode="+str(mode)
-        print "props: " + str(properties)
-        print "Args: " + str(arguments)
         addDir(u,properties,arguments)    
         
     xbmcplugin.endOfDirectory(pluginhandle)    
@@ -2271,7 +2206,7 @@ def music(url):
 
 #first thing, parse the arguments, as this has the data we need to use.              
 params=get_params()
-print params
+if g_debug == "true": print "PleXBMC -> " + str(params)
 
 #Set up some variables
 url=None
@@ -2311,11 +2246,12 @@ try:
 except:
         duration=0
         
-print "Mode: "+str(mode)
-print "URL: "+str(url)
-print "Name: "+str(name)
-print "ID: "+ str(id)
-print "Duration: " + str(duration)
+if g_debug == "true":
+    print "PleXBMC -> Mode: "+str(mode)
+    print "PleXBMC -> URL: "+str(url)
+    print "PleXBMC -> Name: "+str(name)
+    print "PleXBMC -> ID: "+ str(id)
+    print "PleXBMC -> Duration: " + str(duration)
 
 #Run a function based on the mode variable that was passed in the URL
 
@@ -2358,6 +2294,8 @@ elif mode==17:
         music(url)
 elif mode==18:
     videoPluginPlay(url)
-        
+
+print "===== PLEXBMC STOP ====="
+   
 #clear done and exit.        
 sys.modules.clear()

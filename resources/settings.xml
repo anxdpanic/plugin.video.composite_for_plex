@@ -8,5 +8,6 @@
     <setting id="secondary" type="bool" label="20003" default="false"/>
     <setting id="transcode" type="bool" label="20007" default="false"/>
     <setting id="transcodefmt" type="enum" label="20008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="20009|20010" default="20010" />
+    <setting id="debug" type=bool label="20014" default="false"/>
     <setting id="resume" type="text" option=hidden default=""/>
 </settings>

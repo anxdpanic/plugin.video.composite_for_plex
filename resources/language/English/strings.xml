@@ -14,4 +14,5 @@
     <string id="20011">auto</string>
     <string id="20012">stream</string>
     <string id="20013">smb</string>
+    <string id="20014">Enable debug output to log</string>
 </strings>
