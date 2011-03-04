@@ -382,28 +382,18 @@ def ROOT():
         xbmcplugin.endOfDirectory(pluginhandle)  
 ################################ Movies listing  
 #Used by the skin to automatically start a movie listing.  Might not be needed now - copies functionality in ROOT          
-def StartMovies():
+def StartMovies(url):
         print '=========================='
         print 'Starting with Movies'
-        host=g_host
-        url = 'http://'+host+':32400/library/sections'
-        html=getURL(url)
         
-        if html is False:
-            return
+        print url
         
-        tree=etree.fromstring(html)
-        SectionTags=tree.findall('Directory')
-        for object in SectionTags:
-            key=object.get('key')
-            name=object.get('title')
-            type=object.get('type')
-            if type== 'movie':
-                url='http://'+host+':32400/library/sections/'+key+'/all'
-                Movies(url)
-
-
-################################ TV listing            
+        if g_secondary=="true":
+            getDirectory(url)
+        else:
+            MoviesET(url)
+        
+################################ Start with TV listing            
 #Used by the skin to automatically start a TV listing.  Might not be needed now - copies functionality in ROOT          
 def StartTV():
         print '=========================='
@@ -411,11 +401,6 @@ def StartTV():
         host=g_host
         url = 'http://'+host+':32400/library/sections'
         html=getURL(url)
-        
-        if html is False:
-            return
-
-        
         tree=etree.fromstring(html)
         SectionTags=tree.findall('Directory')
         for object in SectionTags:
@@ -425,7 +410,6 @@ def StartTV():
             if type== 'show':
                 url='http://'+host+':32400/library/sections/'+key+'/all'
                 SHOWS(url)
-
 ################################ Movies listing            
 # Used to display movie on screen.
 
