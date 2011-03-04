@@ -2238,6 +2238,49 @@ def music(url):
         arguments['type']="Music"
         addLink(u,properties,arguments)
 
+    for kumquat in tree.findall('Podcast'):
+        
+        xbmcplugin.setContent(pluginhandle, 'albums')
+    
+        
+        arguments=dict(kumquat.items())
+        properties={}
+        
+        try:
+            properties['title']=properties['name']=arguments['title'].encode('utf-8')
+        except:
+            properties['title']=properties['name']="Unknown"
+            
+        try:
+            properties['year']=int(arguments['year'])
+        except:pass
+        
+                
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb']
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            print thumb  
+            arguments['thumb']=thumb
+
+            
+        if arguments['key'][0] == '/':
+            #The key begins with a slash, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+        
+                
+        arguments['type']="Music"
+        
+        mode=17
+        u=u+"&mode="+str(mode)
+        print "props: " + str(properties)
+        print "Args: " + str(arguments)
+        addDir(u,properties,arguments)    
+        
     xbmcplugin.endOfDirectory(pluginhandle)    
 		
 ##So this is where we really start the plugin.
