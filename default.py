@@ -1990,64 +1990,17 @@ def music(url):
     tree=etree.fromstring(html)
     
     
-    for grapes in tree.findall('Directory'):
-        
+    for grapes in tree:
+       
         arguments=dict(grapes.items())
+        arguments['type']="Music"        
         properties={}
         
         try:
             if arguments['key'] == "":
                 continue
         except: pass
-        
-        try:
-            properties['title']=properties['name']=arguments['title'].encode('utf-8')
-        except:
-            properties['title']=properties['name']="Unknown"
-            
-        try: 
-            properties['title']=arguments['title'].encode('utf-8')
-        except:
-            try:
-                properties['title']=arguments['name'].encode('utf-8')
-            except:
-                properties['title']="unknown"
-                
-        try:
-            if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb']
-        except:
-            thumb=g_loc+'/resources/movie.png'  
-            arguments['thumb']=thumb
-
-            
-        if arguments['key'][0] == '/':
-            #The key begins with a slah, there is absolute
-            u='http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            u=url+'/'+str(arguments['key'])
-        
-        mode=17
-        u=u+"&mode="+str(mode)
-        addDir(u,properties,arguments)
-
-    for strawberrys in tree.findall('Artist'):
-        
-        arguments=dict(strawberrys.items())
-        properties={}
-
-        try:
-            if arguments['key'] == "":
-                continue
-        except: pass
-
-        
-        try:
-            properties['title']=properties['name']=arguments['artist'].encode('utf-8')
-        except:
-            properties['title']=properties['name']="Unknown"
-                            
+                        
         try:
             if not arguments['thumb'].split('/')[0] == "http:":
                 arguments['thumb']='http://'+server+arguments['thumb']
@@ -2058,42 +2011,7 @@ def music(url):
         try:
             properties['genre']=arguments['genre']
         except: pass
-            
-        if arguments['key'][0] == '/':
-            #The key begins with a slah, there is absolute
-            u='http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            u=url+'/'+str(arguments['key'])
-        
-        arguments['type']="Music"
-        
-        mode=17
-        u=u+"&mode="+str(mode)
-        addDir(u,properties,arguments)
-        
-    for kiwi in tree.findall('Album'):
-        
-        xbmcplugin.setContent(pluginhandle, 'albums')
-    
-        
-        arguments=dict(kiwi.items())
-        properties={}
 
-        try:
-            if arguments['key'] == "":
-                continue
-        except: pass
-        
-        try:
-            properties['title']=properties['name']=arguments['album'].encode('utf-8')
-        except:
-            properties['title']=properties['name']="Unknown"
-            
-        try: 
-            properties['tracknumber']=arguments['index']
-        except:pass
-        
         try:
             properties['artist']=arguments['artist']
         except:pass
@@ -2101,133 +2019,76 @@ def music(url):
         try:
             properties['year']=int(arguments['year'])
         except:pass
-        
+
         try:
             properties['album']=arguments['album']
         except:pass
-                
-        try:
-            if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb']
-        except:
-            thumb=g_loc+'/resources/movie.png'  
-            arguments['thumb']=thumb
-
-            
+        
+        try: 
+            properties['tracknumber']=int(arguments['index'])
+        except:pass
+   
         if arguments['key'][0] == '/':
-            #The key begins with a slash, there is absolute
-            u='http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            u=url+'/'+str(arguments['key'])
-        
-                
-        arguments['type']="Music"
-        
-        mode=17
-        u=u+"&mode="+str(mode)
-        addDir(u,properties,arguments)
-        
-    for lemons in tree.findall('Track'):
-    
-        xbmcplugin.setContent(pluginhandle, 'songs')
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
-
-        arguments=dict(lemons.items())
-        properties={}
-
-        try:
-            if arguments['key'] == "":
-                continue
-        except: pass
-
-        
-        try:
-            properties['title']=properties['name']=arguments['track'].encode('utf-8')
-        except:
-            properties['title']=properties['name']="Unknown"
-            
-                
-        try:
-            if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb']
-        except:
-            thumb=g_loc+'/resources/movie.png'  
-            print thumb  
-            arguments['thumb']=thumb
-            
-            #Set the track length 
-            try:
-                arguments['totalTime']=int(arguments['totalTime'])/1000
-                properties['duration']=arguments['totalTime']
-            except: pass
-           
-        if arguments['key'].split('/')[0] == "http:":
-            u=arguments['key']
-        elif arguments['key'][0] == '/':
             #The key begins with a slah, there is absolute
             u='http://'+server+str(arguments['key'])
         else:
             #Build the next level URL and add the link on screen
             u=url+'/'+str(arguments['key'])
         
-        try: 
-            properties['tracknumber']=int(arguments['index'])
-        except:pass
-
-        
-        mode=12
-        
-        u=u+"&mode="+str(mode)
-        
-        arguments['type']="Music"
-        addLink(u,properties,arguments)
-
-    for kumquat in tree.findall('Podcast'):
-        
-        xbmcplugin.setContent(pluginhandle, 'albums')
-    
-        
-        arguments=dict(kumquat.items())
-        properties={}
-
-        try:
-            if arguments['key'] == "":
-                continue
-        except: pass
-
-        
-        try:
-            properties['title']=properties['name']=arguments['title'].encode('utf-8')
-        except:
-            properties['title']=properties['name']="Unknown"
+        if grapes.tag == "Track":
+            printDebug("Track Tag", music.__name__)
+            xbmcplugin.setContent(pluginhandle, 'songs')
+            #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
             
-        try:
-            properties['year']=int(arguments['year'])
-        except:pass
-        
-                
-        try:
-            if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb']
-        except:
-            thumb=g_loc+'/resources/movie.png'  
-            arguments['thumb']=thumb
-
+            try:
+                properties['title']=arguments['track'].encode('utf-8')
+            except:
+                properties['title']="Unknown"
             
-        if arguments['key'][0] == '/':
-            #The key begins with a slash, there is absolute
-            u='http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            u=url+'/'+str(arguments['key'])
+                         
+            #Set the track length 
+            try:
+                arguments['totalTime']=int(arguments['totalTime'])/1000
+                properties['duration']=arguments['totalTime']
+            except: pass
+           
+            mode=12
+            u=u+"&mode="+str(mode)
+            addLink(u,properties,arguments)
+
+        else: # grapes.tag == "Directory" or grapes.tag == "Artist" or grapes.tag == "Album" or grapes.tag == "Podcast":
         
-                
-        arguments['type']="Music"
-        
-        mode=17
-        u=u+"&mode="+str(mode)
-        addDir(u,properties,arguments)    
+            if grapes.tag == "Artist":
+                printDebug("Artist Tag", music.__name__)
+                xbmcplugin.setContent(pluginhandle, 'artists')
+                try:
+                    properties['title']=arguments['artist']
+                except: 
+                    properties['title']="Unknown"
+             
+            elif grapes.tag == "Album":
+                printDebug("Album Tag", music.__name__)
+                xbmcplugin.setContent(pluginhandle, 'albums')
+                try:    
+                    properties['title']=arguments['album']
+                except: 
+                    properties['title']="Unknown"
+            elif grapes.tag == "Genre":
+                try:    
+                    properties['title']=arguments['genre']
+                except: 
+                    properties['title']="Unknown"
+            
+            else:
+                printDebug("Generic Tag: " + grapes.tag , music.__name__)
+                try:
+                    properties['title']=arguments['title']
+                except:
+                    properties['title']="Unknown"
+            
+            mode=17
+            u=u+"&mode="+str(mode)
+            addDir(u,properties,arguments)
         
     xbmcplugin.endOfDirectory(pluginhandle)    
 		
@@ -2247,7 +2108,8 @@ duration=None
 
 #Now try and assign some data to them
 try:
-        url=urllib.unquote_plus(params["url"])
+        #url=urllib.unquote_plus(params["url"])
+        url=params['url']
 except:
         pass
 try:
@@ -2258,10 +2120,6 @@ try:
         mode=int(params["mode"])
 except:
         pass
-try:
-        thumbnail=urllib.unquote_plus(params["thumbnail"])
-except:
-        thumbnail=''
 try:
         resume=int(params["resume"])
 except:
