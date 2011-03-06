@@ -148,9 +148,9 @@ def mediaType(partproperties, server):
 def printDebug(msg,functionname=""):
     if g_debug == "true":
         if functionname == "":
-            print msg
+            print str(msg)
         else:
-            print "PleXBMC -> " + functionname + ": " +msg
+            print "PleXBMC -> " + str(functionname) + ": " + str(msg)
  
 #Used to add playable media files to directory listing
 #properties is a dictionary {} which contains a list of setInfo properties to apply
@@ -398,6 +398,17 @@ def ROOT():
             mode=17
             u="http://"+server[1]+":32400/music&mode="+str(mode)
             addDir(u,properties,arguments)
+            
+            #Create plexonline link
+            if g_remote == "true":
+                properties['title']="Plex Online"
+            else:
+                properties['title']=server[0]+": Plex Online"
+            arguments['type']="file"
+            mode=19
+            u="http://"+server[1]+":32400/system/plexonline&mode="+str(mode)
+            addDir(u,properties,arguments)
+
 
             
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
@@ -2056,7 +2067,7 @@ def music(url):
             u=u+"&mode="+str(mode)
             addLink(u,properties,arguments)
 
-        else: # grapes.tag == "Directory" or grapes.tag == "Artist" or grapes.tag == "Album" or grapes.tag == "Podcast":
+        else: 
         
             if grapes.tag == "Artist":
                 printDebug("Artist Tag", music.__name__)
@@ -2091,7 +2102,122 @@ def music(url):
             addDir(u,properties,arguments)
         
     xbmcplugin.endOfDirectory(pluginhandle)    
-		
+
+def plexOnline(url):
+    printDebug("== ENTER: plexOnline ==")
+    xbmcplugin.setContent(pluginhandle, 'files')
+
+    server=url.split('/')[2]
+    
+    html=getURL(url)
+    
+    if html is False:
+        return
+    
+    tree=etree.fromstring(html)
+        
+    for lemons in tree:
+       
+        arguments=dict(lemons.items())
+        arguments['type']="Video"        
+        properties={}
+        
+        try:
+            if arguments['key'] == "":
+                continue
+        except: pass
+        
+        try:
+            properties['title']=arguments['title']
+        except:
+            try:
+                properties['title']=arguments['name']
+            except:
+                properties['title']="Unknown"
+        
+        mode=19
+        
+        if arguments['key'][0] == '/':
+            #The key begins with a slah, there is absolute
+            u='http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            u=url+'/'+str(arguments['key'])
+
+        
+        try:
+            if arguments['installed'] == "1":
+                properties['title']=properties['title']+" (installed)"
+                mode=20
+            elif arguments['installed'] == "0":
+                mode=20
+                
+        except:pass 
+        
+        try:
+            if not arguments['thumb'].split('/')[0] == "http:":
+                arguments['thumb']='http://'+server+arguments['thumb'].encode('utf-8')
+        except:
+            thumb=g_loc+'/resources/movie.png'  
+            arguments['thumb']=thumb
+
+        properties['title']=properties['title'].encode('utf-8')    
+            
+        u=u+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
+        addDir(u, properties, arguments)
+
+    xbmcplugin.endOfDirectory(pluginhandle)    
+        
+def install(url, name):
+    printDebug("== ENTER: install ==")
+    html=getURL(url)
+    tree = etree.fromstring(html)
+    
+    if tree.get('size') == "1":
+        #This plugin is probably not install
+        printDebug("Not installed.  Print dialog", install.__name__)
+        ret = xbmcgui.Dialog().yesno("Plex Online","About to install " + name)
+
+        if ret:
+            printDebug("Installing....", install.__name__)
+            installed = getURL(url+"/install")
+            tree = etree.fromstring(installed)
+    
+            msg=tree.get('message')
+            printDebug(msg, install.__name__)
+            xbmcgui.Dialog().ok("Plex Online",msg)
+
+    else:
+        #This plugin is already installed
+        printDebug("Already installed", install.__name__)
+        operations={}
+        i=0
+        for plums in tree.findall('Directory'):
+            operations[i]=plums.get('key').split('/')[-1]
+            i+=1
+        
+        options=operations.values()
+        
+        ret = xbmcgui.Dialog().select("This plugin is already installed..",options)
+        
+        if ret == -1:
+            printDebug("No option selected, cancelling", install.__name__)
+            return
+        
+        printDebug("Option " + str(ret) + " selected.  Operation is " + operations[ret], install.__name__)
+        u=url+"/"+operations[ret]
+
+        action = getURL(u)
+        tree = etree.fromstring(action)
+    
+        msg=tree.get('message')
+        printDebug(msg, install.__name__)
+        xbmcgui.Dialog().ok("Plex Online",msg)
+
+        
+        
+    return
+    
 ##So this is where we really start the plugin.
 
 #first thing, parse the arguments, as this has the data we need to use.              
@@ -2181,6 +2307,10 @@ elif mode==17:
         music(url)
 elif mode==18:
     videoPluginPlay(url)
+elif mode==19:
+    plexOnline(url)
+elif mode==20:
+    install(url,name)
 
 print "===== PLEXBMC STOP ====="
    
