@@ -369,9 +369,9 @@ def ROOT():
                 mode=7
                 s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
                 if g_remote == "true":
-                    properties['title']="Plugins"
+                    properties['title']="Video Plugins"
                 else:
-                    properties['title']=server[0]+": Plugins"
+                    properties['title']=server[0]+": Video Plugins"
 
                 arguments['type']="Video"
 
