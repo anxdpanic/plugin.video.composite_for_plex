@@ -1444,7 +1444,11 @@ def getDirectory(url):
         return
     elif arguments['viewGroup'] == "episode":
         printDebug("This is TV episode XML, passing to EPISODES", getDirectory.__name__)
-        EPISODES(url=url,tree=tree,server=server)
+        if lastbit.startswith("unwatched"):
+            printDebug("PMS data error, contents is actually TV Shows.  Passing to SHOWS.", getDirectory.__name__)
+            SHOWS(tree=tree,server=server)
+        else:    
+            EPISODES(url=url,tree=tree,server=server)
         return
     elif arguments['viewGroup'] == 'artist':
         printDebug( "This is music XML, passing to music", getDirectory.__name__)
