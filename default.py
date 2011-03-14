@@ -71,7 +71,7 @@ XBMCInternalHeaders=""
 if g_bonjour == "true":
     if g_debug == "true": print "PleXBMC -> local Bonjour discovery enabled."
     
-g_authentication = __settings__.getSetting('authentication')    
+g_authentication = __settings__.getSetting('remote')    
 if g_authentication == "true":
     if g_debug == "true": print "PleXBMC -> Getting authentication settings."
     g_username= __settings__.getSetting('username')
