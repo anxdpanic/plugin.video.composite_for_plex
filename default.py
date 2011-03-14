@@ -25,6 +25,17 @@ if g_debug == "true":
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
+g_multiple = int(__settings__.getSetting('multiple')) 
+g_serverList=[]
+if g_multiple > 0:
+    if g_debug == "true": print "PleXBMC -> Multiple servers configured; found [" + str(g_multiple) + "]"
+    for i in range(1,g_multiple+1):
+        if g_debug == "true": print "PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]"
+        g_serverList.append(['Server '+str(i), __settings__.getSetting('server'+str(i))])
+
+if g_debug == "true": print "PleXBMC -> serverList is " + str(g_serverList)
+        
+
 #Check and set transcoding options
 g_transcode = __settings__.getSetting('transcode')
 if g_transcode == "true":
@@ -38,7 +49,10 @@ if g_transcode == "true":
         g_transcodefmt="flv"
 
     if g_debug == "true": print "PleXBMC -> Transcode format is " + g_transcodefmt
-   
+
+g_proxy = __settings__.getSetting('proxy')
+if g_debug == "true": print "PleXBMC -> proxy is " + g_proxy
+
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
 #Create the standard header structure and load with a User Agent to ensure we get back a response.
@@ -47,10 +61,14 @@ g_txheaders = {
               }
 
 #Set up the remote access authentication tokens
-g_remote = __settings__.getSetting('remote')
+g_bonjour = __settings__.getSetting('bonjour')
 XBMCInternalHeaders=""
-if g_remote == "true":
-    if g_debug == "true": print "PleXBMC -> Remote library enabled.  Getting user/pass from settings"
+if g_bonjour == "true":
+    if g_debug == "true": print "PleXBMC -> local Bonjour discovery enabled."
+    
+g_authentication = __settings__.getSetting('authentication')    
+if g_authentication == "true":
+    if g_debug == "true": print "PleXBMC -> Getting authentication settings."
     g_username= __settings__.getSetting('username')
     g_password =  __settings__.getSetting('password')
     if g_debug == "true": print "PleXBMC -> username is " + g_username
@@ -270,7 +288,7 @@ def ROOT():
         Servers=[]
       
         #If we have a remote host, then don;t do local discovery as it won't work
-        if g_remote == "false":
+        if g_bonjour == "true":
             #Get the HTML for the URL
             url = 'http://'+host+':32400/servers'
             html=getURL(url)
@@ -291,16 +309,35 @@ def ROOT():
                 Servers.append([name,host])
         else:
             Servers.append(["remote",g_host])
-        
+            Servers += g_serverList
+            print "Servers are " + str(Servers)
         #For each of the servers we have identified
         for server in Servers:
-                    
+                   
+            print "using Server " + str(server)
+                   
+            #Get friendly name
+            url='http://'+server[1]+':32400'
+            html=getURL(url)
+
+            if html is False:
+                continue
+
+            tree=etree.fromstring(html)
+            try:
+                if not tree.get('friendlyName') == "":
+                    server[0]=tree.get('friendlyName')
+                else:
+                    server[0]=server[1]
+            except:
+                server[0]=server[1]
+            
             #dive into the library section with BS        
             url='http://'+server[1]+':32400/library/sections'
             html=getURL(url)
             
             if html is False:
-                return
+                continue
                 
             tree = etree.fromstring(html)
             
@@ -316,11 +353,12 @@ def ROOT():
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 try:
-                    if g_remote == "true":
+                    if g_multiple == 0:
                         properties['title']=arguments['title']
                     else:
                         properties['title']=server[0]+": "+arguments['title']
-                except:pass
+                except:
+                    propoerties['title']="unknown"
                 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
                 if arguments['type'] == 'show':
@@ -368,7 +406,7 @@ def ROOT():
                 #URL contains the location of the server plugin.  We'll display the content later
                 mode=7
                 s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
-                if g_remote == "true":
+                if g_multiple == 0:
                     properties['title']="Video Plugins"
                 else:
                     properties['title']=server[0]+": Video Plugins"
@@ -380,7 +418,7 @@ def ROOT():
                 addDir(s_url, properties,arguments)
                 
             #Create Photo plugin link
-            if g_remote == "true":
+            if g_multiple == 0:
                 properties['title']="Photo Plugins"
             else:
                 properties['title']=server[0]+": Photo Plugins"
@@ -390,7 +428,7 @@ def ROOT():
             addDir(u,properties,arguments)
 
             #Create music plugin link
-            if g_remote == "true":
+            if g_multiple == 0:
                 properties['title']="Music Plugins"
             else:
                 properties['title']=server[0]+": Music Plugins"
@@ -400,7 +438,7 @@ def ROOT():
             addDir(u,properties,arguments)
             
             #Create plexonline link
-            if g_remote == "true":
+            if g_multiple == 0:
                 properties['title']="Plex Online"
             else:
                 properties['title']=server[0]+": Plex Online"
@@ -1164,12 +1202,24 @@ def PLAYEPISODE(id,vids,seek, duration):
         if g_transcode == "true":
             printDebug("We are going to attempt to transcode this video", PLAYEPISODE.__name__)
             url=transcode(id,url)
+            identifier=proxyControl("start")
+            if identifier is False:
+                printDebug("Error - proxy not running", PLAYEPISODE.__name__)
+                xbmcgui.Dialog().ok("Error","Transcoding proxy not running")
    
         if protocol == "file:":
             printDebug( "We are playing a file", PLAYEPISODE.__name__)
             url=urlPath
         elif protocol == "http:":
-            url=url+XBMCInternalHeaders
+            if g_transcode == "true" and g_proxy =="true":
+                import base64
+                headers=base64.b64encode(XBMCInternalHeaders)
+                newurl=base64.b64encode(url)
+                url="http://127.0.0.1:8087/withheaders/"+newurl+"/"+headers
+
+
+            else:
+                url=url+XBMCInternalHeaders
         
         printDebug( "Current resume is " + str(seek), PLAYEPISODE.__name__)
        
@@ -1239,6 +1289,49 @@ def PLAYEPISODE(id,vids,seek, duration):
         
         return
 
+def proxyControl(command):
+    printDebug("======= ENTER: proxyControl() =======")
+    import subprocess
+    if command == "start":
+        printDebug("Start proxy", proxyControl.__name__)
+        #execfile("HLSproxy.py")
+        #child=subprocess.Popen([sys.executable, "HLSproxy.py"], shell=True)
+        xbmc.executebuiltin("XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py)")
+        time.sleep(2)
+        
+    elif command == "stop":
+        printDebug("Stop proxy", proxyControl.__name__)
+        time.sleep(2)
+        done=getURL("http://127.0.0.1:8087/stop")
+    else:
+        printDebug("No proxy command specified", proxyControl.__name__)
+        return False
+    #check result
+    
+    html=getURL('http://127.0.0.1:8087/version', surpress=True)
+    
+    if command == "start":
+        if html is False:
+            #failure
+            printDebug("Start Failure", proxyControl.__name__)
+            return False
+        else:
+            printDebug("Start Success", proxyControl.__name__)        
+            #success
+            return True
+    elif command == "stop":
+        if html is False:
+            #success
+            printDebug("Stop Success", proxyControl.__name__)          
+            return True
+        else:
+            #failure
+            printDebug("Stop Failure", proxyControl.__name__)           
+            return False
+    
+    return False    
+    
+        
 def selectMedia(id,url,seek,duration):
     printDebug("== ENTER: selectMedia ==")
     #if we have two or more files for the same movie, then present a screen
@@ -1322,6 +1415,10 @@ def monitorPlayback(id, server, resume, duration):
         time.sleep(5)
           
     #If we get this far, playback has stopped
+    
+    if g_transcode == "true" and g_proxy == "true":
+        result = proxyControl("stop")
+    
     printDebug( "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%.", monitorPlayback.__name__)
     if progress <= 5:
         #Then we hadn't watched enough to make any changes

@@ -1,18 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
-    <string id="20000">Plex Media Server Hostname</string>
-	<string id="20001">Stream from PMS</string>
-    <string id="20002">Get extended metadata from PMS</string>
-    <string id="20003">Enable extra filter menus</string>
-	<string id="20004">Is this a remote library?</string>
-	<string id="20005">PMS Username: </string>
-	<string id="20006">PMS Password: </string>
-    <string id="20007">Enable transcoding </string>
-    <string id="20008">Transcode format </string>
-    <string id="20009">m3u8</string>
-    <string id="20010">flv</string>
-    <string id="20011">auto</string>
-    <string id="20012">stream</string>
-    <string id="20013">smb</string>
-    <string id="20014">Enable debug output to log</string>
+    <string id="30000">Plex Media Server Hostname</string>
+	<string id="30001">Stream from PMS</string>
+    <string id="30002">Get extended metadata from PMS</string>
+    <string id="30003">Enable extra filter menus</string>
+	<string id="30004">Use bonjour local discovery?</string>
+	<string id="30005">PMS Username: </string>
+	<string id="30006">PMS Password: </string>
+    <string id="30007">Enable transcoding </string>
+    <string id="30008">Transcode format </string>
+    <string id="30009">m3u8</string>
+    <string id="30010">flv</string>
+    <string id="30011">auto</string>
+    <string id="30012">stream</string>
+    <string id="30013">smb</string>
+    <string id="30014">Enable debug output to log</string>
+    <string id="30015">Use transcoding proxy</string>
+
+    <string id="30016">0</string>
+    <string id="30017">1</string>
+    <string id="30018">2</string>
+    <string id="30019">3</string>
+    <string id="30020">4</string>
+    <string id="30021">5</string>
+    <string id="30022">6</string>
+    <string id="30023">7</string>
+    <string id="30024">8</string>
+    <string id="30025">9</string>
+    <string id="30026">10</string>
+
+    <string id="30027">Authentication required?</string>
+    
 </strings>

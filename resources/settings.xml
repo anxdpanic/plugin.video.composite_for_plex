@@ -1,13 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <setting id="ipaddress" type="text" label="20000" default="127.0.0.1"/>
-	<setting id="remote" type=bool label="20004" default="false" />
-	<setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="20005" />
-	<setting id="password" type=text  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="20006" />
-    <setting id="streaming" type="enum" label="20001" lvalues="20011|20012|20013" default="20011"/>
-    <setting id="secondary" type="bool" label="20003" default="false"/>
-    <setting id="transcode" type="bool" label="20007" default="false"/>
-    <setting id="transcodefmt" type="enum" label="20008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="20009|20010" default="20010" />
-    <setting id="debug" type=bool label="20014" default="false"/>
+    <category label="General">
+    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1"/>
+	<setting id="bonjour" type=bool label="30004" default="false" />
+    <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
+    <setting id="secondary" type="bool" label="30003" default="false"/>
+    <setting id="transcode" type="bool" label="30007" default="false"/>
+    <setting id="transcodefmt" type="enum" label="30008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="30009|30010" default="30010" />
+    <setting id="proxy" type=bool label="30015" visible="eq(-2,true)" enable="eq(-2,true)" default="true" />
+    <setting id="debug" type=bool label="30014" default="false"/>
     <setting id="resume" type="text" option=hidden default=""/>
+    </category>
+    
+    <category label="Authentication" >
+        <setting id="remote" type=bool label="30027" default="false"/>
+        <setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="30005" />
+        <setting id="password" type=text  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="30006" />
+    </category>
+    
+    <category label="Server List" >
+        <setting id="multiple" type=enum lvalues="30016|30017|30018|30019|30020|30021|30022|30023|30024|30025|30026" label="Number of Extra Server" default="30016" />
+        <setting id="server1" type=text label="Server 1" visible="gt(-1,0)" enable="gt(-1,0)" default="" />
+        <setting id="server2" type=text label="Server 2" visible="gt(-2,1)" enable="gt(-2,1)" default="" />
+        <setting id="server3" type=text label="Server 3" visible="gt(-3,2)" enable="gt(-3,2)" default="" />
+        <setting id="server4" type=text label="Server 4" visible="gt(-4,3)" enable="gt(-4,3)" default="" />
+        <setting id="server5" type=text label="Server 5" visible="gt(-5,4)" enable="gt(-5,4)" default="" />
+        <setting id="server6" type=text label="Server 6" visible="gt(-6,5)" enable="gt(-6,5)" default="" />
+        <setting id="server7" type=text label="Server 7" visible="gt(-7,6)" enable="gt(-7,6)" default="" />
+        <setting id="server8" type=text label="Server 8" visible="gt(-8,7)" enable="gt(-8,7)" default="" />
+        <setting id="server9" type=text label="Server 9" visible="gt(-9,8)" enable="gt(-9,8)" default="" />
+        <setting id="server10" type=text label="Server 10" visible="gt(-10,9)" enable="gt(-10,9)" default="" />
+    </category>
 </settings>

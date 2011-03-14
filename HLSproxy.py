@@ -52,6 +52,14 @@ class MyHandler(BaseHTTPRequestHandler):
             request_path=re.sub(r"\?.*","",request_path)
             if request_path=="stop":
                 print str(s.client_address[1])+": STOP request"
+                RUN=False
+                print "Set RUN to " + str(RUN)
+                s.send_response(200)
+                s.end_headers()
+                s.wfile.write("Stop detected.  Instructing parent")
+                signal=open(file,'w')
+                signal.write("STOP")
+                signal.close()
                 sys.exit()
             elif request_path=="version":
                 print str(s.client_address[1])+": Version request"
@@ -61,7 +69,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.wfile.write("Version: 0.1")
             elif request_path[0:12]=="withheaders/":
                 print str(s.client_address[1])+": URL request"
-                (realpath,sep,additionalheaders)=request_path[12:].partition("/")
+                (realpath,additionalheaders)=request_path[12:].split("/")
                 fURL=base64.b64decode(realpath)
                 additionalhString=base64.b64decode(additionalheaders)
                 print str(s.client_address[1])+": using this data:"
@@ -111,9 +119,10 @@ class MyHandler(BaseHTTPRequestHandler):
                 opener.addheader(key,additionalh[key])
             response = opener.open(fURL)
 
-            print str(s.client_address[1])+": remote server response is " + str(response.code)
+            #print str(s.client_address[1])+": remote server response is " + str(response.code)
             
-            s.send_response(response.code)
+            #s.send_response(response.code)
+            s.send_response(200)
             print str(s.client_address[1])+": XBMCLocalProxy: Sending headers..."
             headers=response.info()
             for key in headers:
@@ -250,7 +259,7 @@ class MyHandler(BaseHTTPRequestHandler):
             response = opener.open(files[i])
             print str(s.client_address[1])+": headers are: " + str(response.info())
 
-            print str(s.client_address[1])+": Start filewrite on back of " + str(response.code)
+            #print str(s.client_address[1])+": Start filewrite on back of " + str(response.code)
             print str(s.client_address[1])+": buffer is " + str(len(bufferstring))
             print str(s.client_address[1])+": and contains " + str(bufferstring)
             bufferstring="INIT"
@@ -263,7 +272,7 @@ class MyHandler(BaseHTTPRequestHandler):
             print str(s.client_address[1])+": segment finished - getting next"
             i+=1
         
-        print str(s.client_address[1])+": Finished all segments.  Last one was " + int(i-1)
+        print str(s.client_address[1])+": Finished all segments.  Last one was " + str(int(i-1))
         
         return
 
@@ -288,13 +297,23 @@ class ThreadedHTTPServer(ThreadingMixIn, Server):
 
 HOST_NAME = '127.0.0.1'
 PORT_NUMBER = 8087
+RUN=True
+file="c:/temp/terminate.proxy"
 
 if __name__ == '__main__':    
         socket.setdefaulttimeout(10)
         server_class = ThreadedHTTPServer
         httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
         print "XBMCLocalProxy Starts - %s:%s" % (HOST_NAME, PORT_NUMBER)
-        while(True):
-            httpd.handle_request()
+        while(RUN):
+            try:
+                exists = open(file, 'r')
+                exists.close()
+                os.remove(file)
+                break
+            except: pass
+            httpd.handle_request()    
         httpd.server_close()
         print "XBMCLocalProxy Stops %s:%s" % (HOST_NAME, PORT_NUMBER)
+        sys.exit()
+
