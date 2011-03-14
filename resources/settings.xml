@@ -5,11 +5,6 @@
 	<setting id="bonjour" type=bool label="30004" default="false" />
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
     <setting id="secondary" type="bool" label="30003" default="false"/>
-    <setting id="transcode" type="bool" label="30007" default="false"/>
-    <setting id="transcodefmt" type="enum" label="30008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="30009|30010" default="30010" />
-    <setting id="proxy" type=bool label="30015" visible="eq(-2,true)" enable="eq(-2,true)" default="true" />
-    <setting id="debug" type=bool label="30014" default="false"/>
-    <setting id="resume" type="text" option=hidden default=""/>
     </category>
     
     <category label="Authentication" >
@@ -19,7 +14,7 @@
     </category>
     
     <category label="Server List" >
-        <setting id="multiple" type=enum lvalues="30016|30017|30018|30019|30020|30021|30022|30023|30024|30025|30026" label="Number of Extra Server" default="30016" />
+        <setting id="multiple" type=enum lvalues="30016|30017|30018|30019|30020|30021|30022|30023|30024|30025|30026" label="Number of Extra Servers" default="30016" />
         <setting id="server1" type=text label="Server 1" visible="gt(-1,0)" enable="gt(-1,0)" default="" />
         <setting id="server2" type=text label="Server 2" visible="gt(-2,1)" enable="gt(-2,1)" default="" />
         <setting id="server3" type=text label="Server 3" visible="gt(-3,2)" enable="gt(-3,2)" default="" />
@@ -31,4 +26,17 @@
         <setting id="server9" type=text label="Server 9" visible="gt(-9,8)" enable="gt(-9,8)" default="" />
         <setting id="server10" type=text label="Server 10" visible="gt(-10,9)" enable="gt(-10,9)" default="" />
     </category>
+
+    <category label="Transcoding" >
+        <setting type=lsep label="Transcoding with XBMC is still experimental" />
+        <setting id="transcode" type="bool" label="30007" default="false"/>
+        <setting id="transcodefmt" type="enum" label="30008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="30009|30010" default="30010" />
+        <setting id="proxy" type=bool label="30015" visible="eq(-2,true)" enable="eq(-2,true)" default="true" />
+    </category>
+    
+    <category label="Debug" >
+        <setting id="debug" type=bool label="30014" default="false"/>
+        <setting id="resume" type="text" option=hidden default=""/>
+    </category>
+    
 </settings>

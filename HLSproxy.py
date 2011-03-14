@@ -2,6 +2,8 @@
 XBMCLocalProxy 0.1
 Copyright 2011 Torben Gerkensmeyer
 
+Modified for PleXBMC transcoding by Hippojay
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -35,46 +37,47 @@ class MyHandler(BaseHTTPRequestHandler):
     Serves a HEAD request
     """
     def do_HEAD(s):
-        print str(s.client_address[1])+": XBMCLocalProxy: Serving HEAD request..."
+        print "==== PROXY: " + str(s.client_address[1])+": XBMCLocalProxy: Serving HEAD request..."
         s.answer_request(0)
 
     """
     Serves a GET request.
     """
     def do_GET(s):
-        print str(s.client_address[1])+": XBMCLocalProxy: Serving GET request..."
+        print "==== PROXY: " + str(s.client_address[1])+": XBMCLocalProxy: Serving GET request..."
         s.answer_request(1)
 
     def answer_request(s, sendData):
         try:
-            print str(s.client_address[1])+": SendData is " + str(sendData)
+            #print str(s.client_address[1])+": SendData is " + str(sendData)
             request_path=s.path[1:]
             request_path=re.sub(r"\?.*","",request_path)
             if request_path=="stop":
-                print str(s.client_address[1])+": STOP request"
+                print "==== PROXY: " + str(s.client_address[1])+": STOP request"
                 RUN=False
                 print "Set RUN to " + str(RUN)
                 s.send_response(200)
                 s.end_headers()
                 s.wfile.write("Stop detected.  Instructing parent")
+                s.wfile.write("Creating file " + file)
                 signal=open(file,'w')
                 signal.write("STOP")
                 signal.close()
                 sys.exit()
             elif request_path=="version":
-                print str(s.client_address[1])+": Version request"
+                print "==== PROXY: " + str(s.client_address[1])+": Version request"
                 s.send_response(200)
                 s.end_headers()
                 s.wfile.write("Proxy: Running\r\n")
-                s.wfile.write("Version: 0.1")
+                s.wfile.write("Version: 0.3")
             elif request_path[0:12]=="withheaders/":
-                print str(s.client_address[1])+": URL request"
+                #print str(s.client_address[1])+": URL request"
                 (realpath,additionalheaders)=request_path[12:].split("/")
                 fURL=base64.b64decode(realpath)
                 additionalhString=base64.b64decode(additionalheaders)
-                print str(s.client_address[1])+": using this data:"
-                print str(s.client_address[1])+": URL = " + fURL
-                print str(s.client_address[1])+": headers = " + additionalhString
+                #print str(s.client_address[1])+": using this data:"
+                #print str(s.client_address[1])+": URL = " + fURL
+                #print str(s.client_address[1])+": headers = " + additionalhString
                 s.serveFile(fURL, additionalhString, sendData)
             else:
                 s.send_response(403)
@@ -96,10 +99,10 @@ class MyHandler(BaseHTTPRequestHandler):
             
             endbit=fURL.split('/')[-1]
             if endbit == "index.m3u8":
-                print str(s.client_address[1])+": We have an m3u8 playlist to get."
+                print "==== PROXY: " + str(s.client_address[1])+": We have an m3u8 playlist to get."
                 mode="m3u8"
             else:
-                print str(s.client_address[1])+": This is not an m3u8 playlist"
+                print "==== PROXY: " + str(s.client_address[1])+": This is not an m3u8 playlist"
                 mode="std"
             
             server=fURL.split('/')[2]
@@ -109,7 +112,7 @@ class MyHandler(BaseHTTPRequestHandler):
             opener.addheaders=[]
             d={}
             sheaders=s.decodeHeaderString("".join(s.headers.headers))
-            print str(s.client_address[1])+": Headers to go to server: "+ str(sheaders)
+            #print str(s.client_address[1])+": Headers to go to server: "+ str(sheaders)
             for key in sheaders:
                 if key == "Range": continue
                 d[key]=sheaders[key]
@@ -123,23 +126,23 @@ class MyHandler(BaseHTTPRequestHandler):
             
             #s.send_response(response.code)
             s.send_response(200)
-            print str(s.client_address[1])+": XBMCLocalProxy: Sending headers..."
+            print "==== PROXY: " + str(s.client_address[1])+": XBMCLocalProxy: Sending headers..."
             headers=response.info()
             for key in headers:
                 try:
-                    print str(s.client_address[1])+": Sending headers back to XBMC"
+                    #print str(s.client_address[1])+": Sending headers back to XBMC"
                     val=headers[key]
                     if key == "content-type" and mode == "m3u8":
-                        print str(s.client_address[1])+": Header: " + key + ": video/mpegts"
+                        #print str(s.client_address[1])+": Header: " + key + ": video/mpegts"
                         s.send_header(key, "video/mpegts")
                     elif key == "content-length" and mode == "m3u8":
-                        print str(s.client_address[1])+": Header: " + key + ": 20000000"
+                        #print str(s.client_address[1])+": Header: " + key + ": 20000000"
                         s.send_header(key, "200000000")
                     elif key == "connection" and mode == "m3u8":
-                        print str(s.client_address[1])+": Header: " + key + " keep-alive"
+                        #print str(s.client_address[1])+": Header: " + key + " keep-alive"
                         s.send_header(key, "keep-alive")
                     else:
-                        print str(s.client_address[1])+": STD Header: " + key + ": " + val
+                        #print str(s.client_address[1])+": STD Header: " + key + ": " + val
                         s.send_header(key, val)
 
  
@@ -150,7 +153,7 @@ class MyHandler(BaseHTTPRequestHandler):
             s.end_headers()
             
             if (sendData):
-                print str(s.client_address[1])+": XBMCLocalProxy: Sending data..."
+                print "==== PROXY: " + str(s.client_address[1])+": XBMCLocalProxy: Sending data..."
 
                 #If we have an m3u8 then lets check the tags
                 if mode == "m3u8":
@@ -164,14 +167,14 @@ class MyHandler(BaseHTTPRequestHandler):
                     for items in sList:
                     
                         if items == "#EXTM3U":
-                            print str(s.client_address[1])+": Found m3u8 start TAG"
+                            print "==== PROXY: " + str(s.client_address[1])+": Found m3u8 start TAG"
                             start=1
                         elif items.startswith("#EXT-X-TARGETDURATION"):
                             duration = items.split(':')[1]
                             if start == 1:
-                                print str(s.client_address[1])+": Found m3u8 duration tag. std Segment length is " + duration + " seconds"
+                                print "==== PROXY: " + str(s.client_address[1])+": Found m3u8 duration tag. std Segment length is " + duration + " seconds"
                             if start == 0:
-                                print str(s.client_address[1])+": Found out of sequence duration tag. std Segment length is " + duration + " seconds"
+                                print "==== PROXY: " + str(s.client_address[1])+": Found out of sequence duration tag. std Segment length is " + duration + " seconds"
                         elif items.find("transcode/segmented/session") > 0:
                             #take the file name, get the last bit split by / and then split that by a . to remove .ts.  integer
                             index=int(items.split('/')[-1].split('.')[0])
@@ -182,22 +185,22 @@ class MyHandler(BaseHTTPRequestHandler):
                             except:
                                     pass
                         elif items.startswith("#EXT-X-ENDLIST"):
-                            print str(s.client_address[1])+": Found m3u8 END tag"
+                            print "==== PROXY: " + str(s.client_address[1])+": Found m3u8 END tag"
                             break
                 
-                    print str(s.client_address[1])+": we have a file list with " + str(len(filelist)-1) + " segments"
-                    print str(s.client_address[1])+": Test item: " + str(filelist[0])        
+                    #print str(s.client_address[1])+": we have a file list with " + str(len(filelist)-1) + " segments"
+                    #print str(s.client_address[1])+": Test item: " + str(filelist[0])        
 
                 fileout=s.wfile
                 try: 
                         buf="INIT"
                         try:
                             if mode == "m3u8":
-                                print str(s.client_address[1])+": this is a playlist, so going to get the segments"
+                                #print str(s.client_address[1])+": this is a playlist, so going to get the segments"
 
                                 s.getSegments(filelist, fileout, additionalhstring, buf )
                                     
-                                print str(s.client_address[1])+": Back in main program"
+                                #print str(s.client_address[1])+": Back in main program"
                             else:
                                 while (buf!=None and len(buf)>0):
                                     buf=response.read(8*1024)
@@ -206,9 +209,9 @@ class MyHandler(BaseHTTPRequestHandler):
                                 response.close()                            
                             
                             fileout.close()
-                            print str(s.client_address[1])+": Closing connection" + str(time.asctime())
+                            print "==== PROXY: " + str(s.client_address[1])+": Closing connection" + str(time.asctime())
                         except socket.error, e:
-                            print str(s.client_address[1])+": Client Closed the connection at " + str(time.asctime())
+                            print "==== PROXY: " + str(s.client_address[1])+": Client Closed the connection at " + str(time.asctime())
                             try:
                                 response.close()
                                 fileout.close()
@@ -239,11 +242,11 @@ class MyHandler(BaseHTTPRequestHandler):
         return di
         
     def getSegments(s, files, output, headerstring, bufferstring):
-        print str(s.client_address[1])+": ====getSegments()===="
-        print str(s.client_address[1])+": ==== This playlist has " + str(len(files)) + " elements"
+        print str(s.client_address[1])+": ====PROXY: getSegments()===="
+        #print str(s.client_address[1])+": ==== This playlist has " + str(len(files)) + " elements"
         i=0
         while i < len(files):
-            print str(s.client_address[1])+": For file at index " + str(i)
+            #print str(s.client_address[1])+": For file at index " + str(i)
             additionalh=s.decodeHeaderString(headerstring)
             opener = FancyURLopener()
             opener.addheaders=[]
@@ -255,24 +258,23 @@ class MyHandler(BaseHTTPRequestHandler):
             for key in additionalh:
                 d[key]=additionalh[key]
                 opener.addheader(key,additionalh[key])
-            print str(s.client_address[1])+": Opening playlist URL " + files[i]
+            print "==== PROXY: " + str(s.client_address[1])+": Opening playlist URL " + files[i]
             response = opener.open(files[i])
-            print str(s.client_address[1])+": headers are: " + str(response.info())
+            #print str(s.client_address[1])+": headers are: " + str(response.info())
 
             #print str(s.client_address[1])+": Start filewrite on back of " + str(response.code)
-            print str(s.client_address[1])+": buffer is " + str(len(bufferstring))
-            print str(s.client_address[1])+": and contains " + str(bufferstring)
+            #print str(s.client_address[1])+": buffer is " + str(len(bufferstring))
+            #print str(s.client_address[1])+": and contains " + str(bufferstring)
             bufferstring="INIT"
             while (bufferstring!=None and len(bufferstring)>0):
-                print str(s.client_address[1])+": writing...."
                 bufferstring=response.read(8*1024)
                 output.write(bufferstring)
                 output.flush()
             response.close()  
-            print str(s.client_address[1])+": segment finished - getting next"
+            print "==== PROXY: " + str(s.client_address[1])+": segment finished - getting next"
             i+=1
         
-        print str(s.client_address[1])+": Finished all segments.  Last one was " + str(int(i-1))
+        print "==== PROXY: " + str(s.client_address[1])+": Finished all segments.  Last one was " + str(int(i-1))
         
         return
 
@@ -298,7 +300,8 @@ class ThreadedHTTPServer(ThreadingMixIn, Server):
 HOST_NAME = '127.0.0.1'
 PORT_NUMBER = 8087
 RUN=True
-file="c:/temp/terminate.proxy"
+file=sys.argv[1]
+print "==== PROXY: Using signal file " + file
 
 if __name__ == '__main__':    
         socket.setdefaulttimeout(10)

@@ -4,6 +4,7 @@ import sys,os,datetime, time, sha
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
+PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
 
 try:
@@ -31,7 +32,11 @@ if g_multiple > 0:
     if g_debug == "true": print "PleXBMC -> Multiple servers configured; found [" + str(g_multiple) + "]"
     for i in range(1,g_multiple+1):
         if g_debug == "true": print "PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]"
-        g_serverList.append(['Server '+str(i), __settings__.getSetting('server'+str(i))])
+        extraip = __settings__.getSetting('server'+str(i))
+        if extraip == "":
+            if g_debug == "true": print "PleXBMC -> Blank server detected.  Ignoring"
+            continue
+        g_serverList.append(['Server '+str(i),extraip])
 
 if g_debug == "true": print "PleXBMC -> serverList is " + str(g_serverList)
         
@@ -114,12 +119,14 @@ def getURL( url ,title="Error", surpress=False):
             printDebug("====== XML finished ======",getURL.__name__)
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
-        xbmcgui.Dialog().ok(title,error)
+        if surpress is False:
+            xbmcgui.Dialog().ok(title,error)
         print error
         return False
     except socket.error, msg : 
         error="Unable to connect to " + server +"\nReason: " + str(msg)
-        xbmcgui.Dialog().ok(title,error)
+        if surpress is False:
+            xbmcgui.Dialog().ok(title,error)
         print error
         return False
     else:
@@ -310,12 +317,9 @@ def ROOT():
         else:
             Servers.append(["remote",g_host])
             Servers += g_serverList
-            print "Servers are " + str(Servers)
         #For each of the servers we have identified
         for server in Servers:
-                   
-            print "using Server " + str(server)
-                   
+                                      
             #Get friendly name
             url='http://'+server[1]+':32400'
             html=getURL(url)
@@ -677,9 +681,6 @@ def MoviesET(url='',tree=etree,server=''):
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
-    
-
-		
     
 ################################ TV Show Listings
 #This is the function use to parse the top level list of TV shows
@@ -1296,7 +1297,10 @@ def proxyControl(command):
         printDebug("Start proxy", proxyControl.__name__)
         #execfile("HLSproxy.py")
         #child=subprocess.Popen([sys.executable, "HLSproxy.py"], shell=True)
-        xbmc.executebuiltin("XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py)")
+        filestring="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\")"
+        print str(filestring)
+        xbmc.executebuiltin(filestring)
+        #xbmc.executebuiltin("XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\"PLUGINPATH\")")
         time.sleep(2)
         
     elif command == "stop":
