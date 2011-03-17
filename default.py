@@ -362,7 +362,7 @@ def ROOT():
                     else:
                         properties['title']=server[0]+": "+arguments['title']
                 except:
-                    propoerties['title']="unknown"
+                    properties['title']="unknown"
                 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
                 if arguments['type'] == 'show':
