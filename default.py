@@ -2358,6 +2358,7 @@ def skin():
     
     #Propert to set total number of servers we are talking to
     WINDOW.setProperty("plexbmc.numServers", str(len(Servers)))
+    printDebug("Number of servers for skin: " + str(len(Servers)), skin.__name__)
     
     sectionCount=0
     
@@ -2401,10 +2402,7 @@ def skin():
 
             #Start pulling out information from the parsed XML output. Assign to various variables
             try:
-                if g_multiple == 0:
-                    properties['title']=arguments['title']
-                else:
-                    properties['title']=server[0]+": "+arguments['title']
+                properties['title']=arguments['title']
             except:
                 properties['title']="unknown"
              
@@ -2439,9 +2437,24 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
             WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['art'] )
             
+            printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + properties['title'] + "]", skin.__name__)
             
             sectionCount += 1
     
+    try:
+        printDebug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]", skin.__name__)
+
+        for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
+            WINDOW.clearProperty("plexbmc.%d.title" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.subtitle" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.url" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.mode" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.window" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.art" % ( i ) )
+    except:
+        pass
+
+    printDebug("Total number of skin sections is [" + str(sectionCount) + "]", skin.__name__)
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
 
    
