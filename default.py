@@ -2409,15 +2409,16 @@ def skin():
             try:
                 arguments['art']="http://"+server[1]+":32400"+arguments['art']
             except: pass
+           
             
             print "art is " + arguments['art']
             
             #Determine what we are going to do process after a link is selected by the user, based on the content we find
             if arguments['type'] == 'show':
-                window="VideoFiles"
+                window="VideoLibrary"
                 mode=1
             if  arguments['type'] == 'movie':
-                window="VideoFiles"
+                window="VideoLibrary"
                 mode=2
             if  arguments['type'] == 'artist':
                 window="MusicLibrary"
@@ -2463,101 +2464,100 @@ def skin():
 print "Script argument is " + str(sys.argv[1])
 if str(sys.argv[1]) == "skin":
     skin()
-    sys.exit()
 else:
     pluginhandle = int(sys.argv[1])
 
-#first thing, parse the arguments, as this has the data we need to use.              
-params=get_params()
-if g_debug == "true": print "PleXBMC -> " + str(params)
+    #first thing, parse the arguments, as this has the data we need to use.              
+    params=get_params()
+    if g_debug == "true": print "PleXBMC -> " + str(params)
 
-#Set up some variables
-url=None
-name=None
-mode=None
-resume=None
-id=None
-duration=None
+    #Set up some variables
+    url=None
+    name=None
+    mode=None
+    resume=None
+    id=None
+    duration=None
 
-#Now try and assign some data to them
-try:
-        #url=urllib.unquote_plus(params["url"])
-        url=params['url']
-except:
-        pass
-try:
-        name=urllib.unquote_plus(params["name"])
-except:
-        pass
-try:
-        mode=int(params["mode"])
-except:
-        pass
-try:
-        resume=int(params["resume"])
-except:
-        resume=0
-try:
-        id=params["id"]
-except:
-        pass
-try:
-        duration=params["duration"]
-except:
-        duration=0
-        
-if g_debug == "true":
-    print "PleXBMC -> Mode: "+str(mode)
-    print "PleXBMC -> URL: "+str(url)
-    print "PleXBMC -> Name: "+str(name)
-    print "PleXBMC -> ID: "+ str(id)
-    print "PleXBMC -> Duration: " + str(duration)
+    #Now try and assign some data to them
+    try:
+            #url=urllib.unquote_plus(params["url"])
+            url=params['url']
+    except:
+            pass
+    try:
+            name=urllib.unquote_plus(params["name"])
+    except:
+            pass
+    try:
+            mode=int(params["mode"])
+    except:
+            pass
+    try:
+            resume=int(params["resume"])
+    except:
+            resume=0
+    try:
+            id=params["id"]
+    except:
+            pass
+    try:
+            duration=params["duration"]
+    except:
+            duration=0
+            
+    if g_debug == "true":
+        print "PleXBMC -> Mode: "+str(mode)
+        print "PleXBMC -> URL: "+str(url)
+        print "PleXBMC -> Name: "+str(name)
+        print "PleXBMC -> ID: "+ str(id)
+        print "PleXBMC -> Duration: " + str(duration)
 
-#Run a function based on the mode variable that was passed in the URL
+    #Run a function based on the mode variable that was passed in the URL
 
-if mode!=5:
-    __settings__.setSetting('resume', '')
+    if mode!=5:
+        __settings__.setSetting('resume', '')
 
-if mode==None or url==None or len(url)<1:
-        ROOT()
-elif mode == 0:
-        getDirectory(url)
-elif mode==1:
-        SHOWS(url)
-elif mode==2:
-        MoviesET(url)
-elif mode==3:
-        artist(url)
-elif mode==4:
-        Seasons(url)
-elif mode==5:
-        PLAYEPISODE(id,url,resume, duration)
-elif mode==6:
-        EPISODES(url)
-elif mode==7:
-        PlexPlugins(url)
-elif mode==10:
-        StartMovies()
-elif mode==11:
-        StartTV()
-elif mode==12:
-        PLAY(url)
-elif mode==13:
-        selectMedia(id,url,resume,duration)
-elif mode ==14:
-        albums(url)
-elif mode == 15:
-        tracks(url)
-elif mode==16:
-        photo(url)
-elif mode==17:
-        music(url)
-elif mode==18:
-    videoPluginPlay(url)
-elif mode==19:
-    plexOnline(url)
-elif mode==20:
-    install(url,name)
+    if mode==None or url==None or len(url)<1:
+            ROOT()
+    elif mode == 0:
+            getDirectory(url)
+    elif mode==1:
+            SHOWS(url)
+    elif mode==2:
+            MoviesET(url)
+    elif mode==3:
+            artist(url)
+    elif mode==4:
+            Seasons(url)
+    elif mode==5:
+            PLAYEPISODE(id,url,resume, duration)
+    elif mode==6:
+            EPISODES(url)
+    elif mode==7:
+            PlexPlugins(url)
+    elif mode==10:
+            StartMovies()
+    elif mode==11:
+            StartTV()
+    elif mode==12:
+            PLAY(url)
+    elif mode==13:
+            selectMedia(id,url,resume,duration)
+    elif mode ==14:
+            albums(url)
+    elif mode == 15:
+            tracks(url)
+    elif mode==16:
+            photo(url)
+    elif mode==17:
+            music(url)
+    elif mode==18:
+        videoPluginPlay(url)
+    elif mode==19:
+        plexOnline(url)
+    elif mode==20:
+        install(url,name)
 
 print "===== PLEXBMC STOP ====="
    
