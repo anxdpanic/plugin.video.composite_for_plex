@@ -7,6 +7,8 @@ BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'li
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
 
+print "running on " + str(sys.version_info)
+
 try:
     import elementtree.ElementTree as etree
 except: 
@@ -507,6 +509,9 @@ def StartTV():
 def MoviesET(url='',tree=etree,server=''):
         printDebug("== ENTER: MoviesET() ==")
         xbmcplugin.setContent(pluginhandle, 'movies')
+        win=xbmcgui.getCurrentWindowId()
+        WINDOW=xbmcgui.Window(win)
+        WINDOW.setProperty("plexbmc.type", "movies")
         
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
@@ -690,6 +695,11 @@ def SHOWS(url='',tree=etree,server=''):
 
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
+        win=xbmcgui.getCurrentWindowId()
+        WINDOW=xbmcgui.Window(win)
+        WINDOW.setProperty("plexbmc.type", "tvshows")
+
+        
         #Get the URL and server name.  Get the XML and parse
         if not url == '':
         
@@ -803,7 +813,10 @@ def Seasons(url):
         xbmcplugin.setContent(pluginhandle, 'seasons')
 
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
-        
+        win=xbmcgui.getCurrentWindowId()
+        WINDOW=xbmcgui.Window(win)
+        WINDOW.setProperty("plexbmc.type", "seasons")
+
         #Get URL, XML and parse
         server=url.split('/')[2]
         html=getURL(url)
@@ -887,7 +900,10 @@ def EPISODES(url='',tree=etree,server=''):
         xbmcplugin.setContent(pluginhandle, 'episodes')
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
-        
+        win=xbmcgui.getCurrentWindowId()
+        WINDOW=xbmcgui.Window(win)
+        WINDOW.setProperty("plexbmc.type", "episodes")
+
         #Get the server
         try:
             server=url.split('/')[2]
@@ -2415,10 +2431,10 @@ def skin():
             
             #Determine what we are going to do process after a link is selected by the user, based on the content we find
             if arguments['type'] == 'show':
-                window="VideoLibrary"
+                window="VideoFiles"
                 mode=1
             if  arguments['type'] == 'movie':
-                window="VideoLibrary"
+                window="VideoFiles"
                 mode=2
             if  arguments['type'] == 'artist':
                 window="MusicLibrary"
