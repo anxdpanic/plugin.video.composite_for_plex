@@ -224,7 +224,9 @@ def addLink(url,properties,arguments):
                 
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']))
+            if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
+                arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg")
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
             printDebug( "Setting fan art as " + str(arguments['fanart_image']),addLink.__name__)
         except: pass
         
@@ -279,6 +281,8 @@ def addDir(url,properties,arguments):
         
         #Set the fanart image if it has been enabled
         try:
+            if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
+                arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg") 
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
             printDebug( "Setting fan art as " + str(arguments['fanart_image']),addDir.__name__)
         except: pass
@@ -353,7 +357,12 @@ def ROOT():
             for object in SectionTags:
             
                 arguments=dict(object.items())
-                arguments['thumb']=""
+                try:
+                    arguments['thumb']="http://"+server[1]+":32400"+arguments['art']
+                    arguments['fanart_image']=arguments['thumb']
+                except:
+                    arguments['thumb']=""
+                    
                 #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
                 properties={}
 
@@ -641,7 +650,7 @@ def MoviesET(url='',tree=etree,server=''):
                
             #Get a nice big picture  
             try:
-                fanart=arguments['art']#.split('?')[0] #drops the guid from the fanart image
+                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                 art_url='http://'+server+fanart#.encode('utf-8')
                 #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
@@ -786,8 +795,8 @@ def SHOWS(url='',tree=etree,server=''):
             #Get a nice big picture  
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart.encode('utf-8')
-                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                art_url='http://'+server+fanart#.encode('utf-8')
+                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -825,7 +834,15 @@ def Seasons(url):
             return
 
         
-        tree= etree.fromstring(html)
+        tree=etree.fromstring(html)
+        
+        try:
+            fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
+            art_url='http://'+server+fanart#.encode('utf-8')
+            #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+        except:  
+            art_url=None 
+
         
         #For all the directory tags
         ShowTags=tree.findall('Directory')
@@ -850,10 +867,13 @@ def Seasons(url):
                 arguments['thumb']=thumb
                
             #Get a nice big picture  
+            
+            
             try:
-                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart.encode('utf-8')
-                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                if art_url is None:
+                    fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
+                    art_url='http://'+server+fanart#.encode('utf-8')
+                    #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -949,7 +969,14 @@ def EPISODES(url='',tree=etree,server=''):
         try:
             season=tree.get('parentIndex')
         except:pass
-            
+        
+        try:
+            fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
+            art_url='http://'+server+fanart#.encode('utf-8')
+            #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+        except:  
+            art_url=None 
+        
          
         #right, not for each show we find
         for show in ShowTags:
@@ -1072,9 +1099,10 @@ def EPISODES(url='',tree=etree,server=''):
                
             #Get a nice big picture  
             try:
-                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart.encode('utf-8')
-                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                if art_url is None:
+                    fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
+                    art_url='http://'+server+fanart#.encode('utf-8')
+                    #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -1587,10 +1615,25 @@ def getDirectory(url):
     #else we have a secondary, which we'll process here
     printDebug("Processing secondary menus", getDirectory.__name__)
     
+    try:
+        fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
+        art_url='http://'+server+fanart#.encode('utf-8')
+        #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+    except:  
+        art_url=None 
+
+    
     for apple in tree:
         arguments=dict(apple.items())
         properties={}
         properties['title']=arguments['title']
+        
+        try:
+            arguments['thumb']=art_url
+            arguments['fanart_image']=arguments['thumb']
+        except:
+            arguments['thumb']=""
+
         
         n_url=url+'/'+arguments['key']+'&mode=0'
 
@@ -1732,8 +1775,8 @@ def artist(url='',tree=etree,server=''):
             #Get a nice big picture  
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart.encode('utf-8')
-                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                art_url='http://'+server+fanart#.encode('utf-8')
+                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -1799,8 +1842,8 @@ def albums(url='', tree=etree, server=''):
             #Get a nice big picture  
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart.encode('utf-8')
-                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                art_url='http://'+server+fanart#.encode('utf-8')
+                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -1976,8 +2019,8 @@ def tracks(url='',tree=etree,server=''):
             #Get a nice big picture  
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart.encode('utf-8')
-                art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                art_url='http://'+server+fanart#.encode('utf-8')
+                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
