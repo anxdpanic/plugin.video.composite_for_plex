@@ -202,6 +202,12 @@ def addLink(url,properties,arguments):
         
         ok=True
 
+        properties['videoresolution']="1080"
+        properties['video_resolution']="1080"
+        properties['VideoResolution']="1080"
+        properties['Video_Resolution']="1080"
+
+        
         printDebug("URL to use for listing: " + u, addLink.__name__)
         #Create ListItem object, which is what is displayed on screen
         try:
@@ -214,6 +220,7 @@ def addLink(url,properties,arguments):
         liz.setInfo( type=type, infoLabels=properties ) 
         
         try:
+            liz.setProperty('Video_Resolution', "1080")
             liz.setProperty('Artist_Genre', properties['genre'])
             liz.setProperty('Artist_Description', properties['plot'])
         except: pass
@@ -358,10 +365,25 @@ def ROOT():
             
                 arguments=dict(object.items())
                 try:
-                    arguments['thumb']="http://"+server[1]+":32400"+arguments['art']
-                    arguments['fanart_image']=arguments['thumb']
-                except:
-                    arguments['thumb']=""
+                    if arguments['art'][0] == "/":
+                        #Ammend URL
+                        arguments['fanart_image']="http://"+server[1]+":32400"+arguments['art']
+                    else:
+                        arguments['fanart_image']="http://"+server[1]+":32400/library/sections/"+arguments['art']
+                except: pass
+                    
+                try:
+                    if arguments['thumb'][0] == "/":
+                        #Ammend URL
+                        arguments['thumb']="http://"+server[1]+":32400"+arguments['thumb']
+                    else:
+                        arguments['thumb']="http://"+server[1]+":32400/library/sections/"+arguments['thumb']
+                except: 
+                    try:
+                        arguments['thumb']=arguments['fanart_image']
+                    except:
+                        arguments['thumb']=""
+                    
                     
                 #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
                 properties={}
@@ -2464,13 +2486,22 @@ def skin():
                 properties['title']=arguments['title']
             except:
                 properties['title']="unknown"
-             
+
+                
             try:
-                arguments['art']="http://"+server[1]+":32400"+arguments['art']
+                if arguments['art'][0] == "/":
+                    #Ammend URL
+                    arguments['fanart_image']="http://"+server[1]+":32400"+arguments['art']
+                else:
+                    arguments['fanart_image']="http://"+server[1]+":32400/library/sections/"+arguments['art']
             except: pass
            
+            try:
+                if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
+                    arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg")
+            except:pass
             
-            print "art is " + arguments['art']
+            print "art is " + arguments['fanart_image']
             
             #Determine what we are going to do process after a link is selected by the user, based on the content we find
             if arguments['type'] == 'show':
@@ -2495,7 +2526,7 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.url" % (sectionCount), s_url )
             WINDOW.setProperty("plexbmc.%d.mode" % (sectionCount), str(mode) )
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
-            WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['art'] )
+            WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image'] )
             
             printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + properties['title'] + "]", skin.__name__)
             
