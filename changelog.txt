@@ -1,3 +1,10 @@
+Current Release:
+[b] Version 1.7.7 [/b] Tighter skin integration with Confluence
+
+Selected Release Highlights..
+[b] Version 1.7.1 [/b] Talk to multiple Servers
+[b] Version 1.7.0 [/b] Transcoding support via bespoke proxy 
+[b] Version 1.5.5 [/b] Released Stable version in conjunction with FrontSeat mod.
 [B] Version 1.5.3 [/B] Altered file selection logic to search for local media before streaming remotely.
 [B] Version 1.5 [/B] Added transcoding options and also ability to talk to remote PMS library.
 [B] Version 1.4 [/B] Plugin speed up whilst parsing movies and Tv shows.  Added option of extended Plex style menus
