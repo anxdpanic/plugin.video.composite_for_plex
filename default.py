@@ -302,6 +302,8 @@ def addDir(url,properties,arguments):
 # Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
 def ROOT():
         printDebug("== ENTER: ROOT() ==")
+        xbmcplugin.setContent(pluginhandle, 'movies')
+
         #Get the global host variable set in settings
         host=g_host
         
@@ -366,7 +368,6 @@ def ROOT():
                 arguments=dict(object.items())
                 try:
                     if arguments['art'][0] == "/":
-                        #Ammend URL
                         arguments['fanart_image']="http://"+server[1]+":32400"+arguments['art']
                     else:
                         arguments['fanart_image']="http://"+server[1]+":32400/library/sections/"+arguments['art']
@@ -374,7 +375,6 @@ def ROOT():
                     
                 try:
                     if arguments['thumb'][0] == "/":
-                        #Ammend URL
                         arguments['thumb']="http://"+server[1]+":32400"+arguments['thumb']
                     else:
                         arguments['thumb']="http://"+server[1]+":32400/library/sections/"+arguments['thumb']
@@ -1636,6 +1636,8 @@ def getDirectory(url):
          
     #else we have a secondary, which we'll process here
     printDebug("Processing secondary menus", getDirectory.__name__)
+    xbmcplugin.setContent(pluginhandle, 'movies')
+
     
     try:
         fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
@@ -2405,7 +2407,7 @@ def install(url, name):
     return
    
 def skin():
-    #Gather some data and set the windo properties
+    #Gather some data and set the window properties
     printDebug("== ENTER: skin() ==")
     #Get the global host variable set in settings
     host=g_host
@@ -2442,7 +2444,7 @@ def skin():
     printDebug("Number of servers for skin: " + str(len(Servers)), skin.__name__)
     
     sectionCount=0
-    
+    serverCount=0
     #For each of the servers we have identified
     for server in Servers:
                                       
@@ -2461,8 +2463,17 @@ def skin():
                 server[0]=server[1]
         except:
             server[0]=server[1]
-            
-        #dive into the library section with BS        
+        
+        WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[0])
+        WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+":32400/video&mode=7")
+        WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+":32400/music&mode=17")
+        WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+":32400/photos&mode=16")
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+":32400/system/plexonline&mode=19")
+
+        
+        serverCount += 1
+        
+        #dive into the library section      
         url='http://'+server[1]+':32400/library/sections'
         html=getURL(url)
             
@@ -2505,10 +2516,10 @@ def skin():
             
             #Determine what we are going to do process after a link is selected by the user, based on the content we find
             if arguments['type'] == 'show':
-                window="VideoFiles"
+                window="VideoLibrary"
                 mode=1
             if  arguments['type'] == 'movie':
-                window="VideoFiles"
+                window="VideoLibrary"
                 mode=2
             if  arguments['type'] == 'artist':
                 window="MusicLibrary"
@@ -2527,7 +2538,9 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.mode" % (sectionCount), str(mode) )
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
             WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image'] )
-            
+            WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
+
+
             printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + properties['title'] + "]", skin.__name__)
             
             sectionCount += 1
@@ -2542,6 +2555,7 @@ def skin():
             WINDOW.clearProperty("plexbmc.%d.mode" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.window" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.art" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.type" % ( i ) )
     except:
         pass
 
