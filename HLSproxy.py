@@ -106,6 +106,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 mode="std"
             
             server=fURL.split('/')[2]
+            fURLpath="/".join(fURL.split('/')[:-1])+"/"
             
             additionalh=s.decodeHeaderString(additionalhstring)
             opener = FancyURLopener()
@@ -175,15 +176,17 @@ class MyHandler(BaseHTTPRequestHandler):
                                 print "==== PROXY: " + str(s.client_address[1])+": Found m3u8 duration tag. std Segment length is " + duration + " seconds"
                             if start == 0:
                                 print "==== PROXY: " + str(s.client_address[1])+": Found out of sequence duration tag. std Segment length is " + duration + " seconds"
-                        elif items.find("transcode/segmented/session") > 0:
-                            #take the file name, get the last bit split by / and then split that by a . to remove .ts.  integer
-                            index=int(items.split('/')[-1].split('.')[0])
-                            filelist[index]="http://"+server+items
+                        elif len(items.split('.')) == 2:
                             try:
-                                if sheaders['Range'] is not None:
-                                    break
-                            except:
-                                    pass
+                                if items.split('.')[1] == "ts":
+                                    #take the file name, get the last bit split by / and then split that by a . to remove .ts.  integer
+                                    index=int(items.split('/')[-1].split('.')[0])
+                                    filelist[index]=fURLpath+items
+                                    try:
+                                        if sheaders['Range'] is not None:
+                                            break
+                                    except: pass
+                            except:pass
                         elif items.startswith("#EXT-X-ENDLIST"):
                             print "==== PROXY: " + str(s.client_address[1])+": Found m3u8 END tag"
                             break
