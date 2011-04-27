@@ -9,6 +9,7 @@ sys.path.append(BASE_RESOURCE_PATH)
 
 print "running on " + str(sys.version_info)
 
+
 try:
     import elementtree.ElementTree as etree
 except: 
@@ -17,14 +18,21 @@ except:
 #Get the setting from the appropriate file.
 print "===== PLEXBMC START ====="
 g_host = __settings__.getSetting('ipaddress')
+g_port=":"+__settings__.getSetting('port')
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_debug = __settings__.getSetting('debug')
+#g_externalsubs = __settings__.getSetting('externalsub')
+#g_alwayssubs = __settings__.getSetting('alwayssubs')
 if g_debug == "true":
     print "PleXBMC -> Settings hostname: " + g_host
+    print "PleXBMC -> Settings Port" + g_port
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
+    #print "PleXBMC -> Setting ex. subtitles to: " + g_externalsubs
+    #print "PleXBMC -> Setting subtitle display to: " + g_alwayssubs
+    
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
@@ -163,7 +171,7 @@ def mediaType(partproperties, server):
     elif g_stream == "2":
         printDebug( "Selecting smb", mediaType.__name__)
         location=file.replace("Volumes",server)
-        filelocation="smb:/"+location.replace(":32400","")
+        filelocation="smb:/"+location.replace(g_port,"")
     else:
         printDebug( "No option detected, streaming is safest to choose" , mediaType.__name__)       
         filelocation="http://"+server+stream
@@ -312,7 +320,7 @@ def ROOT():
         #If we have a remote host, then don;t do local discovery as it won't work
         if g_bonjour == "true":
             #Get the HTML for the URL
-            url = 'http://'+host+':32400/servers'
+            url = 'http://'+host+g_port+'/servers'
             html=getURL(url)
             
             if html is False:
@@ -336,7 +344,7 @@ def ROOT():
         for server in Servers:
                                       
             #Get friendly name
-            url='http://'+server[1]+':32400'
+            url='http://'+server[1]+g_port
             html=getURL(url)
 
             if html is False:
@@ -352,7 +360,7 @@ def ROOT():
                 server[0]=server[1]
             
             #dive into the library section with BS        
-            url='http://'+server[1]+':32400/library/sections'
+            url='http://'+server[1]+g_port+'/library/sections'
             html=getURL(url)
             
             if html is False:
@@ -368,16 +376,16 @@ def ROOT():
                 arguments=dict(object.items())
                 try:
                     if arguments['art'][0] == "/":
-                        arguments['fanart_image']="http://"+server[1]+":32400"+arguments['art']
+                        arguments['fanart_image']="http://"+server[1]+g_port+arguments['art']
                     else:
-                        arguments['fanart_image']="http://"+server[1]+":32400/library/sections/"+arguments['art']
+                        arguments['fanart_image']="http://"+server[1]+g_port+"/library/sections/"+arguments['art']
                 except: pass
                     
                 try:
                     if arguments['thumb'][0] == "/":
-                        arguments['thumb']="http://"+server[1]+":32400"+arguments['thumb']
+                        arguments['thumb']="http://"+server[1]+g_port+arguments['thumb']
                     else:
-                        arguments['thumb']="http://"+server[1]+":32400/library/sections/"+arguments['thumb']
+                        arguments['thumb']="http://"+server[1]+g_port+"/library/sections/"+arguments['thumb']
                 except: 
                     try:
                         arguments['thumb']=arguments['fanart_image']
@@ -408,10 +416,10 @@ def ROOT():
                 arguments['type']="Video"
                 
                 if g_secondary == "true":
-                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
+                    s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
                 else:
                     #Build URL with the mode to use and key to further XML data in the library
-                    s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
+                    s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
                 
                 #Build that listing..
                 addDir(s_url, properties,arguments)
@@ -420,7 +428,7 @@ def ROOT():
             #Simple check if any plugins are present.  
             #If so, create a link to drill down later. One link is created for each PMS server available
             #Plugin data is held in /videos directory (well, video data is anyway)
-            pluginurl='http://'+server[1]+':32400/video'
+            pluginurl='http://'+server[1]+g_port+'/video'
             pluginhtml=getURL(pluginurl)
             
             if pluginhtml is False:
@@ -461,7 +469,7 @@ def ROOT():
                 properties['title']=server[0]+": Photo Plugins"
             arguments['type']="Picture"
             mode=16
-            u="http://"+server[1]+":32400/photos&mode="+str(mode)
+            u="http://"+server[1]+g_port+"/photos&mode="+str(mode)
             addDir(u,properties,arguments)
 
             #Create music plugin link
@@ -471,7 +479,7 @@ def ROOT():
                 properties['title']=server[0]+": Music Plugins"
             arguments['type']="Music"
             mode=17
-            u="http://"+server[1]+":32400/music&mode="+str(mode)
+            u="http://"+server[1]+g_port+"/music&mode="+str(mode)
             addDir(u,properties,arguments)
             
             #Create plexonline link
@@ -481,7 +489,7 @@ def ROOT():
                 properties['title']=server[0]+": Plex Online"
             arguments['type']="file"
             mode=19
-            u="http://"+server[1]+":32400/system/plexonline&mode="+str(mode)
+            u="http://"+server[1]+g_port+"/system/plexonline&mode="+str(mode)
             addDir(u,properties,arguments)
 
 
@@ -494,7 +502,7 @@ def StartMovies():
         print '=========================='
         print 'Starting with Movies'
         host=g_host
-        url = 'http://'+host+':32400/library/sections'
+        url = 'http://'+host+g_port+'/library/sections'
         html=getURL(url)
         
         if html is False:
@@ -507,7 +515,7 @@ def StartMovies():
             name=object.get('title')
             type=object.get('type')
             if type== 'movie':
-                url='http://'+host+':32400/library/sections/'+key+'/all'
+                url='http://'+host+g_port+'/library/sections/'+key+'/all'
                 Movies(url)
 
 
@@ -517,7 +525,7 @@ def StartTV():
         print '=========================='
         print 'Starting with TV Shows'
         host=g_host
-        url = 'http://'+host+':32400/library/sections'
+        url = 'http://'+host+g_port+'/library/sections'
         html=getURL(url)
         
         if html is False:
@@ -531,7 +539,7 @@ def StartTV():
             name=object.get('title')
             type=object.get('type')
             if type== 'show':
-                url='http://'+host+':32400/library/sections/'+key+'/all'
+                url='http://'+host+g_port+'/library/sections/'+key+'/all'
                 SHOWS(url)
 
 ################################ Movies listing            
@@ -674,7 +682,7 @@ def MoviesET(url='',tree=etree,server=''):
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                 art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg'
@@ -818,7 +826,7 @@ def SHOWS(url='',tree=etree,server=''):
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                 art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -861,7 +869,7 @@ def Seasons(url):
         try:
             fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
             art_url='http://'+server+fanart#.encode('utf-8')
-            #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+            #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
         except:  
             art_url=None 
 
@@ -895,7 +903,7 @@ def Seasons(url):
                 if art_url is None:
                     fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                     art_url='http://'+server+fanart#.encode('utf-8')
-                    #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                    #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -995,7 +1003,7 @@ def EPISODES(url='',tree=etree,server=''):
         try:
             fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
             art_url='http://'+server+fanart#.encode('utf-8')
-            #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+            #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
         except:  
             art_url=None 
         
@@ -1124,7 +1132,7 @@ def EPISODES(url='',tree=etree,server=''):
                 if art_url is None:
                     fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                     art_url='http://'+server+fanart#.encode('utf-8')
-                    #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                    #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -1264,8 +1272,27 @@ def PLAYEPISODE(id,vids,seek, duration):
         server=url.split('/')[2]
         protocol=url.split('/')[0]
         urlPath="/"+"/".join(url.split('/')[3:])
-   
-   
+  
+        #if g_externalsubs == "true":
+        #    #get external sub file ref
+        #    suburl="http://"+server+"/library/metadata/"+id
+        #    
+        #    html=getURL(suburl)
+        #    
+        #    tree=etree.fromstring(html)
+        #    
+        #    tags=tree.getiterator('Stream')
+        #
+        #    for bits in tags:
+        #        dave=dict(bits.items())
+        #        if dave['streamType'] == '1':
+        #            print "Found video stream"
+        #        elif dave['streamType'] == '2':
+        #            print "Found audio stream"
+        #        elif dave['streamType'] == '3':
+        #            print "Found subtitile stream"
+                    
+                    
         if g_transcode == "true":
             printDebug("We are going to attempt to transcode this video", PLAYEPISODE.__name__)
             url=transcode(id,url)
@@ -1463,7 +1490,7 @@ def monitorPlayback(id, server, resume, duration):
     
     #Get the server name to update
     if len(server.split(':')) == 1:
-        server=server+":32400"
+        server=server+g_port
     
     #Get the current time (either the resumed time or 0)
     currentTime=int(resume)
@@ -1642,7 +1669,7 @@ def getDirectory(url):
     try:
         fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
         art_url='http://'+server+fanart#.encode('utf-8')
-        #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+        #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
     except:  
         art_url=None 
 
@@ -1800,7 +1827,7 @@ def artist(url='',tree=etree,server=''):
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                 art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -1867,7 +1894,7 @@ def albums(url='', tree=etree, server=''):
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                 art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -2044,7 +2071,7 @@ def tracks(url='',tree=etree,server=''):
             try:
                 fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
                 art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+':32400/photo/:/transcode?url='+art_url+'&width=1280&height=720'
+                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
             except:  
                 #or use a stock default one
                 art_url=g_loc+'/resources/movie_art.jpg' 
@@ -2418,7 +2445,7 @@ def skin():
     #If we have a remote host, then don;t do local discovery as it won't work
     if g_bonjour == "true":
         #Get the HTML for the URL
-        url = 'http://'+host+':32400/servers'
+        url = 'http://'+host+g_port+'/servers'
         html=getURL(url)
             
         if html is False:
@@ -2449,7 +2476,7 @@ def skin():
     for server in Servers:
                                       
         #Get friendly name
-        url='http://'+server[1]+':32400'
+        url='http://'+server[1]+g_port
         html=getURL(url)
 
         if html is False:
@@ -2465,16 +2492,16 @@ def skin():
             server[0]=server[1]
         
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[0])
-        WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+":32400/video&mode=7")
-        WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+":32400/music&mode=17")
-        WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+":32400/photos&mode=16")
-        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+":32400/system/plexonline&mode=19")
+        WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+g_port+"/video&mode=7")
+        WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+g_port+"/music&mode=17")
+        WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+g_port+"/photos&mode=16")
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+g_port+"/system/plexonline&mode=19")
 
         
         serverCount += 1
         
         #dive into the library section      
-        url='http://'+server[1]+':32400/library/sections'
+        url='http://'+server[1]+g_port+'/library/sections'
         html=getURL(url)
             
         if html is False:
@@ -2488,7 +2515,10 @@ def skin():
         for object in SectionTags:
             
             arguments=dict(object.items())
-            arguments['thumb']=""
+            try:
+                arguments['thumb']="http://"+server[1]+g_port+arguments['thumb']
+            except:    
+                arguments['thumb']=""
             #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
             properties={}
 
@@ -2502,9 +2532,9 @@ def skin():
             try:
                 if arguments['art'][0] == "/":
                     #Ammend URL
-                    arguments['fanart_image']="http://"+server[1]+":32400"+arguments['art']
+                    arguments['fanart_image']="http://"+server[1]+g_port+arguments['art']
                 else:
-                    arguments['fanart_image']="http://"+server[1]+":32400/library/sections/"+arguments['art']
+                    arguments['fanart_image']="http://"+server[1]+g_port+"/library/sections/"+arguments['art']
             except: pass
            
             try:
@@ -2526,10 +2556,10 @@ def skin():
                 mode=3
                              
             if g_secondary == "true":
-                s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
+                s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
             else:
                 #Build URL with the mode to use and key to further XML data in the library
-                s_url='http://'+server[1]+':32400/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
+                s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
                 
             #Build that listing..
             WINDOW.setProperty("plexbmc.%d.title" % (sectionCount) , properties['title'])
@@ -2539,6 +2569,8 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
             WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image'] )
             WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
+            WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'])
+            WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'])
 
 
             printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + properties['title'] + "]", skin.__name__)
@@ -2556,6 +2588,8 @@ def skin():
             WINDOW.clearProperty("plexbmc.%d.window" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.art" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.type" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.icon" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.thumb" % ( i ) )
     except:
         pass
 

@@ -30,5 +30,9 @@
     <string id="30026">10</string>
 
     <string id="30027">Authentication required?</string>
+    <string id="30028">Load External Subtitles?</string>
+    <string id="30029">Always display subtitles?</string>
+    <string id="30030">Port Number</string>
+
     
 </strings>
