@@ -3,13 +3,17 @@
     <category label="General">
     <setting id="ipaddress" type="text" label="30000" default="127.0.0.1"/>
     <setting id="port" type="text" label="30030" default="32400" />
-	<setting id="bonjour" type=bool label="30004" default="false" />
+	<setting id="bonjour" type="bool" label="30004" default="false" />
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
     <setting id="secondary" type="bool" label="30003" default="false"/>
-    <!--<setting id="externalsub" type="bool" label="30028" default="false" />
-    <setting id="alwayssubs" type="bool" label="30029" default="false" />
-    --></category>
+    </category>
     
+    <category label="Audio/Subtitle" >
+        <setting id="pmsLocalisation" type="bool" label="30031" default="false"/>
+        <!--<setting id="externalsub" type="bool" label="30028" default="false" />
+        <setting id="alwayssubs" type="bool" label="30029" default="false" />-->
+    </category>
+
     <category label="Authentication" >
         <setting id="remote" type=bool label="30027" default="false"/>
         <setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="30005" />

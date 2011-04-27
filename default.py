@@ -22,16 +22,18 @@ g_port=":"+__settings__.getSetting('port')
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_debug = __settings__.getSetting('debug')
-#g_externalsubs = __settings__.getSetting('externalsub')
-#g_alwayssubs = __settings__.getSetting('alwayssubs')
+g_pmslocal = __settings__.getSetting('pmsLocalisation')
+g_externalsubs = __settings__.getSetting('externalsub')
+g_alwayssubs = __settings__.getSetting('alwayssubs')
 if g_debug == "true":
     print "PleXBMC -> Settings hostname: " + g_host
     print "PleXBMC -> Settings Port" + g_port
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
-    #print "PleXBMC -> Setting ex. subtitles to: " + g_externalsubs
-    #print "PleXBMC -> Setting subtitle display to: " + g_alwayssubs
+    print "PleXBMC -> Setting PMS localisation to: " + g_pmslocal    
+    print "PleXBMC -> Setting ex. subtitles to: " + g_externalsubs
+    print "PleXBMC -> Setting subtitle display to: " + g_alwayssubs
     
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
@@ -1273,25 +1275,39 @@ def PLAYEPISODE(id,vids,seek, duration):
         protocol=url.split('/')[0]
         urlPath="/"+"/".join(url.split('/')[3:])
   
-        #if g_externalsubs == "true":
-        #    #get external sub file ref
-        #    suburl="http://"+server+"/library/metadata/"+id
-        #    
-        #    html=getURL(suburl)
-        #    
-        #    tree=etree.fromstring(html)
-        #    
-        #    tags=tree.getiterator('Stream')
-        #
-        #    for bits in tags:
-        #        dave=dict(bits.items())
-        #        if dave['streamType'] == '1':
-        #            print "Found video stream"
-        #        elif dave['streamType'] == '2':
-        #            print "Found audio stream"
-        #        elif dave['streamType'] == '3':
-        #            print "Found subtitile stream"
-                    
+        if g_pmslocal == "true":
+            #Using PMS settings for audio and subtitle display
+            
+            #get metadata for audio and subtiti;e
+            suburl="http://"+server+"/library/metadata/"+id
+            
+            html=getURL(suburl)
+            tree=etree.fromstring(html)
+            tags=tree.getiterator('Stream')
+        
+            subtitle={}
+            subCount=0
+            audio={}
+            audioCount=0
+        
+            for bits in tags:
+                stream=dict(bits.items())
+                if stream['streamType'] == '2':
+                    audioCount += 1
+                    try:
+                        if stream['selected'] == "1":
+                            printDebug("Found preferred audio: " + str(stream['language'].encode('utf-8')),PLAYEPISODE.__name__) 
+                            audio=stream
+                    except: pass
+                        
+                elif stream['streamType'] == '3':
+                    try:
+                        if stream['selected'] == "1":
+                            printDebug( "Found preferred subtitles: " + str(stream['language'].encode('utf-8')), PLAYEPISODE.__name__)
+                            subCount += 1
+                            subtitle=stream
+                    except: pass
+                  
                     
         if g_transcode == "true":
             printDebug("We are going to attempt to transcode this video", PLAYEPISODE.__name__)
@@ -1377,12 +1393,117 @@ def PLAYEPISODE(id,vids,seek, duration):
         if result == 0:
             #Need to skip forward (seconds)
             xbmc.Player().seekTime((resumeseconds)) 
+    
+        if g_pmslocal == "true":
+    
+            printDebug ("Found " + str(audioCount) + " audio streams",  PLAYEPISODE.__name__)
         
+            printDebug ("XBMC believes these are available " + str(xbmc.Player().getAvailableAudioStreams()), PLAYEPISODE.__name__)
+        
+            if audioCount == 1:
+                printDebug ("Only one audio stream present - will leave as default", PLAYEPISODE.__name__)
+            elif audioCount > 1:
+                printDebug ("Multiple audio stream. Attempting to set to local language", PLAYEPISODE.__name__)
+                try:
+                    if audio['selected'] == "1":
+                        printDebug ("Found preferred language at index " + str(int(audio['index'])-1), PLAYEPISODE.__name__)
+                        xbmc.Player().setAudioStream(int(audio['index'])-1)
+                        printDebug ("Audio set", PLAYEPISODE.__name__)
+                except: pass
+               
+            try:
+                if subtitle['selected'] == "1" and subtitle['languageCode']:
+                    printDebug ("Found preferred subtitle for local language" ,PLAYEPISODE.__name__)
+                    try:
+                        if subtitle['key']:
+                            printDebug ("This is an external sub file - not implemented", PLAYEPISODE.__name__)
+                    except:
+                        printDebug ("Enabling embedded subtitles", PLAYEPISODE.__name__)
+                        xbmc.Player().disableSubtitles()
+                        xbmc.Player().setSubtitles("dummy")
+                        time.sleep(1)
+                    
+                        done = "go"
+                        while done == "go":
+                            one = str(xbmc.Player().getSubtitles())
+                            two = str(codeToCountry(subtitle['languageCode']))
+                        
+                            if one == two:
+                                done = "stop"
+                        
+                            xbmc.executebuiltin("Action(NextSubtitle)")                              
+                            time.sleep(1)
+                        
+            except:
+                printDebug ("No subtitles marked as required.  Will turn off subs", PLAYEPISODE.__name__)
+                xbmc.Player().disableSubtitles()
+       
         #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
         monitorPlayback(id,server, resume, duration)
         
         return
 
+def codeToCountry( id ):
+  languages = { 
+  	"None": "none",
+    "alb" : "Albanian",
+    "ara" : "Arabic"            ,
+    "arm" : "Belarusian"        ,
+    "bos" : "Bosnian"           ,
+    "bul" : "Bulgarian"         ,
+    "cat" : "Catalan"           ,
+    "chi" : "Chinese"           ,
+    "hrv" : "Croatian"          ,
+    "cze" : "Czech"             ,
+    "dan" : "Danish"            ,
+    "dut" : "Dutch"             ,
+    "eng" : "English"           ,
+    "epo" : "Esperanto"         ,
+    "est" : "Estonian"          ,
+    "per" : "Farsi"             ,
+    "fin" : "Finnish"           ,
+    "fre" : "French"            ,
+    "glg" : "Galician"          ,
+    "geo" : "Georgian"          ,
+    "ger" : "German"            ,
+    "ell" : "Greek"             ,
+    "heb" : "Hebrew"            ,
+    "hin" : "Hindi"             ,
+    "hun" : "Hungarian"         ,
+    "ice" : "Icelandic"         ,
+    "ind" : "Indonesian"        ,
+    "ita" : "Italian"           ,
+    "jpn" : "Japanese"          ,
+    "kaz" : "Kazakh"            ,
+    "kor" : "Korean"            ,
+    "lav" : "Latvian"           ,
+    "lit" : "Lithuanian"        ,
+    "ltz" : "Luxembourgish"     ,
+    "mac" : "Macedonian"        ,
+    "may" : "Malay"             ,
+    "nor" : "Norwegian"         ,
+    "oci" : "Occitan"           ,
+    "pol" : "Polish"            ,
+    "por" : "Portuguese"        ,
+    "pob" : "Portuguese (Brazil)" ,
+    "rum" : "Romanian"          ,
+    "rus" : "Russian"           ,
+    "scc" : "SerbianLatin"      ,
+    "scc" : "Serbian"           ,
+    "slo" : "Slovak"            ,
+    "slv" : "Slovenian"         ,
+    "spa" : "Spanish"           ,
+    "swe" : "Swedish"           ,
+    "syr" : "Syriac"            ,
+    "tha" : "Thai"              ,
+    "tur" : "Turkish"           ,
+    "ukr" : "Ukrainian"         ,
+    "urd" : "Urdu"              ,
+    "vie" : "Vietnamese"        ,
+    "all" : "All"
+  }
+  return languages[ id ]        
+        
 def proxyControl(command):
     printDebug("======= ENTER: proxyControl() =======")
     import subprocess
@@ -1500,14 +1621,15 @@ def monitorPlayback(id, server, resume, duration):
         #This sometimes fails.  Don't know why probably a timing issue
         duration = int(xbmc.Player().getTotalTime())
     
+        
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
         currentTime = int(xbmc.Player().getTime())
-        
+                
         #Convert it into a percentage done, using the total length of the film
-        progress = int((float(currentTime)/float(duration))*100)
-        
+        progress = int((float(currentTime)/float(duration))*100) 
+
         #Now sleep for 5 seconds
         time.sleep(5)
           
@@ -1521,21 +1643,24 @@ def monitorPlayback(id, server, resume, duration):
         #Then we hadn't watched enough to make any changes
         printDebug( "Less than 5% played, so do no store resume time but ensure that film is marked unwatched", monitorPlayback.__name__)
         updateURL="http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library"
+        __settings__.setSetting('resume', "")
+        
     elif progress >= 95:
         #Then we were 95% of the way through, so we mark the file as watched
         printDebug( "More than 95% completed, so mark as watched", monitorPlayback.__name__)
         updateURL="http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library"
+        __settings__.setSetting('resume', "")
     else:
         #we were more than 5% and less then 95% of the way through, store the resume time
         printDebug( "More than 5% and less than 95% of the way through, so store resume time", monitorPlayback.__name__)
         updateURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)
+        printDebug("Creating a temporary new resume time of " + str(currentTime), monitorPlayback.__name__) 
+        __settings__.setSetting('resume', str(id)+"|"+str(currentTime))
         
     #Submit the update URL    
     output = getURL(updateURL, "Updating PMS...", True)
     printDebug("Update returned " + str(output), monitorPlayback.__name__)
     
-    printDebug("Creating a temporary new resume time of " + str(currentTime), monitorPlayback.__name__) 
-    __settings__.setSetting('resume', str(id)+"|"+str(currentTime))
      
     return
     
