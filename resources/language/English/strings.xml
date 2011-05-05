@@ -11,7 +11,7 @@
     <string id="30008">Transcode format </string>
     <string id="30009">m3u8</string>
     <string id="30010">flv</string>
-    <string id="30011">auto</string>
+    <string id="30011">Auto</string>
     <string id="30012">stream</string>
     <string id="30013">smb</string>
     <string id="30014">Enable debug output to log</string>
@@ -34,6 +34,12 @@
     <string id="30029">Always display subtitles?</string>
     <string id="30030">Port Number</string>
     <string id="30031">Use PMS localisation settings?</string>
-
-    
+    <string id="30032">Manual</string>
+    <string id="30033">Always</string>
+    <string id="30034">Audio stream selection</string>
+    <string id="30035">Subtitle stream selection</string>
+    <string id="30036">Disabled</string>
+    <string id="30037">External</string>
+    <string id="30038">Audio and subtitle selector</string>
+    <string id="30039">Subs Off</string>
 </strings>

@@ -9,9 +9,12 @@
     </category>
     
     <category label="Audio/Subtitle" >
-        <setting id="pmsLocalisation" type="bool" label="30031" default="false"/>
-        <!--<setting id="externalsub" type="bool" label="30028" default="false" />
-        <setting id="alwayssubs" type="bool" label="30029" default="false" />-->
+        <!--<setting id="pmsLocalisation" type="bool" label="30031" default="false"/>-->
+        <setting id="streamControl" type="enum" label="30038" lvalues="30036|30011|30037|30039" Default="30036" />
+        <!--
+        <setting id="audioControl" type="enum" label="30034" lvalues="30036|30011"  enable="eq(-1,1)" default="30036" />
+        <setting id="subControl" type="enum" label="30035" lvalues="30036|30011|30037" enable="eq(-2,1)" default="30036" />
+        -->
     </category>
 
     <category label="Authentication" >

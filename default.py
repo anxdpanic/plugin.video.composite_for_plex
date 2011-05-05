@@ -22,18 +22,15 @@ g_port=":"+__settings__.getSetting('port')
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_debug = __settings__.getSetting('debug')
-g_pmslocal = __settings__.getSetting('pmsLocalisation')
-g_externalsubs = __settings__.getSetting('externalsub')
-g_alwayssubs = __settings__.getSetting('alwayssubs')
+g_streamControl = __settings__.getSetting('streamControl')
 if g_debug == "true":
     print "PleXBMC -> Settings hostname: " + g_host
     print "PleXBMC -> Settings Port" + g_port
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
-    print "PleXBMC -> Setting PMS localisation to: " + g_pmslocal    
-    print "PleXBMC -> Setting ex. subtitles to: " + g_externalsubs
-    print "PleXBMC -> Setting subtitle display to: " + g_alwayssubs
+    print "PleXBMC -> Setting stream Control to : " + g_streamControl
+   
     
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
@@ -1263,7 +1260,56 @@ def PlexPlugins(url):
                 
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
+   
+
+def getAudioSubtitles(server,id):
+    printDebug("== ENTER: getAudioSubtitles ==")
+    if g_streamControl == "1" or g_streamControl == "2":
+        printDebug("Gather media stream info" ,getAudioSubtitles.__name__) 
+        #Using PMS settings for audio and subtitle display
+            
+        #get metadata for audio and subtitle
+        suburl="http://"+server+"/library/metadata/"+id
+            
+        html=getURL(suburl)
+        tree=etree.fromstring(html)
+        tags=tree.getiterator('Stream')
         
+        subtitle={}
+        subCount=0
+        audio={}
+        audioCount=0
+        external={}
+        
+        for bits in tags:
+            stream=dict(bits.items())
+            if stream['streamType'] == '2':
+                audioCount += 1
+                try:
+                    if stream['selected'] == "1":
+                        printDebug("Found preferred audio id: " + str(stream['id']) ,getAudioSubtitles.__name__) 
+                        audio=stream
+                except: pass
+                     
+            elif stream['streamType'] == '3':
+                try:
+                    if stream['selected'] == "1":
+                        printDebug( "Found preferred subtitles id : " + str(stream['id']), getAudioSubtitles.__name__)
+                        subCount += 1
+                        subtitle=stream
+                except:
+                    try:
+                        if stream['key']:
+                            printDebug( "Found external subtitles id : " + str(stream['id']), getAudioSubtitles.__name__)
+                            external=stream
+                            external['key']='http://'+server+external['key']
+                    except: pass
+                   
+                  
+        return {'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external}
+    printDebug( "Stream selection is set OFF", getAudioSubtitles.__name__)
+    return False
+   
 #Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
 #Only use this to play stuff you want to update in the library        
 def PLAYEPISODE(id,vids,seek, duration):
@@ -1275,40 +1321,8 @@ def PLAYEPISODE(id,vids,seek, duration):
         protocol=url.split('/')[0]
         urlPath="/"+"/".join(url.split('/')[3:])
   
-        if g_pmslocal == "true":
-            #Using PMS settings for audio and subtitle display
-            
-            #get metadata for audio and subtiti;e
-            suburl="http://"+server+"/library/metadata/"+id
-            
-            html=getURL(suburl)
-            tree=etree.fromstring(html)
-            tags=tree.getiterator('Stream')
+        streams=getAudioSubtitles(server,id)
         
-            subtitle={}
-            subCount=0
-            audio={}
-            audioCount=0
-        
-            for bits in tags:
-                stream=dict(bits.items())
-                if stream['streamType'] == '2':
-                    audioCount += 1
-                    try:
-                        if stream['selected'] == "1":
-                            printDebug("Found preferred audio: " + str(stream['language'].encode('utf-8')),PLAYEPISODE.__name__) 
-                            audio=stream
-                    except: pass
-                        
-                elif stream['streamType'] == '3':
-                    try:
-                        if stream['selected'] == "1":
-                            printDebug( "Found preferred subtitles: " + str(stream['language'].encode('utf-8')), PLAYEPISODE.__name__)
-                            subCount += 1
-                            subtitle=stream
-                    except: pass
-                  
-                    
         if g_transcode == "true":
             printDebug("We are going to attempt to transcode this video", PLAYEPISODE.__name__)
             url=transcode(id,url)
@@ -1326,8 +1340,6 @@ def PLAYEPISODE(id,vids,seek, duration):
                 headers=base64.b64encode(XBMCInternalHeaders)
                 newurl=base64.b64encode(url)
                 url="http://127.0.0.1:8087/withheaders/"+newurl+"/"+headers
-
-
             else:
                 url=url+XBMCInternalHeaders
         
@@ -1394,55 +1406,97 @@ def PLAYEPISODE(id,vids,seek, duration):
             #Need to skip forward (seconds)
             xbmc.Player().seekTime((resumeseconds)) 
     
-        if g_pmslocal == "true":
-    
-            printDebug ("Found " + str(audioCount) + " audio streams",  PLAYEPISODE.__name__)
-        
-            printDebug ("XBMC believes these are available " + str(xbmc.Player().getAvailableAudioStreams()), PLAYEPISODE.__name__)
-        
-            if audioCount == 1:
-                printDebug ("Only one audio stream present - will leave as default", PLAYEPISODE.__name__)
-            elif audioCount > 1:
-                printDebug ("Multiple audio stream. Attempting to set to local language", PLAYEPISODE.__name__)
-                try:
-                    if audio['selected'] == "1":
-                        printDebug ("Found preferred language at index " + str(int(audio['index'])-1), PLAYEPISODE.__name__)
-                        xbmc.Player().setAudioStream(int(audio['index'])-1)
-                        printDebug ("Audio set", PLAYEPISODE.__name__)
-                except: pass
-               
-            try:
-                if subtitle['selected'] == "1" and subtitle['languageCode']:
-                    printDebug ("Found preferred subtitle for local language" ,PLAYEPISODE.__name__)
-                    try:
-                        if subtitle['key']:
-                            printDebug ("This is an external sub file - not implemented", PLAYEPISODE.__name__)
-                    except:
-                        printDebug ("Enabling embedded subtitles", PLAYEPISODE.__name__)
-                        xbmc.Player().disableSubtitles()
-                        xbmc.Player().setSubtitles("dummy")
-                        time.sleep(1)
-                    
-                        done = "go"
-                        while done == "go":
-                            one = str(xbmc.Player().getSubtitles())
-                            two = str(codeToCountry(subtitle['languageCode']))
-                        
-                            if one == two:
-                                done = "stop"
-                        
-                            xbmc.executebuiltin("Action(NextSubtitle)")                              
-                            time.sleep(1)
-                        
-            except:
-                printDebug ("No subtitles marked as required.  Will turn off subs", PLAYEPISODE.__name__)
-                xbmc.Player().disableSubtitles()
+        #Next Set audio and subs
+        setAudioSubtitles(streams)
+ 
        
         #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
         monitorPlayback(id,server, resume, duration)
         
         return
 
+def setAudioSubtitles(stream):
+    printDebug("== ENTER: setAudioSubtitles ==")
+    #printDebug ("Found " + str(audioCount) + " audio streams",  setAudioSubtitles.__name__)
+    
+    if stream is False:
+        printDebug ("No streams to process.", setAudioSubtitles.__name__)
+        
+        if g_streamControl == "3":
+            xbmc.Player().disableSubtitles()    
+            printDebug ("All subs disabled", setAudioSubtitles.__name__)
+        
+        return True
+
+    
+    if g_streamControl == "1" or  g_streamControl == "2":
+        audio=stream['audio']
+        printDebug("Setting Audio Stream", setAudioSubtitles.__name__)
+        #Audio Stream first        
+        if stream['audioCount'] == 1:
+            printDebug ("Only one audio stream present - will leave as default", setAudioSubtitles.__name__)
+        elif stream['audioCount'] > 1:
+            printDebug ("Multiple audio stream. Attempting to set to local language", setAudioSubtitles.__name__)
+            try:
+                if audio['selected'] == "1":
+                    printDebug ("Found preferred language at index " + str(int(audio['index'])-1), setAudioSubtitles.__name__)
+                    xbmc.Player().setAudioStream(int(audio['index'])-1)
+                    printDebug ("Audio set", setAudioSubtitles.__name__)
+            except: pass
+      
+    #Try and set embedded subtitles
+    if g_streamControl == "1":
+        subtitle=stream['subtitle']
+        printDebug("Setting Subtitle Stream", setAudioSubtitles.__name__)
+        try:
+            if stream['subCount'] > 0 and subtitle['languageCode']:
+                printDebug ("Found embedded subtitle for local language" ,setAudioSubtitles.__name__)
+                printDebug ("Enabling embedded subtitles", setAudioSubtitles.__name__)
+                xbmc.Player().disableSubtitles()
+                xbmc.Player().setSubtitles("dummy")
+                time.sleep(1)
+                    
+                done = "go"
+                two = str(codeToCountry(subtitle['languageCode']))
+
+                while done == "go":
+                    one = str(xbmc.Player().getSubtitles())
+                        
+                    if one == two:
+                        done = "stop"
+                    
+                    xbmc.executebuiltin("Action(NextSubtitle)")                              
+                    time.sleep(1)
+            else:
+                printDebug ("No subtitles to set", setAudioSubtitles.__name__)
+            return True
+        except:
+            printDebug("Unable to set subtitles", setAudioSubtitles.__name__)
+  
+    if g_streamControl == "1" or g_streamControl == "2":
+        external=stream['external']
+        printDebug("Setting External subtitle Stream", setAudioSubtitles.__name__)
+    
+        try:   
+            if external:
+                try:
+                    printDebug ("External of type ["+external['codec']+"]", setAudioSubtitles.__name__)
+                    if external['codec'] == "idx" or external['codec'] =="sub":
+                        printDebug ("Skipping IDX/SUB pair - not supported yet", setAudioSubtitles.__name__)
+                    else:    
+                        xbmc.Player().setSubtitles(external['key'])
+                except: 
+                    xbmc.Player().disableSubtitles()    
+                
+                return True
+            else:
+                printDebug ("No external subtitles available. Will turn off subs", setAudioSubtitles.__name__)
+        except:
+            printDebug ("No External subs to set", setAudioSubtitles.__name__)
+            
+    xbmc.Player().disableSubtitles()    
+    return False
+        
 def codeToCountry( id ):
   languages = { 
   	"None": "none",
