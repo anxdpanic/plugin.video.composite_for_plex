@@ -382,9 +382,9 @@ def ROOT():
                     
                 try:
                     if arguments['thumb'][0] == "/":
-                        arguments['thumb']="http://"+server[1]+g_port+arguments['thumb']
+                        arguments['thumb']="http://"+server[1]+g_port+arguments['thumb'].split('?')[0]
                     else:
-                        arguments['thumb']="http://"+server[1]+g_port+"/library/sections/"+arguments['thumb']
+                        arguments['thumb']="http://"+server[1]+g_port+"/library/sections/"+arguments['thumb'].split('?')[0]
                 except: 
                     try:
                         arguments['thumb']=arguments['fanart_image']
@@ -671,7 +671,7 @@ def MoviesET(url='',tree=etree,server=''):
            
             #Get the picture to use
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
@@ -815,7 +815,7 @@ def SHOWS(url='',tree=etree,server=''):
 
             #Get the picture to use
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
@@ -889,7 +889,7 @@ def Seasons(url):
 
             #Get the picture to use
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
@@ -1120,7 +1120,7 @@ def EPISODES(url='',tree=etree,server=''):
                 
             #Get the picture to use
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
@@ -1217,7 +1217,7 @@ def PlexPlugins(url):
                     
             try:
                 if not arguments['thumb'].split('/')[0] == "http:":
-                    arguments['thumb']='http://'+server+arguments['thumb']
+                    arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 arguments['thumb']=thumb
@@ -1996,7 +1996,7 @@ def artist(url='',tree=etree,server=''):
                 
             #Get the picture to use
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
@@ -2063,7 +2063,7 @@ def albums(url='', tree=etree, server=''):
 
             #Get the picture to use
             try:
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
             except:
                 thumb=g_loc+'/resources/movie.png'  
                 print thumb  
@@ -2240,11 +2240,11 @@ def tracks(url='',tree=etree,server=''):
             #Get the picture to use
             if thumb is None:
                 try:
-                    arguments['thumb']='http://'+server+arguments['thumb']
+                    arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
                 except:
                     arguments['thumb']=g_loc+'/resources/movie.png'
             else:
-                arguments['thumb']='http://'+server+thumb
+                arguments['thumb']='http://'+server+thumb.split('?')[0]
 
             #Get a nice big picture  
             try:
@@ -2322,7 +2322,7 @@ def photo(url):
                 
         try:
             if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
         except:
             thumb=g_loc+'/resources/movie.png'  
             arguments['thumb']=thumb
@@ -2359,7 +2359,7 @@ def photo(url):
                 
         try:
             if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
         except:
             thumb=g_loc+'/resources/movie.png'  
             arguments['thumb']=thumb
@@ -2408,7 +2408,7 @@ def music(url):
                         
         try:
             if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb']
+                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
         except:
             thumb=g_loc+'/resources/movie.png'  
             arguments['thumb']=thumb
@@ -2695,7 +2695,7 @@ def skin():
             
             arguments=dict(object.items())
             try:
-                arguments['thumb']="http://"+server[1]+g_port+arguments['thumb']
+                arguments['thumb']="http://"+server[1]+g_port+arguments['thumb'].split('?')[0]
             except:    
                 arguments['thumb']=""
             #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
@@ -2748,8 +2748,8 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
             WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image'] )
             WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
-            WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'])
-            WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'])
+            WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0])
+            WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0])
 
 
             printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + properties['title'] + "]", skin.__name__)
