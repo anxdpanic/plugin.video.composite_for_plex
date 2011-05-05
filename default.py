@@ -91,11 +91,11 @@ if g_authentication == "true":
     if g_debug == "true": print "PleXBMC -> username is " + g_username
     
     #Compute the SHA1 just one time.
-    msg=sha.new(g_password.lower())
+    msg=sha.new(g_password)
     msg2=sha.new(g_username.lower()+msg.hexdigest()).hexdigest()
             
     #Load the auth strings into the URL header structure.
-    g_txheaders['X-Plex-User']=str(g_username.lower())
+    g_txheaders['X-Plex-User']=str(g_username)
     g_txheaders['X-Plex-Pass']=str(msg2)
     
     #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
