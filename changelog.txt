@@ -1,5 +1,5 @@
 Current Release:
-[b] Version 1.8 [/b] Automatic embedded subtitle and audio stream selection
+[b] Version 1.8 [/b] Automatic embedded subtitle and audio stream selection 
 
 Selected Release Highlights..
 [b] Version 1.7.7 [/b] Tighter skin integration with Confluence
