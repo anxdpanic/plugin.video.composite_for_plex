@@ -63,7 +63,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 signal=open(file,'w')
                 signal.write("STOP")
                 signal.close()
-                sys.exit()
+                #sys.exit()
             elif request_path=="version":
                 print "==== PROXY: " + str(s.client_address[1])+": Version request"
                 s.send_response(200)
@@ -304,7 +304,12 @@ HOST_NAME = '127.0.0.1'
 PORT_NUMBER = 8087
 RUN=True
 file=sys.argv[1]
+try:
+    if sys.argv[2]:
+        PORT_NUMBER=int(sys.argv[2])
+except: pass
 print "==== PROXY: Using signal file " + file
+print "==== PROXY: Running on port " + str(PORT_NUMBER)
 
 if __name__ == '__main__':    
         socket.setdefaulttimeout(10)
@@ -321,5 +326,5 @@ if __name__ == '__main__':
             httpd.handle_request()    
         httpd.server_close()
         print "XBMCLocalProxy Stops %s:%s" % (HOST_NAME, PORT_NUMBER)
-        sys.exit()
+        #sys.exit()
 

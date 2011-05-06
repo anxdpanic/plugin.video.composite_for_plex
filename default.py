@@ -61,8 +61,13 @@ if g_transcode == "true":
         g_transcodefmt="m3u8"
     elif g_transcodetype == "1":
         g_transcodefmt="flv"
+        
+    g_quality = str(int(__settings__.getSetting('quality'))+3)
 
     if g_debug == "true": print "PleXBMC -> Transcode format is " + g_transcodefmt
+    if g_debug == "true": print "PleXBMC -> Transcode quality is " + g_quality
+    g_proxyport=__settings__.getSetting('proxyport')
+ 
 
 g_proxy = __settings__.getSetting('proxy')
 if g_debug == "true": print "PleXBMC -> proxy is " + g_proxy
@@ -1339,7 +1344,7 @@ def PLAYEPISODE(id,vids,seek, duration):
                 import base64
                 headers=base64.b64encode(XBMCInternalHeaders)
                 newurl=base64.b64encode(url)
-                url="http://127.0.0.1:8087/withheaders/"+newurl+"/"+headers
+                url="http://127.0.0.1:"+g_proxyport+"/withheaders/"+newurl+"/"+headers
             else:
                 url=url+XBMCInternalHeaders
         
@@ -1565,7 +1570,7 @@ def proxyControl(command):
         printDebug("Start proxy", proxyControl.__name__)
         #execfile("HLSproxy.py")
         #child=subprocess.Popen([sys.executable, "HLSproxy.py"], shell=True)
-        filestring="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\")"
+        filestring="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\","+g_proxyport+")"
         print str(filestring)
         xbmc.executebuiltin(filestring)
         #xbmc.executebuiltin("XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\"PLUGINPATH\")")
@@ -1574,13 +1579,13 @@ def proxyControl(command):
     elif command == "stop":
         printDebug("Stop proxy", proxyControl.__name__)
         time.sleep(2)
-        done=getURL("http://127.0.0.1:8087/stop")
+        done=getURL("http://127.0.0.1:"+g_proxyport+"/stop")
     else:
         printDebug("No proxy command specified", proxyControl.__name__)
         return False
     #check result
     
-    html=getURL('http://127.0.0.1:8087/version', surpress=True)
+    html=getURL('http://127.0.0.1:'+g_proxyport+'/version', surpress=True)
     
     if command == "start":
         if html is False:
@@ -1883,7 +1888,7 @@ def transcode(id,url):
     filestream=urllib.quote_plus("/"+"/".join(url.split('/')[3:]))
   
     if g_transcodefmt == "m3u8":
-        myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality=5&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent="
+        myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality="+g_quality+"&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent="
     elif g_transcodefmt == "flv":
         myurl="/video/:/transcode/generic.flv?format=flv&videoCodec=libx264&vpre=video-embedded-h264&videoBitrate=5000&audioCodec=libfaac&apre=audio-embedded-aac&audioBitrate=128&size=640x480&fakeContentLength=2000000000&url=http%3A%2F%2Flocalhost%3A32400"  + filestream + "&3g=0&httpCookies=&userAgent="
     else:

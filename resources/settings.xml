@@ -41,12 +41,15 @@
         <setting type=lsep label="Transcoding with XBMC is still experimental" />
         <setting id="transcode" type="bool" label="30007" default="false"/>
         <setting id="transcodefmt" type="enum" label="30008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="30009|30010" default="30010" />
-        <setting id="proxy" type=bool label="30015" visible="eq(-2,true)" enable="eq(-2,true)" default="true" />
+        <setting id="quality" type=enum label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" visible="eq(-2,true)+eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
+        <setting id="proxy" type=bool label="30015" visible="eq(-3,true)+eq(-2,0)" enable="eq(-3,true)+eq(-2,0)" default="true" />
+        <setting id="proxyport" type="text" label="30041" visible="eq(-4,true)+eq(-1,true)+eq(-3,0)" enable="eq(-4,true)+eq(-1,true)+eq(-3,0)" default="8087" />
+        
     </category>
     
     <category label="Debug" >
-        <setting id="debug" type=bool label="30014" default="false"/>
-        <setting id="resume" type="text" option=hidden default=""/>
+        <setting id="debug" type=bool label="30014" default="false" />
+        <setting id="resume" type="text" option=hidden default="" />
     </category>
     
 </settings>

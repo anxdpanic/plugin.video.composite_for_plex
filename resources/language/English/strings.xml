@@ -42,4 +42,6 @@
     <string id="30037">External</string>
     <string id="30038">Audio and subtitle selector</string>
     <string id="30039">Subs Off</string>
+    <string id="30040">Quality</string>
+    <string id="30041">Proxy Port</string>
 </strings>
