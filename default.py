@@ -704,18 +704,18 @@ def MoviesET(url='',tree=etree,server=''):
             properties['genre']=" / ".join(tempgenre)                
             
             #Decide what file type to play            
-            url=mediaType(partarguments,server)
+            #url=mediaType(partarguments,server)
             
             #This is playable media, so link to a path to a play function
             mode=5
                              
-            u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
  
-            if mediacount > 1:
-                #We have more than one media file to play.  Build link to go to selectMedia
-                printDebug("We have a choice of " + str(mediacount) + " media files.")
-                mode=13
-                u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            #if mediacount > 1:
+            #    #We have more than one media file to play.  Build link to go to selectMedia
+            #    printDebug("We have a choice of " + str(mediacount) + " media files.")
+            #    mode=13
+            #    u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                     
             #Right, add that link...and loop around for another entry
             addLink(u,properties,arguments)        
@@ -1260,24 +1260,43 @@ def PlexPlugins(url):
         xbmcplugin.endOfDirectory(pluginhandle)
    
 
-def getAudioSubtitles(server,id):
-    printDebug("== ENTER: getAudioSubtitles ==", False)
+def getAudioSubtitlesMedia(server,id):
+    printDebug("== ENTER: getAudioSubtitlesMedia ==", False)
+    printDebug("Gather media stream info" ) 
+    #Using PMS settings for audio and subtitle display
+            
+    #get metadata for audio and subtitle
+    suburl="http://"+server+"/library/metadata/"+id
+            
+    html=getURL(suburl)
+    tree=etree.fromstring(html)
+
+    parts=[]
+    partsCount=0
+    subtitle={}
+    subCount=0
+    audio={}
+    audioCount=0
+    external={}
+
+    options = tree.getiterator('Part')    
+    
+    contents="type"
+    
+    #Get the Parts info for media type and source selection 
+    for stuff in options:
+        print str(stuff)
+        try:
+            bits=stuff.get('key'), stuff.get('file')
+            parts.append(bits)
+            partsCount += 1
+        except: pass
+        
     if g_streamControl == "1" or g_streamControl == "2":
-        printDebug("Gather media stream info" ) 
-        #Using PMS settings for audio and subtitle display
-            
-        #get metadata for audio and subtitle
-        suburl="http://"+server+"/library/metadata/"+id
-            
-        html=getURL(suburl)
-        tree=etree.fromstring(html)
+
+        contents="all"
         tags=tree.getiterator('Stream')
         
-        subtitle={}
-        subCount=0
-        audio={}
-        audioCount=0
-        external={}
         
         for bits in tags:
             stream=dict(bits.items())
@@ -1302,11 +1321,13 @@ def getAudioSubtitles(server,id):
                             external=stream
                             external['key']='http://'+server+external['key']
                     except: pass
-                   
-                  
-        return {'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external}
-    printDebug( "Stream selection is set OFF")
-    return False
+          
+    else:
+            printDebug( "Stream selection is set OFF")
+              
+    
+    print {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount}
+    return {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount}
    
 #Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
 #Only use this to play stuff you want to update in the library        
@@ -1319,7 +1340,10 @@ def PLAYEPISODE(id,vids,seek, duration):
         protocol=url.split('/')[0]
         urlPath="/"+"/".join(url.split('/')[3:])
   
-        streams=getAudioSubtitles(server,id)
+        streams=getAudioSubtitlesMedia(server,id)
+        
+        url=selectMedia(streams['partsCount'],streams['parts'], server)
+        
         
         if g_transcode == "true":
             printDebug("We are going to attempt to transcode this video")
@@ -1417,7 +1441,7 @@ def setAudioSubtitles(stream):
     printDebug("== ENTER: setAudioSubtitles ==", False)
     #printDebug ("Found " + str(audioCount) + " audio streams")
     
-    if stream is False:
+    if stream['contents'] == "type":
         printDebug ("No streams to process.")
         
         if g_streamControl == "3":
@@ -1602,57 +1626,60 @@ def proxyControl(command):
     return False    
     
         
-def selectMedia(id,url,seek,duration):
+def selectMedia(count, options, server):   #id,url,seek,duration):
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
 
-    options=[]
-    server=url.split('/')[2]
-    html=getURL(url)
+    #options=[]
+    #server=url.split('/')[2]
+    #html=getURL(url)
     
-    if html is False:
-        return
+    #if html is False:
+    #    return
 
     
-    newtree=etree.fromstring(html)
+    #newtree=etree.fromstring(html)
        
-    video=newtree.findall('Video')
+    #video=newtree.findall('Video')
     
     #Nasty code - but can;t for the life of me work out how to get the Part Tags only!!!!
-    for file in video:
+    #for file in video:
+    #
+    #    for crap in file:
+    #        if crap.tag == "Media":
+    #            for stuff in crap:
+    #                if stuff.tag == "Part":
+    #                    bits=stuff.get('key'), stuff.get('file')
+    #                    options.append(bits)
+    result=0
     
-        for crap in file:
-            if crap.tag == "Media":
-                for stuff in crap:
-                    if stuff.tag == "Part":
-                        bits=stuff.get('key'), stuff.get('file')
-                        options.append(bits)
-            
-    dialogOptions=[]
-    for items in options:
-        name=items[1].split('/')[-1]
-        dialogOptions.append(name)
+    if count > 1:
     
-    #Build the dialog text
-    printDebug("Create selection dialog box - we have a decision to make!")
+        dialogOptions=[]
+        for items in options:
+            name=items[1].split('/')[-1]
+            dialogOptions.append(name)
+    
+        #Build the dialog text
+        printDebug("Create selection dialog box - we have a decision to make!")
             
-    #Create a dialog object
-    startTime = xbmcgui.Dialog()
+        #Create a dialog object
+        startTime = xbmcgui.Dialog()
             
-    #Box displaying resume time or start at beginning
-    result = startTime.select('Choose which file',dialogOptions)
+        #Box displaying resume time or start at beginning
+        result = startTime.select('Choose which file',dialogOptions)
             
-    #result contains an integer based on the selected text.
-    if result == -1:
-        #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
-        return
-    else:
+        #result contains an integer based on the selected text.
+        if result == -1:
+            #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
+            return
+        
    
-        newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server)
+    newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server)
    
     printDebug("We have selected media at " + newurl)
-    PLAYEPISODE(id,newurl,seek, duration)
-    return
+    #PLAYEPISODE(id,newurl,seek, duration)
+    return newurl
            
 #Monitor function so we can update PMS
 def monitorPlayback(id, server, resume, duration):
