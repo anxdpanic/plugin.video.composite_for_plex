@@ -1800,8 +1800,8 @@ def get_params():
                                 
         return param
 
-def getDirectory(url):  
-    printDebug("== ENTER: getDirectory ==", False)
+def getContent(url):  
+    printDebug("== ENTER: getContent ==", False)
     #We've been called at mode 0, by ROOT becuase we are going to traverse the secondary menus
         
     #First we need to peek at the XML, to see if we've hit any video links yet.
@@ -1829,6 +1829,10 @@ def getDirectory(url):
         return
         
     tree=etree.fromstring(html)
+ 
+    if lastbit == "folder":
+        processDirectory(url,tree, server)
+        return
  
     arguments=dict(tree.items())
     
@@ -1864,7 +1868,12 @@ def getDirectory(url):
             printDebug("Passing to Tracks")
             tracks(tree=tree, server=server)
         return
-         
+    
+    processDirectory(url,tree,server)
+    return
+
+def processDirectory(url,tree,server):
+    printDebug("== ENTER: processDirectory ==", False)
     #else we have a secondary, which we'll process here
     printDebug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, 'movies')
@@ -1889,8 +1898,19 @@ def getDirectory(url):
         except:
             arguments['thumb']=""
 
+        try:
+            if arguments['key'].split('/')[0] == "http:":
+                p_url=arguments['key']
+            elif arguments['key'][0] == '/':
+                #The key begins with a slah, there is absolute
+                p_url='http://'+server+str(arguments['key'])
+            else:
+                #Build the next level URL and add the link on screen
+                p_url=url+'/'+str(arguments['key'])
+        except: continue    
+        #If we have a key error - then we don't add to the list.
         
-        n_url=url+'/'+arguments['key']+'&mode=0'
+        n_url=p_url+'&mode=0'
 
         addDir(n_url,properties,arguments)
         
@@ -2798,7 +2818,8 @@ def skin():
     printDebug("Total number of skin sections is [" + str(sectionCount) + "]")
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
 
-   
+
+
 ##So this is where we really start the plugin.
 
 print "Script argument is " + str(sys.argv[1])
@@ -2857,11 +2878,11 @@ else:
 
     if mode!=5:
         __settings__.setSetting('resume', '')
-
+        
     if mode==None or url==None or len(url)<1:
             ROOT()
     elif mode == 0:
-            getDirectory(url)
+            getContent(url)
     elif mode==1:
             SHOWS(url)
     elif mode==2:
