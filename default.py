@@ -1818,7 +1818,7 @@ def getContent(url):
         kb.doModal()
         if (kb.isConfirmed()):
             text = kb.getText()
-            printDebug("Search term input: "+query)
+            printDebug("Search term input: "+ text)
             url=url+'&query='+text
         else:
             return
