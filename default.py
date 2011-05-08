@@ -1004,6 +1004,9 @@ def EPISODES(url='',tree=etree,server=''):
         except:  
             art_url=None 
         
+        try:
+            displayShow = tree.get('mixedParents')
+        except: pass
          
         #right, not for each show we find
         for show in ShowTags:
@@ -1055,8 +1058,9 @@ def EPISODES(url='',tree=etree,server=''):
             #Get name
             try:
                 properties['title']=arguments['title'].encode('utf-8')
-            except: pass
-            
+            except: 
+                properties['title']="Unknown"
+                       
             #Get the Plot          
             try:
                 properties['plot']=arguments['summary']
@@ -1106,6 +1110,12 @@ def EPISODES(url='',tree=etree,server=''):
                 except: pass
             else:
                 properties['tvshowtitle']=showname
+            
+            try:
+                print "this is displayshow: " +str(displayShow)
+                if not displayShow is None:
+                    properties['title']=properties['tvshowtitle']+":"+properties['title']
+            except: pass
             
             #check if we got the studio from the main tag.
             if studio is None:
@@ -1170,11 +1180,11 @@ def EPISODES(url='',tree=etree,server=''):
             properties['duration']=str(datetime.timedelta(seconds=int(arguments['duration'])))
             
             #If we are streaming, then get the virtual location
-            url=mediaType(partarguments,server)
+            #url=
             #Set mode 5, which is play            
             mode=5
 
-            u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
             #Build a file link and loop
             addLink(u,properties,arguments)        
