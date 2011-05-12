@@ -374,22 +374,25 @@ def ROOT():
         for server in Servers:
                                       
             #Get friendly name
-            url='http://'+server[1]
-            html=getURL(url)
-
-            if html is False:
-                continue
-
-            tree=etree.fromstring(html)
-            try:
-                if not tree.get('friendlyName') == "":
-                    server[0]=tree.get('friendlyName')
-                else:
-                    server[0]=server[1]
-            except:
-                server[0]=server[1]
             
-            #dive into the library section with BS        
+            if g_multiple > 0:
+                url='http://'+server[1]
+                html=getURL(url)
+
+                if html is False:
+                    continue
+
+                tree=etree.fromstring(html)
+                try:
+                    if not tree.get('friendlyName') == "":
+                        server[0]=tree.get('friendlyName')
+                    else:
+                        server[0]=server[1]
+                except:
+                    server[0]=server[1]
+            
+           
+            #dive into the library section     
             url='http://'+server[1]+'/library/sections'
             html=getURL(url)
             
@@ -2716,22 +2719,26 @@ def skin():
     serverCount=0
     #For each of the servers we have identified
     for server in Servers:
-                                      
-        #Get friendly name
-        url='http://'+server[1]
-        html=getURL(url)
+         
 
-        if html is False:
-            continue
+        if g_multiple > 0:
 
-        tree=etree.fromstring(html)
-        try:
-            if not tree.get('friendlyName') == "":
-                server[0]=tree.get('friendlyName')
-            else:
+            #Get friendly name
+            url='http://'+server[1]
+            html=getURL(url)
+
+            if html is False:
+                continue
+
+            tree=etree.fromstring(html)
+            try:
+                if not tree.get('friendlyName') == "":
+                    server[0]=tree.get('friendlyName')
+                else:
+                    server[0]=server[1].split(':')[0]
+            except:
                 server[0]=server[1].split(':')[0]
-        except:
-            server[0]=server[1].split(':')[0]
+           
         
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[0].split(':')[0])
         WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+"/video&mode=7")
