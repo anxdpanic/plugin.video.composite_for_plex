@@ -462,40 +462,16 @@ def ROOT():
             #Simple check if any plugins are present.  
             #If so, create a link to drill down later. One link is created for each PMS server available
             #Plugin data is held in /videos directory (well, video data is anyway)
-            pluginurl='http://'+server[1]+'/video'
-            pluginhtml=getURL(pluginurl)
-            
-            if pluginhtml is False:
-                return
-           
-            plugintree=etree.fromstring(pluginhtml)
-
-            #Check the number of items in the mediacontainer tag.
-            try:
-                items = int(plugintree.get('size'))
-            except:
-                items=0
-            
-            #If we have at least one item listed, then we have some plugin.  In which case, create a link
-            if items > 0:
-            
-                arguments={'thumb':''}
-                properties={}
-
-                #URL contains the location of the server plugin.  We'll display the content later
-                mode=7
-                s_url=pluginurl+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
-                if g_multiple == 0:
-                    properties['title']="Video Plugins"
-                else:
-                    properties['title']=server[0].split(':')[0]+": Video Plugins"
-
-                arguments['type']="Video"
-
-                    
-                #Add an on screen link
-                addDir(s_url, properties,arguments)
-                
+            #Create Photo plugin link
+            if g_multiple == 0:
+                properties['title']="Video Plugins"
+            else:
+                properties['title']=server[0].split(':')[0]+": Video Plugins"
+            arguments['type']="video"
+            mode=7
+            u="http://"+server[1]+"/video&mode="+str(mode)
+            addDir(u,properties,arguments)
+                                    
             #Create Photo plugin link
             if g_multiple == 0:
                 properties['title']="Photo Plugins"
