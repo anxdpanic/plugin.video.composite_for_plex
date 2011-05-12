@@ -48,13 +48,14 @@ g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_debug = __settings__.getSetting('debug')
 g_streamControl = __settings__.getSetting('streamControl')
+if not g_port:
+    if g_debug == "true": print "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT
+    g_host=g_host+":"+DEFAULT_PORT
+else:
+    g_host=g_host+":"+g_port
+
 if g_debug == "true":
-    print "PleXBMC -> Settings hostname: " + g_host
-    print "PleXBMC -> Settings Port: " + g_port
-    if not g_port:
-        g_host=g_host+":"+DEFAULT_PORT
-    else:
-        g_host=g_host+":"+g_port
+    print "PleXBMC -> Settings hostname and port: " + g_host
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
