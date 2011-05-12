@@ -578,9 +578,6 @@ def StartTV():
 def MoviesET(url='',tree=etree,server=''):
         printDebug("== ENTER: MoviesET() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
-        win=xbmcgui.getCurrentWindowId()
-        WINDOW=xbmcgui.Window(win)
-        WINDOW.setProperty("plexbmc.type", "movies")
         
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
@@ -764,11 +761,6 @@ def SHOWS(url='',tree=etree,server=''):
 
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
-        win=xbmcgui.getCurrentWindowId()
-        WINDOW=xbmcgui.Window(win)
-        WINDOW.setProperty("plexbmc.type", "tvshows")
-
-        
         #Get the URL and server name.  Get the XML and parse
         if not url == '':
         
@@ -882,9 +874,6 @@ def Seasons(url):
         xbmcplugin.setContent(pluginhandle, 'seasons')
 
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
-        win=xbmcgui.getCurrentWindowId()
-        WINDOW=xbmcgui.Window(win)
-        WINDOW.setProperty("plexbmc.type", "seasons")
 
         #Get URL, XML and parse
         server=url.split('/')[2]
@@ -980,9 +969,6 @@ def EPISODES(url='',tree=etree,server=''):
         xbmcplugin.setContent(pluginhandle, 'episodes')
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
-        win=xbmcgui.getCurrentWindowId()
-        WINDOW=xbmcgui.Window(win)
-        WINDOW.setProperty("plexbmc.type", "episodes")
 
         #Get the server
         try:
@@ -1637,8 +1623,6 @@ def proxyControl(command):
     import subprocess
     if command == "start":
         printDebug("Start proxy")
-        #execfile("HLSproxy.py")
-        #child=subprocess.Popen([sys.executable, "HLSproxy.py"], shell=True)
         filestring="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\","+g_proxyport+")"
         print str(filestring)
         xbmc.executebuiltin(filestring)
@@ -2745,21 +2729,21 @@ def skin():
             if not tree.get('friendlyName') == "":
                 server[0]=tree.get('friendlyName')
             else:
-                server[0]=server[1]
+                server[0]=server[1].split(':')[0]
         except:
-            server[0]=server[1]
+            server[0]=server[1].split(':')[0]
         
-        WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[0])
-        WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+g_port+"/video&mode=7")
-        WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+g_port+"/music&mode=17")
-        WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+g_port+"/photos&mode=16")
-        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+g_port+"/system/plexonline&mode=19")
+        WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[0].split(':')[0])
+        WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+"/video&mode=7")
+        WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+"/music&mode=17")
+        WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
 
         
         serverCount += 1
         
         #dive into the library section      
-        url='http://'+server[1]+g_port+'/library/sections'
+        url='http://'+server[1]+'/library/sections'
         html=getURL(url)
             
         if html is False:
@@ -2774,7 +2758,7 @@ def skin():
             
             arguments=dict(object.items())
             try:
-                arguments['thumb']="http://"+server[1]+g_port+arguments['thumb'].split('?')[0]
+                arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
             except:    
                 arguments['thumb']=""
             #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
@@ -2790,9 +2774,9 @@ def skin():
             try:
                 if arguments['art'][0] == "/":
                     #Ammend URL
-                    arguments['fanart_image']="http://"+server[1]+g_port+arguments['art']
+                    arguments['fanart_image']="http://"+server[1]+arguments['art']
                 else:
-                    arguments['fanart_image']="http://"+server[1]+g_port+"/library/sections/"+arguments['art']
+                    arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
             except: pass
            
             try:
@@ -2812,16 +2796,16 @@ def skin():
                 mode=3
                              
             if g_secondary == "true":
-                s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
+                s_url='http://'+server[1]+'/library/sections/'+arguments['key']+"&mode=0"
             else:
                 #Build URL with the mode to use and key to further XML data in the library
-                s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
+                s_url='http://'+server[1]+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)
                 
             #Build that listing..
             WINDOW.setProperty("plexbmc.%d.title" % (sectionCount) , properties['title'])
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount), server[0])
             WINDOW.setProperty("plexbmc.%d.url" % (sectionCount), s_url )
-            WINDOW.setProperty("plexbmc.%d.mode" % (sectionCount), str(mode) )
+            WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "plugins://plugin.video.plexbmc?url="+s_url)
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
             WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image'] )
             WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
@@ -2840,7 +2824,7 @@ def skin():
             WINDOW.clearProperty("plexbmc.%d.title" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.subtitle" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.url" % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.mode" % ( i ) )
+            WINDOW.setProperty("plexbmc.%d.path" % (i) )
             WINDOW.clearProperty("plexbmc.%d.window" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.art" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.type" % ( i ) )
