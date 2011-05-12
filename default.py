@@ -350,7 +350,7 @@ def ROOT():
         #If we have a remote host, then don;t do local discovery as it won't work
         if g_bonjour == "true":
             #Get the HTML for the URL
-            url = 'http://'+host+'/servers'
+            url = 'http://'+g_host+'/servers'
             html=getURL(url)
             
             if html is False:
@@ -2687,7 +2687,7 @@ def skin():
     #If we have a remote host, then don;t do local discovery as it won't work
     if g_bonjour == "true":
         #Get the HTML for the URL
-        url = 'http://'+host+g_port+'/servers'
+        url = 'http://'+host+'/servers'
         html=getURL(url)
             
         if html is False:
@@ -2718,7 +2718,7 @@ def skin():
     for server in Servers:
                                       
         #Get friendly name
-        url='http://'+server[1]+g_port
+        url='http://'+server[1]
         html=getURL(url)
 
         if html is False:
