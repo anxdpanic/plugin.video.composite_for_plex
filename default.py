@@ -2824,7 +2824,7 @@ def skin():
             WINDOW.clearProperty("plexbmc.%d.title" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.subtitle" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.url" % ( i ) )
-            WINDOW.setProperty("plexbmc.%d.path" % (i) )
+            WINDOW.clearProperty("plexbmc.%d.path" % (i) )
             WINDOW.clearProperty("plexbmc.%d.window" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.art" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.type" % ( i ) )
