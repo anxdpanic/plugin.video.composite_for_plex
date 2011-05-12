@@ -41,15 +41,20 @@ except ImportError:
 
 #Get the setting from the appropriate file.
 print "===== PLEXBMC START ====="
+DEFAULT_PORT="32400"
 g_host = __settings__.getSetting('ipaddress')
-g_port=":"+__settings__.getSetting('port')
+g_port=__settings__.getSetting('port')
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_debug = __settings__.getSetting('debug')
 g_streamControl = __settings__.getSetting('streamControl')
 if g_debug == "true":
     print "PleXBMC -> Settings hostname: " + g_host
-    print "PleXBMC -> Settings Port" + g_port
+    print "PleXBMC -> Settings Port: " + g_port
+    if not g_port:
+        g_host=g_host+":"+DEFAULT_PORT
+    else:
+        g_host=g_host+":"+g_port
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
@@ -69,6 +74,10 @@ if g_multiple > 0:
         if extraip == "":
             if g_debug == "true": print "PleXBMC -> Blank server detected.  Ignoring"
             continue
+        try:
+            extraip.split(':')[1]
+        except:
+            extraip=extraip+":"+DEFAULTPORT
         g_serverList.append(['Server '+str(i),extraip])
 
 if g_debug == "true": print "PleXBMC -> serverList is " + str(g_serverList)
@@ -198,8 +207,8 @@ def mediaType(partproperties, server):
     # 2 is use SMB 
     elif g_stream == "2":
         printDebug( "Selecting smb")
-        location=file.replace("Volumes",server)
-        filelocation="smb:/"+location.replace(g_port,"")
+        print file
+        filelocation="smb:/"+file.replace("Volumes",server.split(':')[0])
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
         filelocation="http://"+server+stream
@@ -330,7 +339,7 @@ def addDir(url,properties,arguments):
 ################################ Root listing
 # Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
 def ROOT():
-        printDebug("== ENTER: ROOT() ==")
+        printDebug("== ENTER: ROOT() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
         #Get the global host variable set in settings
@@ -341,7 +350,7 @@ def ROOT():
         #If we have a remote host, then don;t do local discovery as it won't work
         if g_bonjour == "true":
             #Get the HTML for the URL
-            url = 'http://'+host+g_port+'/servers'
+            url = 'http://'+host+'/servers'
             html=getURL(url)
             
             if html is False:
@@ -365,7 +374,7 @@ def ROOT():
         for server in Servers:
                                       
             #Get friendly name
-            url='http://'+server[1]+g_port
+            url='http://'+server[1]
             html=getURL(url)
 
             if html is False:
@@ -381,7 +390,7 @@ def ROOT():
                 server[0]=server[1]
             
             #dive into the library section with BS        
-            url='http://'+server[1]+g_port+'/library/sections'
+            url='http://'+server[1]+'/library/sections'
             html=getURL(url)
             
             if html is False:
@@ -397,16 +406,16 @@ def ROOT():
                 arguments=dict(object.items())
                 try:
                     if arguments['art'][0] == "/":
-                        arguments['fanart_image']="http://"+server[1]+g_port+arguments['art']
+                        arguments['fanart_image']="http://"+server[1]+arguments['art']
                     else:
-                        arguments['fanart_image']="http://"+server[1]+g_port+"/library/sections/"+arguments['art']
+                        arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
                 except: pass
                     
                 try:
                     if arguments['thumb'][0] == "/":
-                        arguments['thumb']="http://"+server[1]+g_port+arguments['thumb'].split('?')[0]
+                        arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
                     else:
-                        arguments['thumb']="http://"+server[1]+g_port+"/library/sections/"+arguments['thumb'].split('?')[0]
+                        arguments['thumb']="http://"+server[1]+"/library/sections/"+arguments['thumb'].split('?')[0]
                 except: 
                     try:
                         arguments['thumb']=arguments['fanart_image']
@@ -422,7 +431,7 @@ def ROOT():
                     if g_multiple == 0:
                         properties['title']=arguments['title']
                     else:
-                        properties['title']=server[0]+": "+arguments['title']
+                        properties['title']=server[0].split(':')[0]+": "+arguments['title']
                 except:
                     properties['title']="unknown"
                 
@@ -437,10 +446,10 @@ def ROOT():
                 arguments['type']="Video"
                 
                 if g_secondary == "true":
-                    s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
+                    s_url='http://'+server[1]+'/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
                 else:
                     #Build URL with the mode to use and key to further XML data in the library
-                    s_url='http://'+server[1]+g_port+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
+                    s_url='http://'+server[1]+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
                 
                 #Build that listing..
                 addDir(s_url, properties,arguments)
@@ -449,7 +458,7 @@ def ROOT():
             #Simple check if any plugins are present.  
             #If so, create a link to drill down later. One link is created for each PMS server available
             #Plugin data is held in /videos directory (well, video data is anyway)
-            pluginurl='http://'+server[1]+g_port+'/video'
+            pluginurl='http://'+server[1]+'/video'
             pluginhtml=getURL(pluginurl)
             
             if pluginhtml is False:
@@ -475,7 +484,7 @@ def ROOT():
                 if g_multiple == 0:
                     properties['title']="Video Plugins"
                 else:
-                    properties['title']=server[0]+": Video Plugins"
+                    properties['title']=server[0].split(':')[0]+": Video Plugins"
 
                 arguments['type']="Video"
 
@@ -487,30 +496,30 @@ def ROOT():
             if g_multiple == 0:
                 properties['title']="Photo Plugins"
             else:
-                properties['title']=server[0]+": Photo Plugins"
+                properties['title']=server[0].split(':')[0]+": Photo Plugins"
             arguments['type']="Picture"
             mode=16
-            u="http://"+server[1]+g_port+"/photos&mode="+str(mode)
+            u="http://"+server[1]+"/photos&mode="+str(mode)
             addDir(u,properties,arguments)
 
             #Create music plugin link
             if g_multiple == 0:
                 properties['title']="Music Plugins"
             else:
-                properties['title']=server[0]+": Music Plugins"
+                properties['title']=server[0].split(':')[0]+": Music Plugins"
             arguments['type']="Music"
             mode=17
-            u="http://"+server[1]+g_port+"/music&mode="+str(mode)
+            u="http://"+server[1]+"/music&mode="+str(mode)
             addDir(u,properties,arguments)
             
             #Create plexonline link
             if g_multiple == 0:
                 properties['title']="Plex Online"
             else:
-                properties['title']=server[0]+": Plex Online"
+                properties['title']=server[0].split(':')[0]+": Plex Online"
             arguments['type']="file"
             mode=19
-            u="http://"+server[1]+g_port+"/system/plexonline&mode="+str(mode)
+            u="http://"+server[1]+"/system/plexonline&mode="+str(mode)
             addDir(u,properties,arguments)
 
 
@@ -1724,7 +1733,7 @@ def monitorPlayback(id, server, resume, duration):
     
     #Get the server name to update
     if len(server.split(':')) == 1:
-        server=server+g_port
+        server=server
     
     #Get the current time (either the resumed time or 0)
     currentTime=int(resume)
