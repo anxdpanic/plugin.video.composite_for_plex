@@ -9,11 +9,35 @@ sys.path.append(BASE_RESOURCE_PATH)
 
 print "running on " + str(sys.version_info)
 
-
 try:
-    import elementtree.ElementTree as etree
-except: 
-    import ElementTree as etree
+  from lxml import etree
+  print("Running with lxml.etree")
+except ImportError:
+  try:
+    # Python 2.5
+    import xml.etree.cElementTree as etree
+    print("running with cElementTree on Python 2.5+")
+  except ImportError:
+    try:
+      # Python 2.5
+      import xml.etree.ElementTree as etree
+      print("running with ElementTree on Python 2.5+")
+    except ImportError:
+      try:
+        # normal cElementTree install
+        import cElementTree as etree
+        print("running with cElementTree")
+      except ImportError:
+        try:
+          # normal ElementTree install
+          import elementtree.ElementTree as etree
+          print("running with ElementTree")
+        except ImportError: 
+            try:
+                import ElementTree as etree
+                print("Using plugin elemenetree")
+            except ImportError:    
+                print("Failed to import ElementTree from any known place")
 
 #Get the setting from the appropriate file.
 print "===== PLEXBMC START ====="
