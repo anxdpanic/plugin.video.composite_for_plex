@@ -88,7 +88,7 @@ g_transcode = __settings__.getSetting('transcode')
 if g_transcode == "true":
     #If transcode is set, ignore the stream setting for file and smb:
     g_stream = "1"
-    if g_debug == "true": print "PleXBMC -> We are set to Transcode"
+    if g_debug == "true": print "PleXBMC -> We are set to Transcode, overriding stream selection"
     g_transcodetype = __settings__.getSetting('transcodefmt')
     if g_transcodetype == "0":
         g_transcodefmt="m3u8"
@@ -1380,36 +1380,44 @@ def PLAYEPISODE(id,vids,seek, duration):
         url = vids
       
         server=url.split('/')[2]
+
+        streams=getAudioSubtitlesMedia(server,id)     
+        url=selectMedia(streams['partsCount'],streams['parts'], server)
+
         protocol=url.split('/')[0]
+
+
         urlPath="/"+"/".join(url.split('/')[3:])
   
-        streams=getAudioSubtitlesMedia(server,id)
-        
-        url=selectMedia(streams['partsCount'],streams['parts'], server)
-        
-        
-        if g_transcode == "true":
-            printDebug("We are going to attempt to transcode this video")
-            url=transcode(id,url)
-            identifier=proxyControl("start")
-            if identifier is False:
-                printDebug("Error - proxy not running")
-                xbmcgui.Dialog().ok("Error","Transcoding proxy not running")
-   
         if protocol == "file:":
             printDebug( "We are playing a file")
-            url=urlPath
+            #Split out the path from the URL
+            playurl=url.split(':')[1][-1:]
         elif protocol == "http:":
-            if g_transcode == "true" and g_proxy =="true":
-                import base64
-                headers=base64.b64encode(XBMCInternalHeaders)
-                newurl=base64.b64encode(url)
-                url="http://127.0.0.1:"+g_proxyport+"/withheaders/"+newurl+"/"+headers
+            printDebug( "We are playing a stream")
+            if g_transcode == "true":
+                printDebug( "We will be transcoding the stream")
+                playurl=transcode(id,url)
+                if g_proxy =="true":
+                    printDebug("Building Transcode Proxy URL and starting proxy")
+                    import base64
+                    headers=base64.b64encode(XBMCInternalHeaders)
+                    #newurl=base64.b64encode(url)
+                    playurl="http://127.0.0.1:"+g_proxyport+"/withheaders/"+base64.b64encode(playurl)+"/"+headers
+                    
+                    identifier=proxyControl("start")
+                    
+                    if identifier is False:
+                        printDebug("Error - proxy not running")
+                        xbmcgui.Dialog().ok("Error","Transcoding proxy not running")
+
             else:
-                url=url+XBMCInternalHeaders
+                playurl=url+XBMCInternalHeaders
+        else:
+            playurl=url
+   
         
         printDebug( "Current resume is " + str(seek))
-       
         resumeSetting=__settings__.getSetting('resume')
         printDebug("Stored setting for resume is " + str(resumeSetting))
         if len(resumeSetting) > 0:
@@ -1425,7 +1433,7 @@ def PLAYEPISODE(id,vids,seek, duration):
         printDebug("Resume has been set to " + str(resume))
         
         #Build a listitem, based on the url of the file
-        item = xbmcgui.ListItem(path=url)
+        item = xbmcgui.ListItem(path=playurl)
         result=1
             
         #If we passed a positive resume time, then we need to display the dialog box to ask the user what they want to do    
@@ -1469,6 +1477,7 @@ def PLAYEPISODE(id,vids,seek, duration):
         #If the user chose to resume...
         if result == 0:
             #Need to skip forward (seconds)
+            printDebug("Seeking to " + str(resumeseconds))
             xbmc.Player().seekTime((resumeseconds)) 
     
         #Next Set audio and subs
@@ -1633,7 +1642,6 @@ def proxyControl(command):
         filestring="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\","+g_proxyport+")"
         print str(filestring)
         xbmc.executebuiltin(filestring)
-        #xbmc.executebuiltin("XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\"PLUGINPATH\")")
         time.sleep(2)
         
     elif command == "stop":
@@ -1672,28 +1680,6 @@ def proxyControl(command):
 def selectMedia(count, options, server):   #id,url,seek,duration):
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
-
-    #options=[]
-    #server=url.split('/')[2]
-    #html=getURL(url)
-    
-    #if html is False:
-    #    return
-
-    
-    #newtree=etree.fromstring(html)
-       
-    #video=newtree.findall('Video')
-    
-    #Nasty code - but can;t for the life of me work out how to get the Part Tags only!!!!
-    #for file in video:
-    #
-    #    for crap in file:
-    #        if crap.tag == "Media":
-    #            for stuff in crap:
-    #                if stuff.tag == "Part":
-    #                    bits=stuff.get('key'), stuff.get('file')
-    #                    options.append(bits)
     result=0
     
     if count > 1:
@@ -1743,7 +1729,7 @@ def monitorPlayback(id, server, resume, duration):
         #This sometimes fails.  Don't know why probably a timing issue
         duration = int(xbmc.Player().getTotalTime())
     
-        
+    monitorCount=0    
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
@@ -1754,6 +1740,11 @@ def monitorPlayback(id, server, resume, duration):
 
         #Now sleep for 5 seconds
         time.sleep(5)
+        if g_debug == "true":
+            monitorCount+=1
+            if monitorCount == 5:
+                printDebug ("Still monitoring")
+                monitorCount=0
           
     #If we get this far, playback has stopped
     
