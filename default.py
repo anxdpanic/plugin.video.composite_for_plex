@@ -48,6 +48,7 @@ g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_debug = __settings__.getSetting('debug')
 g_streamControl = __settings__.getSetting('streamControl')
+g_channelview = __settings__.getSetting('channelview')
 if not g_port:
     if g_debug == "true": print "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT
     g_host=g_host+":"+DEFAULT_PORT
@@ -373,28 +374,9 @@ def ROOT():
             Servers += g_serverList
         #For each of the servers we have identified
         for server in Servers:
-                                      
-            #Get friendly name
-            
-            if g_multiple > 0:
-                url='http://'+server[1]
-                html=getURL(url)
-
-                if html is False:
-                    continue
-
-                tree=etree.fromstring(html)
-                try:
-                    if not tree.get('friendlyName') == "":
-                        server[0]=tree.get('friendlyName')
-                    else:
-                        server[0]=server[1]
-                except:
-                    server[0]=server[1]
-            
-           
+                                                            
             #dive into the library section     
-            url='http://'+server[1]+'/library/sections'
+            url='http://'+server[1]+'/system/library/sections'
             html=getURL(url)
             
             if html is False:
@@ -404,10 +386,14 @@ def ROOT():
             
             #Find all the directory tags, as they contain further levels to follow
             #For each directory tag we find, build an onscreen link to drill down into the library
-            SectionTags=tree.findall('Directory')
-            for object in SectionTags:
-            
+            for object in tree.getiterator('Directory'):
+                        
+                #If section is not local then ignore
+                if object.get('local') == "0":
+                    continue
+                
                 arguments=dict(object.items())
+                
                 try:
                     if arguments['art'][0] == "/":
                         arguments['fanart_image']="http://"+server[1]+arguments['art']
@@ -435,7 +421,7 @@ def ROOT():
                     if g_multiple == 0:
                         properties['title']=arguments['title']
                     else:
-                        properties['title']=server[0].split(':')[0]+": "+arguments['title']
+                        properties['title']=arguments['serverName']+": "+arguments['title']
                 except:
                     properties['title']="unknown"
                 
@@ -450,53 +436,65 @@ def ROOT():
                 arguments['type']="Video"
                 
                 if g_secondary == "true":
-                    s_url='http://'+server[1]+'/library/sections/'+arguments['key']+"&mode=0&name="+urllib.quote_plus(server[0])
+                    s_url='http://'+server[1]+arguments['path']+"&mode=0"
                 else:
                     #Build URL with the mode to use and key to further XML data in the library
-                    s_url='http://'+server[1]+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)+"&name="+urllib.quote_plus(server[0])
+                    s_url='http://'+server[1]+arguments['path']+'/all'+"&mode="+str(mode)
                 
                 #Build that listing..
                 addDir(s_url, properties,arguments)
-                
-			#Plex plugin handling 
-            #Simple check if any plugins are present.  
-            #If so, create a link to drill down later. One link is created for each PMS server available
-            #Plugin data is held in /videos directory (well, video data is anyway)
-            #Create Photo plugin link
-            if g_multiple == 0:
-                properties['title']="Video Plugins"
-            else:
-                properties['title']=server[0].split(':')[0]+": Video Plugins"
-            arguments['type']="video"
-            mode=7
-            u="http://"+server[1]+"/video&mode="+str(mode)
-            addDir(u,properties,arguments)
-                                    
-            #Create Photo plugin link
-            if g_multiple == 0:
-                properties['title']="Photo Plugins"
-            else:
-                properties['title']=server[0].split(':')[0]+": Photo Plugins"
-            arguments['type']="Picture"
-            mode=16
-            u="http://"+server[1]+"/photos&mode="+str(mode)
-            addDir(u,properties,arguments)
+             
+             
+                #Plex plugin handling 
+                #Simple check if any plugins are present.  
+                #If so, create a link to drill down later. One link is created for each PMS server available
+                #Plugin data is held in /videos directory (well, video data is anyway)
+                #Create Photo plugin link
+            if g_channelview == "false":
 
-            #Create music plugin link
-            if g_multiple == 0:
-                properties['title']="Music Plugins"
+                if g_multiple == 0:
+                    properties['title']="Video Plugins"
+                else:
+                    properties['title']=arguments['serverName']+": Video Plugins"
+                arguments['type']="video"
+                mode=7
+                u="http://"+server[1]+"/video&mode="+str(mode)
+                addDir(u,properties,arguments)
+                                        
+                #Create Photo plugin link
+                if g_multiple == 0:
+                    properties['title']="Photo Plugins"
+                else:
+                    properties['title']=arguments['serverName']+": Photo Plugins"
+                arguments['type']="Picture"
+                mode=16
+                u="http://"+server[1]+"/photos&mode="+str(mode)
+                addDir(u,properties,arguments)
+
+                #Create music plugin link
+                if g_multiple == 0:
+                    properties['title']="Music Plugins"
+                else:
+                    properties['title']=arguments['serverName']+": Music Plugins"
+                arguments['type']="Music"
+                mode=17
+                u="http://"+server[1]+"/music&mode="+str(mode)
+                addDir(u,properties,arguments)
             else:
-                properties['title']=server[0].split(':')[0]+": Music Plugins"
-            arguments['type']="Music"
-            mode=17
-            u="http://"+server[1]+"/music&mode="+str(mode)
-            addDir(u,properties,arguments)
-            
+                if g_multiple == 0:
+                    properties['title']="Channels"
+                else:
+                    properties['title']=arguments['serverName']+": Channels"
+                arguments['type']="video"
+                mode=17
+                u="http://"+server[1]+"/system/plugins/all&mode="+str(mode)
+                addDir(u,properties,arguments)
+                
             #Create plexonline link
             if g_multiple == 0:
                 properties['title']="Plex Online"
             else:
-                properties['title']=server[0].split(':')[0]+": Plex Online"
+                properties['title']=arguments['serverName']+": Plex Online"
             arguments['type']="file"
             mode=19
             u="http://"+server[1]+"/system/plexonline&mode="+str(mode)
