@@ -1975,10 +1975,12 @@ def tracks(url,tree=None):
                 except: pass
             
                 try:
-                    thumb=getThumb(treeargs, server)
+                    sectionthumb=getThumb(treeargs, server)
                 except: pass
                 
         except: pass
+         
+        sectionart=getFanart(treeargs,server) 
          
         #right, not for each show we find
         for show in ShowTags:
@@ -2049,16 +2051,21 @@ def tracks(url,tree=None):
                 properties['artist']=arguments['grandparentTitle']
                 
             #Get the picture to use
-            if thumb is None:
-                try:
-                    arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-                except:
-                    arguments['thumb']=g_loc+'/resources/movie.png'
-            else:
-                arguments['thumb']='http://'+server+thumb.split('?')[0]
+            arguments['thumb']=getThumb(arguments, server)
+            try:
+                if arguments['thumb'].find('/resources/movie.png') > 0:
+                    arguments['thumb']=sectionthumb
+            except: pass
+                
+             
 
             #Get a nice big picture  
             arguments['fanart_image']=getFanart(arguments, server)  
+            try:
+                if arguments['fanart_image'] == "":
+                    arguments['fanart_image']=sectionart
+            except:
+                pass
                 
             #Assign standard metadata
             #Genre        
@@ -2831,8 +2838,6 @@ else:
         install(url,name)
     elif mode==21:
         channelView(url)
-    elif mode==22:
-        plugins(url)
 
 print "===== PLEXBMC STOP ====="
    
