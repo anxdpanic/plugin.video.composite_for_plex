@@ -1170,15 +1170,7 @@ def PlexPlugins(url):
                     
             arguments['thumb']=getThumb(arguments, server)
 
-
-            if arguments['key'].split('/')[0] == "http:":
-                p_url=arguments['key']
-            elif arguments['key'][0] == '/':
-                #The key begins with a slash, there is absolute
-                p_url='http://'+server+str(arguments['key'])
-            else:
-                #Build the next level URL and add the link on screen
-                p_url=url+'/'+str(arguments['key'])
+            p_url=getLinkURL(url, arguments, server)
 
             
             if orange.tag == "Directory" or orange.tag == "Podcast":
@@ -1208,7 +1200,21 @@ def PlexPlugins(url):
                 
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
-   
+ 
+def getLinkURL(url, arguments, server):
+    try:
+        if arguments['key'].split('/')[0] == "http:":
+            return arguments['key']
+        elif arguments['key'][0] == '/':
+            #The key begins with a slash, there is absolute
+            return 'http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            return url+'/'+str(arguments['key'])
+    except:pass
+     
+    return url
+ 
 def getAudioSubtitlesMedia(server,id):
     printDebug("== ENTER: getAudioSubtitlesMedia ==", False)
     printDebug("Gather media stream info" ) 
@@ -2285,9 +2291,7 @@ def photo(url):
     try:
         sectionArt=getFanart(dict(tree.items()),server)
     except: pass
-    
-
-    
+ 
     for banana in tree.findall('Directory'):
         
         arguments=dict(banana.items())
@@ -2307,14 +2311,15 @@ def photo(url):
                 properties['title']="unknown"
                  
         arguments['thumb']=getThumb(arguments, server)
+        
+        arguments['fanart_image']=getFanart(arguments, server)
+        try:
+            if arguments['fanart_image'] == "":
+                arguments['fanart_image']=sectionArt
+        except:
+            pass
 
-            
-        if arguments['key'][0] == '/':
-            #The key begins with a slash, there is absolute
-            u='http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            u=url+'/'+str(arguments['key'])
+        u=getLinkURL(url, arguments, server)   
         
         mode=16
         u=u+"&mode="+str(mode)
@@ -2339,15 +2344,15 @@ def photo(url):
                 properties['title']="unknown"
                 
         arguments['thumb']=getThumb(arguments, server)
+        arguments['fanart_image']=getFanart(arguments, server)        
+        try:
+            if arguments['fanart_image'] == "":
+                arguments['fanart_image']=sectionArt
+        except:
+            pass
+
            
-        if arguments['key'].split('/')[0] == "http:":
-            u=arguments['key']
-        elif arguments['key'][0] == '/':
-            #The key begins with a slah, there is absolute
-            u='http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            u=url+'/'+str(arguments['key'])
+        u=getLinkURL(url, arguments, server)   
         
         arguments['type']="Picture"
         addLink(u,properties,arguments)
