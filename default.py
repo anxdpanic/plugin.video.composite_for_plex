@@ -1152,6 +1152,10 @@ def PlexPlugins(url):
             return
 
         tree=etree.fromstring(html)
+        
+        try:
+            sectionArt=getFanart(dict(tree.items()),server)
+        except: pass
                
         for orange in tree:
                
@@ -1169,6 +1173,13 @@ def PlexPlugins(url):
                     properties['title']="unknown"
                     
             arguments['thumb']=getThumb(arguments, server)
+            
+            arguments['fanart_image']=getFanart(arguments, server)
+            try:
+                if arguments['fanart_image'] == "":
+                    arguments['fanart_image']=sectionArt
+            except:
+                pass
 
             p_url=getLinkURL(url, arguments, server)
 
@@ -2292,7 +2303,7 @@ def photo(url):
         sectionArt=getFanart(dict(tree.items()),server)
     except: pass
  
-    for banana in tree.findall('Directory'):
+    for banana in tree:
         
         arguments=dict(banana.items())
         properties={}
@@ -2320,42 +2331,16 @@ def photo(url):
             pass
 
         u=getLinkURL(url, arguments, server)   
-        
-        mode=16
-        u=u+"&mode="+str(mode)
-        addDir(u,properties,arguments)
-    
-    for coconuts in tree.findall('Photo'):
-    
-        arguments=dict(coconuts.items())
-        properties={}
-        
-        try:
-            properties['title']=properties['name']=arguments['title'].encode('utf-8')
-        except:
-            properties['title']=properties['name']="Unknown"
-            
-        try: 
-            properties['title']=arguments['title'].encode('utf-8')
-        except:
-            try:
-                properties['title']=arguments['name'].encode('utf-8')
-            except:
-                properties['title']="unknown"
                 
-        arguments['thumb']=getThumb(arguments, server)
-        arguments['fanart_image']=getFanart(arguments, server)        
-        try:
-            if arguments['fanart_image'] == "":
-                arguments['fanart_image']=sectionArt
-        except:
-            pass
-
-           
-        u=getLinkURL(url, arguments, server)   
+        if banana.tag == "Directory":
+            mode=16
+            u=u+"&mode="+str(mode)
+            addDir(u,properties,arguments)
+    
+        elif banana.tag == "Photo":
         
-        arguments['type']="Picture"
-        addLink(u,properties,arguments)
+            arguments['type']="Picture"
+            addLink(u,properties,arguments)
 
     xbmcplugin.endOfDirectory(pluginhandle)
 
@@ -2363,18 +2348,20 @@ def music(url, tree=None):
     printDebug("== ENTER: music ==", False)
     xbmcplugin.setContent(pluginhandle, 'artists')
 
-
-    server=url.split('/')[2]
+    server=getServerFromURL(url)
     
     if tree is None:
         html=getURL(url)
     
         if html is False:
             return
-
-    
+   
         tree=etree.fromstring(html)
-    
+ 
+    try:
+        sectionArt=getFanart(dict(tree.items()),server)
+    except: pass
+ 
     for grapes in tree:
        
         arguments=dict(grapes.items())
@@ -2385,14 +2372,16 @@ def music(url, tree=None):
             if arguments['key'] == "":
                 continue
         except: pass
-                        
-        try:
-            if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-        except:
-            thumb=g_loc+'/resources/movie.png'  
-            arguments['thumb']=thumb
+                          
+        arguments['thumb']=getThumb(arguments, server)
 
+        arguments['fanart_image']=getFanart(arguments, server)
+        try:
+            if arguments['fanart_image'] == "":
+                arguments['fanart_image']=sectionArt
+        except:
+            pass
+        
         try:
             properties['genre']=arguments['genre']
         except: pass
@@ -2412,13 +2401,10 @@ def music(url, tree=None):
         try: 
             properties['tracknumber']=int(arguments['index'])
         except:pass
+        
+        properties['title']="Unknown"
    
-        if arguments['key'][0] == '/':
-            #The key begins with a slah, there is absolute
-            u='http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            u=url+'/'+str(arguments['key'])
+        u=getLinkURL(url, arguments, server)
         
         if grapes.tag == "Track":
             printDebug("Track Tag")
@@ -2427,8 +2413,7 @@ def music(url, tree=None):
             
             try:
                 properties['title']=arguments['track'].encode('utf-8')
-            except:
-                properties['title']="Unknown"
+            except: pass
             
                          
             #Set the track length 
@@ -2456,20 +2441,17 @@ def music(url, tree=None):
                 xbmcplugin.setContent(pluginhandle, 'albums')
                 try:    
                     properties['title']=arguments['album']
-                except: 
-                    properties['title']="Unknown"
+                except: pass
             elif grapes.tag == "Genre":
                 try:    
                     properties['title']=arguments['genre']
-                except: 
-                    properties['title']="Unknown"
+                except: pass
             
             else:
                 printDebug("Generic Tag: " + grapes.tag)
                 try:
                     properties['title']=arguments['title']
-                except:
-                    properties['title']="Unknown"
+                except: pass
             
             mode=17
             u=u+"&mode="+str(mode)
