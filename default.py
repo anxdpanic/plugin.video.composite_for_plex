@@ -788,7 +788,7 @@ def SHOWS(url,tree=None):
             arguments['type']="Video"
 
             mode=4 # grab season details
-            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
+            url='http://'+server+arguments['key']+"&mode="+str(mode)
             
             context=buildContextMenu(url, arguments)
             
@@ -805,6 +805,7 @@ def Seasons(url):
 
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
 
+        
         #Get URL, XML and parse
         server=getServerFromURL(url)
         html=getURL(url)
@@ -819,6 +820,12 @@ def Seasons(url):
         #For all the directory tags
         ShowTags=tree.findall('Directory')
         for show in ShowTags:
+        
+            PMSFLAG=""
+            if url.find("?unwatched=1") > 0:
+                #Temp work around until PMS data fixed.
+                PMSFLAG="?unwatched=1"
+
         
             arguments=dict(show.items());
             #Build basic data structures
@@ -865,7 +872,10 @@ def Seasons(url):
             #Set the mode to episodes, as that is what's next     
             mode=6
             
-            url='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+            if arguments['key'].find("allLeaves") > 0:
+                PMSFLAG=""
+            
+            url='http://'+server+arguments['key']+PMSFLAG+"&mode="+str(mode)
         
             context=buildContextMenu(url, arguments)
             #Build the screen directory listing
@@ -880,7 +890,7 @@ def EPISODES(url,tree=None):
         printDebug("== ENTER: EPISODES() ==", False)
         xbmcplugin.setContent(pluginhandle, 'episodes')
         
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
+        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
                 
         if tree is None:
             #Get URL, XML and Parse
@@ -900,35 +910,43 @@ def EPISODES(url,tree=None):
         target=url.split('/')[-1]
 
         printDebug("target URL is " + target)
-         
-        #Name of the show
+
         try:
-            showname=tree.get('grandparentTitle')
-        except:
-            showname=None
-        
-        #the kiddie rating
-        try:
-            certificate = tree.get('grandparentContentRating')
-        except:
-            certificate=None
-        
-        #the studio
-        try:
-            studio = tree.get('grandparentStudio')
-        except:
-            studio = None
+            displayShow = tree.get('mixedParents')
+        except: 
+            displayShow = "0"
             
-        #If we are processing individual season, then get the season number, else we'll get it later
-        try:
-            season=tree.get('parentIndex')
-        except:pass
+        print "displayShow: " + str(displayShow)
+            
+        if displayShow == "0" or displayShow is None:
+            #Name of the show
+            try:
+                showname=tree.get('grandparentTitle')
+            except:
+                showname=None
+            
+            #the kiddie rating
+            try:
+                certificate = tree.get('grandparentContentRating')
+            except:
+                certificate=None
+            
+            #the studio
+            try:
+                studio = tree.get('grandparentStudio')
+            except:
+                studio = None
+              
+              
+            #If we are processing individual season, then get the season number, else we'll get it later
+            print "getting season from mediacontainer"
+            try:
+                season=tree.get('parentIndex')
+                print str(season)
+            except:pass
         
         sectionart=getFanart(dict(tree.items()), server)
         
-        try:
-            displayShow = tree.get('mixedParents')
-        except: pass
          
         #right, not for each show we find
         for show in ShowTags:
@@ -979,7 +997,7 @@ def EPISODES(url,tree=None):
 
             #Get name
             try:
-                properties['title']=arguments['title'].encode('utf-8')
+                properties['title']=str(properties['episode']).zfill(2)+". "+arguments['title'].encode('utf-8')
             except: 
                 properties['title']="Unknown"
                        
@@ -1010,43 +1028,44 @@ def EPISODES(url,tree=None):
             #If we are processing an "All Episodes" directory, then get the season from the video tag
             
             try:
-                if target == "allLeaves":
-                    try:
-                        properties['season']=int(arguments['parentIndex'])
-                    except:pass
-            except:    
-                properties['season']=int(season)
-             
+                if season:
+                    properties['season']=int(season)
+            except:
+                try:
+                    properties['season']=int(arguments['parentIndex'])
+                except: pass
+                
             #check if we got the kiddie rating from the main tag
-            if certificate is None:
+            try:
+                if certificate:
+                    properties['mpaa']=certificate
+            except:
                 try:
                     properties['mpaa']=arguments['contentRating']
-                except:pass
-            else:
-                properties['mpaa']=certificate
+                except:pass    
                     
             #Check if we got the showname from the main tag        
-            if showname is None:
+            try:
+                if showname:
+                    properties['tvshowtitle']=showname
+            except:
                 try:
                     properties['tvshowtitle']=arguments['grandparentTitle']
                 except: pass
-            else:
-                properties['tvshowtitle']=showname
             
             try:
-                print "this is displayshow: " +str(displayShow)
-                if not displayShow is None:
+                if displayShow == "1":
                     properties['title']=properties['tvshowtitle']+":"+properties['title']
             except: pass
             
             #check if we got the studio from the main tag.
-            if studio is None:
+            try:
+                if studio:
+                    properties['studio']=studio
+            except:
                 try:
                     properties['studio']=arguments['studio']
-                except:pass
-            else:
-                properties['studio']=studio
-            
+                except: pass
                 
             #Get the picture to use
             arguments['thumb']=getThumb(arguments, server)
