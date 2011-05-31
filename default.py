@@ -138,8 +138,6 @@ if g_authentication == "true":
     #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
     XBMCInternalHeaders="|X-Plex-User="+g_txheaders['X-Plex-User']+"&X-Plex-Pass="+g_txheaders['X-Plex-Pass']
 
-
-
 ################################ Common
 # Connect to a server and retrieve the HTML page
 def getURL( url ,title="Error", surpress=False):
@@ -180,8 +178,7 @@ def getURL( url ,title="Error", surpress=False):
         return False
     else:
         return link
-
-        
+      
 def mediaType(partproperties, server):
     printDebug("== ENTER: mediaType ==", False)
     
@@ -217,8 +214,7 @@ def mediaType(partproperties, server):
     
     printDebug("Returning URL: " + filelocation)
     return filelocation
-    
-    
+     
 def printDebug(msg,functionname=True):
     if g_debug == "true":
         if functionname == False:
@@ -486,7 +482,7 @@ def ROOT():
                 else:
                     properties['title']=arguments['serverName']+": Channels"
                 arguments['type']="video"
-                mode=17
+                mode=21
                 u="http://"+server[1]+"/system/plugins/all&mode="+str(mode)
                 addDir(u,properties,arguments)
                 
@@ -504,54 +500,6 @@ def ROOT():
             
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
-################################ Movies listing  
-#Used by the skin to automatically start a movie listing.  Might not be needed now - copies functionality in ROOT          
-def StartMovies():
-        print '=========================='
-        print 'Starting with Movies'
-        host=g_host
-        url = 'http://'+host+g_port+'/library/sections'
-        html=getURL(url)
-        
-        if html is False:
-            return
-        
-        tree=etree.fromstring(html)
-        SectionTags=tree.findall('Directory')
-        for object in SectionTags:
-            key=object.get('key')
-            name=object.get('title')
-            type=object.get('type')
-            if type== 'movie':
-                url='http://'+host+g_port+'/library/sections/'+key+'/all'
-                Movies(url)
-
-
-################################ TV listing            
-#Used by the skin to automatically start a TV listing.  Might not be needed now - copies functionality in ROOT          
-def StartTV():
-        print '=========================='
-        print 'Starting with TV Shows'
-        host=g_host
-        url = 'http://'+host+g_port+'/library/sections'
-        html=getURL(url)
-        
-        if html is False:
-            return
-
-        
-        tree=etree.fromstring(html)
-        SectionTags=tree.findall('Directory')
-        for object in SectionTags:
-            key=object.get('key')
-            name=object.get('title')
-            type=object.get('type')
-            if type== 'show':
-                url='http://'+host+g_port+'/library/sections/'+key+'/all'
-                SHOWS(url)
-
-################################ Movies listing            
-# Used to display movie on screen.
 
 def MoviesET(url='',tree=etree,server=''):
         printDebug("== ENTER: MoviesET() ==", False)
@@ -1220,18 +1168,13 @@ def PlexPlugins(url):
                 except:
                     properties['title']="unknown"
                     
-            try:
-                if not arguments['thumb'].split('/')[0] == "http:":
-                    arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-            except:
-                thumb=g_loc+'/resources/movie.png'  
-                arguments['thumb']=thumb
+            arguments['thumb']=getThumb(arguments, server)
 
 
             if arguments['key'].split('/')[0] == "http:":
                 p_url=arguments['key']
             elif arguments['key'][0] == '/':
-                #The key begins with a slah, there is absolute
+                #The key begins with a slash, there is absolute
                 p_url='http://'+server+str(arguments['key'])
             else:
                 #Build the next level URL and add the link on screen
@@ -1241,7 +1184,7 @@ def PlexPlugins(url):
             if orange.tag == "Directory" or orange.tag == "Podcast":
                 #We have a directory tag, so come back into this function
                 mode=7   
-                s_url=p_url+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
+                s_url=p_url+"&mode="+str(mode)
                 
                 #Set type
                 arguments['type']="Video"
@@ -1255,7 +1198,7 @@ def PlexPlugins(url):
                 mode=18                       
                     
                 #Build the URl and add a link to the file
-                v_url=p_url+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])    
+                v_url=p_url+"&mode="+str(mode)    
                 
                 #Set type
                 arguments['type']="Video"
@@ -1266,7 +1209,6 @@ def PlexPlugins(url):
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)
    
-
 def getAudioSubtitlesMedia(server,id):
     printDebug("== ENTER: getAudioSubtitlesMedia ==", False)
     printDebug("Gather media stream info" ) 
@@ -1637,8 +1579,7 @@ def proxyControl(command):
             return False
     
     return False    
-    
-        
+           
 def selectMedia(count, options, server):   #id,url,seek,duration):
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
@@ -1767,8 +1708,7 @@ def videoPluginPlay(vids):
         
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
-        
-        
+              
 #Function to parse the arguments passed to the plugin..
 def get_params():
         printDebug("== ENTER: get_params ==", False)
@@ -2342,6 +2282,11 @@ def photo(url):
     
     tree=etree.fromstring(html)
     
+    try:
+        sectionArt=getFanart(dict(tree.items()),server)
+    except: pass
+    
+
     
     for banana in tree.findall('Directory'):
         
@@ -2360,17 +2305,12 @@ def photo(url):
                 properties['title']=arguments['name'].encode('utf-8')
             except:
                 properties['title']="unknown"
-                
-        try:
-            if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-        except:
-            thumb=g_loc+'/resources/movie.png'  
-            arguments['thumb']=thumb
+                 
+        arguments['thumb']=getThumb(arguments, server)
 
             
         if arguments['key'][0] == '/':
-            #The key begins with a slah, there is absolute
+            #The key begins with a slash, there is absolute
             u='http://'+server+str(arguments['key'])
         else:
             #Build the next level URL and add the link on screen
@@ -2398,13 +2338,7 @@ def photo(url):
             except:
                 properties['title']="unknown"
                 
-        try:
-            if not arguments['thumb'].split('/')[0] == "http:":
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-        except:
-            thumb=g_loc+'/resources/movie.png'  
-            arguments['thumb']=thumb
-
+        arguments['thumb']=getThumb(arguments, server)
            
         if arguments['key'].split('/')[0] == "http:":
             u=arguments['key']
@@ -2420,21 +2354,21 @@ def photo(url):
 
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def music(url):
+def music(url, tree=None):
     printDebug("== ENTER: music ==", False)
     xbmcplugin.setContent(pluginhandle, 'artists')
 
 
     server=url.split('/')[2]
     
-    html=getURL(url)
+    if tree is None:
+        html=getURL(url)
     
-    if html is False:
-        return
+        if html is False:
+            return
 
     
-    tree=etree.fromstring(html)
-    
+        tree=etree.fromstring(html)
     
     for grapes in tree:
        
@@ -2538,6 +2472,32 @@ def music(url):
         
     xbmcplugin.endOfDirectory(pluginhandle)    
 
+def getThumb(arguments, server):
+    thumbnail=""
+    
+    try:
+        if arguments['thumb'].split('/')[0] == "http:":
+            return arguments['thumb']
+        else:    
+            thumbnail='http://'+server+arguments['thumb'].split('?t')[0]
+    except:
+        thumbnail=g_loc+'/resources/movie.png'  
+     
+    return thumbnail
+
+def getFanart(arguments, server):
+    fanart=""
+
+    try:
+        if arguments['art'].split('/')[0] == "http:":
+            return arguments['art']
+        else:    
+            fanart='http://'+server+arguments['art'].split('?t')[0]
+    except:
+        fanart=""  
+     
+    return fanart
+    
 def plexOnline(url):
     printDebug("== ENTER: plexOnline ==")
     xbmcplugin.setContent(pluginhandle, 'files')
@@ -2602,10 +2562,159 @@ def plexOnline(url):
         addDir(u, properties, arguments)
 
     xbmcplugin.endOfDirectory(pluginhandle)    
+   
+def channelView(url):
+
+    printDebug("== ENTER: channelView ==", False)
+    html=getURL(url)
+    if html is False:
+        return
+    tree = etree.fromstring(html)
+    
+    server=getServerFromURL(url)
+    
+    for channels in tree.getiterator('Directory'):
+    
+        try:
+            if channels.get('local') == "0":
+                continue
+        except: pass
+            
+        arguments=dict(channels.items())
+
+    
+        arguments['fanart_image']=getFanart(arguments, server)
+
+        arguments['thumb']=getThumb(arguments, server)
         
+        properties={}
+        properties['title']=arguments['title']
+
+        suffix=arguments['path'].split('/')[1]
+        
+        try:
+            if arguments['unique']=='0':
+                properties['title']=properties['title']+" ("+suffix+")"
+        except:
+            pass
+               
+        try:
+            if arguments['path'].split('/')[0] == "http:":
+                p_url=arguments['path']
+            elif arguments['path'][0] == '/':
+                #The path begins with a slah, there is absolute
+                p_url='http://'+server+str(arguments['path'])
+            else:
+                #Build the next level URL and add the link on screen
+                p_url=url+'/'+str(arguments['path'])
+        except: continue    
+        #If we have a path error - then we don't add to the list.
+        
+        if suffix == "photos":
+            mode=16
+        elif suffix == "video":
+            mode=7
+        elif suffix == "music":
+            mode=17
+        else:
+            mode=0
+        
+        n_url=p_url+'&mode='+str(mode)
+
+        addDir(n_url,properties,arguments)
+        
+    xbmcplugin.endOfDirectory(pluginhandle)
+                          
+def plugins(url):
+    printDebug("== ENTER: plugins ==", False)
+    html=getURL(url)
+    if html is False:
+        return
+    tree = etree.fromstring(html)
+    
+    try:
+        content = tree.get('content')
+    except:
+        content = "items"
+    
+    printDebug("Plugin XML contents: " + str(content))
+    
+    if content == "artists":
+        artists(url, tree)
+    elif content == "albums":
+        albums(url, tree)
+    elif content == "songs":
+        tracks(url, tree)
+    else:
+        menuItems(url, tree)
+        
+def getServerFromURL(url):
+    
+    return url.split('/')[2]
+              
+def menuItems(url, tree=None):    
+    printDebug("== ENTER: menuItems ==", False)
+    xbmcplugin.setContent(pluginhandle, 'movies')
+    
+    server=getServerFromURL(url)
+    
+    try:
+        sectionArt=getFanart(dict(tree.items()),server)
+    except:
+        pass
+    
+    for channels in tree.getiterator('Directory'):
+    
+        try:
+            if channels.get('local') == "0":
+                continue
+        except: pass
+            
+        arguments=dict(channels.items())
+
+    
+        arguments['fanart_image']=getFanart(arguments, server)
+        try:
+            if arguments['fanart_image'] == "":
+                arguments['fanart_image']=sectionArt
+        except:
+            pass
+
+        arguments['thumb']=getThumb(arguments, server)
+        
+        properties={}
+        properties['title']=arguments['title']
+        
+        try:
+            if arguments['unique']=='0':
+                suffix=arguments['path'].split('/')[1]
+                properties['title']=properties['title']+" ("+suffix+")"
+        except:
+            pass
+               
+        try:
+            if arguments['key'].split('/')[0] == "http:":
+                p_url=arguments['key']
+            elif arguments['key'][0] == '/':
+                #The key begins with a slash, there is absolute
+                p_url='http://'+server+str(arguments['key'])
+            else:
+                #Build the next level URL and add the link on screen
+                p_url=url+'/'+str(arguments['key'])
+        except: continue    
+        #If we have a key error - then we don't add to the list.
+        
+        n_url=p_url+'&mode=22'
+
+        addDir(n_url,properties,arguments)
+        
+    xbmcplugin.endOfDirectory(pluginhandle)
+   
 def install(url, name):
     printDebug("== ENTER: install ==", False)
     html=getURL(url)
+    if html is False:
+        return
     tree = etree.fromstring(html)
     
     if tree.get('size') == "1":
@@ -2822,7 +2931,7 @@ def skin():
 
 ##So this is where we really start the plugin.
 
-print "Script argument is " + str(sys.argv[1])
+printDebug( "Script argument is " + str(sys.argv[1]))
 if str(sys.argv[1]) == "skin":
     skin()
 else:
@@ -2919,6 +3028,10 @@ else:
         plexOnline(url)
     elif mode==20:
         install(url,name)
+    elif mode==21:
+        channelView(url)
+    elif mode==22:
+        plugins(url)
 
 print "===== PLEXBMC STOP ====="
    
