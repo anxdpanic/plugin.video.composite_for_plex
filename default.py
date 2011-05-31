@@ -111,7 +111,7 @@ g_loc = "special://home/addon/plugin.video.plexbmc"
 
 #Create the standard header structure and load with a User Agent to ensure we get back a response.
 g_txheaders = {
-              'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'	
+              'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)',	
               }
 
 #Set up the remote access authentication tokens
@@ -225,7 +225,7 @@ def printDebug(msg,functionname=True):
 #Used to add playable media files to directory listing
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
-def addLink(url,properties,arguments):
+def addLink(url,properties,arguments,context=None):
         printDebug("== ENTER: addLink ==", False)
         try:
             printDebug("Adding link for [" + properties['title'] + "]")
@@ -261,6 +261,7 @@ def addLink(url,properties,arguments):
             liz.setProperty('Artist_Description', properties['plot'])
         except: pass
 
+            
         
         #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
@@ -273,6 +274,10 @@ def addLink(url,properties,arguments):
             printDebug( "Setting fan art as " + str(arguments['fanart_image']))
         except: pass
         
+        if context is not None:
+            printDebug("Building Context Menus")
+            liz.addContextMenuItems( context )
+        
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
         
@@ -281,7 +286,7 @@ def addLink(url,properties,arguments):
 #Used to add directory item to the listing.  These are non-playable items.  They can be mixed with playable items created above.
 #properties is a dictionary {} which contains a list of setInfo properties to apply
 #Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
-def addDir(url,properties,arguments):
+def addDir(url,properties,arguments,context=None):
         printDebug("== ENTER: addDir ==", False)
         try:
             printDebug("Adding Dir for [" + properties['title'] + "]")
@@ -330,6 +335,11 @@ def addDir(url,properties,arguments):
             printDebug( "Setting fan art as " + str(arguments['fanart_image']))
         except: pass
 
+        if context is not None:
+            printDebug("Building Context Menus")
+            liz.addContextMenuItems( context )
+
+        
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
         return ok
@@ -437,8 +447,13 @@ def ROOT():
                     #Build URL with the mode to use and key to further XML data in the library
                     s_url='http://'+server[1]+arguments['path']+'/all'+"&mode="+str(mode)
                 
+                context=[]
+                refreshURL="http://"+server[1]+arguments['path']+"/refresh"
+                libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update " + refreshURL + ")"
+                context.append(('Refresh library section', libraryRefresh , ))
+                
                 #Build that listing..
-                addDir(s_url, properties,arguments)
+                addDir(s_url, properties,arguments, context)
              
              
                 #Plex plugin handling 
@@ -650,12 +665,37 @@ def Movies(url,tree=None):
             mode=5
                              
             u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
-                     
+            
+            context=buildContextMenu(url, arguments)            
+            
             #Right, add that link...and loop around for another entry
-            addLink(u,properties,arguments)        
+            addLink(u,properties,arguments,context)        
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
+ 
+def buildContextMenu(url, arguments):
+    context=[]
+    server=getServerFromURL(url)
+    refreshURL=url.replace("/all", "/refresh")
+    libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update " + refreshURL + ")"
+    context.append(('Refresh library section', libraryRefresh , ))
+    
+    try:
+        if arguments[ratingKey]:
+            ID=arguments[ratingKey]
+    except:
+        ID=arguments['key'].split('/')[3]
+        
+    unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
+    unwatched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch " + unwatchURL + ")"
+    context.append(('Mark as UnWatched', unwatched , ))
+            
+    watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
+    watched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch " + watchURL + ")"
+    context.append(('Mark as Watched', watched , ))
+
+    return context
     
 ################################ TV Show Listings
 #This is the function use to parse the top level list of TV shows
@@ -750,7 +790,9 @@ def SHOWS(url,tree=None):
             mode=4 # grab season details
             url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
             
-            addDir(url,properties,arguments) 
+            context=buildContextMenu(url, arguments)
+            
+            addDir(url,properties,arguments, context) 
             
         #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -825,8 +867,9 @@ def Seasons(url):
             
             url='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
         
+            context=buildContextMenu(url, arguments)
             #Build the screen directory listing
-            addDir(url,properties,arguments) 
+            addDir(url,properties,arguments, context) 
             
         #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -1055,9 +1098,10 @@ def EPISODES(url,tree=None):
             mode=5
 
             u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            context=buildContextMenu(url, arguments)
                 
             #Build a file link and loop
-            addLink(u,properties,arguments)        
+            addLink(u,properties,arguments, context)        
         
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -1433,7 +1477,7 @@ def proxyControl(command):
     
     return False    
            
-def selectMedia(count, options, server):   #id,url,seek,duration):
+def selectMedia(count, options, server):   
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
     result=0
@@ -1556,8 +1600,16 @@ def videoPluginPlay(vids):
                 header="|"+agentHeader
             else:
                 header="&"+agentHeader
-            
-        url=vids+XBMCInternalHeaders+header
+
+                
+        #Pleader="&X-Plex-Client-Capabilities="+urllib.quote_plus("protocols=http-live-streaming,http-mp4-streaming,http-mp4-video,http-mp4-video-720p,http-streaming-video,http-streaming-video-720p,webkit;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=mp3,aac")
+        
+        #if XBMCInternalHeaders == "":
+        #    Pleader="|"+Pleader
+        #else:
+        #    Pleader="&"+Pleader
+        
+        url=vids+XBMCInternalHeaders+header#+Pleader
         
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
@@ -2735,13 +2787,41 @@ def skin():
     printDebug("Total number of skin sections is [" + str(sectionCount) + "]")
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
 
+def libraryRefresh(url):
+    printDebug("== ENTER: libraryRefresh ==", False)
+    #Refreshing the library
+    html=getURL(url)
+    printDebug ("Library refresh requested")
+    xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",Library Refresh started,100)")
+    return
 
+def watched(url):
+    printDebug("== ENTER: watched ==", False)
 
+    if url.find("unscrobble") > 0:
+        printDebug ("Marking as unwatched with: " + url)
+        string="Marked as unwatched"
+    else:
+        printDebug ("Marking as watched with: " + url)
+        string="Marked as watched"
+    
+    html=getURL(url)
+    #xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",\""+string+"\",60)")
+    xbmc.executebuiltin("Container.Refresh")
+    
+    return
+    
 ##So this is where we really start the plugin.
 
 printDebug( "Script argument is " + str(sys.argv[1]))
 if str(sys.argv[1]) == "skin":
     skin()
+elif sys.argv[1].split(' ')[0] == "update":
+    url=sys.argv[1].split(' ')[1]
+    libraryRefresh(url)
+elif sys.argv[1].split(' ')[0] == "watch":
+    url=sys.argv[1].split(' ')[1]
+    watched(url)
 else:
     pluginhandle = int(sys.argv[1])
 
