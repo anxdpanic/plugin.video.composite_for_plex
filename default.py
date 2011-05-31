@@ -501,15 +501,14 @@ def ROOT():
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
 
-def MoviesET(url='',tree=etree,server=''):
-        printDebug("== ENTER: MoviesET() ==", False)
+def Movies(url,tree=None):
+        printDebug("== ENTER: Movies() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
         
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #get the server name from the URL, which was passed via the on screen listing..
-        if not url == '':
-            server=url.split('/')[2]
+        if tree is None:
             #Get some XML and parse it
             html=getURL(url)
             
@@ -517,7 +516,9 @@ def MoviesET(url='',tree=etree,server=''):
                 return
                 
             tree = etree.fromstring(html)
-                    
+
+        server=getServerFromURL(url)
+            
         #Find all the video tags, as they contain the data we need to link to a file.
         MovieTags=tree.findall('Video')
         for movie in MovieTags:
@@ -622,26 +623,12 @@ def MoviesET(url='',tree=etree,server=''):
              
             arguments['duration']=int(arguments['duration'])/1000
             properties['duration']=str(datetime.timedelta(seconds=int(arguments['duration'])))
-           
-            #Get the picture to use
-            try:
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-            except:
-                thumb=g_loc+'/resources/movie.png'  
-                print thumb  
-                arguments['thumb']=thumb
-               
-            #Get a nice big picture  
-            try:
-                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-            except:  
-                #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg'
-            
+                        
+            #Get Thumbnail            
+            arguments['thumb']=getThumb(arguments, server)
+                         
             #print art_url  
-            arguments['fanart_image']=art_url
+            arguments['fanart_image']=getFanart(arguments,server)
             
             #Set type
             arguments['type']="Video"
@@ -658,21 +645,12 @@ def MoviesET(url='',tree=etree,server=''):
             
             #Genre        
             properties['genre']=" / ".join(tempgenre)                
-            
-            #Decide what file type to play            
-            #url=mediaType(partarguments,server)
-            
+                        
             #This is playable media, so link to a path to a play function
             mode=5
                              
             u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
- 
-            #if mediacount > 1:
-            #    #We have more than one media file to play.  Build link to go to selectMedia
-            #    printDebug("We have a choice of " + str(mediacount) + " media files.")
-            #    mode=13
-            #    u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
-                    
+                     
             #Right, add that link...and loop around for another entry
             addLink(u,properties,arguments)        
         
@@ -681,25 +659,23 @@ def MoviesET(url='',tree=etree,server=''):
     
 ################################ TV Show Listings
 #This is the function use to parse the top level list of TV shows
-def SHOWS(url='',tree=etree,server=''):
+def SHOWS(url,tree=None):
         printDebug("== ENTER: SHOWS() ==", False)
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get the URL and server name.  Get the XML and parse
-        if not url == '':
-        
-            server=url.split('/')[2]
-            print server
+        if tree is None:
             html=getURL(url)
         
             if html is False:
                 return
 
-        
             tree=etree.fromstring(html)
-            
+ 
+        server=getServerFromURL(url)
+ 
         #For each directory tag we find
         ShowTags=tree.findall('Directory') # These type of calls seriously slow down plugins
         for show in ShowTags:
@@ -762,28 +738,14 @@ def SHOWS(url='',tree=etree,server=''):
                 properties['aired']=arguments['originallyAvailableAt']
             except:pass
 
-            #Get the picture to use
-            try:
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-            except:
-                thumb=g_loc+'/resources/movie.png'  
-                print thumb  
-                arguments['thumb']=thumb
+            #Get the picture to use 
+            arguments['thumb']=getThumb(arguments, server)
                
             #Get a nice big picture  
-            try:
-                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-            except:  
-                #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg' 
-
-            arguments['fanart_image']=art_url
+            arguments['fanart_image']=getFanart(arguments,server)
            
             #Set type
             arguments['type']="Video"
-
 
             mode=4 # grab season details
             url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
@@ -802,23 +764,16 @@ def Seasons(url):
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
 
         #Get URL, XML and parse
-        server=url.split('/')[2]
+        server=getServerFromURL(url)
         html=getURL(url)
         
         if html is False:
             return
-
-        
+       
         tree=etree.fromstring(html)
         
-        try:
-            fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
-            art_url='http://'+server+fanart#.encode('utf-8')
-            #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-        except:  
-            art_url=None 
-
-        
+        sectionart=getFanart(dict(tree.items()), server)
+       
         #For all the directory tags
         ShowTags=tree.findall('Directory')
         for show in ShowTags:
@@ -832,28 +787,16 @@ def Seasons(url):
                 properties['tvshowtitle']=properties['title']=arguments['title'].encode('utf-8')
             except: pass
        
-
-            #Get the picture to use
-            try:
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-            except:
-                thumb=g_loc+'/resources/movie.png'  
-                print thumb  
-                arguments['thumb']=thumb
+            #Get the picture to use 
+            arguments['thumb']=getThumb(arguments, server)
                
             #Get a nice big picture  
-            
-            
+            arguments['fanart_image']=getFanart(arguments, server)
             try:
-                if art_url is None:
-                    fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                    art_url='http://'+server+fanart#.encode('utf-8')
-                    #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-            except:  
-                #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg' 
-
-            arguments['fanart_image']=art_url
+                if arguments['fanart_image'] == "":
+                    arguments['fanart_image']=sectionart
+            except:
+                pass
 
             #Get number of episodes in season
             try:
@@ -890,23 +833,13 @@ def Seasons(url):
  
 ################################ TV Episode listing 
 #Displays the actual playable media
-def EPISODES(url='',tree=etree,server=''):
+def EPISODES(url,tree=None):
         printDebug("== ENTER: EPISODES() ==", False)
         xbmcplugin.setContent(pluginhandle, 'episodes')
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
-
-        #Get the server
-        try:
-            server=url.split('/')[2]
-            #Get the end part of the URL, as we need to get different data if parsing "All Episodes"
-            target=url.split('/')[-1]
-            printDebug("target URL is " + target)
-        except: pass
-        
-        try:
-            ShowTags=tree.findall('Video')
-        except:
+                
+        if tree is None:
             #Get URL, XML and Parse
             html=getURL(url)
             
@@ -914,10 +847,16 @@ def EPISODES(url='',tree=etree,server=''):
                 return
             
             tree=etree.fromstring(html)
-            ShowTags=tree.findall('Video')
+        
+        ShowTags=tree.findall('Video')
             
-        #get a bit of metadata that sits inside the main mediacontainer
-        #If it doesn't exist, we'll check later and get it from elsewhere
+        server=getServerFromURL(url)
+        
+        #Get the end part of the URL, as we need to get different data if parsing "All Episodes"
+
+        target=url.split('/')[-1]
+
+        printDebug("target URL is " + target)
          
         #Name of the show
         try:
@@ -942,12 +881,7 @@ def EPISODES(url='',tree=etree,server=''):
             season=tree.get('parentIndex')
         except:pass
         
-        try:
-            fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
-            art_url='http://'+server+fanart#.encode('utf-8')
-            #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-        except:  
-            art_url=None 
+        sectionart=getFanart(dict(tree.items()), server)
         
         try:
             displayShow = tree.get('mixedParents')
@@ -1072,24 +1006,15 @@ def EPISODES(url='',tree=etree,server=''):
             
                 
             #Get the picture to use
-            try:
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-            except:
-                thumb=g_loc+'/resources/movie.png'  
-                print thumb  
-                arguments['thumb']=thumb
+            arguments['thumb']=getThumb(arguments, server)
                
             #Get a nice big picture  
+            arguments['fanart_image']=getFanart(arguments, server)
             try:
-                if art_url is None:
-                    fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                    art_url='http://'+server+fanart#.encode('utf-8')
-                    #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-            except:  
-                #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg' 
-
-            arguments['fanart_image']=art_url    
+                if arguments['fanart_image'] == "":
+                    arguments['fanart_image']=sectionart
+            except:
+                pass
 
             #Set type
             arguments['type']="Video"
@@ -1137,95 +1062,6 @@ def EPISODES(url='',tree=etree,server=''):
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
 
-#What to do to process Plex Plugin structures        
-def PlexPlugins(url):
-        printDebug("== ENTER: PlexPlugins ==", False)
-        xbmcplugin.setContent(pluginhandle, 'movies')
-
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
-
-        #get the serverm URL, XML and parse
-        server=url.split('/')[2]
-        html=getURL(url)
-        
-        if html is False:
-            return
-
-        tree=etree.fromstring(html)
-        
-        try:
-            sectionArt=getFanart(dict(tree.items()),server)
-        except: pass
-               
-        for orange in tree:
-               
-            arguments=dict(orange.items())
-
-            #Set up the basic structures
-            properties={'overlay':6}
-                        
-            try: 
-                properties['title']=arguments['title'].encode('utf-8')
-            except:
-                try:
-                    properties['title']=arguments['name'].encode('utf-8')
-                except:
-                    properties['title']="unknown"
-                    
-            arguments['thumb']=getThumb(arguments, server)
-            
-            arguments['fanart_image']=getFanart(arguments, server)
-            try:
-                if arguments['fanart_image'] == "":
-                    arguments['fanart_image']=sectionArt
-            except:
-                pass
-
-            p_url=getLinkURL(url, arguments, server)
-
-            
-            if orange.tag == "Directory" or orange.tag == "Podcast":
-                #We have a directory tag, so come back into this function
-                mode=7   
-                s_url=p_url+"&mode="+str(mode)
-                
-                #Set type
-                arguments['type']="Video"
-                
-                addDir(s_url, properties, arguments)
-                    
-            #If we have some video links as well
-            elif orange.tag == "Video":
-             
-                #Set the mode to play them this time
-                mode=18                       
-                    
-                #Build the URl and add a link to the file
-                v_url=p_url+"&mode="+str(mode)    
-                
-                #Set type
-                arguments['type']="Video"
-               
-                addLink(v_url, properties, arguments)
-
-                
-        #Ahh, end of the list   
-        xbmcplugin.endOfDirectory(pluginhandle)
- 
-def getLinkURL(url, arguments, server):
-    try:
-        if arguments['key'].split('/')[0] == "http:":
-            return arguments['key']
-        elif arguments['key'][0] == '/':
-            #The key begins with a slash, there is absolute
-            return 'http://'+server+str(arguments['key'])
-        else:
-            #Build the next level URL and add the link on screen
-            return url+'/'+str(arguments['key'])
-    except:pass
-     
-    return url
- 
 def getAudioSubtitlesMedia(server,id):
     printDebug("== ENTER: getAudioSubtitlesMedia ==", False)
     printDebug("Gather media stream info" ) 
@@ -1790,47 +1626,48 @@ def getContent(url):
     arguments=dict(tree.items())
     
     if arguments['viewGroup'] == "movie":
-        printDebug( "this is movie XML, passing to MoviesET")
-        MoviesET(tree=tree,server=server)
+        printDebug( "this is movie XML, passing to Movies")
+        Movies(url, tree)
         return
     elif arguments['viewGroup'] == "show":
         printDebug( "This is tv show XML, passing to SHOW")
-        SHOWS(tree=tree,server=server)
+        SHOWS(url,tree)
         return
     elif arguments['viewGroup'] == "episode":
         printDebug("This is TV episode XML, passing to EPISODES")
         if lastbit.startswith("unwatched"):
             printDebug("PMS data error, contents is actually TV Shows.  Passing to SHOWS.")
-            SHOWS(tree=tree,server=server)
+            SHOWS(url,tree)
         else:    
-            EPISODES(url=url,tree=tree,server=server)
+            EPISODES(url,tree)
         return
     elif arguments['viewGroup'] == 'artist':
         printDebug( "This is music XML, passing to music")
         if lastbit.startswith('album') or secondtolast.startswith('decade') or secondtolast.startswith('year'):
-            albums(tree=tree, server=server)
+            albums(url,tree)
         else:    
-            artist(tree=tree,server=server)
+            artist(url, tree)
         return
     elif arguments['viewGroup'] == "track":
         printDebug("This is track XML - checking further")
         if lastbit.startswith('recentlyAdded'):
             printDebug("Passing to Albums")
-            albums(tree=tree, server=server)
+            albums(url, tree)
         else:
             printDebug("Passing to Tracks")
-            tracks(tree=tree, server=server)
+            tracks(url, tree)
         return
     
-    processDirectory(url,tree,server)
+    processDirectory(url,tree)
     return
 
-def processDirectory(url,tree,server):
+def processDirectory(url,tree=None):
     printDebug("== ENTER: processDirectory ==", False)
     #else we have a secondary, which we'll process here
     printDebug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, 'movies')
 
+    server=getServerFromURL(url)
     
     try:
         fanart=tree.get('art').split('?')[0] #drops the guid from the fanart image
@@ -1940,17 +1777,15 @@ def transcode(id,url):
     
     return sessionurl
      
-def artist(url='',tree=etree,server=''):
+def artist(url,tree=None):
         printDebug("== ENTER: artist ==", False)
         xbmcplugin.setContent(pluginhandle, 'artists')
 
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get the URL and server name.  Get the XML and parse
-        if not url == '':
+        if tree is None:
         
-            server=url.split('/')[2]
-            print server
             html=getURL(url)
             
             if html is False:
@@ -1958,7 +1793,9 @@ def artist(url='',tree=etree,server=''):
 
         
             tree=etree.fromstring(html)
-            
+        
+        server=getServerFromURL(url)
+        
         #For each directory tag we find
         ShowTags=tree.findall('Directory') # These type of calls seriously slow down plugins
         for show in ShowTags:
@@ -1993,57 +1830,47 @@ def artist(url='',tree=etree,server=''):
             except:pass
                 
             #Get the picture to use
-            try:
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-            except:
-                thumb=g_loc+'/resources/movie.png'  
-                print thumb  
-                arguments['thumb']=thumb
+            arguments['thumb']=getThumb(arguments, server)
                
             #Get a nice big picture  
-            try:
-                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-            except:  
-                #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg' 
 
-            arguments['fanart_image']=art_url
+            arguments['fanart_image']=getFanart(arguments, server)
            
             arguments['type']="Music"
 
             mode=14 # grab season details
-            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])
+            url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)
             
             addDir(url,properties,arguments) 
             
         #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
 
-def albums(url='', tree=etree, server=''):
+def albums(url, tree=None):
         printDebug("== ENTER: albums ==", False)
         xbmcplugin.setContent(pluginhandle, 'albums')
 
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
        
-        if not url == '':
+        #Get the URL and server name.  Get the XML and parse
+        if tree is None:
         
-           #Get URL, XML and parse
-            server=url.split('/')[2]
-            print server
             html=getURL(url)
             
             if html is False:
                 return
 
-            
-            tree= etree.fromstring(html)
+        
+            tree=etree.fromstring(html)
+        
+        server=getServerFromURL(url)
         
         try:
             treeargs=dict(tree.items())
             artist=treeargs['parentTitle']
         except: pass
+        
+        sectionart=getFanart(treeargs, server)
         
         #For all the directory tags
         ShowTags=tree.findall('Directory')
@@ -2060,23 +1887,16 @@ def albums(url='', tree=etree, server=''):
        
 
             #Get the picture to use
-            try:
-                arguments['thumb']='http://'+server+arguments['thumb'].split('?')[0]
-            except:
-                thumb=g_loc+'/resources/movie.png'  
-                print thumb  
-                arguments['thumb']=thumb
+            arguments['thumb']=getThumb(arguments, server)
                
             #Get a nice big picture  
-            try:
-                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-            except:  
-                #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg' 
 
-            arguments['fanart_image']=art_url
+            arguments['fanart_image']=getFanart(arguments, server)
+            try:
+                if arguments['fanart_image'] == "":
+                    arguments['fanart_image']=sectionart
+            except:
+                pass
 
             try:
                 properties['artist']=artist
@@ -2116,37 +1936,30 @@ def albums(url='', tree=etree, server=''):
         #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
 
-def tracks(url='',tree=etree,server=''):
+def tracks(url,tree=None):
         printDebug("== ENTER: tracks ==", False)
         xbmcplugin.setContent(pluginhandle, 'songs')
         
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
         
         #Get the server
-        try:
-            server=url.split('/')[2]
-            #Get the end part of thd URL, as we need to get different data if parsing "All Episodes"
-            target=url.split('/')[-1]
-            printDebug("URL target is " + target)
-        except: pass
+        target=url.split('/')[-1]
         
-        try:
-            ShowTags=tree.findall('Track')
-        except:
-            #Get URL, XML and Parse
+        #Get the URL and server name.  Get the XML and parse
+        if tree is None:
+        
             html=getURL(url)
             
             if html is False:
                 return
 
-            
+        
             tree=etree.fromstring(html)
-            ShowTags=tree.findall('Track')
-            
-        #get a bit of metadata that sits inside the main mediacontainer
-        #If it doesn't exist, we'll check later and get it from elsewhere
-        #MainTag=tree.findAll('mediacontainer')[0]
-         
+        
+        ShowTags=tree.findall('Track')
+        
+        server=getServerFromURL(url)
+             
         treeargs=dict(tree.items()) 
  
         try: 
@@ -2162,7 +1975,7 @@ def tracks(url='',tree=etree,server=''):
                 except: pass
             
                 try:
-                    thumb=tree.get('thumb')
+                    thumb=getThumb(treeargs, server)
                 except: pass
                 
         except: pass
@@ -2245,15 +2058,7 @@ def tracks(url='',tree=etree,server=''):
                 arguments['thumb']='http://'+server+thumb.split('?')[0]
 
             #Get a nice big picture  
-            try:
-                fanart=arguments['art'].split('?')[0] #drops the guid from the fanart image
-                art_url='http://'+server+fanart#.encode('utf-8')
-                #art_url='http://'+server+g_port+'/photo/:/transcode?url='+art_url+'&width=1280&height=720'
-            except:  
-                #or use a stock default one
-                art_url=g_loc+'/resources/movie_art.jpg' 
-
-            arguments['fanart_image']=art_url    
+            arguments['fanart_image']=getFanart(arguments, server)  
                 
             #Assign standard metadata
             #Genre        
@@ -2288,6 +2093,81 @@ def tracks(url='',tree=etree,server=''):
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
 
+#What to do to process Plex video Plugin structures        
+def PlexPlugins(url):
+        printDebug("== ENTER: PlexPlugins ==", False)
+        xbmcplugin.setContent(pluginhandle, 'movies')
+
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+
+        #get the serverm URL, XML and parse
+        server=url.split('/')[2]
+        html=getURL(url)
+        
+        if html is False:
+            return
+
+        tree=etree.fromstring(html)
+        
+        try:
+            sectionArt=getFanart(dict(tree.items()),server)
+        except: pass
+               
+        for orange in tree:
+               
+            arguments=dict(orange.items())
+
+            #Set up the basic structures
+            properties={'overlay':6}
+                        
+            try: 
+                properties['title']=arguments['title'].encode('utf-8')
+            except:
+                try:
+                    properties['title']=arguments['name'].encode('utf-8')
+                except:
+                    properties['title']="unknown"
+                    
+            arguments['thumb']=getThumb(arguments, server)
+            
+            arguments['fanart_image']=getFanart(arguments, server)
+            try:
+                if arguments['fanart_image'] == "":
+                    arguments['fanart_image']=sectionArt
+            except:
+                pass
+
+            p_url=getLinkURL(url, arguments, server)
+
+            
+            if orange.tag == "Directory" or orange.tag == "Podcast":
+                #We have a directory tag, so come back into this function
+                mode=7   
+                s_url=p_url+"&mode="+str(mode)
+                
+                #Set type
+                arguments['type']="Video"
+                
+                addDir(s_url, properties, arguments)
+                    
+            #If we have some video links as well
+            elif orange.tag == "Video":
+             
+                #Set the mode to play them this time
+                mode=18                       
+                    
+                #Build the URl and add a link to the file
+                v_url=p_url+"&mode="+str(mode)    
+                
+                #Set type
+                arguments['type']="Video"
+               
+                addLink(v_url, properties, arguments)
+
+                
+        #Ahh, end of the list   
+        xbmcplugin.endOfDirectory(pluginhandle)        
+        
 def photo(url):
     printDebug("== ENTER: photos ==", False)
     server=url.split('/')[2]
@@ -2459,6 +2339,8 @@ def music(url, tree=None):
         
     xbmcplugin.endOfDirectory(pluginhandle)    
 
+## Utilities    
+    
 def getThumb(arguments, server):
     thumbnail=""
     
@@ -2484,7 +2366,25 @@ def getFanart(arguments, server):
         fanart=""  
      
     return fanart
+
+def getServerFromURL(url):
+    return url.split('/')[2]
+
+def getLinkURL(url, arguments, server):
+    try:
+        if arguments['key'].split('/')[0] == "http:":
+            return arguments['key']
+        elif arguments['key'][0] == '/':
+            #The key begins with a slash, there is absolute
+            return 'http://'+server+str(arguments['key'])
+        else:
+            #Build the next level URL and add the link on screen
+            return url+'/'+str(arguments['key'])
+    except:pass
+     
+    return url
     
+# Plex Plugin add/remove utilities    
 def plexOnline(url):
     printDebug("== ENTER: plexOnline ==")
     xbmcplugin.setContent(pluginhandle, 'files')
@@ -2550,6 +2450,56 @@ def plexOnline(url):
 
     xbmcplugin.endOfDirectory(pluginhandle)    
    
+def install(url, name):
+    printDebug("== ENTER: install ==", False)
+    html=getURL(url)
+    if html is False:
+        return
+    tree = etree.fromstring(html)
+    
+    if tree.get('size') == "1":
+        #This plugin is probably not install
+        printDebug("Not installed.  Print dialog")
+        ret = xbmcgui.Dialog().yesno("Plex Online","About to install " + name)
+
+        if ret:
+            printDebug("Installing....")
+            installed = getURL(url+"/install")
+            tree = etree.fromstring(installed)
+    
+            msg=tree.get('message')
+            printDebug(msg)
+            xbmcgui.Dialog().ok("Plex Online",msg)
+
+    else:
+        #This plugin is already installed
+        printDebug("Already installed")
+        operations={}
+        i=0
+        for plums in tree.findall('Directory'):
+            operations[i]=plums.get('key').split('/')[-1]
+            i+=1
+        
+        options=operations.values()
+        
+        ret = xbmcgui.Dialog().select("This plugin is already installed..",options)
+        
+        if ret == -1:
+            printDebug("No option selected, cancelling")
+            return
+        
+        printDebug("Option " + str(ret) + " selected.  Operation is " + operations[ret])
+        u=url+"/"+operations[ret]
+
+        action = getURL(u)
+        tree = etree.fromstring(action)
+    
+        msg=tree.get('message')
+        printDebug(msg)
+        xbmcgui.Dialog().ok("Plex Online",msg)
+   
+    return   
+
 def channelView(url):
 
     printDebug("== ENTER: channelView ==", False)
@@ -2611,144 +2561,8 @@ def channelView(url):
         addDir(n_url,properties,arguments)
         
     xbmcplugin.endOfDirectory(pluginhandle)
-                          
-def plugins(url):
-    printDebug("== ENTER: plugins ==", False)
-    html=getURL(url)
-    if html is False:
-        return
-    tree = etree.fromstring(html)
-    
-    try:
-        content = tree.get('content')
-    except:
-        content = "items"
-    
-    printDebug("Plugin XML contents: " + str(content))
-    
-    if content == "artists":
-        artists(url, tree)
-    elif content == "albums":
-        albums(url, tree)
-    elif content == "songs":
-        tracks(url, tree)
-    else:
-        menuItems(url, tree)
-        
-def getServerFromURL(url):
-    
-    return url.split('/')[2]
+                                
               
-def menuItems(url, tree=None):    
-    printDebug("== ENTER: menuItems ==", False)
-    xbmcplugin.setContent(pluginhandle, 'movies')
-    
-    server=getServerFromURL(url)
-    
-    try:
-        sectionArt=getFanart(dict(tree.items()),server)
-    except:
-        pass
-    
-    for channels in tree.getiterator('Directory'):
-    
-        try:
-            if channels.get('local') == "0":
-                continue
-        except: pass
-            
-        arguments=dict(channels.items())
-
-    
-        arguments['fanart_image']=getFanart(arguments, server)
-        try:
-            if arguments['fanart_image'] == "":
-                arguments['fanart_image']=sectionArt
-        except:
-            pass
-
-        arguments['thumb']=getThumb(arguments, server)
-        
-        properties={}
-        properties['title']=arguments['title']
-        
-        try:
-            if arguments['unique']=='0':
-                suffix=arguments['path'].split('/')[1]
-                properties['title']=properties['title']+" ("+suffix+")"
-        except:
-            pass
-               
-        try:
-            if arguments['key'].split('/')[0] == "http:":
-                p_url=arguments['key']
-            elif arguments['key'][0] == '/':
-                #The key begins with a slash, there is absolute
-                p_url='http://'+server+str(arguments['key'])
-            else:
-                #Build the next level URL and add the link on screen
-                p_url=url+'/'+str(arguments['key'])
-        except: continue    
-        #If we have a key error - then we don't add to the list.
-        
-        n_url=p_url+'&mode=22'
-
-        addDir(n_url,properties,arguments)
-        
-    xbmcplugin.endOfDirectory(pluginhandle)
-   
-def install(url, name):
-    printDebug("== ENTER: install ==", False)
-    html=getURL(url)
-    if html is False:
-        return
-    tree = etree.fromstring(html)
-    
-    if tree.get('size') == "1":
-        #This plugin is probably not install
-        printDebug("Not installed.  Print dialog")
-        ret = xbmcgui.Dialog().yesno("Plex Online","About to install " + name)
-
-        if ret:
-            printDebug("Installing....")
-            installed = getURL(url+"/install")
-            tree = etree.fromstring(installed)
-    
-            msg=tree.get('message')
-            printDebug(msg)
-            xbmcgui.Dialog().ok("Plex Online",msg)
-
-    else:
-        #This plugin is already installed
-        printDebug("Already installed")
-        operations={}
-        i=0
-        for plums in tree.findall('Directory'):
-            operations[i]=plums.get('key').split('/')[-1]
-            i+=1
-        
-        options=operations.values()
-        
-        ret = xbmcgui.Dialog().select("This plugin is already installed..",options)
-        
-        if ret == -1:
-            printDebug("No option selected, cancelling")
-            return
-        
-        printDebug("Option " + str(ret) + " selected.  Operation is " + operations[ret])
-        u=url+"/"+operations[ret]
-
-        action = getURL(u)
-        tree = etree.fromstring(action)
-    
-        msg=tree.get('message')
-        printDebug(msg)
-        xbmcgui.Dialog().ok("Plex Online",msg)
-
-        
-        
-    return
-   
 def skin():
     #Gather some data and set the window properties
     printDebug("== ENTER: skin() ==", False)
@@ -2982,7 +2796,7 @@ else:
     elif mode==1:
             SHOWS(url)
     elif mode==2:
-            MoviesET(url)
+            Movies(url)
     elif mode==3:
             artist(url)
     elif mode==4:
