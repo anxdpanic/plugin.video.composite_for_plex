@@ -61,7 +61,6 @@ if g_debug == "true":
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
     print "PleXBMC -> Setting stream Control to : " + g_streamControl
-   
     
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
@@ -84,8 +83,6 @@ if g_multiple > 0:
 
 if g_debug == "true": print "PleXBMC -> serverList is " + str(g_serverList)
         
-
-
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
 #Create the standard header structure and load with a User Agent to ensure we get back a response.
@@ -166,6 +163,8 @@ def mediaType(partproperties, server):
     stream=partproperties['key']
     file=partproperties['file']
     
+    
+    
     # 0 is auto select.  basically check for local file first, then stream if not found
     if g_stream == "0":
         #check if the file can be found locally
@@ -185,7 +184,6 @@ def mediaType(partproperties, server):
     # 2 is use SMB 
     elif g_stream == "2":
         printDebug( "Selecting smb")
-        print file
         filelocation="smb:/"+file.replace("Volumes",server.split(':')[0])
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
@@ -535,9 +533,6 @@ def Movies(url,tree=None):
                 if child.tag == "Media":
                     mediaarguments = dict(child.items())
                     mediacount+=1    
-                    for babies in child:
-                        if babies.tag == "Part":
-                            partarguments=(dict(babies.items()))
                 elif child.tag == "Genre":
                     tempgenre.append(child.get('tag'))
                 elif child.tag == "Writer":
@@ -547,17 +542,7 @@ def Movies(url,tree=None):
                 elif child.tag == "Role":
                     tempcast.append(child.get('tag'))
             
-            #required to grab to check if file is a .strm file
-            #Can't play strm files, so lets not bother listing them. 
-            if partarguments['file'].find('.strm')>0:
-                try:
-                    printDebug( "Found unsupported .strm file for [" + arguments['title'].encode('utf-8') + "].  Will not list")
-                except:
-                    printDebug ("Found unsupported .strm file.  Will not list")
-                continue
-             
             printDebug("Media attributes are " + str(mediaarguments))
-            printDebug("Part attributes are " + str(partarguments))
             
             #Create structure to pass to listitem/setinfo.  Set defaults
             properties={'overlay': 6, 'playcount': 0}   
@@ -896,11 +881,10 @@ def EPISODES(url,tree=None):
 
         try:
             displayShow = tree.get('mixedParents')
+            printDebug("TV listing contains mixed shows")
         except: 
             displayShow = "0"
-            
-        print "displayShow: " + str(displayShow)
-            
+                        
         if displayShow == "0" or displayShow is None:
             #Name of the show
             try:
@@ -922,10 +906,8 @@ def EPISODES(url,tree=None):
               
               
             #If we are processing individual season, then get the season number, else we'll get it later
-            print "getting season from mediacontainer"
             try:
                 season=tree.get('parentIndex')
-                print str(season)
             except:pass
         
         sectionart=getFanart(dict(tree.items()), server)
@@ -933,7 +915,6 @@ def EPISODES(url,tree=None):
          
         #right, not for each show we find
         for show in ShowTags:
-            #print show
             
             arguments=dict(show.items())
             tempgenre=[]
@@ -1133,7 +1114,6 @@ def getAudioSubtitlesMedia(server,id):
     
     #Get the Parts info for media type and source selection 
     for stuff in options:
-        print str(stuff)
         try:
             bits=stuff.get('key'), stuff.get('file')
             parts.append(bits)
@@ -1174,7 +1154,7 @@ def getAudioSubtitlesMedia(server,id):
             printDebug( "Stream selection is set OFF")
               
     
-    print {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount}
+    printDebug( {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount})
     return {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount}
    
 #Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
@@ -1444,7 +1424,7 @@ def proxyControl(command):
     if command == "start":
         printDebug("Start proxy")
         filestring="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\","+g_proxyport+")"
-        print str(filestring)
+        printDebug( str(filestring))
         xbmc.executebuiltin(filestring)
         time.sleep(2)
         
