@@ -6,6 +6,7 @@
 	<setting id="bonjour" type="bool" label="30004" default="false" />
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
     <setting id="secondary" type="bool" label="30003" default="false"/>
+    <setting id="channelview" type="bool" label="30042" default="false"/>
     </category>
     
     <category label="Audio/Subtitle" >
@@ -17,11 +18,6 @@
         -->
     </category>
 
-    <category label="Authentication" >
-        <setting id="remote" type=bool label="30027" default="false"/>
-        <setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="30005" />
-        <setting id="password" type=text  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="30006" />
-    </category>
     
     <category label="Server List" >
         <setting id="multiple" type=enum lvalues="30016|30017|30018|30019|30020|30021|30022|30023|30024|30025|30026" label="Number of Extra Servers" default="30016" />
@@ -37,6 +33,12 @@
         <setting id="server10" type=text label="Server 10" visible="gt(-10,9)" enable="gt(-10,9)" default="" />
     </category>
 
+    <category label="Authentication" >
+        <setting id="remote" type=bool label="30027" default="false"/>
+        <setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="30005" />
+        <setting id="password" type=text  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="30006" />
+    </category>
+    
     <category label="Transcoding" >
         <setting type=lsep label="Transcoding with XBMC is still experimental" />
         <setting id="transcode" type="bool" label="30007" default="false"/>

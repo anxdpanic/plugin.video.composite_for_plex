@@ -12,7 +12,7 @@
     <string id="30009">m3u8</string>
     <string id="30010">flv</string>
     <string id="30011">Auto</string>
-    <string id="30012">stream</string>
+    <string id="30012">http</string>
     <string id="30013">smb</string>
     <string id="30014">Enable debug output to log</string>
     <string id="30015">Use transcoding proxy</string>
@@ -44,4 +44,5 @@
     <string id="30039">Subs Off</string>
     <string id="30040">Quality</string>
     <string id="30041">Proxy Port</string>
+    <string id="30042">Channel View?</string>
 </strings>
