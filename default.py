@@ -238,7 +238,22 @@ def addLink(url,properties,arguments,context=None):
             liz.setProperty('Artist_Description', properties['plot'])
         except: pass
 
-        liz.setProperty('VideoResolution', "1080")
+        try:
+            liz.setProperty('VideoResolution', arguments['VideoResolution'])
+        except: pass
+        try:
+            liz.setProperty('VideoCodec', arguments['VideoCodec'])
+        except: pass
+        try:
+            liz.setProperty('AudioCodec', arguments['AudioCodec'])
+        except: pass
+        try:
+            liz.setProperty('AudioChannels', arguments['AudioChannels'])
+        except: pass
+        try:
+            liz.setProperty('VideoAspect', arguments['VideoAspect'])
+        except: pass
+        
         
         #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
@@ -501,9 +516,7 @@ def ROOT():
 def Movies(url,tree=None):
         printDebug("== ENTER: Movies() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
-        
-        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
-        
+                
         #get the server name from the URL, which was passed via the on screen listing..
         if tree is None:
             #Get some XML and parse it
@@ -583,7 +596,7 @@ def Movies(url,tree=None):
                         
             #Get the Movie certificate, so you know if the kids can watch it.
             try:
-                properties['mpaa']=arguments['contentrating']
+                properties['mpaa']="Rated " + arguments['contentRating']
             except: pass
             
             #year
@@ -634,6 +647,25 @@ def Movies(url,tree=None):
             mode=5
                              
             u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            
+            ### MEDIA FLAG STUFF ###
+            try:
+                arguments['VideoResolution']=mediaarguments['videoResolution']
+            except: pass
+            try:
+                arguments['VideoCodec']=mediaarguments['videoCodec']
+            except: pass
+            try:
+                arguments['AudioCodec']=mediaarguments['audioCodec']
+            except: pass
+            
+            try:
+                arguments['AudioChannels']=mediaarguments['audioChannels']
+            except: pass
+            try:
+                arguments['VideoAspect']=mediaarguments['aspectRatio']
+            except: pass
+            
             
             context=buildContextMenu(url, arguments)            
             
@@ -1088,7 +1120,26 @@ def EPISODES(url,tree=None):
 
             u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
             context=buildContextMenu(url, arguments)
-                
+            
+            ### MEDIA FLAG STUFF ###
+            try:
+                arguments['VideoResolution']=mediaarguments['videoResolution']
+            except: pass
+            try:
+                arguments['VideoCodec']=mediaarguments['videoCodec']
+            except: pass
+            try:
+                arguments['AudioCodec']=mediaarguments['audioCodec']
+            except: pass
+            
+            try:
+                arguments['AudioChannels']=mediaarguments['audioChannels']
+            except: pass
+            try:
+                arguments['VideoAspect']=mediaarguments['aspectRatio']
+            except: pass
+
+            
             #Build a file link and loop
             addLink(u,properties,arguments, context)        
         
@@ -1661,7 +1712,7 @@ def getContent(url):
     tree=etree.fromstring(html)
  
     if lastbit == "folder":
-        processDirectory(url,tree, server)
+        processDirectory(url,tree)
         return
  
     arguments=dict(tree.items())
