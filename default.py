@@ -78,7 +78,7 @@ if g_multiple > 0:
         try:
             extraip.split(':')[1]
         except:
-            extraip=extraip+":"+DEFAULTPORT
+            extraip=extraip+":"+DEFAULT_PORT
         g_serverList.append(['Server '+str(i),extraip])
 
 if g_debug == "true": print "PleXBMC -> serverList is " + str(g_serverList)
@@ -257,7 +257,8 @@ def addLink(url,properties,arguments,context=None):
             #print transcodeURL
             #transcode="Container.Update("+u+"&transcode=1)"
             #context.append(("Play trancoded", transcodeURL, ))
-            liz.addContextMenuItems( context )
+
+            liz.addContextMenuItems( context)
         
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
@@ -662,7 +663,12 @@ def buildContextMenu(url, arguments):
     watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
     watched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
-
+    
+    #mediaInfoURL="XBMC.ActivateWindow(movieinformation)"
+    #context.append(("Media info", mediaInfoURL,))
+    #plexbmcSettingURL="XBMC.ActivateWindow(addonsettings)"
+    #context.append(("PleXBMC Settings", plexbmcSettingURL,))
+    
     return context
     
 ################################ TV Show Listings
@@ -2645,79 +2651,58 @@ def skin():
     sectionCount=0
     serverCount=0
     #For each of the servers we have identified
-    for server in Servers:
-         
+    for server in Servers:           
+       
 
-        if g_multiple > 0:
-
-            #Get friendly name
-            url='http://'+server[1]
-            html=getURL(url)
-
-            if html is False:
-                continue
-
-            tree=etree.fromstring(html)
-            try:
-                if not tree.get('friendlyName') == "":
-                    server[0]=tree.get('friendlyName')
-                else:
-                    server[0]=server[1].split(':')[0]
-            except:
-                server[0]=server[1].split(':')[0]
-           
-        
-        WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[0].split(':')[0])
-        WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+"/video&mode=7")
-        WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+"/music&mode=17")
-        WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
-        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
-
-        
-        serverCount += 1
-        
-        #dive into the library section      
-        url='http://'+server[1]+'/library/sections'
+        #dive into the library section     
+        url='http://'+server[1]+'/system/library/sections'
         html=getURL(url)
             
         if html is False:
             continue
                 
         tree = etree.fromstring(html)
-            
+    
         #Find all the directory tags, as they contain further levels to follow
         #For each directory tag we find, build an onscreen link to drill down into the library
         SectionTags=tree.findall('Directory')
         for object in SectionTags:
-            
+                        
+            #If section is not local then ignore
+            if object.get('local') == "0":
+                continue
+                
             arguments=dict(object.items())
-            try:
-                arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
-            except:    
-                arguments['thumb']=""
-            #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
-            properties={}
-
-            #Start pulling out information from the parsed XML output. Assign to various variables
-            try:
-                properties['title']=arguments['title']
-            except:
-                properties['title']="unknown"
-
                 
             try:
                 if arguments['art'][0] == "/":
-                    #Ammend URL
                     arguments['fanart_image']="http://"+server[1]+arguments['art']
                 else:
                     arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
             except: pass
-           
+
             try:
                 if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
                     arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg")
             except:pass
-                        
+                    
+            try:
+                if arguments['thumb'][0] == "/":
+                    arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
+                else:
+                    arguments['thumb']="http://"+server[1]+"/library/sections/"+arguments['thumb'].split('?')[0]
+            except: 
+                try:
+                    arguments['thumb']=arguments['fanart_image']
+                except:
+                    arguments['thumb']=""
+
+            #Start pulling out information from the parsed XML output. Assign to various variables
+            try:
+                arguments['title']            
+            except:
+                arguments['title']="unknown"
+                       
             #Determine what we are going to do process after a link is selected by the user, based on the content we find
             if arguments['type'] == 'show':
                 window="VideoLibrary"
@@ -2730,16 +2715,16 @@ def skin():
                 mode=3
                              
             if g_secondary == "true":
-                s_url='http://'+server[1]+'/library/sections/'+arguments['key']+"&mode=0"
+                s_url='http://'+server[1]+arguments['path']+"&mode=0"
             else:
                 #Build URL with the mode to use and key to further XML data in the library
-                s_url='http://'+server[1]+'/library/sections/'+arguments['key']+'/all'+"&mode="+str(mode)
+                s_url='http://'+server[1]+arguments['path']+'/all'+"&mode="+str(mode)
                 
             #Build that listing..
-            WINDOW.setProperty("plexbmc.%d.title" % (sectionCount) , properties['title'])
-            WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount), server[0])
+            WINDOW.setProperty("plexbmc.%d.title" % (sectionCount) , arguments['title'])
+            WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount), arguments['serverName'])
             WINDOW.setProperty("plexbmc.%d.url" % (sectionCount), s_url )
-            WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "plugins://plugin.video.plexbmc?url="+s_url)
+            WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
             WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image'] )
             WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
@@ -2747,9 +2732,25 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0])
 
 
-            printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + properties['title'] + "]")
+            printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'].encode('utf-8') + "]")
             
             sectionCount += 1
+            WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , arguments['serverName'])
+            
+        if g_channelview == "true":
+            WINDOW.setProperty("plexbmc.channel", "1")
+            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server[1]+"/system/plugins/all&mode=21,return)")
+        else:
+            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+"/video&mode=7")
+            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+"/music&mode=17")
+            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
+        
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
+
+        
+        serverCount += 1
+       
+    
     
     try:
         printDebug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
