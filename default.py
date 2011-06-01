@@ -166,30 +166,33 @@ def mediaType(partproperties, server):
     #First determine what sort of 'file' file is
     
     if file[0:2] == "\\\\":
-        #Looks like a UNC
+        printDebug("Looks like a UNC")
         type="UNC"
     elif file[0:1] == "/" or file[0:1] == "\\" or file[1:1] == ":":
-        #looks like a file
+        printDebug("looks like a file")
         type="file"
     else:
+        printDebug("looks like nuttin' i aint ever seen")
         type="notsure"
     
     # 0 is auto select.  basically check for local file first, then stream if not found
     if g_stream == "0":
         #check if the file can be found locally
-        try:
-            printDebug("Checking for local file")
-            exists = open(file, 'r')
-            exists.close()
-            filelocation="file://"+server+file
-        except:
-            printDebug("No local file, defaulting to stream")
-            filelocation="http://"+server+stream
+        if type == "file":
+            try:
+                printDebug("Checking for local file")
+                exists = open(file, 'r')
+                exists.close()
+                return "file://"+server+file
+            except: pass
+                
+        printDebug("No local file, defaulting to stream")
+        return "http://"+server+stream
         
     # 1 is stream no matter what
     elif g_stream == "1":
         printDebug( "Selecting stream")
-        filelocation="http://"+server+stream
+        return "http://"+server+stream
     # 2 is use SMB 
     elif g_stream == "2":
         printDebug( "Selecting smb/unc")
