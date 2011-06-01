@@ -1118,7 +1118,7 @@ def EPISODES(url,tree=None):
             #Set mode 5, which is play            
             mode=5
 
-            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
             context=buildContextMenu(url, arguments)
             
             ### MEDIA FLAG STUFF ###
@@ -1784,7 +1784,7 @@ def processDirectory(url,tree=None):
             if arguments['key'].split('/')[0] == "http:":
                 p_url=arguments['key']
             elif arguments['key'][0] == '/':
-                #The key begins with a slah, there is absolute
+                #The key begins with a slash, there is absolute
                 p_url='http://'+server+str(arguments['key'])
             else:
                 #Build the next level URL and add the link on screen
@@ -2032,7 +2032,7 @@ def tracks(url,tree=None):
         printDebug("== ENTER: tracks ==", False)
         xbmcplugin.setContent(pluginhandle, 'songs')
         
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
+        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
         
         #Get the server
         target=url.split('/')[-1]
@@ -2113,7 +2113,7 @@ def tracks(url,tree=None):
 
             #Get name
             try:
-                properties['title']=arguments['title'].encode('utf-8')
+                properties['title']=str(properties['TrackNumber']).zfill(2)+". "+arguments['title'].encode('utf-8')
             except: pass
                                     
             #Get how good it is, based on your votes...
@@ -2184,7 +2184,7 @@ def tracks(url,tree=None):
             #Set mode 5, which is play            
             mode=12
 
-            u=str(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u=str(url)+"&mode="+str(mode)+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
                 
             #Build a file link and loop
             addLink(u,properties,arguments)        
@@ -2762,7 +2762,7 @@ def skin():
                 window="VideoLibrary"
                 mode=2
             if  arguments['type'] == 'artist':
-                window="MusicLibrary"
+                window="MusicFiles"
                 mode=3
                              
             if g_secondary == "true":
