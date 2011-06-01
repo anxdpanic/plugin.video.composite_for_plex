@@ -238,7 +238,7 @@ def addLink(url,properties,arguments,context=None):
             liz.setProperty('Artist_Description', properties['plot'])
         except: pass
 
-            
+        liz.setProperty('VideoResolution', "1080")
         
         #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
@@ -431,7 +431,7 @@ def ROOT():
                 
                 context=[]
                 refreshURL="http://"+server[1]+arguments['path']+"/refresh"
-                libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update " + refreshURL + ")"
+                libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update ," + refreshURL + ")"
                 context.append(('Refresh library section', libraryRefresh , ))
                 
                 #Build that listing..
