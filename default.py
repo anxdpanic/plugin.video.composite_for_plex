@@ -738,7 +738,7 @@ def SHOWS(url,tree=None):
         printDebug("== ENTER: SHOWS() ==", False)
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
         #Get the URL and server name.  Get the XML and parse
         if tree is None:
@@ -838,7 +838,7 @@ def Seasons(url):
         printDebug("== ENTER: season() ==", False)
         xbmcplugin.setContent(pluginhandle, 'seasons')
 
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
 
         
         #Get URL, XML and parse
@@ -1086,7 +1086,7 @@ def EPISODES(url,tree=None):
             
             try:
                 if displayShow == "1":
-                    properties['title']=properties['tvshowtitle']+":"+properties['title']
+                    properties['title']=properties['tvshowtitle']+": "+properties['title']
             except: pass
             
             #check if we got the studio from the main tag.
@@ -2226,7 +2226,7 @@ def PlexPlugins(url):
         printDebug("== ENTER: PlexPlugins ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
 
         #get the serverm URL, XML and parse
         server=url.split('/')[2]
