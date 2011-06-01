@@ -163,7 +163,16 @@ def mediaType(partproperties, server):
     stream=partproperties['key']
     file=partproperties['file']
     
+    #First determine what sort of 'file' file is
     
+    if file[0:2] == "\\\\":
+        #Looks like a UNC
+        type="UNC"
+    elif file[0:1] == "/" or file[0:1] == "\\" or file[1:1] == ":":
+        #looks like a file
+        type="file"
+    else:
+        type="notsure"
     
     # 0 is auto select.  basically check for local file first, then stream if not found
     if g_stream == "0":
@@ -183,8 +192,16 @@ def mediaType(partproperties, server):
         filelocation="http://"+server+stream
     # 2 is use SMB 
     elif g_stream == "2":
-        printDebug( "Selecting smb")
-        filelocation="smb:/"+file.replace("Volumes",server.split(':')[0])
+        printDebug( "Selecting smb/unc")
+        if type=="UNC":
+            filelocation=file
+        else:
+            #Might be OSX type, in which case, remove Volumes and replace with server
+            if file.find('Volumes') > 0:
+                filelocation="smb:/"+file.replace("Volumes",server.split(':')[0])
+            else:
+                #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
+                filelocation="smb://"+server.split(':')[0]+file
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
         filelocation="http://"+server+stream
