@@ -1,7 +1,8 @@
 Current Release:
-[b] Version 1.8.6 [/b] Speeded up menu displays, fixed "by folder" view, added show name to mixed episode lists
+[b] Version 1.9 [/b] Refactor code for speedup, added watch/unwatch/refresh context, skin media flag support, more fanart, better media detection
 
 Selected Release Highlights..
+[b] Version 1.8.6 [/b] Speeded up menu displays, fixed "by folder" view, added show name to mixed episode lists
 [b] Version 1.8.5 [/b] External subtitles support, Transcode quality support and Proxy control 
 [b] Version 1.8a [/b] Fixed PMS authentication
 [b] Version 1.8 [/b] Automatic embedded subtitle and audio stream selection 
