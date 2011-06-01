@@ -164,13 +164,16 @@ def mediaType(partproperties, server):
     file=partproperties['file']
     
     #First determine what sort of 'file' file is
-    
+        
     if file[0:2] == "\\\\":
         printDebug("Looks like a UNC")
         type="UNC"
-    elif file[0:1] == "/" or file[0:1] == "\\" or file[1:1] == ":":
-        printDebug("looks like a file")
-        type="file"
+    elif file[0:1] == "/" or file[0:1] == "\\":
+        printDebug("looks like a unix file")
+        type="nixfile"
+    elif file[1:3] == ":\\" or file[1:2] == ":/":
+        printDebug("looks like a windows file")
+        type="winfile"
     else:
         printDebug("looks like nuttin' i aint ever seen")
         type="notsure"
@@ -178,12 +181,15 @@ def mediaType(partproperties, server):
     # 0 is auto select.  basically check for local file first, then stream if not found
     if g_stream == "0":
         #check if the file can be found locally
-        if type == "file":
+        if type == "nixfile" or type == "winfile":
             try:
                 printDebug("Checking for local file")
                 exists = open(file, 'r')
                 exists.close()
-                return "file://"+server+file
+                if type == "winfile":
+                    return "file://"+server+"/"+file
+                else:
+                    return "file://"+server+file
             except: pass
                 
         printDebug("No local file, defaulting to stream")
@@ -203,8 +209,11 @@ def mediaType(partproperties, server):
             if file.find('Volumes') > 0:
                 filelocation="smb:/"+file.replace("Volumes",server.split(':')[0])
             else:
-                #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
-                filelocation="smb://"+server.split(':')[0]+file
+                if type == "winfile":
+                    filelocation="smb://"+server.split(':')[0]+"/"+file[3:]
+                else:
+                    #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
+                    filelocation="smb://"+server.split(':')[0]+file
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
         filelocation="http://"+server+stream
