@@ -85,27 +85,6 @@ if g_multiple > 0:
 if g_debug == "true": print "PleXBMC -> serverList is " + str(g_serverList)
         
 
-#Check and set transcoding options
-g_transcode = __settings__.getSetting('transcode')
-if g_transcode == "true":
-    #If transcode is set, ignore the stream setting for file and smb:
-    g_stream = "1"
-    if g_debug == "true": print "PleXBMC -> We are set to Transcode, overriding stream selection"
-    g_transcodetype = __settings__.getSetting('transcodefmt')
-    if g_transcodetype == "0":
-        g_transcodefmt="m3u8"
-    elif g_transcodetype == "1":
-        g_transcodefmt="flv"
-        
-    g_quality = str(int(__settings__.getSetting('quality'))+3)
-
-    if g_debug == "true": print "PleXBMC -> Transcode format is " + g_transcodefmt
-    if g_debug == "true": print "PleXBMC -> Transcode quality is " + g_quality
-    g_proxyport=__settings__.getSetting('proxyport')
- 
-
-g_proxy = __settings__.getSetting('proxy')
-if g_debug == "true": print "PleXBMC -> proxy is " + g_proxy
 
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
@@ -276,6 +255,10 @@ def addLink(url,properties,arguments,context=None):
         
         if context is not None:
             printDebug("Building Context Menus")
+            #transcodeURL="XBMC.RunPlugin("+u+"&transcode=1)"
+            #print transcodeURL
+            #transcode="Container.Update("+u+"&transcode=1)"
+            #context.append(("Play trancoded", transcodeURL, ))
             liz.addContextMenuItems( context )
         
         #Finally add the item to the on screen list, with url created above
@@ -678,7 +661,7 @@ def buildContextMenu(url, arguments):
     context=[]
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
-    libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update " + refreshURL + ")"
+    libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update, " + refreshURL + ")"
     context.append(('Refresh library section', libraryRefresh , ))
     
     try:
@@ -688,11 +671,11 @@ def buildContextMenu(url, arguments):
         ID=arguments['key'].split('/')[3]
         
     unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
-    unwatched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch " + unwatchURL + ")"
+    unwatched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch, " + unwatchURL + ")"
     context.append(('Mark as UnWatched', unwatched , ))
             
     watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
-    watched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch " + watchURL + ")"
+    watched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
 
     return context
@@ -1280,6 +1263,7 @@ def PLAYEPISODE(id,vids,seek, duration):
                 #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
                 return
         
+        printDebug("handle is " + str(pluginhandle))
         #ok - this will start playback for the file pointed to by the url
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
         
@@ -2835,15 +2819,18 @@ def watched(url):
 printDebug( "Script argument is " + str(sys.argv[1]))
 if str(sys.argv[1]) == "skin":
     skin()
-elif sys.argv[1].split(' ')[0] == "update":
-    url=sys.argv[1].split(' ')[1]
+elif sys.argv[1] == "update":
+    url=sys.argv[2]
     libraryRefresh(url)
-elif sys.argv[1].split(' ')[0] == "watch":
-    url=sys.argv[1].split(' ')[1]
+elif sys.argv[1] == "watch":
+    url=sys.argv[2]
     watched(url)
 else:
-    pluginhandle = int(sys.argv[1])
+    
 
+        
+    #pluginhandle = int(sys.argv[1])
+    pluginhandle = 0    
     #first thing, parse the arguments, as this has the data we need to use.              
     params=get_params()
     if g_debug == "true": print "PleXBMC -> " + str(params)
@@ -2855,6 +2842,7 @@ else:
     resume=None
     id=None
     duration=None
+    transcodeOverride=None
 
     #Now try and assign some data to them
     try:
@@ -2882,6 +2870,11 @@ else:
             duration=params["duration"]
     except:
             duration=0
+    try:
+            transcodeOverride=int(params["transcode"])
+    except:
+            transcodeOverride=0
+
             
     if g_debug == "true":
         print "PleXBMC -> Mode: "+str(mode)
@@ -2896,39 +2889,62 @@ else:
         __settings__.setSetting('resume', '')
         
     if mode==None or url==None or len(url)<1:
-            ROOT()
+        ROOT()
     elif mode == 0:
-            getContent(url)
+        getContent(url)
     elif mode==1:
-            SHOWS(url)
+        SHOWS(url)
     elif mode==2:
-            Movies(url)
+        Movies(url)
     elif mode==3:
-            artist(url)
+        artist(url)
     elif mode==4:
-            Seasons(url)
+        Seasons(url)
     elif mode==5:
-            PLAYEPISODE(id,url,resume, duration)
+        #Check and set transcoding options
+        g_transcode = __settings__.getSetting('transcode')
+
+        if transcodeOverride == 1:
+                if g_debug == "true": print "PleXBMC -> Transcode override.  Will play media with addon transcoding settings"
+                g_transcode="true"
+
+        if g_transcode == "true":
+            #If transcode is set, ignore the stream setting for file and smb:
+            g_stream = "1"
+            if g_debug == "true": print "PleXBMC -> We are set to Transcode, overriding stream selection"
+            g_transcodetype = __settings__.getSetting('transcodefmt')
+            if g_transcodetype == "0":
+                g_transcodefmt="m3u8"
+            elif g_transcodetype == "1":
+                g_transcodefmt="flv"
+                
+            g_quality = str(int(__settings__.getSetting('quality'))+3)
+
+            if g_debug == "true": print "PleXBMC -> Transcode format is " + g_transcodefmt
+            if g_debug == "true": print "PleXBMC -> Transcode quality is " + g_quality
+            g_proxyport=__settings__.getSetting('proxyport')
+         
+
+            g_proxy = __settings__.getSetting('proxy')
+            if g_debug == "true": print "PleXBMC -> proxy is " + g_proxy
+
+        PLAYEPISODE(id,url,resume, duration)
     elif mode==6:
-            EPISODES(url)
+        EPISODES(url)
     elif mode==7:
-            PlexPlugins(url)
-    elif mode==10:
-            StartMovies()
-    elif mode==11:
-            StartTV()
+        PlexPlugins(url)
     elif mode==12:
-            PLAY(url)
+        PLAY(url)
     elif mode==13:
-            selectMedia(id,url,resume,duration)
+        selectMedia(id,url,resume,duration)
     elif mode ==14:
-            albums(url)
+        albums(url)
     elif mode == 15:
-            tracks(url)
+        tracks(url)
     elif mode==16:
-            photo(url)
+        photo(url)
     elif mode==17:
-            music(url)
+        music(url)
     elif mode==18:
         videoPluginPlay(url)
     elif mode==19:
