@@ -2806,10 +2806,10 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.url" % (sectionCount), s_url )
             WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
             WINDOW.setProperty("plexbmc.%d.window" % (sectionCount), window )
-            WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image'] )
+            WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image']+XBMCInternalHeaders )
             WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
-            WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0])
-            WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0])
+            WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
+            WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
 
 
             printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'].encode('utf-8') + "]")
