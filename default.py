@@ -186,10 +186,7 @@ def mediaType(partproperties, server):
                 printDebug("Checking for local file")
                 exists = open(file, 'r')
                 exists.close()
-                if type == "winfile":
-                    return "file://"+server+"/"+file
-                else:
-                    return "file://"+server+file
+                return "file:"+file
             except: pass
                 
         printDebug("No local file, defaulting to stream")
@@ -1247,10 +1244,10 @@ def getAudioSubtitlesMedia(server,id):
 #Only use this to play stuff you want to update in the library        
 def PLAYEPISODE(id,vids,seek, duration):
         printDebug("== ENTER: PLAYEPISODE ==", False)
-        #Use this to play PMS library items that you want up dated (Movies, TV shows)
-        url = vids
+        #Use this to play PMS library items that you want updated (Movies, TV shows)
+        #url = vids
       
-        server=url.split('/')[2]
+        server=getServerFromURL(vids)
 
         streams=getAudioSubtitlesMedia(server,id)     
         url=selectMedia(streams['partsCount'],streams['parts'], server)
@@ -1263,7 +1260,7 @@ def PLAYEPISODE(id,vids,seek, duration):
         if protocol == "file:":
             printDebug( "We are playing a file")
             #Split out the path from the URL
-            playurl=url.split(':')[1][-1:]
+            playurl=url.split(':')[1]
         elif protocol == "http:":
             printDebug( "We are playing a stream")
             if g_transcode == "true":
