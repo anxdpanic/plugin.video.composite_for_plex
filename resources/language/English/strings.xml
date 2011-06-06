@@ -45,4 +45,7 @@
     <string id="30040">Quality</string>
     <string id="30041">Proxy Port</string>
     <string id="30042">Channel View?</string>
+    <string id="30043">Server Wake On LAN</string>
+    <string id="30044">Server MAC address</string>
+    <string id="30045">Plex Style Watched flags</string>
 </strings>

@@ -55,16 +55,29 @@ if not g_port:
 else:
     g_host=g_host+":"+g_port
 
+g_skintype= __settings__.getSetting('skinwatch')    
+print g_skintype
+g_skin = xbmc.getSkinDir()
+if g_skintype == "true":
+    if g_skin.find('.plexbmc'):
+        g_skinwatched="plexbmc"
+else:
+    g_skinwatched="xbmc"
+
+    
 if g_debug == "true":
     print "PleXBMC -> Settings hostname and port: " + g_host
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
     print "PleXBMC -> Setting stream Control to : " + g_streamControl
-    
+    print "PleXBMC -> Running skin: " + g_skin
+    print "PleXBMC -> Running watch view skin: " + g_skinwatched
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
+    
+    
 g_multiple = int(__settings__.getSetting('multiple')) 
 g_serverList=[]
 if g_multiple > 0:
@@ -584,7 +597,7 @@ def Movies(url,tree=None):
             printDebug("Media attributes are " + str(mediaarguments))
             
             #Create structure to pass to listitem/setinfo.  Set defaults
-            properties={'overlay': 6, 'playcount': 0}   
+            properties={'playcount': 0}   
                
             #Get name
             try:
@@ -599,10 +612,30 @@ def Movies(url,tree=None):
             #Get the watched status
             try:
                 properties['playcount']=int(arguments['viewCount'])
-                if properties['playcount'] > 0:
-                    properties['overlay']=7
-            except: pass
+            except:
+                properties['playcount']=0
+                
+            try:
+                arguments['viewOffset']
+            except:
+                arguments['viewOffset']=0
+
             
+            if properties['playcount'] > 0:
+                if g_skinwatched == "xbmc":          #WATCHED
+                    properties['overlay']=7   #Tick ICON  in XBMC
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=0   #Blank entry in Plex
+            elif properties['playcount'] == 0: 
+                if g_skinwatched == "xbmc":          #UNWATCHED
+                    properties['overlay']=6   #XBMC shows blank
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=4   #PLEX shows dot (using overlayhastrainer)
+            
+            if g_skinwatched == "plexbmc" and int(arguments['viewOffset']) > 0:
+                properties['overlay'] = 5     #PLEX show partial viewing (using overlaytrained)
+
+                               
             #Get how good it is, based on your votes...
             try:
                 properties['rating']=float(arguments['rating'])
@@ -789,9 +822,26 @@ def SHOWS(url,tree=None):
                 watched=arguments['viewedLeafCount']
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
-                if arguments['UnWatchedEpisodes'] <= 0:
-                    properties['overlay']=7
-            except:pass
+            except:
+                arguments['WatchedEpisodes']=0
+                arguments['UnWatchedEpisodes']=0
+    
+                
+            if arguments['WatchedEpisodes'] == 0:
+                if g_skinwatched == "xbmc":          #UNWATCHED
+                    properties['overlay']=6   #XBMC shows blank
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=4   #PLEX shows dot (using overlayhastrainer)
+            elif arguments['UnWatchedEpisodes'] == 0: 
+                if g_skinwatched == "xbmc":          #WATCHED
+                    properties['overlay']=7   #Tick ICON  in XBMC
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=0   #Blank entry in Plex
+            else:
+                if g_skinwatched == "plexbmc":
+                    properties['overlay'] = 5     #PLEX show partial viewing (using overlaytrained)
+                elif g_skinwatched == "xbmc":
+                    properties['overlay']=6
             
             #get Genre
             try:
@@ -854,7 +904,7 @@ def Seasons(url):
         
             arguments=dict(show.items());
             #Build basic data structures
-            properties={'overlay': 6, 'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
+            properties={'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
  
             #Get name
             try:
@@ -882,9 +932,27 @@ def Seasons(url):
                 watched=arguments['viewedLeafCount']
                 arguments['WatchedEpisodes']=int(watched)
                 arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
-                if arguments['UnWatchedEpisodes'] <= 0:
-                    properties['overlay']=7
-            except:pass
+            except:
+                arguments['WatchedEpisodes']=0
+                arguments['UnWatchedEpisodes']=0
+    
+                
+            if arguments['WatchedEpisodes'] == 0:
+                if g_skinwatched == "xbmc":          #UNWATCHED
+                    properties['overlay']=6   #XBMC shows blank
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=4   #PLEX shows dot (using overlayhastrainer)
+            elif arguments['UnWatchedEpisodes'] == 0: 
+                if g_skinwatched == "xbmc":          #WATCHED
+                    properties['overlay']=7   #Tick ICON  in XBMC
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=0   #Blank entry in Plex
+            else:
+                if g_skinwatched == "plexbmc" :
+                    properties['overlay'] = 5     #PLEX show partial viewing (using overlaytrained)
+                elif g_skinwatched == "xbmc":
+                    properties['overlay']=6
+
     
             #Get the Plot          
             try:
@@ -999,7 +1067,7 @@ def EPISODES(url,tree=None):
             printDebug( "Extra info is " + str(tempgenre) + str(tempwriter) + str(tempcast) + str(tempdir))
             
             #Set basic structure with some defaults.  Overlay 6 is unwatched
-            properties={'overlay': 6, 'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
+            properties={'playcount': 0, 'season' : 0}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
             #arguments={'type': "tvshows", 'viewoffset': 0, 'duration': 0, 'thumb':''}    #Create a dictionary for file arguments (i.e. stuff you need, but are no listitems)
             
             #Get the episode number
@@ -1021,9 +1089,28 @@ def EPISODES(url,tree=None):
             #Get the watched status
             try:
                 properties['playcount']=int(arguments['viewCount'])
-                if properties['playcount'] > 0:
-                    properties['overlay']=7
-            except: pass
+            except:
+                properties['playcount']=0
+                
+            try:
+                arguments['viewOffset']
+            except:
+                arguments['viewOffset']=0
+
+            
+            if properties['playcount'] > 0:
+                if g_skinwatched == "xbmc":          #WATCHED
+                    properties['overlay']=7   #Tick ICON  in XBMC
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=0   #Blank entry in Plex
+            elif properties['playcount'] == 0: 
+                if g_skinwatched == "xbmc":          #UNWATCHED
+                    properties['overlay']=6   #XBMC shows blank
+                elif g_skinwatched == "plexbmc":
+                    properties['overlay']=4   #PLEX shows dot (using overlayhastrainer)
+            
+            if g_skinwatched == "plexbmc" and int(arguments['viewOffset']) > 0:
+                properties['overlay'] = 5     #PLEX show partial viewing (using overlaytrained)
             
             #Get how good it is, based on your votes...
             try:
@@ -2774,7 +2861,6 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
             WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
 
-
             printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'].encode('utf-8') + "]")
             
             sectionCount += 1
@@ -2789,12 +2875,9 @@ def skin():
             WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
         
         WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
-
-        
-        serverCount += 1
        
-    
-    
+        serverCount += 1
+          
     try:
         printDebug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
 
@@ -2833,7 +2916,6 @@ def watched(url):
         string="Marked as watched"
     
     html=getURL(url)
-    #xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",\""+string+"\",60)")
     xbmc.executebuiltin("Container.Refresh")
     
     return
@@ -2850,11 +2932,8 @@ elif sys.argv[1] == "watch":
     url=sys.argv[2]
     watched(url)
 else:
-    
-
-        
-    #pluginhandle = int(sys.argv[1])
-    pluginhandle = 0    
+   
+    pluginhandle = int(sys.argv[1])
     #first thing, parse the arguments, as this has the data we need to use.              
     params=get_params()
     if g_debug == "true": print "PleXBMC -> " + str(params)
@@ -2882,18 +2961,11 @@ else:
             mode=int(params["mode"])
     except:
             pass
-    try:
-            resume=int(params["resume"])
-    except:
-            resume=0
+  
     try:
             id=params["id"]
     except:
             pass
-    try:
-            duration=params["duration"]
-    except:
-            duration=0
     try:
             transcodeOverride=int(params["transcode"])
     except:
@@ -2905,12 +2977,8 @@ else:
         print "PleXBMC -> URL: "+str(url)
         print "PleXBMC -> Name: "+str(name)
         print "PleXBMC -> ID: "+ str(id)
-        print "PleXBMC -> Duration: " + str(duration)
 
     #Run a function based on the mode variable that was passed in the URL
-
-    if mode!=5:
-        __settings__.setSetting('resume', '')
         
     if mode==None or url==None or len(url)<1:
         ROOT()
@@ -2959,8 +3027,6 @@ else:
         PlexPlugins(url)
     elif mode==12:
         PLAY(url)
-    elif mode==13:
-        selectMedia(id,url,resume,duration)
     elif mode ==14:
         albums(url)
     elif mode == 15:
