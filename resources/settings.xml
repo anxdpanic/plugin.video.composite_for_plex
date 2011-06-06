@@ -51,7 +51,6 @@
     
     <category label="Debug" >
         <setting id="debug" type=bool label="30014" default="false" />
-        <setting id="resume" type="text" option=hidden default="" />
     </category>
     
 </settings>

@@ -361,8 +361,7 @@ def addDir(url,properties,arguments,context=None):
         if context is not None:
             printDebug("Building Context Menus")
             liz.addContextMenuItems( context )
-
-        
+       
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
         return ok
@@ -608,13 +607,7 @@ def Movies(url,tree=None):
             try:
                 properties['rating']=float(arguments['rating'])
             except: pass
-            
-            #Get the last played position  
-            try:
-                arguments['viewoffset']
-            except:
-                arguments['viewoffset']=0
-                        
+                                    
             #Get the studio 
             try:
                 properties['studio']=arguments['studio']
@@ -672,7 +665,7 @@ def Movies(url,tree=None):
             #This is playable media, so link to a path to a play function
             mode=5
                              
-            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&name="+urllib.quote_plus(properties['title'])+"&resume="+str(arguments['viewoffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&id="+str(arguments['ratingKey'])
             
             ### MEDIA FLAG STUFF ###
             try:
@@ -991,10 +984,6 @@ def EPISODES(url,tree=None):
             for child in show:
                 if child.tag == "Media":
                     mediaarguments = dict(child.items())
-                        
-                    for babies in child:
-                        if babies.tag == "Part":
-                            partarguments=(dict(babies.items()))
                 elif child.tag == "Genre":
                     tempgenre.append(child.get('tag'))
                 elif child.tag == "Writer":
@@ -1005,13 +994,8 @@ def EPISODES(url,tree=None):
                     tempcast.append(child.get('tag'))
             
             #required to grab to check if file is a .strm file
-            #Can't play strm files, so lets not bother listing them. 
-            if partarguments['file'].find('.strm')>0:
-                print "Found unsupported .strm file.  Will not list"
-                continue
            
             printDebug("Media attributes are " + str(mediaarguments))
-            printDebug( "Part is " + str(partarguments))
             printDebug( "Extra info is " + str(tempgenre) + str(tempwriter) + str(tempcast) + str(tempdir))
             
             #Set basic structure with some defaults.  Overlay 6 is unwatched
@@ -1045,13 +1029,6 @@ def EPISODES(url,tree=None):
             try:
                 properties['rating']=float(arguments['rating'])
             except: pass
-            
-            #Get the last played position  
-            try:
-                arguments['viewOffset']=int(arguments['viewOffset'])/1000
-            except:
-                arguments['viewOffset']=0
-
                         
             #If we are processing an "All Episodes" directory, then get the season from the video tag
             
@@ -1144,7 +1121,7 @@ def EPISODES(url,tree=None):
             #Set mode 5, which is play            
             mode=5
 
-            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&resume="+str(arguments['viewOffset'])+"&id="+str(arguments['ratingKey'])+"&duration="+str(arguments['duration'])
+            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&id="+str(arguments['ratingKey'])
             context=buildContextMenu(url, arguments)
             
             ### MEDIA FLAG STUFF ###
@@ -1190,7 +1167,19 @@ def getAudioSubtitlesMedia(server,id):
     audio={}
     audioCount=0
     external={}
+    media={}
 
+    timings = tree.find('Video')
+    try:
+        media['viewOffset']=timings.get('viewOffset')
+    except:
+        media['viewOffset']=0
+        
+    try:    
+        media['duration']=timings.get('duration')
+    except:
+        media['duration']=0
+    
     options = tree.getiterator('Part')    
     
     contents="type"
@@ -1237,12 +1226,12 @@ def getAudioSubtitlesMedia(server,id):
             printDebug( "Stream selection is set OFF")
               
     
-    printDebug( {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount})
-    return {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount}
+    printDebug( {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media})
+    return {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media}
    
 #Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
 #Only use this to play stuff you want to update in the library        
-def PLAYEPISODE(id,vids,seek, duration):
+def PLAYEPISODE(id,vids):
         printDebug("== ENTER: PLAYEPISODE ==", False)
         #Use this to play PMS library items that you want updated (Movies, TV shows)
         #url = vids
@@ -1285,18 +1274,10 @@ def PLAYEPISODE(id,vids,seek, duration):
             playurl=url
    
         
-        printDebug( "Current resume is " + str(seek))
-        resumeSetting=__settings__.getSetting('resume')
-        printDebug("Stored setting for resume is " + str(resumeSetting))
-        if len(resumeSetting) > 0:
-            resumeid, resumetime = resumeSetting.split("|")
-            if resumeid == id:
-                printDebug ("ID match, using settings resume time")
-                resume = int(resumetime)
-            else:
-                resume = seek
-        else:
-            resume = seek
+        try:
+            resume=int(int(streams['media']['viewOffset'])/1000)
+        except:
+            resume=0
         
         printDebug("Resume has been set to " + str(resume))
         
@@ -1306,10 +1287,9 @@ def PLAYEPISODE(id,vids,seek, duration):
             
         #If we passed a positive resume time, then we need to display the dialog box to ask the user what they want to do    
         if resume > 0:
-            resumeseconds = resume
             
             #Human readable time
-            displayTime = str(datetime.timedelta(seconds=int(resumeseconds)))
+            displayTime = str(datetime.timedelta(seconds=int(resume)))
             
             #Build the dialog text
             dialogOptions = [ "Resume from " + str(displayTime) , "Start from beginning"]
@@ -1346,15 +1326,15 @@ def PLAYEPISODE(id,vids,seek, duration):
         #If the user chose to resume...
         if result == 0:
             #Need to skip forward (seconds)
-            printDebug("Seeking to " + str(resumeseconds))
-            xbmc.Player().seekTime((resumeseconds)) 
+            printDebug("Seeking to " + str(resume))
+            xbmc.Player().seekTime((resume)) 
     
         #Next Set audio and subs
         setAudioSubtitles(streams)
  
        
         #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
-        monitorPlayback(id,server, resume, duration)
+        monitorPlayback(id,server)
         
         return
 
@@ -1576,8 +1556,12 @@ def selectMedia(count, options, server):
     #PLAYEPISODE(id,newurl,seek, duration)
     return newurl
            
+def remove_html_tags(data):
+    p = re.compile(r'<.*?>')
+    return p.sub('', data)
+
 #Monitor function so we can update PMS
-def monitorPlayback(id, server, resume, duration):
+def monitorPlayback(id, server):
     printDebug("== ENTER: monitorPlayback ==", False)
     #Need to monitor the running playback, so we can determine a few things:
     #1. If the file has completed normally (i.e. the movie has finished)
@@ -1586,23 +1570,14 @@ def monitorPlayback(id, server, resume, duration):
     #Get the server name to update
     if len(server.split(':')) == 1:
         server=server
-    
-    #Get the current time (either the resumed time or 0)
-    currentTime=int(resume)
-    
-    #If we didn;t get a duration time (for whatever reason) read it from the playing file
-    if duration == 0 and xbmc.Player().isPlaying():
-        #This sometimes fails.  Don't know why probably a timing issue
-        duration = int(xbmc.Player().getTotalTime())
-    
+        
     monitorCount=0    
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
         currentTime = int(xbmc.Player().getTime())
-                
-        #Convert it into a percentage done, using the total length of the film
-        progress = int((float(currentTime)/float(duration))*100) 
+           
+        progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))
 
         #Now sleep for 5 seconds
         time.sleep(5)
@@ -1618,23 +1593,14 @@ def monitorPlayback(id, server, resume, duration):
         result = proxyControl("stop")
     
     printDebug( "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%.")
-    if progress <= 5:
-        #Then we hadn't watched enough to make any changes
-        printDebug( "Less than 5% played, so do no store resume time but ensure that film is marked unwatched")
-        updateURL="http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library"
-        __settings__.setSetting('resume', "")
-        
-    elif progress >= 95:
+    if progress <= 95:
+        #we are less then 95% of the way through, store the resume time
+        printDebug( "Less than 95% of the way through, so store resume time")
+        updateURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)    
+    else:
         #Then we were 95% of the way through, so we mark the file as watched
         printDebug( "More than 95% completed, so mark as watched")
         updateURL="http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library"
-        __settings__.setSetting('resume', "")
-    else:
-        #we were more than 5% and less then 95% of the way through, store the resume time
-        printDebug( "More than 5% and less than 95% of the way through, so store resume time")
-        updateURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)
-        printDebug("Creating a temporary new resume time of " + str(currentTime)) 
-        __settings__.setSetting('resume', str(id)+"|"+str(currentTime))
         
     #Submit the update URL    
     output = getURL(updateURL, "Updating PMS...", True)
@@ -2986,7 +2952,7 @@ else:
             g_proxy = __settings__.getSetting('proxy')
             if g_debug == "true": print "PleXBMC -> proxy is " + g_proxy
 
-        PLAYEPISODE(id,url,resume, duration)
+        PLAYEPISODE(id,url)
     elif mode==6:
         EPISODES(url)
     elif mode==7:
