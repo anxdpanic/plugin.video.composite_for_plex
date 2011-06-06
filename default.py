@@ -200,7 +200,7 @@ def mediaType(partproperties, server):
     elif g_stream == "2":
         printDebug( "Selecting smb/unc")
         if type=="UNC":
-            filelocation=file
+            filelocation="smb:"+file.replace("\\","/")
         else:
             #Might be OSX type, in which case, remove Volumes and replace with server
             if file.find('Volumes') > 0:
