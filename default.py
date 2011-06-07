@@ -402,12 +402,13 @@ def ROOT():
       
         #If we have a remote host, then don;t do local discovery as it won't work
         if g_bonjour == "true":
-            
+            printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
             bonjourServer = bonjourFind("_plexmediasvr._tcp")
             
             if bonjourServer.complete:
+                printDebug("Bonjour discovery completed")
                 #Get the HTML for the URL
-                url = 'http://'+bonjourServer.bonjourIP+":"+bonjourServer.bonjourPort+'/servers'
+                url = 'http://'+bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]+'/servers'
             else:
                 return
                 
@@ -424,11 +425,18 @@ def ROOT():
             LibraryTags=tree.findall('Server')        
        
             #Now, for each tag, pull out the name of the server and it's network name
-            for object in LibraryTags:
-                name=object.get('name').encode('utf-8')
-                host=object.get('address')
-                port=object.get('port')
-                Servers.append([name,host+":"+port])
+            try:
+                printDebug("Parsing servers list of servers")
+                for object in LibraryTags:
+                    name=object.get('name').encode('utf-8')
+                    host=object.get('address')
+                    port=object.get('port')
+                    Servers.append([name,host+":"+port])
+            except: 
+                printDebug ("XML Data error - probably hit a windows PMS server.  Will attempt to use bonjour data")
+                for i in range(len(bonjourServer.bonjourName)):
+                    Servers.append([bonjourServer.bonjourName[i],bonjourServer.bonjourIP[i]+":"+bonjourServer.bonjourPort[i]])
+                
         
         Servers += g_serverList
         printDebug( "Using this list of servers: " +  str(Servers))
@@ -2766,20 +2774,27 @@ def skin():
     #Gather some data and set the window properties
     printDebug("== ENTER: skin() ==", False)
     #Get the global host variable set in settings
-    host=g_host
     WINDOW = xbmcgui.Window( 10000 )
  
     Servers=[]
       
     #If we have a remote host, then don;t do local discovery as it won't work
     if g_bonjour == "true":
-        #Get the HTML for the URL
-        url = 'http://'+host+'/servers'
+        
+        bonjourServer = bonjourFind("_plexmediasvr._tcp")
+            
+        if bonjourServer.complete:
+            #Get the HTML for the URL
+            url = 'http://'+bonjourServer.bonjourIP[2]+":"+bonjourServer.bonjourPort[2]+'/servers'
+        else:
+            return
+                
         html=getURL(url)
             
         if html is False:
             return
-               
+              
+            
         #Pass HTML to BSS to convert it into a nice parasble tree.
         tree=etree.fromstring(html)
                 
@@ -2787,13 +2802,21 @@ def skin():
         LibraryTags=tree.findall('Server')        
        
         #Now, for each tag, pull out the name of the server and it's network name
-        for object in LibraryTags:
-            name=object.get('name').encode('utf-8')
-            host=object.get('host')
-            Servers.append([name,host])
-    else:
-        Servers.append(["remote",g_host])
-        Servers += g_serverList
+        try:
+            printDebug("Parsing servers list of servers")
+            for object in LibraryTags:
+                name=object.get('name').encode('utf-8')
+                host=object.get('address')
+                port=object.get('port')
+                Servers.append([name,host+":"+port])
+        except: 
+            printDebug ("XML Data error - probably hit a windows PMS server.  Will attempt to use bonjour data")
+            for i in range(len(bonjourServer.bonjourName)):
+                Servers.append([bonjourServer.bonjourName[i],bonjourServer.bonjourIP[i]+":"+bonjourServer.bonjourPort[i]])
+        
+    Servers += g_serverList
+    printDebug( "Using this list of servers: " +  str(Servers))
+    numOfServers=len(Servers)
     
     #Propert to set total number of servers we are talking to
     WINDOW.setProperty("plexbmc.numServers", str(len(Servers)))

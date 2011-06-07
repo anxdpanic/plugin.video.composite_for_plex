@@ -13,7 +13,7 @@ class bonjourFind:
         if errorCode == pybonjour.kDNSServiceErr_NoError:
             #print '  IP         =', socket.inet_ntoa(rdata)
             self.queried.append(True)
-            self.bonjourIP = socket.inet_ntoa(rdata)
+            self.bonjourIP.append(socket.inet_ntoa(rdata))
             self.complete = True
 
 
@@ -23,12 +23,12 @@ class bonjourFind:
             return
 
         #print 'Resolved service:'
-        #print '  fullname   =', fullname
-        #print '  hosttarget =', hosttarget
+        #print '  fullname   =', fullname.encode('utf-8')
+        #print '  hosttarget =', hosttarget.encode('utf-8')
         #print '  port       =', port
 
-        self.bonjourName = fullname
-        self.bonjourPort = str(port)
+        self.bonjourName.append(fullname)
+        self.bonjourPort.append(str(port))
         
         query_sdRef = \
             pybonjour.DNSServiceQueryRecord(interfaceIndex = interfaceIndex,
@@ -85,9 +85,9 @@ class bonjourFind:
             
         regtype  = type
         self.complete = False
-        self.bonjourName = ""
-        self.bonjourPort=""
-        self.bonjourIP=""
+        self.bonjourName = []
+        self.bonjourPort = []
+        self.bonjourIP = []
         self.timeout  = 5
         self.queried  = []
         self.resolved = []
