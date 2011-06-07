@@ -7,6 +7,10 @@ BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'li
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
 
+from bonjourFind import *
+
+print "===== PLEXBMC START ====="
+
 print "running on " + str(sys.version_info)
 
 try:
@@ -40,20 +44,28 @@ except ImportError:
                 print("Failed to import ElementTree from any known place")
 
 #Get the setting from the appropriate file.
-print "===== PLEXBMC START ====="
 DEFAULT_PORT="32400"
-g_host = __settings__.getSetting('ipaddress')
-g_port=__settings__.getSetting('port')
+
+#Check debug first...
+g_debug = __settings__.getSetting('debug')
+
+g_bonjour = __settings__.getSetting('bonjour')
+if g_bonjour == "true":
+    if g_debug == "true": print "PleXBMC -> local Bonjour discovery enabled."
+else:
+    g_host = __settings__.getSetting('ipaddress')
+    g_port=__settings__.getSetting('port')
+    if not g_port:
+        if g_debug == "true": print "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT
+        g_host=g_host+":"+DEFAULT_PORT
+    else:
+        g_host=g_host+":"+g_port
+        print "PleXBMC -> Settings hostname and port: " + g_host
+
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
-g_debug = __settings__.getSetting('debug')
 g_streamControl = __settings__.getSetting('streamControl')
 g_channelview = __settings__.getSetting('channelview')
-if not g_port:
-    if g_debug == "true": print "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT
-    g_host=g_host+":"+DEFAULT_PORT
-else:
-    g_host=g_host+":"+g_port
 
 g_skintype= __settings__.getSetting('skinwatch')    
 print g_skintype
@@ -62,11 +74,10 @@ if g_skintype == "true":
     if g_skin.find('.plexbmc'):
         g_skinwatched="plexbmc"
 else:
-    g_skinwatched="xbmc"
+    g_skinwatched="plexbmc"
 
-    
+        
 if g_debug == "true":
-    print "PleXBMC -> Settings hostname and port: " + g_host
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting secondary: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
@@ -80,8 +91,10 @@ else:
     
 g_multiple = int(__settings__.getSetting('multiple')) 
 g_serverList=[]
+if g_bonjour == "false":
+    g_serverList.append(['Primary', g_host])
 if g_multiple > 0:
-    if g_debug == "true": print "PleXBMC -> Multiple servers configured; found [" + str(g_multiple) + "]"
+    if g_debug == "true": print "PleXBMC -> Additional servers configured; found [" + str(g_multiple) + "]"
     for i in range(1,g_multiple+1):
         if g_debug == "true": print "PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]"
         extraip = __settings__.getSetting('server'+str(i))
@@ -104,10 +117,7 @@ g_txheaders = {
               }
 
 #Set up the remote access authentication tokens
-g_bonjour = __settings__.getSetting('bonjour')
 XBMCInternalHeaders=""
-if g_bonjour == "true":
-    if g_debug == "true": print "PleXBMC -> local Bonjour discovery enabled."
     
 g_authentication = __settings__.getSetting('remote')    
 if g_authentication == "true":
@@ -386,19 +396,27 @@ def ROOT():
         xbmcplugin.setContent(pluginhandle, 'movies')
 
         #Get the global host variable set in settings
-        host=g_host
+        #host=g_host
         
         Servers=[]
       
         #If we have a remote host, then don;t do local discovery as it won't work
         if g_bonjour == "true":
-            #Get the HTML for the URL
-            url = 'http://'+g_host+'/servers'
+            
+            bonjourServer = bonjourFind("_plexmediasvr._tcp")
+            
+            if bonjourServer.complete:
+                #Get the HTML for the URL
+                url = 'http://'+bonjourServer.bonjourIP+":"+bonjourServer.bonjourPort+'/servers'
+            else:
+                return
+                
             html=getURL(url)
             
             if html is False:
                 return
-               
+              
+            
             #Pass HTML to BSS to convert it into a nice parasble tree.
             tree=etree.fromstring(html)
                 
@@ -408,11 +426,14 @@ def ROOT():
             #Now, for each tag, pull out the name of the server and it's network name
             for object in LibraryTags:
                 name=object.get('name').encode('utf-8')
-                host=object.get('host')
-                Servers.append([name,host])
-        else:
-            Servers.append(["remote",g_host])
-            Servers += g_serverList
+                host=object.get('address')
+                port=object.get('port')
+                Servers.append([name,host+":"+port])
+        
+        Servers += g_serverList
+        printDebug( "Using this list of servers: " +  str(Servers))
+        numOfServers=len(Servers)
+        
         #For each of the servers we have identified
         for server in Servers:
                                                             
@@ -459,7 +480,7 @@ def ROOT():
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 try:
-                    if g_multiple == 0:
+                    if numOfServers == 1:
                         properties['title']=arguments['title']
                     else:
                         properties['title']=arguments['serverName']+": "+arguments['title']
@@ -498,7 +519,7 @@ def ROOT():
                 #Create Photo plugin link
             if g_channelview == "false":
 
-                if g_multiple == 0:
+                if numOfServers == 1:
                     properties['title']="Video Plugins"
                 else:
                     properties['title']=arguments['serverName']+": Video Plugins"
@@ -508,7 +529,7 @@ def ROOT():
                 addDir(u,properties,arguments)
                                         
                 #Create Photo plugin link
-                if g_multiple == 0:
+                if numOfServers == 1:
                     properties['title']="Photo Plugins"
                 else:
                     properties['title']=arguments['serverName']+": Photo Plugins"
@@ -518,7 +539,7 @@ def ROOT():
                 addDir(u,properties,arguments)
 
                 #Create music plugin link
-                if g_multiple == 0:
+                if numOfServers == 1:
                     properties['title']="Music Plugins"
                 else:
                     properties['title']=arguments['serverName']+": Music Plugins"
@@ -527,7 +548,7 @@ def ROOT():
                 u="http://"+server[1]+"/music&mode="+str(mode)
                 addDir(u,properties,arguments)
             else:
-                if g_multiple == 0:
+                if numOfServers == 1:
                     properties['title']="Channels"
                 else:
                     properties['title']=arguments['serverName']+": Channels"
@@ -537,7 +558,7 @@ def ROOT():
                 addDir(u,properties,arguments)
                 
             #Create plexonline link
-            if g_multiple == 0:
+            if numOfServers == 1:
                 properties['title']="Plex Online"
             else:
                 properties['title']=arguments['serverName']+": Plex Online"
