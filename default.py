@@ -7,7 +7,6 @@ BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'li
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
 
-from bonjourFind import *
 
 print "===== PLEXBMC START ====="
 
@@ -50,8 +49,17 @@ DEFAULT_PORT="32400"
 g_debug = __settings__.getSetting('debug')
 
 g_bonjour = __settings__.getSetting('bonjour')
+
+try:
+    from bonjourFind import *
+except:
+    print "PleXBMC -> Bonjour disabled.  Require XBMC (Pre)Eden"
+    g_bonjour="false"
+    
 if g_bonjour == "true":
     if g_debug == "true": print "PleXBMC -> local Bonjour discovery enabled."
+    g_bonjourquick = __settings__.getSetting('bonjourquick')
+    if g_debug == "true": print "PleXBMC -> Quick bonjour discovery:" + g_bonjourquick
 else:
     g_host = __settings__.getSetting('ipaddress')
     g_port=__settings__.getSetting('port')
@@ -335,7 +343,7 @@ def addLink(url,properties,arguments,context=None):
 def addDir(url,properties,arguments,context=None):
         printDebug("== ENTER: addDir ==", False)
         try:
-            printDebug("Adding Dir for [" + properties['title'] + "]")
+            printDebug("Adding Dir for [" + properties['title'].encode('utf-8') + "]")
         except: pass
 
         printDebug("Passed arguments are " + str(arguments))
@@ -408,39 +416,42 @@ def ROOT():
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
                 #Get the HTML for the URL
-                url = 'http://'+bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]+'/servers'
+                if g_bonjourquick == "true":
+                    Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]])
+                else:
+                    url = 'http://'+bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]+'/servers'
+                    
+                    html=getURL(url)
+                    
+                    if html is False:
+                        return
+                      
+                    
+                    #Pass HTML to BSS to convert it into a nice parasble tree.
+                    tree=etree.fromstring(html)
+                        
+                    #Now, find all those server tags
+                    LibraryTags=tree.findall('Server')        
+               
+                    #Now, for each tag, pull out the name of the server and it's network name
+                    try:
+                        printDebug("Parsing servers list of servers")
+                        for object in LibraryTags:
+                            name=object.get('name').encode('utf-8')
+                            host=object.get('address')
+                            port=object.get('port')
+                            Servers.append([name,host+":"+port])
+                    except: 
+                        printDebug ("XML Data error - probably hit a windows PMS server.  Will attempt to use bonjour data")
+                        for i in range(len(bonjourServer.bonjourName)):
+                            Servers.append([bonjourServer.bonjourName[i],bonjourServer.bonjourIP[i]+":"+bonjourServer.bonjourPort[i]])
             else:
-                return
-                
-            html=getURL(url)
-            
-            if html is False:
-                return
-              
-            
-            #Pass HTML to BSS to convert it into a nice parasble tree.
-            tree=etree.fromstring(html)
-                
-            #Now, find all those server tags
-            LibraryTags=tree.findall('Server')        
-       
-            #Now, for each tag, pull out the name of the server and it's network name
-            try:
-                printDebug("Parsing servers list of servers")
-                for object in LibraryTags:
-                    name=object.get('name').encode('utf-8')
-                    host=object.get('address')
-                    port=object.get('port')
-                    Servers.append([name,host+":"+port])
-            except: 
-                printDebug ("XML Data error - probably hit a windows PMS server.  Will attempt to use bonjour data")
-                for i in range(len(bonjourServer.bonjourName)):
-                    Servers.append([bonjourServer.bonjourName[i],bonjourServer.bonjourIP[i]+":"+bonjourServer.bonjourPort[i]])
-                
+                printDebug("BonjourFind was not able to discovery any servers")
         
         Servers += g_serverList
-        printDebug( "Using this list of servers: " +  str(Servers))
         numOfServers=len(Servers)
+        mapping={}
+        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(Servers))
         
         #For each of the servers we have identified
         for server in Servers:
@@ -454,15 +465,30 @@ def ROOT():
                 
             tree = etree.fromstring(html)
             
+            NoExtraservers=1
+            if g_bonjour == "true" and g_bonjourquick == "true":
+                extraservers=set(re.findall("host=\"(.*?)\"", html))
+                NoExtraservers = len(extraservers) 
+                numOfServers+=NoExtraservers-1
+                print "known servers are " + str(extraservers).encode('utf-8')
+            
+            
             #Find all the directory tags, as they contain further levels to follow
             #For each directory tag we find, build an onscreen link to drill down into the library
             for object in tree.getiterator('Directory'):
                         
                 #If section is not local then ignore
-                if object.get('local') == "0":
-                    continue
+                if g_bonjour == "true" and g_bonjourquick == "true":
+                    server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
+                    
+                else:
+                    if object.get('local') == "0":
+                        continue
                 
                 arguments=dict(object.items())
+                
+                mapping[server[1]]=arguments['serverName']
+                print str(mapping)
                 
                 try:
                     if arguments['art'][0] == "/":
@@ -525,55 +551,60 @@ def ROOT():
                 #If so, create a link to drill down later. One link is created for each PMS server available
                 #Plugin data is held in /videos directory (well, video data is anyway)
                 #Create Photo plugin link
-            if g_channelview == "false":
+            for i in range(NoExtraservers):
+            
+                if g_bonjour == "true" and g_bonjourquick == "true":
+                    server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
 
-                if numOfServers == 1:
-                    properties['title']="Video Plugins"
-                else:
-                    properties['title']=arguments['serverName']+": Video Plugins"
-                arguments['type']="video"
-                mode=7
-                u="http://"+server[1]+"/video&mode="+str(mode)
-                addDir(u,properties,arguments)
-                                        
-                #Create Photo plugin link
-                if numOfServers == 1:
-                    properties['title']="Photo Plugins"
-                else:
-                    properties['title']=arguments['serverName']+": Photo Plugins"
-                arguments['type']="Picture"
-                mode=16
-                u="http://"+server[1]+"/photos&mode="+str(mode)
-                addDir(u,properties,arguments)
+                if g_channelview == "false":
 
-                #Create music plugin link
-                if numOfServers == 1:
-                    properties['title']="Music Plugins"
+                    if numOfServers == 1:
+                        properties['title']="Video Plugins"
+                    else:
+                        properties['title']=mapping[server[1]]+": Video Plugins"
+                    arguments['type']="video"
+                    mode=7
+                    u="http://"+server[1]+"/video&mode="+str(mode)
+                    addDir(u,properties,arguments)
+                                            
+                    #Create Photo plugin link
+                    if numOfServers == 1:
+                        properties['title']="Photo Plugins"
+                    else:
+                        properties['title']=mapping[server[1]]+": Photo Plugins"
+                    arguments['type']="Picture"
+                    mode=16
+                    u="http://"+server[1]+"/photos&mode="+str(mode)
+                    addDir(u,properties,arguments)
+
+                    #Create music plugin link
+                    if numOfServers == 1:
+                        properties['title']="Music Plugins"
+                    else:
+                        properties['title']=mapping[server[1]]+": Music Plugins"
+                    arguments['type']="Music"
+                    mode=17
+                    u="http://"+server[1]+"/music&mode="+str(mode)
+                    addDir(u,properties,arguments)
                 else:
-                    properties['title']=arguments['serverName']+": Music Plugins"
-                arguments['type']="Music"
-                mode=17
-                u="http://"+server[1]+"/music&mode="+str(mode)
-                addDir(u,properties,arguments)
-            else:
+                    if numOfServers == 1:
+                        properties['title']="Channels"
+                    else:
+                        properties['title']=mapping[server[1]]+": Channels"
+                    arguments['type']="video"
+                    mode=21
+                    u="http://"+server[1]+"/system/plugins/all&mode="+str(mode)
+                    addDir(u,properties,arguments)
+                    
+                #Create plexonline link
                 if numOfServers == 1:
-                    properties['title']="Channels"
+                    properties['title']="Plex Online"
                 else:
-                    properties['title']=arguments['serverName']+": Channels"
-                arguments['type']="video"
-                mode=21
-                u="http://"+server[1]+"/system/plugins/all&mode="+str(mode)
+                    properties['title']=mapping[server[1]]+": Plex Online"
+                arguments['type']="file"
+                mode=19
+                u="http://"+server[1]+"/system/plexonline&mode="+str(mode)
                 addDir(u,properties,arguments)
-                
-            #Create plexonline link
-            if numOfServers == 1:
-                properties['title']="Plex Online"
-            else:
-                properties['title']=arguments['serverName']+": Plex Online"
-            arguments['type']="file"
-            mode=19
-            u="http://"+server[1]+"/system/plexonline&mode="+str(mode)
-            addDir(u,properties,arguments)
 
 
             

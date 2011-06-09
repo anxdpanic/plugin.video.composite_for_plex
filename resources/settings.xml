@@ -2,8 +2,9 @@
 <settings>
     <category label="General">
 	<setting id="bonjour" type="bool" label="30004" default="false" />
-    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,false)" enable="eq(-1,false)"/>
-    <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,false)" enable="eq(-2,false)"/>
+	<setting id="bonjourquick" type="bool" label="30046" default="false" visible="eq(-1,true)" enable="eq(-1,true)"/>
+    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-2,false)" enable="eq(-2,false)"/>
+    <setting id="port" type="text" label="30030" default="32400" visible="eq(-3,false)" enable="eq(-3,false)"/>
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
     <setting id="secondary" type="bool" label="30003" default="false"/>
     <setting id="channelview" type="bool" label="30042" default="false"/>
