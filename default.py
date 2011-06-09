@@ -1425,6 +1425,7 @@ def PLAYEPISODE(id,vids):
         printDebug("handle is " + str(pluginhandle))
         #ok - this will start playback for the file pointed to by the url
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        xbmc.Player().play(listitem=item)
         
         #Set a loop to wait for positive confirmation of playback
         count = 0
@@ -1467,21 +1468,23 @@ def setAudioSubtitles(stream):
         
         return True
 
-    
-    if g_streamControl == "1" or  g_streamControl == "2":
-        audio=stream['audio']
-        printDebug("Setting Audio Stream")
-        #Audio Stream first        
-        if stream['audioCount'] == 1:
-            printDebug ("Only one audio stream present - will leave as default")
-        elif stream['audioCount'] > 1:
-            printDebug ("Multiple audio stream. Attempting to set to local language")
-            try:
-                if audio['selected'] == "1":
-                    printDebug ("Found preferred language at index " + str(int(audio['index'])-1))
-                    xbmc.Player().setAudioStream(int(audio['index'])-1)
-                    printDebug ("Audio set")
-            except: pass
+    if sys.version_info[:2] > (2,4):   
+        if g_streamControl == "1" or  g_streamControl == "2":
+            audio=stream['audio']
+            printDebug("Setting Audio Stream")
+            #Audio Stream first        
+            if stream['audioCount'] == 1:
+                printDebug ("Only one audio stream present - will leave as default")
+            elif stream['audioCount'] > 1:
+                printDebug ("Multiple audio stream. Attempting to set to local language")
+                try:
+                    if audio['selected'] == "1":
+                        printDebug ("Found preferred language at index " + str(int(audio['index'])-1))
+                        xbmc.Player().setAudioStream(int(audio['index'])-1)
+                        printDebug ("Audio set")
+                except: pass
+    else:
+        printDebug ("AudioStream selection only available on Pre-EDEN build")
       
     #Try and set embedded subtitles
     if g_streamControl == "1":
@@ -1687,14 +1690,18 @@ def monitorPlayback(id, server):
     if len(server.split(':')) == 1:
         server=server
         
-    monitorCount=0    
+    monitorCount=0
+    progress = 0
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
         currentTime = int(xbmc.Player().getTime())
-           
-        progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))
-
+        
+        #Try to get the progress, if not revert to previous progress (which should be near enough)
+        try:
+            progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))
+        except: pass
+               
         #Now sleep for 5 seconds
         time.sleep(5)
         if g_debug == "true":
@@ -2785,7 +2792,7 @@ def skin():
             
         if bonjourServer.complete:
             #Get the HTML for the URL
-            url = 'http://'+bonjourServer.bonjourIP[2]+":"+bonjourServer.bonjourPort[2]+'/servers'
+            url = 'http://'+bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]+'/servers'
         else:
             return
                 
