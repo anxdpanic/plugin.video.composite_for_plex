@@ -1767,8 +1767,10 @@ def videoPluginPlay(vids):
         url=vids+XBMCInternalHeaders+header#+Pleader
         
         item = xbmcgui.ListItem(path=url)
-        return xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
-              
+        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
+        xbmc.Player().play(listitem=item)
+        return
+        
 #Function to parse the arguments passed to the plugin..
 def get_params():
         printDebug("== ENTER: get_params ==", False)
