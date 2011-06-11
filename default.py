@@ -10,43 +10,66 @@ sys.path.append(BASE_RESOURCE_PATH)
 
 print "===== PLEXBMC START ====="
 
-print "running on " + str(sys.version_info)
+print "PleXBMC -> running on " + str(sys.version_info)
 
 try:
   from lxml import etree
-  print("Running with lxml.etree")
+  print("PleXBMC -> Running with lxml.etree")
 except ImportError:
   try:
     # Python 2.5
     import xml.etree.cElementTree as etree
-    print("running with cElementTree on Python 2.5+")
+    print("PleXBMC -> Running with cElementTree on Python 2.5+")
   except ImportError:
     try:
       # Python 2.5
       import xml.etree.ElementTree as etree
-      print("running with ElementTree on Python 2.5+")
+      print("PleXBMC -> Running with ElementTree on Python 2.5+")
     except ImportError:
       try:
         # normal cElementTree install
         import cElementTree as etree
-        print("running with cElementTree")
+        print("PleXBMC -> Running with built-in cElementTree")
       except ImportError:
         try:
           # normal ElementTree install
           import elementtree.ElementTree as etree
-          print("running with ElementTree")
+          print("PleXBMC -> Running with built-in ElementTree")
         except ImportError: 
             try:
                 import ElementTree as etree
-                print("Using plugin elemenetree")
+                print("PleXBMC -> Running addon ElementTree version")
             except ImportError:    
-                print("Failed to import ElementTree from any known place")
+                print("PleXBMC -> Failed to import ElementTree from any known place")
 
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
 
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
+def printDebug(msg,functionname=True):
+    if g_debug == "true":
+        if functionname == False:
+            print str(msg)
+        else:
+            print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
+
+#Next Check the WOL status - lets give the servers as much time as possible to come up
+
+g_wolon = __settings__.getSetting('wolon')
+if g_wolon == "true":
+    from WOL import wake_on_lan
+    printDebug("PleXBMC -> Wake On LAN: " + g_wolon, False)
+    for i in range(1,12):
+        wakeserver = __settings__.getSetting('wol'+str(i))
+        if not wakeserver == "":
+            try:
+                printDebug ("PleXBMC -> Waking server " + str(i) + " with MAC: " + wakeserver, False)
+                wake_on_lan(wakeserver)
+            except ValueError:
+                printDebug("PleXBMC -> Incorrect MAC address format for server " + str(i), False)
+            except:
+                printDebug("PleXBMC -> Unknown wake on lan error", False)
 
 g_bonjour = __settings__.getSetting('bonjour')
 
@@ -57,18 +80,18 @@ except:
     g_bonjour="false"
     
 if g_bonjour == "true":
-    if g_debug == "true": print "PleXBMC -> local Bonjour discovery enabled."
+    printDebug("PleXBMC -> local Bonjour discovery enabled.", False)
     g_bonjourquick = __settings__.getSetting('bonjourquick')
-    if g_debug == "true": print "PleXBMC -> Quick bonjour discovery:" + g_bonjourquick
+    printDebug( "PleXBMC -> Quick bonjour discovery: " + g_bonjourquick, False)
 else:
     g_host = __settings__.getSetting('ipaddress')
     g_port=__settings__.getSetting('port')
     if not g_port:
-        if g_debug == "true": print "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT
+        printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT, False)
         g_host=g_host+":"+DEFAULT_PORT
     else:
         g_host=g_host+":"+g_port
-        print "PleXBMC -> Settings hostname and port: " + g_host
+        printDebug( "PleXBMC -> Settings hostname and port: " + g_host, False)
 
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
@@ -76,7 +99,6 @@ g_streamControl = __settings__.getSetting('streamControl')
 g_channelview = __settings__.getSetting('channelview')
 
 g_skintype= __settings__.getSetting('skinwatch')    
-print g_skintype
 g_skin = xbmc.getSkinDir()
 if g_skintype == "true":
     if g_skin.find('.plexbmc'):
@@ -95,19 +117,17 @@ if g_debug == "true":
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
-    
-    
 g_multiple = int(__settings__.getSetting('multiple')) 
 g_serverList=[]
 if g_bonjour == "false":
     g_serverList.append(['Primary', g_host])
 if g_multiple > 0:
-    if g_debug == "true": print "PleXBMC -> Additional servers configured; found [" + str(g_multiple) + "]"
+    printDebug( "PleXBMC -> Additional servers configured; found [" + str(g_multiple) + "]", False)
     for i in range(1,g_multiple+1):
-        if g_debug == "true": print "PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]"
+        printDebug ("PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]", False)
         extraip = __settings__.getSetting('server'+str(i))
         if extraip == "":
-            if g_debug == "true": print "PleXBMC -> Blank server detected.  Ignoring"
+            printDebug( "PleXBMC -> Blank server detected.  Ignoring", False)
             continue
         try:
             extraip.split(':')[1]
@@ -115,7 +135,7 @@ if g_multiple > 0:
             extraip=extraip+":"+DEFAULT_PORT
         g_serverList.append(['Server '+str(i),extraip])
 
-if g_debug == "true": print "PleXBMC -> serverList is " + str(g_serverList)
+printDebug("PleXBMC -> serverList is " + str(g_serverList), False)
         
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
@@ -129,10 +149,10 @@ XBMCInternalHeaders=""
     
 g_authentication = __settings__.getSetting('remote')    
 if g_authentication == "true":
-    if g_debug == "true": print "PleXBMC -> Getting authentication settings."
+    printDebug( "PleXBMC -> Getting authentication settings.", False)
     g_username= __settings__.getSetting('username')
     g_password =  __settings__.getSetting('password')
-    if g_debug == "true": print "PleXBMC -> username is " + g_username
+    printDebug( "PleXBMC -> username is " + g_username, False)
     
     #Compute the SHA1 just one time.
     msg=sha.new(g_password)
@@ -249,12 +269,6 @@ def mediaType(partproperties, server):
     printDebug("Returning URL: " + filelocation)
     return filelocation
      
-def printDebug(msg,functionname=True):
-    if g_debug == "true":
-        if functionname == False:
-            print str(msg)
-        else:
-            print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
  
 #Used to add playable media files to directory listing
 #properties is a dictionary {} which contains a list of setInfo properties to apply
@@ -411,7 +425,11 @@ def ROOT():
         #If we have a remote host, then don;t do local discovery as it won't work
         if g_bonjour == "true":
             printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
-            bonjourServer = bonjourFind("_plexmediasvr._tcp")
+            try:
+                bonjourServer = bonjourFind("_plexmediasvr._tcp")
+            except:
+                print "PleXBMC -> Bonjour error.  Is Bonjour installed on this client?"
+                return
             
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
@@ -3006,7 +3024,7 @@ def watched(url):
     
 ##So this is where we really start the plugin.
 
-printDebug( "Script argument is " + str(sys.argv[1]))
+printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
 if str(sys.argv[1]) == "skin":
     skin()
 elif sys.argv[1] == "update":
@@ -3020,7 +3038,7 @@ else:
     pluginhandle = int(sys.argv[1])
     #first thing, parse the arguments, as this has the data we need to use.              
     params=get_params()
-    if g_debug == "true": print "PleXBMC -> " + str(params)
+    printDebug( "PleXBMC -> " + str(params), False)
 
     #Set up some variables
     url=None
@@ -3081,13 +3099,13 @@ else:
         g_transcode = __settings__.getSetting('transcode')
 
         if transcodeOverride == 1:
-                if g_debug == "true": print "PleXBMC -> Transcode override.  Will play media with addon transcoding settings"
+                printDebug( "PleXBMC -> Transcode override.  Will play media with addon transcoding settings", False)
                 g_transcode="true"
 
         if g_transcode == "true":
             #If transcode is set, ignore the stream setting for file and smb:
             g_stream = "1"
-            if g_debug == "true": print "PleXBMC -> We are set to Transcode, overriding stream selection"
+            printDebug( "PleXBMC -> We are set to Transcode, overriding stream selection", False)
             g_transcodetype = __settings__.getSetting('transcodefmt')
             if g_transcodetype == "0":
                 g_transcodefmt="m3u8"
@@ -3096,13 +3114,13 @@ else:
                 
             g_quality = str(int(__settings__.getSetting('quality'))+3)
 
-            if g_debug == "true": print "PleXBMC -> Transcode format is " + g_transcodefmt
-            if g_debug == "true": print "PleXBMC -> Transcode quality is " + g_quality
+            printDebug( "PleXBMC -> Transcode format is " + g_transcodefmt, False)
+            printDebug( "PleXBMC -> Transcode quality is " + g_quality, False)
             g_proxyport=__settings__.getSetting('proxyport')
          
 
             g_proxy = __settings__.getSetting('proxy')
-            if g_debug == "true": print "PleXBMC -> proxy is " + g_proxy
+            printDebug( "PleXBMC -> proxy is " + g_proxy, False)
 
         PLAYEPISODE(id,url)
     elif mode==6:
