@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="plugin.video.plexbmc" 
         name="PleXBMC" 
-        version="1.9e" 
-        provider-name="Harley Hooligan and Hippojay">
+        version="1.9.2" 
+        provider-name="Hippojay (plexbmc@h-jay.com). Initial build by Hooligan Harley">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
   </requires>
