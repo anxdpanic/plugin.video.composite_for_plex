@@ -73,16 +73,16 @@ if g_wolon == "true":
 
 g_bonjour = __settings__.getSetting('bonjour')
 
-try:
-    from bonjourFind import *
-except:
-    print "PleXBMC -> Bonjour disabled.  Require XBMC (Pre)Eden"
-    g_bonjour="false"
-    
 if g_bonjour == "true":
-    printDebug("PleXBMC -> local Bonjour discovery enabled.", False)
-    g_bonjourquick = __settings__.getSetting('bonjourquick')
-    printDebug( "PleXBMC -> Quick bonjour discovery: " + g_bonjourquick, False)
+    printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
+    try:
+        from bonjourFind import *
+    except:
+        print "PleXBMC -> Bonjour disabled.  Require XBMC (Pre)Eden"
+        xbmcgui.Dialog().ok("Bonjour Error","Bonjour disabled.  Require XBMC (Pre)Eden")
+        g_bonjour="false"
+    
+
 else:
     g_host = __settings__.getSetting('ipaddress')
     g_port=__settings__.getSetting('port')
@@ -97,6 +97,7 @@ g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_streamControl = __settings__.getSetting('streamControl')
 g_channelview = __settings__.getSetting('channelview')
+g_flatten = __settings__.getSetting('flatten')
 
 g_skintype= __settings__.getSetting('skinwatch')    
 g_skin = xbmc.getSkinDir()
@@ -433,36 +434,8 @@ def ROOT():
             
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
-                #Get the HTML for the URL
-                if g_bonjourquick == "true":
-                    Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]])
-                else:
-                    url = 'http://'+bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]+'/servers'
-                    
-                    html=getURL(url)
-                    
-                    if html is False:
-                        return
-                      
-                    
-                    #Pass HTML to BSS to convert it into a nice parasble tree.
-                    tree=etree.fromstring(html)
-                        
-                    #Now, find all those server tags
-                    LibraryTags=tree.findall('Server')        
-               
-                    #Now, for each tag, pull out the name of the server and it's network name
-                    try:
-                        printDebug("Parsing servers list of servers")
-                        for object in LibraryTags:
-                            name=object.get('name').encode('utf-8')
-                            host=object.get('address')
-                            port=object.get('port')
-                            Servers.append([name,host+":"+port])
-                    except: 
-                        printDebug ("XML Data error - probably hit a windows PMS server.  Will attempt to use bonjour data")
-                        for i in range(len(bonjourServer.bonjourName)):
-                            Servers.append([bonjourServer.bonjourName[i],bonjourServer.bonjourIP[i]+":"+bonjourServer.bonjourPort[i]])
+                #Add the first found server to the list - we will find rest from here
+                Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]])
             else:
                 printDebug("BonjourFind was not able to discovery any servers")
         
@@ -484,7 +457,7 @@ def ROOT():
             tree = etree.fromstring(html)
             
             NoExtraservers=1
-            if g_bonjour == "true" and g_bonjourquick == "true":
+            if g_bonjour == "true":
                 extraservers=set(re.findall("host=\"(.*?)\"", html))
                 NoExtraservers = len(extraservers) 
                 numOfServers+=NoExtraservers-1
@@ -496,7 +469,7 @@ def ROOT():
             for object in tree.getiterator('Directory'):
                         
                 #If section is not local then ignore
-                if g_bonjour == "true" and g_bonjourquick == "true":
+                if g_bonjour == "true":
                     server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
                     
                 else:
@@ -571,7 +544,7 @@ def ROOT():
                 #Create Photo plugin link
             for i in range(NoExtraservers):
             
-                if g_bonjour == "true" and g_bonjourquick == "true":
+                if g_bonjour == "true":
                     server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
 
                 if g_channelview == "false":
@@ -940,8 +913,13 @@ def SHOWS(url,tree=None):
             #Set type
             arguments['type']="Video"
 
-            mode=4 # grab season details
-            url='http://'+server+arguments['key']+"&mode="+str(mode)
+            if g_flatten == "true":
+                mode=6 # go straight to episodes
+                arguments['key']=arguments['key'].replace("children","allLeaves")
+                url=url='http://'+server+arguments['key']+"&mode="+str(mode)
+            else:
+                mode=4 # grab season details
+                url='http://'+server+arguments['key']+"&mode="+str(mode)
             
             context=buildContextMenu(url, arguments)
             
