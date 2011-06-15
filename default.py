@@ -134,7 +134,7 @@ if g_multiple > 0:
             extraip.split(':')[1]
         except:
             extraip=extraip+":"+DEFAULT_PORT
-        g_serverList.append(['Server '+str(i),extraip])
+        g_serverList.append(['Server '+str(i),extraip,False])
 
 printDebug("PleXBMC -> serverList is " + str(g_serverList), False)
 
@@ -447,7 +447,7 @@ def ROOT():
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
                 #Add the first found server to the list - we will find rest from here
-                Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]])
+                Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
             else:
                 printDebug("BonjourFind was not able to discovery any servers")
         
@@ -469,7 +469,7 @@ def ROOT():
             tree = etree.fromstring(html)
             
             NoExtraservers=1
-            if g_bonjour == "true":
+            if g_bonjour == "true" and server[2]:
                 extraservers=set(re.findall("host=\"(.*?)\"", html))
                 NoExtraservers = len(extraservers) 
                 numOfServers+=NoExtraservers-1
@@ -481,7 +481,7 @@ def ROOT():
             for object in tree.getiterator('Directory'):
                         
                 #If section is not local then ignore
-                if g_bonjour == "true":
+                if g_bonjour == "true" and server[2]:
                     server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
                     
                 else:
@@ -561,7 +561,7 @@ def ROOT():
                 #Create Photo plugin link
             for i in range(NoExtraservers):
             
-                if g_bonjour == "true":
+                if g_bonjour == "true" and server[2]:
                     server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
 
                 if g_channelview == "false":
@@ -2872,7 +2872,7 @@ def skin():
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
                 #Add the first found server to the list - we will find rest from here
-                Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0]])
+                Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
             else:
                 printDebug("BonjourFind was not able to discovery any servers")
         
@@ -2897,7 +2897,7 @@ def skin():
             tree = etree.fromstring(html)
             
             NoExtraservers=1
-            if g_bonjour == "true":
+            if g_bonjour == "true" and server[2]:
                 extraservers=set(re.findall("host=\"(.*?)\"", html))
                 NoExtraservers = len(extraservers) 
                 numOfServers+=NoExtraservers-1
@@ -2909,7 +2909,7 @@ def skin():
             for object in tree.getiterator('Directory'):
                         
                 #If section is not local then ignore
-                if g_bonjour == "true":
+                if g_bonjour == "true" and server[2]:
                     server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
                     
                 else:
@@ -2995,7 +2995,7 @@ def skin():
                 #Create Photo plugin link
             for i in range(NoExtraservers):
 
-                if g_bonjour == "true":
+                if g_bonjour == "true" and server[2]:
                     server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
             
             
