@@ -13,47 +13,47 @@
 
     
     <category label="Server List" >
-        <setting id="multiple" type=enum lvalues="30016|30017|30018|30019|30020|30021|30022|30023|30024|30025|30026" label="Number of Extra Servers" default="30016" />
-        <setting id="server1" type=text label="Server 1" visible="gt(-1,0)" enable="gt(-1,0)" default="" />
-        <setting id="server2" type=text label="Server 2" visible="gt(-2,1)" enable="gt(-2,1)" default="" />
-        <setting id="server3" type=text label="Server 3" visible="gt(-3,2)" enable="gt(-3,2)" default="" />
-        <setting id="server4" type=text label="Server 4" visible="gt(-4,3)" enable="gt(-4,3)" default="" />
-        <setting id="server5" type=text label="Server 5" visible="gt(-5,4)" enable="gt(-5,4)" default="" />
-        <setting id="server6" type=text label="Server 6" visible="gt(-6,5)" enable="gt(-6,5)" default="" />
-        <setting id="server7" type=text label="Server 7" visible="gt(-7,6)" enable="gt(-7,6)" default="" />
-        <setting id="server8" type=text label="Server 8" visible="gt(-8,7)" enable="gt(-8,7)" default="" />
-        <setting id="server9" type=text label="Server 9" visible="gt(-9,8)" enable="gt(-9,8)" default="" />
-        <setting id="server10" type=text label="Server 10" visible="gt(-10,9)" enable="gt(-10,9)" default="" />
+        <setting id="multiple" type="enum" lvalues="30016|30017|30018|30019|30020|30021|30022|30023|30024|30025|30026" label="Number of Extra Servers" default="30016" />
+        <setting id="server1" type="text" label="Server 1" visible="gt(-1,0)" enable="gt(-1,0)" default="" />
+        <setting id="server2" type="text" label="Server 2" visible="gt(-2,1)" enable="gt(-2,1)" default="" />
+        <setting id="server3" type="text" label="Server 3" visible="gt(-3,2)" enable="gt(-3,2)" default="" />
+        <setting id="server4" type="text" label="Server 4" visible="gt(-4,3)" enable="gt(-4,3)" default="" />
+        <setting id="server5" type="text" label="Server 5" visible="gt(-5,4)" enable="gt(-5,4)" default="" />
+        <setting id="server6" type="text" label="Server 6" visible="gt(-6,5)" enable="gt(-6,5)" default="" />
+        <setting id="server7" type="text" label="Server 7" visible="gt(-7,6)" enable="gt(-7,6)" default="" />
+        <setting id="server8" type="text" label="Server 8" visible="gt(-8,7)" enable="gt(-8,7)" default="" />
+        <setting id="server9" type="text" label="Server 9" visible="gt(-9,8)" enable="gt(-9,8)" default="" />
+        <setting id="server10" type="text" label="Server 10" visible="gt(-10,9)" enable="gt(-10,9)" default="" />
     </category>
 
     <category label="Authentication" >
-        <setting id="remote" type=bool label="30027" default="false"/>
-        <setting id="username" type=text visible="eq(-1,true)" enable="eq(-1,true)" label="30005" />
-        <setting id="password" type=text  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="30006" />
+        <setting id="remote" type="bool" label="30027" default="false"/>
+        <setting id="username" type="text" visible="eq(-1,true)" enable="eq(-1,true)" label="30005" />
+        <setting id="password" type="text"  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="30006" />
     </category>
     
     <category label="Transcoding" >
-        <setting type=lsep label="Transcoding with XBMC is still experimental" />
+        <setting type="lsep" label="Transcoding with XBMC is still experimental" />
         <setting id="transcode" type="bool" label="30007" default="false"/>
         <setting id="transcodefmt" type="enum" label="30008" visible="eq(-1,true)" enable="eq(-1,true)" lvalues="30009|30010" default="30010" />
-        <setting id="quality" type=enum label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" visible="eq(-2,true)+eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
-        <setting id="proxy" type=bool label="30015" visible="eq(-3,true)+eq(-2,0)" enable="eq(-3,true)+eq(-2,0)" default="true" />
+        <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" visible="eq(-2,true)+eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
+        <setting id="proxy" type="bool" label="30015" visible="eq(-3,true)+eq(-2,0)" enable="eq(-3,true)+eq(-2,0)" default="true" />
         <setting id="proxyport" type="text" label="30041" visible="eq(-4,true)+eq(-1,true)+eq(-3,0)" enable="eq(-4,true)+eq(-1,true)+eq(-3,0)" default="8087" />
     </category>
         
     <category label="Wake On LAN" >
-        <setting id="wolon" type=bool label="Use Wake On LAN" default="false" />
-        <setting id="wol1" type=text label="Server 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />
-        <setting id="wol2" type=text label="Server 2" visible="eq(-2,true)" enable="eq(-2,true)" default="" />
-        <setting id="wol3" type=text label="Server 3" visible="eq(-3,true)" enable="eq(-3,true)" default="" />
-        <setting id="wol4" type=text label="Server 4" visible="eq(-4,true)" enable="eq(-4,true)" default="" />
-        <setting id="wol5" type=text label="Server 5" visible="eq(-5,true)" enable="eq(-5,true)" default="" />
-        <setting id="wol6" type=text label="Server 6" visible="eq(-6,true)" enable="eq(-6,true)" default="" />
-        <setting id="wol7" type=text label="Server 7" visible="eq(-7,true)" enable="eq(-7,true)" default="" />
-        <setting id="wol8" type=text label="Server 8" visible="eq(-8,true)" enable="eq(-8,true)" default="" />
-        <setting id="wol9" type=text label="Server 9" visible="eq(-9,true)" enable="eq(-9,true)" default="" />
-        <setting id="wol10" type=text label="Server 10" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
-        <setting id="wol11" type=text label="Server 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
+        <setting id="wolon" type="bool" label="Use Wake On LAN" default="false" />
+        <setting id="wol1" type="text" label="Server 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />
+        <setting id="wol2" type="text" label="Server 2" visible="eq(-2,true)" enable="eq(-2,true)" default="" />
+        <setting id="wol3" type="text" label="Server 3" visible="eq(-3,true)" enable="eq(-3,true)" default="" />
+        <setting id="wol4" type="text" label="Server 4" visible="eq(-4,true)" enable="eq(-4,true)" default="" />
+        <setting id="wol5" type="text" label="Server 5" visible="eq(-5,true)" enable="eq(-5,true)" default="" />
+        <setting id="wol6" type="text" label="Server 6" visible="eq(-6,true)" enable="eq(-6,true)" default="" />
+        <setting id="wol7" type="text" label="Server 7" visible="eq(-7,true)" enable="eq(-7,true)" default="" />
+        <setting id="wol8" type="text" label="Server 8" visible="eq(-8,true)" enable="eq(-8,true)" default="" />
+        <setting id="wol9" type="text" label="Server 9" visible="eq(-9,true)" enable="eq(-9,true)" default="" />
+        <setting id="wol10" type="text" label="Server 10" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
+        <setting id="wol11" type="text" label="Server 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
     </category>
         
     <category label="Look and Feel" >
@@ -61,15 +61,14 @@
         <setting id="channelview" type="bool" label="30042" default="false"/>
         <setting id="skinwatch" type="bool" label="30045" default="false"/>
         <setting id="flatten" type="bool" label="30043" default="false"/>
-        <setting id="contextreplace" type=bool label="30048" default="false"/>
-        <setting id="skipcontextmenus" type=bool label="30052" default="false" />
-        <setting id="skipmetadata" type=bool label="30049" default="false" />
-        <setting id="skipimages" type=bool  label="30050" default="false" />
-        <setting id="skipflags" type=bool  label="30051" default="false" />
+        <setting id="contextreplace" type="bool" label="30048" default="false"/>
+        <setting id="skipcontextmenus" type="bool" label="30052" default="false" />
+        <setting id="skipmetadata" type="bool" label="30049" default="false" />
+        <setting id="skipimages" type="bool"  label="30050" default="false" />
+        <setting id="skipflags" type="bool"  label="30051" default="false" />
     </category>
         
     <category label="Debug" >
-        <setting id="debug" type=bool label="30014" default="false" />
+        <setting id="debug" type="bool" label="30014" default="false" />
     </category>
-    
 </settings>
