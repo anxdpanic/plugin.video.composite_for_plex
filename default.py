@@ -1495,7 +1495,7 @@ def PLAYEPISODE(id,vids):
         printDebug("handle is " + str(pluginhandle))
         #ok - this will start playback for the file pointed to by the url
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
-        xbmc.Player().play(listitem=item)
+        #xbmc.Player().play(listitem=item)
         
         #Set a loop to wait for positive confirmation of playback
         count = 0
@@ -1838,7 +1838,7 @@ def videoPluginPlay(vids):
         
         item = xbmcgui.ListItem(path=url)
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
-        xbmc.Player().play(listitem=item)
+        #xbmc.Player().play(listitem=item)
         return
         
 #Function to parse the arguments passed to the plugin..
