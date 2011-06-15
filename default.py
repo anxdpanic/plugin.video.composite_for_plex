@@ -137,7 +137,18 @@ if g_multiple > 0:
         g_serverList.append(['Server '+str(i),extraip])
 
 printDebug("PleXBMC -> serverList is " + str(g_serverList), False)
-        
+
+#Get look and feel
+if __settings__.getSetting("contextreplace") == "true":
+    g_contextReplace=True
+else:
+    g_contextReplace=False
+
+g_skipcontext = __settings__.getSetting("skipcontextmenu")    
+g_skipmetadata= __settings__.getSetting("skipmetadata")
+g_skipmediaflags= __settings__.getSetting("skipmediaflags")
+g_skipimages= __settings__.getSetting("skipimages")
+
 g_loc = "special://home/addon/plugin.video.plexbmc"
 
 #Create the standard header structure and load with a User Agent to ensure we get back a response.
@@ -310,21 +321,22 @@ def addLink(url,properties,arguments,context=None):
             liz.setProperty('Artist_Description', properties['plot'])
         except: pass
 
-        try:
-            liz.setProperty('VideoResolution', arguments['VideoResolution'])
-        except: pass
-        try:
-            liz.setProperty('VideoCodec', arguments['VideoCodec'])
-        except: pass
-        try:
-            liz.setProperty('AudioCodec', arguments['AudioCodec'])
-        except: pass
-        try:
-            liz.setProperty('AudioChannels', arguments['AudioChannels'])
-        except: pass
-        try:
-            liz.setProperty('VideoAspect', arguments['VideoAspect'])
-        except: pass
+        if g_skipmediaflags == "false":
+            try:
+                liz.setProperty('VideoResolution', arguments['VideoResolution'])
+            except: pass
+            try:
+                liz.setProperty('VideoCodec', arguments['VideoCodec'])
+            except: pass
+            try:
+                liz.setProperty('AudioCodec', arguments['AudioCodec'])
+            except: pass
+            try:
+                liz.setProperty('AudioChannels', arguments['AudioChannels'])
+            except: pass
+            try:
+                liz.setProperty('VideoAspect', arguments['VideoAspect'])
+            except: pass
         
         
         #Set the file as playable, otherwise setresolvedurl will fail
@@ -345,7 +357,7 @@ def addLink(url,properties,arguments,context=None):
             #transcode="Container.Update("+u+"&transcode=1)"
             #context.append(("Play trancoded", transcodeURL, ))
 
-            liz.addContextMenuItems( context)
+            liz.addContextMenuItems(context, g_contextReplace)
         
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz)
@@ -406,7 +418,7 @@ def addDir(url,properties,arguments,context=None):
 
         if context is not None:
             printDebug("Building Context Menus")
-            liz.addContextMenuItems( context )
+            liz.addContextMenuItems( context, g_contextReplace )
        
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
@@ -481,23 +493,24 @@ def ROOT():
                 mapping[server[1]]=arguments['serverName']
                 print str(mapping)
                 
-                try:
-                    if arguments['art'][0] == "/":
-                        arguments['fanart_image']="http://"+server[1]+arguments['art']
-                    else:
-                        arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
-                except: pass
-                    
-                try:
-                    if arguments['thumb'][0] == "/":
-                        arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
-                    else:
-                        arguments['thumb']="http://"+server[1]+"/library/sections/"+arguments['thumb'].split('?')[0]
-                except: 
+                if g_skipimages == "false":
                     try:
-                        arguments['thumb']=arguments['fanart_image']
-                    except:
-                        arguments['thumb']=""
+                        if arguments['art'][0] == "/":
+                            arguments['fanart_image']="http://"+server[1]+arguments['art']
+                        else:
+                            arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
+                    except: pass
+                        
+                    try:
+                        if arguments['thumb'][0] == "/":
+                            arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
+                        else:
+                            arguments['thumb']="http://"+server[1]+"/library/sections/"+arguments['thumb'].split('?')[0]
+                    except: 
+                        try:
+                            arguments['thumb']=arguments['fanart_image']
+                        except:
+                            arguments['thumb']=""
                     
                     
                 #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
@@ -528,10 +541,14 @@ def ROOT():
                     #Build URL with the mode to use and key to further XML data in the library
                     s_url='http://'+server[1]+arguments['path']+'/all'+"&mode="+str(mode)
                 
-                context=[]
-                refreshURL="http://"+server[1]+arguments['path']+"/refresh"
-                libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update ," + refreshURL + ")"
-                context.append(('Refresh library section', libraryRefresh , ))
+
+                if g_skipcontext == "false":
+                    context=[]
+                    refreshURL="http://"+server[1]+arguments['path']+"/refresh"
+                    libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update ," + refreshURL + ")"
+                    context.append(('Refresh library section', libraryRefresh , ))
+                else:
+                    context=None
                 
                 #Build that listing..
                 addDir(s_url, properties,arguments, context)
@@ -636,13 +653,13 @@ def Movies(url,tree=None):
                 if child.tag == "Media":
                     mediaarguments = dict(child.items())
                     mediacount+=1    
-                elif child.tag == "Genre":
+                elif child.tag == "Genre" and g_skipmetadata == "false":
                     tempgenre.append(child.get('tag'))
-                elif child.tag == "Writer":
+                elif child.tag == "Writer"  and g_skipmetadata == "false":
                     tempwriter.append(child.get('tag'))
-                elif child.tag == "Director":
+                elif child.tag == "Director"  and g_skipmetadata == "false":
                     tempdir.append(child.get('tag'))
-                elif child.tag == "Role":
+                elif child.tag == "Role"  and g_skipmetadata == "false":
                     tempcast.append(child.get('tag'))
             
             printDebug("Media attributes are " + str(mediaarguments))
@@ -723,54 +740,60 @@ def Movies(url,tree=None):
              
             arguments['duration']=int(arguments['duration'])/1000
             properties['duration']=str(datetime.timedelta(seconds=int(arguments['duration'])))
-                        
-            #Get Thumbnail            
-            arguments['thumb']=getThumb(arguments, server)
-                         
-            #print art_url  
-            arguments['fanart_image']=getFanart(arguments,server)
+              
+            if g_skipimages == "false":
+              
+                #Get Thumbnail            
+                arguments['thumb']=getThumb(arguments, server)
+                             
+                #print art_url  
+                arguments['fanart_image']=getFanart(arguments,server)
             
             #Set type
             arguments['type']="Video"
             
             #Assign standard metadata
             #Cast
-            properties['cast']=tempcast
-            
-            #director
-            properties['director']=" / ".join(tempdir)
-            
-            #Writer
-            properties['writer']=" / ".join(tempwriter)
-            
-            #Genre        
-            properties['genre']=" / ".join(tempgenre)                
+            if  g_skipmetadata == "false":
+                properties['cast']=tempcast
+                
+                #director
+                properties['director']=" / ".join(tempdir)
+                
+                #Writer
+                properties['writer']=" / ".join(tempwriter)
+                
+                #Genre        
+                properties['genre']=" / ".join(tempgenre)                
                         
             #This is playable media, so link to a path to a play function
             mode=5
                              
             u='http://'+server+arguments['key']+"&mode="+str(mode)+"&id="+str(arguments['ratingKey'])
             
+            if g_skipmediaflags == "false":
             ### MEDIA FLAG STUFF ###
-            try:
-                arguments['VideoResolution']=mediaarguments['videoResolution']
-            except: pass
-            try:
-                arguments['VideoCodec']=mediaarguments['videoCodec']
-            except: pass
-            try:
-                arguments['AudioCodec']=mediaarguments['audioCodec']
-            except: pass
+                try:
+                    arguments['VideoResolution']=mediaarguments['videoResolution']
+                except: pass
+                try:
+                    arguments['VideoCodec']=mediaarguments['videoCodec']
+                except: pass
+                try:
+                    arguments['AudioCodec']=mediaarguments['audioCodec']
+                except: pass
+                
+                try:
+                    arguments['AudioChannels']=mediaarguments['audioChannels']
+                except: pass
+                try:
+                    arguments['VideoAspect']=mediaarguments['aspectRatio']
+                except: pass
             
-            try:
-                arguments['AudioChannels']=mediaarguments['audioChannels']
-            except: pass
-            try:
-                arguments['VideoAspect']=mediaarguments['aspectRatio']
-            except: pass
-            
-            
-            context=buildContextMenu(url, arguments)            
+            if g_skipcontext == "false":
+                context=buildContextMenu(url, arguments)    
+            else:
+                context=None
             
             #Right, add that link...and loop around for another entry
             addLink(u,properties,arguments,context)        
@@ -904,11 +927,12 @@ def SHOWS(url,tree=None):
                 properties['aired']=arguments['originallyAvailableAt']
             except:pass
 
-            #Get the picture to use 
-            arguments['thumb']=getThumb(arguments, server)
-               
-            #Get a nice big picture  
-            arguments['fanart_image']=getFanart(arguments,server)
+            if g_skipimages == "false":            
+                #Get the picture to use 
+                arguments['thumb']=getThumb(arguments, server)
+                   
+                #Get a nice big picture  
+                arguments['fanart_image']=getFanart(arguments,server)
            
             #Set type
             arguments['type']="Video"
@@ -921,8 +945,11 @@ def SHOWS(url,tree=None):
                 mode=4 # grab season details
                 url='http://'+server+arguments['key']+"&mode="+str(mode)
             
-            context=buildContextMenu(url, arguments)
-            
+            if g_skipcontext == "false":
+                context=buildContextMenu(url, arguments)
+            else:
+                context=None
+                
             addDir(url,properties,arguments, context) 
             
         #End the listing    
@@ -967,16 +994,18 @@ def Seasons(url):
                 properties['tvshowtitle']=properties['title']=arguments['title'].encode('utf-8')
             except: pass
        
-            #Get the picture to use 
-            arguments['thumb']=getThumb(arguments, server)
-               
-            #Get a nice big picture  
-            arguments['fanart_image']=getFanart(arguments, server)
-            try:
-                if arguments['fanart_image'] == "":
-                    arguments['fanart_image']=sectionart
-            except:
-                pass
+            if g_skipimages == "false":
+
+                #Get the picture to use 
+                arguments['thumb']=getThumb(arguments, server)
+                   
+                #Get a nice big picture  
+                arguments['fanart_image']=getFanart(arguments, server)
+                try:
+                    if arguments['fanart_image'] == "":
+                        arguments['fanart_image']=sectionart
+                except:
+                    pass
 
             #Get number of episodes in season
             try:
@@ -1025,8 +1054,12 @@ def Seasons(url):
                 PMSFLAG=""
             
             url='http://'+server+arguments['key']+PMSFLAG+"&mode="+str(mode)
-        
-            context=buildContextMenu(url, arguments)
+
+            if g_skipcontext == "false":
+                context=buildContextMenu(url, arguments)
+            else:
+                context=None
+                
             #Build the screen directory listing
             addDir(url,properties,arguments, context) 
             
@@ -1090,8 +1123,9 @@ def EPISODES(url,tree=None):
             try:
                 season=tree.get('parentIndex')
             except:pass
-        
-        sectionart=getFanart(dict(tree.items()), server)
+
+        if g_skipimages == "false":        
+            sectionart=getFanart(dict(tree.items()), server)
         
          
         #right, not for each show we find
@@ -1108,13 +1142,13 @@ def EPISODES(url,tree=None):
             for child in show:
                 if child.tag == "Media":
                     mediaarguments = dict(child.items())
-                elif child.tag == "Genre":
+                elif child.tag == "Genre" and g_skipmetadata == "false":
                     tempgenre.append(child.get('tag'))
-                elif child.tag == "Writer":
+                elif child.tag == "Writer" and g_skipmetadata == "false":
                     tempwriter.append(child.get('tag'))
-                elif child.tag == "Director":
+                elif child.tag == "Director" and g_skipmetadata == "false":
                     tempdir.append(child.get('tag'))
-                elif child.tag == "Role":
+                elif child.tag == "Role" and g_skipmetadata == "false":
                     tempcast.append(child.get('tag'))
             
             #required to grab to check if file is a .strm file
@@ -1214,33 +1248,36 @@ def EPISODES(url,tree=None):
                 try:
                     properties['studio']=arguments['studio']
                 except: pass
-                
-            #Get the picture to use
-            arguments['thumb']=getThumb(arguments, server)
-               
-            #Get a nice big picture  
-            arguments['fanart_image']=getFanart(arguments, server)
-            try:
-                if arguments['fanart_image'] == "":
-                    arguments['fanart_image']=sectionart
-            except:
-                pass
+              
+            if g_skipimages == "false":
+                  
+                #Get the picture to use
+                arguments['thumb']=getThumb(arguments, server)
+                   
+                #Get a nice big picture  
+                arguments['fanart_image']=getFanart(arguments, server)
+                try:
+                    if arguments['fanart_image'] == "":
+                        arguments['fanart_image']=sectionart
+                except:
+                    pass
 
             #Set type
             arguments['type']="Video"
 
-            #Assign standard metadata
-            #Cast
-            properties['cast']=tempcast
             
-            #director
-            properties['director']=" / ".join(tempdir)
-            
-            #Writer
-            properties['writer']=" / ".join(tempwriter)
-            
-            #Genre        
-            properties['genre']=" / ".join(tempgenre) 
+            if g_skipmetadata == "false":
+                #Cast
+                properties['cast']=tempcast
+                
+                #director
+                properties['director']=" / ".join(tempdir)
+                
+                #Writer
+                properties['writer']=" / ".join(tempwriter)
+                
+                #Genre        
+                properties['genre']=" / ".join(tempgenre) 
             
             #get the air date
             try:
@@ -1265,25 +1302,30 @@ def EPISODES(url,tree=None):
             mode=5
 
             u='http://'+server+arguments['key']+"&mode="+str(mode)+"&id="+str(arguments['ratingKey'])
-            context=buildContextMenu(url, arguments)
             
-            ### MEDIA FLAG STUFF ###
-            try:
-                arguments['VideoResolution']=mediaarguments['videoResolution']
-            except: pass
-            try:
-                arguments['VideoCodec']=mediaarguments['videoCodec']
-            except: pass
-            try:
-                arguments['AudioCodec']=mediaarguments['audioCodec']
-            except: pass
-            
-            try:
-                arguments['AudioChannels']=mediaarguments['audioChannels']
-            except: pass
-            try:
-                arguments['VideoAspect']=mediaarguments['aspectRatio']
-            except: pass
+            if g_skipcontext == "false":
+                context=buildContextMenu(url, arguments)
+            else:
+                context=None
+             
+            if g_skipmediaflags == "false":
+                ### MEDIA FLAG STUFF ###
+                try:
+                    arguments['VideoResolution']=mediaarguments['videoResolution']
+                except: pass
+                try:
+                    arguments['VideoCodec']=mediaarguments['videoCodec']
+                except: pass
+                try:
+                    arguments['AudioCodec']=mediaarguments['audioCodec']
+                except: pass
+                
+                try:
+                    arguments['AudioChannels']=mediaarguments['audioChannels']
+                except: pass
+                try:
+                    arguments['VideoAspect']=mediaarguments['aspectRatio']
+                except: pass
 
             
             #Build a file link and loop
@@ -1942,7 +1984,7 @@ def processDirectory(url,tree=None):
         
         n_url=p_url+'&mode=0'
 
-        addDir(n_url,properties,arguments)
+        addDir(n_url,properties,arguments, )
         
     xbmcplugin.endOfDirectory(pluginhandle)
 

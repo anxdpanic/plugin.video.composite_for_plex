@@ -2,15 +2,9 @@
 <settings>
     <category label="General">
 	<setting id="bonjour" type="bool" label="30004" default="false" />
-	<setting id="bonjourquick" type="bool" label="30046" default="false" visible="eq(-1,true)" enable="eq(-1,true)"/>
-    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-2,false)" enable="eq(-2,false)"/>
+    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,false)" enable="eq(-1,false)"/>
     <setting id="port" type="text" label="30030" default="32400" visible="eq(-3,false)" enable="eq(-3,false)"/>
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
-    <setting id="secondary" type="bool" label="30003" default="false"/>
-    <setting id="channelview" type="bool" label="30042" default="false"/>
-    <setting id="skinwatch" type="bool" label="30045" default="false"/>
-    <!--<setting id="wolon" type="bool" label="30043" default="false"/>
-    <setting id="mac" type="text" label="30044" default="" />-->
     </category>
     
     <category label="Audio/Subtitle" >
@@ -62,9 +56,18 @@
         <setting id="wol11" type=text label="Server 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
     </category>
         
-    
-
-    
+    <category label="Look and Feel" >
+        <setting id="secondary" type="bool" label="30003" default="false"/>
+        <setting id="channelview" type="bool" label="30042" default="false"/>
+        <setting id="skinwatch" type="bool" label="30045" default="false"/>
+        <setting id="flatten" type="bool" label="30043" default="false"/>
+        <setting id="contextreplace" type=bool label="30048" default="false"/>
+        <setting id="skipcontextmenus" type=bool label="30052" default="false" />
+        <setting id="skipmetadata" type=bool label="30049" default="false" />
+        <setting id="skipimages" type=bool  label="30050" default="false" />
+        <setting id="skipflags" type=bool  label="30051" default="false" />
+    </category>
+        
     <category label="Debug" >
         <setting id="debug" type=bool label="30014" default="false" />
     </category>
