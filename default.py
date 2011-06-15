@@ -1856,6 +1856,7 @@ def getContent(url):
     server=url.split('/')[2]
     lastbit=url.split('/')[-1]
     secondtolast=url.split('/')[-2]
+    print str(lastbit)
     
     if lastbit.startswith('search'):
         #Found search URL.  Bring up keyboard and get input for query string
@@ -1885,6 +1886,8 @@ def getContent(url):
     
     if arguments['viewGroup'] == "movie":
         printDebug( "this is movie XML, passing to Movies")
+        if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
+            xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
         Movies(url, tree)
         return
     elif arguments['viewGroup'] == "show":
@@ -3089,6 +3092,7 @@ else:
     elif mode==1:
         SHOWS(url)
     elif mode==2:
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
         Movies(url)
     elif mode==3:
         artist(url)
