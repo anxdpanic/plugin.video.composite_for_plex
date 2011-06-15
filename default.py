@@ -1375,16 +1375,17 @@ def getAudioSubtitlesMedia(server,id):
                      
             elif stream['streamType'] == '3':
                 try:
-                    if stream['selected'] == "1":
-                        printDebug( "Found preferred subtitles id : " + str(stream['id']))
-                        subCount += 1
-                        subtitle=stream
-                except:
+                    if stream['key']:
+                        printDebug( "Found external subtitles id : " + str(stream['id']))
+                        external=stream
+                        external['key']='http://'+server+external['key']
+                except: 
+                    #Otherwise it's probably embedded
                     try:
-                        if stream['key']:
-                            printDebug( "Found external subtitles id : " + str(stream['id']))
-                            external=stream
-                            external['key']='http://'+server+external['key']
+                        if stream['selected'] == "1":
+                            printDebug( "Found preferred subtitles id : " + str(stream['id']))
+                            subCount += 1
+                            subtitle=stream
                     except: pass
           
     else:
