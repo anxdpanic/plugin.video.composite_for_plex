@@ -3007,6 +3007,9 @@ def skin():
                         WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+"/music&mode=17")
                         WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
         
+                WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , mapping[server[1]])
+                serverCount+=1
+                
             WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
             
         #Clear out old data
