@@ -1516,12 +1516,12 @@ def PLAYEPISODE(id,vids):
             printDebug("Seeking to " + str(resume))
             xbmc.Player().seekTime((resume)) 
     
-        #Next Set audio and subs
-        setAudioSubtitles(streams)
- 
-       
-        #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
-        monitorPlayback(id,server)
+        if not (g_transcode == "true" and g_proxy == "true"):
+            #Next Set audio and subs
+            setAudioSubtitles(streams)
+     
+            #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
+            monitorPlayback(id,server)
         
         return
 
