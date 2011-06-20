@@ -100,12 +100,12 @@ g_channelview = __settings__.getSetting('channelview')
 g_flatten = __settings__.getSetting('flatten')
 
 g_skintype= __settings__.getSetting('skinwatch')    
+g_skinwatched="xbmc"
 g_skin = xbmc.getSkinDir()
 if g_skintype == "true":
     if g_skin.find('.plexbmc'):
         g_skinwatched="plexbmc"
-else:
-    g_skinwatched="plexbmc"
+
 
         
 if g_debug == "true":
@@ -144,12 +144,12 @@ if __settings__.getSetting("contextreplace") == "true":
 else:
     g_contextReplace=False
 
-g_skipcontext = __settings__.getSetting("skipcontextmenu")    
+g_skipcontext = __settings__.getSetting("skipcontextmenus")    
 g_skipmetadata= __settings__.getSetting("skipmetadata")
 g_skipmediaflags= __settings__.getSetting("skipmediaflags")
 g_skipimages= __settings__.getSetting("skipimages")
 
-g_loc = "special://home/addon/plugin.video.plexbmc"
+g_loc = "special://home/addons/plugin.video.plexbmc"
 
 #Create the standard header structure and load with a User Agent to ensure we get back a response.
 g_txheaders = {
@@ -545,7 +545,7 @@ def ROOT():
                 if g_skipcontext == "false":
                     context=[]
                     refreshURL="http://"+server[1]+arguments['path']+"/refresh"
-                    libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update ," + refreshURL + ")"
+                    libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update ," + refreshURL + ")"
                     context.append(('Refresh library section', libraryRefresh , ))
                 else:
                     context=None
@@ -805,7 +805,7 @@ def buildContextMenu(url, arguments):
     context=[]
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
-    libraryRefresh = "XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, update, " + refreshURL + ")"
+    libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update, " + refreshURL + ")"
     context.append(('Refresh library section', libraryRefresh , ))
     
     try:
@@ -815,11 +815,11 @@ def buildContextMenu(url, arguments):
         ID=arguments['key'].split('/')[3]
         
     unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
-    unwatched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch, " + unwatchURL + ")"
+    unwatched="XBMC.RunScript("+g_loc+"/default.py, watch, " + unwatchURL + ")"
     context.append(('Mark as UnWatched', unwatched , ))
             
     watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
-    watched="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/default.py, watch, " + watchURL + ")"
+    watched="XBMC.RunScript("+g_loc+"/default.py, watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
     
     #mediaInfoURL="XBMC.ActivateWindow(movieinformation)"
@@ -1675,7 +1675,7 @@ def proxyControl(command):
     import subprocess
     if command == "start":
         printDebug("Start proxy")
-        filestring="XBMC.RunScript(special://home/addons/plugin.video.plexbmc/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\","+g_proxyport+")"
+        filestring="XBMC.RunScript("+g_loc+"/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\","+g_proxyport+")"
         printDebug( str(filestring))
         xbmc.executebuiltin(filestring)
         time.sleep(2)

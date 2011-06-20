@@ -33,7 +33,7 @@
     <string id="30028">Load External Subtitles?</string>
     <string id="30029">Always display subtitles?</string>
     <string id="30030">Port Number</string>
-    <string id="30031">Use PMS localisation settings?</string>
+    <string id="30031">Use PMS localisation settings</string>
     <string id="30032">Manual</string>
     <string id="30033">Always</string>
     <string id="30034">Audio stream selection</string>
@@ -44,14 +44,14 @@
     <string id="30039">Subs Off</string>
     <string id="30040">Quality</string>
     <string id="30041">Proxy Port</string>
-    <string id="30042">Channel View?</string>
+    <string id="30042">Plex Channel View</string>
     <string id="30043">Flatten TV Shows</string>
     <string id="30044">Server MAC address</string>
     <string id="30045">Plex Style Watched flags</string>
     <string id="30046">Windows Media Server?</string>
     <string id="30047">Use WOL?</string>
     <string id="30048">Clean context menus</string>
-    <string id="30049">Skip extended metadata</string>
+    <string id="30049">Skip Genre/director/writer metadata</string>
     <string id="30050">Skip images (thumbs, fanart)</string>
     <string id="30051">Skip Media Flags</string>
     <string id="30052">Skip Context Menus</string>
