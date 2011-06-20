@@ -146,7 +146,7 @@ else:
 
 g_skipcontext = __settings__.getSetting("skipcontextmenus")    
 g_skipmetadata= __settings__.getSetting("skipmetadata")
-g_skipmediaflags= __settings__.getSetting("skipmediaflags")
+g_skipmediaflags= __settings__.getSetting("skipflags")
 g_skipimages= __settings__.getSetting("skipimages")
 
 g_loc = "special://home/addons/plugin.video.plexbmc"
