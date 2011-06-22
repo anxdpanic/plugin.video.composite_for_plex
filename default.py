@@ -1495,7 +1495,7 @@ def PLAYEPISODE(id,vids):
         printDebug("handle is " + str(pluginhandle))
         #ok - this will start playback for the file pointed to by the url
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
-        #xbmc.Player().play(listitem=item)
+        #start = xbmc.Player().play(listitem=item)
         
         #Set a loop to wait for positive confirmation of playback
         count = 0
@@ -1514,7 +1514,18 @@ def PLAYEPISODE(id,vids):
         if result == 0:
             #Need to skip forward (seconds)
             printDebug("Seeking to " + str(resume))
+            xbmc.Player().pause()
             xbmc.Player().seekTime((resume)) 
+            time.sleep(1)
+            seek=xbmc.Player().getTime()
+
+            while not ((seek-10) < resume < (seek + 10)):
+                printDebug( "Do not appear to have seeked correctly. Try again")
+                xbmc.Player().seekTime((resume)) 
+                time.sleep(1)
+                seek=xbmc.Player().getTime()
+            
+            xbmc.Player().pause()
     
         if not (g_transcode == "true" and g_proxy == "true"):
             #Next Set audio and subs
