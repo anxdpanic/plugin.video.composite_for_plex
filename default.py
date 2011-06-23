@@ -130,7 +130,7 @@ else:
 g_multiple = int(__settings__.getSetting('multiple')) 
 g_serverList=[]
 if g_bonjour == "false":
-    g_serverList.append(['Primary', g_host])
+    g_serverList.append(['Primary', g_host, False])
 if g_multiple > 0:
     printDebug( "PleXBMC -> Additional servers configured; found [" + str(g_multiple) + "]", False)
     for i in range(1,g_multiple+1):
@@ -461,7 +461,7 @@ def ROOT():
                 printDebug("BonjourFind was not able to discovery any servers")
         
         elif g_bonjour == "assisted":
-            Servers.append(["Main Server", g_host, g_port, True])
+            Servers.append(["Main Server", g_host+":"+g_port, True])
         
         Servers += g_serverList
         numOfServers=len(Servers)
@@ -2900,7 +2900,7 @@ def skin():
                 printDebug("BonjourFind was not able to discovery any servers")
         
         elif g_bonjour == "assisted":
-            Servers.append(["Main Server", g_host, g_port, True])
+            Servers.append(["Main Server", g_host+":"+g_port, True])
         
         Servers += g_serverList
         numOfServers=len(Servers)
@@ -2945,7 +2945,7 @@ def skin():
                 arguments=dict(object.items())
                 
                 mapping[server[1]]=arguments['serverName']
-                print str(mapping)
+                #print str(mapping)
                 
                 if g_skipimages == "false":
                     try:
@@ -3025,18 +3025,19 @@ def skin():
                     server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
             
             
-                    if g_channelview == "true":
-                        WINDOW.setProperty("plexbmc.channel", "1")
-                        WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server[1]+"/system/plugins/all&mode=21,return)")
-                    else:
-                        WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+"/video&mode=7")
-                        WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+"/music&mode=17")
-                        WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
+                if g_channelview == "true":
+                    WINDOW.setProperty("plexbmc.channel", "1")
+                    WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server[1]+"/system/plugins/all&mode=21,return)")
+                else:
+                    WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+"/video&mode=7")
+                    WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+"/music&mode=17")
+                    WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
+                        
+                WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
         
                 WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , mapping[server[1]])
                 serverCount+=1
                 
-            WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
             
         #Clear out old data
         try:
