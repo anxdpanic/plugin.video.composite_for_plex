@@ -55,4 +55,7 @@
     <string id="30050">Skip images (thumbs, fanart)</string>
     <string id="30051">Skip Media Flags</string>
     <string id="30052">Skip Context Menus</string>
+    <string id="30053">Off</string>
+    <string id="30054">On</string>
+    <string id="30055">Assisted</string>
 </strings>

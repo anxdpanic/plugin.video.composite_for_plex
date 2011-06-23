@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="General">
-	<setting id="bonjour" type="bool" label="30004" default="false" />
-    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,false)" enable="eq(-1,false)"/>
+	<setting id="bonjour" type="enum" label="30004" lvalues="30053|30054|30055" default="false" />
+    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,0)|eq(-1,2)" enable="eq(-1,0)|eq(-1,2)"/>
     <setting id="port" type="text" label="30030" default="32400" visible="eq(-3,false)" enable="eq(-3,false)"/>
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
     </category>
@@ -42,17 +42,17 @@
         
     <category label="Wake On LAN" >
         <setting id="wolon" type="bool" label="Use Wake On LAN" default="false" />
-        <setting id="wol1" type="text" label="MAC address 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />
-        <setting id="wol2" type="text" label="MAC address 2" visible="eq(-2,true)" enable="eq(-2,true)" default="" />
-        <setting id="wol3" type="text" label="MAC address 3" visible="eq(-3,true)" enable="eq(-3,true)" default="" />
-        <setting id="wol4" type="text" label="MAC address 4" visible="eq(-4,true)" enable="eq(-4,true)" default="" />
-        <setting id="wol5" type="text" label="MAC address 5" visible="eq(-5,true)" enable="eq(-5,true)" default="" />
-        <setting id="wol6" type="text" label="MAC address 6" visible="eq(-6,true)" enable="eq(-6,true)" default="" />
-        <setting id="wol7" type="text" label="MAC address 7" visible="eq(-7,true)" enable="eq(-7,true)" default="" />
-        <setting id="wol8" type="text" label="MAC address 8" visible="eq(-8,true)" enable="eq(-8,true)" default="" />
-        <setting id="wol9" type="text" label="MAC address 9" visible="eq(-9,true)" enable="eq(-9,true)" default="" />
-        <setting id="wol10" type="text" label="MAC address 10" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
-        <setting id="wol11" type="text" label="MAC address 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
+        <setting id="wol1" type="text" label="MAC Address 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />
+        <setting id="wol2" type="text" label="MAC Address 2" visible="eq(-2,true)" enable="eq(-2,true)" default="" />
+        <setting id="wol3" type="text" label="MAC Address 3" visible="eq(-3,true)" enable="eq(-3,true)" default="" />
+        <setting id="wol4" type="text" label="MAC Address 4" visible="eq(-4,true)" enable="eq(-4,true)" default="" />
+        <setting id="wol5" type="text" label="MAC Address 5" visible="eq(-5,true)" enable="eq(-5,true)" default="" />
+        <setting id="wol6" type="text" label="MAC Address 6" visible="eq(-6,true)" enable="eq(-6,true)" default="" />
+        <setting id="wol7" type="text" label="MAC Address 7" visible="eq(-7,true)" enable="eq(-7,true)" default="" />
+        <setting id="wol8" type="text" label="MAC Address 8" visible="eq(-8,true)" enable="eq(-8,true)" default="" />
+        <setting id="wol9" type="text" label="MAC Address 9" visible="eq(-9,true)" enable="eq(-9,true)" default="" />
+        <setting id="wol10" type="text" label="MAC Address 10" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
+        <setting id="wol11" type="text" label="MAC Address 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
     </category>
         
     <category label="Look and Feel" >

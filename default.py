@@ -73,8 +73,18 @@ if g_wolon == "true":
 
 g_bonjour = __settings__.getSetting('bonjour')
 
-if g_bonjour == "true":
+if g_bonjour == "1":
+    g_bonjour = "true"
     printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
+
+elif g_bonjour == "2":
+    g_bonjour="assisted"
+    printDebug("PleXBMC -> Assisted Bonjour discovery setting enabled.", False)
+
+elif g_bonjour == "0":
+    g_bonjour="false"
+    
+if g_bonjour == "true":
     try:
         from bonjourFind import *
     except:
@@ -82,7 +92,6 @@ if g_bonjour == "true":
         xbmcgui.Dialog().ok("Bonjour Error","Bonjour disabled.  Require XBMC (Pre)Eden")
         g_bonjour="false"
     
-
 else:
     g_host = __settings__.getSetting('ipaddress')
     g_port=__settings__.getSetting('port')
@@ -451,6 +460,9 @@ def ROOT():
             else:
                 printDebug("BonjourFind was not able to discovery any servers")
         
+        elif g_bonjour == "assisted":
+            Servers.append(["Main Server", g_host, g_port, True])
+        
         Servers += g_serverList
         numOfServers=len(Servers)
         mapping={}
@@ -469,7 +481,7 @@ def ROOT():
             tree = etree.fromstring(html)
             
             NoExtraservers=1
-            if g_bonjour == "true" and server[2]:
+            if server[2]:
                 extraservers=set(re.findall("host=\"(.*?)\"", html))
                 NoExtraservers = len(extraservers) 
                 numOfServers+=NoExtraservers-1
@@ -480,8 +492,8 @@ def ROOT():
             #For each directory tag we find, build an onscreen link to drill down into the library
             for object in tree.getiterator('Directory'):
                         
-                #If section is not local then ignore
-                if g_bonjour == "true" and server[2]:
+                #Check if we are to display all or just local sections (all for bonjour)
+                if server[2]:
                     server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
                     
                 else:
@@ -561,7 +573,7 @@ def ROOT():
                 #Create Photo plugin link
             for i in range(NoExtraservers):
             
-                if g_bonjour == "true" and server[2]:
+                if server[2]:
                     server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
 
                 if g_channelview == "false":
@@ -2887,6 +2899,9 @@ def skin():
             else:
                 printDebug("BonjourFind was not able to discovery any servers")
         
+        elif g_bonjour == "assisted":
+            Servers.append(["Main Server", g_host, g_port, True])
+        
         Servers += g_serverList
         numOfServers=len(Servers)
         mapping={}
@@ -2908,7 +2923,7 @@ def skin():
             tree = etree.fromstring(html)
             
             NoExtraservers=1
-            if g_bonjour == "true" and server[2]:
+            if server[2]:
                 extraservers=set(re.findall("host=\"(.*?)\"", html))
                 NoExtraservers = len(extraservers) 
                 numOfServers+=NoExtraservers-1
@@ -2920,7 +2935,7 @@ def skin():
             for object in tree.getiterator('Directory'):
                         
                 #If section is not local then ignore
-                if g_bonjour == "true" and server[2]:
+                if server[2]:
                     server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
                     
                 else:
@@ -3006,7 +3021,7 @@ def skin():
                 #Create Photo plugin link
             for i in range(NoExtraservers):
 
-                if g_bonjour == "true" and server[2]:
+                if server[2]:
                     server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
             
             
