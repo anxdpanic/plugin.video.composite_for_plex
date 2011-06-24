@@ -107,6 +107,7 @@ g_secondary = __settings__.getSetting('secondary')
 g_streamControl = __settings__.getSetting('streamControl')
 g_channelview = __settings__.getSetting('channelview')
 g_flatten = __settings__.getSetting('flatten')
+#g_playtheme = __settings__.getSetting('playtvtheme')
 
 g_skintype= __settings__.getSetting('skinwatch')    
 g_skinwatched="xbmc"
@@ -849,6 +850,11 @@ def SHOWS(url,tree=None):
 
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
         
+        #try:
+        #    if xbmc.Player().isPlayingAudio():
+        #        xbmc.Player().stop()
+        #except: pass
+        
         #Get the URL and server name.  Get the XML and parse
         if tree is None:
             html=getURL(url)
@@ -986,6 +992,15 @@ def Seasons(url):
         tree=etree.fromstring(html)
         
         sectionart=getFanart(dict(tree.items()), server)
+       
+        #if g_playtheme == "true":
+        #    try:
+        #        theme = tree.get('theme').split('?')[0]
+        #        xbmc.Player().play('http://'+server+theme+'/theme.mp3')
+        #    except:
+        #        printDebug("No Theme music to play")
+        #        pass
+                
        
         #For all the directory tags
         ShowTags=tree.findall('Directory')
@@ -3095,6 +3110,8 @@ elif sys.argv[1] == "update":
 elif sys.argv[1] == "watch":
     url=sys.argv[2]
     watched(url)
+elif sys.argv[1] == "setting":
+    __settings__.openSettings()
 else:
    
     pluginhandle = int(sys.argv[1])

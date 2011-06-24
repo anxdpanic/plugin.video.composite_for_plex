@@ -3,7 +3,7 @@
     <category label="General">
 	<setting id="bonjour" type="enum" label="30004" lvalues="30053|30054|30055" default="false" />
     <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,0)|eq(-1,2)" enable="eq(-1,0)|eq(-1,2)"/>
-    <setting id="port" type="text" label="30030" default="32400" visible="eq(-3,false)" enable="eq(-3,false)"/>
+    <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)|eq(-2,2)" enable="eq(-2,0)|eq(-2,2)"/>
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
     </category>
     
