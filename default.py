@@ -3050,11 +3050,12 @@ def skin():
                         
                 WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
         
-                printDebug ("server is : " + str(server[1]))
-                printDebug ("Mapping is :" + mapping[server[1]])
+                printDebug ("server hostname is : " + str(server[1]))
                 try:
                     WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , mapping[server[1]])
+                    printDebug ("Name mapping is :" + mapping[server[1]])
                 except:
+                    printDebug ("Falling back to server hostname")
                     WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[1].split(':')[0])
                     
                 serverCount+=1
