@@ -462,7 +462,7 @@ def ROOT():
                 printDebug("BonjourFind was not able to discovery any servers")
         
         elif g_bonjour == "assisted":
-            Servers.append(["Main Server", g_host+":"+g_port, True])
+            Servers.append(["Main Server", g_host, True])
         
         Servers += g_serverList
         numOfServers=len(Servers)
@@ -2915,7 +2915,7 @@ def skin():
                 printDebug("BonjourFind was not able to discovery any servers")
         
         elif g_bonjour == "assisted":
-            Servers.append(["Main Server", g_host+":"+g_port, True])
+            Servers.append(["Main Server", g_host, True])
         
         Servers += g_serverList
         numOfServers=len(Servers)
@@ -3050,7 +3050,13 @@ def skin():
                         
                 WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
         
-                WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , mapping[server[1]])
+                printDebug ("server is : " + str(server[1]))
+                printDebug ("Mapping is :" + mapping[server[1]])
+                try:
+                    WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , mapping[server[1]])
+                except:
+                    WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[1].split(':')[0])
+                    
                 serverCount+=1
                 
             
