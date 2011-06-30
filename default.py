@@ -3004,7 +3004,7 @@ def skin():
                 if  arguments['type'] == 'artist':
                     window="MusicFiles"
                     mode=3
-                arguments['type']="Video"
+                #arguments['type']="Video"
                 
                 if g_secondary == "true":
                     s_url='http://'+server[1]+arguments['path']+"&mode=0"
@@ -3022,7 +3022,9 @@ def skin():
                 WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
                 WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
                 WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
+                WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+server[1]+arguments['path'])
 
+                
                 printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'].encode('utf-8') + "]")
                 
                 sectionCount += 1
