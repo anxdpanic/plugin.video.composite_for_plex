@@ -2968,7 +2968,8 @@ def skin():
                             arguments['fanart_image']="http://"+server[1]+arguments['art']
                         else:
                             arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
-                    except: pass
+                    except: 
+                            arguments['fanart_image']=""
                         
                     try:
                         if arguments['thumb'][0] == "/":

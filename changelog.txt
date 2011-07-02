@@ -1,7 +1,8 @@
 Current Release:
-[b] Version 1.9.2 [/b] Added bonjour discovery, look and feel control, fixed external subs, Wake on LAN, flatten Shows
+[b] Version 1.9.4.1 [/b] Support for tweaked cirrus skin, small bug fix for skin fanart
 
 Selected Release Highlights..
+[b] Version 1.9.2 [/b] Added bonjour discovery, look and feel control, fixed external subs, Wake on LAN, flatten Shows
 [b] Version 1.9e [/b] Fixed some bus (local file placeback, resume, UNC paths) - added Plex style watched flags for confluence.plexbmc skin
 [b] Version 1.9c [/b] Refactor code for speedup, added watch/unwatch/refresh context, skin media flag support, more fanart, better media detection
 [b] Version 1.8.6 [/b] Speeded up menu displays, fixed "by folder" view, added show name to mixed episode lists
