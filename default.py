@@ -3109,6 +3109,119 @@ def watched(url):
     xbmc.executebuiltin("Container.Refresh")
     
     return
+ 
+def displayServers(url):
+    printDebug("== ENTER: displayServers ==", False)
+    type=url.split('/')[2]
+    printDebug("Displaying entries for " + type)
+    Servers=[]
+      
+    #If we have a remote host, then don;t do local discovery as it won't work
+    if g_bonjour == "true":
+        printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
+        try:
+            bonjourServer = bonjourFind("_plexmediasvr._tcp")
+        except:
+            print "PleXBMC -> Bonjour error.  Is Bonjour installed on this client?"
+            return
+            
+        if bonjourServer.complete:
+            printDebug("Bonjour discovery completed")
+            #Add the first found server to the list - we will find rest from here
+            Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
+        else:
+            printDebug("BonjourFind was not able to discovery any servers")
+        
+    elif g_bonjour == "assisted":
+        Servers.append(["Main Server", g_host, True])
+        
+    Servers += g_serverList
+    numOfServers=len(Servers)
+    mapping={}
+    printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(Servers))
+        
+    #For each of the servers we have identified
+    for server in Servers:
+         
+
+        if server[2]: 
+            #dive into the library section     
+            url='http://'+server[1]+'/servers'
+            html=getURL(url)
+                
+            if html is False:
+                continue
+                    
+            tree = etree.fromstring(html)
+                            
+                
+            #Find all the directory tags, as they contain further levels to follow
+            #For each directory tag we find, build an onscreen link to drill down into the library
+            for object in tree.getiterator('Server'):
+                            
+                arguments=dict(object.items())
+                                                       
+                #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
+                properties={}
+
+                #Start pulling out information from the parsed XML output. Assign to various variables
+                try:
+                    properties['title']=arguments['name']
+                except:
+                    properties['title']="unknown"
+                
+                if type == "video":
+                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/video&mode=7"
+                
+                elif type == "online":
+                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/system/plexonline&mode=19"
+                
+                elif type == "music":
+                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/music&mode=17"
+                
+                elif type == "photo":
+                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/photos&mode=16"
+                    
+                #Build that listing..
+                addDir(s_url, properties,arguments)
+        else:
+            url='http://'+server[1]
+            html=getURL(url)
+                
+            if html is False:
+                continue
+                    
+            tree = etree.fromstring(html)
+
+            properties={}
+            arguments=dict(tree.items())
+            try:
+                properties['title']=arguments['friendlyName']
+            except:
+                properties['title']="unknown"
+
+            if type == "video":
+                s_url='http://'+server[1]+"/video&mode=7"
+                
+            elif type == "online":
+                s_url='http://'+server[1]+"/system/plexonline&mode=19"
+                
+            elif type == "music":
+                s_url='http://'+server[1]+"/music&mode=17"
+                
+            elif type == "photo":
+                s_url='http://'+server[1]+"/photos&mode=16"
+                    
+            #Build that listing..
+            addDir(s_url, properties,arguments)
+
+                
+    #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
+    xbmcplugin.endOfDirectory(pluginhandle)  
+
+    
+    
+    
     
 ##So this is where we really start the plugin.
 
@@ -3236,6 +3349,8 @@ else:
         install(url,name)
     elif mode==21:
         channelView(url)
+    elif mode==22:
+        displayServers(url)
 
 print "===== PLEXBMC STOP ====="
    
