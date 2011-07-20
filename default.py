@@ -1,5 +1,5 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib, socket
-import sys,os,datetime, time, sha, inspect
+import sys,os,datetime, time, sha, inspect, base64
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
@@ -166,6 +166,9 @@ g_txheaders = {
               'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)',	
               }
 
+capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols=http-live-streaming,http-mp4-streaming,http-mp4-video,http-mp4-video-720p,http-streaming-video,http-streaming-video-720p,webkit;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=mp3,aac")
+                      
+              
 #Set up the remote access authentication tokens
 XBMCInternalHeaders=""
     
@@ -352,6 +355,7 @@ def addLink(url,properties,arguments,context=None):
         
         #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
+        
                 
         #Set the fanart image if it has been enabled
         try:
@@ -426,6 +430,12 @@ def addDir(url,properties,arguments,context=None):
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
             printDebug( "Setting fan art as " + str(arguments['fanart_image']))
         except: pass
+
+        try:
+            liz.setProperty('bannerArt', arguments['banner']+XBMCInternalHeaders)
+            printDebug( "Setting banner art as " + str(arguments['banner']))
+        except:
+            pass
 
         if context is not None:
             printDebug("Building Context Menus")
@@ -919,6 +929,11 @@ def SHOWS(url,tree=None):
                 arguments['WatchedEpisodes']=0
                 arguments['UnWatchedEpisodes']=0
     
+            #banner art
+            try:
+                arguments['banner']='http://'+server+arguments['banner'].split('?')[0]+"/banner.jpg"
+            except:
+                pass
                 
             if arguments['WatchedEpisodes'] == 0:
                 if g_skinwatched == "xbmc":          #UNWATCHED
@@ -1458,7 +1473,7 @@ def PLAYEPISODE(id,vids):
         protocol=url.split(':',1)[0]
   
         if protocol == "file":
-            printDebug( "We are playing a file")
+            printDebug( "We are playing a local file")
             #Split out the path from the URL
             playurl=url.split(':',1)[1]
         elif protocol == "http":
@@ -1846,9 +1861,27 @@ def PLAY(vids):
         item = xbmcgui.ListItem(path=url)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-def videoPluginPlay(vids):
+def videoPluginPlay(vids, prefix=None):
         printDebug("== ENTER: videopluginplay ==", False)
         #This is for playing standard non-PMS library files (such as Plugins)
+        
+        if prefix is None:
+            prefix=""
+        else:
+            vids=transcode(0, vids, prefix)
+            if g_proxy =="true":
+                printDebug("Building Transcode Proxy URL and starting proxy")
+                import base64
+                headers=base64.b64encode(XBMCInternalHeaders)
+                #newurl=base64.b64encode(url)
+                vids="http://127.0.0.1:"+g_proxyport+"/withheaders/"+base64.b64encode(vids)+"/"+headers
+                    
+                identifier=proxyControl("start")
+                    
+                if identifier is False:
+                    printDebug("Error - proxy not running")
+                    xbmcgui.Dialog().ok("Error","Transcoding proxy not running")
+
         
         header=""
         if vids.split('/')[4] == "amt":
@@ -1862,9 +1895,7 @@ def videoPluginPlay(vids):
             else:
                 header="&"+agentHeader
 
-                
-        #Pleader="&X-Plex-Client-Capabilities="+urllib.quote_plus("protocols=http-live-streaming,http-mp4-streaming,http-mp4-video,http-mp4-video-720p,http-streaming-video,http-streaming-video-720p,webkit;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=mp3,aac")
-        
+                        
         #if XBMCInternalHeaders == "":
         #    Pleader="|"+Pleader
         #else:
@@ -2025,7 +2056,7 @@ def processDirectory(url,tree=None):
     xbmcplugin.endOfDirectory(pluginhandle)
 
 #Function that will return a m3u8 playlist URL from a PMS stream URL
-def transcode(id,url):
+def transcode(id,url,identifier=None):
     printDebug("== ENTER: transcode ==", False)
     # First get the time since Epoch
         
@@ -2035,14 +2066,20 @@ def transcode(id,url):
     server=url.split('/')[2]
     filestream=urllib.quote_plus("/"+"/".join(url.split('/')[3:]))
   
-    if g_transcodefmt == "m3u8":
-        myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality="+g_quality+"&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent="
-    elif g_transcodefmt == "flv":
-        myurl="/video/:/transcode/generic.flv?format=flv&videoCodec=libx264&vpre=video-embedded-h264&videoBitrate=5000&audioCodec=libfaac&apre=audio-embedded-aac&audioBitrate=128&size=640x480&fakeContentLength=2000000000&url=http%3A%2F%2Flocalhost%3A32400"  + filestream + "&3g=0&httpCookies=&userAgent="
+    if identifier is not None:
+        baseurl=url.split('url=')[1]
+        myurl="/video/:/transcode/segmented/start.m3u8?identifier="+identifier+"&webkit=1&3g=0&offset=0&quality="+g_quality+"&url="+baseurl
     else:
-        printDebug( "Woah!!  Barmey settings error....Bale.....")
-        return url
+  
+        if g_transcodefmt == "m3u8":
+            myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality="+g_quality+"&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent="
+        elif g_transcodefmt == "flv":
+            myurl="/video/:/transcode/generic.flv?format=flv&videoCodec=libx264&vpre=video-embedded-h264&videoBitrate=5000&audioCodec=libfaac&apre=audio-embedded-aac&audioBitrate=128&size=640x480&fakeContentLength=2000000000&url=http%3A%2F%2Flocalhost%3A32400"  + filestream + "&3g=0&httpCookies=&userAgent="
+        else:
+            printDebug( "Woah!!  Barmey settings error....Bale.....")
+            return url
 
+            
     now=str(int(round(time.time(),0)))
     
     msg = myurl+"@"+now
@@ -2437,7 +2474,11 @@ def PlexPlugins(url):
         try:
             sectionArt=getFanart(dict(tree.items()),server)
         except: pass
-               
+        
+        try:
+            identifier=tree.get('identifier')
+        except: pass
+        
         for orange in tree:
                
             arguments=dict(orange.items())
@@ -2461,7 +2502,11 @@ def PlexPlugins(url):
                     arguments['fanart_image']=sectionArt
             except:
                 pass
-
+            try:    
+                arguments['identifier']=identifier    
+            except:
+                arguments['identifier']=""
+                
             p_url=getLinkURL(url, arguments, server)
 
             
@@ -2702,6 +2747,10 @@ def getLinkURL(url, arguments, server):
         elif arguments['key'][0] == '/':
             #The key begins with a slash, there is absolute
             return 'http://'+server+str(arguments['key'])
+        elif arguments['key'].split('/')[0] == "plex:":
+            #If we get a plex:// URL, then this uses the Plex Client Media serve rplayer - which XBMC doesn't have
+            #Only option of playback is to transcode.
+            return 'http://'+server+'/'+'/'.join(arguments['key'].split('/')[3:])+'&prefix='+arguments['identifier']
         else:
             #Build the next level URL and add the link on screen
             return url+'/'+str(arguments['key'])
@@ -3216,11 +3265,40 @@ def displayServers(url):
                 
     #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
     xbmcplugin.endOfDirectory(pluginhandle)  
+  
+  
+def getTranscodeSettings():
+    global g_transcode 
+    g_transcode = __settings__.getSetting('transcode')
 
+    if transcodeOverride == 1:
+            printDebug( "PleXBMC -> Transcode override.  Will play media with addon transcoding settings", False)
+            g_transcode="true"
+
+    if g_transcode == "true":
+        #If transcode is set, ignore the stream setting for file and smb:
+        g_stream = "1"
+        printDebug( "PleXBMC -> We are set to Transcode, overriding stream selection", False)
+        global g_transcodetype 
+        global g_transcodefmt
+        g_transcodetype = __settings__.getSetting('transcodefmt')
+        if g_transcodetype == "0":
+            g_transcodefmt="m3u8"
+        elif g_transcodetype == "1":
+            g_transcodefmt="flv"
+        
+        global g_quality
+        g_quality = str(int(__settings__.getSetting('quality'))+3)
+        printDebug( "PleXBMC -> Transcode format is " + g_transcodefmt, False)
+        printDebug( "PleXBMC -> Transcode quality is " + g_quality, False)
+        global g_proxyport
+        g_proxyport=__settings__.getSetting('proxyport')
     
-    
-    
-    
+        global g_proxy
+        g_proxy = __settings__.getSetting('proxy')
+        printDebug( "PleXBMC -> proxy is " + g_proxy, False)
+
+            
 ##So this is where we really start the plugin.
 
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
@@ -3249,6 +3327,7 @@ else:
     id=None
     duration=None
     transcodeOverride=None
+    prefix=None
 
     #Now try and assign some data to them
     try:
@@ -3273,6 +3352,11 @@ else:
             transcodeOverride=int(params["transcode"])
     except:
             transcodeOverride=0
+            
+    try:
+            prefix=params["prefix"]
+    except:
+            pass
 
             
     if g_debug == "true":
@@ -3298,32 +3382,7 @@ else:
         Seasons(url)
     elif mode==5:
         #Check and set transcoding options
-        g_transcode = __settings__.getSetting('transcode')
-
-        if transcodeOverride == 1:
-                printDebug( "PleXBMC -> Transcode override.  Will play media with addon transcoding settings", False)
-                g_transcode="true"
-
-        if g_transcode == "true":
-            #If transcode is set, ignore the stream setting for file and smb:
-            g_stream = "1"
-            printDebug( "PleXBMC -> We are set to Transcode, overriding stream selection", False)
-            g_transcodetype = __settings__.getSetting('transcodefmt')
-            if g_transcodetype == "0":
-                g_transcodefmt="m3u8"
-            elif g_transcodetype == "1":
-                g_transcodefmt="flv"
-                
-            g_quality = str(int(__settings__.getSetting('quality'))+3)
-
-            printDebug( "PleXBMC -> Transcode format is " + g_transcodefmt, False)
-            printDebug( "PleXBMC -> Transcode quality is " + g_quality, False)
-            g_proxyport=__settings__.getSetting('proxyport')
-         
-
-            g_proxy = __settings__.getSetting('proxy')
-            printDebug( "PleXBMC -> proxy is " + g_proxy, False)
-
+        getTranscodeSettings()
         PLAYEPISODE(id,url)
     elif mode==6:
         EPISODES(url)
@@ -3340,7 +3399,8 @@ else:
     elif mode==17:
         music(url)
     elif mode==18:
-        videoPluginPlay(url)
+        getTranscodeSettings()
+        videoPluginPlay(url,prefix)
     elif mode==19:
         plexOnline(url)
     elif mode==20:
