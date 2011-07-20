@@ -1868,6 +1868,7 @@ def videoPluginPlay(vids, prefix=None):
         if prefix is None:
             prefix=""
         else:
+            getTranscodeSettings(True)
             vids=transcode(0, vids, prefix)
             if g_proxy =="true":
                 printDebug("Building Transcode Proxy URL and starting proxy")
@@ -3267,11 +3268,11 @@ def displayServers(url):
     xbmcplugin.endOfDirectory(pluginhandle)  
   
   
-def getTranscodeSettings():
+def getTranscodeSettings(override=False):
     global g_transcode 
     g_transcode = __settings__.getSetting('transcode')
 
-    if transcodeOverride == 1:
+    if override is True:
             printDebug( "PleXBMC -> Transcode override.  Will play media with addon transcoding settings", False)
             g_transcode="true"
 
@@ -3399,7 +3400,6 @@ else:
     elif mode==17:
         music(url)
     elif mode==18:
-        getTranscodeSettings()
         videoPluginPlay(url,prefix)
     elif mode==19:
         plexOnline(url)
