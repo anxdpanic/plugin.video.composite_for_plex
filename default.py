@@ -192,7 +192,7 @@ if g_authentication == "true":
 
 ################################ Common
 # Connect to a server and retrieve the HTML page
-def getURL( url ,title="Error", surpress=False):
+def getURL( url ,title="Error", surpress=False, type="GET"):
     printDebug("== ENTER: getURL ==", False)
     try:
         printDebug("url = "+url)
@@ -203,7 +203,7 @@ def getURL( url ,title="Error", surpress=False):
              
         params = "" 
         conn = httplib.HTTPConnection(server) 
-        conn.request("GET", urlPath, headers=g_txheaders) 
+        conn.request(type, urlPath, headers=g_txheaders) 
         data = conn.getresponse() 
         if int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
@@ -845,11 +845,13 @@ def buildContextMenu(url, arguments):
     watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
     watched="XBMC.RunScript("+g_loc+"/default.py, watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
-    
-    #mediaInfoURL="XBMC.ActivateWindow(movieinformation)"
-    #context.append(("Media info", mediaInfoURL,))
-    #plexbmcSettingURL="XBMC.ActivateWindow(addonsettings)"
-    #context.append(("PleXBMC Settings", plexbmcSettingURL,))
+
+    deleteURL="http://"+server+"/library/metadata/"+ID
+    removed="XBMC.RunScript("+g_loc+"/default.py, delete, " + deleteURL + ")"
+    context.append(('Delete', removed , ))
+
+    settingDisplay="XBMC.RunScript("+g_loc+"/default.py, setting)"
+    context.append(('PleXBMC settings', settingDisplay , ))
     
     return context
     
@@ -860,12 +862,7 @@ def SHOWS(url,tree=None):
         xbmcplugin.setContent(pluginhandle, 'tvshows')
 
         #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
-        
-        #try:
-        #    if xbmc.Player().isPlayingAudio():
-        #        xbmc.Player().stop()
-        #except: pass
-        
+                
         #Get the URL and server name.  Get the XML and parse
         if tree is None:
             html=getURL(url)
@@ -3299,6 +3296,21 @@ def getTranscodeSettings(override=False):
         g_proxy = __settings__.getSetting('proxy')
         printDebug( "PleXBMC -> proxy is " + g_proxy, False)
 
+def deleteMedia(url):
+    printDebug("== ENTER: deleteMedia ==", False)
+
+    printDebug ("deleteing media at: " + url)
+    
+    ret = xbmcgui.Dialog().yesno("Confirm file delete?","Delete this item? This action will delete media and associated data files.")
+
+    if ret:
+        printDebug("Deleting....")
+        installed = getURL(url,type="DELETE")    
+    
+        xbmc.executebuiltin("Container.Refresh")
+    
+    return
+
             
 ##So this is where we really start the plugin.
 
@@ -3313,6 +3325,9 @@ elif sys.argv[1] == "watch":
     watched(url)
 elif sys.argv[1] == "setting":
     __settings__.openSettings()
+elif sys.argv[1] == "delete":
+    url=sys.argv[2]
+    deleteMedia(url)
 else:
    
     pluginhandle = int(sys.argv[1])
