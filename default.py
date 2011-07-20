@@ -49,7 +49,7 @@ DEFAULT_PORT="32400"
 g_debug = __settings__.getSetting('debug')
 def printDebug(msg,functionname=True):
     if g_debug == "true":
-        if functionname == False:
+        if functionname is False:
             print str(msg)
         else:
             print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
@@ -258,6 +258,7 @@ def mediaType(partproperties, server):
             try:
                 printDebug("Checking for local file")
                 exists = open(file, 'r')
+                printDebug("Local file found, will use this")
                 exists.close()
                 return "file:"+file
             except: pass
@@ -1454,16 +1455,13 @@ def PLAYEPISODE(id,vids):
         streams=getAudioSubtitlesMedia(server,id)     
         url=selectMedia(streams['partsCount'],streams['parts'], server)
 
-        protocol=url.split('/')[0]
-
-
-        urlPath="/"+"/".join(url.split('/')[3:])
+        protocol=url.split(':',1)[0]
   
-        if protocol == "file:":
+        if protocol == "file":
             printDebug( "We are playing a file")
             #Split out the path from the URL
-            playurl=url.split(':')[1]
-        elif protocol == "http:":
+            playurl=url.split(':',1)[1]
+        elif protocol == "http":
             printDebug( "We are playing a stream")
             if g_transcode == "true":
                 printDebug( "We will be transcoding the stream")
