@@ -195,13 +195,13 @@ if g_authentication == "true":
 def getURL( url ,title="Error", surpress=False, type="GET"):
     printDebug("== ENTER: getURL ==", False)
     try:
-        printDebug("url = "+url)
         txdata = None
         
         server=url.split('/')[2]
         urlPath="/"+"/".join(url.split('/')[3:])
              
-        params = "" 
+        #params = "" 
+        printDebug("url = "+url)
         conn = httplib.HTTPConnection(server) 
         conn.request(type, urlPath, headers=g_txheaders) 
         data = conn.getresponse() 
@@ -556,6 +556,8 @@ def ROOT():
                     mode=2
                 if  arguments['type'] == 'artist':
                     mode=3
+                if  arguments['type'] == 'photo':
+                    mode=16
                 
                 arguments['type']="Video"
                 
@@ -2587,6 +2589,18 @@ def photo(url):
     
         elif banana.tag == "Photo":
         
+            try:
+                if arguments['ratingKey']:
+                               
+                    for child in banana:
+                        if child.tag == "Media":
+                            for images in child:
+                                if images.tag == "Part":
+                                    arguments['thumb']="http://"+server+images.get('key')
+                                    u=arguments['thumb']
+            except:
+                pass
+            
             arguments['type']="Picture"
             addLink(u,properties,arguments)
 
@@ -3050,7 +3064,11 @@ def skin():
                 if  arguments['type'] == 'artist':
                     window="MusicFiles"
                     mode=3
-                #arguments['type']="Video"
+                if  arguments['type'] == 'photo':
+                    window="Pictures"
+                    mode=16
+
+                    #arguments['type']="Video"
                 
                 if g_secondary == "true":
                     s_url='http://'+server[1]+arguments['path']+"&mode=0"
