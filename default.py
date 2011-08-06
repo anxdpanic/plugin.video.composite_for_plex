@@ -1838,7 +1838,9 @@ def monitorPlayback(id, server, session=None):
         
         #Try to get the progress, if not revert to previous progress (which should be near enough)
         try:
-            progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))
+            progress = 50
+            if not g_proxy == "true":
+                progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
         except: pass
                
         #Now sleep for 5 seconds

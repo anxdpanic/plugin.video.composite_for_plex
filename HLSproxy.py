@@ -28,6 +28,7 @@ import sys
 import traceback
 import socket
 import os
+import time
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from urllib import *
@@ -198,7 +199,7 @@ class MyHandler(BaseHTTPRequestHandler):
                         try:
                             if mode == "m3u8":
                                 #print str(s.client_address[1])+": this is a playlist, so going to get the segments"
-
+                                time.sleep(1)
                                 s.getSegments(filelist, fileout, additionalhstring, buf )
                                     
                                 #print str(s.client_address[1])+": Back in main program"
