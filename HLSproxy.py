@@ -67,7 +67,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.send_response(200)
                 s.end_headers()
                 s.wfile.write("Proxy: Running\r\n")
-                s.wfile.write("Version: 0.3")
+                s.wfile.write("Version: 0.4")
             elif request_path[0:12]=="withheaders/":
                 #print str(s.client_address[1])+": URL request"
                 (realpath,additionalheaders)=request_path[12:].split("/")

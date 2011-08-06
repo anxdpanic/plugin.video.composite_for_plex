@@ -1753,6 +1753,9 @@ def proxyControl(command):
         return False
     #check result
     
+    #Need to hit the URL twice, to confirm stop.  First to stop it, second to check
+    html=getURL('http://127.0.0.1:'+g_proxyport+'/version', surpress=True)
+    time.sleep(1)
     html=getURL('http://127.0.0.1:'+g_proxyport+'/version', surpress=True)
     
     if command == "start":
@@ -1918,6 +1921,7 @@ def videoPluginPlay(vids, prefix=None):
                 import base64
                 headers=base64.b64encode(XBMCInternalHeaders)
                 #newurl=base64.b64encode(url)
+                session=vids
                 vids="http://127.0.0.1:"+g_proxyport+"/withheaders/"+base64.b64encode(vids)+"/"+headers
                     
                 identifier=proxyControl("start")
@@ -1950,7 +1954,47 @@ def videoPluginPlay(vids, prefix=None):
         item = xbmcgui.ListItem(path=url)
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
         #xbmc.Player().play(listitem=item)
+        
+        try:
+                pluginTranscodeMonitor(session)
+        except:
+            pass
+            
         return
+
+def pluginTranscodeMonitor(session):
+        printDebug("== ENTER: pluginTranscodeMonitor ==", False)
+
+        #Logic may appear backward, but this does allow for a failed start to be detected
+        #First while loop waiting for start
+
+        count=0
+        while not xbmc.Player().isPlaying():
+            printDebug( "Not playing yet...sleep for 2")
+            count = count + 2
+            if count >= 40:
+                #Waited 20 seconds and still no movie playing - assume it isn't going to..
+                return
+            else:
+                time.sleep(2)
+
+        while xbmc.Player().isPlaying():
+            printDebug("Waiting for playback to finish")
+            time.sleep(4)
+        
+        printDebug("Playback Stopped")
+        printDebug("Stopping PMS transcode job")
+        sessionID=session.split('/')[8]
+        server=getServerFromURL(session)
+        html=getURL('http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID)
+
+        #If we get this far - then playback has stopped.  Close transcode session:
+        if g_proxy == "true":
+            result = proxyControl("stop")
+            
+        return
+        
+                
         
 #Function to parse the arguments passed to the plugin..
 def get_params(paramstring):
