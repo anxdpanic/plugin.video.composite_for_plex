@@ -1479,7 +1479,8 @@ def PLAYEPISODE(id,vids):
         #url = vids
       
         server=getServerFromURL(vids)
-
+        session=None
+        
         streams=getAudioSubtitlesMedia(server,id)     
         url=selectMedia(streams['partsCount'],streams['parts'], server)
 
@@ -1494,6 +1495,7 @@ def PLAYEPISODE(id,vids):
             if g_transcode == "true":
                 printDebug( "We will be transcoding the stream")
                 playurl=transcode(id,url)
+                session=playurl
                 if g_proxy =="true":
                     printDebug("Building Transcode Proxy URL and starting proxy")
                     import base64
@@ -1585,7 +1587,7 @@ def PLAYEPISODE(id,vids):
             setAudioSubtitles(streams)
      
             #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
-            monitorPlayback(id,server)
+        monitorPlayback(id,server,session)
         
         return
 
@@ -1817,7 +1819,7 @@ def remove_html_tags(data):
     return p.sub('', data)
 
 #Monitor function so we can update PMS
-def monitorPlayback(id, server):
+def monitorPlayback(id, server, session=None):
     printDebug("== ENTER: monitorPlayback ==", False)
     #Need to monitor the running playback, so we can determine a few things:
     #1. If the file has completed normally (i.e. the movie has finished)
@@ -1848,7 +1850,14 @@ def monitorPlayback(id, server):
                 monitorCount=0
           
     #If we get this far, playback has stopped
+    printDebug("Playback Stopped")
     
+    if session is not None:
+        printDebug("Stopping PMS transcode job")
+        sessionID=session.split('/')[8]
+        serverName=getServerFromURL(session)
+        html=getURL('http://'+serverName+'/video/:/transcode/segmented/stop?session='+sessionID)
+
     if g_transcode == "true" and g_proxy == "true":
         result = proxyControl("stop")
     
