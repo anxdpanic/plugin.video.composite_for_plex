@@ -211,6 +211,8 @@ def getURL( url ,title="Error", surpress=False, type="GET"):
                 xbmcgui.Dialog().ok(title,error)
             print error
             return False
+        elif int(data.status) == 301 and type == "HEAD":
+            return str(data.status)+"@"+data.getheader('Location')
         else:      
             link=data.read()
             printDebug("====== XML returned =======")
@@ -447,7 +449,7 @@ def addDir(url,properties,arguments,context=None):
 
 ################################ Root listing
 # Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
-def ROOT():
+def ROOT(filter=None):
         printDebug("== ENTER: ROOT() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
@@ -511,7 +513,9 @@ def ROOT():
                 else:
                     if object.get('local') == "0":
                         continue
-                
+
+                #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
+                properties={}                
                 arguments=dict(object.items())
                 
                 mapping[server[1]]=arguments['serverName']
@@ -537,8 +541,6 @@ def ROOT():
                             arguments['thumb']=""
                     
                     
-                #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
-                properties={}
 
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 try:
@@ -552,12 +554,24 @@ def ROOT():
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
                 if arguments['type'] == 'show':
                     mode=1
-                if  arguments['type'] == 'movie':
+                    if (filter is not None) and (filter != "tvshows"):
+                        continue
+                        
+                elif  arguments['type'] == 'movie':
                     mode=2
-                if  arguments['type'] == 'artist':
+                    if (filter is not None) and (filter != "movies"):
+                        continue
+
+                elif  arguments['type'] == 'artist':
                     mode=3
-                if  arguments['type'] == 'photo':
+                    if (filter is not None) and (filter != "music"):
+                        continue
+
+                elif  arguments['type'] == 'photo':
                     mode=16
+                    if (filter is not None) and (filter != "photos"):
+                        continue
+
                 
                 arguments['type']="Video"
                 
@@ -580,11 +594,11 @@ def ROOT():
                 addDir(s_url, properties,arguments, context)
              
              
-                #Plex plugin handling 
-                #Simple check if any plugins are present.  
-                #If so, create a link to drill down later. One link is created for each PMS server available
-                #Plugin data is held in /videos directory (well, video data is anyway)
-                #Create Photo plugin link
+            #Plex plugin handling 
+            if (filter is not None) and (filter != "plugins"):
+                continue 
+            
+            properties={}
             for i in range(NoExtraservers):
             
                 if server[2]:
@@ -1864,6 +1878,36 @@ def videoPluginPlay(vids, prefix=None):
         printDebug("== ENTER: videopluginplay ==", False)
         #This is for playing standard non-PMS library files (such as Plugins)
         
+        #Right - we need to deal with PMS 301 redirects to real media through PMS PlayVideo.
+        #Really needs new player code in XBMC, but not going to happen
+        #So HEAD the URL and follow the status code: 301 -> 200
+        
+        server=getServerFromURL(vids)
+        
+        if vids.find('PlayVideo?') > 0:
+            printDebug("Checking for redirect on Plugin URL")
+            #Check for a 301
+            output=getURL(vids, type="HEAD")
+            if output.split('@')[0] == "301":
+                printDebug("301.  Getting new URL")
+                vids=output.split('@',1)[1]
+                printDebug("New URL is: "+ vids)
+                parameters=get_params(vids)
+                arguments={}
+                print str(parameters)
+                try:
+                        prefix=parameters["prefix"]
+                except:
+                        pass     
+                arguments['key']=vids
+                arguments['identifier']=prefix
+
+                vids=getLinkURL(vids, arguments ,server)
+            
+        
+        printDebug("URL to Play: " + vids)
+        printDebug("Prefix is: " + str(prefix))
+        
         if prefix is None:
             prefix=""
         else:
@@ -1909,15 +1953,20 @@ def videoPluginPlay(vids, prefix=None):
         return
         
 #Function to parse the arguments passed to the plugin..
-def get_params():
+def get_params(paramstring):
         printDebug("== ENTER: get_params ==", False)
+        printDebug("Parameter string: " + paramstring)
         param=[]
-        paramstring=sys.argv[2]
+        #paramstring=sys.argv[2]
         if len(paramstring)>=2:
-                params=sys.argv[2]
+                params=paramstring#sys.argv[2]
                 #Rather than replace ? with ' ' - I split of the first char, which is always a ? (hopefully)
                 #Could always add a check as well..
-                cleanedparams=params[1:] #.replace('?','')
+                if params[0] == "?":
+                    cleanedparams=params[1:] #.replace('?','')
+                else:
+                    cleanedparams=params
+                    
                 if (params[len(params)-1]=='/'):
                         params=params[0:len(params)-2]
                 pairsofparams=cleanedparams.split('&')
@@ -1932,7 +1981,7 @@ def get_params():
                                 param[splitparams[0]]=splitparams[1]
                         elif (len(splitparams))==3:
                                 param[splitparams[0]]=splitparams[1]+"="+splitparams[2]
-                                
+        printDebug("Returning: " + str(param))                        
         return param
 
 def getContent(url):  
@@ -3090,7 +3139,7 @@ def skin():
 
                 
                 printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'].encode('utf-8') + "]")
-                
+                printDebug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
                 sectionCount += 1
         
         
@@ -3350,7 +3399,7 @@ else:
    
     pluginhandle = int(sys.argv[1])
     #first thing, parse the arguments, as this has the data we need to use.              
-    params=get_params()
+    params=get_params(sys.argv[2])
     printDebug( "PleXBMC -> " + str(params), False)
 
     #Set up some variables
@@ -3402,7 +3451,7 @@ else:
     #Run a function based on the mode variable that was passed in the URL
         
     if mode==None or url==None or len(url)<1:
-        ROOT()
+        ROOT(url)
     elif mode == 0:
         getContent(url)
     elif mode==1:

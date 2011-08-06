@@ -54,8 +54,6 @@ class MyHandler(BaseHTTPRequestHandler):
             request_path=re.sub(r"\?.*","",request_path)
             if request_path=="stop":
                 print "==== PROXY: " + str(s.client_address[1])+": STOP request"
-                RUN=False
-                print "Set RUN to " + str(RUN)
                 s.send_response(200)
                 s.end_headers()
                 s.wfile.write("Stop detected.  Instructing parent")
@@ -287,7 +285,7 @@ class Server(HTTPServer):
 
     def get_request(self):
         """Get the request and client address from the socket."""
-        self.socket.settimeout(5.0)
+        self.socket.settimeout(10.0)
         result = None
         while result is None:
             try:
@@ -322,8 +320,8 @@ if __name__ == '__main__':
                 exists.close()
                 os.remove(file)
                 break
-            except: pass
-            httpd.handle_request()    
+            except: 
+                httpd.handle_request()    
         httpd.server_close()
         print "XBMCLocalProxy Stops %s:%s" % (HOST_NAME, PORT_NUMBER)
         #sys.exit()
