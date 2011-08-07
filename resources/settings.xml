@@ -36,6 +36,7 @@
         <setting id="transcode" type="bool" label="30007" default="false"/>
         <setting id="transcodefmt" type="enum" label="30008" lvalues="30009|30010" default="30010" />
         <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" />
+        <setting id="audiotype" type="enum" label="30057" values="Stereo|AC3|DTS" default="Stereo" />
         <setting id="proxy" type="bool" label="30015" default="true" />
         <setting id="proxyport" type="text" label="30041" visible="eq(-1,true)" enable="eq(-1,true)" default="8087" />
     </category>

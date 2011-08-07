@@ -166,9 +166,15 @@ g_txheaders = {
               'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)',	
               }
 
-capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols=http-live-streaming,http-mp4-streaming,http-mp4-video,http-mp4-video-720p,http-streaming-video,http-streaming-video-720p,webkit;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=mp3,aac")
-                      
-              
+g_audioOutput=__settings__.getSetting("audiotype")         
+if g_audioOutput == "0":
+    audio="mp3,aac"
+elif g_audioOutput == "1":
+    audio="mp3,aac,ac3"
+elif g_audioOutput == "2":
+    audio="mp3,aac,ac3,dts"
+
+capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols=http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-240p,http-streaming-video-320p,http-streaming-video-480p,http-streaming-video-720p,http-streaming-video-1080p,http-mp4-video,http-mp4-video-240p,http-mp4-video-320p,http-mp4-video-480p,http-mp4-video-720p,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)              
 #Set up the remote access authentication tokens
 XBMCInternalHeaders=""
     
@@ -2211,7 +2217,7 @@ def transcode(id,url,identifier=None):
     token=base64.b64encode(hash.digest())
     
     #Send as part of URL to avoid the case sensitive header issue.
-    fullURL="http://"+server+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)
+    fullURL="http://"+server+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)+"&"+capability
     
     printDebug("Transcode URL is " + fullURL)
     
