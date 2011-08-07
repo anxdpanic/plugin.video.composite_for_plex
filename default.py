@@ -551,6 +551,7 @@ def ROOT(filter=None):
                 except:
                     properties['title']="unknown"
                 
+                
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
                 if arguments['type'] == 'show':
                     mode=1
@@ -572,6 +573,9 @@ def ROOT(filter=None):
                     if (filter is not None) and (filter != "photos"):
                         continue
 
+                else:
+                    printDebug("Ignoring section "+properties['title']+" of type " + arguments['type'] + " as unable to process")
+                    continue
                 
                 arguments['type']="Video"
                 
