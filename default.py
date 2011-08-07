@@ -2221,7 +2221,7 @@ def transcode(id,url,identifier=None):
     
     printDebug("Transcode URL is " + fullURL)
     
-    if g_transcodefmt == "m3u8":
+    if g_transcodefmt == "m3u8" and g_proxy == "true":
     
         printDebug("Getting m3u8 playlist")
         #Send request for transcode to PMS
