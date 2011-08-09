@@ -166,15 +166,6 @@ g_txheaders = {
               'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)',	
               }
 
-g_audioOutput=__settings__.getSetting("audiotype")         
-if g_audioOutput == "0":
-    audio="mp3,aac"
-elif g_audioOutput == "1":
-    audio="mp3,aac,ac3"
-elif g_audioOutput == "2":
-    audio="mp3,aac,ac3,dts"
-
-capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols=http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-240p,http-streaming-video-320p,http-streaming-video-480p,http-streaming-video-720p,http-streaming-video-1080p,http-mp4-video,http-mp4-video-240p,http-mp4-video-320p,http-mp4-video-480p,http-mp4-video-720p,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)              
 #Set up the remote access authentication tokens
 XBMCInternalHeaders=""
     
@@ -370,7 +361,7 @@ def addLink(url,properties,arguments,context=None):
             if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
                 arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg")
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image']))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ XBMCInternalHeaders)
         except: pass
         
         if context is not None:
@@ -436,7 +427,7 @@ def addDir(url,properties,arguments,context=None):
             if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
                 arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg") 
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image']))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ XBMCInternalHeaders)
         except: pass
 
         try:
@@ -3421,8 +3412,33 @@ def getTranscodeSettings(override=False):
         g_quality = str(int(__settings__.getSetting('quality'))+3)
         printDebug( "PleXBMC -> Transcode format is " + g_transcodefmt, False)
         printDebug( "PleXBMC -> Transcode quality is " + g_quality, False)
+        
+        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-mp4-video"
+        if int(g_quality) >= 3:
+            baseCapability+=",http-streaming-video-240p,http-mp4-video-240p"
+        if int(g_quality) >= 4:
+            baseCapability+=",http-streaming-video-320p,http-mp4-video-320p"
+        if int(g_quality) >= 5:
+            baseCapability+=",http-streaming-video-480p,http-mp4-video-480p"
+        if int(g_quality) >= 6:
+            baseCapability+=",http-streaming-video-720p,http-mp4-video-720p"
+        if int(g_quality) >= 9:
+            baseCapability+=",http-streaming-video-1080p,http-mp4-video-1080p"
+        
         global g_proxyport
         g_proxyport=__settings__.getSetting('proxyport')
+    
+        g_audioOutput=__settings__.getSetting("audiotype")         
+        if g_audioOutput == "0":
+            audio="mp3,aac"
+        elif g_audioOutput == "1":
+            audio="mp3,aac,ac3"
+        elif g_audioOutput == "2":
+            audio="mp3,aac,ac3,dts"
+
+        global capability   
+        capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+";videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)              
+        printDebug("Plex Client Capability = " + capability)
     
         global g_proxy
         g_proxy = __settings__.getSetting('proxy')
