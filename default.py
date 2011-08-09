@@ -102,6 +102,7 @@ else:
         g_host=g_host+":"+g_port
         printDebug( "PleXBMC -> Settings hostname and port: " + g_host, False)
 
+global g_stream 
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
 g_streamControl = __settings__.getSetting('streamControl')
@@ -1912,6 +1913,19 @@ def videoPluginPlay(vids, prefix=None):
         
         server=getServerFromURL(vids)
         
+        header=""
+        if vids.split('/')[4] == "amt":
+            printDebug("Adding headers for AMT")
+            #Apple trailers - need a special UA header 
+            uagent="QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
+            agentHeader="User-Agent="+urllib.quote_plus(uagent)
+                                
+            if XBMCInternalHeaders == "":
+                header="|"+agentHeader
+            else:
+                header="&"+agentHeader
+
+        
         if vids.find('PlayVideo?') > 0:
             printDebug("Checking for redirect on Plugin URL")
             #Check for a 301
@@ -1956,29 +1970,11 @@ def videoPluginPlay(vids, prefix=None):
                     xbmcgui.Dialog().ok("Error","Transcoding proxy not running")
 
         
-        header=""
-        if vids.split('/')[4] == "amt":
-            printDebug("Adding headers for AMT")
-            #Apple trailers - need a special UA header 
-            uagent="QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
-            agentHeader="User-Agent="+urllib.quote_plus(uagent)
-                                
-            if XBMCInternalHeaders == "":
-                header="|"+agentHeader
-            else:
-                header="&"+agentHeader
-
-                        
-        #if XBMCInternalHeaders == "":
-        #    Pleader="|"+Pleader
-        #else:
-        #    Pleader="&"+Pleader
-        
-        url=vids+XBMCInternalHeaders+header#+Pleader
+        url=vids+XBMCInternalHeaders+header
         
         item = xbmcgui.ListItem(path=url)
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
-        #xbmc.Player().play(listitem=item)
+        
         
         try:
                 pluginTranscodeMonitor(session)
@@ -2062,7 +2058,7 @@ def getContent(url):
     server=url.split('/')[2]
     lastbit=url.split('/')[-1]
     secondtolast=url.split('/')[-2]
-    print str(lastbit)
+    printDebug("URL suffix: " + str(lastbit))
     
     if lastbit.startswith('search'):
         #Found search URL.  Bring up keyboard and get input for query string
@@ -2091,7 +2087,7 @@ def getContent(url):
     arguments=dict(tree.items())
     try:
         if arguments['viewGroup'] == "movie":
-            printDebug( "this is movie XML, passing to Movies")
+            printDebug( "This is movie XML, passing to Movies")
             if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
                 xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
             Movies(url, tree)
@@ -2129,7 +2125,7 @@ def getContent(url):
             photo(url,tree)
             return
     except:
-        printDebug("missing viewgroup parameter - treat as secondary")
+        printDebug("Missing viewgroup parameter - treat as secondary")
             
     processDirectory(url,tree)
     return
@@ -3413,13 +3409,14 @@ def getTranscodeSettings(override=False):
     g_transcode = __settings__.getSetting('transcode')
 
     if override is True:
-            printDebug( "PleXBMC -> Transcode override.  Will play media with addon transcoding settings", False)
+            printDebug( "Transcode override.  Will play media with addon transcoding settings")
             g_transcode="true"
 
     if g_transcode == "true":
         #If transcode is set, ignore the stream setting for file and smb:
+        global g_stream
         g_stream = "1"
-        printDebug( "PleXBMC -> We are set to Transcode, overriding stream selection", False)
+        printDebug( "We are set to Transcode, overriding stream selection")
         global g_transcodetype 
         global g_transcodefmt
         g_transcodetype = __settings__.getSetting('transcodefmt')
@@ -3430,8 +3427,8 @@ def getTranscodeSettings(override=False):
         
         global g_quality
         g_quality = str(int(__settings__.getSetting('quality'))+3)
-        printDebug( "PleXBMC -> Transcode format is " + g_transcodefmt, False)
-        printDebug( "PleXBMC -> Transcode quality is " + g_quality, False)
+        printDebug( "Transcode format is " + g_transcodefmt)
+        printDebug( "Transcode quality is " + g_quality)
         
         baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-mp4-video"
         if int(g_quality) >= 3:
@@ -3462,7 +3459,7 @@ def getTranscodeSettings(override=False):
     
         global g_proxy
         g_proxy = __settings__.getSetting('proxy')
-        printDebug( "PleXBMC -> proxy is " + g_proxy, False)
+        printDebug( "proxy is " + g_proxy)
 
 def deleteMedia(url):
     printDebug("== ENTER: deleteMedia ==", False)
