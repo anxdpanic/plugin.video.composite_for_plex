@@ -107,6 +107,7 @@ g_secondary = __settings__.getSetting('secondary')
 g_streamControl = __settings__.getSetting('streamControl')
 g_channelview = __settings__.getSetting('channelview')
 g_flatten = __settings__.getSetting('flatten')
+printDebug("PleXBMC -> Flatten is: "+ g_flatten, False)
 #g_playtheme = __settings__.getSetting('playtvtheme')
 
 g_skintype= __settings__.getSetting('skinwatch')    
@@ -985,7 +986,8 @@ def SHOWS(url,tree=None):
             #Set type
             arguments['type']="Video"
 
-            if g_flatten == "true":
+            if g_flatten == "2":
+                printDebug("Flattening all shows")
                 mode=6 # go straight to episodes
                 arguments['key']=arguments['key'].replace("children","allLeaves")
                 url=url='http://'+server+arguments['key']+"&mode="+str(mode)
@@ -1021,6 +1023,12 @@ def Seasons(url):
        
         tree=etree.fromstring(html)
         
+        willFlatten=False
+        if g_flatten == "1":
+            #check for a single season
+            if int(tree.get('size')) == 1:
+                printDebug("Flattening single season show")
+                willFlatten=True
         sectionart=getFanart(dict(tree.items()), server)
        
         #if g_playtheme == "true":
@@ -1035,7 +1043,12 @@ def Seasons(url):
         #For all the directory tags
         ShowTags=tree.findall('Directory')
         for show in ShowTags:
-        
+
+            if willFlatten:
+                url='http://'+server+show.get('key')
+                EPISODES(url)
+                return
+
             PMSFLAG=""
             if url.find("?unwatched=1") > 0:
                 #Temp work around until PMS data fixed.
@@ -2076,42 +2089,48 @@ def getContent(url):
         return
  
     arguments=dict(tree.items())
-    
-    if arguments['viewGroup'] == "movie":
-        printDebug( "this is movie XML, passing to Movies")
-        if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
-            xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
-        Movies(url, tree)
-        return
-    elif arguments['viewGroup'] == "show":
-        printDebug( "This is tv show XML, passing to SHOW")
-        SHOWS(url,tree)
-        return
-    elif arguments['viewGroup'] == "episode":
-        printDebug("This is TV episode XML, passing to EPISODES")
-        if lastbit.startswith("unwatched"):
-            printDebug("PMS data error, contents is actually TV Shows.  Passing to SHOWS.")
+    try:
+        if arguments['viewGroup'] == "movie":
+            printDebug( "this is movie XML, passing to Movies")
+            if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
+                xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
+            Movies(url, tree)
+            return
+        elif arguments['viewGroup'] == "show":
+            printDebug( "This is tv show XML, passing to SHOW")
             SHOWS(url,tree)
-        else:    
-            EPISODES(url,tree)
-        return
-    elif arguments['viewGroup'] == 'artist':
-        printDebug( "This is music XML, passing to music")
-        if lastbit.startswith('album') or secondtolast.startswith('decade') or secondtolast.startswith('year'):
-            albums(url,tree)
-        else:    
-            artist(url, tree)
-        return
-    elif arguments['viewGroup'] == "track":
-        printDebug("This is track XML - checking further")
-        if lastbit.startswith('recentlyAdded'):
-            printDebug("Passing to Albums")
-            albums(url, tree)
-        else:
-            printDebug("Passing to Tracks")
-            tracks(url, tree)
-        return
-    
+            return
+        elif arguments['viewGroup'] == "episode":
+            printDebug("This is TV episode XML, passing to EPISODES")
+            if lastbit.startswith("unwatched"):
+                printDebug("PMS data error, contents is actually TV Shows.  Passing to SHOWS.")
+                SHOWS(url,tree)
+            else:    
+                EPISODES(url,tree)
+            return
+        elif arguments['viewGroup'] == 'artist':
+            printDebug( "This is music XML, passing to music")
+            if lastbit.startswith('album') or secondtolast.startswith('decade') or secondtolast.startswith('year'):
+                albums(url,tree)
+            else:    
+                artist(url, tree)
+            return
+        elif arguments['viewGroup'] == "track":
+            printDebug("This is track XML - checking further")
+            if lastbit.startswith('recentlyAdded'):
+                printDebug("Passing to Albums")
+                albums(url, tree)
+            else:
+                printDebug("Passing to Tracks")
+                tracks(url, tree)
+            return
+        elif arguments['viewGroup'] =="photo":
+            printDebug("This is a photo XML")
+            photo(url,tree)
+            return
+    except:
+        printDebug("missing viewgroup parameter - treat as secondary")
+            
     processDirectory(url,tree)
     return
 
@@ -2643,16 +2662,17 @@ def PlexPlugins(url):
         #Ahh, end of the list   
         xbmcplugin.endOfDirectory(pluginhandle)        
         
-def photo(url):
+def photo(url,tree=None):
     printDebug("== ENTER: photos ==", False)
     server=url.split('/')[2]
     
-    html=getURL(url)
-    
-    if html is False:
-        return
-    
-    tree=etree.fromstring(html)
+    if tree is None:
+        html=getURL(url)
+        
+        if html is False:
+            return
+        
+        tree=etree.fromstring(html)
     
     try:
         sectionArt=getFanart(dict(tree.items()),server)
