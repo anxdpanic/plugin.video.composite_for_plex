@@ -1871,9 +1871,13 @@ def monitorPlayback(id, server, session=None):
     
     if session is not None:
         printDebug("Stopping PMS transcode job")
-        sessionID=session.split('/')[8]
         serverName=getServerFromURL(session)
-        html=getURL('http://'+serverName+'/video/:/transcode/segmented/stop?session='+sessionID)
+        stopURL='http://'+server+'/video/:/transcode/segmented/stop'
+        if g_proxy == "true":
+            sessionID=session.split('/')[8]
+            stopURL += "?session="+sessionID
+            
+        html=getURL(stopURL)
 
     if g_transcode == "true" and g_proxy == "true":
         result = proxyControl("stop")
@@ -2005,9 +2009,13 @@ def pluginTranscodeMonitor(session):
         
         printDebug("Playback Stopped")
         printDebug("Stopping PMS transcode job")
-        sessionID=session.split('/')[8]
         server=getServerFromURL(session)
-        html=getURL('http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID)
+        stopURL='http://'+server+'/video/:/transcode/segmented/stop'
+        if g_proxy == "true":
+            sessionID=session.split('/')[8]
+            stopURL += "?session="+sessionID
+            
+        html=getURL(stopURL)
 
         #If we get this far - then playback has stopped.  Close transcode session:
         if g_proxy == "true":
