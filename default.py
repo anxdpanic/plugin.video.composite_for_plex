@@ -1512,18 +1512,6 @@ def PLAYEPISODE(id,vids):
                 printDebug( "We will be transcoding the stream")
                 playurl=transcode(id,url)
                 session=playurl
-                #if g_proxy =="true":
-                #    printDebug("Building Transcode Proxy URL and starting proxy")
-                #    import base64
-                #    headers=base64.b64encode(XBMCInternalHeaders)
-                #    #newurl=base64.b64encode(url)
-                #    playurl="http://127.0.0.1:"+g_proxyport+"/withheaders/"+base64.b64encode(playurl)+"/"+headers
-                #    
-                #    identifier=proxyControl("start")
-                #    
-                #    if identifier is False:
-                #        printDebug("Error - proxy not running")
-                #        xbmcgui.Dialog().ok("Error","Transcoding proxy not running")
 
             else:
                 playurl=url+XBMCInternalHeaders
@@ -1598,7 +1586,7 @@ def PLAYEPISODE(id,vids):
             
             xbmc.Player().pause()
     
-        if not (g_transcode == "true" ): #and g_proxy == "true"):
+        if not (g_transcode == "true" ): 
             #Next Set audio and subs
             setAudioSubtitles(streams)
      
@@ -1752,50 +1740,6 @@ def codeToCountry( id ):
   }
   return languages[ id ]        
         
-#def proxyControl(command):
-#    printDebug("======= ENTER: proxyControl() =======", False)
-#    import subprocess
-#    if command == "start":
-#        printDebug("Start proxy")
-#        filestring="XBMC.RunScript("+g_loc+"/HLSproxy.py,\""+PLUGINPATH+"/terminate.proxy\","+g_proxyport+")"
-#        printDebug( str(filestring))
-#        xbmc.executebuiltin(filestring)
-#        time.sleep(2)
-#        
-#    elif command == "stop":
-#        printDebug("Stop proxy")
-#        time.sleep(2)
-#        done=getURL("http://127.0.0.1:"+g_proxyport+"/stop")
-#    else:
-#        printDebug("No proxy command specified")
-#        return False
-#    #check result
-#    
-#    #Need to hit the URL twice, to confirm stop.  First to stop it, second to check
-#    html=getURL('http://127.0.0.1:'+g_proxyport+'/version', surpress=True)
-#    time.sleep(1)
-#    html=getURL('http://127.0.0.1:'+g_proxyport+'/version', surpress=True)
-#    
-#    if command == "start":
-#        if html is False:
-#            #failure
-#            printDebug("Start Failure")
-#            return False
-#        else:
-#            printDebug("Start Success")        
-#            #success
-#            return True
-#    elif command == "stop":
-#        if html is False:
-#            #success
-#            printDebug("Stop Success")          
-#            return True
-#        else:
-#            #failure
-#            printDebug("Stop Failure")           
-#            return False
-#    
-#    return False    
            
 def selectMedia(count, options, server):   
     printDebug("== ENTER: selectMedia ==", False)
@@ -1855,7 +1799,6 @@ def monitorPlayback(id, server, session=None):
         #Try to get the progress, if not revert to previous progress (which should be near enough)
         try:
             progress = 50
-            #if not g_proxy == "true":
             progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
         except: pass
                
@@ -1877,8 +1820,6 @@ def monitorPlayback(id, server, session=None):
         stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID          
         html=getURL(stopURL)
 
-    #if g_transcode == "true" and g_proxy == "true":
-    #    result = proxyControl("stop")
     
     printDebug( "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%.")
     if progress <= 95:
@@ -1971,19 +1912,6 @@ def videoPluginPlay(vids, prefix=None):
             getTranscodeSettings(True)
             vids=transcode(0, vids, prefix)
             session=vids
-            #if g_proxy =="true":
-            #    printDebug("Building Transcode Proxy URL and starting proxy")
-            #    import base64
-            #    headers=base64.b64encode(XBMCInternalHeaders)
-            #    #newurl=base64.b64encode(url)
-            #    vids="http://127.0.0.1:"+g_proxyport+"/withheaders/"+base64.b64encode(vids)+"/"+headers
-            #        
-            #    identifier=proxyControl("start")
-            #        
-            #    if identifier is False:
-            #        printDebug("Error - proxy not running")
-            #        xbmcgui.Dialog().ok("Error","Transcoding proxy not running")
-
         
         url=vids+XBMCInternalHeaders+header
         
@@ -2026,10 +1954,6 @@ def pluginTranscodeMonitor(session):
             
         html=getURL(stopURL)
 
-        #If we get this far - then playback has stopped.  Close transcode session:
-        #if g_proxy == "true":
-        #    result = proxyControl("stop")
-            
         return
         
                 
@@ -3451,10 +3375,7 @@ def getTranscodeSettings(override=False):
             baseCapability+=",http-streaming-video-720p,http-mp4-video-720p"
         if int(g_quality) >= 9:
             baseCapability+=",http-streaming-video-1080p,http-mp4-video-1080p"
-        
-        #global g_proxyport
-        #g_proxyport=__settings__.getSetting('proxyport')
-    
+            
         g_audioOutput=__settings__.getSetting("audiotype")         
         if g_audioOutput == "0":
             audio="mp3,aac"
@@ -3467,10 +3388,6 @@ def getTranscodeSettings(override=False):
         capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+";videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)              
         printDebug("Plex Client Capability = " + capability)
     
-        #global g_proxy
-        #g_proxy = "false"
-        #printDebug( "proxy is " + g_proxy)
-
 def deleteMedia(url):
     printDebug("== ENTER: deleteMedia ==", False)
 
