@@ -195,7 +195,7 @@ if g_authentication == "true":
 
 ################################ Common
 # Connect to a server and retrieve the HTML page
-def getURL( url ,title="Error", surpress=False, type="GET"):
+def getURL( url ,title="Error", suppress=False, type="GET"):
     printDebug("== ENTER: getURL ==", False)
     try:
         txdata = None
@@ -210,7 +210,7 @@ def getURL( url ,title="Error", surpress=False, type="GET"):
         data = conn.getresponse() 
         if int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
-            if surpress is False:
+            if suppress is False:
                 xbmcgui.Dialog().ok(title,error)
             print error
             return False
@@ -223,13 +223,13 @@ def getURL( url ,title="Error", surpress=False, type="GET"):
             printDebug("====== XML finished ======")
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
-        if surpress is False:
+        if suppress is False:
             xbmcgui.Dialog().ok(title,error)
         print error
         return False
     except socket.error, msg : 
         error="Unable to connect to " + server +"\nReason: " + str(msg)
-        if surpress is False:
+        if suppress is False:
             xbmcgui.Dialog().ok(title,error)
         print error
         return False
@@ -1556,7 +1556,6 @@ def PLAYEPISODE(id,vids):
         printDebug("handle is " + str(pluginhandle))
         #ok - this will start playback for the file pointed to by the url
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
-        #start = xbmc.Player().play(listitem=item)
         
         #Set a loop to wait for positive confirmation of playback
         count = 0
@@ -1792,6 +1791,7 @@ def monitorPlayback(id, server):
         
     monitorCount=0
     progress = 0
+    complete = 0
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
@@ -1799,17 +1799,24 @@ def monitorPlayback(id, server):
         
         #Try to get the progress, if not revert to previous progress (which should be near enough)
         try:
-            progress = 50
             progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
         except: pass
                
+               
+        if progress <= 95:
+            #we are less then 95% of the way through, store the resume time
+            printDebug( "Movies played time: " + str(currentTime)+ " seconds @ " + str(progress) + "%")
+            getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000),suppress=True)
+            complete=0
+        else:
+            #Then we were 95% of the way through, so we mark the file as watched
+            if complete == 0:
+                printDebug( "Movie marked as watched. Over 95% complete")
+                getURL("http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library",suppress=True)
+                complete=1
+
         #Now sleep for 5 seconds
         time.sleep(5)
-        if g_debug == "true":
-            monitorCount+=1
-            if monitorCount == 5:
-                printDebug ("Still monitoring")
-                monitorCount=0
           
     #If we get this far, playback has stopped
     printDebug("Playback Stopped")
@@ -1818,23 +1825,7 @@ def monitorPlayback(id, server):
         printDebug("Stopping PMS transcode job with session " + g_sessionID)
         stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+g_sessionID          
         html=getURL(stopURL)
-
-    
-    printDebug( "Playback stopped at " + str(currentTime) + " which is " + str(progress) + "%.")
-    if progress <= 95:
-        #we are less then 95% of the way through, store the resume time
-        printDebug( "Less than 95% of the way through, so store resume time")
-        updateURL="http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)    
-    else:
-        #Then we were 95% of the way through, so we mark the file as watched
-        printDebug( "More than 95% completed, so mark as watched")
-        updateURL="http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library"
         
-    #Submit the update URL    
-    output = getURL(updateURL, "Updating PMS...", True)
-    printDebug("Update returned " + str(output))
-    
-     
     return
     
 #Just a standard playback 
