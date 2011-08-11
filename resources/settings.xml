@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="General">
-	<setting id="bonjour" type="enum" label="30004" lvalues="30053|30054|30055" default="false" />
+	<setting id="bonjour" type="enum" label="30004" lvalues="30053|30054|30055" default="true" />
     <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,0)|eq(-1,2)" enable="eq(-1,0)|eq(-1,2)"/>
     <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)|eq(-2,2)" enable="eq(-2,0)|eq(-2,2)"/>
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
@@ -32,13 +32,10 @@
     </category>
     
     <category label="Transcoding" >
-        <setting type="lsep" label="Transcoding with XBMC is still experimental" />
         <setting id="transcode" type="bool" label="30007" default="false"/>
         <setting id="transcodefmt" type="enum" label="30008" lvalues="30009|30010" default="30010" />
         <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" />
         <setting id="audiotype" type="enum" label="30057" values="Stereo|AC3|DTS" default="Stereo" />
-        <setting id="proxy" type="bool" label="30015" default="true" />
-        <setting id="proxyport" type="text" label="30041" visible="eq(-1,true)" enable="eq(-1,true)" default="8087" />
     </category>
         
     <category label="Wake On LAN" >

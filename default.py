@@ -1870,13 +1870,10 @@ def monitorPlayback(id, server, session=None):
     printDebug("Playback Stopped")
     
     if session is not None:
-        printDebug("Stopping PMS transcode job")
         serverName=getServerFromURL(session)
-        stopURL='http://'+server+'/video/:/transcode/segmented/stop'
-        if g_proxy == "true":
-            sessionID=session.split('/')[8]
-            stopURL += "?session="+sessionID
-            
+        sessionID=session.split('/')[8]
+        printDebug("Stopping PMS transcode job with session " + sessionID)
+        stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID          
         html=getURL(stopURL)
 
     if g_transcode == "true" and g_proxy == "true":
@@ -1902,9 +1899,22 @@ def monitorPlayback(id, server, session=None):
 #Just a standard playback 
 def PLAY(vids):
         printDebug("== ENTER: PLAY ==", False)
+        
+        protocol=vids.split(':',1)[0]
+  
+        if protocol == "file":
+            printDebug( "We are playing a local file")
+            #Split out the path from the URL
+            playurl=url.split(':',1)[1]
+        elif protocol == "http":
+            printDebug( "We are playing a stream")
+            playurl=url+XBMCInternalHeaders
+        else:
+            playurl=url
+   
+       
         #This is for playing standard non-PMS library files (such as Plugins)
-        url = vids+XBMCInternalHeaders
-        item = xbmcgui.ListItem(path=url)
+        item = xbmcgui.ListItem(path=playurl)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
 def videoPluginPlay(vids, prefix=None):
@@ -1959,12 +1969,12 @@ def videoPluginPlay(vids, prefix=None):
         else:
             getTranscodeSettings(True)
             vids=transcode(0, vids, prefix)
+            session=vids
             if g_proxy =="true":
                 printDebug("Building Transcode Proxy URL and starting proxy")
                 import base64
                 headers=base64.b64encode(XBMCInternalHeaders)
                 #newurl=base64.b64encode(url)
-                session=vids
                 vids="http://127.0.0.1:"+g_proxyport+"/withheaders/"+base64.b64encode(vids)+"/"+headers
                     
                 identifier=proxyControl("start")
@@ -1981,9 +1991,9 @@ def videoPluginPlay(vids, prefix=None):
         
         
         try:
-                pluginTranscodeMonitor(session)
+            pluginTranscodeMonitor(session)
         except:
-            pass
+            printDebug("Not starting monitor")
             
         return
 
@@ -2008,12 +2018,10 @@ def pluginTranscodeMonitor(session):
             time.sleep(4)
         
         printDebug("Playback Stopped")
-        printDebug("Stopping PMS transcode job")
+        sessionID=session.split('/')[8]
+        printDebug("Stopping PMS transcode job with session: " + sessionID)
         server=getServerFromURL(session)
-        stopURL='http://'+server+'/video/:/transcode/segmented/stop'
-        if g_proxy == "true":
-            sessionID=session.split('/')[8]
-            stopURL += "?session="+sessionID
+        stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID
             
         html=getURL(stopURL)
 
@@ -2235,7 +2243,7 @@ def transcode(id,url,identifier=None):
     
     printDebug("Transcode URL is " + fullURL)
     
-    if g_transcodefmt == "m3u8" and g_proxy == "true":
+    if g_transcodefmt == "m3u8":
     
         printDebug("Getting m3u8 playlist")
         #Send request for transcode to PMS
@@ -2321,7 +2329,7 @@ def artist(url,tree=None):
            
             arguments['type']="Music"
 
-            mode=14 # grab season details
+            mode=14 
             url='http://'+server+'/library/metadata/'+arguments['ratingKey']+'/children'+"&mode="+str(mode)
             
             addDir(url,properties,arguments) 
@@ -2486,9 +2494,6 @@ def tracks(url,tree=None):
             
             #required to grab to check if file is a .strm file
             #Can't play strm files, so lets not bother listing them. 
-            if partarguments['file'].find('.strm')>0:
-                print "Found unsupported .strm file.  Will not list"
-                continue
            
             printDebug( "args is " + str(arguments))
             printDebug( "Media is " + str(mediaarguments))
@@ -3466,7 +3471,7 @@ def getTranscodeSettings(override=False):
         printDebug("Plex Client Capability = " + capability)
     
         global g_proxy
-        g_proxy = __settings__.getSetting('proxy')
+        g_proxy = "false"
         printDebug( "proxy is " + g_proxy)
 
 def deleteMedia(url):
