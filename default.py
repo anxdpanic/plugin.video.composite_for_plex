@@ -55,7 +55,6 @@ def printDebug(msg,functionname=True):
             print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
 
 #Next Check the WOL status - lets give the servers as much time as possible to come up
-
 g_wolon = __settings__.getSetting('wolon')
 if g_wolon == "true":
     from WOL import wake_on_lan
@@ -170,6 +169,10 @@ g_txheaders = {
 
 #Set up the remote access authentication tokens
 XBMCInternalHeaders=""
+
+#Set up holding variable for session ID
+global g_sessionID
+g_sessionID=None
     
 g_authentication = __settings__.getSetting('remote')    
 if g_authentication == "true":
@@ -1492,10 +1495,10 @@ def getAudioSubtitlesMedia(server,id):
 def PLAYEPISODE(id,vids):
         printDebug("== ENTER: PLAYEPISODE ==", False)
         #Use this to play PMS library items that you want updated (Movies, TV shows)
-        #url = vids
+        
+        getTranscodeSettings()
       
         server=getServerFromURL(vids)
-        session=None
         
         streams=getAudioSubtitlesMedia(server,id)     
         url=selectMedia(streams['partsCount'],streams['parts'], server)
@@ -1511,7 +1514,6 @@ def PLAYEPISODE(id,vids):
             if g_transcode == "true":
                 printDebug( "We will be transcoding the stream")
                 playurl=transcode(id,url)
-                session=playurl
 
             else:
                 playurl=url+XBMCInternalHeaders
@@ -1591,7 +1593,7 @@ def PLAYEPISODE(id,vids):
             setAudioSubtitles(streams)
      
             #OK, we have a file, playing at the correct stop.  Now we need to monitor the file playback to allow updates into PMS
-        monitorPlayback(id,server,session)
+        monitorPlayback(id,server)
         
         return
 
@@ -1771,7 +1773,6 @@ def selectMedia(count, options, server):
     newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server)
    
     printDebug("We have selected media at " + newurl)
-    #PLAYEPISODE(id,newurl,seek, duration)
     return newurl
            
 def remove_html_tags(data):
@@ -1779,7 +1780,7 @@ def remove_html_tags(data):
     return p.sub('', data)
 
 #Monitor function so we can update PMS
-def monitorPlayback(id, server, session=None):
+def monitorPlayback(id, server):
     printDebug("== ENTER: monitorPlayback ==", False)
     #Need to monitor the running playback, so we can determine a few things:
     #1. If the file has completed normally (i.e. the movie has finished)
@@ -1813,11 +1814,9 @@ def monitorPlayback(id, server, session=None):
     #If we get this far, playback has stopped
     printDebug("Playback Stopped")
     
-    if session is not None:
-        serverName=getServerFromURL(session)
-        sessionID=session.split('/')[8]
-        printDebug("Stopping PMS transcode job with session " + sessionID)
-        stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID          
+    if g_sessionID is not None:
+        printDebug("Stopping PMS transcode job with session " + g_sessionID)
+        stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+g_sessionID          
         html=getURL(stopURL)
 
     
@@ -1915,18 +1914,20 @@ def videoPluginPlay(vids, prefix=None):
         
         url=vids+XBMCInternalHeaders+header
         
+        printDebug("Final URL is : "+url)
+        
         item = xbmcgui.ListItem(path=url)
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
         
         
         try:
-            pluginTranscodeMonitor(session)
+            pluginTranscodeMonitor(g_sessionID)
         except:
             printDebug("Not starting monitor")
             
         return
 
-def pluginTranscodeMonitor(session):
+def pluginTranscodeMonitor(sessionID):
         printDebug("== ENTER: pluginTranscodeMonitor ==", False)
 
         #Logic may appear backward, but this does allow for a failed start to be detected
@@ -1947,7 +1948,6 @@ def pluginTranscodeMonitor(session):
             time.sleep(4)
         
         printDebug("Playback Stopped")
-        sessionID=session.split('/')[8]
         printDebug("Stopping PMS transcode job with session: " + sessionID)
         server=getServerFromURL(session)
         stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID
@@ -2129,11 +2129,11 @@ def transcode(id,url,identifier=None):
   
     if identifier is not None:
         baseurl=url.split('url=')[1]
-        myurl="/video/:/transcode/segmented/start.m3u8?identifier="+identifier+"&webkit=1&3g=0&offset=0&quality="+g_quality+"&url="+baseurl
+        myurl="/video/:/transcode/segmented/start.m3u8?identifier="+identifier+"&webkit=1&3g=0&offset=0&quality="+g_quality+"&url="+baseurl+"&session="+g_sessionID
     else:
   
         if g_transcodefmt == "m3u8":
-            myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality="+g_quality+"&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent="
+            myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality="+g_quality+"&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent=&session="+g_sessionID
         elif g_transcodefmt == "flv":
             myurl="/video/:/transcode/generic.flv?format=flv&videoCodec=libx264&vpre=video-embedded-h264&videoBitrate=5000&audioCodec=libfaac&apre=audio-embedded-aac&audioBitrate=128&size=640x480&fakeContentLength=2000000000&url=http%3A%2F%2Flocalhost%3A32400"  + filestream + "&3g=0&httpCookies=&userAgent="
         else:
@@ -2161,33 +2161,10 @@ def transcode(id,url,identifier=None):
     
     #Send as part of URL to avoid the case sensitive header issue.
     fullURL="http://"+server+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)+"&"+capability
+       
+    printDebug("Transcoded media location URL " + fullURL)
     
-    printDebug("Transcode URL is " + fullURL)
-    
-    if g_transcodefmt == "m3u8":
-    
-        printDebug("Getting m3u8 playlist")
-        #Send request for transcode to PMS
-        Treq = urllib2.Request(fullURL)
-        Tresponse = urllib2.urlopen(Treq)
-        Tlink=Tresponse.read()
-        printDebug("Initial playlist is " + str(Tlink))
-        Tresponse.close()   
-    
-        #tLink contains initual m3u8 playlist.  Pull out the last entry as the actual stream to use (am assuming only single stream)
-    
-        session=Tlink.split()[-1]
-        printDebug("Getting bandwidth playlist " + session)
-    
-        #Append to URL to create link to m3u8 playlist containing the actual media.
-        sessionurl="http://"+server+"/video/:/transcode/segmented/"+session
-    else: 
-        sessionurl=fullURL
-    
-   
-    printDebug("Transcoded media location URL " + sessionurl)
-    
-    return sessionurl
+    return fullURL
      
 def artist(url,tree=None):
         printDebug("== ENTER: artist ==", False)
@@ -3383,10 +3360,14 @@ def getTranscodeSettings(override=False):
             audio="mp3,aac,ac3"
         elif g_audioOutput == "2":
             audio="mp3,aac,ac3,dts"
-
+    
         global capability   
         capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+";videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)              
         printDebug("Plex Client Capability = " + capability)
+        
+        import uuid
+        global g_sessionID
+        g_sessionID=str(uuid.uuid4())
     
 def deleteMedia(url):
     printDebug("== ENTER: deleteMedia ==", False)
@@ -3489,8 +3470,6 @@ else:
     elif mode==4:
         Seasons(url)
     elif mode==5:
-        #Check and set transcoding options
-        getTranscodeSettings()
         PLAYEPISODE(id,url)
     elif mode==6:
         EPISODES(url)
