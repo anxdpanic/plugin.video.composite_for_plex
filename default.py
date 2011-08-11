@@ -1,5 +1,5 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib, socket
-import sys,os,datetime, time, sha, inspect, base64
+import sys,os,datetime, time, inspect, base64
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
@@ -179,8 +179,9 @@ if g_authentication == "true":
     printDebug( "PleXBMC -> username is " + g_username, False)
     
     #Compute the SHA1 just one time.
-    msg=sha.new(g_password)
-    msg2=sha.new(g_username.lower()+msg.hexdigest()).hexdigest()
+    import hashlib
+    msg=hashlib.sha1(g_password)
+    msg2=hashlib.sha1(g_username.lower()+msg.hexdigest()).hexdigest()
             
     #Load the auth strings into the URL header structure.
     g_txheaders['X-Plex-User']=str(g_username)
@@ -2226,12 +2227,8 @@ def transcode(id,url,identifier=None):
     privateKey = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
        
     #If python is > 2.4 then do this
-    if sys.version_info[:2] > (2,4):
-        import hashlib, hmac
-        hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
-    else:
-        import sha256, hmacsha256
-        hash=hmacsha256.new(privateKey, msg, digestmod=sha256)
+    import hashlib, hmac
+    hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
     
     printDebug("HMAC after hash is " + hash.hexdigest())
     
