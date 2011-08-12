@@ -327,7 +327,7 @@ def addLink(url,properties,arguments,context=None):
         printDebug("URL to use for listing: " + u)
         #Create ListItem object, which is what is displayed on screen
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+XBMCInternalHeaders, thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
             printDebug("Setting thumbnail as " + arguments['thumb'])              
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -364,8 +364,6 @@ def addLink(url,properties,arguments,context=None):
                 
         #Set the fanart image if it has been enabled
         try:
-            if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
-                arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg")
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
             printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ XBMCInternalHeaders)
         except: pass
@@ -373,6 +371,7 @@ def addLink(url,properties,arguments,context=None):
         if context is not None:
             printDebug("Building Context Menus")
             #transcodeURL="XBMC.RunPlugin("+u+"&transcode=1)"
+            #transcodeURL="XBMC.RunScript("+PLUGINPATH+"/default.py, 0, ?url="+url+"&transcode=1)"
             #print transcodeURL
             #transcode="Container.Update("+u+"&transcode=1)"
             #context.append(("Play trancoded", transcodeURL, ))
@@ -430,8 +429,6 @@ def addDir(url,properties,arguments,context=None):
         
         #Set the fanart image if it has been enabled
         try:
-            if len(arguments['fanart_image'].split('/')[-1].split('.')) < 2:
-                arguments['fanart_image']=str(arguments['fanart_image']+"/image.jpg") 
             liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
             printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ XBMCInternalHeaders)
         except: pass
@@ -1599,7 +1596,7 @@ def PLAYEPISODE(id,vids):
 def setAudioSubtitles(stream):
     printDebug("== ENTER: setAudioSubtitles ==", False)
     #printDebug ("Found " + str(audioCount) + " audio streams")
-    
+        
     if stream['contents'] == "type":
         printDebug ("No streams to process.")
         
@@ -1796,7 +1793,6 @@ def monitorPlayback(id, server):
     while xbmc.Player().isPlaying():
         #Get the current playback time
         currentTime = int(xbmc.Player().getTime())
-        
         #Try to get the progress, if not revert to previous progress (which should be near enough)
         try:
             progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
@@ -2766,11 +2762,12 @@ def getFanart(arguments, server):
         if arguments['art'].split('/')[0] == "http:":
             return arguments['art']
         else:    
-            fanart='http://'+server+arguments['art'].split('?t')[0]
+            art_url='http://localhost:32400'+arguments['art'].split('?t')[0]
+            fanart=photoTranscode(server,art_url)
     except:
         fanart=""  
      
-    return fanart
+    return  fanart
 
 def getServerFromURL(url):
     return url.split('/')[2]
@@ -2970,7 +2967,9 @@ def channelView(url):
         addDir(n_url,properties,arguments)
         
     xbmcplugin.endOfDirectory(pluginhandle)
-                                
+
+def photoTranscode(server, url):
+        return 'http://'+server+'/photo/:/transcode?url='+urllib.quote_plus(url)+'&width=1280&height=720'
               
 def skin():
         #Gather some data and set the window properties
@@ -3105,7 +3104,7 @@ def skin():
                 WINDOW.setProperty("plexbmc.%d.title" % (sectionCount) , arguments['title'])
                 WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount), arguments['serverName'])
                 WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
-                WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), arguments['fanart_image']+XBMCInternalHeaders )
+                WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), photoTranscode(server[1],arguments['fanart_image'])+XBMCInternalHeaders)
                 WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
                 WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
                 WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
