@@ -2022,7 +2022,7 @@ def getContent(url):
             printDebug( "This is music XML")
             artist(url, tree)
             return
-        elif arguments['viewGroup'] == 'album':
+        elif arguments['viewGroup'] == 'album' or arguments['viewGroup'] == 'albums':
             albums(url,tree)
             return
         elif arguments['viewGroup'] == "track":
