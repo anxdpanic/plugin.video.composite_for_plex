@@ -849,14 +849,14 @@ def buildContextMenu(url, arguments):
     context=[]
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
-    libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update, " + refreshURL + ")"
+    libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update, " + refreshURL.split('?')[0] + ")"
     context.append(('Refresh library section', libraryRefresh , ))
     
     try:
         if arguments[ratingKey]:
             ID=arguments[ratingKey]
     except:
-        ID=arguments['key'].split('/')[3]
+        ID=arguments['key'].split('/')[3].split('?')[0]
         
     unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
     unwatched="XBMC.RunScript("+g_loc+"/default.py, watch, " + unwatchURL + ")"
@@ -1050,12 +1050,6 @@ def Seasons(url):
                 url='http://'+server+show.get('key')
                 EPISODES(url)
                 return
-
-            PMSFLAG=""
-            if url.find("?unwatched=1") > 0:
-                #Temp work around until PMS data fixed.
-                PMSFLAG="?unwatched=1"
-
         
             arguments=dict(show.items());
             #Build basic data structures
@@ -1122,10 +1116,7 @@ def Seasons(url):
             #Set the mode to episodes, as that is what's next     
             mode=6
             
-            if arguments['key'].find("allLeaves") > 0:
-                PMSFLAG=""
-            
-            url='http://'+server+arguments['key']+PMSFLAG+"&mode="+str(mode)
+            url='http://'+server+arguments['key']+"&mode="+str(mode)
 
             if g_skipcontext == "false":
                 context=buildContextMenu(url, arguments)
@@ -1797,8 +1788,7 @@ def monitorPlayback(id, server):
         try:
             progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
         except: pass
-               
-               
+                       
         if progress <= 95:
             #we are less then 95% of the way through, store the resume time
             printDebug( "Movies played time: " + str(currentTime)+ " seconds @ " + str(progress) + "%")
@@ -2021,32 +2011,23 @@ def getContent(url):
             Movies(url, tree)
             return
         elif arguments['viewGroup'] == "show":
-            printDebug( "This is tv show XML, passing to SHOW")
+            printDebug( "This is tv show XML")
             SHOWS(url,tree)
             return
         elif arguments['viewGroup'] == "episode":
-            printDebug("This is TV episode XML, passing to EPISODES")
-            if lastbit.startswith("unwatched"):
-                printDebug("PMS data error, contents is actually TV Shows.  Passing to SHOWS.")
-                SHOWS(url,tree)
-            else:    
-                EPISODES(url,tree)
+            printDebug("This is TV episode XML")
+            EPISODES(url,tree)
             return
         elif arguments['viewGroup'] == 'artist':
-            printDebug( "This is music XML, passing to music")
-            if lastbit.startswith('album') or secondtolast.startswith('decade') or secondtolast.startswith('year'):
-                albums(url,tree)
-            else:    
-                artist(url, tree)
+            printDebug( "This is music XML")
+            artist(url, tree)
+            return
+        elif arguments['viewGroup'] == 'album':
+            albums(url,tree)
             return
         elif arguments['viewGroup'] == "track":
-            printDebug("This is track XML - checking further")
-            if lastbit.startswith('recentlyAdded'):
-                printDebug("Passing to Albums")
-                albums(url, tree)
-            else:
-                printDebug("Passing to Tracks")
-                tracks(url, tree)
+            printDebug("This is track XML")
+            tracks(url, tree)
             return
         elif arguments['viewGroup'] =="photo":
             printDebug("This is a photo XML")
