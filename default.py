@@ -2147,8 +2147,7 @@ def artist(url,tree=None):
             
             if html is False:
                 return
-
-        
+       
             tree=etree.fromstring(html)
         
         server=getServerFromURL(url)
@@ -2159,14 +2158,14 @@ def artist(url,tree=None):
 
             arguments=dict(show.items())
         
-            tempgenre=[]
+            #tempgenre=[]
             
             #Lets grab all the info we can quickly through either a dictionary, or assignment to a list
             #We'll process it later
-            for child in show:
-                try:
-                    tempgenre.append(child.get('tag'))
-                except:pass
+            #for child in show:
+            #    try:
+            #        tempgenre.append(child.get('tag'))
+            #    except:pass
                 
             #Create the basic data structures to pass up
             properties={}  #Create a dictionary for properties with some defaults(i.e. ListItem properties)
@@ -2182,9 +2181,9 @@ def artist(url,tree=None):
             except: pass
                                         
             #get Genre
-            try:
-                properties['genre']=" / ".join(tempgenre)
-            except:pass
+            #try:
+            #    properties['genre']=" / ".join(tempgenre)
+            #except:pass
                 
             #Get the picture to use
             arguments['thumb']=getThumb(arguments, server)
@@ -2216,8 +2215,7 @@ def albums(url, tree=None):
             
             if html is False:
                 return
-
-        
+       
             tree=etree.fromstring(html)
         
         server=getServerFromURL(url)
@@ -2242,7 +2240,6 @@ def albums(url, tree=None):
                 properties['title']=properties['album']=arguments['title'].encode('utf-8')
             except: pass
        
-
             #Get the picture to use
             arguments['thumb']=getThumb(arguments, server)
                
@@ -2262,21 +2259,7 @@ def albums(url, tree=None):
                     properties['artist']=arguments['parentTitle']
                 except:
                     pass
-                        
-            #Get number of watched episodes
-            try:
-                watched=arguments['viewedLeafCount']
-                arguments['WatchedEpisodes']=int(watched)
-                arguments['UnWatchedEpisodes']=properties['episode']-arguments['WatchedEpisodes']
-                if arguments['UnWatchedEpisodes'] <= 0:
-                    properties['overlay']=7
-            except:pass
-    
-            #Get the Plot          
-            try:
-                properties['plot']=arguments['summary']
-            except: pass
-
+                            
             arguments['type']="Music"
             mode=15
             
@@ -2313,10 +2296,8 @@ def tracks(url,tree=None):
         
             tree=etree.fromstring(html)
         
-        ShowTags=tree.findall('Track')
-        
-        server=getServerFromURL(url)
-             
+        ShowTags=tree.findall('Track')      
+        server=getServerFromURL(url)           
         treeargs=dict(tree.items()) 
  
         try: 
@@ -2426,7 +2407,7 @@ def tracks(url,tree=None):
             properties['genre']=" / ".join(tempgenre) 
             
             
-            #Set the film duration 
+            #Set the track duration 
             try:
                 arguments['duration']=mediaarguments['duration']
             except KeyError:
