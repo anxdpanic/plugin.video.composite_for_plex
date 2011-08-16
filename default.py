@@ -1416,7 +1416,11 @@ def getAudioSubtitlesMedia(server,id):
     audioCount=0
     external={}
     media={}
-
+    subOffset=-1
+    audioOffset=-1
+    selectedSubOffset=-1
+    selectedAudioOffset=-1
+    
     timings = tree.find('Video')
     try:
         media['viewOffset']=timings.get('viewOffset')
@@ -1450,13 +1454,16 @@ def getAudioSubtitlesMedia(server,id):
             stream=dict(bits.items())
             if stream['streamType'] == '2':
                 audioCount += 1
+                audioOffset += 1
                 try:
                     if stream['selected'] == "1":
                         printDebug("Found preferred audio id: " + str(stream['id']) ) 
                         audio=stream
+                        selectedAudioOffset=audioOffset
                 except: pass
                      
             elif stream['streamType'] == '3':
+                subOffset += 1
                 try:
                     if stream['key']:
                         printDebug( "Found external subtitles id : " + str(stream['id']))
@@ -1469,14 +1476,15 @@ def getAudioSubtitlesMedia(server,id):
                             printDebug( "Found preferred subtitles id : " + str(stream['id']))
                             subCount += 1
                             subtitle=stream
+                            selectedSubOffset=subOffset
                     except: pass
           
     else:
             printDebug( "Stream selection is set OFF")
               
     
-    printDebug( {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media})
-    return {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media}
+    printDebug( {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media, 'subOffset':selectedSubOffset, 'audioOffset':selectedAudioOffset})
+    return {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media, 'subOffset':selectedSubOffset, 'audioOffset':selectedAudioOffset}
    
 #Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
 #Only use this to play stuff you want to update in the library        
@@ -1594,59 +1602,43 @@ def setAudioSubtitles(stream):
         if g_streamControl == "3":
             xbmc.Player().disableSubtitles()    
             printDebug ("All subs disabled")
-        
+
         return True
 
-    if sys.version_info[:2] > (2,4):   
-        if g_streamControl == "1" or  g_streamControl == "2":
-            audio=stream['audio']
-            printDebug("Setting Audio Stream")
-            #Audio Stream first        
-            if stream['audioCount'] == 1:
-                printDebug ("Only one audio stream present - will leave as default")
-            elif stream['audioCount'] > 1:
-                printDebug ("Multiple audio stream. Attempting to set to local language")
-                try:
-                    if audio['selected'] == "1":
-                        printDebug ("Found preferred language at index " + str(int(audio['index'])-1))
-                        xbmc.Player().setAudioStream(int(audio['index'])-1)
-                        printDebug ("Audio set")
-                except: pass
-    else:
-        printDebug ("AudioStream selection only available on Pre-EDEN build")
+    if g_streamControl == "1" or  g_streamControl == "2":
+        audio=stream['audio']
+        printDebug("Attempting to set Audio Stream")
+        #Audio Stream first        
+        if stream['audioCount'] == 1:
+            printDebug ("Only one audio stream present - will leave as default")
+        elif stream['audioCount'] > 1:
+            printDebug ("Multiple audio stream. Attempting to set to local language")
+            try:
+                if audio['selected'] == "1":
+                    printDebug ("Found preferred language at index " + str(stream['audioOffset']))
+                    xbmc.Player().setAudioStream(stream['audioOffset'])
+                    printDebug ("Audio set")
+            except: pass
       
     #Try and set embedded subtitles
     if g_streamControl == "1":
         subtitle=stream['subtitle']
-        printDebug("Setting Subtitle Stream", True)
+        printDebug("Attempting to set subtitle Stream", True)
         try:
             if stream['subCount'] > 0 and subtitle['languageCode']:
                 printDebug ("Found embedded subtitle for local language" )
                 printDebug ("Enabling embedded subtitles")
                 xbmc.Player().disableSubtitles()
-                xbmc.Player().setSubtitles("dummy")
-                time.sleep(1)
-                    
-                done = "go"
-                two = str(codeToCountry(subtitle['languageCode']))
-
-                while done == "go":
-                    one = str(xbmc.Player().getSubtitles())
-                        
-                    if one == two:
-                        done = "stop"
-                    
-                    xbmc.executebuiltin("Action(NextSubtitle)")                              
-                    time.sleep(1)
+                xbmc.Player().setSubtitleStream(stream['subOffset'])
+                return True
             else:
-                printDebug ("No subtitles to set")
-            return True
+                printDebug ("No embedded subtitles to set")
         except:
             printDebug("Unable to set subtitles")
   
     if g_streamControl == "1" or g_streamControl == "2":
         external=stream['external']
-        printDebug("Setting External subtitle Stream")
+        printDebug("Attempting to set external subtitle stream")
     
         try:   
             if external:
@@ -1656,10 +1648,8 @@ def setAudioSubtitles(stream):
                         printDebug ("Skipping IDX/SUB pair - not supported yet")
                     else:    
                         xbmc.Player().setSubtitles(external['key'])
-                except: 
-                    xbmc.Player().disableSubtitles()    
-                
-                return True
+                        return True
+                except: pass                    
             else:
                 printDebug ("No external subtitles available. Will turn off subs")
         except:
@@ -1788,7 +1778,7 @@ def monitorPlayback(id, server):
         try:
             progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
         except: pass
-                       
+                               
         if progress <= 95:
             #we are less then 95% of the way through, store the resume time
             printDebug( "Movies played time: " + str(currentTime)+ " seconds @ " + str(progress) + "%")
