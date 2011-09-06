@@ -1779,7 +1779,7 @@ def monitorPlayback(id, server):
             progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
         except: pass
                                
-        if progress <= 95:
+        if progress < 95:
             #we are less then 95% of the way through, store the resume time
             printDebug( "Movies played time: " + str(currentTime)+ " seconds @ " + str(progress) + "%")
             getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000),suppress=True)
@@ -1888,13 +1888,13 @@ def videoPluginPlay(vids, prefix=None):
         
         
         try:
-            pluginTranscodeMonitor(g_sessionID)
+            pluginTranscodeMonitor(g_sessionID,server)
         except:
             printDebug("Not starting monitor")
             
         return
 
-def pluginTranscodeMonitor(sessionID):
+def pluginTranscodeMonitor(sessionID,server):
         printDebug("== ENTER: pluginTranscodeMonitor ==", False)
 
         #Logic may appear backward, but this does allow for a failed start to be detected
@@ -1916,7 +1916,7 @@ def pluginTranscodeMonitor(sessionID):
         
         printDebug("Playback Stopped")
         printDebug("Stopping PMS transcode job with session: " + sessionID)
-        server=getServerFromURL(session)
+        #server=getServerFromURL(sessionID)
         stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID
             
         html=getURL(stopURL)
@@ -2087,7 +2087,7 @@ def transcode(id,url,identifier=None):
   
     if identifier is not None:
         baseurl=url.split('url=')[1]
-        myurl="/video/:/transcode/segmented/start.m3u8?identifier="+identifier+"&webkit=1&3g=0&offset=0&quality="+g_quality+"&url="+baseurl+"&session="+g_sessionID
+        myurl="/video/:/transcode/segmented/start.m3u8?url="+baseurl+"&webkit=1&3g=0&offset=0&quality="+g_quality+"&session="+g_sessionID+"&identifier="+identifier
     else:
   
         if g_transcodefmt == "m3u8":
@@ -2725,6 +2725,7 @@ def getServerFromURL(url):
     return url.split('/')[2]
 
 def getLinkURL(url, arguments, server):
+    printDebug("== ENTER: getLinkURL ==")
     try:
         if arguments['key'].split('/')[0] == "http:":
             return arguments['key']
@@ -2732,9 +2733,13 @@ def getLinkURL(url, arguments, server):
             #The key begins with a slash, there is absolute
             return 'http://'+server+str(arguments['key'])
         elif arguments['key'].split('/')[0] == "plex:":
-            #If we get a plex:// URL, then this uses the Plex Client Media serve rplayer - which XBMC doesn't have
+            #If we get a plex:// URL, then this uses the Plex Client Media server player - which XBMC doesn't have
             #Only option of playback is to transcode.
-            return 'http://'+server+'/'+'/'.join(arguments['key'].split('/')[3:])+'&prefix='+arguments['identifier']
+            newUrl='http://'+server+'/'+'/'.join(arguments['key'].split('/')[3:])
+            if newUrl.find('&prefix=') < 0:
+                return newUrl+'&prefix='+arguments['identifier']
+            else:
+                return newUrl
         else:
             #Build the next level URL and add the link on screen
             return url+'/'+str(arguments['key'])
@@ -3385,7 +3390,7 @@ else:
             transcodeOverride=0
             
     try:
-            prefix=params["prefix"]
+            prefix=params["identifier"]
     except:
             pass
 
