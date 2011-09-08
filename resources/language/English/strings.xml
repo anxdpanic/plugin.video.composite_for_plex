@@ -63,4 +63,6 @@
     <string id="30058">If only one season</string>
     <string id="30059">All seasons</string>
     <string id="30060">Force DVD playback</string>
+    <string id="30061">Override SMB location</string>
+    <string id="30062">NAS IP Address</string>
 </strings>

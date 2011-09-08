@@ -128,10 +128,20 @@ if g_debug == "true":
     print "PleXBMC -> Setting stream Control to : " + g_streamControl
     print "PleXBMC -> Running skin: " + g_skin
     print "PleXBMC -> Running watch view skin: " + g_skinwatched
-    print "PleXBMC -> Force DVD playback via SMB: " + g_forcedvd
+    print "PleXBMC -> Force DVD playback: " + g_forcedvd
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
+g_nasoverride = __settings__.getSetting('nasoverride')
+printDebug("PleXBMC -> SMB IP Override: " + g_nasoverride, False)
+if g_nasoverride == "true":
+    g_nasoverrideip = __settings__.getSetting('nasoverrideip')
+    if g_nasoverrideip == "":
+        printDebug("PleXBMC -> No NAS IP Specified.  Ignoring setting")
+        g_nasoverride="false"
+    else:
+        printDebug("PleXBMC -> NAS IP: " + g_nasoverrideip, False)
+  
 g_multiple = int(__settings__.getSetting('multiple')) 
 g_serverList=[]
 if g_bonjour == "false":
@@ -293,14 +303,19 @@ def mediaType(partproperties, server, dvdplayback=False):
             filelocation="smb:"+file.replace("\\","/")
         else:
             #Might be OSX type, in which case, remove Volumes and replace with server
+            if g_nasoverride == "true":
+                server=g_nasoverrideip
+            else:
+                server=server.split(':')[0]
+                
             if file.find('Volumes') > 0:
-                filelocation="smb:/"+file.replace("Volumes",server.split(':')[0])
+                filelocation="smb:/"+file.replace("Volumes",server)
             else:
                 if type == "winfile":
-                    filelocation="smb://"+server.split(':')[0]+"/"+file[3:]
+                    filelocation="smb://"+server+"/"+file[3:]
                 else:
                     #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
-                    filelocation="smb://"+server.split(':')[0]+file
+                    filelocation="smb://"+server+file
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
         filelocation="http://"+server+stream
