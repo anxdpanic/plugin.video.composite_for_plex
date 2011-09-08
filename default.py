@@ -109,6 +109,8 @@ g_channelview = __settings__.getSetting('channelview')
 g_flatten = __settings__.getSetting('flatten')
 printDebug("PleXBMC -> Flatten is: "+ g_flatten, False)
 #g_playtheme = __settings__.getSetting('playtvtheme')
+g_forcedvd = __settings__.getSetting('forcedvd')
+
 
 g_skintype= __settings__.getSetting('skinwatch')    
 g_skinwatched="xbmc"
@@ -126,6 +128,7 @@ if g_debug == "true":
     print "PleXBMC -> Setting stream Control to : " + g_streamControl
     print "PleXBMC -> Running skin: " + g_skin
     print "PleXBMC -> Running watch view skin: " + g_skinwatched
+    print "PleXBMC -> Force DVD playback via SMB: " + g_forcedvd
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
@@ -257,6 +260,7 @@ def mediaType(partproperties, server):
         type="winfile"
     else:
         printDebug("looks like nuttin' i aint ever seen")
+        printDebug(str(file))
         type="notsure"
     
     # 0 is auto select.  basically check for local file first, then stream if not found
@@ -1726,6 +1730,19 @@ def selectMedia(count, options, server):
     result=0
     
     if count > 1:
+    
+        if g_forcedvd == "true":
+            print str(options)
+            #see if an .ifo exists, if so pass this to mediaType
+            for i in options:
+                print "check: " + str(i)
+                if '.ifo' in i[1].lower():
+                    print "found ifo in " + i[1]
+                    location=options.index(i)
+                    global g_stream
+                    g_stream="2"
+                    return mediaType({'key':options[location][0], 'file': options[location][1]}, server) 
+        
     
         dialogOptions=[]
         for items in options:
