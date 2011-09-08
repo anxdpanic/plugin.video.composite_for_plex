@@ -239,7 +239,7 @@ def getURL( url ,title="Error", suppress=False, type="GET"):
     else:
         return link
       
-def mediaType(partproperties, server):
+def mediaType(partproperties, server, dvdplayback=False):
     printDebug("== ENTER: mediaType ==", False)
     
     #Passed a list of <Part /> tag attributes, select the appropriate media to play
@@ -275,11 +275,15 @@ def mediaType(partproperties, server):
                 return "file:"+file
             except: pass
                 
-        printDebug("No local file, defaulting to stream")
-        return "http://"+server+stream
+        printDebug("No local file")
+        global g_stream
+        if dvdplayback:
+            g_stream="2"
+        else:
+            g_stream="1"
         
     # 1 is stream no matter what
-    elif g_stream == "1":
+    if g_stream == "1":
         printDebug( "Selecting stream")
         return "http://"+server+stream
     # 2 is use SMB 
@@ -1739,9 +1743,7 @@ def selectMedia(count, options, server):
                 if '.ifo' in i[1].lower():
                     print "found ifo in " + i[1]
                     location=options.index(i)
-                    global g_stream
-                    g_stream="2"
-                    return mediaType({'key':options[location][0], 'file': options[location][1]}, server) 
+                    return mediaType({'key':options[location][0], 'file': options[location][1]}, server, dvdplayback=True) 
         
     
         dialogOptions=[]
