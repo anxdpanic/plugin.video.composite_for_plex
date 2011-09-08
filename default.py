@@ -1922,9 +1922,7 @@ def pluginTranscodeMonitor(sessionID,server):
         html=getURL(stopURL)
 
         return
-        
                 
-        
 #Function to parse the arguments passed to the plugin..
 def get_params(paramstring):
         printDebug("== ENTER: get_params ==", False)
@@ -2472,6 +2470,7 @@ def PlexPlugins(url):
                     arguments['fanart_image']=sectionArt
             except:
                 pass
+                
             try:    
                 arguments['identifier']=identifier    
             except:
@@ -2735,11 +2734,19 @@ def getLinkURL(url, arguments, server):
         elif arguments['key'].split('/')[0] == "plex:":
             #If we get a plex:// URL, then this uses the Plex Client Media server player - which XBMC doesn't have
             #Only option of playback is to transcode.
+            components=arguments['key'].split('&')
+            for i in components:
+                if 'prefix=' in i:
+                    del components[components.index(i)]
+                    break
+            try:
+                if arguments['identifier']:
+                    components.append('identifier='+arguments['identifier'])
+            except: pass
+            
+            arguments['key']='&'.join(components)        
             newUrl='http://'+server+'/'+'/'.join(arguments['key'].split('/')[3:])
-            if newUrl.find('&prefix=') < 0:
-                return newUrl+'&prefix='+arguments['identifier']
-            else:
-                return newUrl
+            return newUrl
         else:
             #Build the next level URL and add the link on screen
             return url+'/'+str(arguments['key'])
