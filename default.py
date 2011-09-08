@@ -880,6 +880,10 @@ def buildContextMenu(url, arguments):
 
     settingDisplay="XBMC.RunScript("+g_loc+"/default.py, setting)"
     context.append(('PleXBMC settings', settingDisplay , ))
+
+    listingRefresh="XBMC.RunScript("+g_loc+"/default.py, refresh)"
+    context.append(('Refresh Listing', listingRefresh , ))
+
     
     return context
     
@@ -3374,6 +3378,8 @@ elif sys.argv[1] == "setting":
 elif sys.argv[1] == "delete":
     url=sys.argv[2]
     deleteMedia(url)
+elif sys.argv[1] == "refresh":
+    xbmc.executebuiltin("Container.Refresh")
 else:
    
     pluginhandle = int(sys.argv[1])
