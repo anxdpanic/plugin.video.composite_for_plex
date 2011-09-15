@@ -65,4 +65,5 @@
     <string id="30060">Force DVD playback</string>
     <string id="30061">Override SMB location</string>
     <string id="30062">NAS IP Address</string>
+    <string id="30063">AFP</string>
 </strings>

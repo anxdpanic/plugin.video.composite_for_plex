@@ -1,5 +1,5 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib, socket
-import sys,os,datetime, time, inspect, base64
+import sys,os,datetime, time, inspect, base64, hashlib
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
@@ -118,8 +118,6 @@ g_skin = xbmc.getSkinDir()
 if g_skintype == "true":
     if g_skin.find('.plexbmc'):
         g_skinwatched="plexbmc"
-
-
         
 if g_debug == "true":
     print "PleXBMC -> Settings streaming: " + g_stream
@@ -147,16 +145,16 @@ g_authentication = __settings__.getSetting('remote')
   
 g_multiple = int(__settings__.getSetting('multiple')) 
 g_serverList=[]
-g_authlist=[]
+g_quicklist=[]
 if g_bonjour == "false":
     g_serverList.append(['Primary', g_host, False])
+    g_quicklist.append(("0",g_host.split(':')[0]))
 if g_multiple > 0:
     printDebug( "PleXBMC -> Additional servers configured; found [" + str(g_multiple) + "]", False)
     for i in range(1,g_multiple+1):
         printDebug ("PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]", False)
         extraip = __settings__.getSetting('server'+str(i))
-        if g_authentication == "true":
-            g_authlist.append(extraip)
+        g_quicklist.append((i,extraip))
         
         if extraip == "":
             printDebug( "PleXBMC -> Blank server detected.  Ignoring", False)
@@ -187,40 +185,54 @@ g_txheaders = {
               'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)',	
               }
 
-#Set up the remote access authentication tokens
-XBMCInternalHeaders=""
-
 #Set up holding variable for session ID
 global g_sessionID
 g_sessionID=None
     
-def mediaServerAuthentication(server, string="text"):
-    printDebug( "PleXBMC -> Getting authentication settings.", False)
-    
-    try:
-        index=g_authlist.index(server)
-    except:
-        printDebug("Unable to locate server in auth list.  Will continue without auth")
-        return ""
-    
-    g_username= __settings__.getSetting('server'+index+'user')
-    g_password =  __settings__.getSetting('server'+index+'pass')
-    printDebug( "PleXBMC -> username is " + g_username, False)
-    
-    #Compute the SHA1 just one time.
-    import hashlib
-    msg=hashlib.sha1(g_password)
-    msg2=hashlib.sha1(g_username.lower()+msg.hexdigest()).hexdigest()
+#Authentication list stucture
+#{serverip: (username, password), serverip1: (username, password)
+
+g_authlist={}
+if g_authentication =="true":
+    for i in g_quicklist:
+        index, IPs = i
+        username=__settings__.getSetting("server"+str(index)+"user")
+        password=__settings__.getSetting("server"+str(index)+"pass")
+        if username == "":
+            continue
+               
+        #Compute the SHA1.
+        msg=hashlib.sha1(password)
+        msg2=hashlib.sha1(username.lower()+msg.hexdigest()).hexdigest()
+        g_authlist[IPs]=(username,msg2)
+printDebug("PleXBMC -> Password list contains " + str(g_authlist), False)
+        
+def getAuthDetails(server, string=True):
+    if g_authentication == "true":
+        
+        server=server.split(':')[0]
+        
+        if server in g_authlist:
+            printDebug( "Found authentication for " + server)
+            msg, msg2 = g_authlist[server]
             
-    #Load the auth strings into the URL header structure.
-    g_txheaders['X-Plex-User']=str(g_username)
-    g_txheaders['X-Plex-Pass']=str(msg2)
+            if string:
+                return "|X-Plex-User="+msg+"&X-Plex-Pass="+msg2
+            else:
+                #Load the auth strings into the URL header structure.
+                headers={}
+                headers['X-Plex-User']=str(msg)
+                headers['X-Plex-Pass']=str(msg2)
+                return headers
+        #else:
+        #    printDebug("Unable to locate server in auth list.  Will continue without auth")
     
-    if string == "text":
-        #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
-        return "X-Plex-User="+g_txheaders['X-Plex-User']+"&X-Plex-Pass="+g_txheaders['X-Plex-Pass']
+    if string:
+        return ""
     else:
-        return g_txheaders
+        return {}
+    
+    #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
         
 ################################ Common
 # Connect to a server and retrieve the HTML page
@@ -235,7 +247,7 @@ def getURL( url ,title="Error", suppress=False, type="GET"):
         #params = "" 
         printDebug("url = "+url)
         conn = httplib.HTTPConnection(server) 
-        conn.request(type, urlPath, headers=g_txheaders) 
+        conn.request(type, urlPath, headers=getAuthDetails(server, False)) 
         data = conn.getresponse() 
         if int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
@@ -371,7 +383,7 @@ def addLink(url,properties,arguments,context=None):
         printDebug("URL to use for listing: " + u)
         #Create ListItem object, which is what is displayed on screen
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+XBMCInternalHeaders, thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetail(getServerFromURL(url)), thumbnailImage=arguments['thumb']+getAuthDetail(getServerFromURL(url)))
             printDebug("Setting thumbnail as " + arguments['thumb'])              
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -408,8 +420,8 @@ def addLink(url,properties,arguments,context=None):
                 
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ XBMCInternalHeaders)
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetail(getServerFromURL(url))))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetail(getServerFromURL(url)))
         except: pass
         
         if context is not None:
@@ -446,7 +458,7 @@ def addDir(url,properties,arguments,context=None):
                 
         #Create the ListItem that will be displayed
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+XBMCInternalHeaders)
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+getAuthDetail(getServerFromURL(url)))
             printDebug("Setting thumbnail as " + arguments['thumb'])
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -474,12 +486,12 @@ def addDir(url,properties,arguments,context=None):
         
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+XBMCInternalHeaders))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ XBMCInternalHeaders)
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetail(getServerFromURL(url))))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetail(getServerFromURL(url)))
         except: pass
 
         try:
-            liz.setProperty('bannerArt', arguments['banner']+XBMCInternalHeaders)
+            liz.setProperty('bannerArt', arguments['banner']+getAuthDetail(getServerFromURL(url)))
             printDebug( "Setting banner art as " + str(arguments['banner']))
         except:
             pass
@@ -1562,7 +1574,7 @@ def PLAYEPISODE(id,vids,override=False):
                 playurl=transcode(id,url)
 
             else:
-                playurl=url+XBMCInternalHeaders
+                playurl=url+getAuthDetails(server)
         else:
             playurl=url
    
@@ -1880,7 +1892,7 @@ def PLAY(vids):
             playurl=url.split(':',1)[1]
         elif protocol == "http":
             printDebug( "We are playing a stream")
-            playurl=url+XBMCInternalHeaders
+            playurl=url+GetAuthDetails(getServerFromURL(url))
         else:
             playurl=url
    
@@ -1906,7 +1918,7 @@ def videoPluginPlay(vids, prefix=None):
             uagent="QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
             agentHeader="User-Agent="+urllib.quote_plus(uagent)
                                 
-            if XBMCInternalHeaders == "":
+            if getAuthDetails(server) == "":
                 header="|"+agentHeader
             else:
                 header="&"+agentHeader
@@ -1943,7 +1955,7 @@ def videoPluginPlay(vids, prefix=None):
             vids=transcode(0, vids, prefix)
             session=vids
         
-        url=vids+XBMCInternalHeaders+header
+        url=vids+getAuthDetails(server)+header
         
         printDebug("Final URL is : "+url)
         
@@ -3132,10 +3144,10 @@ def skin():
                 WINDOW.setProperty("plexbmc.%d.title" % (sectionCount) , arguments['title'])
                 WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount), arguments['serverName'])
                 WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
-                WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), photoTranscode(server[1],arguments['fanart_image'])+XBMCInternalHeaders)
+                WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), photoTranscode(server[1],arguments['fanart_image'])+getAuthDetails(server[1]))
                 WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
-                WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
-                WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+XBMCInternalHeaders)
+                WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+getAuthDetails(server[1]))
+                WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+getAuthDetails(server[1]))
                 WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+server[1]+arguments['path'])
 
                 
@@ -3441,8 +3453,6 @@ else:
     try:
             #url=urllib.unquote_plus(params["url"])
             url=params['url']
-            XBMCInternalHeaders=mediaServerAuthentication(getServerFromUrl(url))
-            printDebug(XBMCInternalHeaders)
     except:
             pass
     try:

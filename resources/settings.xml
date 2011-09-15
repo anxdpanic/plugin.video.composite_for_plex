@@ -4,7 +4,7 @@
 	<setting id="bonjour" type="enum" label="30004" lvalues="30053|30054|30055" default="true" />
     <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,0)|eq(-1,2)" enable="eq(-1,0)|eq(-1,2)"/>
     <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)|eq(-2,2)" enable="eq(-2,0)|eq(-2,2)"/>
-    <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013" default="30011"/>
+    <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="30011"/>
     <setting id="forcedvd" type="bool" label="30060" default="false"/>
     <setting id="nasoverride" type="bool" label="30061" default="false"/>
     <setting id="nasoverrideip" type="text" label="30062" default="" visible="eq(-1,true)" enable="eq(-1,true)" />
@@ -16,23 +16,28 @@
     </category>
  
     <category label="Server List" >
-        <setting id="multiple" type="enum" lvalues="30016|30017|30018|30019|30020|30021|30022|30023|30024|30025|30026" label="Number of Extra Servers" default="30016" />
+        <setting id="multiple" type="enum" lvalues="30016|30017|30018|30019|30020|30021" label="Number of Extra Servers" default="30016" />
         <setting id="server1" type="text" label="Server 1" visible="gt(-1,0)" enable="gt(-1,0)" default="" />
         <setting id="server2" type="text" label="Server 2" visible="gt(-2,1)" enable="gt(-2,1)" default="" />
         <setting id="server3" type="text" label="Server 3" visible="gt(-3,2)" enable="gt(-3,2)" default="" />
         <setting id="server4" type="text" label="Server 4" visible="gt(-4,3)" enable="gt(-4,3)" default="" />
         <setting id="server5" type="text" label="Server 5" visible="gt(-5,4)" enable="gt(-5,4)" default="" />
-        <setting id="server6" type="text" label="Server 6" visible="gt(-6,5)" enable="gt(-6,5)" default="" />
-        <setting id="server7" type="text" label="Server 7" visible="gt(-7,6)" enable="gt(-7,6)" default="" />
-        <setting id="server8" type="text" label="Server 8" visible="gt(-8,7)" enable="gt(-8,7)" default="" />
-        <setting id="server9" type="text" label="Server 9" visible="gt(-9,8)" enable="gt(-9,8)" default="" />
-        <setting id="server10" type="text" label="Server 10" visible="gt(-10,9)" enable="gt(-10,9)" default="" />
     </category>
 
     <category label="Authentication" >
         <setting id="remote" type="bool" label="30027" default="false"/>
-        <setting id="username" type="text" visible="eq(-1,true)" enable="eq(-1,true)" label="30005" />
-        <setting id="password" type="text"  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="30006" />
+        <setting id="server0user" type="text" visible="eq(-1,true)" enable="eq(-1,true)" label="Main Server username" />
+        <setting id="server0pass" type="text"  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="Main Server password" />
+		<setting id="server1user" type="text" label="Server 1 username" visible="eq(-3,true)" enable="eq(-3,true)" default="" />
+		<setting id="server1pass" type="text" option="hidden" label="Server 1 password" visible="eq(-4,true)" enable="eq(-4,true)" default="" />
+		<setting id="server2user" type="text" label="Server 2 username" visible="eq(-5,true)" enable="eq(-5,true)" default="" />
+		<setting id="server2pass" type="text" option="hidden" label="Server 2 password" visible="eq(-6,true)" enable="eq(-6,true)" default="" />
+		<setting id="server3user" type="text" label="Server 3 username" visible="eq(-7,true)" enable="eq(-7,true)" default="" />
+		<setting id="server3pass" type="text" option="hidden" label="Server 3 password" visible="eq(-8,true)" enable="eq(-8,true)" default="" />
+		<setting id="server4user" type="text" label="Server 4 username" visible="eq(-9,true)" enable="eq(-9,true)" default="" />
+		<setting id="server4pass" type="text" option="hidden" label="Server 4 password" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
+		<setting id="server5user" type="text" label="Server 5 username" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
+		<setting id="server5pass" type="text" option="hidden" label="Server 5 password" visible="eq(-12,true)" enable="eq(-12,true)" default="" />
     </category>
     
     <category label="Transcoding" >
