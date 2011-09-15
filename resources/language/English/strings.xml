@@ -66,4 +66,6 @@
     <string id="30061">Override SMB location</string>
     <string id="30062">NAS IP Address</string>
     <string id="30063">AFP</string>
+    <string id="30064">NAS Username</string>
+    <string id="30065">NAS password</string>
 </strings>

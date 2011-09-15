@@ -351,17 +351,19 @@ def mediaType(partproperties, server, dvdplayback=False):
             #Might be OSX type, in which case, remove Volumes and replace with server
             if g_nasoverride == "true":
                 server=g_nasoverrideip
+                loginstring=__settings__.getSetting('nasuserid')+":"+__settings__.getSetting('naspass')+"@"
             else:
                 server=server.split(':')[0]
+                loginstring=""
                 
             if file.find('Volumes') > 0:
-                filelocation=protocol+":/"+file.replace("Volumes",server)
+                filelocation=protocol+":/"+file.replace("Volumes",loginstring+server)
             else:
                 if type == "winfile":
-                    filelocation=protocol+"://"+server+"/"+file[3:]
+                    filelocation=protocol+"://"+loginstring+server+"/"+file[3:]
                 else:
                     #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
-                    filelocation=protocol+"://"+server+file
+                    filelocation=protocol+"://"+loginstring+server+file
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
         filelocation="http://"+server+stream

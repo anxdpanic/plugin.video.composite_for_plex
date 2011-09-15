@@ -8,6 +8,9 @@
     <setting id="forcedvd" type="bool" label="30060" default="false"/>
     <setting id="nasoverride" type="bool" label="30061" default="false"/>
     <setting id="nasoverrideip" type="text" label="30062" default="" visible="eq(-1,true)" enable="eq(-1,true)" />
+	<setting id="nasuserid" type="text" label="30064" default="" visible="eq(-2,true)" enable="eq(-2,true)" />
+	<setting id="naspass" type="text" label="30065" option="hidden" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
+	
 	
     </category>
     
