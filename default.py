@@ -1,5 +1,18 @@
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmcaddon, httplib, socket
-import sys,os,datetime, time, inspect, base64, hashlib
+import urllib
+import urllib2
+import re
+import xbmcplugin
+import xbmcgui
+import xbmcaddon
+import httplib
+import socket
+import sys
+import os
+import datetime 
+import time
+import inspect 
+import base64 
+import hashlib
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
