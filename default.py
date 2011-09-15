@@ -142,8 +142,12 @@ if g_nasoverride == "true":
     else:
         printDebug("PleXBMC -> NAS IP: " + g_nasoverrideip, False)
   
+g_authentication = __settings__.getSetting('remote')    
+
+  
 g_multiple = int(__settings__.getSetting('multiple')) 
 g_serverList=[]
+g_authlist=[]
 if g_bonjour == "false":
     g_serverList.append(['Primary', g_host, False])
 if g_multiple > 0:
@@ -151,6 +155,9 @@ if g_multiple > 0:
     for i in range(1,g_multiple+1):
         printDebug ("PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]", False)
         extraip = __settings__.getSetting('server'+str(i))
+        if g_authentication == "true":
+            g_authlist.append(extraip)
+        
         if extraip == "":
             printDebug( "PleXBMC -> Blank server detected.  Ignoring", False)
             continue
@@ -187,11 +194,17 @@ XBMCInternalHeaders=""
 global g_sessionID
 g_sessionID=None
     
-g_authentication = __settings__.getSetting('remote')    
-if g_authentication == "true":
+def mediaServerAuthentication(server, string="text"):
     printDebug( "PleXBMC -> Getting authentication settings.", False)
-    g_username= __settings__.getSetting('username')
-    g_password =  __settings__.getSetting('password')
+    
+    try:
+        index=g_authlist.index(server)
+    except:
+        printDebug("Unable to locate server in auth list.  Will continue without auth")
+        return ""
+    
+    g_username= __settings__.getSetting('server'+index+'user')
+    g_password =  __settings__.getSetting('server'+index+'pass')
     printDebug( "PleXBMC -> username is " + g_username, False)
     
     #Compute the SHA1 just one time.
@@ -203,9 +216,12 @@ if g_authentication == "true":
     g_txheaders['X-Plex-User']=str(g_username)
     g_txheaders['X-Plex-Pass']=str(msg2)
     
-    #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
-    XBMCInternalHeaders="|X-Plex-User="+g_txheaders['X-Plex-User']+"&X-Plex-Pass="+g_txheaders['X-Plex-Pass']
-
+    if string == "text":
+        #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
+        return "X-Plex-User="+g_txheaders['X-Plex-User']+"&X-Plex-Pass="+g_txheaders['X-Plex-Pass']
+    else:
+        return g_txheaders
+        
 ################################ Common
 # Connect to a server and retrieve the HTML page
 def getURL( url ,title="Error", suppress=False, type="GET"):
@@ -297,10 +313,15 @@ def mediaType(partproperties, server, dvdplayback=False):
         printDebug( "Selecting stream")
         return "http://"+server+stream
     # 2 is use SMB 
-    elif g_stream == "2":
+    elif g_stream == "2" or g_stream == "3":
+        if g_stream == "2":
+            protocol="smb"
+        else:
+            protocol="afp"
+            
         printDebug( "Selecting smb/unc")
         if type=="UNC":
-            filelocation="smb:"+file.replace("\\","/")
+            filelocation=protocol+":"+file.replace("\\","/")
         else:
             #Might be OSX type, in which case, remove Volumes and replace with server
             if g_nasoverride == "true":
@@ -309,13 +330,13 @@ def mediaType(partproperties, server, dvdplayback=False):
                 server=server.split(':')[0]
                 
             if file.find('Volumes') > 0:
-                filelocation="smb:/"+file.replace("Volumes",server)
+                filelocation=protocol+":/"+file.replace("Volumes",server)
             else:
                 if type == "winfile":
-                    filelocation="smb://"+server+"/"+file[3:]
+                    filelocation=protocol+"://"+server+"/"+file[3:]
                 else:
                     #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
-                    filelocation="smb://"+server+file
+                    filelocation=protocol+"://"+server+file
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
         filelocation="http://"+server+stream
@@ -398,7 +419,8 @@ def addLink(url,properties,arguments,context=None):
             #print transcodeURL
             #transcode="Container.Update("+u+"&transcode=1)"
             #context.append(("Play trancoded", transcodeURL, ))
-
+            cm_url_download = sys.argv[0] + '?url='+url+'&mode=23'
+            context.append(("play trans" , "XBMC.RunPlugin(%s)" % (cm_url_download)))
             liz.addContextMenuItems(context, g_contextReplace)
         
         #Finally add the item to the on screen list, with url created above
@@ -899,6 +921,7 @@ def buildContextMenu(url, arguments):
     listingRefresh="XBMC.RunScript("+g_loc+"/default.py, refresh)"
     context.append(('Refresh Listing', listingRefresh , ))
 
+    
     
     return context
     
@@ -1515,11 +1538,11 @@ def getAudioSubtitlesMedia(server,id):
    
 #Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
 #Only use this to play stuff you want to update in the library        
-def PLAYEPISODE(id,vids):
+def PLAYEPISODE(id,vids,override=False):
         printDebug("== ENTER: PLAYEPISODE ==", False)
         #Use this to play PMS library items that you want updated (Movies, TV shows)
         
-        getTranscodeSettings()
+        getTranscodeSettings(override)
       
         server=getServerFromURL(vids)
         
@@ -1578,7 +1601,10 @@ def PLAYEPISODE(id,vids):
         
         printDebug("handle is " + str(pluginhandle))
         #ok - this will start playback for the file pointed to by the url
-        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        if override:
+            start=xbmc.Player().play(listitem=item)
+        else:
+            start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
         
         #Set a loop to wait for positive confirmation of playback
         count = 0
@@ -3398,10 +3424,9 @@ elif sys.argv[1] == "refresh":
 else:
    
     pluginhandle = int(sys.argv[1])
-    #first thing, parse the arguments, as this has the data we need to use.              
-    params=get_params(sys.argv[2])
-    printDebug( "PleXBMC -> " + str(params), False)
 
+    params=get_params(sys.argv[2])
+    
     #Set up some variables
     url=None
     name=None
@@ -3416,6 +3441,8 @@ else:
     try:
             #url=urllib.unquote_plus(params["url"])
             url=params['url']
+            XBMCInternalHeaders=mediaServerAuthentication(getServerFromUrl(url))
+            printDebug(XBMCInternalHeaders)
     except:
             pass
     try:
@@ -3489,6 +3516,8 @@ else:
         channelView(url)
     elif mode==22:
         displayServers(url)
+    elif mode==23:
+        PLAYEPISODE(id,url,override=True)
 
 print "===== PLEXBMC STOP ====="
    
