@@ -10,7 +10,7 @@
     <setting id="nasoverrideip" type="text" label="30062" default="" visible="eq(-1,true)" enable="eq(-1,true)" />
 	<setting id="nasuserid" type="text" label="30064" default="" visible="eq(-2,true)" enable="eq(-2,true)" />
 	<setting id="naspass" type="text" label="30065" option="hidden" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
-	
+	<setting id="nasroot" type="text" label="30066" default="" visible="eq(-4,true)" enable="eq(-4,true)" />
 	
     </category>
     

@@ -152,6 +152,8 @@ if g_nasoverride == "true":
         g_nasoverride="false"
     else:
         printDebug("PleXBMC -> NAS IP: " + g_nasoverrideip, False)
+        
+    g_nasroot = __settings__.getSetting('nasroot')
   
 g_authentication = __settings__.getSetting('remote')    
 
@@ -364,6 +366,16 @@ def mediaType(partproperties, server, dvdplayback=False):
                 else:
                     #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
                     filelocation=protocol+"://"+loginstring+server+file
+                    
+        if g_nasoverride == "true" and g_nasroot != "":
+            #Re-root the file path
+            printDebug("Altering path " + filelocation + " so root is: " +  g_nasroot)
+            if '/'+g_nasroot+'/' in filelocation:
+                components = filelocation.split('/')
+                index = components.index(g_nasroot)
+                for i in range(3,index):
+                    components.pop(i)
+                filelocation='/'.join(components)
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
         filelocation="http://"+server+stream
