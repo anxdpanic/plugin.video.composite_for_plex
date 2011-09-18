@@ -149,7 +149,6 @@ if g_nasoverride == "true":
     g_nasoverrideip = __settings__.getSetting('nasoverrideip')
     if g_nasoverrideip == "":
         printDebug("PleXBMC -> No NAS IP Specified.  Ignoring setting")
-        g_nasoverride="false"
     else:
         printDebug("PleXBMC -> NAS IP: " + g_nasoverrideip, False)
         
@@ -351,12 +350,19 @@ def mediaType(partproperties, server, dvdplayback=False):
             filelocation=protocol+":"+file.replace("\\","/")
         else:
             #Might be OSX type, in which case, remove Volumes and replace with server
+            server=server.split(':')[0]
+            loginstring=""
+
             if g_nasoverride == "true":
-                server=g_nasoverrideip
-                loginstring=__settings__.getSetting('nasuserid')+":"+__settings__.getSetting('naspass')+"@"
-            else:
-                server=server.split(':')[0]
-                loginstring=""
+                if not g_nasoverrideip == "":
+                    server=g_nasoverrideip
+                    printDebug("Overriding server with: " + server)
+                    
+                nasuser=__settings__.getSetting('nasuserid')
+                if not nasuser == "":
+                    loginstring=__settings__.getSetting('nasuserid')+":"+__settings__.getSetting('naspass')+"@"
+                    printDebug("Adding AFP/SMB login info for user " + nasuser)
+                
                 
             if file.find('Volumes') > 0:
                 filelocation=protocol+":/"+file.replace("Volumes",loginstring+server)
