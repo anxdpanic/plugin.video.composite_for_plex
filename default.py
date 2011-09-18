@@ -416,7 +416,7 @@ def addLink(url,properties,arguments,context=None):
         printDebug("URL to use for listing: " + u)
         #Create ListItem object, which is what is displayed on screen
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetail(getServerFromURL(url)), thumbnailImage=arguments['thumb']+getAuthDetail(getServerFromURL(url)))
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(getServerFromURL(url)), thumbnailImage=arguments['thumb']+getAuthDetails(getServerFromURL(url)))
             printDebug("Setting thumbnail as " + arguments['thumb'])              
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -453,8 +453,8 @@ def addLink(url,properties,arguments,context=None):
                 
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetail(getServerFromURL(url))))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetail(getServerFromURL(url)))
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(getServerFromURL(url))))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(getServerFromURL(url)))
         except: pass
         
         if context is not None:
@@ -491,7 +491,7 @@ def addDir(url,properties,arguments,context=None):
                 
         #Create the ListItem that will be displayed
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+getAuthDetail(getServerFromURL(url)))
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+getAuthDetails(getServerFromURL(url)))
             printDebug("Setting thumbnail as " + arguments['thumb'])
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -519,12 +519,12 @@ def addDir(url,properties,arguments,context=None):
         
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetail(getServerFromURL(url))))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetail(getServerFromURL(url)))
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(getServerFromURL(url))))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(getServerFromURL(url)))
         except: pass
 
         try:
-            liz.setProperty('bannerArt', arguments['banner']+getAuthDetail(getServerFromURL(url)))
+            liz.setProperty('bannerArt', arguments['banner']+getAuthDetails(getServerFromURL(url)))
             printDebug( "Setting banner art as " + str(arguments['banner']))
         except:
             pass
