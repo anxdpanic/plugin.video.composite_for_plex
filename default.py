@@ -380,7 +380,7 @@ def mediaType(partproperties, server, dvdplayback=False):
                 components = filelocation.split('/')
                 index = components.index(g_nasroot)
                 for i in range(3,index):
-                    components.pop(i)
+                    components.pop(3)
                 filelocation='/'.join(components)
     else:
         printDebug( "No option detected, streaming is safest to choose" )       
