@@ -330,6 +330,7 @@ def mediaType(partproperties, server, dvdplayback=False):
         printDebug("No local file")
         global g_stream
         if dvdplayback:
+            print "Forcing SMB for DVD playback"
             g_stream="2"
         else:
             g_stream="1"
@@ -1822,24 +1823,25 @@ def selectMedia(count, options, server):
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
     result=0
+    dvdplayback=False
     
     if count > 1:
-    
-        if g_forcedvd == "true":
-            print str(options)
-            #see if an .ifo exists, if so pass this to mediaType
-            for i in options:
-                print "check: " + str(i)
-                if '.ifo' in i[1].lower():
-                    print "found ifo in " + i[1]
-                    location=options.index(i)
-                    return mediaType({'key':options[location][0], 'file': options[location][1]}, server, dvdplayback=True) 
         
-    
         dialogOptions=[]
+        dvdIndex=[]
+        indexCount=0
         for items in options:
+
             name=items[1].split('/')[-1]
+        
+            if g_forcedvd == "true":
+                if '.ifo' in name.lower():
+                    print "Found IFO DVD file in " + name
+                    name="DVD Image"
+                    dvdIndex.append(indexCount)
+                    
             dialogOptions.append(name)
+            indexCount+=1
     
         #Build the dialog text
         printDebug("Create selection dialog box - we have a decision to make!")
@@ -1847,16 +1849,24 @@ def selectMedia(count, options, server):
         #Create a dialog object
         startTime = xbmcgui.Dialog()
             
-        #Box displaying resume time or start at beginning
-        result = startTime.select('Choose which file',dialogOptions)
+        #Box displaying media selecttion screen
+        result = startTime.select('Select media to play',dialogOptions)
             
         #result contains an integer based on the selected text.
         if result == -1:
             #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
             return
         
+        if result in dvdIndex:
+            print "DVD Media selected"
+            dvdplayback=True
+     
+    else:
+        if g_forcedvd == "true":
+            if '.ifo' in options[1]:
+                dvdplayback=True
    
-    newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server)
+    newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server,dvdplayback)
    
     printDebug("We have selected media at " + newurl)
     return newurl
