@@ -13,6 +13,7 @@ import time
 import inspect 
 import base64 
 import hashlib
+import random
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
@@ -414,6 +415,7 @@ def addLink(url,properties,arguments,context=None):
         
         ok=True
         
+        
         printDebug("URL to use for listing: " + u)
         #Create ListItem object, which is what is displayed on screen
         try:
@@ -770,6 +772,8 @@ def Movies(url,tree=None):
 
         server=getServerFromURL(url)
             
+            
+        ramdonNumber=random.randint(1000000000,9999999999)   
         #Find all the video tags, as they contain the data we need to link to a file.
         MovieTags=tree.findall('Video')
         for movie in MovieTags:
@@ -930,6 +934,8 @@ def Movies(url,tree=None):
             else:
                 context=None
             
+            u=u+'&t='+str(ramdonNumber)
+            
             #Right, add that link...and loop around for another entry
             addLink(u,properties,arguments,context)        
         
@@ -1088,17 +1094,17 @@ def SHOWS(url,tree=None):
                 printDebug("Flattening all shows")
                 mode=6 # go straight to episodes
                 arguments['key']=arguments['key'].replace("children","allLeaves")
-                url=url='http://'+server+arguments['key']+"&mode="+str(mode)
+                u='http://'+server+arguments['key']+"&mode="+str(mode)
             else:
                 mode=4 # grab season details
-                url='http://'+server+arguments['key']+"&mode="+str(mode)
+                u='http://'+server+arguments['key']+"&mode="+str(mode)
             
             if g_skipcontext == "false":
                 context=buildContextMenu(url, arguments)
             else:
                 context=None
                 
-            addDir(url,properties,arguments, context) 
+            addDir(u,properties,arguments, context) 
             
         #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -1595,6 +1601,9 @@ def PLAYEPISODE(id,vids,override=False):
         streams=getAudioSubtitlesMedia(server,id)     
         url=selectMedia(streams['partsCount'],streams['parts'], server)
 
+        if url is None:
+            return
+            
         protocol=url.split(':',1)[0]
   
         if protocol == "file":
@@ -1855,7 +1864,7 @@ def selectMedia(count, options, server):
         #result contains an integer based on the selected text.
         if result == -1:
             #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
-            return
+            return None
         
         if result in dvdIndex:
             print "DVD Media selected"
@@ -2832,7 +2841,7 @@ def getFanart(arguments, server):
         if arguments['art'].split('/')[0] == "http:":
             return arguments['art']
         else:    
-            art_url='http://localhost:32400'+arguments['art'].split('?t')[0]
+            art_url='http://localhost:32400'+arguments['art']#.split('?t')[0]
             fanart=photoTranscode(server,art_url)
     except:
         fanart=""  
