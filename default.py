@@ -1863,7 +1863,7 @@ def selectMedia(count, options, server):
      
     else:
         if g_forcedvd == "true":
-            if '.ifo' in options[1]:
+            if '.ifo' in options[result]:
                 dvdplayback=True
    
     newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server,dvdplayback)
