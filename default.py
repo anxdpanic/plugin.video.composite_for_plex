@@ -1698,7 +1698,7 @@ def setAudioSubtitles(stream):
         printDebug ("No streams to process.")
         
         if g_streamControl == "3":
-            xbmc.Player().showSubtitles(false)    
+            xbmc.Player().showSubtitles(False)    
             printDebug ("All subs disabled")
 
         return True
@@ -1726,7 +1726,7 @@ def setAudioSubtitles(stream):
             if stream['subCount'] > 0 and subtitle['languageCode']:
                 printDebug ("Found embedded subtitle for local language" )
                 printDebug ("Enabling embedded subtitles")
-                xbmc.Player().showSubtitles(false)
+                xbmc.Player().showSubtitles(False)
                 xbmc.Player().setSubtitleStream(stream['subOffset'])
                 return True
             else:
@@ -1753,7 +1753,7 @@ def setAudioSubtitles(stream):
         except:
             printDebug ("No External subs to set")
             
-    xbmc.Player().showSubtitles(false)    
+    xbmc.Player().showSubtitles(False)    
     return False
         
 def codeToCountry( id ):
