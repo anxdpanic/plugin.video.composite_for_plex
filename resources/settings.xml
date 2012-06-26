@@ -43,6 +43,12 @@
 		<setting id="server5pass" type="text" option="hidden" label="Server 5 password" visible="eq(-12,true)" enable="eq(-12,true)" default="" />
     </category>
     
+	<category label="myplex" >
+		<setting id="myplex_user" type="text" label="myPlex username" />
+		<setting id="myplex_pass" type="text" option="hidden" label="myPlex password" />
+		<setting id="myplex_token" type="text" option="hidden" label="" />
+	</category>
+	
     <category label="Transcoding" >
         <setting id="transcode" type="bool" label="30007" default="false"/>
         <setting id="transcodefmt" type="enum" label="30008" lvalues="30009|30010" default="30010" />

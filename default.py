@@ -221,6 +221,7 @@ if g_authentication =="true":
         msg2=hashlib.sha1(username.lower()+msg.hexdigest()).hexdigest()
         g_authlist[IPs]=(username,msg2)
 printDebug("PleXBMC -> Password list contains " + str(g_authlist), False)
+
         
 def getAuthDetails(server, string=True):
     if g_authentication == "true":
@@ -248,7 +249,82 @@ def getAuthDetails(server, string=True):
         return {}
     
     #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
+ 
+ 
+def getMyPlexToken():
+    printDebug("== ENTER: getNewMyPlexToken ==", False)
+    
+    token=__settings__.getSetting('myplex_user')
+    
+    if token == "":
+        token = getNewMyPlexToken()
+    
+    return token
+ 
+def getNewMyPlexToken(supress=False):
+    printDebug("== ENTER: getNewMyPlexToken ==", False)
+
+    myplex_username = __settings__.getSetting('myplex_user')
+    myplex_password = __settings__.getSetting('myplex_pass')
         
+    if ( myplex_username or myplex_password ) == "":
+        printDebug("No myplex details in config..")
+        return False
+    
+    myplex_server="my.plexapp.com"
+    myplex_url_path="/users/sign_in.xml"
+    base64string = base64.encodestring('%s:%s' % (myplex_username, myplex_password)).replace('\n', '')#
+    txdata=""
+    token=False
+    
+    myplex_headers={'X-Plex-Platform': "XBMC",
+                    'X-Plex-Platform-Version': "11.00",
+                    'X-Plex-Provides': "player",
+                    'X-Plex-Product': "PleXBMC",
+                    'X-Plex-Version': "2.0b",
+                    'X-Plex-Device': "Not Known",
+                    'X-Plex-Client-Identifier': "PleXBMC",
+                    'Authorization': "Basic %s" % base64string }
+    
+    try:
+        conn = httplib.HTTPSConnection(myplex_server)
+        conn.request("POST", myplex_url_path, txdata, myplex_headers) 
+        data = conn.getresponse() 
+   
+        if int(data.status) == 201:      
+            link=data.read()
+            printDebug("====== XML returned =======")
+
+            try:
+                token=et.fromstring(output).findtext('authentication-token')
+                __settings__.setSetting('myplex_token',token)
+            except:
+                printDebug(link)
+            
+            printDebug("====== XML finished ======")
+        else:
+            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
+            if suppress is False:
+                xbmcgui.Dialog().ok(title,error)
+            print error
+            return False
+    except socket.gaierror :
+        error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
+        if suppress is False:
+            xbmcgui.Dialog().ok(title,error)
+        print error
+        return False
+    except socket.error, msg : 
+        error="Unable to connect to " + server +"\nReason: " + str(msg)
+        if suppress is False:
+            xbmcgui.Dialog().ok(title,error)
+        print error
+        return False
+    
+    return token
+
+    
+ 
 ################################ Common
 # Connect to a server and retrieve the HTML page
 def getURL( url ,title="Error", suppress=False, type="GET"):
@@ -3490,6 +3566,8 @@ else:
     pluginhandle = int(sys.argv[1])
 
     params=get_params(sys.argv[2])
+    
+    getNewMyPlexToken()
     
     #Set up some variables
     url=None
