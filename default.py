@@ -15,12 +15,15 @@ import base64
 import hashlib
 import random
 
+try:
+    from bonjourFind import *
+except: pass
+
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-
 
 print "===== PLEXBMC START ====="
 
@@ -58,9 +61,11 @@ except ImportError:
 
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
+MYPLEX_SERVER="my.plexapp.com"
 
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
+
 def printDebug(msg,functionname=True):
     if g_debug == "true":
         if functionname is False:
@@ -84,37 +89,9 @@ if g_wolon == "true":
             except:
                 printDebug("PleXBMC -> Unknown wake on lan error", False)
 
-g_bonjour = __settings__.getSetting('bonjour')
-
-if g_bonjour == "1":
-    g_bonjour = "true"
-    printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
-
-elif g_bonjour == "2":
-    g_bonjour="assisted"
-    printDebug("PleXBMC -> Assisted Bonjour discovery setting enabled.", False)
-
-elif g_bonjour == "0":
-    g_bonjour="false"
-    
-if g_bonjour == "true":
-    try:
-        from bonjourFind import *
-    except:
-        print "PleXBMC -> Bonjour disabled.  Require XBMC (Pre)Eden"
-        xbmcgui.Dialog().ok("Bonjour Error","Bonjour disabled.  Require XBMC (Pre)Eden")
-        g_bonjour="false"
-    
-else:
-    g_host = __settings__.getSetting('ipaddress')
-    g_port=__settings__.getSetting('port')
-    if not g_port:
-        printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT, False)
-        g_host=g_host+":"+DEFAULT_PORT
-    else:
-        g_host=g_host+":"+g_port
-        printDebug( "PleXBMC -> Settings hostname and port: " + g_host, False)
-
+                
+g_serverList=[]
+                    
 global g_stream 
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
@@ -144,6 +121,7 @@ if g_debug == "true":
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
+#NAS Override
 g_nasoverride = __settings__.getSetting('nasoverride')
 printDebug("PleXBMC -> SMB IP Override: " + g_nasoverride, False)
 if g_nasoverride == "true":
@@ -155,33 +133,6 @@ if g_nasoverride == "true":
         
     g_nasroot = __settings__.getSetting('nasroot')
   
-g_authentication = __settings__.getSetting('remote')    
-
-  
-g_multiple = int(__settings__.getSetting('multiple')) 
-g_serverList=[]
-g_quicklist=[]
-if g_bonjour == "false":
-    g_serverList.append(['Primary', g_host, False])
-    g_quicklist.append(("0",g_host.split(':')[0]))
-if g_multiple > 0:
-    printDebug( "PleXBMC -> Additional servers configured; found [" + str(g_multiple) + "]", False)
-    for i in range(1,g_multiple+1):
-        printDebug ("PleXBMC -> Adding server [Server "+ str(i) +"] at [" + __settings__.getSetting('server'+str(i)) + "]", False)
-        extraip = __settings__.getSetting('server'+str(i))
-        g_quicklist.append((i,extraip))
-        
-        if extraip == "":
-            printDebug( "PleXBMC -> Blank server detected.  Ignoring", False)
-            continue
-        try:
-            extraip.split(':')[1]
-        except:
-            extraip=extraip+":"+DEFAULT_PORT
-        g_serverList.append(['Server '+str(i),extraip,False])
-
-printDebug("PleXBMC -> serverList is " + str(g_serverList), False)
-
 #Get look and feel
 if __settings__.getSetting("contextreplace") == "true":
     g_contextReplace=True
@@ -204,66 +155,144 @@ g_txheaders = {
 global g_sessionID
 g_sessionID=None
     
-#Authentication list stucture
-#{serverip: (username, password), serverip1: (username, password)
 
-g_authlist={}
-if g_authentication =="true":
-    for i in g_quicklist:
-        index, IPs = i
-        username=__settings__.getSetting("server"+str(index)+"user")
-        password=__settings__.getSetting("server"+str(index)+"pass")
-        if username == "":
-            continue
-               
-        #Compute the SHA1.
-        msg=hashlib.sha1(password)
-        msg2=hashlib.sha1(username.lower()+msg.hexdigest()).hexdigest()
-        g_authlist[IPs]=(username,msg2)
-printDebug("PleXBMC -> Password list contains " + str(g_authlist), False)
+def discoverAllServers():
+    printDebug("== ENTER: discoveryAllServers ==", False)
+    g_bonjour = __settings__.getSetting('bonjour')
 
-        
-def getAuthDetails(server, string=True):
-    if g_authentication == "true":
-        
-        server=server.split(':')[0]
-        
-        if server in g_authlist:
-            printDebug( "Found authentication for " + server)
-            msg, msg2 = g_authlist[server]
-            
-            if string:
-                return "|X-Plex-User="+msg+"&X-Plex-Pass="+msg2
+    if g_bonjour == "1":
+        printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
+        g_bonjour="true"
+        try:
+            printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
+            bonjourServer = bonjourFind("_plexmediasvr._tcp")
+                        
+            if bonjourServer.complete:
+                printDebug("Bonjour discovery completed")
+                #Add the first found server to the list - we will find rest from here
+                g_serverList.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
             else:
-                #Load the auth strings into the URL header structure.
-                headers={}
-                headers['X-Plex-User']=str(msg)
-                headers['X-Plex-Pass']=str(msg2)
-                return headers
-        #else:
-        #    printDebug("Unable to locate server in auth list.  Will continue without auth")
+                printDebug("BonjourFind was not able to discovery any servers")
+
+        except:
+            print "PleXBMC -> Bonjour Issue.  Possibly not installed on system"
+            xbmcgui.Dialog().ok("Bonjour Error","Is Bonojur installed on this system?")
+            g_bonjour="false"
+    else:
+        g_host = __settings__.getSetting('ipaddress')
+        g_port=__settings__.getSetting('port')
+        
+        if not g_host:
+            g_host=None
+        elif not g_port:
+            printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT, False)
+            g_host=g_host+":"+DEFAULT_PORT
+        else:
+            g_host=g_host+":"+g_port
+            printDebug( "PleXBMC -> Settings hostname and port: " + g_host, False)
+   
+    if g_bonjour == "2":
+        g_bonjour="assisted"
+        printDebug("PleXBMC -> Assisted Bonjour discovery setting enabled.", False)
+        if g_host is not None:
+            g_serverList.append(['Primary', g_host, True, None, None])
+
+        
+    elif g_bonjour == "0":
+        g_bonjour="false"
+        if g_host is not None:
+            g_serverList.append(['Primary', g_host, False, None, None])
     
+        
+    if __settings__.getSetting('myplex_user') != "":
+        printDebug( "PleXBMC -> Checking myplex for additional media servers", False)
+        getMyPlexServers()
+    
+    printDebug("PleXBMC -> serverList is " + str(g_serverList), False)
+        
+#Dummy function.  Needs to be altered or removed.        
+def getAuthDetails(server, string=True):
     if string:
         return ""
     else:
         return {}
     
-    #Set up an internal XBMC header string, which is appended to all *XBMC* processed URLs.
- 
- 
-def getMyPlexToken():
-    printDebug("== ENTER: getNewMyPlexToken ==", False)
+
+def getMyPlexServers():
+    printDebug("== ENTER: getMyPlexServers ==", False)
+    url_path="/pms/servers"
     
-    token=__settings__.getSetting('myplex_user')
+    html = getMyPlexURL(url_path)
     
-    if token == "":
+    if html is False:
+        return
+        
+    server=etree.fromstring(html).findall('Server')
+    for servers in server:
+        data=dict(servers.items())
+        print str(data)
+        g_serverList.append([data['name'],data['address']+":"+data['port'], False, data.get('accessToken',None), data['machineIdentifier']])
+    
+
+def getMyPlexURL(url_path,renew=False,suppress=False):
+    printDebug("== ENTER: getMyPlexURL ==", False)
+    txdata = None
+        
+             
+    printDebug("url = "+MYPLEX_SERVER+url_path)
+
+    try:
+        conn = httplib.HTTPSConnection(MYPLEX_SERVER) 
+        conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew)) 
+        data = conn.getresponse() 
+        if ( int(data.status) == 401 )  and not ( renew ):
+            return getMyPlexURL(url_path,True)
+            
+        if int(data.status) >= 400:
+            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
+            if suppress is False:
+                xbmcgui.Dialog().ok("Error",error)
+            print error
+            return False
+        elif int(data.status) == 301 and type == "HEAD":
+            return str(data.status)+"@"+data.getheader('Location')
+        else:      
+            link=data.read()
+            printDebug("====== XML returned =======")
+            printDebug(link, False)
+            printDebug("====== XML finished ======")
+    except socket.gaierror :
+        error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
+        if suppress is False:
+            xbmcgui.Dialog().ok("Error",error)
+        print error
+        return False
+    except socket.error, msg : 
+        error="Unable to connect to " + server +"\nReason: " + str(msg)
+        if suppress is False:
+            xbmcgui.Dialog().ok("Error",error)
+        print error
+        return False
+    else:
+        return link
+ 
+    
+ 
+def getMyPlexToken(renew=False):
+    printDebug("== ENTER: getMyPlexToken ==", False)
+    
+    token=__settings__.getSetting('myplex_token')
+    
+    if ( token == "" ) or (renew):
         token = getNewMyPlexToken()
     
+    printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
     return token
  
 def getNewMyPlexToken(supress=False):
     printDebug("== ENTER: getNewMyPlexToken ==", False)
 
+    printDebug("Getting New token")
     myplex_username = __settings__.getSetting('myplex_user')
     myplex_password = __settings__.getSetting('myplex_pass')
         
@@ -271,9 +300,7 @@ def getNewMyPlexToken(supress=False):
         printDebug("No myplex details in config..")
         return False
     
-    myplex_server="my.plexapp.com"
-    myplex_url_path="/users/sign_in.xml"
-    base64string = base64.encodestring('%s:%s' % (myplex_username, myplex_password)).replace('\n', '')#
+    base64string = base64.encodestring('%s:%s' % (myplex_username, myplex_password)).replace('\n', '')
     txdata=""
     token=False
     
@@ -287,8 +314,8 @@ def getNewMyPlexToken(supress=False):
                     'Authorization': "Basic %s" % base64string }
     
     try:
-        conn = httplib.HTTPSConnection(myplex_server)
-        conn.request("POST", myplex_url_path, txdata, myplex_headers) 
+        conn = httplib.HTTPSConnection(MYPLEX_SERVER)
+        conn.request("POST", "/users/sign_in.xml", txdata, myplex_headers) 
         data = conn.getresponse() 
    
         if int(data.status) == 201:      
@@ -296,7 +323,7 @@ def getNewMyPlexToken(supress=False):
             printDebug("====== XML returned =======")
 
             try:
-                token=et.fromstring(output).findtext('authentication-token')
+                token=etree.fromstring(link).findtext('authentication-token')
                 __settings__.setSetting('myplex_token',token)
             except:
                 printDebug(link)
@@ -616,36 +643,15 @@ def addDir(url,properties,arguments,context=None):
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
         return ok
 
+
 ################################ Root listing
 # Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
 def ROOT(filter=None):
         printDebug("== ENTER: ROOT() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
-        #Get the global host variable set in settings
-        #host=g_host
-        
+        #Get the global host variable set in settings        
         Servers=[]
-      
-        #If we have a remote host, then don;t do local discovery as it won't work
-        if g_bonjour == "true":
-            printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
-            try:
-                bonjourServer = bonjourFind("_plexmediasvr._tcp")
-            except:
-                print "PleXBMC -> Bonjour error.  Is Bonjour installed on this client?"
-                return
-            
-            if bonjourServer.complete:
-                printDebug("Bonjour discovery completed")
-                #Add the first found server to the list - we will find rest from here
-                Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
-            else:
-                printDebug("BonjourFind was not able to discovery any servers")
-        
-        elif g_bonjour == "assisted":
-            Servers.append(["Main Server", g_host, True])
-        
         Servers += g_serverList
         numOfServers=len(Servers)
         mapping={}
@@ -3146,26 +3152,6 @@ def skin():
         WINDOW = xbmcgui.Window( 10000 )
          
         Servers=[]
-      
-        #If we have a remote host, then don;t do local discovery as it won't work
-        if g_bonjour == "true":
-            printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
-            try:
-                bonjourServer = bonjourFind("_plexmediasvr._tcp")
-            except:
-                print "PleXBMC -> Bonjour error.  Is Bonjour installed on this client?"
-                return
-            
-            if bonjourServer.complete:
-                printDebug("Bonjour discovery completed")
-                #Add the first found server to the list - we will find rest from here
-                Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
-            else:
-                printDebug("BonjourFind was not able to discovery any servers")
-        
-        elif g_bonjour == "assisted":
-            Servers.append(["Main Server", g_host, True])
-        
         Servers += g_serverList
         numOfServers=len(Servers)
         mapping={}
@@ -3367,27 +3353,7 @@ def displayServers(url):
     printDebug("== ENTER: displayServers ==", False)
     type=url.split('/')[2]
     printDebug("Displaying entries for " + type)
-    Servers=[]
-      
-    #If we have a remote host, then don;t do local discovery as it won't work
-    if g_bonjour == "true":
-        printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
-        try:
-            bonjourServer = bonjourFind("_plexmediasvr._tcp")
-        except:
-            print "PleXBMC -> Bonjour error.  Is Bonjour installed on this client?"
-            return
-            
-        if bonjourServer.complete:
-            printDebug("Bonjour discovery completed")
-            #Add the first found server to the list - we will find rest from here
-            Servers.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
-        else:
-            printDebug("BonjourFind was not able to discovery any servers")
-        
-    elif g_bonjour == "assisted":
-        Servers.append(["Main Server", g_host, True])
-        
+    Servers=[]        
     Servers += g_serverList
     numOfServers=len(Servers)
     mapping={}
@@ -3545,6 +3511,11 @@ def deleteMedia(url):
             
 ##So this is where we really start the plugin.
 
+
+discoverAllServers()
+
+
+
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
 if str(sys.argv[1]) == "skin":
     skin()
@@ -3566,9 +3537,7 @@ else:
     pluginhandle = int(sys.argv[1])
 
     params=get_params(sys.argv[2])
-    
-    getNewMyPlexToken()
-    
+        
     #Set up some variables
     url=None
     name=None

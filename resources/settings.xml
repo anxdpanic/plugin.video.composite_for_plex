@@ -18,6 +18,7 @@
         <setting id="streamControl" type="enum" label="30038" lvalues="30036|30011|30037|30039" Default="30036" />
     </category>
  
+	<!--
     <category label="Server List" >
         <setting id="multiple" type="enum" lvalues="30016|30017|30018|30019|30020|30021" label="Number of Extra Servers" default="30016" />
         <setting id="server1" type="text" label="Server 1" visible="gt(-1,0)" enable="gt(-1,0)" default="" />
@@ -42,11 +43,12 @@
 		<setting id="server5user" type="text" label="Server 5 username" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
 		<setting id="server5pass" type="text" option="hidden" label="Server 5 password" visible="eq(-12,true)" enable="eq(-12,true)" default="" />
     </category>
-    
+    -->
+	
 	<category label="myplex" >
 		<setting id="myplex_user" type="text" label="myPlex username" />
 		<setting id="myplex_pass" type="text" option="hidden" label="myPlex password" />
-		<setting id="myplex_token" type="text" option="hidden" label="" />
+		<setting id="myplex_token" type="text" option="hidden" label="myPlex Token (self populating)" />
 	</category>
 	
     <category label="Transcoding" >
