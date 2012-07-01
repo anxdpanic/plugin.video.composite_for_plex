@@ -89,8 +89,8 @@ if g_wolon == "true":
             except:
                 printDebug("PleXBMC -> Unknown wake on lan error", False)
 
-                
-g_serverList=[]
+g_serverDict=[]
+g_sections=[]
                     
 global g_stream 
 g_stream = __settings__.getSetting('streaming')
@@ -101,11 +101,10 @@ g_flatten = __settings__.getSetting('flatten')
 printDebug("PleXBMC -> Flatten is: "+ g_flatten, False)
 #g_playtheme = __settings__.getSetting('playtvtheme')
 g_forcedvd = __settings__.getSetting('forcedvd')
-
-
 g_skintype= __settings__.getSetting('skinwatch')    
 g_skinwatched="xbmc"
 g_skin = xbmc.getSkinDir()
+
 if g_skintype == "true":
     if g_skin.find('.plexbmc'):
         g_skinwatched="plexbmc"
@@ -157,12 +156,12 @@ g_sessionID=None
     
 
 def discoverAllServers():
-    printDebug("== ENTER: discoveryAllServers ==", False)
+    printDebug("== ENTER: discoverAllServers ==", False)
     g_bonjour = __settings__.getSetting('bonjour')
 
+    #Set to Bonjour
     if g_bonjour == "1":
         printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
-        g_bonjour="true"
         try:
             printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
             bonjourServer = bonjourFind("_plexmediasvr._tcp")
@@ -170,14 +169,19 @@ def discoverAllServers():
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
                 #Add the first found server to the list - we will find rest from here
-                g_serverList.append([bonjourServer.bonjourName[0],bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0],True])
+                g_serverDict.append({'name'      : bonjourServer.bonjourName[0] ,
+                                     'address'   : bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0] ,
+                                     'discovery' : 'bonjour' , 
+                                     'token'     : None ,
+                                     'uuid'      : None })
+                                     
+                                     
             else:
                 printDebug("BonjourFind was not able to discovery any servers")
 
         except:
             print "PleXBMC -> Bonjour Issue.  Possibly not installed on system"
             xbmcgui.Dialog().ok("Bonjour Error","Is Bonojur installed on this system?")
-            g_bonjour="false"
     else:
         g_host = __settings__.getSetting('ipaddress')
         g_port=__settings__.getSetting('port')
@@ -190,36 +194,178 @@ def discoverAllServers():
         else:
             g_host=g_host+":"+g_port
             printDebug( "PleXBMC -> Settings hostname and port: " + g_host, False)
-   
+    
+    #Set to Assisted
     if g_bonjour == "2":
-        g_bonjour="assisted"
         printDebug("PleXBMC -> Assisted Bonjour discovery setting enabled.", False)
         if g_host is not None:
-            g_serverList.append(['Primary', g_host, True, None, None])
+            g_serverDict.append({'serverName': 'unknown' ,
+                                 'address'   : g_host ,
+                                 'discovery' : 'bonjour' , 
+                                 'token'     : None ,
+                                 'uuid'      : None ,
+                                 'role'      : 'master' })
 
-        
+    #Set to Disabled       
     elif g_bonjour == "0":
-        g_bonjour="false"
         if g_host is not None:
-            g_serverList.append(['Primary', g_host, False, None, None])
-    
+            g_serverDict.append({'serverName': 'unknown' ,
+                                 'address'   : g_host ,
+                                 'discovery' : 'local' , 
+                                 'token'     : None ,
+                                 'uuid'      : None ,
+                                 'role'      : 'master' })    
         
     if __settings__.getSetting('myplex_user') != "":
-        printDebug( "PleXBMC -> Checking myplex for additional media servers", False)
-        getMyPlexServers()
+        printDebug( "PleXBMC -> Adding myplex as a server location", False)
+        g_serverDict.append({'serverName': 'MYPLEX' ,
+                             'address'   : "my.plex.app" ,
+                             'discovery' : 'myplex' , 
+                             'token'     : None ,
+                             'uuid'      : None ,
+                             'role'      : 'master' })
     
-    printDebug("PleXBMC -> serverList is " + str(g_serverList), False)
-        
-#Dummy function.  Needs to be altered or removed.        
-def getAuthDetails(server, string=True):
-    if string:
-        return ""
-    else:
-        return {}
     
+    printDebug("PleXBMC -> serverList is " + str(g_serverDict), False)
 
+def resolveAllServers():
+    '''
+      Return list of all media sections configured
+      within PleXBMC
+      @ Return unique list of media sections
+    '''
+    printDebug("== ENTER: resolveAllServers ==", False)
+    localServers=[]
+      
+    for servers in g_serverDict:
+    
+        if ( servers['discovery'] == 'local' ) or ( servers['discovery'] == 'bonjour' ):
+            localServers+=getLocalServers()
+        elif servers['discovery'] == 'myplex':
+            localServers+=getMyPlexServers()
+    
+    printDebug ("Resolved server List: " + str(localServers))
+    
+    '''If we have more than one server source, then
+       we need to ensure uniqueness amonst the
+       seperate servers.
+       
+       If we have only one server source, then the assumption
+       is that Plex will deal with this for us.
+    '''
+    
+    if len(g_serverDict) > 1:
+        oneCount=0
+        for onedevice in localServers:
+        
+            twoCount=0
+            for twodevice in localServers:
+
+                printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['uuid'] + " and " + twodevice['uuid'])
+
+                if oneCount == twoCount:
+                    printDebug( "skip" )
+                    twoCount+=1
+                    continue
+                    
+                if onedevice['uuid'] == twodevice['uuid']:
+                    printDebug ( "match" )
+                    if onedevice['discovery'] == "local":
+                        localServers.pop(twoCount)
+                    else:
+                        localServers.pop(oneCount)
+                else:
+                    printDebug( "no match" )
+                
+                twoCount+=1
+             
+            oneCount+=1
+    
+    printDebug ("Unique server List: " + str(localServers))
+    return localServers     
+            
+def getAllSections(filter=None):
+    printDebug("== ENTER: getAllSections ==", False)
+    printDebug("Using servers list: " + str(g_serverDict))
+
+    for server in g_serverDict:
+                                                                        
+        if server['discovery'] == "local":                                                
+            html=getURL('http://'+server['address']+'/system/library/sections')
+        elif server['discovery'] == "myplex":
+            html=getMyPlexURL('/pms/system/library/sections')
+            
+        if html is False:
+            continue
+                
+        tree = etree.fromstring(html).getiterator("Directory")
+        
+        for sections in tree:
+                                
+            g_sections.append({'title':sections.get('title'), 
+                               'address': sections.get('host')+":"+sections.get('port'),
+                               'serverName' : sections.get('serverName'),
+                               'uuid' : sections.get('machineIdentifier') ,
+                               'path' : sections.get('path') ,
+                               'token' : sections.get('accessToken',None) ,
+                               'location' : server['discovery'] ,
+                               'art' : sections.get('art') ,
+                               'local' : sections.get('local') ,
+                               'type' : sections.get('type') })
+    
+    '''If we have more than one server source, then
+       we need to ensure uniqueness amonst the
+       seperate sections.
+       
+       If we have only one server source, then the assumption
+       is that Plex will deal with this for us
+    '''
+    if len(g_serverDict) > 1:    
+        oneCount=0
+        for onedevice in g_sections:
+        
+            twoCount=0
+            for twodevice in g_sections:
+
+                print "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['title'] + " and " + twodevice['title']
+                print "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid']
+
+                if oneCount == twoCount:
+                    print "skip"
+                    twoCount+=1
+                    continue
+                    
+                if ( onedevice['title'] == twodevice['title'] ) and ( onedevice['uuid'] == twodevice['uuid'] ):
+                    print "match"
+                    if onedevice['local'] == "1":
+                        print "popping 2 " + str(g_sections.pop(twoCount))
+                    else:
+                        print "popping 1 " + str(g_sections.pop(oneCount))
+                else:
+                    print "no match"
+                
+                twoCount+=1
+             
+            oneCount+=1
+    
+def getAuthDetails(details, url_format=True, prefix="&"):
+    token = details.get('token', None)
+        
+    if url_format:
+        if token:
+            return prefix+"X-Plex-Token="+str(token)
+        else:
+            return ""
+    else:
+        if token:
+            return {'X-Plex-Token' : token }
+        else:
+            return {}
+            
 def getMyPlexServers():
     printDebug("== ENTER: getMyPlexServers ==", False)
+    
+    tempServers=[]
     url_path="/pms/servers"
     
     html = getMyPlexURL(url_path)
@@ -230,10 +376,46 @@ def getMyPlexServers():
     server=etree.fromstring(html).findall('Server')
     for servers in server:
         data=dict(servers.items())
-        print str(data)
-        g_serverList.append([data['name'],data['address']+":"+data['port'], False, data.get('accessToken',None), data['machineIdentifier']])
+        
+        if data.get('owned',None) == "1":
+            accessToken=getMyPlexToken()
+        else:
+            accessToken=data.get('accessToken',None)
+        
+        tempServers.append({'serverName': data['name'] ,
+                            'address'   : data['address']+":"+data['port'] ,
+                            'discovery' : 'myplex' , 
+                            'token'     : accessToken ,
+                            'uuid'      : data['machineIdentifier'] })    
+    return tempServers                         
     
+def getLocalServers():
+    printDebug("== ENTER: getLocalServers ==", False)
 
+    tempServers=[]
+    url_path="/servers"
+    html=False
+    
+    for local in g_serverDict:
+    
+        if local.get('discovery') == "local":
+            html = getURL(local['address']+url_path)
+            break
+        
+    if html is False:
+         return tempServers
+             
+    server=etree.fromstring(html).findall('Server')
+    for servers in server:
+        data=dict(servers.items())
+        tempServers.append({'serverName': data['name'] ,
+                            'address'   : data['address']+":"+data['port'] ,
+                            'discovery' : 'local' , 
+                            'token'     : data.get('accessToken',None) ,
+                            'uuid'      : data['machineIdentifier'] })
+
+    return tempServers                         
+                             
 def getMyPlexURL(url_path,renew=False,suppress=False):
     printDebug("== ENTER: getMyPlexURL ==", False)
     txdata = None
@@ -275,9 +457,7 @@ def getMyPlexURL(url_path,renew=False,suppress=False):
         return False
     else:
         return link
- 
-    
- 
+
 def getMyPlexToken(renew=False):
     printDebug("== ENTER: getMyPlexToken ==", False)
     
@@ -350,22 +530,27 @@ def getNewMyPlexToken(supress=False):
     
     return token
 
-    
- 
-################################ Common
-# Connect to a server and retrieve the HTML page
 def getURL( url ,title="Error", suppress=False, type="GET"):
     printDebug("== ENTER: getURL ==", False)
     try:
         txdata = None
         
-        server=url.split('/')[2]
-        urlPath="/"+"/".join(url.split('/')[3:])
-             
-        #params = "" 
+        if url[0:4] == "http":
+            serversplit=2
+            urlsplit=3
+        else:
+            serversplit=0
+            urlsplit=1
+            
+        server=url.split('/')[serversplit]
+        urlPath="/"+"/".join(url.split('/')[urlsplit:])
+            
+        authHeader=getAuthDetails({'token':_PARAM_TOKEN}, False)
+            
         printDebug("url = "+url)
+        printDebug("header = "+str(authHeader))
         conn = httplib.HTTPConnection(server) 
-        conn.request(type, urlPath, headers=getAuthDetails(server, False)) 
+        conn.request(type, urlPath, headers=authHeader) 
         data = conn.getresponse() 
         if int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
@@ -434,7 +619,7 @@ def mediaType(partproperties, server, dvdplayback=False):
         printDebug("No local file")
         global g_stream
         if dvdplayback:
-            print "Forcing SMB for DVD playback"
+            printDebug("Forcing SMB for DVD playback")
             g_stream="2"
         else:
             g_stream="1"
@@ -494,10 +679,6 @@ def mediaType(partproperties, server, dvdplayback=False):
     printDebug("Returning URL: " + filelocation)
     return filelocation
      
- 
-#Used to add playable media files to directory listing
-#properties is a dictionary {} which contains a list of setInfo properties to apply
-#Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addLink(url,properties,arguments,context=None):
         printDebug("== ENTER: addLink ==", False)
         try:
@@ -506,15 +687,18 @@ def addLink(url,properties,arguments,context=None):
         printDebug("Passed arguments are " + str(arguments))
         printDebug("Passed properties are " + str(properties))
         
+        if (arguments.get('token',None) is None) and _PARAM_TOKEN:
+            arguments['token']=_PARAM_TOKEN
+        
         try:
             type=arguments['type']
         except:
             type='Video'
             
         if type =="Picture":
-             u=url
+             u=url+getAuthDetails(arguments)
         else:
-            u=sys.argv[0]+"?url="+str(url)
+            u=sys.argv[0]+"?url="+str(url)+getAuthDetails(arguments)
         
         ok=True
         
@@ -522,7 +706,7 @@ def addLink(url,properties,arguments,context=None):
         printDebug("URL to use for listing: " + u)
         #Create ListItem object, which is what is displayed on screen
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(getServerFromURL(url)), thumbnailImage=arguments['thumb']+getAuthDetails(getServerFromURL(url)))
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"), thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
             printDebug("Setting thumbnail as " + arguments['thumb'])              
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -559,8 +743,8 @@ def addLink(url,properties,arguments,context=None):
                 
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(getServerFromURL(url))))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(getServerFromURL(url)))
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(arguments))
         except: pass
         
         if context is not None:
@@ -579,9 +763,6 @@ def addLink(url,properties,arguments,context=None):
         
         return ok
 
-#Used to add directory item to the listing.  These are non-playable items.  They can be mixed with playable items created above.
-#properties is a dictionary {} which contains a list of setInfo properties to apply
-#Arguments is a dictionary {} which contains other arguments used in teh creation of the listing (such as name, resume time, etc)
 def addDir(url,properties,arguments,context=None):
         printDebug("== ENTER: addDir ==", False)
         try:
@@ -591,13 +772,17 @@ def addDir(url,properties,arguments,context=None):
         printDebug("Passed arguments are " + str(arguments))
         printDebug("Passed properties are " + str(properties))
         
+        if (arguments.get('token',None) is None) and _PARAM_TOKEN:
+            arguments['token']=_PARAM_TOKEN
+
+        
         #Create the URL to pass to the item
-        u=sys.argv[0]+"?url="+str(url)
+        u=sys.argv[0]+"?url="+str(url)+getAuthDetails(arguments)
         ok=True
                 
         #Create the ListItem that will be displayed
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+getAuthDetails(getServerFromURL(url)))
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
             printDebug("Setting thumbnail as " + arguments['thumb'])
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -625,12 +810,12 @@ def addDir(url,properties,arguments,context=None):
         
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(getServerFromURL(url))))
-            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(getServerFromURL(url)))
+            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
+            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(arguments))
         except: pass
 
         try:
-            liz.setProperty('bannerArt', arguments['banner']+getAuthDetails(getServerFromURL(url)))
+            liz.setProperty('bannerArt', arguments['banner']+getAuthDetails(arguments,prefix="?"))
             printDebug( "Setting banner art as " + str(arguments['banner']))
         except:
             pass
@@ -642,84 +827,44 @@ def addDir(url,properties,arguments,context=None):
         #Finally add the item to the on screen list, with url created above
         ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
         return ok
-
-
-################################ Root listing
-# Root listing is the main listing showing all sections.  It is used when these is a non-playable generic link content
-def ROOT(filter=None):
-        printDebug("== ENTER: ROOT() ==", False)
+        
+def displaySections(filter=None):
+        printDebug("== ENTER: displaySections() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
         #Get the global host variable set in settings        
-        Servers=[]
-        Servers += g_serverList
-        numOfServers=len(Servers)
-        mapping={}
-        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(Servers))
+        numOfServers=len(g_serverDict)
+                
+        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(g_serverDict))
         
-        #For each of the servers we have identified
-        for server in Servers:
-                                                            
-            #dive into the library section     
-            url='http://'+server[1]+'/system/library/sections'
-            html=getURL(url)
-            
-            if html is False:
-                continue
+        getAllSections()
+        
+        for arguments in g_sections:
                 
-            tree = etree.fromstring(html)
-            
-            NoExtraservers=1
-            if server[2]:
-                extraservers=set(re.findall("host=\"(.*?)\"", html))
-                NoExtraservers = len(extraservers) 
-                numOfServers+=NoExtraservers-1
-                print "known servers are " + str(extraservers).encode('utf-8')
-            
-            
-            #Find all the directory tags, as they contain further levels to follow
-            #For each directory tag we find, build an onscreen link to drill down into the library
-            for object in tree.getiterator('Directory'):
-                        
+                properties={}
                 #Check if we are to display all or just local sections (all for bonjour)
-                if server[2]:
-                    server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
-                    
-                else:
-                    if object.get('local') == "0":
-                        continue
-
-                #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
-                properties={}                
-                arguments=dict(object.items())
-                
-                mapping[server[1]]=arguments['serverName']
-                print str(mapping)
                 
                 if g_skipimages == "false":
                     try:
                         if arguments['art'][0] == "/":
-                            arguments['fanart_image']="http://"+server[1]+arguments['art']
+                            arguments['fanart_image']="http://"+arguments['address']+arguments['art']
                         else:
-                            arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
-                    except: pass
+                            arguments['fanart_image']=arguments['art']
+                    
+                    except: 
+                        arguments['fanart_image']=""
                         
                     try:
                         if arguments['thumb'][0] == "/":
-                            arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
+                            arguments['thumb']="http://"+arguments['address']+arguments['thumb'].split('?')[0]
                         else:
-                            arguments['thumb']="http://"+server[1]+"/library/sections/"+arguments['thumb'].split('?')[0]
-                    except: 
-                        try:
+                            arguments['thumb']="http://"+arguments['address']+"/library/sections/"+arguments['thumb'].split('?')[0]
+                    except:
                             arguments['thumb']=arguments['fanart_image']
-                        except:
-                            arguments['thumb']=""
                     
-                    
-
                 #Start pulling out information from the parsed XML output. Assign to various variables
                 try:
-                    if numOfServers == 1:
+                    if len(g_serverDict) == 1:
                         properties['title']=arguments['title']
                     else:
                         properties['title']=arguments['serverName']+": "+arguments['title']
@@ -755,15 +900,15 @@ def ROOT(filter=None):
                 arguments['type']="Video"
                 
                 if g_secondary == "true":
-                    s_url='http://'+server[1]+arguments['path']+"&mode=0"
+                    s_url='http://'+arguments['address']+arguments['path']+"&mode=0"
                 else:
                     #Build URL with the mode to use and key to further XML data in the library
-                    s_url='http://'+server[1]+arguments['path']+'/all'+"&mode="+str(mode)
+                    s_url='http://'+arguments['address']+arguments['path']+'/all'+"&mode="+str(mode)
                 
 
                 if g_skipcontext == "false":
                     context=[]
-                    refreshURL="http://"+server[1]+arguments['path']+"/refresh"
+                    refreshURL="http://"+arguments['address']+arguments['path']+"/refresh"
                     libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update ," + refreshURL + ")"
                     context.append(('Refresh library section', libraryRefresh , ))
                 else:
@@ -771,70 +916,39 @@ def ROOT(filter=None):
                 
                 #Build that listing..
                 addDir(s_url, properties,arguments, context)
-             
-             
+       
+        #For each of the servers we have identified
+        allservers=resolveAllServers()
+        numOfServers=len(allservers)
+        
+        for server in allservers:
+                                                                                              
             #Plex plugin handling 
             if (filter is not None) and (filter != "plugins"):
                 continue 
             
+            arguments={}
             properties={}
-            for i in range(NoExtraservers):
-            
-                if server[2]:
-                    server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
-
-                if g_channelview == "false":
-
-                    if numOfServers == 1:
-                        properties['title']="Video Plugins"
-                    else:
-                        properties['title']=mapping[server[1]]+": Video Plugins"
-                    arguments['type']="video"
-                    mode=7
-                    u="http://"+server[1]+"/video&mode="+str(mode)
-                    addDir(u,properties,arguments)
-                                            
-                    #Create Photo plugin link
-                    if numOfServers == 1:
-                        properties['title']="Photo Plugins"
-                    else:
-                        properties['title']=mapping[server[1]]+": Photo Plugins"
-                    arguments['type']="Picture"
-                    mode=16
-                    u="http://"+server[1]+"/photos&mode="+str(mode)
-                    addDir(u,properties,arguments)
-
-                    #Create music plugin link
-                    if numOfServers == 1:
-                        properties['title']="Music Plugins"
-                    else:
-                        properties['title']=mapping[server[1]]+": Music Plugins"
-                    arguments['type']="Music"
-                    mode=17
-                    u="http://"+server[1]+"/music&mode="+str(mode)
-                    addDir(u,properties,arguments)
-                else:
-                    if numOfServers == 1:
-                        properties['title']="Channels"
-                    else:
-                        properties['title']=mapping[server[1]]+": Channels"
-                    arguments['type']="video"
-                    mode=21
-                    u="http://"+server[1]+"/system/plugins/all&mode="+str(mode)
-                    addDir(u,properties,arguments)
+          
+            if numOfServers > 1:
+                prefix=server['serverName']+": "
+            else:
+                prefix=""
                     
-                #Create plexonline link
-                if numOfServers == 1:
-                    properties['title']="Plex Online"
-                else:
-                    properties['title']=mapping[server[1]]+": Plex Online"
-                arguments['type']="file"
-                mode=19
-                u="http://"+server[1]+"/system/plexonline&mode="+str(mode)
-                addDir(u,properties,arguments)
-
-
-            
+            properties['title']=prefix+"Channels"
+                
+            arguments['type']="video"
+            mode=21
+            u="http://"+server['address']+"/system/plugins/all&mode="+str(mode)
+            addDir(u,properties,arguments)
+                    
+            #Create plexonline link
+            properties['title']=prefix+"Plex Online"
+            arguments['type']="file"
+            mode=19
+            u="http://"+server['address']+"/system/plexonline&mode="+str(mode)
+            addDir(u,properties,arguments)
+          
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
 
@@ -862,6 +976,7 @@ def Movies(url,tree=None):
             
             printDebug("---New Item---")
             arguments=dict(movie.items())
+            arguments['token']=_PARAM_TOKEN
             tempgenre=[]
             tempcast=[]
             tempdir=[]
@@ -1045,7 +1160,7 @@ def buildContextMenu(url, arguments):
     watched="XBMC.RunScript("+g_loc+"/default.py, watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
 
-    deleteURL="http://"+server+"/library/metadata/"+ID
+    deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(arguments)
     removed="XBMC.RunScript("+g_loc+"/default.py, delete, " + deleteURL + ")"
     context.append(('Delete', removed , ))
 
@@ -1059,8 +1174,6 @@ def buildContextMenu(url, arguments):
     
     return context
     
-################################ TV Show Listings
-#This is the function use to parse the top level list of TV shows
 def SHOWS(url,tree=None):
         printDebug("== ENTER: SHOWS() ==", False)
         xbmcplugin.setContent(pluginhandle, 'tvshows')
@@ -1191,8 +1304,6 @@ def SHOWS(url,tree=None):
         #End the listing    
         xbmcplugin.endOfDirectory(pluginhandle)
  
-################################ TV Season listing            
-#Used to display the season data         
 def Seasons(url):
         printDebug("== ENTER: season() ==", False)
         xbmcplugin.setContent(pluginhandle, 'seasons')
@@ -1313,8 +1424,6 @@ def Seasons(url):
         #All done, so end the listing
         xbmcplugin.endOfDirectory(pluginhandle)
  
-################################ TV Episode listing 
-#Displays the actual playable media
 def EPISODES(url,tree=None):
         printDebug("== ENTER: EPISODES() ==", False)
         xbmcplugin.setContent(pluginhandle, 'episodes')
@@ -1670,8 +1779,6 @@ def getAudioSubtitlesMedia(server,id):
     printDebug( {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media, 'subOffset':selectedSubOffset, 'audioOffset':selectedAudioOffset})
     return {'contents':contents,'audio':audio, 'audioCount': audioCount, 'subtitle':subtitle, 'subCount':subCount ,'external':external, 'parts':parts, 'partsCount':partsCount, 'media':media, 'subOffset':selectedSubOffset, 'audioOffset':selectedAudioOffset}
    
-#Right, this is used to play PMS library data file.  This function will attempt to update PMS as well.
-#Only use this to play stuff you want to update in the library        
 def PLAYEPISODE(id,vids,override=False):
         printDebug("== ENTER: PLAYEPISODE ==", False)
         #Use this to play PMS library items that you want updated (Movies, TV shows)
@@ -1696,10 +1803,10 @@ def PLAYEPISODE(id,vids,override=False):
             printDebug( "We are playing a stream")
             if g_transcode == "true":
                 printDebug( "We will be transcoding the stream")
-                playurl=transcode(id,url)
+                playurl=transcode(id,url)+getAuthDetails({'token':_PARAM_TOKEN})
 
             else:
-                playurl=url+getAuthDetails(server)
+                playurl=url+getAuthDetails({'token':_PARAM_TOKEN},prefix="?")
         else:
             playurl=url
    
@@ -1908,8 +2015,7 @@ def codeToCountry( id ):
     "all" : "All"
   }
   return languages[ id ]        
-        
-           
+                 
 def selectMedia(count, options, server):   
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
@@ -1927,7 +2033,7 @@ def selectMedia(count, options, server):
         
             if g_forcedvd == "true":
                 if '.ifo' in name.lower():
-                    print "Found IFO DVD file in " + name
+                    printDebug( "Found IFO DVD file in " + name )
                     name="DVD Image"
                     dvdIndex.append(indexCount)
                     
@@ -1949,7 +2055,7 @@ def selectMedia(count, options, server):
             return None
         
         if result in dvdIndex:
-            print "DVD Media selected"
+            printDebug( "DVD Media selected")
             dvdplayback=True
      
     else:
@@ -1966,7 +2072,6 @@ def remove_html_tags(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
 
-#Monitor function so we can update PMS
 def monitorPlayback(id, server):
     printDebug("== ENTER: monitorPlayback ==", False)
     #Need to monitor the running playback, so we can determine a few things:
@@ -2014,7 +2119,6 @@ def monitorPlayback(id, server):
         
     return
     
-#Just a standard playback 
 def PLAY(vids):
         printDebug("== ENTER: PLAY ==", False)
         
@@ -2068,7 +2172,6 @@ def videoPluginPlay(vids, prefix=None):
                 printDebug("New URL is: "+ vids)
                 parameters=get_params(vids)
                 arguments={}
-                print str(parameters)
                 try:
                         prefix=parameters["prefix"]
                 except:
@@ -2133,25 +2236,21 @@ def pluginTranscodeMonitor(sessionID,server):
 
         return
                 
-#Function to parse the arguments passed to the plugin..
 def get_params(paramstring):
         printDebug("== ENTER: get_params ==", False)
         printDebug("Parameter string: " + paramstring)
-        param=[]
-        #paramstring=sys.argv[2]
+        param={}
         if len(paramstring)>=2:
-                params=paramstring#sys.argv[2]
-                #Rather than replace ? with ' ' - I split of the first char, which is always a ? (hopefully)
-                #Could always add a check as well..
+                params=paramstring
+                
                 if params[0] == "?":
-                    cleanedparams=params[1:] #.replace('?','')
+                    cleanedparams=params[1:] 
                 else:
                     cleanedparams=params
                     
                 if (params[len(params)-1]=='/'):
                         params=params[0:len(params)-2]
                 pairsofparams=cleanedparams.split('&')
-                param={}
                 for i in range(len(pairsofparams)):
                         splitparams={}
                         #Right, extended urls that contain = do not parse correctly and this tops plugins from working
@@ -2282,7 +2381,6 @@ def processDirectory(url,tree=None):
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
-#Function that will return a m3u8 playlist URL from a PMS stream URL
 def transcode(id,url,identifier=None):
     printDebug("== ENTER: transcode ==", False)
     # First get the time since Epoch
@@ -2633,7 +2731,6 @@ def tracks(url,tree=None):
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
 
-#What to do to process Plex video Plugin structures        
 def PlexPlugins(url):
         printDebug("== ENTER: PlexPlugins ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
@@ -2901,8 +2998,6 @@ def music(url, tree=None):
         
     xbmcplugin.endOfDirectory(pluginhandle)    
 
-## Utilities    
-    
 def getThumb(arguments, server):
     thumbnail=""
     
@@ -2923,7 +3018,7 @@ def getFanart(arguments, server):
         if arguments['art'].split('/')[0] == "http:":
             return arguments['art']
         else:    
-            art_url='http://localhost:32400'+arguments['art']#.split('?t')[0]
+            art_url='http://localhost:32400'+arguments['art']
             fanart=photoTranscode(server,art_url)
     except:
         fanart=""  
@@ -2964,7 +3059,6 @@ def getLinkURL(url, arguments, server):
      
     return url
     
-# Plex Plugin add/remove utilities    
 def plexOnline(url):
     printDebug("== ENTER: plexOnline ==")
     xbmcplugin.setContent(pluginhandle, 'files')
@@ -3151,71 +3245,37 @@ def skin():
         #Get the global host variable set in settings
         WINDOW = xbmcgui.Window( 10000 )
          
-        Servers=[]
-        Servers += g_serverList
-        numOfServers=len(Servers)
-        mapping={}
-        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(Servers))
+         
+        #Get the global host variable set in settings        
+        numOfServers=len(g_serverDict)
+                
+        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(g_serverDict))
         
+        getAllSections()
+        
+         
         sectionCount=0
         serverCount=0
         
         #For each of the servers we have identified
-        for server in Servers:
-                                                            
-            #dive into the library section     
-            url='http://'+server[1]+'/system/library/sections'
-            html=getURL(url)
-            
-            if html is False:
-                continue
-                
-            tree = etree.fromstring(html)
-            
-            NoExtraservers=1
-            if server[2]:
-                extraservers=set(re.findall("host=\"(.*?)\"", html))
-                NoExtraservers = len(extraservers) 
-                numOfServers+=NoExtraservers-1
-                print "known servers are " + str(extraservers).encode('utf-8')
-            
-            
-            #Find all the directory tags, as they contain further levels to follow
-            #For each directory tag we find, build an onscreen link to drill down into the library
-            for object in tree.getiterator('Directory'):
-                        
-                #If section is not local then ignore
-                if server[2]:
-                    server[1]=object.get('host').encode('utf-8')+":"+DEFAULT_PORT
-                    
-                else:
-                    if object.get('local') == "0":
-                        continue
-                
-                arguments=dict(object.items())
-                
-                mapping[server[1]]=arguments['serverName']
-                #print str(mapping)
-                
+        for arguments in g_sections:
+                                                                       
                 if g_skipimages == "false":
                     try:
                         if arguments['art'][0] == "/":
-                            arguments['fanart_image']="http://"+server[1]+arguments['art']
+                            arguments['fanart_image']="http://"+arguments['address']+arguments['art']
                         else:
-                            arguments['fanart_image']="http://"+server[1]+"/library/sections/"+arguments['art']
+                            arguments['fanart_image']="http://"+arguments['address']+"/library/sections/"+arguments['art']
                     except: 
                             arguments['fanart_image']=""
                         
                     try:
                         if arguments['thumb'][0] == "/":
-                            arguments['thumb']="http://"+server[1]+arguments['thumb'].split('?')[0]
+                            arguments['thumb']="http://"+arguments['address']+arguments['thumb'].split('?')[0]
                         else:
-                            arguments['thumb']="http://"+server[1]+"/library/sections/"+arguments['thumb'].split('?')[0]
+                            arguments['thumb']="http://"+arguments['address']+"/library/sections/"+arguments['thumb'].split('?')[0]
                     except: 
-                        try:
-                            arguments['thumb']=arguments['fanart_image']
-                        except:
-                            arguments['thumb']=""
+                        arguments['thumb']=arguments['fanart_image']
                     
                     
                 #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
@@ -3247,61 +3307,54 @@ def skin():
                     #arguments['type']="Video"
                 
                 if g_secondary == "true":
-                    s_url='http://'+server[1]+arguments['path']+"&mode=0"
+                    s_url='http://'+arguments['address']+arguments['path']+"&mode=0"
                 else:
                     #Build URL with the mode to use and key to further XML data in the library
-                    s_url='http://'+server[1]+arguments['path']+'/all'+"&mode="+str(mode)
+                    s_url='http://'+arguments['address']+arguments['path']+'/all'+"&mode="+str(mode)
                 
 
                 
                 #Build that listing..
                 WINDOW.setProperty("plexbmc.%d.title" % (sectionCount) , arguments['title'])
                 WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount), arguments['serverName'])
-                WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
-                WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), photoTranscode(server[1],arguments['fanart_image'])+getAuthDetails(server[1]))
+                WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+getAuthDetails(arguments)+",return)")
+                WINDOW.setProperty("plexbmc.%d.art" % (sectionCount), photoTranscode(arguments['address'],arguments['fanart_image'])+getAuthDetails(arguments,prefix="?"))
                 WINDOW.setProperty("plexbmc.%d.type" % (sectionCount) , arguments['type'])
-                WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+getAuthDetails(server[1]))
-                WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+getAuthDetails(server[1]))
-                WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+server[1]+arguments['path'])
+                WINDOW.setProperty("plexbmc.%d.icon" % (sectionCount) , arguments['thumb'].split('?')[0]+getAuthDetails(arguments,prefix="?"))
+                WINDOW.setProperty("plexbmc.%d.thumb" % (sectionCount) , arguments['thumb'].split('?')[0]+getAuthDetails(arguments,prefix="?"))
+                WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+arguments['address']+arguments['path'])
 
                 
                 printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'].encode('utf-8') + "]")
-                printDebug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
+                printDebug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+getAuthDetails(arguments)+",return)")
                 sectionCount += 1
         
+        #For each of the servers we have identified
+        allservers=resolveAllServers()
+        numOfServers=len(allservers)
         
-             
-                #Plex plugin handling 
-                #Simple check if any plugins are present.  
-                #If so, create a link to drill down later. One link is created for each PMS server available
-                #Plugin data is held in /videos directory (well, video data is anyway)
-                #Create Photo plugin link
-            for i in range(NoExtraservers):
-
-                if server[2]:
-                    server[1]=extraservers.pop().encode('utf-8')+":"+DEFAULT_PORT
-            
-            
-                if g_channelview == "true":
-                    WINDOW.setProperty("plexbmc.channel", "1")
-                    WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server[1]+"/system/plugins/all&mode=21,return)")
-                else:
-                    WINDOW.clearProperty("plexbmc.channel")
-                    WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server[1]+"/video&mode=7")
-                    WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server[1]+"/music&mode=17")
-                    WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server[1]+"/photos&mode=16")
-                        
-                WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server[1]+"/system/plexonline&mode=19")
+        for server in allservers:
         
-                printDebug ("server hostname is : " + str(server[1]))
-                try:
-                    WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , mapping[server[1]])
-                    printDebug ("Name mapping is :" + mapping[server[1]])
-                except:
-                    printDebug ("Falling back to server hostname")
-                    WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server[1].split(':')[0])
+            if g_channelview == "true":
+                WINDOW.setProperty("plexbmc.channel", "1")
+                WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['address']+"/system/plugins/all&mode=21"+getAuthDetails(server)+",return)")
+            else:
+                WINDOW.clearProperty("plexbmc.channel")
+                WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server['address']+"/video&mode=7"+getAuthDetails(server))
+                WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server['address']+"/music&mode=17"+getAuthDetails(server))
+                WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server['address']+"/photos&mode=16"+getAuthDetails(server))
                     
-                serverCount+=1
+            WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server['address']+"/system/plexonline&mode=19"+getAuthDetails(server))
+    
+            printDebug ("server hostname is : " + str(server['address']))
+            try:
+                WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server['serverName'])
+                printDebug ("Name mapping is :" + server['serverName'])
+            except:
+                printDebug ("Falling back to server hostname")
+                WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server['address'].split(':')[0])
+                
+            serverCount+=1
                 
             
         #Clear out old data
@@ -3353,92 +3406,40 @@ def displayServers(url):
     printDebug("== ENTER: displayServers ==", False)
     type=url.split('/')[2]
     printDebug("Displaying entries for " + type)
-    Servers=[]        
-    Servers += g_serverList
+    Servers = resolveAllServers()
     numOfServers=len(Servers)
-    mapping={}
+
     printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(Servers))
-        
+     
     #For each of the servers we have identified
-    for server in Servers:
+    for arguments in Servers:
+    
+        properties={}
          
+        try:
+            properties['title']=arguments['serverName']
+        except:
+            properties['title']="unknown"
 
-        if server[2]: 
-            #dive into the library section     
-            url='http://'+server[1]+'/servers'
-            html=getURL(url)
+        if type == "video":
+            s_url='http://'+arguments['address']+"/video&mode=7"
+            
+        elif type == "online":
+            s_url='http://'+arguments['address']+"/system/plexonline&mode=19"
+            
+        elif type == "music":
+            s_url='http://'+arguments['address']+"/music&mode=17"
+            
+        elif type == "photo":
+            s_url='http://'+arguments['address']+"/photos&mode=16"
                 
-            if html is False:
-                continue
-                    
-            tree = etree.fromstring(html)
-                            
-                
-            #Find all the directory tags, as they contain further levels to follow
-            #For each directory tag we find, build an onscreen link to drill down into the library
-            for object in tree.getiterator('Server'):
-                            
-                arguments=dict(object.items())
-                                                       
-                #Set up some dictionaries with defaults that we are going to pass to addDir/addLink
-                properties={}
-
-                #Start pulling out information from the parsed XML output. Assign to various variables
-                try:
-                    properties['title']=arguments['name']
-                except:
-                    properties['title']="unknown"
-                
-                if type == "video":
-                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/video&mode=7"
-                
-                elif type == "online":
-                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/system/plexonline&mode=19"
-                
-                elif type == "music":
-                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/music&mode=17"
-                
-                elif type == "photo":
-                    s_url='http://'+arguments['host']+":"+DEFAULT_PORT+"/photos&mode=16"
-                    
-                #Build that listing..
-                addDir(s_url, properties,arguments)
-        else:
-            url='http://'+server[1]
-            html=getURL(url)
-                
-            if html is False:
-                continue
-                    
-            tree = etree.fromstring(html)
-
-            properties={}
-            arguments=dict(tree.items())
-            try:
-                properties['title']=arguments['friendlyName']
-            except:
-                properties['title']="unknown"
-
-            if type == "video":
-                s_url='http://'+server[1]+"/video&mode=7"
-                
-            elif type == "online":
-                s_url='http://'+server[1]+"/system/plexonline&mode=19"
-                
-            elif type == "music":
-                s_url='http://'+server[1]+"/music&mode=17"
-                
-            elif type == "photo":
-                s_url='http://'+server[1]+"/photos&mode=16"
-                    
-            #Build that listing..
-            addDir(s_url, properties,arguments)
+        #Build that listing..
+        addDir(s_url, properties,arguments)
 
                 
     #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
     xbmcplugin.endOfDirectory(pluginhandle)  
-  
-  
+   
 def getTranscodeSettings(override=False):
     global g_transcode 
     g_transcode = __settings__.getSetting('transcode')
@@ -3510,14 +3511,24 @@ def deleteMedia(url):
 
             
 ##So this is where we really start the plugin.
-
-
-discoverAllServers()
-
-
-
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
+
+try:
+    params=get_params(sys.argv[2])
+except:
+    params={}
+        
+#Now try and assign some data to them
+param_url=params.get('url',None)
+param_name=urllib.unquote_plus(params.get('name',""))
+mode=int(params.get('mode',-1))
+param_id=params.get('id',None)
+param_transcodeOverride=int(params.get('transcode',0))
+param_prefix=params.get('identifier',None)
+_PARAM_TOKEN=params.get('X-Plex-Token',None)
+
 if str(sys.argv[1]) == "skin":
+    discoverAllServers()
     skin()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
@@ -3535,98 +3546,59 @@ elif sys.argv[1] == "refresh":
 else:
    
     pluginhandle = int(sys.argv[1])
-
-    params=get_params(sys.argv[2])
-        
-    #Set up some variables
-    url=None
-    name=None
-    mode=None
-    resume=None
-    id=None
-    duration=None
-    transcodeOverride=None
-    prefix=None
-
-    #Now try and assign some data to them
-    try:
-            #url=urllib.unquote_plus(params["url"])
-            url=params['url']
-    except:
-            pass
-    try:
-            name=urllib.unquote_plus(params["name"])
-    except:
-            pass
-    try:
-            mode=int(params["mode"])
-    except:
-            pass
-  
-    try:
-            id=params["id"]
-    except:
-            pass
-    try:
-            transcodeOverride=int(params["transcode"])
-    except:
-            transcodeOverride=0
-            
-    try:
-            prefix=params["identifier"]
-    except:
-            pass
-
-            
+                    
     if g_debug == "true":
         print "PleXBMC -> Mode: "+str(mode)
-        print "PleXBMC -> URL: "+str(url)
-        print "PleXBMC -> Name: "+str(name)
-        print "PleXBMC -> ID: "+ str(id)
+        print "PleXBMC -> URL: "+str(param_url)
+        print "PleXBMC -> Name: "+str(param_name)
+        print "PleXBMC -> ID: "+ str(param_id)
+        print "PleXBMC -> token: " + str(_PARAM_TOKEN)
 
     #Run a function based on the mode variable that was passed in the URL
         
-    if mode==None or url==None or len(url)<1:
-        ROOT(url)
+    if mode==None or param_url==None or len(param_url)<1:
+        discoverAllServers()
+        displaySections()
     elif mode == 0:
-        getContent(url)
+        getContent(param_url)
     elif mode==1:
-        SHOWS(url)
+        SHOWS(param_url)
     elif mode==2:
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
-        Movies(url)
+        Movies(param_url)
     elif mode==3:
-        artist(url)
+        artist(param_url)
     elif mode==4:
-        Seasons(url)
+        Seasons(param_url)
     elif mode==5:
-        PLAYEPISODE(id,url)
+        PLAYEPISODE(param_id,param_url)
     elif mode==6:
-        EPISODES(url)
+        EPISODES(param_url)
     elif mode==7:
-        PlexPlugins(url)
+        PlexPlugins(param_url)
     elif mode==12:
-        PLAY(url)
+        PLAY(param_url)
     elif mode ==14:
-        albums(url)
+        albums(param_url)
     elif mode == 15:
-        tracks(url)
+        tracks(param_url)
     elif mode==16:
-        photo(url)
+        photo(param_url)
     elif mode==17:
-        music(url)
+        music(param_url)
     elif mode==18:
-        videoPluginPlay(url,prefix)
+        videoPluginPlay(param_url,param_prefix)
     elif mode==19:
-        plexOnline(url)
+        plexOnline(param_url)
     elif mode==20:
-        install(url,name)
+        install(param_url,param_name)
     elif mode==21:
-        channelView(url)
+        channelView(param_url)
     elif mode==22:
-        displayServers(url)
+        discoverAllServers()
+        displayServers(param_url)
     elif mode==23:
-        PLAYEPISODE(id,url,override=True)
+        PLAYEPISODE(param_id,param_url,override=True)
 
 print "===== PLEXBMC STOP ====="
    
