@@ -14,6 +14,7 @@ import inspect
 import base64 
 import hashlib
 import random
+import cProfile
 
 try:
     from bonjourFind import *
@@ -302,9 +303,9 @@ def getAllSections(filter=None):
         
         for sections in tree:
                                 
-            g_sections.append({'title':sections.get('title'), 
+            g_sections.append({'title':sections.get('title').encode('utf-8'), 
                                'address': sections.get('host')+":"+sections.get('port'),
-                               'serverName' : sections.get('serverName'),
+                               'serverName' : sections.get('serverName').encode('utf-8'),
                                'uuid' : sections.get('machineIdentifier') ,
                                'path' : sections.get('path') ,
                                'token' : sections.get('accessToken',None) ,
@@ -382,7 +383,7 @@ def getMyPlexServers():
         else:
             accessToken=data.get('accessToken',None)
         
-        tempServers.append({'serverName': data['name'] ,
+        tempServers.append({'serverName': data['name'].encode('utf-8') ,
                             'address'   : data['address']+":"+data['port'] ,
                             'discovery' : 'myplex' , 
                             'token'     : accessToken ,
@@ -408,7 +409,7 @@ def getLocalServers():
     server=etree.fromstring(html).findall('Server')
     for servers in server:
         data=dict(servers.items())
-        tempServers.append({'serverName': data['name'] ,
+        tempServers.append({'serverName': data['name'].encode('utf-8') ,
                             'address'   : data['address']+":"+data['port'] ,
                             'discovery' : 'local' , 
                             'token'     : data.get('accessToken',None) ,
@@ -417,10 +418,7 @@ def getLocalServers():
     return tempServers                         
                              
 def getMyPlexURL(url_path,renew=False,suppress=False):
-    printDebug("== ENTER: getMyPlexURL ==", False)
-    txdata = None
-        
-             
+    printDebug("== ENTER: getMyPlexURL ==", False)                    
     printDebug("url = "+MYPLEX_SERVER+url_path)
 
     try:
@@ -444,13 +442,13 @@ def getMyPlexURL(url_path,renew=False,suppress=False):
             printDebug(link, False)
             printDebug("====== XML finished ======")
     except socket.gaierror :
-        error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
+        error = 'Unable to lookup host: ' + MYPLEX_SERVER + "\nCheck host name is correct"
         if suppress is False:
             xbmcgui.Dialog().ok("Error",error)
         print error
         return False
     except socket.error, msg : 
-        error="Unable to connect to " + server +"\nReason: " + str(msg)
+        error="Unable to connect to " + MYPLEX_SERVER +"\nReason: " + str(msg)
         if suppress is False:
             xbmcgui.Dialog().ok("Error",error)
         print error
@@ -532,9 +530,7 @@ def getNewMyPlexToken(supress=False):
 
 def getURL( url ,title="Error", suppress=False, type="GET"):
     printDebug("== ENTER: getURL ==", False)
-    try:
-        txdata = None
-        
+    try:        
         if url[0:4] == "http":
             serversplit=2
             urlsplit=3
@@ -556,7 +552,7 @@ def getURL( url ,title="Error", suppress=False, type="GET"):
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
             if suppress is False:
                 xbmcgui.Dialog().ok(title,error)
-            print error
+            print error 
             return False
         elif int(data.status) == 301 and type == "HEAD":
             return str(data.status)+"@"+data.getheader('Location')
@@ -743,7 +739,10 @@ def addLink(url,properties,arguments,context=None):
                 
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
+            if 'transcode' in arguments['fanart_image']:
+                liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
+            else:
+                liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments,prefix="?")))  
             printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(arguments))
         except: pass
         
@@ -782,8 +781,8 @@ def addDir(url,properties,arguments,context=None):
                 
         #Create the ListItem that will be displayed
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb'], thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
-            printDebug("Setting thumbnail as " + arguments['thumb'])
+            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"), thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
+            printDebug("Setting thumbnail as " + arguments['thumb']+getAuthDetails(arguments,prefix="?"))
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
         
@@ -810,7 +809,11 @@ def addDir(url,properties,arguments,context=None):
         
         #Set the fanart image if it has been enabled
         try:
-            liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
+            if 'transcode' in arguments['fanart_image']:
+                liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
+            else:
+                liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments,prefix="?")))
+            
             printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(arguments))
         except: pass
 
@@ -3325,7 +3328,7 @@ def skin():
                 WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+arguments['address']+arguments['path'])
 
                 
-                printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'].encode('utf-8') + "]")
+                printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + arguments['title'] + "]")
                 printDebug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+getAuthDetails(arguments)+",return)")
                 sectionCount += 1
         
