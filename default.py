@@ -25,10 +25,12 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
+PLEXBMC_VERSION="2.0b rev 1"
 
 print "===== PLEXBMC START ====="
 
 print "PleXBMC -> running on " + str(sys.version_info)
+print "PleXBMC -> running on " + str(PLEXBMC_VERSION)
 
 try:
   from lxml import etree
@@ -63,6 +65,25 @@ except ImportError:
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
 MYPLEX_SERVER="my.plexapp.com"
+_MODE_GETCONTENT=0
+_MODE_TVSHOWS=1
+_MODE_MOVIES=2
+_MODE_ARTISTS=3
+_MODE_TVSEASONS=4
+_MODE_PLAYLIBRARY=5
+_MODE_TVEPISODES=6
+_MODE_PLEXPLUGINS=7
+_MODE_BASICPLAY=12
+_MODE_ALBUMS=14
+_MODE_TRACKS=15
+_MODE_PHOTOS=16
+_MODE_MUSIC=17
+_MODE_VIDEOPLUGINPLAY=18
+_MODE_PLEXONLINE=19
+_MODE_CHANNELINSTALL=20
+_MODE_CHANNELVIEW=21
+_MODE_DISPLAYSERVERS=22
+_MODE_PLAYLIBRARY_TRANSCODE=23
 
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
@@ -170,7 +191,7 @@ def discoverAllServers():
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
                 #Add the first found server to the list - we will find rest from here
-                g_serverDict.append({'name'      : bonjourServer.bonjourName[0] ,
+                g_serverDict.append({'name'      : bonjourServer.bonjourName[0].encode('utf-8') ,
                                      'address'   : bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0] ,
                                      'discovery' : 'bonjour' , 
                                      'token'     : None ,
@@ -328,7 +349,7 @@ def getAllSections(filter=None):
             twoCount=0
             for twodevice in g_sections:
 
-                print "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['title'] + " and " + twodevice['title']
+                print "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title'])
                 print "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid']
 
                 if oneCount == twoCount:
@@ -336,7 +357,7 @@ def getAllSections(filter=None):
                     twoCount+=1
                     continue
                     
-                if ( onedevice['title'] == twodevice['title'] ) and ( onedevice['uuid'] == twodevice['uuid'] ):
+                if ( str(onedevice['title']) == str(twodevice['title']) ) and ( onedevice['uuid'] == twodevice['uuid'] ):
                     print "match"
                     if onedevice['local'] == "1":
                         print "popping 2 " + str(g_sections.pop(twoCount))
@@ -417,7 +438,7 @@ def getLocalServers():
 
     return tempServers                         
                              
-def getMyPlexURL(url_path,renew=False,suppress=False):
+def getMyPlexURL(url_path,renew=False,suppress=True):
     printDebug("== ENTER: getMyPlexURL ==", False)                    
     printDebug("url = "+MYPLEX_SERVER+url_path)
 
@@ -467,7 +488,7 @@ def getMyPlexToken(renew=False):
     printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
     return token
  
-def getNewMyPlexToken(supress=False):
+def getNewMyPlexToken():
     printDebug("== ENTER: getNewMyPlexToken ==", False)
 
     printDebug("Getting New token")
@@ -528,7 +549,7 @@ def getNewMyPlexToken(supress=False):
     
     return token
 
-def getURL( url ,title="Error", suppress=False, type="GET"):
+def getURL( url ,title="Error", suppress=True, type="GET"):
     printDebug("== ENTER: getURL ==", False)
     try:        
         if url[0:4] == "http":
@@ -554,8 +575,9 @@ def getURL( url ,title="Error", suppress=False, type="GET"):
                 xbmcgui.Dialog().ok(title,error)
             print error 
             return False
-        elif int(data.status) == 301 and type == "HEAD":
-            return str(data.status)+"@"+data.getheader('Location')
+        elif ( int(data.status) == 301 ) or ( int(data.status) == 302 ): # and type == "HEAD":
+#            return str(data.status)+"@"+data.getheader('Location')
+            return data.getheader('Location')
         else:      
             link=data.read()
             printDebug("====== XML returned =======")
@@ -692,7 +714,7 @@ def addLink(url,properties,arguments,context=None):
             type='Video'
             
         if type =="Picture":
-             u=url+getAuthDetails(arguments)
+             u=url+getAuthDetails(arguments,prefix="?")
         else:
             u=sys.argv[0]+"?url="+str(url)+getAuthDetails(arguments)
         
@@ -702,7 +724,11 @@ def addLink(url,properties,arguments,context=None):
         printDebug("URL to use for listing: " + u)
         #Create ListItem object, which is what is displayed on screen
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"), thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
+            if '?' in arguments['thumb'] :
+                liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments), thumbnailImage=arguments['thumb']+getAuthDetails(arguments))
+            else:
+                liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"), thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
+
             printDebug("Setting thumbnail as " + arguments['thumb'])              
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -739,7 +765,7 @@ def addLink(url,properties,arguments,context=None):
                 
         #Set the fanart image if it has been enabled
         try:
-            if 'transcode' in arguments['fanart_image']:
+            if '?' in arguments['fanart_image']:
                 liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
             else:
                 liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments,prefix="?")))  
@@ -781,7 +807,10 @@ def addDir(url,properties,arguments,context=None):
                 
         #Create the ListItem that will be displayed
         try:
-            liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"), thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
+            if '?' in arguments['thumb']:
+                liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments), thumbnailImage=arguments['thumb']+getAuthDetails(arguments))
+            else:
+                liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"), thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
             printDebug("Setting thumbnail as " + arguments['thumb']+getAuthDetails(arguments,prefix="?"))
         except:
             liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
@@ -809,7 +838,7 @@ def addDir(url,properties,arguments,context=None):
         
         #Set the fanart image if it has been enabled
         try:
-            if 'transcode' in arguments['fanart_image']:
+            if '?' in arguments['fanart_image']:
                 liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
             else:
                 liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments,prefix="?")))
@@ -1146,7 +1175,7 @@ def buildContextMenu(url, arguments):
     context=[]
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
-    libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update, " + refreshURL.split('?')[0] + ")"
+    libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update, " + refreshURL.split('?')[0]+getAuthDetails(arguments,prefix="?") + ")"
     context.append(('Refresh library section', libraryRefresh , ))
     
     try:
@@ -1155,11 +1184,11 @@ def buildContextMenu(url, arguments):
     except:
         ID=arguments['key'].split('/')[3].split('?')[0]
         
-    unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
+    unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(arguments)
     unwatched="XBMC.RunScript("+g_loc+"/default.py, watch, " + unwatchURL + ")"
     context.append(('Mark as UnWatched', unwatched , ))
             
-    watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"
+    watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(arguments)
     watched="XBMC.RunScript("+g_loc+"/default.py, watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
 
@@ -1173,6 +1202,7 @@ def buildContextMenu(url, arguments):
     listingRefresh="XBMC.RunScript("+g_loc+"/default.py, refresh)"
     context.append(('Refresh Listing', listingRefresh , ))
 
+    printDebug("Using context menus " + str(context))
     
     
     return context
@@ -1199,7 +1229,6 @@ def SHOWS(url,tree=None):
         for show in ShowTags:
 
             arguments=dict(show.items())
-        
             tempgenre=[]
             
             #Lets grab all the info we can quickly through either a dictionary, or assignment to a list
@@ -1350,6 +1379,8 @@ def Seasons(url):
                 return
         
             arguments=dict(show.items());
+            arguments['token']=_PARAM_TOKEN
+
             #Build basic data structures
             properties={'playcount': 0, 'season' : 0 , 'episode':0 }   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
  
@@ -1491,6 +1522,7 @@ def EPISODES(url,tree=None):
         for show in ShowTags:
             
             arguments=dict(show.items())
+            arguments['token']=_PARAM_TOKEN            
             tempgenre=[]
             tempcast=[]
             tempdir=[]
@@ -2122,10 +2154,10 @@ def monitorPlayback(id, server):
         
     return
     
-def PLAY(vids):
+def PLAY(url):
         printDebug("== ENTER: PLAY ==", False)
         
-        protocol=vids.split(':',1)[0]
+        protocol=url[0:4]
   
         if protocol == "file":
             printDebug( "We are playing a local file")
@@ -2133,7 +2165,10 @@ def PLAY(vids):
             playurl=url.split(':',1)[1]
         elif protocol == "http":
             printDebug( "We are playing a stream")
-            playurl=url+GetAuthDetails(getServerFromURL(url))
+            if '?' in url:
+                playurl=url+getAuthDetails({'token':_PARAM_TOKEN})
+            else:
+                playurl=url+getAuthDetails({'token':_PARAM_TOKEN},prefix="?")
         else:
             playurl=url
    
@@ -2143,72 +2178,124 @@ def PLAY(vids):
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
 def videoPluginPlay(vids, prefix=None):
-        printDebug("== ENTER: videopluginplay ==", False)
-        #This is for playing standard non-PMS library files (such as Plugins)
-        
-        #Right - we need to deal with PMS 301 redirects to real media through PMS PlayVideo.
-        #Really needs new player code in XBMC, but not going to happen
-        #So HEAD the URL and follow the status code: 301 -> 200
-        
-        server=getServerFromURL(vids)
-        
-        header=""
-        if vids.split('/')[4] == "amt":
-            printDebug("Adding headers for AMT")
-            #Apple trailers - need a special UA header 
-            uagent="QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
-            agentHeader="User-Agent="+urllib.quote_plus(uagent)
-                                
-            if getAuthDetails(server) == "":
-                header="|"+agentHeader
-            else:
-                header="&"+agentHeader
+    '''
+        Plays Plugin Videos, which do not require library feedback 
+        but require further processing
+        @input: url of video, plugin identifier
+        @return: nothing. End of Script
+    '''
 
+    printDebug("== ENTER: videopluginplay ==", False)
+           
+    server=getServerFromURL(vids)
+    
+    #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
+    if '/system/services/url/lookup' in vids:
+        printDebug("URL Lookup service")
+        html=getURL(vids)
+        tree=etree.fromstring(html)
         
-        if vids.find('PlayVideo?') > 0:
-            printDebug("Checking for redirect on Plugin URL")
-            #Check for a 301
-            output=getURL(vids, type="HEAD")
-            if output.split('@')[0] == "301":
-                printDebug("301.  Getting new URL")
-                vids=output.split('@',1)[1]
-                printDebug("New URL is: "+ vids)
-                parameters=get_params(vids)
-                arguments={}
-                try:
-                        prefix=parameters["prefix"]
-                except:
-                        pass     
-                arguments['key']=vids
-                arguments['identifier']=prefix
-
-                vids=getLinkURL(vids, arguments ,server)
+        mediaCount=0
+        mediaDetails=[]
+        for media in tree.getiterator('Media'):
+            mediaCount+=1
+            tempDict={}
+            tempDict['videoResolution']=media.get('videoResolution',"Unknown")
             
-        
-        printDebug("URL to Play: " + vids)
-        printDebug("Prefix is: " + str(prefix))
-        
-        if prefix is None:
-            prefix=""
+            for child in media:
+                tempDict['key']=child.get('key','')
+            
+            mediaDetails.append(tempDict)
+                    
+        print str(mediaDetails)            
+                    
+        #If we have options, create a dialog menu
+        if mediaCount > 1:
+            printDebug ("Select from plugin video sources")
+            dialogOptions=[x['videoResolution'] for x in mediaDetails ]
+            videoResolution = xbmcgui.Dialog()
+            
+            #Box displaying resume time or start at beginning
+            result = videoResolution.select('Select resolution..',dialogOptions)
+            
+            #result contains an integer based on the selected text.
+            if result == -1:
+                #-1 is an exit without choosing, so end the function and start again when the user selects a new file.
+                return
+            else:
+                vids=getLinkURL('',mediaDetails[result],server)
         else:
-            getTranscodeSettings(True)
-            vids=transcode(0, vids, prefix)
-            session=vids
+            vids=getLinkURL('',mediaDetails[0],server)
+
+    
+    #If URL is a PlayVideo URL, then will probably redirect to another source (either 301 or indirectly).
+    #if vids.find('PlayVideo?') > 0:
+    #    printDebug("PlayVideo url detected")
         
-        url=vids+getAuthDetails(server)+header
+    #Check if there is a further level of XML required
+    if '&indirect=1' in vids:
+        printDebug("Indirect link")
+        html=getURL(vids)
+        tree=etree.fromstring(html)
         
-        printDebug("Final URL is : "+url)
+        for bits in tree.getiterator('Part'):
+            vids=bits.get('key')
         
-        item = xbmcgui.ListItem(path=url)
-        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
-        
-        
+    #Check for a 301/2 redirect, which XBMC doesn't handle will sometimes.               
+    else:
+        printDebug("Direct link")
+        output=getURL(vids, type="HEAD")
+        printDebug(str(output))
+        if ( output[0:4] == "http" ) or ( output[0:4] == "plex" ):
+            printDebug("Redirect.  Getting new URL")
+            vids=output
+            printDebug("New URL is: "+ vids)
+            parameters=get_params(vids)
+            
+            arguments={}
+            try:
+                    prefix=parameters["prefix"]
+            except:
+                    pass     
+            arguments['key']=vids
+            arguments['identifier']=prefix
+
+            vids=getLinkURL(vids, arguments ,server)  
+    
+    printDebug("URL to Play: " + vids)
+    printDebug("Prefix is: " + str(prefix))
+    
+    #If there is no prefix, we are not transcoding video
+    if prefix is None:
+        prefix=""
+    else:
+        getTranscodeSettings(True)
+        vids=transcode(0, vids, prefix)
+        session=vids
+    
+    #If this is an Apple movie trailer, add User Agent to allow access
+    if 'trailers.apple.com' in vids:
+        url=vids+"|User-Agent=QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
+    elif server in vids:
+        url=vids+getAuthDetails({'token': _PARAM_TOKEN})
+    else:
+        url=vids
+   
+    printDebug("Final URL is : " + url)
+    
+    item = xbmcgui.ListItem(path=url)
+    start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)        
+    
+    
+    if 'transcode' in url:
         try:
             pluginTranscodeMonitor(g_sessionID,server)
-        except:
-            printDebug("Not starting monitor")
-            
-        return
+        except: 
+            printDebug("Unable to start transcode monitor")
+    else:
+        printDebug("Not starting monitor")
+        
+    return
 
 def pluginTranscodeMonitor(sessionID,server):
         printDebug("== ENTER: pluginTranscodeMonitor ==", False)
@@ -2735,87 +2822,88 @@ def tracks(url,tree=None):
         xbmcplugin.endOfDirectory(pluginhandle)
 
 def PlexPlugins(url):
-        printDebug("== ENTER: PlexPlugins ==", False)
-        xbmcplugin.setContent(pluginhandle, 'movies')
+    '''
+        Main function to parse plugin XML from PMS
+        Will create dir or item links depending on what the 
+        main tag is.
+        @input: plugin page URL
+        @return: nothing, creates XBMC GUI listing
+    '''
+    
+    printDebug("== ENTER: PlexPlugins ==", False)
+    xbmcplugin.setContent(pluginhandle, 'movies')
+    server=getServerFromURL(url)
+    html=getURL(url)
+    
+    if html is False:
+        return
 
-        #xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
+    tree=etree.fromstring(html)
+    
+    try:
+        sectionArt=getFanart(dict(tree.items()),server)
+    except: pass
+    
+    try:
+        identifier=tree.get('identifier')
+    except: pass
+    
+    for orange in tree:
+           
+        arguments=dict(orange.items())
 
-        #get the serverm URL, XML and parse
-        server=url.split('/')[2]
-        html=getURL(url)
-        
-        if html is False:
-            return
-
-        tree=etree.fromstring(html)
-        
-        try:
-            sectionArt=getFanart(dict(tree.items()),server)
-        except: pass
-        
-        try:
-            identifier=tree.get('identifier')
-        except: pass
-        
-        for orange in tree:
-               
-            arguments=dict(orange.items())
-
-            #Set up the basic structures
-            properties={'overlay':6}
-                        
-            try: 
-                properties['title']=arguments['title'].encode('utf-8')
-            except:
-                try:
-                    properties['title']=arguments['name'].encode('utf-8')
-                except:
-                    properties['title']="unknown"
+        #Set up the basic structures
+        properties={'overlay':6}
                     
-            arguments['thumb']=getThumb(arguments, server)
-            
-            arguments['fanart_image']=getFanart(arguments, server)
+        try: 
+            properties['title']=arguments['title'].encode('utf-8')
+        except:
             try:
-                if arguments['fanart_image'] == "":
-                    arguments['fanart_image']=sectionArt
+                properties['title']=arguments['name'].encode('utf-8')
             except:
-                pass
+                properties['title']="unknown"
                 
-            try:    
-                arguments['identifier']=identifier    
-            except:
-                arguments['identifier']=""
-                
-            p_url=getLinkURL(url, arguments, server)
-
+        arguments['thumb']=getThumb(arguments, server)
+        
+        arguments['fanart_image']=getFanart(arguments, server)
+        try:
+            if arguments['fanart_image'] == "":
+                arguments['fanart_image']=sectionArt
+        except:
+            pass
             
-            if orange.tag == "Directory" or orange.tag == "Podcast":
-                #We have a directory tag, so come back into this function
-                mode=7   
-                s_url=p_url+"&mode="+str(mode)
-                
-                #Set type
-                arguments['type']="Video"
-                
-                addDir(s_url, properties, arguments)
-                    
-            #If we have some video links as well
-            elif orange.tag == "Video":
-             
-                #Set the mode to play them this time
-                mode=18                       
-                    
-                #Build the URl and add a link to the file
-                v_url=p_url+"&mode="+str(mode)    
-                
-                #Set type
-                arguments['type']="Video"
-               
-                addLink(v_url, properties, arguments)
+        try:    
+            arguments['identifier']=identifier    
+        except:
+            arguments['identifier']=""
+            
+        p_url=getLinkURL(url, arguments, server)
 
+        
+        if orange.tag == "Directory" or orange.tag == "Podcast":
+            #We have a directory tag, so come back into this function
+
+            s_url=p_url+"&mode="+str(_MODE_PLEXPLUGINS)
+            
+            #Set type
+            arguments['type']="Video"
+            
+            addDir(s_url, properties, arguments)
                 
-        #Ahh, end of the list   
-        xbmcplugin.endOfDirectory(pluginhandle)        
+        #If we have some video links as well
+        elif orange.tag == "Video":
+         
+            #Set the mode to play them this time
+                
+            #Build the URl and add a link to the file
+            v_url=p_url+"&mode="+str(_MODE_VIDEOPLUGINPLAY) 
+            
+            #Set type
+            arguments['type']="Video"
+           
+            addLink(v_url, properties, arguments)
+
+    xbmcplugin.endOfDirectory(pluginhandle)        
         
 def photo(url,tree=None):
     printDebug("== ENTER: photos ==", False)
@@ -3029,19 +3117,39 @@ def getFanart(arguments, server):
     return  fanart
 
 def getServerFromURL(url):
-    return url.split('/')[2]
+    '''
+    Simply split the URL up and get the server portion, sans port
+    @ input: url, woth or without protocol
+    @ return: the URL server
+    '''
+    if url[0:4] == "http":
+        return url.split('/')[2]
+    else:
+        return url.split('/')[0]
 
 def getLinkURL(url, arguments, server):
+    '''
+        Investigate the passed URL and determine what is required to 
+        turn it into a usable URL
+        @ input: url, XML data and PM server address
+        @ return: Usable http URL
+    '''
+    
     printDebug("== ENTER: getLinkURL ==")
     try:
-        if arguments['key'].split('/')[0] == "http:":
+        #If key starts with http, then return it
+        if arguments['key'][0:4] == "http":
+            printDebug("Detected http link")
             return arguments['key']
+            
+        #If key starts with a / then prefix with server address    
         elif arguments['key'][0] == '/':
-            #The key begins with a slash, there is absolute
+            printDebug("Detected base path link")
             return 'http://'+server+str(arguments['key'])
-        elif arguments['key'].split('/')[0] == "plex:":
-            #If we get a plex:// URL, then this uses the Plex Client Media server player - which XBMC doesn't have
-            #Only option of playback is to transcode.
+
+        #If key starts with plex:// then it requires transcoding 
+        elif arguments['key'][0:5] == "plex:":
+            printDebug("Detected plex link")    
             components=arguments['key'].split('&')
             for i in components:
                 if 'prefix=' in i:
@@ -3055,8 +3163,10 @@ def getLinkURL(url, arguments, server):
             arguments['key']='&'.join(components)        
             newUrl='http://'+server+'/'+'/'.join(arguments['key'].split('/')[3:])
             return newUrl
+            
+        #Any thing else is assumed to be a relative path and is built on existing url        
         else:
-            #Build the next level URL and add the link on screen
+            printDebug("Detected relative link")
             return url+'/'+str(arguments['key'])
     except:pass
      
@@ -3527,7 +3637,7 @@ param_name=urllib.unquote_plus(params.get('name',""))
 mode=int(params.get('mode',-1))
 param_id=params.get('id',None)
 param_transcodeOverride=int(params.get('transcode',0))
-param_prefix=params.get('identifier',None)
+param_identifier=params.get('identifier',None)
 _PARAM_TOKEN=params.get('X-Plex-Token',None)
 
 if str(sys.argv[1]) == "skin":
@@ -3558,6 +3668,7 @@ else:
         print "PleXBMC -> token: " + str(_PARAM_TOKEN)
 
     #Run a function based on the mode variable that was passed in the URL
+        
         
     if mode==None or param_url==None or len(param_url)<1:
         discoverAllServers()
@@ -3590,7 +3701,7 @@ else:
     elif mode==17:
         music(param_url)
     elif mode==18:
-        videoPluginPlay(param_url,param_prefix)
+        videoPluginPlay(param_url,param_identifier)
     elif mode==19:
         plexOnline(param_url)
     elif mode==20:

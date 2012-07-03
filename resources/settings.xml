@@ -11,44 +11,16 @@
 	<setting id="nasuserid" type="text" label="30064" default="" visible="eq(-2,true)" enable="eq(-2,true)" />
 	<setting id="naspass" type="text" label="30065" option="hidden" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
 	<setting id="nasroot" type="text" label="30066" default="" visible="eq(-4,true)" enable="eq(-4,true)" />
-	
     </category>
     
     <category label="Audio/Subtitle" >
         <setting id="streamControl" type="enum" label="30038" lvalues="30036|30011|30037|30039" Default="30036" />
     </category>
- 
-	<!--
-    <category label="Server List" >
-        <setting id="multiple" type="enum" lvalues="30016|30017|30018|30019|30020|30021" label="Number of Extra Servers" default="30016" />
-        <setting id="server1" type="text" label="Server 1" visible="gt(-1,0)" enable="gt(-1,0)" default="" />
-        <setting id="server2" type="text" label="Server 2" visible="gt(-2,1)" enable="gt(-2,1)" default="" />
-        <setting id="server3" type="text" label="Server 3" visible="gt(-3,2)" enable="gt(-3,2)" default="" />
-        <setting id="server4" type="text" label="Server 4" visible="gt(-4,3)" enable="gt(-4,3)" default="" />
-        <setting id="server5" type="text" label="Server 5" visible="gt(-5,4)" enable="gt(-5,4)" default="" />
-    </category>
-
-    <category label="Authentication" >
-        <setting id="remote" type="bool" label="30027" default="false"/>
-        <setting id="server0user" type="text" visible="eq(-1,true)" enable="eq(-1,true)" label="Main Server username" />
-        <setting id="server0pass" type="text"  option="hidden" visible="eq(-2,true)" enable="eq(-2,true)" label="Main Server password" />
-		<setting id="server1user" type="text" label="Server 1 username" visible="eq(-3,true)" enable="eq(-3,true)" default="" />
-		<setting id="server1pass" type="text" option="hidden" label="Server 1 password" visible="eq(-4,true)" enable="eq(-4,true)" default="" />
-		<setting id="server2user" type="text" label="Server 2 username" visible="eq(-5,true)" enable="eq(-5,true)" default="" />
-		<setting id="server2pass" type="text" option="hidden" label="Server 2 password" visible="eq(-6,true)" enable="eq(-6,true)" default="" />
-		<setting id="server3user" type="text" label="Server 3 username" visible="eq(-7,true)" enable="eq(-7,true)" default="" />
-		<setting id="server3pass" type="text" option="hidden" label="Server 3 password" visible="eq(-8,true)" enable="eq(-8,true)" default="" />
-		<setting id="server4user" type="text" label="Server 4 username" visible="eq(-9,true)" enable="eq(-9,true)" default="" />
-		<setting id="server4pass" type="text" option="hidden" label="Server 4 password" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
-		<setting id="server5user" type="text" label="Server 5 username" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
-		<setting id="server5pass" type="text" option="hidden" label="Server 5 password" visible="eq(-12,true)" enable="eq(-12,true)" default="" />
-    </category>
-    -->
 	
 	<category label="myplex" >
 		<setting id="myplex_user" type="text" label="myPlex username" />
 		<setting id="myplex_pass" type="text" option="hidden" label="myPlex password" />
-		<setting id="myplex_token" type="text" option="hidden" label="myPlex Token (self populating)" />
+		<setting id="myplex_token" type="text" option="hidden" label="myPlex Token (Created automatically)" />
 	</category>
 	
     <category label="Transcoding" >
