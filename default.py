@@ -367,22 +367,22 @@ def getAllSections():
             twoCount=0
             for twodevice in g_sections:
 
-                print "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title'])
-                print "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid']
+                printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title']))
+                printDebug( "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid'])
 
                 if oneCount == twoCount:
-                    print "skip"
+                    printDebug( "skip" )
                     twoCount+=1
                     continue
                     
                 if ( str(onedevice['title']) == str(twodevice['title']) ) and ( onedevice['uuid'] == twodevice['uuid'] ):
-                    print "match"
+                    printDebug( "match")
                     if onedevice['local'] == "1":
-                        print "popping 2 " + str(g_sections.pop(twoCount))
+                        printDebug ( "popping 2 " + str(g_sections.pop(twoCount)))
                     else:
-                        print "popping 1 " + str(g_sections.pop(oneCount))
+                        printDebug ( "popping 1 " + str(g_sections.pop(oneCount)))
                 else:
-                    print "no match"
+                    printDebug( "no match")
                 
                 twoCount+=1
              
@@ -599,8 +599,7 @@ def getURL( url ,title="Error", suppress=True, type="GET"):
                 xbmcgui.Dialog().ok(title,error)
             print error 
             return False
-        elif ( int(data.status) == 301 ) or ( int(data.status) == 302 ): # and type == "HEAD":
-#            return str(data.status)+"@"+data.getheader('Location')
+        elif ( int(data.status) == 301 ) or ( int(data.status) == 302 ): 
             return data.getheader('Location')
         else:      
             link=data.read()
@@ -723,19 +722,15 @@ def mediaType(partproperties, server, dvdplayback=False):
      
 def addLink(url,properties,arguments,context=None):
         printDebug("== ENTER: addLink ==", False)
-        try:
-            printDebug("Adding link for [" + properties['title'] + "]")
-        except: pass
+        printDebug("Adding link for [" + properties.get('title','unknown') + "]")
+
         printDebug("Passed arguments are " + str(arguments))
         printDebug("Passed properties are " + str(properties))
         
         if (arguments.get('token',None) is None) and _PARAM_TOKEN:
             arguments['token']=_PARAM_TOKEN
         
-        try:
-            type=arguments['type']
-        except:
-            type='Video'
+        type=arguments.get('type','Video')
             
         if type =="Picture":
              u=url+getAuthDetails(arguments,prefix="?")
@@ -743,58 +738,42 @@ def addLink(url,properties,arguments,context=None):
             u=sys.argv[0]+"?url="+str(url)+getAuthDetails(arguments)
         
         ok=True
-        
-        
+                
         printDebug("URL to use for listing: " + u)
         #Create ListItem object, which is what is displayed on screen
-        try:
-            if '?' in arguments['thumb'] :
-                liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments), thumbnailImage=arguments['thumb']+getAuthDetails(arguments))
-            else:
-                liz=xbmcgui.ListItem(properties['title'], iconImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"), thumbnailImage=arguments['thumb']+getAuthDetails(arguments,prefix="?"))
+        thumbnail=arguments.get('thumb','')
+        if '?' in thumbnail :
+            liz=xbmcgui.ListItem(properties['title'], iconImage=thumbnail+getAuthDetails(arguments), thumbnailImage=thumbnail+getAuthDetails(arguments))
+        else:
+            liz=xbmcgui.ListItem(properties['title'], iconImage=thumbnail+getAuthDetails(arguments,prefix="?"), thumbnailImage=thumbnail+getAuthDetails(arguments,prefix="?"))
 
-            printDebug("Setting thumbnail as " + arguments['thumb'])              
-        except:
-            liz=xbmcgui.ListItem(properties['title'], iconImage='', thumbnailImage='')
+        printDebug("Setting thumbnail as " + thumbnail)              
             
         #Set properties of the listitem object, such as name, plot, rating, content type, etc
         liz.setInfo( type=type, infoLabels=properties ) 
         
-        try:
-            liz.setProperty('Artist_Genre', properties['genre'])
-            liz.setProperty('Artist_Description', properties['plot'])
-        except: pass
+        liz.setProperty('Artist_Genre', properties.get('genre',''))
+        liz.setProperty('Artist_Description', properties.get('plot',''))
 
+        #Set media flag properties for the skin
         if g_skipmediaflags == "false":
-            try:
-                liz.setProperty('VideoResolution', arguments['VideoResolution'])
-            except: pass
-            try:
-                liz.setProperty('VideoCodec', arguments['VideoCodec'])
-            except: pass
-            try:
-                liz.setProperty('AudioCodec', arguments['AudioCodec'])
-            except: pass
-            try:
-                liz.setProperty('AudioChannels', arguments['AudioChannels'])
-            except: pass
-            try:
-                liz.setProperty('VideoAspect', arguments['VideoAspect'])
-            except: pass
-        
-        
+            liz.setProperty('VideoResolution', arguments.get('VideoResolution',''))
+            liz.setProperty('VideoCodec', arguments.get('VideoCodec',''))
+            liz.setProperty('AudioCodec', arguments.get('AudioCodec',''))
+            liz.setProperty('AudioChannels', arguments.get('AudioChannels',''))
+            liz.setProperty('VideoAspect', arguments.get('VideoAspect',''))
+              
         #Set the file as playable, otherwise setresolvedurl will fail
         liz.setProperty('IsPlayable', 'true')
-        
-                
+                      
         #Set the fanart image if it has been enabled
-        try:
-            if '?' in arguments['fanart_image']:
-                liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments)))
-            else:
-                liz.setProperty('fanart_image', str(arguments['fanart_image']+getAuthDetails(arguments,prefix="?")))  
-            printDebug( "Setting fan art as " + str(arguments['fanart_image'])+" with headers: "+ getAuthDetails(arguments))
-        except: pass
+        fanart=arguments.get('fanart_image','')
+        if '?' in fanart:
+            liz.setProperty('fanart_image', fanart + getAuthDetails(arguments))
+        else:
+            liz.setProperty('fanart_image', fanart + getAuthDetails(arguments,prefix="?"))  
+        
+        printDebug( "Setting fan art as " + fanart +" with headers: "+ getAuthDetails(arguments))
         
         if context is not None:
             printDebug("Building Context Menus")
@@ -803,8 +782,8 @@ def addLink(url,properties,arguments,context=None):
             #print transcodeURL
             #transcode="Container.Update("+u+"&transcode=1)"
             #context.append(("Play trancoded", transcodeURL, ))
-            cm_url_download = sys.argv[0] + '?url='+url+'&mode=23'
-            context.append(("play trans" , "XBMC.RunPlugin(%s)" % (cm_url_download)))
+            #cm_url_download = sys.argv[0] + '?url='+url+'&mode=23'
+            #context.append(("Play with Transcoder" , "XBMC.RunPlugin(%s)" % (cm_url_download)))
             liz.addContextMenuItems(context, g_contextReplace)
         
         #Finally add the item to the on screen list, with url created above
@@ -1023,28 +1002,24 @@ def Movies(url,tree=None):
             tree = etree.fromstring(html)
 
         server=getServerFromURL(url)
-            
-            
-        ramdonNumber=random.randint(1000000000,9999999999)   
+                        
+        ramdonNumber=str(random.randint(1000000000,9999999999))   
         #Find all the video tags, as they contain the data we need to link to a file.
         MovieTags=tree.findall('Video')
+        fullList=[]
         for movie in MovieTags:
             
             printDebug("---New Item---")
-            arguments=dict(movie.items())
-            arguments['token']=_PARAM_TOKEN
             tempgenre=[]
             tempcast=[]
             tempdir=[]
             tempwriter=[]
-            mediacount=0
             
             #Lets grab all the info we can quickly through either a dictionary, or assignment to a list
             #We'll process it later
             for child in movie:
                 if child.tag == "Media":
                     mediaarguments = dict(child.items())
-                    mediacount+=1    
                 elif child.tag == "Genre" and g_skipmetadata == "false":
                     tempgenre.append(child.get('tag'))
                 elif child.tag == "Writer"  and g_skipmetadata == "false":
@@ -1055,142 +1030,69 @@ def Movies(url,tree=None):
                     tempcast.append(child.get('tag'))
             
             printDebug("Media attributes are " + str(mediaarguments))
+                                        
+            #Gather some data 
+            view_offset=movie.get('viewOffset',0)
+            duration=int(mediaarguments.get('duration',movie.get('duration',0)))/1000
+                                   
+            #Required listItem entries for XBMC
+            details={'plot'      : movie.get('summary','') ,
+                     'title'     : movie.get('title','Unknown').encode('utf-8') ,
+                     'playcount' : int(movie.get('viewCount',0)) ,
+                     'rating'    : float(movie.get('rating',0)) ,
+                     'studio'    : movie.get('studio','') ,
+                     'mpaa'      : "Rated " + movie.get('contentRating', 'unknown') ,
+                     'year'      : int(movie.get('year',0)) ,
+                     'tagline'   : movie.get('tagline','') ,
+                     'duration'  : str(datetime.timedelta(seconds=duration)) ,
+                     'overlay'   : 6 }
             
-            #Create structure to pass to listitem/setinfo.  Set defaults
-            properties={'playcount': 0}   
-               
-            #Get name
-            try:
-                properties['title']=arguments['title'].encode('utf-8')
-            except: pass
-            
-            #Get the Plot          
-            try:
-                properties['plot']=arguments['summary']
-            except: pass
-            
-            #Get the watched status
-            try:
-                properties['playcount']=int(arguments['viewCount'])
-            except:
-                properties['playcount']=0
-                
-            try:
-                arguments['viewOffset']
-            except:
-                arguments['viewOffset']=0
+            #Extra data required to manage other properties
+            extraData={'type'         : "Video" ,
+                       'thumb'        : getThumb(movie, server) ,
+                       'fanart_image' : getFanart(movie,server) ,
+                       'token'        : _PARAM_TOKEN ,
+                       'key'          : movie.get('key',''),
+                       'ratingKey'    : str(movie.get('ratingKey',0)) }
 
-            
-            if properties['playcount'] > 0:
+            #Determine what tupe of watched flag [overlay] to use
+            if details['playcount'] > 0:
                 if g_skinwatched == "xbmc":          #WATCHED
-                    properties['overlay']=7   #Tick ICON  in XBMC
+                    details['overlay']=7   #Tick ICON  in XBMC
                 elif g_skinwatched == "plexbmc":
-                    properties['overlay']=0   #Blank entry in Plex
-            elif properties['playcount'] == 0: 
-                if g_skinwatched == "xbmc":          #UNWATCHED
-                    properties['overlay']=6   #XBMC shows blank
-                elif g_skinwatched == "plexbmc":
-                    properties['overlay']=4   #PLEX shows dot (using overlayhastrainer)
+                    details['overlay']=0   #Blank entry in Plex
+            elif details['playcount'] == 0: 
+                if g_skinwatched == "plexbmc":
+                    details['overlay']=4   #PLEX shows dot (using overlayhastrainer)
             
-            if g_skinwatched == "plexbmc" and int(arguments['viewOffset']) > 0:
-                properties['overlay'] = 5     #PLEX show partial viewing (using overlaytrained)
-
-                               
-            #Get how good it is, based on your votes...
-            try:
-                properties['rating']=float(arguments['rating'])
-            except: pass
-                                    
-            #Get the studio 
-            try:
-                properties['studio']=arguments['studio']
-            except: pass
-                        
-            #Get the Movie certificate, so you know if the kids can watch it.
-            try:
-                properties['mpaa']="Rated " + arguments['contentRating']
-            except: pass
+            if g_skinwatched == "plexbmc" and int(view_offset) > 0:
+                details['overlay'] = 5     #PLEX show partial viewing (using overlaytrained)            
             
-            #year
-            try:
-                properties['year']=int(arguments['year'])
-            except: pass
-            
-            #That memorable 6 word summary..
-            try:
-                properties['tagline']=arguments['tagline']
-            except: pass
-                
-            #Set the film duration 
-            try:
-                arguments['duration']=mediaarguments['duration']
-            except KeyError:
-                try:
-                    arguments['duration']
-                except:
-                    arguments['duration']=0
-             
-            arguments['duration']=int(arguments['duration'])/1000
-            properties['duration']=str(datetime.timedelta(seconds=int(arguments['duration'])))
-              
-            if g_skipimages == "false":
-              
-                #Get Thumbnail            
-                arguments['thumb']=getThumb(arguments, server)
-                             
-                #print art_url  
-                arguments['fanart_image']=getFanart(arguments,server)
-            
-            #Set type
-            arguments['type']="Video"
-            
-            #Assign standard metadata
-            #Cast
-            if  g_skipmetadata == "false":
-                properties['cast']=tempcast
-                
-                #director
-                properties['director']=" / ".join(tempdir)
-                
-                #Writer
-                properties['writer']=" / ".join(tempwriter)
-                
-                #Genre        
-                properties['genre']=" / ".join(tempgenre)                
-                        
-            #This is playable media, so link to a path to a play function
-            mode=5
-                             
-            u='http://'+server+arguments['key']+"&mode="+str(mode)+"&id="+str(arguments['ratingKey'])
-            
+            #Extended Metadata
+            if g_skipmetadata == "false":
+                details['cast']     = tempcast
+                details['director'] = " / ".join(tempdir)
+                details['writer']   = " / ".join(tempwriter)
+                details['genre']    = " / ".join(tempgenre)
+                 
+            #Add extra media flag data
             if g_skipmediaflags == "false":
-            ### MEDIA FLAG STUFF ###
-                try:
-                    arguments['VideoResolution']=mediaarguments['videoResolution']
-                except: pass
-                try:
-                    arguments['VideoCodec']=mediaarguments['videoCodec']
-                except: pass
-                try:
-                    arguments['AudioCodec']=mediaarguments['audioCodec']
-                except: pass
-                
-                try:
-                    arguments['AudioChannels']=mediaarguments['audioChannels']
-                except: pass
-                try:
-                    arguments['VideoAspect']=mediaarguments['aspectRatio']
-                except: pass
-            
+                extraData['VideoResolution'] = mediaarguments.get('videoResolution','')
+                extraData['VideoCodec']      = mediaarguments.get('videoCodec','')
+                extraData['AudioCodec']      = mediaarguments.get('audioCodec','')
+                extraData['AudioChannels']   = mediaarguments.get('audioChannels','')
+                extraData['VideoAspect']     = mediaarguments.get('aspectRatio','')
+
+            #Build any specific context menu entries
             if g_skipcontext == "false":
-                context=buildContextMenu(url, arguments)    
+                context=buildContextMenu(url, extraData)    
             else:
                 context=None
-            
-            u=u+'&t='+str(ramdonNumber)
-            
+            # http:// <server> <path> &mode=<mode> &id=<media_id> &t=<rnd>
+            u="http://%s%s&mode=%s&id=%s&t%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'], ramdonNumber)
+          
             #Right, add that link...and loop around for another entry
-            addLink(u,properties,arguments,context)        
+            addLink(u,details,extraData,context)        
         
         #If we get here, then we've been through the XML and it's time to finish.
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -1199,35 +1101,37 @@ def buildContextMenu(url, arguments):
     context=[]
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
-    libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update, " + refreshURL.split('?')[0]+getAuthDetails(arguments,prefix="?") + ")"
-    context.append(('Refresh library section', libraryRefresh , ))
+    plugin_url="XBMC.RunScript("+g_loc+"/default.py, "
+    ID=arguments['ratingKey']
+
+    #Initiate Library refresh 
+    libraryRefresh = plugin_url+"update, " + refreshURL.split('?')[0]+getAuthDetails(arguments,prefix="?") + ")"
+    context.append(('Rescan library section', libraryRefresh , ))
     
-    try:
-        if arguments[ratingKey]:
-            ID=arguments[ratingKey]
-    except:
-        ID=arguments['key'].split('/')[3].split('?')[0]
-        
+    #Mark media unwatched
     unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(arguments)
-    unwatched="XBMC.RunScript("+g_loc+"/default.py, watch, " + unwatchURL + ")"
-    context.append(('Mark as UnWatched', unwatched , ))
+    unwatched=plugin_url+"watch, " + unwatchURL + ")"
+    context.append(('Mark as Unwatched', unwatched , ))
             
+    #Mark media watched        
     watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(arguments)
-    watched="XBMC.RunScript("+g_loc+"/default.py, watch, " + watchURL + ")"
+    watched=plugin_url+"watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
 
+    #Delete media from Library
     deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(arguments)
-    removed="XBMC.RunScript("+g_loc+"/default.py, delete, " + deleteURL + ")"
-    context.append(('Delete', removed , ))
+    removed=plugin_url+"delete, " + deleteURL + ")"
+    context.append(('Delete media', removed , ))
 
-    settingDisplay="XBMC.RunScript("+g_loc+"/default.py, setting)"
+    #Display plugin setting menu
+    settingDisplay=plugin_url+"setting)"
     context.append(('PleXBMC settings', settingDisplay , ))
 
-    listingRefresh="XBMC.RunScript("+g_loc+"/default.py, refresh)"
-    context.append(('Refresh Listing', listingRefresh , ))
+    #Reload media section
+    listingRefresh=plugin_url+", refresh)"
+    context.append(('Reload Section', listingRefresh , ))
 
     printDebug("Using context menus " + str(context))
-    
     
     return context
     
@@ -2231,7 +2135,7 @@ def videoPluginPlay(vids, prefix=None):
             
             mediaDetails.append(tempDict)
                     
-        print str(mediaDetails)            
+        printDebug( str(mediaDetails) )            
                     
         #If we have options, create a dialog menu
         if mediaCount > 1:
@@ -2414,40 +2318,33 @@ def getContent(url):
         return
  
     arguments=dict(tree.items())
-    try:
-        if arguments['viewGroup'] == "movie":
-            printDebug( "This is movie XML, passing to Movies")
-            if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
-                xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
-            Movies(url, tree)
-            return
-        elif arguments['viewGroup'] == "show":
-            printDebug( "This is tv show XML")
-            SHOWS(url,tree)
-            return
-        elif arguments['viewGroup'] == "episode":
-            printDebug("This is TV episode XML")
-            EPISODES(url,tree)
-            return
-        elif arguments['viewGroup'] == 'artist':
-            printDebug( "This is music XML")
-            artist(url, tree)
-            return
-        elif arguments['viewGroup'] == 'album' or arguments['viewGroup'] == 'albums':
-            albums(url,tree)
-            return
-        elif arguments['viewGroup'] == "track":
-            printDebug("This is track XML")
-            tracks(url, tree)
-            return
-        elif arguments['viewGroup'] =="photo":
-            printDebug("This is a photo XML")
-            photo(url,tree)
-            return
-    except:
-        printDebug("Missing viewgroup parameter - treat as secondary")
-            
-    processDirectory(url,tree)
+    view_group=arguments.get('viewGroup',None)
+
+    if view_group == "movie":
+        printDebug( "This is movie XML, passing to Movies")
+        if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
+            xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
+        Movies(url, tree)
+    elif view_group == "show":
+        printDebug( "This is tv show XML")
+        SHOWS(url,tree)
+    elif view_group == "episode":
+        printDebug("This is TV episode XML")
+        EPISODES(url,tree)
+    elif view_group == 'artist':
+        printDebug( "This is music XML")
+        artist(url, tree)
+    elif view_group== 'album' or view_group == 'albums':
+        albums(url,tree)
+    elif view_group == "track":
+        printDebug("This is track XML")
+        tracks(url, tree)
+    elif view_group =="photo":
+        printDebug("This is a photo XML")
+        photo(url,tree)
+    else:
+        processDirectory(url,tree)
+        
     return
 
 def processDirectory(url,tree=None):
@@ -3114,31 +3011,45 @@ def music(url, tree=None):
     xbmcplugin.endOfDirectory(pluginhandle)    
 
 def getThumb(arguments, server):
-    thumbnail=""
+    '''
+        Simply take a URL or path and determine how to format for images
+        @ input: elementTree element, server name
+        @ return formatted URL
+    '''
+    thumbnail=arguments.get('thumb','').split('?t')[0]
     
-    try:
-        if arguments['thumb'].split('/')[0] == "http:":
-            return arguments['thumb']
-        else:    
-            thumbnail='http://'+server+arguments['thumb'].split('?t')[0]
-    except:
-        thumbnail=g_loc+'/resources/movie.png'  
-     
-    return thumbnail
+    if thumbnail == '':
+        return ''
+        
+    elif thumbnail[0:4] == "http" :
+        return thumbnail
+    
+    elif thumbnail[0] == '/':
+        return 'http://'+server+thumbnail
+    
+    else: 
+        return g_loc+'/resources/movie.png'
 
 def getFanart(arguments, server):
-    fanart=""
+    '''
+        Simply take a URL or path and determine how to format for fanart
+        @ input: elementTree element, server name
+        @ return formatted URL for photo resizing
+    '''
 
-    try:
-        if arguments['art'].split('/')[0] == "http:":
-            return arguments['art']
-        else:    
-            art_url='http://localhost:32400'+arguments['art']
-            fanart=photoTranscode(server,art_url)
-    except:
-        fanart=""  
-     
-    return  fanart
+    fanart=arguments.get('art','')
+    
+    if fanart == '':
+        return ''
+
+    elif fanart[0:4] == "http" :
+        return fanart
+        
+    elif fanart[0] == '/':
+        return photoTranscode(server,'http://localhost:32400'+fanart)
+        
+    else:  
+        return ''
 
 def getServerFromURL(url):
     '''
