@@ -178,6 +178,17 @@ g_sessionID=None
     
 
 def discoverAllServers():
+    '''
+        Take the users settings and add the required master servers
+        to the server list.  These are the devices which will be queried
+        for complete library listings.  There are 3 types:
+            local server - from IP configuration
+            bonjour server - from a bonjour lookup
+            myplex server - from myplex configuration
+        Alters the global g_serverDict value
+        @input: None
+        @return: None       
+    '''
     printDebug("== ENTER: discoverAllServers ==", False)
     g_bonjour = __settings__.getSetting('bonjour')
 
@@ -254,7 +265,8 @@ def resolveAllServers():
     '''
       Return list of all media sections configured
       within PleXBMC
-      @ Return unique list of media sections
+      @input: None
+      @Return: unique list of media sections
     '''
     printDebug("== ENTER: resolveAllServers ==", False)
     localServers=[]
@@ -306,7 +318,13 @@ def resolveAllServers():
     printDebug ("Unique server List: " + str(localServers))
     return localServers     
             
-def getAllSections(filter=None):
+def getAllSections():
+    '''
+        from g_serverDict, get a list of all the available sections
+        and deduplicate the sections list
+        @input: None
+        @return: None (alters the global value g_sectionList)
+    '''
     printDebug("== ENTER: getAllSections ==", False)
     printDebug("Using servers list: " + str(g_serverDict))
 
@@ -371,6 +389,12 @@ def getAllSections(filter=None):
             oneCount+=1
     
 def getAuthDetails(details, url_format=True, prefix="&"):
+    '''
+        Takes the token and creates the required arguments to allow
+        authentication.  This is really just a formatting tools
+        @input: token as dict, style of output [opt] and prefix style [opt]
+        @return: header string or header dict
+    '''
     token = details.get('token', None)
         
     if url_format:
