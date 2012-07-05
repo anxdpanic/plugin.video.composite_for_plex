@@ -1102,7 +1102,7 @@ def buildContextMenu(url, arguments):
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
     plugin_url="XBMC.RunScript("+g_loc+"/default.py, "
-    ID=arguments['ratingKey']
+    ID=arguments.get('ratingKey','0')
 
     #Initiate Library refresh 
     libraryRefresh = plugin_url+"update, " + refreshURL.split('?')[0]+getAuthDetails(arguments,prefix="?") + ")"
@@ -2314,7 +2314,7 @@ def getContent(url):
     tree=etree.fromstring(html)
  
     if lastbit == "folder":
-        processDirectory(url,tree)
+        PlexPlugins(url,tree)
         return
  
     arguments=dict(tree.items())
@@ -2657,9 +2657,7 @@ def tracks(url,tree=None):
             properties={}   #Create a dictionary for properties with some defaults(i.e. ListItem properties)
             
             #Get the tracknumber number
-            try:
-                properties['TrackNumber']=int(arguments['index'])
-            except: pass
+            properties['TrackNumber']=int(arguments.get('index',0))
 
             #Get name
             try:
@@ -2742,7 +2740,7 @@ def tracks(url,tree=None):
         #End the listing
         xbmcplugin.endOfDirectory(pluginhandle)
 
-def PlexPlugins(url):
+def PlexPlugins(url, tree=None):
     '''
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the 
@@ -2750,16 +2748,18 @@ def PlexPlugins(url):
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
     '''
-    
+
     printDebug("== ENTER: PlexPlugins ==", False)
     xbmcplugin.setContent(pluginhandle, 'movies')
     server=getServerFromURL(url)
-    html=getURL(url)
-    
-    if html is False:
-        return
+    if tree is None:
 
-    tree=etree.fromstring(html)
+        html=getURL(url)
+    
+        if html is False:
+            return
+
+        tree=etree.fromstring(html)
     
     try:
         sectionArt=getFanart(dict(tree.items()),server)
