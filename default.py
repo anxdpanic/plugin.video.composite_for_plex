@@ -16,10 +16,6 @@ import hashlib
 import random
 import cProfile
 
-try:
-    from bonjourFind import *
-except: pass
-
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
@@ -27,6 +23,11 @@ PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
 PLEXBMC_VERSION="2.0b rev 1"
 
+try:
+    from bonjourFind import *
+except:
+    print "BonjourFind Import Error"
+    
 print "===== PLEXBMC START ====="
 
 print "PleXBMC -> running on " + str(sys.version_info)
@@ -198,11 +199,14 @@ def discoverAllServers():
         try:
             printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
             bonjourServer = bonjourFind("_plexmediasvr._tcp")
-                        
+                                                
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
                 #Add the first found server to the list - we will find rest from here
-                g_serverDict.append({'name'      : bonjourServer.bonjourName[0].encode('utf-8') ,
+                
+                bj_server_name = bonjourServer.bonjourName[0].encode('utf-8')
+                
+                g_serverDict.append({'name'      : bj_server_name.split('.')[0] ,
                                      'address'   : bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0] ,
                                      'discovery' : 'bonjour' , 
                                      'token'     : None ,
@@ -330,7 +334,7 @@ def getAllSections():
 
     for server in g_serverDict:
                                                                         
-        if server['discovery'] == "local":                                                
+        if server['discovery'] == "local" or server['discovery'] == "bonjour":                                                
             html=getURL('http://'+server['address']+'/system/library/sections')
         elif server['discovery'] == "myplex":
             html=getMyPlexURL('/pms/system/library/sections')
@@ -444,7 +448,7 @@ def getLocalServers():
     
     for local in g_serverDict:
     
-        if local.get('discovery') == "local":
+        if local.get('discovery') == "local" or local.get('discovery') == "bonjour":
             html = getURL(local['address']+url_path)
             break
         
@@ -2813,6 +2817,90 @@ def PlexPlugins(url, tree=None):
                 
         #If we have some video links as well
         elif orange.tag == "Video":
+         
+            #Set the mode to play them this time
+                
+            #Build the URl and add a link to the file
+            v_url=p_url+"&mode="+str(_MODE_VIDEOPLUGINPLAY) 
+            
+            #Set type
+            arguments['type']="Video"
+           
+            addLink(v_url, properties, arguments)
+
+    xbmcplugin.endOfDirectory(pluginhandle)        
+
+def processXML(url, tree=None):
+    '''
+        Main function to parse plugin XML from PMS
+        Will create dir or item links depending on what the 
+        main tag is.
+        @input: plugin page URL
+        @return: nothing, creates XBMC GUI listing
+    '''
+
+    printDebug("== ENTER: processXML ==", False)
+    xbmcplugin.setContent(pluginhandle, 'movies')
+    server=getServerFromURL(url)
+    if tree is None:
+
+        html=getURL(url)
+    
+        if html is False:
+            return
+
+        tree=etree.fromstring(html)
+    
+    try:
+        sectionArt=getFanart(dict(tree.items()),server)
+    except: pass
+    
+    try:
+        identifier=tree.get('identifier')
+    except: pass
+    
+    for orange in tree:
+           
+        properties={'overlay':6}
+                    
+        try: 
+            properties['title']=arguments['title'].encode('utf-8')
+        except:
+            try:
+                properties['title']=arguments['name'].encode('utf-8')
+            except:
+                properties['title']="unknown"
+                
+        arguments['thumb']=getThumb(arguments, server)
+        
+        arguments['fanart_image']=getFanart(arguments, server)
+        try:
+            if arguments['fanart_image'] == "":
+                arguments['fanart_image']=sectionArt
+        except:
+            pass
+            
+        try:    
+            arguments['identifier']=identifier    
+        except:
+            arguments['identifier']=""
+            
+        p_url=getLinkURL(url, arguments, server)
+
+        
+        #These are intermediate items and point to further objects
+        if orange.tag == "Directory" or orange.tag == "Podcast":
+            #We have a directory tag, so come back into this function
+
+            s_url=p_url+"&mode="+str(_MODE_PLEXPLUGINS)
+            
+            #Set type
+            arguments['type']="Video"
+            
+            addDir(s_url, properties, arguments)
+                
+        #These are media end points
+        elif orange.tag == "Video" or orange.tag == "Track":
          
             #Set the mode to play them this time
                 
