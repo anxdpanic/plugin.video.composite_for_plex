@@ -1273,7 +1273,7 @@ def TVEpisodes( url, tree=None ): # CHECKED
         # http:// <server> <path> &mode=<mode> &id=<media_id> &t=<rnd>
         u="http://%s%s&mode=%s&id=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'])
 
-        addGUIItem(u,details,extraData, context, False)        
+        addGUIItem(u,details,extraData, context, folder=False)        
     
     xbmcplugin.endOfDirectory(pluginhandle)
 
@@ -2125,7 +2125,7 @@ def PlexPlugins( url, tree=None ): # CHECKED
             addGUIItem(p_url+"&mode="+str(_MODE_PLEXPLUGINS), details, extraData)
                 
         elif plugin.tag == "Video":
-            addGUIItem(p_url+"&mode="+str(_MODE_VIDEOPLUGINPLAY), details, extraData, False)
+            addGUIItem(p_url+"&mode="+str(_MODE_VIDEOPLUGINPLAY), details, extraData, folder=False)
 
     xbmcplugin.endOfDirectory(pluginhandle)        
 
@@ -2266,7 +2266,7 @@ def movieTag(url, server, tree, movie, randomNumber):
     # http:// <server> <path> &mode=<mode> &id=<media_id> &t=<rnd>
     u="http://%s%s&mode=%s&id=%s&t%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'], randomNumber)
   
-    addGUIItem(u,details,extraData,context,False)        
+    addGUIItem(u,details,extraData,context,folder=False)        
     return
     
 def trackTag( server, tree, track ): # CHECKED
@@ -2348,7 +2348,7 @@ def photo( url,tree=None ): # CHECKED
                                 extraData['key']="http://"+server+images.get('key','')
                                 u=extraData['key']
             
-            addGUIItem(u,details,extraData,False)
+            addGUIItem(u,details,extraData,folder=False)
 
     xbmcplugin.endOfDirectory(pluginhandle)
 
@@ -2396,7 +2396,7 @@ def music( url, tree=None ): # CHECKED
             details['duration']=int(grapes.get('totalTime',0)/1000)
     
             u=u+"&mode="+str(_MODE_BASICPLAY)
-            addGUIItem(u,details,extraData,False)
+            addGUIItem(u,details,extraData,folder=False)
 
         else: 
         
