@@ -535,15 +535,20 @@ def getMyPlexURL( url_path, renew=False, suppress=True ): # CHECKED
 
 def getMyPlexToken( renew=False ): # CHECKED
     '''
-        Get the myplex token.  If token is available, then get a new one
-        @input: wherth to get new token
+        Get the myplex token.  If the user ID stored with the token
+        does not match the current userid, then get new token.  This stops old token
+        being used if plex ID is changed. If token is unavailable, then get a new one
+        @input: whether to get new token
         @return: myplex token
     '''
     printDebug("== ENTER: getMyPlexToken ==", False)
     
-    token=__settings__.getSetting('myplex_token')
+    try:
+        user,token=(__settings__.getSetting('myplex_token')).split('|')
+    except:
+        token=""
     
-    if ( token == "" ) or (renew):
+    if ( token == "" ) or (renew) or (user != __settings__.getSetting('myplex_user')):
         token = getNewMyPlexToken()
     
     printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
@@ -590,7 +595,7 @@ def getNewMyPlexToken( ): # CHECKED
 
             try:
                 token=etree.fromstring(link).findtext('authentication-token')
-                __settings__.setSetting('myplex_token',token)
+                __settings__.setSetting('myplex_token',myplex_username+"|"+token)
             except:
                 printDebug(link)
             
@@ -774,6 +779,9 @@ def addGUIItem( url, details, extraData, context=None, folder=True ): # CHECKED
         printDebug("Passed arguments are " + str(extraData))
         printDebug("Passed details are " + str(details))
         
+        if details.get('title','') == '':
+            return
+              
         if (extraData.get('token',None) is None) and _PARAM_TOKEN:
             extraData['token']=_PARAM_TOKEN
 
@@ -987,7 +995,7 @@ def buildContextMenu( url, itemData ): # CHECKED
     context.append(('PleXBMC settings', settingDisplay , ))
 
     #Reload media section
-    listingRefresh=plugin_url+", refresh)"
+    listingRefresh=plugin_url+"refresh)"
     context.append(('Reload Section', listingRefresh , ))
 
     printDebug("Using context menus " + str(context))
@@ -1408,7 +1416,6 @@ def playLibraryMedia( id, vids, override=False ): # CHECKED
     
     item = xbmcgui.ListItem(path=playurl)
     result=1
-    resume=0    
 
     if resume > 0:       
         displayTime = str(datetime.timedelta(seconds=int(resume)))
@@ -1650,14 +1657,16 @@ def monitorPlayback( id, server ): # CHECKED
     while xbmc.Player().isPlaying():
         #Get the current playback time
         currentTime = int(xbmc.Player().getTime())
-        #Try to get the progress, if not revert to previous progress (which should be near enough)
-        try:
-            progress = int(remove_html_tags(xbmc.executehttpapi("GetPercentage")))             
-        except: pass
+        totalTime = int(xbmc.Player().getTotalTime())
 
+        progress = int(( float(currentTime) / float(totalTime) ) * 100)
+        
+        if currentTime < 30:
+            printDebug("Less that 30 seconds, will not set resume")
+        
         #If we are less than 95% completem, store resume time
-        if progress < 95:
-            printDebug( "Movies played time: " + str(currentTime)+ " seconds @ " + str(progress) + "%")
+        elif progress < 95:
+            printDebug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
             getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000),suppress=True)
             complete=0
 
@@ -1933,11 +1942,14 @@ def processDirectory( url, tree=None ): # CHECKED
     server=getServerFromURL(url)
     
     for directory in tree:
-        details={'title' : directory.get('title','Unknown') }
-        extraData={'thumb' : getFanart(tree, server, False) }
-        extraData['fanart_image']=extraData['thumb']
+        details={'title' : directory.get('title','Unknown').encode('utf-8') }
+        extraData={'thumb'        : getThumb(directory, server) ,
+                   'fanart_image' : getFanart(tree, server, False) } 
         
-        u=getLinkURL(url,directory,server)+'&mode='+str(_MODE_GETCONTENT)
+        if extraData['thumb'] == '':
+            extraData['thumb']=extraData['fanart_image']
+        
+        u='%s&mode=%s' % ( getLinkURL(url,directory,server), _MODE_GETCONTENT )
 
         addGUIItem(u,details,extraData)
         
@@ -2486,7 +2498,10 @@ def getLinkURL( url, pathData, server ): # CHECKED
     '''
     printDebug("== ENTER: getLinkURL ==")
     path=pathData.get('key','')
-
+    
+    if path == '':
+        return
+    
     #If key starts with http, then return it
     if path[0:4] == "http":
         printDebug("Detected http link")
