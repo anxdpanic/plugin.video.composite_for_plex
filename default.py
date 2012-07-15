@@ -1186,7 +1186,9 @@ def TVEpisodes( url, tree=None ): # CHECKED
     
     if g_skipimages == "false":        
         sectionart=getFanart(tree, server)
-         
+     
+    randomNumber=str(random.randint(1000000000,9999999999))   
+     
     for episode in ShowTags:
                                 
         printDebug("---New Item---")
@@ -1280,7 +1282,7 @@ def TVEpisodes( url, tree=None ): # CHECKED
             context=None
         
         # http:// <server> <path> &mode=<mode> &id=<media_id> &t=<rnd>
-        u="http://%s%s&mode=%s&id=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'])
+        u="http://%s%s&mode=%s&id=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'], randomNumber)
 
         addGUIItem(u,details,extraData, context, folder=False)        
     
@@ -2293,7 +2295,7 @@ def movieTag(url, server, tree, movie, randomNumber):
     else:
         context=None
     # http:// <server> <path> &mode=<mode> &id=<media_id> &t=<rnd>
-    u="http://%s%s&mode=%s&id=%s&t%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'], randomNumber)
+    u="http://%s%s&mode=%s&id=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'], randomNumber)
   
     addGUIItem(u,details,extraData,context,folder=False)        
     return
