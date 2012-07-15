@@ -653,7 +653,7 @@ def getURL( url, title="Error", suppress=True, type="GET" ): # CHECKED
         elif int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
             if suppress is False:
-                xbmcgui.Dialog().ok(title,error)
+                xbmc.executebuiltin("XBMC.Notification(URL error: "+ str(data.reason) +",)")
             print error 
             return False
         else:      
@@ -664,13 +664,13 @@ def getURL( url, title="Error", suppress=True, type="GET" ): # CHECKED
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
         if suppress is False:
-            xbmcgui.Dialog().ok(title,error)
+            xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to find server,)")
         print error
         return False
     except socket.error, msg : 
         error="Unable to connect to " + server +"\nReason: " + str(msg)
         if suppress is False:
-            xbmcgui.Dialog().ok(title,error)
+            xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to connect to server,)")
         print error
         return False
     else:
@@ -807,10 +807,11 @@ def addGUIItem( url, details, extraData, context=None, folder=True ): # CHECKED
         #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo( type=extraData.get('type','Video'), infoLabels=details ) 
         
-        try:
-            liz.setProperty('Artist_Genre', details['genre'])
-            liz.setProperty('Artist_Description', details['plot'])
-        except: pass
+        #Music related tags
+        if extraData.get('type','').lower() == "music":
+            liz.setProperty('Artist_Genre', details.get('genre',''))
+            liz.setProperty('Artist_Description', details.get('plot',''))
+            liz.setProperty('Album_Description', details.get('plot',''))
         
         if ( not folder):
             if g_skipmediaflags == "false":
@@ -1656,10 +1657,13 @@ def monitorPlayback( id, server ): # CHECKED
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
+      
         currentTime = int(xbmc.Player().getTime())
         totalTime = int(xbmc.Player().getTotalTime())
-
-        progress = int(( float(currentTime) / float(totalTime) ) * 100)
+        try:      
+            progress = int(( float(currentTime) / float(totalTime) ) * 100)
+        except:
+            progress = 0
         
         if currentTime < 30:
             printDebug("Less that 30 seconds, will not set resume")
@@ -1720,9 +1724,11 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
     server=getServerFromURL(vids)
     
     #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
-    if '/system/services/url/lookup' in vids:
+    if '/services/url/lookup' in vids:
         printDebug("URL Lookup service")
-        html=getURL(vids)
+        html=getURL(vids, suppress=False)
+        if not html:
+            return
         tree=etree.fromstring(html)
         
         mediaCount=0
@@ -1734,6 +1740,7 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
             for child in media:
                 tempDict['key']=child.get('key','')
             
+            tempDict['identifier']=tree.get('identifier','')
             mediaDetails.append(tempDict)
                     
         printDebug( str(mediaDetails) )            
@@ -1756,16 +1763,26 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
     #Check if there is a further level of XML required
     if '&indirect=1' in vids:
         printDebug("Indirect link")
-        html=getURL(vids)
+        html=getURL(vids, suppress=False)
+        if not html:
+            return
         tree=etree.fromstring(html)
         
         for bits in tree.getiterator('Part'):
             vids=bits.get('key')
-        
+    
+    elif 'webkit' in vids:
+        printDebug("found webkit video, pass to transcoder")
+        if not prefix:
+            prefix="system"
+        printDebug(vids)
     #Check for a 301/2 redirect, which XBMC doesn't handle well sometimes.               
     else:
         printDebug("Direct link")
-        output=getURL(vids, type="HEAD")
+        output=getURL(vids, type="HEAD", suppress=False)
+        if not output:
+            return
+            
         printDebug(str(output))
         if ( output[0:4] == "http" ) or ( output[0:4] == "plex" ):
             printDebug("Redirect.  Getting new URL")
@@ -1783,9 +1800,7 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
     printDebug("Prefix is: " + str(prefix))
     
     #If there is no prefix, we are not transcoding video
-    if prefix is None:
-        prefix=""
-    else:
+    if (prefix):
         getTranscodeSettings(True)
         vids=transcode(0, vids, prefix)
         session=vids
@@ -2058,7 +2073,8 @@ def albums( url, tree=None ): # CHECKED
      
         details={'album'   : album.get('title','').encode('utf-8') ,
                  'year'    : int(album.get('year',0)) ,
-                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')) }
+                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')) ,
+                 'plot'    : album.get('summary','') }
 
         details['title']=details['album']
 
@@ -2126,12 +2142,13 @@ def PlexPlugins( url, tree=None ): # CHECKED
         extraData={'thumb'        : getThumb(plugin, server) , 
                    'fanart_image' : getFanart(plugin, server) ,
                    'identifier'   : tree.get('identifier','') ,
-                   'type'         : "Video" }
+                   'type'         : "Video" ,
+                   'key'          : plugin.get('key','') }
         
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=getFanart(tree, server)
             
-        p_url=getLinkURL(url, plugin, server)
+        p_url=getLinkURL(url, extraData, server)
       
         if plugin.tag == "Directory" or plugin.tag == "Podcast":
             addGUIItem(p_url+"&mode="+str(_MODE_PLEXPLUGINS), details, extraData)
@@ -2520,8 +2537,8 @@ def getLinkURL( url, pathData, server ): # CHECKED
             if 'prefix=' in i:
                 del components[components.index(i)]
                 break
-            if arguments.get('identifier',None):
-                components.append('identifier='+pathData['identifier'])
+        if pathData.get('identifier',None):
+            components.append('identifier='+pathData['identifier'])
         
         path='&'.join(components)        
         return 'http://'+server+'/'+'/'.join(path.split('/')[3:])
@@ -2606,7 +2623,7 @@ def install( url, name ): # CHECKED
         return
     
     printDebug("Option " + str(ret) + " selected.  Operation is " + operations[ret])
-    u=url+"/"+operations[ret]
+    u=url+"/"+operations[ret].lower()
 
     action = getURL(u)
     tree = etree.fromstring(action)
@@ -2614,6 +2631,8 @@ def install( url, name ): # CHECKED
     msg=tree.get('message')
     printDebug(msg)
     xbmcgui.Dialog().ok("Plex Online",msg)
+    xbmc.executebuiltin("Container.Refresh")
+
    
     return   
 
@@ -2917,6 +2936,7 @@ else:
         print "PleXBMC -> URL: "+str(param_url)
         print "PleXBMC -> Name: "+str(param_name)
         print "PleXBMC -> ID: "+ str(param_id)
+        print "PleXBMC -> identifier: " + str(param_identifier)
         print "PleXBMC -> token: " + str(_PARAM_TOKEN)
 
     #Run a function based on the mode variable that was passed in the URL       
