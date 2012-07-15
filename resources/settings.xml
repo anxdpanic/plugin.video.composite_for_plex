@@ -20,7 +20,7 @@
 	<category label="myplex" >
 		<setting id="myplex_user" type="text" label="myPlex username" />
 		<setting id="myplex_pass" type="text" option="hidden" label="myPlex password" />
-		<setting id="myplex_token" type="text" option="hidden" label="myPlex Token (Created automatically)" />
+		<setting id="myplex_token" type="text" visible="false" option="hidden" label="myPlex Token" />
 	</category>
 	
     <category label="Transcoding" >
