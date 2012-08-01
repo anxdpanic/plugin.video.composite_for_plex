@@ -86,6 +86,7 @@ _MODE_CHANNELINSTALL=20
 _MODE_CHANNELVIEW=21
 _MODE_DISPLAYSERVERS=22
 _MODE_PLAYLIBRARY_TRANSCODE=23
+_MODE_MYPLEXQUEUE=24
 
 _OVERLAY_XBMC_UNWATCHED=6  #Blank
 _OVERLAY_XBMC_WATCHED=7    #Tick
@@ -398,7 +399,7 @@ def getAllSections( ): # CHECKED
                 twoCount+=1
              
             oneCount+=1
-    
+             
 def getAuthDetails( details, url_format=True, prefix="&" ): # CHECKED
     '''
         Takes the token and creates the required arguments to allow
@@ -438,19 +439,27 @@ def getMyPlexServers( ): # CHECKED
         return
         
     server=etree.fromstring(html).findall('Server')
+    count=0
     for servers in server:
         data=dict(servers.items())
         
         if data.get('owned',None) == "1":
+            if count == 0:
+                master=1
+                count=-1
             accessToken=getMyPlexToken()
         else:
+            master='0'
             accessToken=data.get('accessToken',None)
         
         tempServers.append({'serverName': data['name'].encode('utf-8') ,
                             'address'   : data['address']+":"+data['port'] ,
                             'discovery' : 'myplex' , 
                             'token'     : accessToken ,
-                            'uuid'      : data['machineIdentifier'] })    
+                            'uuid'      : data['machineIdentifier'] ,
+                            'owned'     : data.get('owned',0) ,  
+                            'master'    : master })
+                            
     return tempServers                         
     
 def getLocalServers( ): # CHECKED
@@ -477,14 +486,24 @@ def getLocalServers( ): # CHECKED
          return tempServers
              
     server=etree.fromstring(html).findall('Server')
+    count=0
     for servers in server:
         data=dict(servers.items())
+        
+        if count == 0:
+            master=1
+        else:
+            master=0
+        
         tempServers.append({'serverName': data['name'].encode('utf-8') ,
                             'address'   : data['address']+":"+data['port'] ,
                             'discovery' : 'local' , 
                             'token'     : data.get('accessToken',None) ,
-                            'uuid'      : data['machineIdentifier'] })
+                            'uuid'      : data['machineIdentifier'] ,
+                            'owned'     : '1' ,
+                            'master'    : master })
 
+        count+=1                   
     return tempServers                         
                              
 def getMyPlexURL( url_path, renew=False, suppress=True ): # CHECKED
@@ -621,7 +640,7 @@ def getNewMyPlexToken( ): # CHECKED
     
     return token
 
-def getURL( url, title="Error", suppress=True, type="GET" ): # CHECKED
+def getURL( url, suppress=True, type="GET", popup=0 ): # CHECKED
     printDebug("== ENTER: getURL ==", False)
     try:        
         if url[0:4] == "http":
@@ -652,8 +671,12 @@ def getURL( url, title="Error", suppress=True, type="GET" ): # CHECKED
 
         elif int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
+            print error
             if suppress is False:
-                xbmc.executebuiltin("XBMC.Notification(URL error: "+ str(data.reason) +",)")
+                if popup == 0:
+                    xbmc.executebuiltin("XBMC.Notification(URL error: "+ str(data.reason) +",)")
+                else:
+                    xbmcgui.Dialog().ok("Error",server)
             print error 
             return False
         else:      
@@ -663,14 +686,22 @@ def getURL( url, title="Error", suppress=True, type="GET" ): # CHECKED
             printDebug("====== XML finished ======")
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
+        print error
         if suppress is False:
-            xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to find server,)")
+            if popup==0:
+                xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to find server,)")
+            else:
+                xbmcgui.Dialog().ok("","Unable to contact host")
         print error
         return False
     except socket.error, msg : 
         error="Unable to connect to " + server +"\nReason: " + str(msg)
+        print error
         if suppress is False:
-            xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to connect to server,)")
+            if popup == 0:
+                xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to connect to server,)")
+            else:
+                xbmcgui.Dialog().ok("","Unable to connect to host")
         print error
         return False
     else:
@@ -911,6 +942,9 @@ def displaySections( filter=None ): # CHECKED
         #For each of the servers we have identified
         allservers=resolveAllServers()
         numOfServers=len(allservers)
+        
+        if __settings__.getSetting('myplex_user') != '':
+            addGUIItem('http://myplexqueue&mode='+str(_MODE_MYPLEXQUEUE), {'title':'myplex Queue'},{'type':'Video'})
         
         for server in allservers:
                                                                                               
@@ -1721,7 +1755,7 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
         @input: url of video, plugin identifier
         @return: nothing. End of Script
     '''
-    printDebug("== ENTER: videopluginplay ==", False)
+    printDebug("== ENTER: videopluginplay with URL + " + vids + " ==", False)
            
     server=getServerFromURL(vids)
     
@@ -1748,6 +1782,7 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
         printDebug( str(mediaDetails) )            
                     
         #If we have options, create a dialog menu
+        result=0
         if mediaCount > 1:
             printDebug ("Select from plugin video sources")
             dialogOptions=[x['videoResolution'] for x in mediaDetails ]
@@ -1757,10 +1792,9 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
             
             if result == -1:
                 return
-            else:
-                vids=getLinkURL('',mediaDetails[result],server)
-        else:
-            vids=getLinkURL('',mediaDetails[0],server)
+
+        videoPluginPlay(getLinkURL('',mediaDetails[result],server))
+        return  
         
     #Check if there is a further level of XML required
     if '&indirect=1' in vids:
@@ -1771,42 +1805,43 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
         tree=etree.fromstring(html)
         
         for bits in tree.getiterator('Part'):
-            vids=bits.get('key')
+            videoPluginPlay(getLinkURL(vids,bits,server))
+            break
+            
+        return
     
-    elif 'webkit' in vids:
+    #if we have a plex URL, then this is a transcoding URL
+    if 'plex://' in vids:
         printDebug("found webkit video, pass to transcoder")
-        if not prefix:
-            prefix="system"
-        printDebug(vids)
-    #Check for a 301/2 redirect, which XBMC doesn't handle well sometimes.               
-    else:
-        printDebug("Direct link")
-        output=getURL(vids, type="HEAD", suppress=False)
-        if not output:
-            return
-            
-        printDebug(str(output))
-        if ( output[0:4] == "http" ) or ( output[0:4] == "plex" ):
-            printDebug("Redirect.  Getting new URL")
-            vids=output
-            printDebug("New URL is: "+ vids)
-            parameters=get_params(vids)
-            
-            prefix=parameters.get("prefix",'')
-            extraData={'key'        : vids ,
-                       'identifier' : prefix }
-
-            vids=getLinkURL(vids, extraData ,server)  
-    
-    printDebug("URL to Play: " + vids)
-    printDebug("Prefix is: " + str(prefix))
-    
-    #If there is no prefix, we are not transcoding video
-    if (prefix):
         getTranscodeSettings(True)
+        if not (prefix):
+            prefix="system"
         vids=transcode(0, vids, prefix)
         session=vids
     
+    #Everything else should be this
+    #else:
+    #    printDebug("Direct link")
+    #    output=getURL(vids, type="HEAD", suppress=False)
+    #    if not output:
+    #        return
+    #        
+    #    printDebug(str(output))
+    #    if ( output[0:4] == "http" ) or ( output[0:4] == "plex" ):
+    #        printDebug("Redirect.  Getting new URL")
+    #        vids=output
+    #        printDebug("New URL is: "+ vids)
+    #        parameters=get_params(vids)
+    #        
+    #        prefix=parameters.get("prefix",'')
+    #        extraData={'key'        : vids ,
+    #                   'identifier' : prefix }
+    #
+    #        vids=getLinkURL(vids, extraData ,server)  
+    
+    printDebug("URL to Play: " + vids)
+    printDebug("Prefix is: " + str(prefix))
+        
     #If this is an Apple movie trailer, add User Agent to allow access
     if 'trailers.apple.com' in vids:
         url=vids+"|User-Agent=QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
@@ -1911,7 +1946,7 @@ def getContent( url ):  # CHECKED
         else:
             return
      
-    html=getURL(url)
+    html=getURL(url, suppress=False, popup=1 )
     
     if html is False:
         return
@@ -1971,11 +2006,38 @@ def processDirectory( url, tree=None ): # CHECKED
         addGUIItem(u,details,extraData)
         
     xbmcplugin.endOfDirectory(pluginhandle)
+   
+def getMasterServer():
+    discoverAllServers()
+    possibleServers=[]
+    for serverData in resolveAllServers():
+        print str(serverData)
+        if serverData['master'] == 1:
+            possibleServers.append({'address' : serverData['address'] ,
+                                    'discovery' : serverData['discovery'] })
+    print str(possibleServers)
+    if len(possibleServers) > 1:
+        preferred="local"
+        for serverData in possibleServers:
+            if preferred == "any":
+                return serverdata['address']
+            else:
+                if serverData['discovery'] == preferred:
+                    return serverData['address']
+                    
+    return possibleServers[0]['address']                
 
 def transcode( id, url, identifier=None ): # CHECKED
     printDebug("== ENTER: transcode ==", False)
  
     server=getServerFromURL(url)
+    
+    #Check for myplex user, which we need to alter to a master server
+    if 'plexapp.com' in url:
+        server=getMasterServer()
+    
+    printDebug("Using preferred transcosing server: " + server)
+        
     filestream=urllib.quote_plus("/"+"/".join(url.split('/')[3:]))
   
     if identifier is not None:
@@ -2503,7 +2565,7 @@ def getServerFromURL( url ): # CHECKED
     @ input: url, woth or without protocol
     @ return: the URL server
     '''
-    if url[0:4] == "http":
+    if url[0:4] == "http" or url[0:4] == "plex":
         return url.split('/')[2]
     else:
         return url.split('/')[0]
@@ -2517,8 +2579,10 @@ def getLinkURL( url, pathData, server ): # CHECKED
     '''
     printDebug("== ENTER: getLinkURL ==")
     path=pathData.get('key','')
+    printDebug("Path is " + path)
     
     if path == '':
+        printDebug("Empty Path")
         return
     
     #If key starts with http, then return it
@@ -2543,7 +2607,7 @@ def getLinkURL( url, pathData, server ): # CHECKED
             components.append('identifier='+pathData['identifier'])
         
         path='&'.join(components)        
-        return 'http://'+server+'/'+'/'.join(path.split('/')[3:])
+        return 'plex://'+server+'/'+'/'.join(path.split('/')[3:])
         
     #Any thing else is assumed to be a relative path and is built on existing url        
     else:
@@ -2780,8 +2844,24 @@ def skin( ): # CHECKED
     printDebug("Total number of servers is ["+str(numOfServers)+"]")
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
+    WINDOW.setProperty("plexbmc.queue" , "http://"+server['address']+"/myplexqueue&mode=24"+aToken)
+    if __settings__.getSetting('myplex_user') != '':
+        WINDOW.setProperty("plexbmc.myplex",  "1" )     
+
     return
 
+def myPlexQueue(): # CHECKED
+
+    if __settings__.getSetting('myplex_user') == '':
+        xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")      
+        return
+
+    html=getMyPlexURL('/pms/playlists/queue/all')
+    tree=etree.fromstring(html)
+    
+    PlexPlugins('http://my.plexapp.com/playlists/queue/all', tree)
+    return
+    
 def libraryRefresh( url ): # CHECKED
     printDebug("== ENTER: libraryRefresh ==", False)
     html=getURL(url)
@@ -2987,6 +3067,8 @@ else:
         displayServers(param_url)
     elif mode == 23:
         playLibraryMedia(param_id,param_url,override=True)
+    elif mode == 24:
+        myPlexQueue()
 
 print "===== PLEXBMC STOP ====="
    
