@@ -4,10 +4,10 @@
 	<string id="30001">Stream from PMS</string>
     <string id="30002">Get extended metadata from PMS</string>
     <string id="30003">Enable extra filter menus</string>
-	<string id="30004">Use bonjour local discovery?</string>
+	<string id="30004">Bonjour discovery?</string>
 	<string id="30005">PMS Username: </string>
 	<string id="30006">PMS Password: </string>
-    <string id="30007">Enable transcoding </string>
+    <string id="30007">Always transcode? </string>
     <string id="30008">Transcode format </string>
     <string id="30009">m3u8</string>
     <string id="30010">flv</string>
@@ -57,7 +57,6 @@
     <string id="30052">Skip Context Menus</string>
     <string id="30053">Off</string>
     <string id="30054">On</string>
-    <string id="30055">Assisted</string>
     <string id="30056">Play TV Theme Music</string>
     <string id="30057">Select audio output</string>
     <string id="30058">If only one season</string>

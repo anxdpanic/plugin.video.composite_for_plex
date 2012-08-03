@@ -1,3 +1,30 @@
+'''
+    @document   : default.py
+    @package    : PleXBMC add-on
+    @author     : Hippojay (aka Dave Hawes-Johnson)
+    @copyright  : 2011-2012, Hippojay
+    @version    : 2.0b3
+
+    @license    : Gnu General Public License - see LICENSE.TXT
+    @description: myPlex XBMC add-on
+
+    This file is part of the XBMC PleXBMC Plugin.
+
+    PleXBMC Plugin is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    PleXBMC Plugin is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with PleXBMC Plugin.  If not, see <http://www.gnu.org/licenses/>.
+
+'''
+
 import urllib
 import urllib2
 import re
@@ -227,11 +254,13 @@ def discoverAllServers( ): # CHECKED
         except:
             print "PleXBMC -> Bonjour Issue.  Possibly not installed on system"
             xbmcgui.Dialog().ok("Bonjour Error","Is Bonojur installed on this system?")
+
+    #Set to Disabled       
     else:
         g_host = __settings__.getSetting('ipaddress')
-        g_port=__settings__.getSetting('port')
+        g_port =__settings__.getSetting('port')
         
-        if not g_host:
+        if not g_host or g_host == "<none>":
             g_host=None
         elif not g_port:
             printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT, False)
@@ -240,19 +269,6 @@ def discoverAllServers( ): # CHECKED
             g_host=g_host+":"+g_port
             printDebug( "PleXBMC -> Settings hostname and port: " + g_host, False)
     
-    #Set to Assisted
-    if g_bonjour == "2":
-        printDebug("PleXBMC -> Assisted Bonjour discovery setting enabled.", False)
-        if g_host is not None:
-            g_serverDict.append({'serverName': 'unknown' ,
-                                 'address'   : g_host ,
-                                 'discovery' : 'bonjour' , 
-                                 'token'     : None ,
-                                 'uuid'      : None ,
-                                 'role'      : 'master' })
-
-    #Set to Disabled       
-    elif g_bonjour == "0":
         if g_host is not None:
             g_serverDict.append({'serverName': 'unknown' ,
                                  'address'   : g_host ,
@@ -2844,8 +2860,8 @@ def skin( ): # CHECKED
     printDebug("Total number of servers is ["+str(numOfServers)+"]")
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
-    WINDOW.setProperty("plexbmc.queue" , "http://"+server['address']+"/myplexqueue&mode=24"+aToken)
     if __settings__.getSetting('myplex_user') != '':
+        WINDOW.setProperty("plexbmc.queue" , "http://"+server['address']+"/myplexqueue&mode=24"+aToken)
         WINDOW.setProperty("plexbmc.myplex",  "1" )     
 
     return

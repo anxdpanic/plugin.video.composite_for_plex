@@ -1,35 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <category label="General">
-	<setting id="bonjour" type="enum" label="30004" lvalues="30053|30054|30055" default="true" />
-    <setting id="ipaddress" type="text" label="30000" default="127.0.0.1" visible="eq(-1,0)|eq(-1,2)" enable="eq(-1,0)|eq(-1,2)"/>
-    <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)|eq(-2,2)" enable="eq(-2,0)|eq(-2,2)"/>
-    <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="30011"/>
-    <setting id="forcedvd" type="bool" label="30060" default="false"/>
-    <setting id="nasoverride" type="bool" label="30061" default="false"/>
-    <setting id="nasoverrideip" type="text" label="30062" default="" visible="eq(-1,true)" enable="eq(-1,true)" />
-	<setting id="nasuserid" type="text" label="30064" default="" visible="eq(-2,true)" enable="eq(-2,true)" />
-	<setting id="naspass" type="text" label="30065" option="hidden" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
-	<setting id="nasroot" type="text" label="30066" default="" visible="eq(-4,true)" enable="eq(-4,true)" />
+
+	<category label="Media Sources">
+		<setting id="bonjour" type="enum" label="30004" lvalues="30053|30054" default="30054" />
+		<setting id="ipaddress" type="text" label="30000" default="<none>" visible="eq(-1,0)" enable="eq(-1,0)"/>
+		<setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)" enable="eq(-2,0)"/>
+		<setting type="sep" />
+		<setting id="myplex_user" type="text" label="myPlex user" />
+		<setting id="myplex_pass" type="text" option="hidden" label="myPlex password" />
+		<setting id="myplex_token" type="text" visible="false" option="hidden" label="myPlex Token" />
+	</category>
+
+	<category label="Playback">
+		<setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="30011"/>
+		<setting id="forcedvd" type="bool" label="30060" default="false"/>
+		<setting id="nasoverride" type="bool" label="30061" default="false"/>
+		<setting id="nasoverrideip" type="text" label="30062" default="" visible="eq(-1,true)" enable="eq(-1,true)" />
+		<setting id="nasuserid" type="text" label="30064" default="" visible="eq(-2,true)" enable="eq(-2,true)" />
+		<setting id="naspass" type="text" label="30065" option="hidden" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
+		<setting id="nasroot" type="text" label="30066" default="" visible="eq(-4,true)" enable="eq(-4,true)" />
     </category>
     
     <category label="Audio/Subtitle" >
         <setting id="streamControl" type="enum" label="30038" lvalues="30036|30011|30037|30039" Default="30036" />
     </category>
-	
-	<category label="myplex" >
-		<setting id="myplex_user" type="text" label="myPlex username" />
-		<setting id="myplex_pass" type="text" option="hidden" label="myPlex password" />
-		<setting id="myplex_token" type="text" visible="false" option="hidden" label="myPlex Token" />
-	</category>
-	
+		
     <category label="Transcoding" >
-        <setting id="transcode" type="bool" label="30007" default="false"/>
         <setting id="transcodefmt" type="enum" label="30008" lvalues="30009|30010" default="30010" />
         <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" />
         <setting id="audiotype" type="enum" label="30057" values="Stereo|AC3|DTS" default="Stereo" />
-    </category>
-        
+        <setting id="transcode" type="bool" label="30007" default="false"/>
+	</category>
+	   
     <category label="Wake On LAN" >
         <setting id="wolon" type="bool" label="Use Wake On LAN" default="false" />
         <setting id="wol1" type="text" label="MAC Address 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />

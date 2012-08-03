@@ -1,7 +1,11 @@
 Current Release:
-[b] Version 1.9.4.1 [/b] Support for tweaked cirrus skin, small bug fix for skin fanart
+[b] Version 2.0 beta 3 [/b] Code rewrite and myplex queue support added
+[b] Version 2.0 beta 2 [/b] Broken
+[b] Version 2.0 beta 1 [/b] Cleanup eden code and add myplex support
 
 Selected Release Highlights..
+[b] Version 1.9.9.6 [/b] Last release for Dharma
+[b] Version 1.9.4.1 [/b] Support for tweaked cirrus skin, small bug fix for skin fanart
 [b] Version 1.9.2 [/b] Added bonjour discovery, look and feel control, fixed external subs, Wake on LAN, flatten Shows
 [b] Version 1.9e [/b] Fixed some bus (local file placeback, resume, UNC paths) - added Plex style watched flags for confluence.plexbmc skin
 [b] Version 1.9c [/b] Refactor code for speedup, added watch/unwatch/refresh context, skin media flag support, more fanart, better media detection
