@@ -867,7 +867,15 @@ def addGUIItem( url, details, extraData, context=None, folder=True ): # CHECKED
                 liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
                 liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
                 liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
+                
+                #liz.addStreamInfo('video', {'codec': extraData.get('VideoCodec','') ,
+                #                            'aspect' : float(extraData.get('VideoAspect','')) ,
+                #                            'height' : int(extraData.get('VideoResolution','')) } )
+                #                            
+                #liz.addStreamInfo('audio', {'codec': extraData.get('AudioCodec','') ,
+                #                            'channels' : int(extraData.get('AudioChannels','')) } )
 
+                                            
             liz.setProperty('IsPlayable', 'true')
 
             try:
@@ -908,7 +916,8 @@ def displaySections( filter=None ): # CHECKED
             
             extraData={ 'fanart_image' : getFanart(section, section.get('address')) ,
                         'type'         : "Video" ,
-                        'thumb'        : getFanart(section, section.get('address'), False) }
+                        'thumb'        : getFanart(section, section.get('address'), False) ,
+                        'token'        : section.get('token',None) }
                                                
             #Determine what we are going to do process after a link is selected by the user, based on the content we find
             
@@ -974,7 +983,8 @@ def displaySections( filter=None ): # CHECKED
                 prefix=""
             
             details={'title' : prefix+"Channels" }
-            extraData={'type' : "Video"}    
+            extraData={'type' : "Video",
+                       'token' : server.get('token',None) }    
                 
             u="http://"+server['address']+"/system/plugins/all&mode="+str(_MODE_CHANNELVIEW)
             addGUIItem(u,details,extraData)
@@ -2861,7 +2871,7 @@ def skin( ): # CHECKED
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
     if __settings__.getSetting('myplex_user') != '':
-        WINDOW.setProperty("plexbmc.queue" , "http://"+server['address']+"/myplexqueue&mode=24"+aToken)
+        WINDOW.setProperty("plexbmc.queue" , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://myplexqueue&mode=24,return)")
         WINDOW.setProperty("plexbmc.myplex",  "1" )     
 
     return
