@@ -823,8 +823,8 @@ def mediaType( partData, server, dvdplayback=False ): # CHECKED
 def addGUIItem( url, details, extraData, context=None, folder=True ): # CHECKED
         printDebug("== ENTER: addDir ==", False)
         printDebug("Adding Dir for [%s]" % details.get('title','Unknown'))
-        printDebug("Passed arguments are " + str(extraData))
-        printDebug("Passed details are " + str(details))
+        printDebug("Passed details: " + str(details))
+        printDebug("Passed extraData: " + str(extraData))
         
         if details.get('title','') == '':
             return
@@ -2512,7 +2512,7 @@ def music( url, tree=None ): # CHECKED
             xbmcplugin.setContent(pluginhandle, 'songs')
             
             details['title']=grapes.get('track','Unknown').encode('utf-8')
-            details['duration']=int(grapes.get('totalTime',0)/1000)
+            details['duration']=int(int(grapes.get('totalTime',0))/1000)
     
             u=u+"&mode="+str(_MODE_BASICPLAY)
             addGUIItem(u,details,extraData,folder=False)
