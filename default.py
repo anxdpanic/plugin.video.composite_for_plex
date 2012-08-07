@@ -2915,7 +2915,7 @@ def shelf( ): # CHECKED
         
             printDebug("Found a recent movie entry")
             
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, aToken) 
+            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&id=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, media.get('ratingKey','0'), aToken) 
             m_thumb=getThumb(media,server)
             
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
