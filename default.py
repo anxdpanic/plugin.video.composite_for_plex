@@ -2889,6 +2889,65 @@ def skin( ): # CHECKED
 
     return
 
+def shelf( ): # CHECKED
+    #Gather some data and set the window properties
+    printDebug("== ENTER: shelf() ==", False)
+    #Get the global host variable set in settings
+    WINDOW = xbmcgui.Window( 10000 )
+  
+    movieCount=1
+    seasonCount=1
+    server=getMasterServer()
+    
+    html=getURL('http://%s/library/recentlyAdded' % server)
+    if html is None:
+        return
+        
+    tree=etree.fromstring(html)
+    
+    aToken=getAuthDetails(tree)
+    qToken=getAuthDetails(tree, prefix='?')
+
+    #For each of the servers we have identified
+    for media in tree:
+    
+        if media.get('type',None) == "movie":
+        
+            printDebug("Found a recent movie entry")
+            
+            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, aToken) 
+            m_thumb=getThumb(media,server)
+            
+            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
+            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, media.get('title','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, m_thumb)
+            
+            movieCount += 1
+
+            printDebug("Building Recent window title: %s" % media.get('title','Unknown'))
+            printDebug("Building Recent window url: %s" % m_url)
+            printDebug("Building Recent window thumb: %s" % m_thumb)
+            
+        elif media.get('type',None) == "season":
+        
+            printDebug("Found a recent season entry")
+            
+            s_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_TVEPISODES, aToken) 
+            s_thumb=getThumb(media,server)
+            
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, 'Unknown')
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('index','0'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, media.get('parentTitle','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb)
+            seasonCount += 1
+ 
+            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown'))
+            printDebug("Building Recent window url: %s" % s_url)
+            printDebug("Building Recent window thumb: %s" % s_thumb)
+            
+    return
+    
 def myPlexQueue(): # CHECKED
 
     if __settings__.getSetting('myplex_user') == '':
@@ -3040,6 +3099,7 @@ _PARAM_TOKEN=params.get('X-Plex-Token',None)
 if str(sys.argv[1]) == "skin":
     discoverAllServers()
     skin()
+    shelf()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
     libraryRefresh(url)
