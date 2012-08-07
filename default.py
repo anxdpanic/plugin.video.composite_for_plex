@@ -1291,11 +1291,13 @@ def TVEpisodes( url, tree=None ): # CHECKED
                  'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')) ,
                  'season'      : episode.get('parentIndex',tree.get('parentIndex',0)) }
 
-        details['title'] = str(details['episode']).zfill(2) + ". " + details['title']
                  
-        if tree.get('mixedParents',0) == 1:
-            details['title'] = details['tvshowtitle'] + ": " + details['title']
-        
+        if tree.get('mixedParents','0') == '1':
+            details['title'] = "%s - %sx%s %s" % ( details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'] )
+        else:
+            details['title'] = str(details['episode']).zfill(2) + ". " + details['title']
+
+            
         #Extra data required to manage other properties
         extraData={'type'         : "Video" ,
                    'thumb'        : getThumb(episode, server) ,
