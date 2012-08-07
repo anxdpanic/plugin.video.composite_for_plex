@@ -1014,7 +1014,8 @@ def Movies( url, tree=None ): # CHECKED
         tree = etree.fromstring(html)
 
     server=getServerFromURL(url)
-                    
+
+    setWindowHeading(tree)    
     randomNumber=str(random.randint(1000000000,9999999999))   
     #Find all the video tags, as they contain the data we need to link to a file.
     MovieTags=tree.findall('Video')
@@ -1078,6 +1079,7 @@ def TVShows( url, tree=None ): # CHECKED
 
     server=getServerFromURL(url)
 
+    setWindowHeading(tree)
     #For each directory tag we find
     ShowTags=tree.findall('Directory') 
     for show in ShowTags:
@@ -1166,7 +1168,7 @@ def TVSeasons( url ): # CHECKED
             willFlatten=True
     
     sectionart=getFanart(tree, server)
-          
+    setWindowHeading(tree)    
     #For all the directory tags
     SeasonTags=tree.findall('Directory')
     for season in SeasonTags:
@@ -1240,7 +1242,7 @@ def TVEpisodes( url, tree=None ): # CHECKED
             return
         
         tree=etree.fromstring(html)
-    
+    setWindowHeading(tree)    
     ShowTags=tree.findall('Video')
     server=getServerFromURL(url)
     
@@ -1980,7 +1982,11 @@ def getContent( url ):  # CHECKED
         return
         
     tree=etree.fromstring(html)
- 
+
+    WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
+    WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
+
+
     if lastbit == "folder":
         processXML(url,tree)
         return
@@ -2020,7 +2026,7 @@ def processDirectory( url, tree=None ): # CHECKED
     xbmcplugin.setContent(pluginhandle, 'movies')
 
     server=getServerFromURL(url)
-    
+    setWindowHeading(tree)    
     for directory in tree:
         details={'title' : directory.get('title','Unknown').encode('utf-8') }
         extraData={'thumb'        : getThumb(directory, server) ,
@@ -2123,7 +2129,7 @@ def artist( url, tree=None ): # CHECKED
         tree=etree.fromstring(html)
     
     server=getServerFromURL(url)
-    
+    setWindowHeading(tree)    
     ArtistTag=tree.findall('Directory')
     for artist in ArtistTag:
     
@@ -2159,7 +2165,7 @@ def albums( url, tree=None ): # CHECKED
     
     server=getServerFromURL(url)        
     sectionart=getFanart(tree, server)
-    
+    setWindowHeading(tree)    
     AlbumTags=tree.findall('Directory')
     for album in AlbumTags:
      
@@ -2197,6 +2203,7 @@ def tracks( url,tree=None ): # CHECKED
     
     server=getServerFromURL(url)                               
     sectionart=getFanart(tree,server) 
+    setWindowHeading(tree)    
     TrackTags=tree.findall('Track')      
     for track in TrackTags:
                     
@@ -2223,7 +2230,7 @@ def PlexPlugins( url, tree=None ): # CHECKED
             return
 
         tree=etree.fromstring(html)
-    
+    setWindowHeading(tree)    
     for plugin in tree:
 
         details={'title'   : plugin.get('title','Unknown').encode('utf-8') }
@@ -2269,7 +2276,7 @@ def processXML( url, tree=None ):
             return
 
         tree=etree.fromstring(html)
-    
+    setWindowHeading(tree)    
     for plugin in tree:
 
         details={'title'   : plugin.get('title','Unknown').encode('utf-8') }
@@ -2442,7 +2449,7 @@ def photo( url,tree=None ): # CHECKED
         tree=etree.fromstring(html)
     
     sectionArt=getFanart(tree,server)
- 
+    setWindowHeading(tree)    
     for picture in tree:
         
         details={'title' : picture.get('title',picture.get('name','Unknown')).encode('utf-8') } 
@@ -2488,7 +2495,7 @@ def music( url, tree=None ): # CHECKED
             return
    
         tree=etree.fromstring(html)
-  
+    setWindowHeading(tree)    
     for grapes in tree:
        
         if grapes.get('key',None) is None:
@@ -2738,7 +2745,8 @@ def channelView( url ): # CHECKED
     if html is False:
         return
     tree = etree.fromstring(html)    
-    server=getServerFromURL(url)   
+    server=getServerFromURL(url)  
+    setWindowHeading(tree)    
     for channels in tree.getiterator('Directory'):
     
         if channels.get('local','') == "0":
@@ -3007,6 +3015,11 @@ def deleteMedia( url ): # CHECKED
     
     return True
 
+def setWindowHeading(tree) :
+    WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
+    WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
+
+    
 ##So this is where we really start the plugin.
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
 
@@ -3043,7 +3056,11 @@ elif sys.argv[1] == "refresh":
 else:
    
     pluginhandle = int(sys.argv[1])
-                    
+         
+    WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
+    WINDOW.clearProperty("heading")
+
+         
     if g_debug == "true":
         print "PleXBMC -> Mode: "+str(mode)
         print "PleXBMC -> URL: "+str(param_url)
