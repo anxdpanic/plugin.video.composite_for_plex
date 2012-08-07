@@ -2429,6 +2429,8 @@ def photo( url,tree=None ): # CHECKED
     printDebug("== ENTER: photos ==", False)
     server=url.split('/')[2]
     
+    xbmcplugin.setContent(pluginhandle, 'photo')
+    
     if tree is None:
         html=getURL(url)
         
