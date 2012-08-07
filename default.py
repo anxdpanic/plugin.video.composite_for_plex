@@ -2753,8 +2753,9 @@ def channelView( url ): # CHECKED
         
         if channels.get('unique','')=='0':
             details['title']=details['title']+" ("+suffix+")"
-               
-        p_url=getLinkURL(url, channels, server)  
+            
+        #Alter data sent into getlinkurl, as channels use path rather than key
+        p_url=getLinkURL(url, {'key': channels.get('path',None), 'identifier' : channels.get('path',None)} , server)  
         
         if suffix == "photos":
             mode=_MODE_PHOTOS
