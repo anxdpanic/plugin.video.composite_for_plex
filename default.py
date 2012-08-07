@@ -745,6 +745,7 @@ def mediaType( partData, server, dvdplayback=False ): # CHECKED
         type="notsure"
     
     # 0 is auto select.  basically check for local file first, then stream if not found
+    global g_stream
     if g_stream == "0":
         #check if the file can be found locally
         if type == "nixfile" or type == "winfile":
@@ -757,7 +758,6 @@ def mediaType( partData, server, dvdplayback=False ): # CHECKED
             except: pass
                 
         printDebug("No local file")
-        global g_stream
         if dvdplayback:
             printDebug("Forcing SMB for DVD playback")
             g_stream="2"
