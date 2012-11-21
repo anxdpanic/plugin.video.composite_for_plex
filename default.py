@@ -3,7 +3,7 @@
     @package    : PleXBMC add-on
     @author     : Hippojay (aka Dave Hawes-Johnson)
     @copyright  : 2011-2012, Hippojay
-    @version    : 2.0b3
+    @version    : 2.0b4
 
     @license    : Gnu General Public License - see LICENSE.TXT
     @description: myPlex XBMC add-on
