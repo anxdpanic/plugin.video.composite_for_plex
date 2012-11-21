@@ -452,7 +452,7 @@ def getMyPlexServers( ): # CHECKED
     html = getMyPlexURL(url_path)
     
     if html is False:
-        return
+        return {}
         
     server=etree.fromstring(html).findall('Server')
     count=0
@@ -589,7 +589,7 @@ def getMyPlexToken( renew=False ): # CHECKED
     printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
     return token
  
-def getNewMyPlexToken( ): # CHECKED
+def getNewMyPlexToken( suppress=True , title="Error" ): # CHECKED
     '''
         Get a new myplex token from myplex API
         @input: nothing
@@ -604,7 +604,7 @@ def getNewMyPlexToken( ): # CHECKED
         
     if ( myplex_username or myplex_password ) == "":
         printDebug("No myplex details in config..")
-        return False
+        return ""
     
     base64string = base64.encodestring('%s:%s' % (myplex_username, myplex_password)).replace('\n', '')
     txdata=""
@@ -640,19 +640,19 @@ def getNewMyPlexToken( ): # CHECKED
             if suppress is False:
                 xbmcgui.Dialog().ok(title,error)
             print error
-            return False
+            return ""
     except socket.gaierror :
         error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
         if suppress is False:
             xbmcgui.Dialog().ok(title,error)
         print error
-        return False
+        return ""
     except socket.error, msg : 
         error="Unable to connect to " + server +"\nReason: " + str(msg)
         if suppress is False:
             xbmcgui.Dialog().ok(title,error)
         print error
-        return False
+        return ""
     
     return token
 
