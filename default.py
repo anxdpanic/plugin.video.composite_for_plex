@@ -1291,7 +1291,7 @@ def TVEpisodes( url, tree=None ): # CHECKED
                  'episode'     : int(episode.get('index',0)) ,
                  'aired'       : episode.get('originallyAvailableAt','') ,
                  'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')) ,
-                 'season'      : episode.get('parentIndex',tree.get('parentIndex',0)) }
+                 'season'      : int(episode.get('parentIndex',tree.get('parentIndex',0))) }
 
                  
         if tree.get('mixedParents','0') == '1':
@@ -3099,7 +3099,8 @@ _PARAM_TOKEN=params.get('X-Plex-Token',None)
 if str(sys.argv[1]) == "skin":
     discoverAllServers()
     skin()
-    shelf()
+    #Not working yet
+    #shelf()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
     libraryRefresh(url)
