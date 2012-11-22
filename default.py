@@ -845,11 +845,17 @@ def addGUIItem( url, details, extraData, context=None, folder=True ): # CHECKED
                 
         #Create the ListItem that will be displayed
         thumb=str(extraData.get('thumb',''))
-        if '?' in thumb:
-            liz=xbmcgui.ListItem(details.get('title','Unknown'), iconImage=thumb+aToken, thumbnailImage=thumb+aToken)
+        if thumb.startswith('http'):
+            if '?' in thumb:
+                thumbPath=thumb+aToken
+            else:
+                thumbPath=thumb+qToken
         else:
-            liz=xbmcgui.ListItem(details.get('title','Unknown'), iconImage=thumb+qToken, thumbnailImage=thumb+qToken)
-        printDebug("Setting thumbnail as " + thumb + qToken)
+            thumbPath=thumb
+        
+        liz=xbmcgui.ListItem(details.get('title','Unknown'), iconImage=thumbPath, thumbnailImage=thumbPath)
+        
+        printDebug("Setting thumbnail as " + thumbPath)
                 
         #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo( type=extraData.get('type','Video'), infoLabels=details ) 
@@ -2522,7 +2528,7 @@ def music( url, tree=None ): # CHECKED
             printDebug("Track Tag")
             xbmcplugin.setContent(pluginhandle, 'songs')
             
-            details['title']=grapes.get('track','Unknown').encode('utf-8')
+            details['title']=grapes.get('track',grapes.get('title','Unknown')).encode('utf-8')
             details['duration']=int(int(grapes.get('totalTime',0))/1000)
     
             u=u+"&mode="+str(_MODE_BASICPLAY)
@@ -2990,7 +2996,12 @@ def displayServers( url ): # CHECKED
     for mediaserver in Servers:
     
         details={'title' : mediaserver.get('serverName','Unknown') }
-
+        
+        if mediaserver.get('token',None):
+            extraData={'token' : mediaserver.get('token') }
+        else:
+            extraData={}
+        
         if type == "video":
             s_url='http://%s/video&mode=%s' % ( mediaserver.get('address','') , _MODE_PLEXPLUGINS )
             
@@ -3003,7 +3014,7 @@ def displayServers( url ): # CHECKED
         elif type == "photo":
             s_url='http://%s/photos&mode=%s' % ( mediaserver.get('address','') , _MODE_PHOTOS )
                 
-        addGUIItem(s_url, details, {} )
+        addGUIItem(s_url, details, extraData )
 
     xbmcplugin.endOfDirectory(pluginhandle)  
    
