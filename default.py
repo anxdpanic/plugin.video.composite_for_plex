@@ -226,7 +226,7 @@ global g_sessionID
 g_sessionID=None
     
 
-def discoverAllServers( ): # CHECKED
+def discoverAllServers( ): 
     '''
         Take the users settings and add the required master servers
         to the server list.  These are the devices which will be queried
@@ -302,7 +302,7 @@ def discoverAllServers( ): # CHECKED
     
     printDebug("PleXBMC -> serverList is " + str(g_serverDict), False)
 
-def resolveAllServers( ): # CHECKED
+def resolveAllServers( ): 
     '''
       Return list of all media sections configured
       within PleXBMC
@@ -359,7 +359,7 @@ def resolveAllServers( ): # CHECKED
     printDebug ("Unique server List: " + str(localServers))
     return localServers     
             
-def getAllSections( ): # CHECKED
+def getAllSections( ): 
     '''
         from g_serverDict, get a list of all the available sections
         and deduplicate the sections list
@@ -429,7 +429,7 @@ def getAllSections( ): # CHECKED
              
             oneCount+=1
              
-def getAuthDetails( details, url_format=True, prefix="&" ): # CHECKED
+def getAuthDetails( details, url_format=True, prefix="&" ): 
     '''
         Takes the token and creates the required arguments to allow
         authentication.  This is really just a formatting tools
@@ -449,7 +449,7 @@ def getAuthDetails( details, url_format=True, prefix="&" ): # CHECKED
         else:
             return {}
             
-def getMyPlexServers( ): # CHECKED
+def getMyPlexServers( ): 
     '''
         Connect to the myplex service and get a list of all known
         servers.
@@ -491,7 +491,7 @@ def getMyPlexServers( ): # CHECKED
                             
     return tempServers                         
     
-def getLocalServers( ): # CHECKED
+def getLocalServers( ): 
     '''
         Connect to the defined local server (either direct or via bonjour discovery)
         and get a list of all known servers.
@@ -535,7 +535,7 @@ def getLocalServers( ): # CHECKED
         count+=1                   
     return tempServers                         
                              
-def getMyPlexURL( url_path, renew=False, suppress=True ): # CHECKED
+def getMyPlexURL( url_path, renew=False, suppress=True ): 
     '''
         Connect to the my.plexapp.com service and get an XML pages
         A seperate function is required as interfacing into myplex
@@ -581,7 +581,7 @@ def getMyPlexURL( url_path, renew=False, suppress=True ): # CHECKED
     else:
         return link
 
-def getMyPlexToken( renew=False ): # CHECKED
+def getMyPlexToken( renew=False ): 
     '''
         Get the myplex token.  If the user ID stored with the token
         does not match the current userid, then get new token.  This stops old token
@@ -602,7 +602,7 @@ def getMyPlexToken( renew=False ): # CHECKED
     printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
     return token
  
-def getNewMyPlexToken( suppress=True , title="Error" ): # CHECKED
+def getNewMyPlexToken( suppress=True , title="Error" ): 
     '''
         Get a new myplex token from myplex API
         @input: nothing
@@ -669,7 +669,7 @@ def getNewMyPlexToken( suppress=True , title="Error" ): # CHECKED
     
     return token
 
-def getURL( url, suppress=True, type="GET", popup=0 ): # CHECKED
+def getURL( url, suppress=True, type="GET", popup=0 ): 
     printDebug("== ENTER: getURL ==", False)
     try:        
         if url[0:4] == "http":
@@ -736,7 +736,7 @@ def getURL( url, suppress=True, type="GET", popup=0 ): # CHECKED
     else:
         return link
       
-def mediaType( partData, server, dvdplayback=False ): # CHECKED
+def mediaType( partData, server, dvdplayback=False ): 
     printDebug("== ENTER: mediaType ==", False)    
     stream=partData['key']
     file=partData['file']
@@ -833,7 +833,7 @@ def mediaType( partData, server, dvdplayback=False ): # CHECKED
     printDebug("Returning URL: " + filelocation)
     return filelocation
         
-def addGUIItem( url, details, extraData, context=None, folder=True ): # CHECKED
+def addGUIItem( url, details, extraData, context=None, folder=True ): 
         printDebug("== ENTER: addDir ==", False)
         printDebug("Adding Dir for [%s]" % details.get('title','Unknown'))
         printDebug("Passed details: " + str(details))
@@ -918,7 +918,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ): # CHECKED
        
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
         
-def displaySections( filter=None ): # CHECKED
+def displaySections( filter=None ): 
         printDebug("== ENTER: displaySections() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
@@ -1018,7 +1018,7 @@ def displaySections( filter=None ): # CHECKED
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
 
-def Movies( url, tree=None ): # CHECKED
+def Movies( url, tree=None ): 
     printDebug("== ENTER: Movies() ==", False)
     xbmcplugin.setContent(pluginhandle, 'movies')
             
@@ -1045,7 +1045,7 @@ def Movies( url, tree=None ): # CHECKED
         
     xbmcplugin.endOfDirectory(pluginhandle)
  
-def buildContextMenu( url, itemData ): # CHECKED
+def buildContextMenu( url, itemData ): 
     context=[]
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
@@ -1083,7 +1083,7 @@ def buildContextMenu( url, itemData ): # CHECKED
     
     return context
     
-def TVShows( url, tree=None ): # CHECKED
+def TVShows( url, tree=None ): 
     printDebug("== ENTER: TVShows() ==", False)
     xbmcplugin.setContent(pluginhandle, 'tvshows')
             
@@ -1166,7 +1166,7 @@ def TVShows( url, tree=None ): # CHECKED
     #End the listing    
     xbmcplugin.endOfDirectory(pluginhandle)
  
-def TVSeasons( url ): # CHECKED
+def TVSeasons( url ): 
     printDebug("== ENTER: season() ==", False)
     xbmcplugin.setContent(pluginhandle, 'seasons')
 
@@ -1249,7 +1249,7 @@ def TVSeasons( url ): # CHECKED
     #All done, so end the listing
     xbmcplugin.endOfDirectory(pluginhandle)
  
-def TVEpisodes( url, tree=None ): # CHECKED
+def TVEpisodes( url, tree=None ): 
     printDebug("== ENTER: TVEpisodes() ==", False)
     xbmcplugin.setContent(pluginhandle, 'episodes')
                 
@@ -1371,12 +1371,12 @@ def TVEpisodes( url, tree=None ): # CHECKED
     
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def getAudioSubtitlesMedia( server, id ): # CHECKED
+def getAudioSubtitlesMedia( server, id ): 
     '''
-        Cycle through the Parts sections to find all "selected" audio and subtitle streasm
-        
-    
-    
+        Cycle through the Parts sections to find all "selected" audio and subtitle streams
+        If a stream is marked as selected=1 then we will record it in the dict
+        Any that are not, are ignored as we do not need to set them
+        We also record the media locations for playback decision later on
     '''
     printDebug("== ENTER: getAudioSubtitlesMedia ==", False)
     printDebug("Gather media stream info" ) 
@@ -1470,7 +1470,7 @@ def getAudioSubtitlesMedia( server, id ): # CHECKED
     printDebug ( str(streamData) )
     return streamData
    
-def playLibraryMedia( id, vids, override=False ): # CHECKED
+def playLibraryMedia( id, vids, override=False ): 
     printDebug("== ENTER: playLibraryMedia ==", False)
     
     getTranscodeSettings(override)
@@ -1564,7 +1564,12 @@ def playLibraryMedia( id, vids, override=False ): # CHECKED
     
     return
 
-def setAudioSubtitles( stream ): # CHECKED
+def setAudioSubtitles( stream ):
+    '''
+        Take the collected audio/sub stream data and apply to the media
+        If we do not have any subs then we switch them off
+    '''
+    
     printDebug("== ENTER: setAudioSubtitles ==", False)
     
     #If we have decided not to collect any sub data then do not set subs    
@@ -1637,7 +1642,7 @@ def setAudioSubtitles( stream ): # CHECKED
     xbmc.Player().showSubtitles(False)    
     return False
         
-def codeToCountry( id ): # CHECKED
+def codeToCountry( id ): 
   languages = { "None": "none"              ,
                 "alb" : "Albanian"          ,
                 "ara" : "Arabic"            ,
@@ -1696,7 +1701,7 @@ def codeToCountry( id ): # CHECKED
                 "all" : "All" }
   return languages[ id ]        
                  
-def selectMedia( count, options, server ):   # CHECKED
+def selectMedia( count, options, server ):   
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
     result=0
@@ -1740,11 +1745,11 @@ def selectMedia( count, options, server ):   # CHECKED
     printDebug("We have selected media at " + newurl)
     return newurl
            
-def remove_html_tags( data ): # CHECKED
+def remove_html_tags( data ): 
     p = re.compile(r'<.*?>')
     return p.sub('', data)
 
-def monitorPlayback( id, server ): # CHECKED
+def monitorPlayback( id, server ): 
     printDebug("== ENTER: monitorPlayback ==", False)
 
     if len(server.split(':')) == 1:
@@ -1792,7 +1797,7 @@ def monitorPlayback( id, server ): # CHECKED
         
     return
     
-def PLAY( url ): # CHECKED
+def PLAY( url ): 
         printDebug("== ENTER: PLAY ==", False)
           
         if url[0:4] == "file":
@@ -1811,7 +1816,7 @@ def PLAY( url ): # CHECKED
         item = xbmcgui.ListItem(path=playurl)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-def videoPluginPlay( vids, prefix=None ): # CHECKED
+def videoPluginPlay( vids, prefix=None ): 
     '''
         Plays Plugin Videos, which do not require library feedback 
         but require further processing
@@ -1908,7 +1913,7 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
         
     return
 
-def pluginTranscodeMonitor( sessionID, server ): # CHECKED
+def pluginTranscodeMonitor( sessionID, server ): 
     printDebug("== ENTER: pluginTranscodeMonitor ==", False)
 
     #Logic may appear backward, but this does allow for a failed start to be detected
@@ -1936,7 +1941,7 @@ def pluginTranscodeMonitor( sessionID, server ): # CHECKED
 
     return
                 
-def get_params( paramstring ): # CHECKED
+def get_params( paramstring ): 
     printDebug("== ENTER: get_params ==", False)
     printDebug("Parameter string: " + paramstring)
     param={}
@@ -1962,7 +1967,7 @@ def get_params( paramstring ): # CHECKED
     printDebug("Returning: " + str(param))                        
     return param
 
-def getContent( url ):  # CHECKED
+def getContent( url ):  
     '''
         This function takes teh URL, gets the XML and determines what the content is
         This XML is then redirected to the best processing function.
@@ -2033,7 +2038,7 @@ def getContent( url ):  # CHECKED
         
     return
 
-def processDirectory( url, tree=None ): # CHECKED
+def processDirectory( url, tree=None ): 
     printDebug("== ENTER: processDirectory ==", False)
     printDebug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, 'movies')
@@ -2074,7 +2079,7 @@ def getMasterServer():
                     
     return possibleServers[0]['address']                
 
-def transcode( id, url, identifier=None ): # CHECKED
+def transcode( id, url, identifier=None ): 
     printDebug("== ENTER: transcode ==", False)
  
     server=getServerFromURL(url)
@@ -2124,7 +2129,7 @@ def transcode( id, url, identifier=None ): # CHECKED
     
     return fullURL
      
-def artist( url, tree=None ): # CHECKED
+def artist( url, tree=None ): 
     '''
         Process artist XML and display data
         @input: url of XML page, or existing tree of XML page
@@ -2164,7 +2169,7 @@ def artist( url, tree=None ): # CHECKED
     #End the listing    
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def albums( url, tree=None ): # CHECKED
+def albums( url, tree=None ): 
     printDebug("== ENTER: albums ==", False)
     xbmcplugin.setContent(pluginhandle, 'albums')
    
@@ -2203,7 +2208,7 @@ def albums( url, tree=None ): # CHECKED
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def tracks( url,tree=None ): # CHECKED
+def tracks( url,tree=None ): 
     printDebug("== ENTER: tracks ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
                 
@@ -2224,7 +2229,7 @@ def tracks( url,tree=None ): # CHECKED
     
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def PlexPlugins( url, tree=None ): # CHECKED
+def PlexPlugins( url, tree=None ): 
     '''
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the 
@@ -2410,7 +2415,7 @@ def movieTag(url, server, tree, movie, randomNumber):
     addGUIItem(u,details,extraData,context,folder=False)        
     return
     
-def trackTag( server, tree, track ): # CHECKED
+def trackTag( server, tree, track ): 
     printDebug("== ENTER: trackTAG ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
                               
@@ -2447,7 +2452,7 @@ def trackTag( server, tree, track ): # CHECKED
         
     addGUIItem(u,details,extraData,folder=False)        
         
-def photo( url,tree=None ): # CHECKED
+def photo( url,tree=None ): 
     printDebug("== ENTER: photos ==", False)
     server=url.split('/')[2]
     
@@ -2495,7 +2500,7 @@ def photo( url,tree=None ): # CHECKED
 
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def music( url, tree=None ): # CHECKED
+def music( url, tree=None ): 
     printDebug("== ENTER: music ==", False)
     xbmcplugin.setContent(pluginhandle, 'artists')
 
@@ -2565,7 +2570,7 @@ def music( url, tree=None ): # CHECKED
         
     xbmcplugin.endOfDirectory(pluginhandle)    
 
-def getThumb( data, server ): # CHECKED
+def getThumb( data, server ): 
     '''
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
@@ -2585,7 +2590,7 @@ def getThumb( data, server ): # CHECKED
     else: 
         return g_loc+'/resources/plex.png'
 
-def getFanart( data, server, transcode=True ): # CHECKED
+def getFanart( data, server, transcode=True ): 
     '''
         Simply take a URL or path and determine how to format for fanart
         @ input: elementTree element, server name
@@ -2609,7 +2614,7 @@ def getFanart( data, server, transcode=True ): # CHECKED
     else:  
         return ''
 
-def getServerFromURL( url ): # CHECKED
+def getServerFromURL( url ): 
     '''
     Simply split the URL up and get the server portion, sans port
     @ input: url, woth or without protocol
@@ -2620,7 +2625,7 @@ def getServerFromURL( url ): # CHECKED
     else:
         return url.split('/')[0]
 
-def getLinkURL( url, pathData, server ): # CHECKED
+def getLinkURL( url, pathData, server ): 
     '''
         Investigate the passed URL and determine what is required to 
         turn it into a usable URL
@@ -2666,7 +2671,7 @@ def getLinkURL( url, pathData, server ): # CHECKED
      
     return url
     
-def plexOnline( url ): # CHECKED
+def plexOnline( url ): 
     printDebug("== ENTER: plexOnline ==")
     xbmcplugin.setContent(pluginhandle, 'files')
 
@@ -2702,7 +2707,7 @@ def plexOnline( url ): # CHECKED
 
     xbmcplugin.endOfDirectory(pluginhandle)    
  
-def install( url, name ): # CHECKED
+def install( url, name ): 
     printDebug("== ENTER: install ==", False)
     html=getURL(url)
     if html is False:
@@ -2752,7 +2757,7 @@ def install( url, name ): # CHECKED
    
     return   
 
-def channelView( url ): # CHECKED
+def channelView( url ): 
     printDebug("== ENTER: channelView ==", False)
     html=getURL(url)
     if html is False:
@@ -2793,10 +2798,10 @@ def channelView( url ): # CHECKED
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def photoTranscode( server, url ): # CHECKED
+def photoTranscode( server, url ): 
         return 'http://%s/photo/:/transcode?url=%s&width=1280&height=720' % (server, urllib.quote_plus(url))
               
-def skin( ): # CHECKED
+def skin( ): 
     #Gather some data and set the window properties
     printDebug("== ENTER: skin() ==", False)
     #Get the global host variable set in settings
@@ -2902,7 +2907,7 @@ def skin( ): # CHECKED
 
     return
 
-def shelf( ): # CHECKED
+def shelf( ): 
     #Gather some data and set the window properties
     printDebug("== ENTER: shelf() ==", False)
     #Get the global host variable set in settings
@@ -2961,7 +2966,7 @@ def shelf( ): # CHECKED
             
     return
     
-def myPlexQueue(): # CHECKED
+def myPlexQueue(): 
 
     if __settings__.getSetting('myplex_user') == '':
         xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")      
@@ -2973,14 +2978,14 @@ def myPlexQueue(): # CHECKED
     PlexPlugins('http://my.plexapp.com/playlists/queue/all', tree)
     return
     
-def libraryRefresh( url ): # CHECKED
+def libraryRefresh( url ): 
     printDebug("== ENTER: libraryRefresh ==", False)
     html=getURL(url)
     printDebug ("Library refresh requested")
     xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",Library Refresh started,100)")
     return
 
-def watched( url ): # CHECKED
+def watched( url ): 
     printDebug("== ENTER: watched ==", False)
 
     if url.find("unscrobble") > 0:
@@ -2993,7 +2998,7 @@ def watched( url ): # CHECKED
     
     return
  
-def displayServers( url ): # CHECKED
+def displayServers( url ): 
     printDebug("== ENTER: displayServers ==", False)
     type=url.split('/')[2]
     printDebug("Displaying entries for " + type)
@@ -3025,7 +3030,7 @@ def displayServers( url ): # CHECKED
 
     xbmcplugin.endOfDirectory(pluginhandle)  
    
-def getTranscodeSettings( override=False ): # CHECKED
+def getTranscodeSettings( override=False ): 
     global g_transcode 
     g_transcode = __settings__.getSetting('transcode')
 
@@ -3079,7 +3084,7 @@ def getTranscodeSettings( override=False ): # CHECKED
         global g_sessionID
         g_sessionID=str(uuid.uuid4())
     
-def deleteMedia( url ): # CHECKED
+def deleteMedia( url ): 
     printDebug("== ENTER: deleteMedia ==", False)
     printDebug ("deleteing media at: " + url)
     
