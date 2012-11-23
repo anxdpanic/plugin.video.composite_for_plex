@@ -2265,7 +2265,7 @@ def PlexPlugins( url, tree=None ):
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=getFanart(tree, server)
             
-        p_url=getLinkURL(url, extraData, server)
+        p_url=urllib.quote(getLinkURL(url, extraData, server))
       
         if plugin.tag == "Directory" or plugin.tag == "Podcast":
             addGUIItem(p_url+"&mode="+str(_MODE_PLEXPLUGINS), details, extraData)
