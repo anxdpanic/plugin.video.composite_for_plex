@@ -1631,7 +1631,7 @@ def setAudioSubtitles( stream ):
                     if external['codec'] == "idx" or external['codec'] =="sub":
                         printDebug ("Skipping IDX/SUB pair - not supported yet")
                     else:    
-                        xbmc.Player().setSubtitles(external['key'])
+                        xbmc.Player().setSubtitles(external['key']+getAuthDetails({'token':_PARAM_TOKEN},prefix="?"))
                         return True
                 except: pass                    
             else:
