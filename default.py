@@ -3,7 +3,7 @@
     @package    : PleXBMC add-on
     @author     : Hippojay (aka Dave Hawes-Johnson)
     @copyright  : 2011-2012, Hippojay
-    @version    : 2.0b4
+    @version    : 2.0b5
 
     @license    : Gnu General Public License - see LICENSE.TXT
     @description: myPlex XBMC add-on
@@ -3080,6 +3080,10 @@ except:
         
 #Now try and assign some data to them
 param_url=params.get('url',None)
+
+if param_url and param_url.startswith('http'):
+        param_url = urllib.unquote(param_url)
+
 param_name=urllib.unquote_plus(params.get('name',""))
 mode=int(params.get('mode',-1))
 param_id=params.get('id',None)
