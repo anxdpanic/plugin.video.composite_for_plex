@@ -1492,7 +1492,7 @@ def playLibraryMedia( vids, override=False ):
   
     server=getServerFromURL(vids)
   
-    id=vids.split('/')[-1]
+    id=vids.split('?')[0].split('&')[0].split('/')[-1]
   
     streams=getAudioSubtitlesMedia(server,id)     
     url=selectMedia(streams['partsCount'],streams['parts'], server)
