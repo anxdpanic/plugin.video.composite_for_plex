@@ -848,11 +848,18 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
         aToken=getAuthDetails(extraData)
         qToken=getAuthDetails(extraData, prefix='?')
         
+        if extraData.get('mode',None) is None:
+            mode="&mode=0"
+        else:
+            mode="&mode=%s" % extraData['mode']
+        
         #Create the URL to pass to the item
         if ( not folder) and ( extraData['type'] =="Picture" ):
              u=url+qToken
+        elif url.startswith('http'):
+            u=sys.argv[0]+"?url="+urllib.quote(url)+mode+aToken        
         else:
-            u=sys.argv[0]+"?url="+str(url)+aToken
+            u=sys.argv[0]+"?url="+str(url)+mode+aToken
 
         printDebug("URL to use for listing: " + u)
                 
@@ -969,8 +976,9 @@ def displaySections( filter=None ):
                 mode=_MODE_GETCONTENT
             else:
                 path=path+'/all'
-                
-            s_url='http://%s%s&mode=%s' % ( section['address'], path, mode )
+            
+            extraData['mode']=mode
+            s_url='http://%s%s' % ( section['address'], path)
            
             if g_skipcontext == "false":
                 context=[]
@@ -988,7 +996,7 @@ def displaySections( filter=None ):
         numOfServers=len(allservers)
         
         if __settings__.getSetting('myplex_user') != '':
-            addGUIItem('http://myplexqueue&mode='+str(_MODE_MYPLEXQUEUE), {'title':'myplex Queue'},{'type':'Video'})
+            addGUIItem('http://myplexqueue', {'title':'myplex Queue'},{'type':'Video' , 'mode' : _MODE_MYPLEXQUEUE})
         
         for server in allservers:
                                                                                               
@@ -1004,15 +1012,18 @@ def displaySections( filter=None ):
             details={'title' : prefix+"Channels" }
             extraData={'type' : "Video",
                        'token' : server.get('token',None) }    
-                
-            u="http://"+server['address']+"/system/plugins/all&mode="+str(_MODE_CHANNELVIEW)
+            
+            extraData['mode']=_MODE_CHANNELVIEW
+            u="http://"+server['address']+"/system/plugins/all"
             addGUIItem(u,details,extraData)
                     
             #Create plexonline link
             details['title']=prefix+"Plex Online"
             extraData['type']="file"
-            
-            u="http://"+server['address']+"/system/plexonline&mode="+str(_MODE_PLEXONLINE)
+
+            extraData['mode']=_MODE_PLEXONLINE
+
+            u="http://"+server['address']+"/system/plexonline"
             addGUIItem(u,details,extraData)
           
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
@@ -1152,9 +1163,11 @@ def TVShows( url, tree=None ):
         #Create URL based on whether we are going to flatten the season view
         if g_flatten == "2":
             printDebug("Flattening all shows")
-            u='http://%s%s&mode=%s'  % ( server, extraData['key'].replace("children","allLeaves"), str(_MODE_TVEPISODES))
+            extraData['mode']=_MODE_TVEPISODES
+            u='http://%s%s'  % ( server, extraData['key'].replace("children","allLeaves"))
         else:
-            u='http://%s%s&mode=%s'  % ( server, extraData['key'], str(_MODE_TVSEASONS))
+            extraData['mode']=_MODE_TVSEASONS
+            u='http://%s%s'  % ( server, extraData['key'])
             
         if g_skipcontext == "false":
             context=buildContextMenu(url, extraData)
@@ -1218,7 +1231,8 @@ def TVSeasons( url ):
                    'fanart_image'      : getFanart(season, server) ,
                    'token'             : _PARAM_TOKEN ,
                    'key'               : season.get('key','') ,
-                   'ratingKey'         : str(season.get('ratingKey',0)) }
+                   'ratingKey'         : str(season.get('ratingKey',0)) ,
+                   'mode'              : _MODE_TVEPISODES }
                      
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
@@ -1236,7 +1250,7 @@ def TVSeasons( url ):
             if g_skinwatched == "plexbmc":
                 details['overlay'] = _OVERLAY_PLEX_PARTIAL
             
-        url='http://%s%s&mode=%s' % ( server , extraData['key'], str(_MODE_TVEPISODES) )
+        url='http://%s%s' % ( server , extraData['key'] )
 
         if g_skipcontext == "false":
             context=buildContextMenu(url, season)
@@ -1364,8 +1378,9 @@ def TVEpisodes( url, tree=None ):
         else:
             context=None
         
+        extraData['mode']=_MODE_PLAYLIBRARY
         # http:// <server> <path> &mode=<mode> &t=<rnd>
-        u="http://%s%s&mode=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, randomNumber)
+        u="http://%s%s?t=%s" % (server, extraData['key'], randomNumber)
 
         addGUIItem(u,details,extraData, context, folder=False)        
     
@@ -2055,7 +2070,8 @@ def processDirectory( url, tree=None ):
         if extraData['thumb'] == '':
             extraData['thumb']=extraData['fanart_image']
         
-        u='%s&mode=%s' % ( getLinkURL(url,directory,server), _MODE_GETCONTENT )
+        extraData['mode']=_MODE_GETCONTENT
+        u='%s' % ( getLinkURL(url,directory,server))
 
         addGUIItem(u,details,extraData)
         
@@ -2162,9 +2178,10 @@ def artist( url, tree=None ):
                    'thumb'        : getThumb(artist, server) ,
                    'fanart_image' : getFanart(artist, server) ,
                    'ratingKey'    : artist.get('title','') ,
-                   'key'          : artist.get('key','') }
+                   'key'          : artist.get('key','') ,
+                   'mode'         : _MODE_ALBUMS}
 
-        url='http://%s%s&mode=%s' % (server, extraData['key'], str(_MODE_ALBUMS) )
+        url='http://%s%s' % (server, extraData['key'] )
         
         addGUIItem(url,details,extraData) 
         
@@ -2199,12 +2216,13 @@ def albums( url, tree=None ):
         extraData={'type'         : "Music" ,
                    'thumb'        : getThumb(album, server) ,
                    'fanart_image' : getFanart(album, server) ,
-                   'key'          : album.get('key','') }
+                   'key'          : album.get('key',''), 
+                   'mode'         : _MODE_TRACKS}
 
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
                                     
-        url='http://%s%s&mode=%s' % (server, extraData['key'], str(_MODE_TRACKS) )
+        url='http://%s%s' % (server, extraData['key'] )
 
         addGUIItem(url,details,extraData) 
         
@@ -2270,10 +2288,12 @@ def PlexPlugins( url, tree=None ):
         p_url=urllib.quote(getLinkURL(url, extraData, server))
       
         if plugin.tag == "Directory" or plugin.tag == "Podcast":
-            addGUIItem(p_url+"&mode="+str(_MODE_PLEXPLUGINS), details, extraData)
+            extraData['mode']=_MODE_PLEXPLUGINS
+            addGUIItem(p_url, details, extraData)
                 
         elif plugin.tag == "Video":
-            addGUIItem(p_url+"&mode="+str(_MODE_VIDEOPLUGINPLAY), details, extraData, folder=False)
+            extraData['mode']=_MODE_VIDEOPLUGINPLAY
+            addGUIItem(p_url, details, extraData, folder=False)
 
     xbmcplugin.endOfDirectory(pluginhandle)        
 
@@ -2315,7 +2335,8 @@ def processXML( url, tree=None ):
         p_url=getLinkURL(url, plugin, server)
       
         if plugin.tag == "Directory" or plugin.tag == "Podcast":
-            addGUIItem(p_url+"&mode="+str(_MODE_PROCESSXML), details, extraData)
+            extraData['mode']=_MODE_PROCESSXML
+            addGUIItem(p_url, details, extraData)
 
         elif plugin.tag == "Track":
             trackTag(server, tree, plugin)
@@ -2412,7 +2433,8 @@ def movieTag(url, server, tree, movie, randomNumber):
     else:
         context=None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
-    u="http://%s%s&mode=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, randomNumber)
+    extraData['mode']=_MODE_PLAYLIBRARY
+    u="http://%s%s?t=%s" % (server, extraData['key'], randomNumber)
   
     addGUIItem(u,details,extraData,context,folder=False)        
     return
@@ -2450,7 +2472,8 @@ def trackTag( server, tree, track ):
     #If we are streaming, then get the virtual location
     url=mediaType(partDetails,server)
 
-    u="%s&mode=%s&id=%s" % (url, str(_MODE_BASICPLAY), str(extraData['ratingKey']))
+    extraData['mode']=_MODE_BASICPLAY
+    u="%s" % (url)
         
     addGUIItem(u,details,extraData,folder=False)        
         
@@ -2484,7 +2507,7 @@ def photo( url,tree=None ):
         u=getLinkURL(url, picture, server)   
                 
         if picture.tag == "Directory":
-            u=u+"&mode="+str(_MODE_PHOTOS)
+            extraData['mode']=_MODE_PHOTOS
             addGUIItem(u,details,extraData)
     
         elif picture.tag == "Photo":
@@ -2545,7 +2568,7 @@ def music( url, tree=None ):
             details['title']=grapes.get('track',grapes.get('title','Unknown')).encode('utf-8')
             details['duration']=int(int(grapes.get('totalTime',0))/1000)
     
-            u=u+"&mode="+str(_MODE_BASICPLAY)
+            extraData['mode']=_MODE_BASICPLAY
             addGUIItem(u,details,extraData,folder=False)
 
         else: 
@@ -2567,7 +2590,7 @@ def music( url, tree=None ):
                 printDebug("Generic Tag: " + grapes.tag)
                 details['title']=grapes.get('title','Unknown')
             
-            u=u+"&mode="+str(_MODE_MUSIC)
+            extraData['mode']=_MODE_MUSIC
             addGUIItem(u,details,extraData)
         
     xbmcplugin.endOfDirectory(pluginhandle)    
@@ -2694,17 +2717,17 @@ def plexOnline( url ):
                    'key'       : plugin.get('key','') ,
                    'thumb'     : getThumb(plugin,server)} 
                    
-        mode=_MODE_CHANNELINSTALL
+        extraData['mode']=_MODE_CHANNELINSTALL
         
         if extraData['installed'] == 1:
             details['title']=details['title']+" (installed)"
             
         elif extraData['installed'] == 2:      
-            mode=_MODE_PLEXONLINE
+            extraData['mode']=_MODE_PLEXONLINE
         
         u=getLinkURL(url, plugin, server)
         
-        u=u+"&mode="+str(mode)+"&name="+urllib.quote_plus(details['title'])
+        u=u+"&name="+urllib.quote_plus(details['title'])
         addGUIItem(u, details, extraData)
 
     xbmcplugin.endOfDirectory(pluginhandle)    
@@ -2788,15 +2811,15 @@ def channelView( url ):
         p_url=getLinkURL(url, {'key': channels.get('path',None), 'identifier' : channels.get('path',None)} , server)  
         
         if suffix == "photos":
-            mode=_MODE_PHOTOS
+            extraData['mode']=_MODE_PHOTOS
         elif suffix == "video":
-            mode=_MODE_PLEXPLUGINS
+            extraData['mode']=_MODE_PLEXPLUGINS
         elif suffix == "music":
-            mode=_MODE_MUSIC
+            extraData['mode']=_MODE_MUSIC
         else:
-            mode=_MODE_GETCONTENT
+            extraData['mode']=_MODE_GETCONTENT
         
-        addGUIItem(p_url+'&mode='+str(mode),details,extraData)
+        addGUIItem(p_url,details,extraData)
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
@@ -3017,16 +3040,20 @@ def displayServers( url ):
             extraData={}
         
         if type == "video":
-            s_url='http://%s/video&mode=%s' % ( mediaserver.get('address','') , _MODE_PLEXPLUGINS )
+            extraData['mode']=_MODE_PLEXPLUGINS
+            s_url='http://%s/video' % ( mediaserver.get('address','') )
             
         elif type == "online":
-            s_url='http://%s/system/plexonline&mode=%s' % ( mediaserver.get('address','') , _MODE_PLEXONLINE )
+            extraData['mode']=_MODE_PLEXONLINE
+            s_url='http://%s/system/plexonline' % ( mediaserver.get('address','') )
             
         elif type == "music":
-            s_url='http://%s/music&mode=%s' % ( mediaserver.get('address','') , _MODE_MUSIC )
+            extraData['mode']=_MODE_MUSIC
+            s_url='http://%s/music' % ( mediaserver.get('address','') )
             
         elif type == "photo":
-            s_url='http://%s/photos&mode=%s' % ( mediaserver.get('address','') , _MODE_PHOTOS )
+            extraData['mode']=_MODE_PHOTOS
+            s_url='http://%s/photos' % ( mediaserver.get('address','') )
                 
         addGUIItem(s_url, details, extraData )
 
