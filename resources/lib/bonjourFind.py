@@ -40,7 +40,7 @@ class bonjourFind:
             while not self.queried:
                 ready = select.select([query_sdRef], [], [], self.timeout)
                 if query_sdRef not in ready[0]:
-                    print 'Query record timed out'
+                    print "PleXBMC -> pyBonjour -> Query record timed out"
                     break
                 pybonjour.DNSServiceProcessResult(query_sdRef)
             else:
@@ -73,7 +73,7 @@ class bonjourFind:
             while not self.resolved:
                 ready = select.select([resolve_sdRef], [], [], self.timeout)
                 if resolve_sdRef not in ready[0]:
-                    print 'Resolve timed out'
+                    print "PleXBMC -> pyBonjour -> Query timed out"
                     break
                 pybonjour.DNSServiceProcessResult(resolve_sdRef)
             else:
@@ -81,16 +81,18 @@ class bonjourFind:
         finally:
             resolve_sdRef.close()
 
-    def __init__(self, type):   
+    def __init__(self, type, timeout=3):   
             
         regtype  = type
         self.complete = False
         self.bonjourName = []
         self.bonjourPort = []
         self.bonjourIP = []
-        self.timeout  = 5
+        self.timeout  = timeout
         self.queried  = []
         self.resolved = []
+                
+        print "PleXBMC -> pyBonjour -> timeout set to %s" % timeout
                 
         browse_sdRef = pybonjour.DNSServiceBrowse(regtype = regtype,
                                                   callBack = self.browse_callback)
@@ -98,9 +100,12 @@ class bonjourFind:
         try:
             try:
                 while True:
-                    ready = select.select([browse_sdRef], [], [])
+                    ready = select.select([browse_sdRef], [], [], self.timeout)
                     if browse_sdRef in ready[0]:
                         pybonjour.DNSServiceProcessResult(browse_sdRef)
+                        break
+                    else:
+                        print "PleXBMC -> pyBonjour -> Resolve timed out"
                         break
             except:             
                 pass
