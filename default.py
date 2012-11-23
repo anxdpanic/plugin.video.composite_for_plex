@@ -741,6 +741,10 @@ def mediaType( partData, server, dvdplayback=False ):
     stream=partData['key']
     file=partData['file']
     
+    if ( file is None ) or ( g_stream == "1" ):
+        printDebug( "Selecting stream")
+        return "http://"+server+stream
+        
     #First determine what sort of 'file' file is
         
     if file[0:2] == "\\\\":
@@ -775,12 +779,8 @@ def mediaType( partData, server, dvdplayback=False ):
             printDebug("Forcing SMB for DVD playback")
             g_stream="2"
         else:
-            g_stream="1"
+            return "http://"+server+stream
         
-    # 1 is stream no matter what
-    if g_stream == "1":
-        printDebug( "Selecting stream")
-        return "http://"+server+stream
         
     # 2 is use SMB 
     elif g_stream == "2" or g_stream == "3":
@@ -1089,6 +1089,16 @@ def buildContextMenu( url, itemData ):
     #Reload media section
     listingRefresh=plugin_url+"refresh)"
     context.append(('Reload Section', listingRefresh , ))
+    
+    #alter audio
+    alterAudioURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData)
+    alterAudio=plugin_url+"audio, " + alterAudioURL + ")"
+    context.append(('Alter Audio', alterAudio , ))
+            
+    #alter subs       
+    alterSubsURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData)    
+    alterSubs=plugin_url+"subs, " + alterSubsURL + ")"
+    context.append(('Alter Subs', alterSubs , ))
 
     printDebug("Using context menus " + str(context))
     
@@ -3126,6 +3136,31 @@ def deleteMedia( url ):
     
     return True
 
+def alterSubs ( url ):
+
+    '''html=getURL(url)
+    
+    tree=etree.fromstring(html)
+    
+    for streams in tree.getiterator('Stream'):
+    
+        if streams.get('streamType','') == "3":
+            printDebug("Detected Subtitle stream")
+            
+            stream_id=streams.get('id')
+            language=stream.get(
+            
+            if streams.get*'format') != "srt":
+                printDebug("Stream: %s - Ignoring non-srt file for now" % stream_id)
+                continue
+                
+     '''       
+    return
+
+
+def alterAudio ( url ):
+    return
+
 def setWindowHeading(tree) :
     WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
     WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
@@ -3169,6 +3204,12 @@ elif sys.argv[1] == "delete":
     deleteMedia(url)
 elif sys.argv[1] == "refresh":
     xbmc.executebuiltin("Container.Refresh")
+elif sys.argv[1] == "subs":
+    url=sys.argv[2]
+    alterSubs(url)
+elif sys.argv[1] == "audio":
+    url=sys.argv[2]
+    alterAudio(url)
 else:
    
     pluginhandle = int(sys.argv[1])
