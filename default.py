@@ -1093,12 +1093,12 @@ def buildContextMenu( url, itemData ):
     #alter audio
     alterAudioURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData)
     alterAudio=plugin_url+"audio, " + alterAudioURL + ")"
-    context.append(('Alter Audio', alterAudio , ))
+    context.append(('Select Audio', alterAudio , ))
             
     #alter subs       
     alterSubsURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData)    
     alterSubs=plugin_url+"subs, " + alterSubsURL + ")"
-    context.append(('Alter Subs', alterSubs , ))
+    context.append(('Select Subtitle', alterSubs , ))
 
     printDebug("Using context menus " + str(context))
     
@@ -1620,7 +1620,7 @@ def setAudioSubtitles( stream ):
         elif stream['audioCount'] > 1:
             audio=stream['audio']
             language=audio.get('language',audio.get('languageCode','Unknown')).encode('utf8')
-            printDebug ("Multiple audio stream detected. Attempting to use local language setting: %s" % language)
+            printDebug ("Attempting to use selected language setting: %s" % language)
             try:
                 if audio['selected'] == "1":
                     printDebug ("Found preferred language at index " + str(stream['audioOffset']))
@@ -3137,30 +3137,125 @@ def deleteMedia( url ):
     return True
 
 def alterSubs ( url ):
-
-    '''html=getURL(url)
+    '''
+        Display a list of available Subtitle streams and allow a user to select one.
+        The currently selected stream will be annotated with a *
+    '''
+    printDebug("== ENTER: alterSubs ==", False)
+    html=getURL(url)
     
     tree=etree.fromstring(html)
     
-    for streams in tree.getiterator('Stream'):
+    sub_list=['']
+    display_list=["None"]
+    fl_select=False
+    for parts in tree.getiterator('Part'):
     
-        if streams.get('streamType','') == "3":
-            printDebug("Detected Subtitle stream")
-            
-            stream_id=streams.get('id')
-            language=stream.get(
-            
-            if streams.get*'format') != "srt":
-                printDebug("Stream: %s - Ignoring non-srt file for now" % stream_id)
-                continue
+        part_id=parts.get('id')
+    
+        for streams in parts:
+    
+            if streams.get('streamType','') == "3":
                 
-     '''       
-    return
+                stream_id=streams.get('id')
+                lang=streams.get('languageCode',"Unknown").encode('utf-8')
+                printDebug("Detected Subtitle stream [%s] [%s]" % ( stream_id, lang ) )
 
+                if streams.get('format',streams.get('codec')) == "idx":
+                    printDebug("Stream: %s - Ignoring idx file for now" % stream_id)
+                    continue
+                else:
+                    sub_list.append(stream_id)
+                    
+                    if streams.get('selected',None) == '1':
+                        fl_select=True
+                        language=streams.get('language','Unknown')+"*"
+                    else:
+                        language=streams.get('language','Unknown')
+
+                    display_list.append(language)
+        break
+
+    if not fl_select:
+        display_list[0]=display_list[0]+"*"
+        
+    subScreen = xbmcgui.Dialog()
+    result = subScreen.select('Select subtitle',display_list)
+    if result == -1:
+        return False
+        
+    sub_select_URL="http://%s/library/parts/%s?subtitleStreamID=%s" % ( getServerFromURL(url), part_id, sub_list[result] )
+    
+    printDebug("User has selected stream %s" % sub_list[result])
+    printDebug("Setting via URL: %s" % sub_select_URL )
+    outcome=getURL(sub_select_URL, type="PUT")
+    
+    print sub_select_URL
+    
+    return True
 
 def alterAudio ( url ):
-    return
+    '''
+        Display a list of available audio streams and allow a user to select one.
+        The currently selected stream will be annotated with a *
+    '''
+    printDebug("== ENTER: alterAudio ==", False)
 
+    html=getURL(url)
+    tree=etree.fromstring(html)
+    
+    audio_list=[]
+    display_list=[]
+    for parts in tree.getiterator('Part'):
+    
+        part_id=parts.get('id')
+    
+        for streams in parts:
+    
+            if streams.get('streamType','') == "2":
+                
+                stream_id=streams.get('id')
+                audio_list.append(stream_id)
+                lang=streams.get('languageCode', "Unknown")
+                
+                printDebug("Detected Audio stream [%s] [%s] " % ( stream_id, lang))
+                
+                if streams.get('channels','Unknown') == '6':
+                    channels="5.1"
+                elif streams.get('channels','Unknown') == '7':
+                    channels="6.1"
+                elif streams.get('channels','Unknown') == '2':
+                    channels="Stereo"
+                else:
+                    channels=streams.get('channels','Unknown')
+                
+                if streams.get('codec','Unknown') == "ac3":
+                    codec="AC3"
+                elif streams.get('codec','Unknown') == "dca":
+                    codec="DTS"
+                else:
+                    codec=streams.get('codec','Unknown')
+                
+                language="%s (%s %s)" % ( streams.get('language','Unknown').encode('utf-8') , codec, channels )
+                    
+                if streams.get('selected') == '1':
+                    language=language+"*"
+
+                display_list.append(language)
+        break
+        
+    audioScreen = xbmcgui.Dialog()
+    result = audioScreen.select('Select audio',display_list)
+    if result == -1:
+        return False
+        
+    audio_select_URL="http://%s/library/parts/%s?audioStreamID=%s" % ( getServerFromURL(url), part_id, audio_list[result] )
+    printDebug("User has selected stream %s" % audio_list[result])
+    printDebug("Setting via URL: %s" % audio_select_URL )
+
+    outcome=getURL(audio_select_URL, type="PUT")
+    
+    return True
 def setWindowHeading(tree) :
     WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
     WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
