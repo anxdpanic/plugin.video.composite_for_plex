@@ -3161,49 +3161,70 @@ else:
     if ( mode == None ) or ( param_url == None ) or ( len(param_url)<1 ):
         discoverAllServers()
         displaySections()
-    elif mode == 0:
+        
+    elif mode == _MODE_GETCONTENT:
         getContent(param_url)
-    elif mode == 1:
+    
+    elif mode == _MODE_TVSHOWS:
         TVShows(param_url)
-    elif mode == 2:
+    
+    elif mode == _MODE_MOVIES:
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
         Movies(param_url)
-    elif mode == 3:
+    
+    elif mode == _MODE_ARTISTS:
         artist(param_url)
-    elif mode == 4:
+    
+    elif mode == _MODE_TVSEASONS:
         TVSeasons(param_url)
-    elif mode == 5:
+    
+    elif mode == _MODE_PLAYLIBRARY:
         playLibraryMedia(param_url)
-    elif mode == 6:
+    
+    elif mode == _MODE_TVEPISODES:
         TVEpisodes(param_url)
-    elif mode == 7:
+    
+    elif mode == _MODE_PLEXPLUGINS:
         PlexPlugins(param_url)
+    
     elif mode == _MODE_PROCESSXML:
         processXML(param_url)
-    elif mode == 12:
+    
+    elif mode == _MODE_BASICPLAY:
         PLAY(param_url)
-    elif mode == 14:
+    
+    elif mode == _MODE_ALBUMS:
         albums(param_url)
-    elif mode == 15:
+    
+    elif mode == _MODE_TRACKS:
         tracks(param_url)
-    elif mode == 16:
+    
+    elif mode == _MODE_PHOTOS:
         photo(param_url)
-    elif mode == 17:
+    
+    elif mode == _MODE_MUSIC:
         music(param_url)
-    elif mode == 18:
+    
+    elif mode == _MODE_VIDEOPLUGINPLAY:
         videoPluginPlay(param_url,param_identifier)
-    elif mode == 19:
+    
+    elif mode == _MODE_PLEXONLINE:
         plexOnline(param_url)
-    elif mode == 20:
+    
+    elif mode == _MODE_CHANNELINSTALL:
         install(param_url,param_name)
-    elif mode == 21:
+    
+    elif mode == _MODE_CHANNELVIEW:
         channelView(param_url)
-    elif mode == 22:
+    
+    elif mode == _MODE_DISPLAYSERVERS:
         discoverAllServers()
         displayServers(param_url)
-    elif mode == 23:
+    
+    elif mode == _MODE_PLAYLIBRARY_TRANSCODE:
         playLibraryMedia(param_url,override=True)
-    elif mode == 24:
+    
+    elif mode == _MODE_MYPLEXQUEUE:
         myPlexQueue()
 
 print "===== PLEXBMC STOP ====="
