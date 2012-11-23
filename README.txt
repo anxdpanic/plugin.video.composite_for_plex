@@ -21,8 +21,8 @@ and select the media you want to play
 
 USING PLEXBMC
 ---------------
-PleXBMC should work "out of the box" in most cases, as teh default allows for automatic server discovery.
-If this doesn't work, then diovery can be switched off, and a manually entered hostname or IP address can be used.
+PleXBMC should work "out of the box" in most cases, as the default allows for automatic server discovery.
+If this doesn't work, then discovery can be switched off, and a manually entered hostname or IP address can be used.
 
 In addition, plexBMC can utilise myPlex to find remote and local servers.  To use myplex, simply type in your username and password.
 
@@ -40,7 +40,7 @@ PleXBMC will attempt to select the best play options for you:
    PMS web server.  This does not transcode any file, and it will be played as
    normal.
    
-You can override these by choosing either "http" or "smb" in the "Stream from PMS"
+You can override these by choosing either "http", "smb" or "AFP" in the "Stream from PMS"
 setting.  "auto" is the default and will choose the best option.
 
 PLAYING MEDIA LOCALLY

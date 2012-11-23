@@ -1,4 +1,5 @@
 Current Release:
+[b] Version 2.0 beta 5 [/b] Bug fixes (bonjour, subs, frodo)
 [b] Version 2.0 beta 3 [/b] Code rewrite and myplex queue support added
 [b] Version 2.0 beta 2 [/b] Broken
 [b] Version 2.0 beta 1 [/b] Cleanup eden code and add myplex support
