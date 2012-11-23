@@ -6,7 +6,7 @@
     @version    : 2.0b6
 
     @license    : Gnu General Public License - see LICENSE.TXT
-    @description: myPlex XBMC add-on
+    @description: pleXBMC XBMC add-on
 
     This file is part of the XBMC PleXBMC Plugin.
 
