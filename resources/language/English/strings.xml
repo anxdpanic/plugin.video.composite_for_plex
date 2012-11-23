@@ -38,10 +38,10 @@
     <string id="30033">Always</string>
     <string id="30034">Audio stream selection</string>
     <string id="30035">Subtitle stream selection</string>
-    <string id="30036">Disabled</string>
+    <string id="30036">XBMC Control</string>
     <string id="30037">External</string>
     <string id="30038">Audio and subtitle selector</string>
-    <string id="30039">Subs Off</string>
+    <string id="30039">Never show subtitles</string>
     <string id="30040">Quality</string>
     <string id="30041">Proxy Port</string>
     <string id="30042">Plex Channel View</string>
@@ -68,4 +68,5 @@
     <string id="30064">NAS Username</string>
     <string id="30065">NAS password</string>
     <string id="30066">NAS Root Folder</string>
+	<string id="30067">Plex Control</string>
 </strings>

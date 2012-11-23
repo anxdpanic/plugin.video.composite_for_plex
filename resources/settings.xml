@@ -22,7 +22,7 @@
     </category>
     
     <category label="Audio/Subtitle" >
-        <setting id="streamControl" type="enum" label="30038" lvalues="30036|30011|30037|30039" Default="30036" />
+        <setting id="streamControl" type="enum" label="30038" lvalues="30036|30067|30037|30039" Default="30036" />
     </category>
 		
     <category label="Transcoding" >

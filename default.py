@@ -121,6 +121,11 @@ _OVERLAY_PLEX_UNWATCHED=4  #Dot
 _OVERLAY_PLEX_WATCHED=0    #Blank
 _OVERLAY_PLEX_PARTIAL=5    #half - Reusing XBMC overlaytrained
 
+_SUB_AUDIO_XBMC_CONTROL="0"
+_SUB_AUDIO_PLEX_CONTROL="1"
+_SUB_AUDIO_EXTERNAL="2"
+_SUB_AUDIO_NEVER_SHOW="3"
+
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
 
@@ -171,7 +176,15 @@ if g_debug == "true":
     print "PleXBMC -> Settings streaming: " + g_stream
     print "PleXBMC -> Setting filter menus: " + g_secondary
     print "PleXBMC -> Setting debug to " + g_debug
-    print "PleXBMC -> Setting stream Control to : " + g_streamControl
+    if g_streamControl == _SUB_AUDIO_XBMC_CONTROL: 
+        print "PleXBMC -> Setting stream Control to : XBMC CONTROL (%s)" % g_streamControl
+    elif g_streamControl == _SUB_AUDIO_PLEX_CONTROL: 
+        print "PleXBMC -> Setting stream Control to : PLEX CONTROL (%s)" % g_streamControl
+    elif g_streamControl == _SUB_AUDIO_EXTERNAL: 
+        print "PleXBMC -> Setting stream Control to : EXTERNAL (%s)" % g_streamControl
+    elif g_streamControl == _SUB_AUDIO_NEVER_SHOW:
+        print "PleXBMC -> Setting stream Control to : NEVER SHOW (%s)" % g_streamControl
+    
     print "PleXBMC -> Running skin: " + g_skin
     print "PleXBMC -> Running watch view skin: " + g_skinwatched
     print "PleXBMC -> Force DVD playback: " + g_forcedvd
@@ -1359,6 +1372,12 @@ def TVEpisodes( url, tree=None ): # CHECKED
     xbmcplugin.endOfDirectory(pluginhandle)
 
 def getAudioSubtitlesMedia( server, id ): # CHECKED
+    '''
+        Cycle through the Parts sections to find all "selected" audio and subtitle streasm
+        
+    
+    
+    '''
     printDebug("== ENTER: getAudioSubtitlesMedia ==", False)
     printDebug("Gather media stream info" ) 
             
@@ -1390,15 +1409,16 @@ def getAudioSubtitlesMedia( server, id ): # CHECKED
     
     contents="type"
     
-    #Get the Parts info for media type and source selection 
+    #Get the media locations (file and web) for later on 
     for stuff in options:
         try:
             bits=stuff.get('key'), stuff.get('file')
             parts.append(bits)
             partsCount += 1
         except: pass
-        
-    if g_streamControl == "1" or g_streamControl == "2":
+    
+    #if we are deciding internally or forcing an external subs file, then collect the data   
+    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL or g_streamControl == _SUB_AUDIO_EXTERNAL:
 
         contents="all"
         tags=tree.getiterator('Stream')
@@ -1434,19 +1454,18 @@ def getAudioSubtitlesMedia( server, id ): # CHECKED
           
     else:
             printDebug( "Stream selection is set OFF")
-              
-    
-    streamData={'contents'   : contents ,
-                'audio'      : audio , 
-                'audioCount' : audioCount , 
-                'subtitle'   : subtitle , 
-                'subCount'   : subCount ,
-                'external'   : external , 
-                'parts'      : parts , 
-                'partsCount' : partsCount , 
-                'media'      : media , 
-                'subOffset'  : selectedSubOffset , 
-                'audioOffset': selectedAudioOffset }
+                  
+    streamData={'contents'   : contents ,                #What type of data we are holding
+                'audio'      : audio ,                   #Audio data held in a dict
+                'audioCount' : audioCount ,              #Number of audio streams
+                'subtitle'   : subtitle ,                #Subtitle data (embedded) held as a dict
+                'subCount'   : subCount ,                #Number of subtitle streams 
+                'external'   : external ,                #Subtitle data (external files) as a dict
+                'parts'      : parts ,                   #The differet media locations
+                'partsCount' : partsCount ,              #Number of media locations
+                'media'      : media ,                   #Resume/duration data for media
+                'subOffset'  : selectedSubOffset ,       #Stream index for selected subs
+                'audioOffset': selectedAudioOffset }     #STream index for select audio
     
     printDebug ( str(streamData) )
     return streamData
@@ -1547,48 +1566,56 @@ def playLibraryMedia( id, vids, override=False ): # CHECKED
 
 def setAudioSubtitles( stream ): # CHECKED
     printDebug("== ENTER: setAudioSubtitles ==", False)
-        
+    
+    #If we have decided not to collect any sub data then do not set subs    
     if stream['contents'] == "type":
         printDebug ("No streams to process.")
         
-        if g_streamControl == "3":
+        #If we have decided to force off all subs, then turn them off now and return
+        if g_streamControl == _SUB_AUDIO_NEVER_SHOW :
             xbmc.Player().showSubtitles(False)    
             printDebug ("All subs disabled")
 
         return True
 
-    if g_streamControl == "1" or  g_streamControl == "2":
-        audio=stream['audio']
+    #Set the AUDIO component
+    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ) or ( g_streamControl == _SUB_AUDIO_EXTERNAL ):
         printDebug("Attempting to set Audio Stream")
-        #Audio Stream first        
+
         if stream['audioCount'] == 1:
             printDebug ("Only one audio stream present - will leave as default")
+
         elif stream['audioCount'] > 1:
-            printDebug ("Multiple audio stream. Attempting to set to local language")
+            audio=stream['audio']
+            language=audio.get('language',audio.get('languageCode','Unknown')).encode('utf8')
+            printDebug ("Multiple audio stream detected. Attempting to use local language setting: %s" % language)
             try:
                 if audio['selected'] == "1":
                     printDebug ("Found preferred language at index " + str(stream['audioOffset']))
                     xbmc.Player().setAudioStream(stream['audioOffset'])
                     printDebug ("Audio set")
-            except: pass
+            except: 
+                    printDebug ("Error setting audio, will use embedded default stream")
       
-    #Try and set embedded subtitles
-    if g_streamControl == "1":
+    #Set the SUBTITLE component
+    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
         subtitle=stream['subtitle']
         printDebug("Attempting to set subtitle Stream", True)
         try:
             if stream['subCount'] > 0 and subtitle['languageCode']:
                 printDebug ("Found embedded subtitle for local language" )
-                printDebug ("Enabling embedded subtitles")
+                printDebug ("Enabling embedded subtitles at index %s" % stream['subOffset'])
                 xbmc.Player().showSubtitles(False)
                 xbmc.Player().setSubtitleStream(stream['subOffset'])
+                xbmc.Player().showSubtitles(True)
                 return True
             else:
                 printDebug ("No embedded subtitles to set")
         except:
             printDebug("Unable to set subtitles")
   
-    if g_streamControl == "1" or g_streamControl == "2":
+    #Set external subtitles if they exist and if embedded have not been set
+    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ) or ( g_streamControl == _SUB_AUDIO_EXTERNAL ):
         external=stream['external']
         printDebug("Attempting to set external subtitle stream")
     
