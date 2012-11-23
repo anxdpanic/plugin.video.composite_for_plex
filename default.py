@@ -3,7 +3,7 @@
     @package    : PleXBMC add-on
     @author     : Hippojay (aka Dave Hawes-Johnson)
     @copyright  : 2011-2012, Hippojay
-    @version    : 2.0b5
+    @version    : 2.0b6
 
     @license    : Gnu General Public License - see LICENSE.TXT
     @description: myPlex XBMC add-on
@@ -48,7 +48,7 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="2.0b rev 1"
+PLEXBMC_VERSION="2.0b rev 6"
 
 try:
     from bonjourFind import *
@@ -3256,6 +3256,7 @@ def alterAudio ( url ):
     outcome=getURL(audio_select_URL, type="PUT")
     
     return True
+
 def setWindowHeading(tree) :
     WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
     WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
