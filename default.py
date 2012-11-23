@@ -1364,8 +1364,8 @@ def TVEpisodes( url, tree=None ):
         else:
             context=None
         
-        # http:// <server> <path> &mode=<mode> &id=<media_id> &t=<rnd>
-        u="http://%s%s&mode=%s&id=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'], randomNumber)
+        # http:// <server> <path> &mode=<mode> &t=<rnd>
+        u="http://%s%s&mode=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, randomNumber)
 
         addGUIItem(u,details,extraData, context, folder=False)        
     
@@ -1470,13 +1470,15 @@ def getAudioSubtitlesMedia( server, id ):
     printDebug ( str(streamData) )
     return streamData
    
-def playLibraryMedia( id, vids, override=False ): 
+def playLibraryMedia( vids, override=False ): 
     printDebug("== ENTER: playLibraryMedia ==", False)
     
     getTranscodeSettings(override)
   
     server=getServerFromURL(vids)
-    
+  
+    id=vids.split('/')[-1]
+  
     streams=getAudioSubtitlesMedia(server,id)     
     url=selectMedia(streams['partsCount'],streams['parts'], server)
 
@@ -2409,8 +2411,8 @@ def movieTag(url, server, tree, movie, randomNumber):
         context=buildContextMenu(url, extraData)    
     else:
         context=None
-    # http:// <server> <path> &mode=<mode> &id=<media_id> &t=<rnd>
-    u="http://%s%s&mode=%s&id=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, extraData['ratingKey'], randomNumber)
+    # http:// <server> <path> &mode=<mode> &t=<rnd>
+    u="http://%s%s&mode=%s&t=%s" % (server, extraData['key'], _MODE_PLAYLIBRARY, randomNumber)
   
     addGUIItem(u,details,extraData,context,folder=False)        
     return
@@ -2933,7 +2935,7 @@ def shelf( ):
         
             printDebug("Found a recent movie entry")
             
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&id=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, media.get('ratingKey','0'), aToken) 
+            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, aToken) 
             m_thumb=getThumb(media,server)
             
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
@@ -3118,7 +3120,6 @@ if param_url and param_url.startswith('http'):
 
 param_name=urllib.unquote_plus(params.get('name',""))
 mode=int(params.get('mode',-1))
-param_id=params.get('id',None)
 param_transcodeOverride=int(params.get('transcode',0))
 param_identifier=params.get('identifier',None)
 _PARAM_TOKEN=params.get('X-Plex-Token',None)
@@ -3153,7 +3154,6 @@ else:
         print "PleXBMC -> Mode: "+str(mode)
         print "PleXBMC -> URL: "+str(param_url)
         print "PleXBMC -> Name: "+str(param_name)
-        print "PleXBMC -> ID: "+ str(param_id)
         print "PleXBMC -> identifier: " + str(param_identifier)
         print "PleXBMC -> token: " + str(_PARAM_TOKEN)
 
@@ -3173,7 +3173,7 @@ else:
     elif mode == 4:
         TVSeasons(param_url)
     elif mode == 5:
-        playLibraryMedia(param_id,param_url)
+        playLibraryMedia(param_url)
     elif mode == 6:
         TVEpisodes(param_url)
     elif mode == 7:
@@ -3202,7 +3202,7 @@ else:
         discoverAllServers()
         displayServers(param_url)
     elif mode == 23:
-        playLibraryMedia(param_id,param_url,override=True)
+        playLibraryMedia(param_url,override=True)
     elif mode == 24:
         myPlexQueue()
 
