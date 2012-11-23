@@ -1854,27 +1854,7 @@ def videoPluginPlay( vids, prefix=None ): # CHECKED
             prefix="system"
         vids=transcode(0, vids, prefix)
         session=vids
-    
-    #Everything else should be this
-    #else:
-    #    printDebug("Direct link")
-    #    output=getURL(vids, type="HEAD", suppress=False)
-    #    if not output:
-    #        return
-    #        
-    #    printDebug(str(output))
-    #    if ( output[0:4] == "http" ) or ( output[0:4] == "plex" ):
-    #        printDebug("Redirect.  Getting new URL")
-    #        vids=output
-    #        printDebug("New URL is: "+ vids)
-    #        parameters=get_params(vids)
-    #        
-    #        prefix=parameters.get("prefix",'')
-    #        extraData={'key'        : vids ,
-    #                   'identifier' : prefix }
-    #
-    #        vids=getLinkURL(vids, extraData ,server)  
-    
+        
     printDebug("URL to Play: " + vids)
     printDebug("Prefix is: " + str(prefix))
         
