@@ -862,6 +862,10 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
         else:
             u=sys.argv[0]+"?url="+str(url)+mode+aToken
 
+        if extraData.get('parameters'):
+            for argument, value in extraData.get('parameters').items():
+                u="%s&%s=%s" % ( u, argument, urllib.quote(value) )
+                
         printDebug("URL to use for listing: " + u)
                 
         #Create the ListItem that will be displayed
@@ -2003,9 +2007,11 @@ def channelSearch (url, prompt):
     '''
     printDebug("== ENTER: getSearchResults ==", False)
     
-    if prompt is None:
+    if prompt:
+        prompt=urllib.unquote(prompt)
+    else:
         prompt="Enter Search Term..."
-    
+        
     kb = xbmc.Keyboard('', 'heading')
     kb.setHeading(prompt)
     kb.doModal()
@@ -2323,11 +2329,7 @@ def PlexPlugins( url, tree=None ):
         
             if plugin.get('search') == '1':
                 extraData['mode']=_MODE_CHANNELSEARCH
-                
-                #if plugin.get('prompt') is not None:
-                #    p_url=p_url+"&prompt="+urllib.quote(plugin.get('prompt'))
-                #else:
-                #    p_url=p_url+"&prompt="+urllib.quote("Enter Search Terms")
+                extraData['parameters']={'prompt' : plugin.get('prompt',"Enter Search Term") }
             else:        
                 extraData['mode']=_MODE_PLEXPLUGINS
                 
