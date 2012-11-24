@@ -102,7 +102,7 @@ _MODE_PLAYLIBRARY=5
 _MODE_TVEPISODES=6
 _MODE_PLEXPLUGINS=7
 _MODE_PROCESSXML=8
-_MODE_SEARCH=9
+_MODE_CHANNELSEARCH=9
 _MODE_BASICPLAY=12
 _MODE_ALBUMS=14
 _MODE_TRACKS=15
@@ -1992,10 +1992,10 @@ def get_params( paramstring ):
                             param[splitparams[0]]=splitparams[1]
                     elif (len(splitparams))==3:
                             param[splitparams[0]]=splitparams[1]+"="+splitparams[2]
-    printDebug("Returning: " + str(param))                        
+    print "PleXBMC -> Detected parameters: " + str(param)                       
     return param
 
-def getSearchResults (url, fwdmode, prompt):    
+def channelSearch (url, prompt):    
     '''
         When we encounter a search request, branch off to this function to generate the keyboard
         and accept the terms.  This URL is then fed back into the correct function for
@@ -2013,11 +2013,9 @@ def getSearchResults (url, fwdmode, prompt):
         text = kb.getText()
         printDebug("Search term input: "+ text)
         url=url+'&query='+text
-
-    chooseMode ( url, fwdmode )
+        PlexPlugins( url )
     return
-
-    
+ 
 def getContent( url ):  
     '''
         This function takes teh URL, gets the XML and determines what the content is
@@ -2322,7 +2320,17 @@ def PlexPlugins( url, tree=None ):
         p_url=getLinkURL(url, extraData, server)
       
         if plugin.tag == "Directory" or plugin.tag == "Podcast":
-            extraData['mode']=_MODE_PLEXPLUGINS
+        
+            if plugin.get('search') == '1':
+                extraData['mode']=_MODE_CHANNELSEARCH
+                
+                #if plugin.get('prompt') is not None:
+                #    p_url=p_url+"&prompt="+urllib.quote(plugin.get('prompt'))
+                #else:
+                #    p_url=p_url+"&prompt="+urllib.quote("Enter Search Terms")
+            else:        
+                extraData['mode']=_MODE_PLEXPLUGINS
+                
             addGUIItem(p_url, details, extraData)
                 
         elif plugin.tag == "Video":
@@ -3415,8 +3423,8 @@ else:
     elif mode == _MODE_MYPLEXQUEUE:
         myPlexQueue()
         
-    elif mode == _MODE_SEARCH:       
-        getSearchResults( url, params.get('fwdmode'), params.get('prompt') )
+    elif mode == _MODE_CHANNELSEARCH:       
+        channelSearch( param_url, params.get('prompt') )
 
 print "===== PLEXBMC STOP ====="
    
