@@ -102,6 +102,7 @@ _MODE_PLAYLIBRARY=5
 _MODE_TVEPISODES=6
 _MODE_PLEXPLUGINS=7
 _MODE_PROCESSXML=8
+_MODE_SEARCH=9
 _MODE_BASICPLAY=12
 _MODE_ALBUMS=14
 _MODE_TRACKS=15
@@ -1994,6 +1995,29 @@ def get_params( paramstring ):
     printDebug("Returning: " + str(param))                        
     return param
 
+def getSearchResults (url, fwdmode, prompt):    
+    '''
+        When we encounter a search request, branch off to this function to generate the keyboard
+        and accept the terms.  This URL is then fed back into the correct function for
+        onward processing.
+    '''
+    printDebug("== ENTER: getSearchResults ==", False)
+    
+    if prompt is None:
+        prompt="Enter Search Term..."
+    
+    kb = xbmc.Keyboard('', 'heading')
+    kb.setHeading(prompt)
+    kb.doModal()
+    if (kb.isConfirmed()):
+        text = kb.getText()
+        printDebug("Search term input: "+ text)
+        url=url+'&query='+text
+
+    chooseMode ( url, fwdmode )
+    return
+
+    
 def getContent( url ):  
     '''
         This function takes teh URL, gets the XML and determines what the content is
@@ -3390,6 +3414,9 @@ else:
     
     elif mode == _MODE_MYPLEXQUEUE:
         myPlexQueue()
+        
+    elif mode == _MODE_SEARCH:       
+        getSearchResults( url, params.get('fwdmode'), params.get('prompt') )
 
 print "===== PLEXBMC STOP ====="
    
