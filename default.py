@@ -103,6 +103,7 @@ _MODE_TVEPISODES=6
 _MODE_PLEXPLUGINS=7
 _MODE_PROCESSXML=8
 _MODE_CHANNELSEARCH=9
+_MODE_CHANNELPREFS=10
 _MODE_BASICPLAY=12
 _MODE_ALBUMS=14
 _MODE_TRACKS=15
@@ -2339,8 +2340,104 @@ def PlexPlugins( url, tree=None ):
             extraData['mode']=_MODE_VIDEOPLUGINPLAY
             addGUIItem(p_url, details, extraData, folder=False)
 
+        elif plugin.tag == "Setting":
+
+            if plugin.get('option') == 'hidden':
+                value="********"
+            elif plugin.get('type') == "text":
+                value=plugin.get('value')
+            elif plugin.get('type') == "enum":
+                value=plugin.get('values').split('|')[int(plugin.get('value',0))]
+            else:
+                value=plugin.get('value')
+
+            details['title']= "%s - [%s]" % (plugin.get('label','Unknown'), value)
+            extraData['mode']=_MODE_CHANNELPREFS
+            extraData['parameters']={'id' : plugin.get('id') }    
+            addGUIItem(url, details, extraData)
+
+                 
     xbmcplugin.endOfDirectory(pluginhandle)        
 
+def channelSettings ( url, settingID ):
+    '''
+        Take the setting XML and parse it to create an updated
+        string with the new settings.  For the selected value, create
+        a user input screen (text or list) to update the setting.
+        @ input: url
+        @ return: nothing
+    '''
+    printDebug("== ENTER: channelSettings ==", False)
+    printDebug("Setting preference for ID: %s" % settingID )
+    
+    if not settingID:
+        printDebug("ID not set")
+        return
+             
+    html=getURL(url)
+
+    if html is False:
+        return
+
+    tree=etree.fromstring(html)
+    setWindowHeading(tree)
+    setString=None    
+    for plugin in tree:
+       
+        if plugin.get('id') == settingID:
+            printDebug("Found correct id entry for: %s" % settingID)
+            id=settingID
+            
+            label=plugin.get('label',"Enter value")
+            option=plugin.get('option')
+            value=plugin.get('value')
+            
+            if plugin.get('type') == "text":
+                printDebug("Setting up a text entry screen")
+                kb = xbmc.Keyboard(value, 'heading')
+                kb.setHeading(label)
+                
+                if option == "hidden":
+                    kb.setHiddenInput(True)
+                else:
+                    kb.setHiddenInput(False)
+                
+                kb.doModal()
+                if (kb.isConfirmed()):
+                    value = kb.getText()
+                    printDebug("Value input: "+ value)
+                else:
+                    printDebug("User cancelled dialog")
+                    return False
+           
+            elif plugin.get('type') == "enum":
+                printDebug("Setting up an enum entry screen")
+                
+                values=plugin.get('values').split('|')
+                
+                settingScreen = xbmcgui.Dialog()
+                value = settingScreen.select(label,values)
+                if value == -1:
+                    printDebug("User cancelled dialog")                
+                    return False
+            else:
+                printDebug('Unknown option type: %s' % plugin.get('id') )
+                    
+        else:
+            value=plugin.get('value')
+            id=plugin.get('id')
+     
+        if setString is None:
+            setString='%s/set?%s=%s' % (url, id, value)
+        else:
+            setString='%s&%s=%s' % (setString, id, value)
+                
+    printDebug ("Settings URL: %s" % setString )
+    getURL (setString)
+    xbmc.executebuiltin("Container.Refresh")
+
+    return False
+    
 def processXML( url, tree=None ):
     '''
         Main function to parse plugin XML from PMS
@@ -3428,6 +3525,9 @@ else:
     elif mode == _MODE_CHANNELSEARCH:       
         channelSearch( param_url, params.get('prompt') )
 
+    elif mode == _MODE_CHANNELPREFS:
+        channelSettings ( param_url, params.get('id') )
+        
 print "===== PLEXBMC STOP ====="
    
 #clear done and exit.        
