@@ -338,21 +338,21 @@ def resolveAllServers( ):
             twoCount=0
             for twodevice in localServers:
 
-                printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['uuid'] + " and " + twodevice['uuid'])
+                #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['uuid'] + " and " + twodevice['uuid'])
 
                 if oneCount == twoCount:
-                    printDebug( "skip" )
+                    #printDebug( "skip" )
                     twoCount+=1
                     continue
                     
                 if onedevice['uuid'] == twodevice['uuid']:
-                    printDebug ( "match" )
+                    #printDebug ( "match" )
                     if onedevice['discovery'] == "local":
                         localServers.pop(twoCount)
                     else:
                         localServers.pop(oneCount)
-                else:
-                    printDebug( "no match" )
+                #else:
+                #    printDebug( "no match" )
                 
                 twoCount+=1
              
@@ -410,22 +410,24 @@ def getAllSections( ):
             twoCount=0
             for twodevice in g_sections:
 
-                printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title']))
-                printDebug( "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid'])
+                #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title']))
+                #printDebug( "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid'])
 
                 if oneCount == twoCount:
-                    printDebug( "skip" )
+                    #printDebug( "skip" )
                     twoCount+=1
                     continue
                     
                 if ( str(onedevice['title']) == str(twodevice['title']) ) and ( onedevice['uuid'] == twodevice['uuid'] ):
-                    printDebug( "match")
+                    #printDebug( "match")
                     if onedevice['local'] == "1":
-                        printDebug ( "popping 2 " + str(g_sections.pop(twoCount)))
+                        #printDebug ( "popping 2 " + str(g_sections.pop(twoCount)))
+                        g_sections.pop(twoCount)
                     else:
-                        printDebug ( "popping 1 " + str(g_sections.pop(oneCount)))
-                else:
-                    printDebug( "no match")
+                        #printDebug ( "popping 1 " + str(g_sections.pop(oneCount)))
+                        g_sections.pop(oneCount)
+                #else:
+                #    printDebug( "no match")
                 
                 twoCount+=1
              
