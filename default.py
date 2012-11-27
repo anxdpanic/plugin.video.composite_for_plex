@@ -2021,7 +2021,7 @@ def channelSearch (url, prompt):
     if (kb.isConfirmed()):
         text = kb.getText()
         printDebug("Search term input: "+ text)
-        url=url+'&query='+text
+        url=url+'&query='+urllib.quote(text)
         PlexPlugins( url )
     return
  
@@ -2048,7 +2048,7 @@ def getContent( url ):
         if (kb.isConfirmed()):
             text = kb.getText()
             printDebug("Search term input: "+ text)
-            url=url+'&query='+text
+            url=url+'&query='+urllib.quote(text)
         else:
             return
      
