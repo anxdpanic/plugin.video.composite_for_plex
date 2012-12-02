@@ -15,10 +15,10 @@
 		<setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="30011"/>
 		<setting id="forcedvd" type="bool" label="30060" default="false"/>
 		<setting id="nasoverride" type="bool" label="30061" default="false"/>
-		<setting id="nasoverrideip" type="text" label="30062" default="" visible="eq(-1,true)" enable="eq(-1,true)" />
-		<setting id="nasuserid" type="text" label="30064" default="" visible="eq(-2,true)" enable="eq(-2,true)" />
-		<setting id="naspass" type="text" label="30065" option="hidden" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
-		<setting id="nasroot" type="text" label="30066" default="" visible="eq(-4,true)" enable="eq(-4,true)" />
+		<setting id="nasoverrideip" type="text" label="30062" default="" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)" />
+		<setting id="nasuserid" type="text" label="30064" default="" subsetting="true" visible="eq(-2,true)" enable="eq(-2,true)" />
+		<setting id="naspass" type="text" label="30065" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
+		<setting id="nasroot" type="text" label="30066" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)" />
     </category>
     
     <category label="Audio/Subtitle" >
@@ -30,6 +30,8 @@
         <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" />
         <setting id="audiotype" type="enum" label="30057" values="Stereo|AC3|DTS" default="Stereo" />
         <setting id="transcode" type="bool" label="30007" default="false"/>
+		<setting id="subSize" label="30068" type="slider" option="int" range="0,300" default="100" />		
+		<setting id="audioSize" label="30069" type="slider" option="int" range="0,300" default="0" />		
 	</category>
 	   
     <category label="Wake On LAN" >

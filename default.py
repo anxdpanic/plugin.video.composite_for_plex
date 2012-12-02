@@ -2147,26 +2147,41 @@ def transcode( id, url, identifier=None ):
     if 'plexapp.com' in url:
         server=getMasterServer()
     
-    printDebug("Using preferred transcosing server: " + server)
-        
-    filestream=urllib.quote_plus("/"+"/".join(url.split('/')[3:]))
+    printDebug("Using preferred transcoding server: " + server)  
+    printDebug ("incoming URL is: %s" % url)    
+
+    transcode_request="/video/:/transcode/segmented/start.m3u8"
+    transcode_settings={ '3g' : 0 ,
+                         'offset' : 0 ,
+                         'quality' : g_quality ,
+                         'session' : g_sessionID ,
+                         'identifier' : identifier ,
+                         'httpCookie' : "" ,
+                         'userAgent' : "" ,
+                         'ratingKey' : id ,
+                         'subtitleSize' : __settings__.getSetting('subSize') ,
+                         'audioBoost' : __settings__.getSetting('audioSize'),
+                         'key' : "" }
   
-    if identifier is not None:
-        baseurl=url.split('url=')[1]
-        myurl="/video/:/transcode/segmented/start.m3u8?url="+baseurl+"&webkit=1&3g=0&offset=0&quality="+g_quality+"&session="+g_sessionID+"&identifier="+identifier
+    if identifier:
+        transcode_target=url.split('url=')[1]
+        transcode_settings['webkit']=1
     else:
-  
-        if g_transcodefmt == "m3u8":
-            myurl = "/video/:/transcode/segmented/start.m3u8?identifier=com.plexapp.plugins.library&ratingKey=" + id + "&offset=0&quality="+g_quality+"&url=http%3A%2F%2Flocalhost%3A32400" + filestream + "&3g=0&httpCookies=&userAgent=&session="+g_sessionID
-        elif g_transcodefmt == "flv":
-            myurl="/video/:/transcode/generic.flv?format=flv&videoCodec=libx264&vpre=video-embedded-h264&videoBitrate=5000&audioCodec=libfaac&apre=audio-embedded-aac&audioBitrate=128&size=640x480&fakeContentLength=2000000000&url=http%3A%2F%2Flocalhost%3A32400"  + filestream + "&3g=0&httpCookies=&userAgent="
-        else:
-            printDebug( "Woah!!  Barmey settings error....Bale.....")
-            return url
+        transcode_settings['identifier']="com.plexapp.plugins.library"
+        transcode_settings['key']=urllib.quote_plus("http://%s/library/metadata/%s" % (server, id))
+        transcode_target=urllib.quote_plus("http://127.0.0.1:32400"+"/"+"/".join(url.split('/')[3:]))
+        printDebug ("filestream URL is: %s" % transcode_target )    
     
+    transcode_request="%s?url=%s" % (transcode_request, transcode_target)
+    
+    for argument, value in transcode_settings.items():
+                transcode_request="%s&%s=%s" % ( transcode_request, argument, value )
+
+    printDebug("new transcode request is: %s" % transcode_request )
+          
     now=str(int(round(time.time(),0)))
     
-    msg = myurl+"@"+now
+    msg = transcode_request+"@"+now
     printDebug("Message to hash is " + msg)
     
     #These are the DEV API keys - may need to change them on release
@@ -2182,7 +2197,7 @@ def transcode( id, url, identifier=None ):
     token=base64.b64encode(hash.digest())
     
     #Send as part of URL to avoid the case sensitive header issue.
-    fullURL="http://"+server+myurl+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)+"&"+capability
+    fullURL="http://"+server+transcode_request+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)+"&"+capability
        
     printDebug("Transcoded media location URL " + fullURL)
     
