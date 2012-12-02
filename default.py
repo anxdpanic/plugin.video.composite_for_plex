@@ -2159,8 +2159,8 @@ def transcode( id, url, identifier=None ):
                          'httpCookie' : "" ,
                          'userAgent' : "" ,
                          'ratingKey' : id ,
-                         'subtitleSize' : __settings__.getSetting('subSize') ,
-                         'audioBoost' : __settings__.getSetting('audioSize'),
+                         'subtitleSize' : __settings__.getSetting('subSize').split('.')[0] ,
+                         'audioBoost' : __settings__.getSetting('audioSize').split('.')[0] ,
                          'key' : "" }
   
     if identifier:
@@ -3230,13 +3230,8 @@ def getTranscodeSettings( override=False ):
         global g_stream
         g_stream = "1"
         printDebug( "We are set to Transcode, overriding stream selection")
-        global g_transcodetype 
         global g_transcodefmt
-        g_transcodetype = __settings__.getSetting('transcodefmt')
-        if g_transcodetype == "0":
-            g_transcodefmt="m3u8"
-        elif g_transcodetype == "1":
-            g_transcodefmt="flv"
+        g_transcodefmt="m3u8"
         
         global g_quality
         g_quality = str(int(__settings__.getSetting('quality'))+3)

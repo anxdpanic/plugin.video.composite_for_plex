@@ -9,8 +9,6 @@
 	<string id="30006">PMS Password: </string>
     <string id="30007">Always transcode? </string>
     <string id="30008">Transcode format </string>
-    <string id="30009">m3u8</string>
-    <string id="30010">flv</string>
     <string id="30011">Auto</string>
     <string id="30012">http</string>
     <string id="30013">smb</string>
