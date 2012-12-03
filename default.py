@@ -3098,6 +3098,7 @@ def shelf( ):
   
     movieCount=1
     seasonCount=1
+    musicCount=1
     server=getMasterServer()
     
     html=getURL('http://%s/library/recentlyAdded' % server)
@@ -3146,6 +3147,24 @@ def shelf( ):
             printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown'))
             printDebug("Building Recent window url: %s" % s_url)
             printDebug("Building Recent window thumb: %s" % s_thumb)
+
+        elif media.get('type') == "album":
+        
+            printDebug("Found a recent album entry")
+            
+            s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_ALBUMS, aToken) 
+            s_thumb=getThumb(media,server)
+            
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, s_url )
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, media.get('parentTitle','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, s_thumb)
+            musicCount += 1
+ 
+            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown'))
+            printDebug("Building Recent window url: %s" % s_url)
+            printDebug("Building Recent window thumb: %s" % s_thumb)
+
             
     return
     
