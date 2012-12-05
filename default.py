@@ -3507,7 +3507,13 @@ if str(sys.argv[1]) == "skin":
     discoverAllServers()
     skin()
     #Not working yet
+    #shelf()
+    #shelfChannel()
+elif str(sys.argv[1]) == "shelf":
+    discoverAllServers()
     shelf()
+elif str(sys.argv[1]) == "channelShelf":
+    discoverAllServers()
     shelfChannel()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
