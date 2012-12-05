@@ -1067,6 +1067,10 @@ def enforceSkinView(mode):
         printDebug("Looking for music skin settings")
         viewname = __settings__.getSetting('ep_view_%s' % skinname)
 
+    elif mode == "season":
+        printDebug("Looking for music skin settings")
+        viewname = __settings__.getSetting('se_view_%s' % skinname)
+
     else:
         viewname = "None"
 
@@ -1370,7 +1374,7 @@ def TVSeasons( url ):
         addGUIItem(url,details,extraData, context) 
         
     printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
-    view_id = enforceSkinView('tv')
+    view_id = enforceSkinView('season')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
         
@@ -3350,8 +3354,7 @@ def shelfChannel( ):
 
             
     return
-
-    
+ 
 def myPlexQueue(): 
 
     if __settings__.getSetting('myplex_user') == '':
