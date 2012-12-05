@@ -3,7 +3,7 @@
     @package    : PleXBMC add-on
     @author     : Hippojay (aka Dave Hawes-Johnson)
     @copyright  : 2011-2012, Hippojay
-    @version    : 2.0b6
+    @version    : 2.0F
 
     @license    : Gnu General Public License - see LICENSE.TXT
     @description: pleXBMC XBMC add-on
@@ -48,7 +48,7 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="2.0b rev 6"
+PLEXBMC_VERSION="2.0 FINAL"
 
 try:
     from bonjourFind import *
