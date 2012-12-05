@@ -2122,11 +2122,11 @@ def getMasterServer():
     discoverAllServers()
     possibleServers=[]
     for serverData in resolveAllServers():
-        print str(serverData)
+        printDebug( str(serverData) )
         if serverData['master'] == 1:
             possibleServers.append({'address' : serverData['address'] ,
                                     'discovery' : serverData['discovery'] })
-    print str(possibleServers)
+    printDebug( str(possibleServers) )
     if len(possibleServers) > 1:
         preferred="local"
         for serverData in possibleServers:
@@ -2675,7 +2675,6 @@ def photo( url,tree=None ):
                     if photo.tag == "Media":
                         for images in photo:
                             if images.tag == "Part":
-                                print "found part tag"
                                 extraData['key']="http://"+server+images.get('key','')
                                 u=extraData['key']
             
@@ -3411,7 +3410,7 @@ def alterSubs ( url ):
     printDebug("Setting via URL: %s" % sub_select_URL )
     outcome=getURL(sub_select_URL, type="PUT")
     
-    print sub_select_URL
+    printDebug( sub_select_URL )
     
     return True
 
