@@ -80,5 +80,7 @@
         
     <category label="Debug" >
         <setting id="debug" type="bool" label="30014" default="false" />
+		<setting id="libraryfilter" type="text" label="RA Library filter" default="" />
     </category>
+		
 </settings>

@@ -3228,11 +3228,18 @@ def shelf( ):
     aToken=getAuthDetails(tree)
     qToken=getAuthDetails(tree, prefix='?')
 
+    library_filter = __settings__.getSetting('libraryfilter')
+    
     #For each of the servers we have identified
     for media in tree:
     
         if media.get('type',None) == "movie":
         
+        
+            if media.get('librarySectionID') == library_filter:
+                printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
+                continue 
+                
             printDebug("Found a recent movie entry")
             
             m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, aToken) 
