@@ -1037,10 +1037,92 @@ def displaySections( filter=None ):
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle)  
 
+def enforceSkinView(mode):
+    '''
+        Ensure that the views are consistance across plugin usage, depending
+        upon view selected by user
+        @input: User view selection
+        @return: view id for skin
+    '''
+    printDebug("== ENTER: enforceSkinView ==", False)
+
+    if __settings__.getSetting('skinoverride') == "false":
+        return None
+        
+    skinname = __settings__.getSetting('skinname')
+
+    if mode == "movie":
+        printDebug("Looking for movie skin settings")
+        viewname = __settings__.getSetting('mo_view_%s' % skinname)
+ 
+    elif mode == "tv":
+        printDebug("Looking for tv skin settings")
+        viewname = __settings__.getSetting('tv_view_%s' % skinname)
+    
+    elif mode == "music":
+        printDebug("Looking for music skin settings")
+        viewname = __settings__.getSetting('mu_view_%s' % skinname)
+
+    elif mode == "episode":
+        printDebug("Looking for music skin settings")
+        viewname = __settings__.getSetting('ep_view_%s' % skinname)
+
+    else:
+        viewname = "None"
+
+    printDebug("view name is %s" % viewname)
+        
+    if viewname == "None":
+        return None
+                
+    QuartzV3_views={ 'List' : 50, 
+                     'Big List' : 51,
+                     'MediaInfo' : 52,
+                     'MediaInfo 2' : 54,
+                     'Big Icons' : 501,
+                     'Icons': 53,
+                     'Panel' : 502,
+                     'Wide' : 55,
+                     'Fanart 1' : 57,
+                     'Fanart 2' : 59,
+                     'Fanart 3' : 500 }
+
+    Quartz_views={ 'List' : 50, 
+                   'MediaInfo' : 51,
+                   'MediaInfo 2' : 52,
+                   'Icons': 53,
+                   'Wide' : 54,
+                   'Big Icons' : 55,
+                   'Icons 2' : 56 ,
+                   'Panel' : 57,
+                   'Fanart' : 58,
+                   'Fanart 2' : 59 }
+
+    Confluence_views={ 'List' : 50, 
+                       'Big List' : 51,
+                       'Thumbnail' : 500,
+                       'Poster Wrap': 501,
+                       'Fanart' : 508,
+                       'Media Info' : 504,
+                       'Media Info 2' : 503,
+                       'Wide Icons' : 505 }
+                            
+    skin_list={"0" : Quartz_views , 
+               "1" : QuartzV3_views,
+               "2" : Confluence_views}
+                     
+    printDebug("Using skin view: %s" % skin_list[skinname][viewname])
+    
+    try:
+        return skin_list[skinname][viewname]             
+    except:
+        print "PleXBMC -> skin name or view name error"
+        return None
+    
 def Movies( url, tree=None ): 
     printDebug("== ENTER: Movies() ==", False)
     xbmcplugin.setContent(pluginhandle, 'movies')
-            
+
     #get the server name from the URL, which was passed via the on screen listing..
     if tree is None:
         #Get some XML and parse it
@@ -1061,9 +1143,14 @@ def Movies( url, tree=None ):
     for movie in MovieTags:
         
         movieTag(url, server, tree, movie, randomNumber)
+
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('movie')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
         
     xbmcplugin.endOfDirectory(pluginhandle)
- 
+    
 def buildContextMenu( url, itemData ): 
     context=[]
     server=getServerFromURL(url)
@@ -1194,7 +1281,11 @@ def TVShows( url, tree=None ):
             
         addGUIItem(u,details,extraData, context) 
         
-    #End the listing    
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('tv')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
+        
     xbmcplugin.endOfDirectory(pluginhandle)
  
 def TVSeasons( url ): 
@@ -1278,7 +1369,11 @@ def TVSeasons( url ):
         #Build the screen directory listing
         addGUIItem(url,details,extraData, context) 
         
-    #All done, so end the listing
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('tv')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
+        
     xbmcplugin.endOfDirectory(pluginhandle)
  
 def TVEpisodes( url, tree=None ): 
@@ -1401,7 +1496,12 @@ def TVEpisodes( url, tree=None ):
         u="http://%s%s?t=%s" % (server, extraData['key'], randomNumber)
 
         addGUIItem(u,details,extraData, context, folder=False)        
-    
+   
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('episode')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
+        
     xbmcplugin.endOfDirectory(pluginhandle)
 
 def getAudioSubtitlesMedia( server, id ): 
@@ -2241,7 +2341,11 @@ def artist( url, tree=None ):
         
         addGUIItem(url,details,extraData) 
         
-    #End the listing    
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('music')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
+        
     xbmcplugin.endOfDirectory(pluginhandle)
 
 def albums( url, tree=None ): 
@@ -2281,6 +2385,11 @@ def albums( url, tree=None ):
         url='http://%s%s' % (server, extraData['key'] )
 
         addGUIItem(url,details,extraData) 
+    
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('music')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
@@ -2303,6 +2412,11 @@ def tracks( url,tree=None ):
                     
         trackTag(server, tree, track)
     
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('music')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
+        
     xbmcplugin.endOfDirectory(pluginhandle)
 
 def PlexPlugins( url, tree=None ): 
@@ -2749,6 +2863,11 @@ def music( url, tree=None ):
             
             extraData['mode']=_MODE_MUSIC
             addGUIItem(u,details,extraData)
+    
+    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    view_id = enforceSkinView('music')
+    if view_id:
+        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
         
     xbmcplugin.endOfDirectory(pluginhandle)    
 
