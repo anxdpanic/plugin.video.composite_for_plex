@@ -3152,7 +3152,7 @@ def shelf( ):
         
             printDebug("Found a recent album entry")
             
-            s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_ALBUMS, aToken) 
+            s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_TRACKS, aToken) 
             s_thumb=getThumb(media,server)
             
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, s_url )
@@ -3167,6 +3167,65 @@ def shelf( ):
 
             
     return
+
+def shelfChannel( ): 
+    #Gather some data and set the window properties
+    printDebug("== ENTER: shelfChannels() ==", False)
+    #Get the global host variable set in settings
+    WINDOW = xbmcgui.Window( 10000 )
+  
+    channelCount=1
+    server=getMasterServer()
+    
+    html=getURL('http://%s/channels/recentlyViewed' % server)
+    if html is None:
+        return
+        
+    tree=etree.fromstring(html)
+    
+    aToken=getAuthDetails(tree)
+    qToken=getAuthDetails(tree, prefix='?')
+
+    #For each of the servers we have identified
+    for media in tree:
+    
+        if media.get('type') == "channel":
+        
+            printDebug("Found a recent channel entry")
+
+            suffix=media.get('key').split('/')[1]
+
+            if suffix == "photos":
+                mode=_MODE_PHOTOS
+                channel_window="Pictures"
+            elif suffix == "video":
+                mode=_MODE_PLEXPLUGINS
+                channel_window="VideoLibrary"
+            elif suffix == "music":
+                mode=_MODE_MUSIC
+                channel_window="MusicFiles"
+            else:
+                mode=_MODE_GETCONTENT
+                channel_window="VideoLibrary"
+
+            
+            p_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( channel_window, getLinkURL('http://%s' % server,media,server), mode , aToken) 
+            p_thumb=getThumb(media,server)
+            
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, p_url)
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, p_thumb)
+            
+            channelCount += 1
+
+            printDebug("Building Recent window title: %s" % media.get('title','Unknown'))
+            printDebug("Building Recent window url: %s" % p_url)
+            printDebug("Building Recent window thumb: %s" % p_thumb)
+            
+
+            
+    return
+
     
 def myPlexQueue(): 
 
@@ -3448,7 +3507,8 @@ if str(sys.argv[1]) == "skin":
     discoverAllServers()
     skin()
     #Not working yet
-    #shelf()
+    shelf()
+    shelfChannel()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
     libraryRefresh(url)
