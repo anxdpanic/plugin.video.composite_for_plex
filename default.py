@@ -3250,12 +3250,12 @@ def shelf( ):
             m_thumb=getThumb(media,server)
             
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, media.get('title','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, media.get('title','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, m_thumb)
             
             movieCount += 1
 
-            printDebug("Building Recent window title: %s" % media.get('title','Unknown'))
+            printDebug("Building Recent window title: %s" % media.get('title','Unknown').encode('UTF-8'))
             printDebug("Building Recent window url: %s" % m_url)
             printDebug("Building Recent window thumb: %s" % m_thumb)
             
@@ -3268,12 +3268,12 @@ def shelf( ):
             
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, '')
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title',''))
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, media.get('parentTitle','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title','').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, media.get('parentTitle','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb)
             seasonCount += 1
  
-            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown'))
+            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
             printDebug("Building Recent window url: %s" % s_url)
             printDebug("Building Recent window thumb: %s" % s_thumb)
 
@@ -3285,12 +3285,12 @@ def shelf( ):
             s_thumb=getThumb(media,server)
             
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, s_url )
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown'))
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, media.get('parentTitle','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, media.get('parentTitle','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, s_thumb)
             musicCount += 1
  
-            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown'))
+            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
             printDebug("Building Recent window url: %s" % s_url)
             printDebug("Building Recent window thumb: %s" % s_thumb)
 
