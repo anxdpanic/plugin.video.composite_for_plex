@@ -902,13 +902,13 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                 liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
                 liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
                 
-                #liz.addStreamInfo('video', {'codec': extraData.get('VideoCodec','') ,
-                #                            'aspect' : float(extraData.get('VideoAspect','')) ,
-                #                            'height' : int(extraData.get('VideoResolution','')) } )
-                #                            
-                #liz.addStreamInfo('audio', {'codec': extraData.get('AudioCodec','') ,
-                #                            'channels' : int(extraData.get('AudioChannels','')) } )
-
+                liz.addStreamInfo('video', {'codec': extraData.get('xbmc_VideoCodec','') ,
+                                            'aspect' : float(extraData.get('xbmc_VideoAspect',0.0)) ,
+                                            'height' : int(extraData.get('xbmc_height',0)),
+                                            'duration' : int(extraData.get('duration',0)) } )
+                                            
+                liz.addStreamInfo('audio', {'codec': extraData.get('xbmc_AudioCodec','') ,
+                                            'channels' : int(extraData.get('xbmc_AudioChannels',0)) } )
                                             
             liz.setProperty('IsPlayable', 'true')
 
@@ -1436,7 +1436,7 @@ def TVEpisodes( url, tree=None ):
                  'mpaa'        : episode.get('contentRating', tree.get('grandparentContentRating','')) ,
                  'year'        : int(episode.get('year',0)) ,
                  'tagline'     : episode.get('tagline','') ,
-                 'duration'    : str(datetime.timedelta(seconds=duration)) ,
+                 #'duration'    : str(datetime.timedelta(seconds=duration)) ,
                  'overlay'     : _OVERLAY_XBMC_UNWATCHED ,
                  'episode'     : int(episode.get('index',0)) ,
                  'aired'       : episode.get('originallyAvailableAt','') ,
@@ -1456,7 +1456,8 @@ def TVEpisodes( url, tree=None ):
                    'fanart_image' : getFanart(episode, server) ,
                    'token'        : _PARAM_TOKEN ,
                    'key'          : episode.get('key',''),
-                   'ratingKey'    : str(episode.get('ratingKey',0)) }
+                   'ratingKey'    : str(episode.get('ratingKey',0)),
+                   'duration'     : duration}
 
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
@@ -1483,12 +1484,8 @@ def TVEpisodes( url, tree=None ):
              
         #Add extra media flag data
         if g_skipmediaflags == "false":
-            extraData['VideoResolution'] = mediaarguments.get('videoResolution','')
-            extraData['VideoCodec']      = mediaarguments.get('videoCodec','')
-            extraData['AudioCodec']      = mediaarguments.get('audioCodec','')
-            extraData['AudioChannels']   = mediaarguments.get('audioChannels','')
-            extraData['VideoAspect']     = mediaarguments.get('aspectRatio','')
-
+            extraData.update(getMediaData(mediaarguments))
+  
         #Build any specific context menu entries
         if g_skipcontext == "false":
             context=buildContextMenu(url, extraData)    
@@ -2664,7 +2661,7 @@ def movieTag(url, server, tree, movie, randomNumber):
              'mpaa'      : "Rated " + movie.get('contentRating', 'unknown') ,
              'year'      : int(movie.get('year',0)) ,
              'tagline'   : movie.get('tagline','') ,
-             'duration'  : str(datetime.timedelta(seconds=duration)) ,
+             #'duration'  : str(datetime.timedelta(seconds=duration)) ,
              'overlay'   : _OVERLAY_XBMC_UNWATCHED }
     
     #Extra data required to manage other properties
@@ -2673,7 +2670,9 @@ def movieTag(url, server, tree, movie, randomNumber):
                'fanart_image' : getFanart(movie, server) ,
                'token'        : _PARAM_TOKEN ,
                'key'          : movie.get('key',''),
-               'ratingKey'    : str(movie.get('ratingKey',0)) }
+               'ratingKey'    : str(movie.get('ratingKey',0)),
+               'duration'     : duration }
+
 
     #Determine what tupe of watched flag [overlay] to use
     if details['playcount'] > 0:
@@ -2697,12 +2696,8 @@ def movieTag(url, server, tree, movie, randomNumber):
          
     #Add extra media flag data
     if g_skipmediaflags == "false":
-        extraData['VideoResolution'] = mediaarguments.get('videoResolution','')
-        extraData['VideoCodec']      = mediaarguments.get('videoCodec','')
-        extraData['AudioCodec']      = mediaarguments.get('audioCodec','')
-        extraData['AudioChannels']   = mediaarguments.get('audioChannels','')
-        extraData['VideoAspect']     = mediaarguments.get('aspectRatio','')
-
+        extraData.update(getMediaData(mediaarguments))
+        
     #Build any specific context menu entries
     if g_skipcontext == "false":
         context=buildContextMenu(url, extraData)    
@@ -2714,7 +2709,26 @@ def movieTag(url, server, tree, movie, randomNumber):
   
     addGUIItem(u,details,extraData,context,folder=False)        
     return
-    
+
+def getMediaData ( tag_dict ):
+    '''
+        Extra the media details from the XML
+        @input: dict of <media /> tag attributes
+        @output: dict of required values
+    '''
+    printDebug("== ENTER: getMediaData ==", False)
+
+    return     {'VideoResolution'    : tag_dict.get('videoResolution','') ,
+                'VideoCodec'         : tag_dict.get('videoCodec','') ,
+                'AudioCodec'         : tag_dict.get('audioCodec','') ,
+                'AudioChannels'      : tag_dict.get('audioChannels',0) ,
+                'VideoAspect'        : tag_dict.get('aspectRatio',0.0) ,
+                'xbmc_height'        : tag_dict.get('height',0) ,
+                'xbmc_VideoCodec'    : tag_dict.get('videoCodec','') ,
+                'xbmc_AudioCodec'    : tag_dict.get('audioCodec','') ,
+                'xbmc_AudioChannels' : tag_dict.get('audioChannels',0) ,
+                'xbmc_VideoAspect'   : tag_dict.get('aspectRatio',0.0) }
+
 def trackTag( server, tree, track ): 
     printDebug("== ENTER: trackTAG ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
