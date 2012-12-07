@@ -1228,7 +1228,7 @@ def TVShows( url, tree=None ):
         
         #Create the basic data structures to pass up
         details={'title'      : show.get('title','Unknown').encode('utf-8') ,
-                 'sorttitle'  : show.get('sortTitle', show.get('title','Unknown')).encode('utf-8') ,
+                 'sorttitle'  : show.get('titleSort', show.get('title','Unknown')).encode('utf-8') ,
                  'tvshowname' : show.get('title','Unknown').encode('utf-8') ,
                  'studio'     : show.get('studio','') ,
                  'plot'       : show.get('summary','') ,
@@ -1322,7 +1322,7 @@ def TVSeasons( url ):
         #Create the basic data structures to pass up
         details={'title'      : season.get('title','Unknown').encode('utf-8') ,
                  'tvshowname' : season.get('title','Unknown').encode('utf-8') ,
-                 'sorttitle'  : season.get('sortTitle', season.get('title','Unknown')).encode('utf-8') , 
+                 'sorttitle'  : season.get('titleSort', season.get('title','Unknown')).encode('utf-8') , 
                  'studio'     : season.get('studio','') ,
                  'plot'       : season.get('summary','') ,
                  'overlay'    : _OVERLAY_XBMC_UNWATCHED ,
@@ -1423,7 +1423,7 @@ def TVEpisodes( url, tree=None ):
         #Required listItem entries for XBMC
         details={'plot'        : episode.get('summary','') ,
                  'title'       : episode.get('title','Unknown').encode('utf-8') ,
-                 'sorttitle'   : episode.get('sortTitle', episode.get('title','Unknown')).encode('utf-8')  ,               
+                 'sorttitle'   : episode.get('titleSort', episode.get('title','Unknown')).encode('utf-8')  ,               
                  'playcount'   : int(episode.get('viewCount',0)) ,
                  'rating'      : float(episode.get('rating',0)) ,
                  'studio'      : episode.get('studio',tree.get('studio','')) ,
@@ -2649,7 +2649,7 @@ def movieTag(url, server, tree, movie, randomNumber):
     #Required listItem entries for XBMC
     details={'plot'      : movie.get('summary','') ,
              'title'     : movie.get('title','Unknown').encode('utf-8') ,
-             'sorttitle'  : movie.get('sortTitle', movie.get('title','Unknown')).encode('utf-8') ,
+             'sorttitle'  : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
              'playcount' : int(movie.get('viewCount',0)) ,
              'rating'    : float(movie.get('rating',0)) ,
              'studio'    : movie.get('studio','') ,
@@ -3686,7 +3686,7 @@ else:
         TVShows(param_url)
     
     elif mode == _MODE_MOVIES:
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE )
         Movies(param_url)
     
     elif mode == _MODE_ARTISTS:
