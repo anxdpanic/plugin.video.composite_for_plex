@@ -902,13 +902,18 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                 liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
                 liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
                 
-                liz.addStreamInfo('video', {'codec': extraData.get('xbmc_VideoCodec','') ,
-                                            'aspect' : float(extraData.get('xbmc_VideoAspect',0.0)) ,
-                                            'height' : int(extraData.get('xbmc_height',0)),
-                                            'duration' : int(extraData.get('duration',0)) } )
-                                            
-                liz.addStreamInfo('audio', {'codec': extraData.get('xbmc_AudioCodec','') ,
-                                            'channels' : int(extraData.get('xbmc_AudioChannels',0)) } )
+                video_codec={}
+                if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
+                if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
+                if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
+                if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
+                
+                audio_codec={}
+                if extraData.get('xbmc_AudioCodec') : audio_codec['codec'] = extraData.get('xbmc_AudioCodec')
+                if extraData.get('xbmc_AudioChannels') : audio_codec['channels'] = int(extraData.get('xbmc_AudioChannels'))
+                
+                liz.addStreamInfo('video', video_codec )
+                liz.addStreamInfo('audio', audio_codec )
                                             
             liz.setProperty('IsPlayable', 'true')
 
@@ -2704,13 +2709,13 @@ def getMediaData ( tag_dict ):
     return     {'VideoResolution'    : tag_dict.get('videoResolution','') ,
                 'VideoCodec'         : tag_dict.get('videoCodec','') ,
                 'AudioCodec'         : tag_dict.get('audioCodec','') ,
-                'AudioChannels'      : tag_dict.get('audioChannels',0) ,
-                'VideoAspect'        : tag_dict.get('aspectRatio',0.0) ,
-                'xbmc_height'        : tag_dict.get('height',0) ,
-                'xbmc_VideoCodec'    : tag_dict.get('videoCodec','') ,
-                'xbmc_AudioCodec'    : tag_dict.get('audioCodec','') ,
-                'xbmc_AudioChannels' : tag_dict.get('audioChannels',0) ,
-                'xbmc_VideoAspect'   : tag_dict.get('aspectRatio',0.0) }
+                'AudioChannels'      : tag_dict.get('audioChannels','') ,
+                'VideoAspect'        : tag_dict.get('aspectRatio','') ,
+                'xbmc_height'        : tag_dict.get('height') ,
+                'xbmc_VideoCodec'    : tag_dict.get('videoCodec') ,
+                'xbmc_AudioCodec'    : tag_dict.get('audioCodec') ,
+                'xbmc_AudioChannels' : tag_dict.get('audioChannels') ,
+                'xbmc_VideoAspect'   : tag_dict.get('aspectRatio') }
 
 def trackTag( server, tree, track ): 
     printDebug("== ENTER: trackTAG ==", False)
