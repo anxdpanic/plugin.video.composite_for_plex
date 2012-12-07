@@ -916,7 +916,9 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                 liz.addStreamInfo('audio', audio_codec )
                                             
             liz.setProperty('IsPlayable', 'true')
-
+            liz.setProperty('TotalTime', str(extraData.get('duration')))
+            liz.setProperty('ResumeTime', '0')
+                       
             try:
                 #Then set the number of watched and unwatched, which will be displayed per season
                 liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
@@ -1632,6 +1634,7 @@ def playLibraryMedia( vids, override=False ):
 
     try:
         resume=int(int(streams['media']['viewOffset'])/1000)
+        duration=int(int(streams['media']['duration'])/1000)
     except:
         resume=0
     
@@ -1650,9 +1653,9 @@ def playLibraryMedia( vids, override=False ):
         if result == -1:
             return
     
-    printDebug("handle is " + str(pluginhandle))
-    #item.setProperty('ResumeTime', '300' )
-    #item.setProperty('TotalTime', '1200' )
+    if result == 0:
+        item.setProperty('ResumeTime', str(resume) )
+        item.setProperty('TotalTime', str(duration) )
 
     if override:
         start=xbmc.Player().play(listitem=item)
@@ -1669,25 +1672,6 @@ def playLibraryMedia( vids, override=False ):
         else:
             time.sleep(2)
                
-    #If we get this far, then XBMC must be playing
-    
-    #If the user chose to resume...
-    if result == 0:
-        #Need to skip forward (seconds)
-        printDebug("Seeking to " + str(resume))
-        xbmc.Player().pause()
-        xbmc.Player().seekTime((resume)) 
-        time.sleep(1)
-        seek=xbmc.Player().getTime()
-
-        while not ((seek - 10) < resume < (seek + 10)):
-            printDebug( "Do not appear to have seeked correctly. Try again")
-            xbmc.Player().seekTime((resume)) 
-            time.sleep(1)
-            seek=xbmc.Player().getTime()
-        
-        xbmc.Player().pause()
-
     if not (g_transcode == "true" ): 
         setAudioSubtitles(streams)
  
