@@ -1128,14 +1128,9 @@ def Movies( url, tree=None ):
     xbmcplugin.setContent(pluginhandle, 'movies')
 
     #get the server name from the URL, which was passed via the on screen listing..
+    tree=getXML(url,tree)
     if tree is None:
-        #Get some XML and parse it
-        html=getURL(url)
-        
-        if html is False:
-            return
-            
-        tree = etree.fromstring(html)
+        return
 
     server=getServerFromURL(url)
 
@@ -1208,13 +1203,9 @@ def TVShows( url, tree=None ):
     xbmcplugin.setContent(pluginhandle, 'tvshows')
             
     #Get the URL and server name.  Get the XML and parse
+    tree=getXML(url,tree)
     if tree is None:
-        html=getURL(url)
-    
-        if html is False:
-            return
-
-        tree=etree.fromstring(html)
+        return
 
     server=getServerFromURL(url)
 
@@ -1298,12 +1289,9 @@ def TVSeasons( url ):
 
     #Get URL, XML and parse
     server=getServerFromURL(url)
-    html=getURL(url)
-    
-    if html is False:
+    tree=getXML(url)
+    if tree is None:
         return
-   
-    tree=etree.fromstring(html)
     
     willFlatten=False
     if g_flatten == "1":
@@ -1384,14 +1372,10 @@ def TVEpisodes( url, tree=None ):
     printDebug("== ENTER: TVEpisodes() ==", False)
     xbmcplugin.setContent(pluginhandle, 'episodes')
                 
+    tree=getXML(url,tree)
     if tree is None:
-        #Get URL, XML and Parse
-        html=getURL(url)
-        
-        if html is False:
-            return
-        
-        tree=etree.fromstring(html)
+        return
+
     setWindowHeading(tree)    
     ShowTags=tree.findall('Video')
     server=getServerFromURL(url)
@@ -2314,12 +2298,9 @@ def artist( url, tree=None ):
     xbmcplugin.setContent(pluginhandle, 'artists')
     
     #Get the URL and server name.  Get the XML and parse
-    if tree is None:      
-        html=getURL(url)
-        if html is False:
-            return
-   
-        tree=etree.fromstring(html)
+    tree=getXML(url,tree)
+    if tree is None:
+        return
     
     server=getServerFromURL(url)
     setWindowHeading(tree)    
@@ -2354,12 +2335,9 @@ def albums( url, tree=None ):
     xbmcplugin.setContent(pluginhandle, 'albums')
    
     #Get the URL and server name.  Get the XML and parse
+    tree=getXML(url,tree)
     if tree is None:
-        html=getURL(url)
-        if html is False:
-            return
-   
-        tree=etree.fromstring(html)
+        return
     
     server=getServerFromURL(url)        
     sectionart=getFanart(tree, server)
@@ -2398,12 +2376,9 @@ def tracks( url,tree=None ):
     printDebug("== ENTER: tracks ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
                 
-    if tree is None:       
-        html=getURL(url)          
-        if html is False:
-            return
-  
-        tree=etree.fromstring(html)
+    tree=getXML(url,tree)
+    if tree is None:
+        return
     
     server=getServerFromURL(url)                               
     sectionart=getFanart(tree,server) 
@@ -2420,6 +2395,24 @@ def tracks( url,tree=None ):
         
     xbmcplugin.endOfDirectory(pluginhandle)
 
+def getXML (url, tree=None):
+    if tree is None:
+
+        html=getURL(url)
+    
+        if html is False:
+            return None
+
+        tree=etree.fromstring(html)
+    
+    if tree.get('message'):
+        xbmcgui.Dialog().ok(tree.get('header','Message'),tree.get('message',''))
+        return None
+
+    setWindowHeading(tree)    
+
+    return tree    
+        
 def PlexPlugins( url, tree=None ): 
     '''
         Main function to parse plugin XML from PMS
@@ -2430,16 +2423,13 @@ def PlexPlugins( url, tree=None ):
     '''
     printDebug("== ENTER: PlexPlugins ==", False)
     xbmcplugin.setContent(pluginhandle, 'movies')
-    server=getServerFromURL(url)
+
+    tree=getXML(url,tree)
     if tree is None:
+        return
 
-        html=getURL(url)
-    
-        if html is False:
-            return
-
-        tree=etree.fromstring(html)
-    setWindowHeading(tree)    
+    server=getServerFromURL(url)
+        
     for plugin in tree:
 
         details={'title'   : plugin.get('title','Unknown').encode('utf-8') }
@@ -2506,12 +2496,10 @@ def channelSettings ( url, settingID ):
         printDebug("ID not set")
         return
              
-    html=getURL(url)
-
-    if html is False:
+    tree=getXML(url)
+    if tree is None:
         return
-
-    tree=etree.fromstring(html)
+        
     setWindowHeading(tree)
     setString=None    
     for plugin in tree:
@@ -2581,14 +2569,9 @@ def processXML( url, tree=None ):
     printDebug("== ENTER: processXML ==", False)
     xbmcplugin.setContent(pluginhandle, 'movies')
     server=getServerFromURL(url)
+    tree=getXML(url,tree)
     if tree is None:
-
-        html=getURL(url)
-    
-        if html is False:
-            return
-
-        tree=etree.fromstring(html)
+        return
     setWindowHeading(tree)    
     for plugin in tree:
 
@@ -2773,13 +2756,9 @@ def photo( url,tree=None ):
     
     xbmcplugin.setContent(pluginhandle, 'photo')
     
+    tree=getXML(url,tree)
     if tree is None:
-        html=getURL(url)
-        
-        if html is False:
-            return
-        
-        tree=etree.fromstring(html)
+        return
     
     sectionArt=getFanart(tree,server)
     setWindowHeading(tree)    
@@ -2820,13 +2799,10 @@ def music( url, tree=None ):
 
     server=getServerFromURL(url)
     
+    tree=getXML(url,tree)
     if tree is None:
-        html=getURL(url)
-    
-        if html is False:
-            return
-   
-        tree=etree.fromstring(html)
+        return
+
     setWindowHeading(tree)    
     for grapes in tree:
        
@@ -2996,12 +2972,9 @@ def plexOnline( url ):
 
     server=getServerFromURL(url)
     
-    html=getURL(url)
-    
-    if html is False:
+    tree=getXML(url)
+    if tree is None:
         return
-    
-    tree=etree.fromstring(html)
         
     for plugin in tree:
        
@@ -3028,10 +3001,9 @@ def plexOnline( url ):
  
 def install( url, name ): 
     printDebug("== ENTER: install ==", False)
-    html=getURL(url)
-    if html is False:
+    tree=getXML(url)
+    if tree is None:
         return
-    tree = etree.fromstring(html)
     
     operations={}
     i=0
@@ -3078,10 +3050,9 @@ def install( url, name ):
 
 def channelView( url ): 
     printDebug("== ENTER: channelView ==", False)
-    html=getURL(url)
-    if html is False:
+    tree=getXML(url)
+    if tree is None:
         return
-    tree = etree.fromstring(html)    
     server=getServerFromURL(url)  
     setWindowHeading(tree)    
     for channels in tree.getiterator('Directory'):
