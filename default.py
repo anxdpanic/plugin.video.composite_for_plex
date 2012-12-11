@@ -1534,7 +1534,7 @@ def getAudioSubtitlesMedia( server, id ):
     timings = tree.find('Video')
 
     media['viewOffset']=timings.get('viewOffset',0)       
-    media['duration']=timings.get('duration',0)
+    media['duration']=timings.get('duration',12*60*60)
     
     options = tree.getiterator('Part')    
     
@@ -1632,12 +1632,9 @@ def playLibraryMedia( vids, override=False ):
     else:
         playurl=url
 
-    try:
-        resume=int(int(streams['media']['viewOffset'])/1000)
-        duration=int(int(streams['media']['duration'])/1000)
-    except:
-        resume=0
-    
+    resume=int(int(streams['media']['viewOffset'])/1000)
+    duration=int(int(streams['media']['duration'])/1000)
+        
     printDebug("Resume has been set to " + str(resume))
     
     item = xbmcgui.ListItem(path=playurl)
