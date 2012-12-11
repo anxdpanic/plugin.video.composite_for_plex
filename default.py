@@ -1648,9 +1648,15 @@ def playLibraryMedia( vids, override=False ):
         result = startTime.select('Resuming playback..',dialogOptions)
 
         if result == -1:
+            printDebug("Playback canecelled")
             return
     
+        if result == 1:
+            printDebug("Playback from Beginning")
+            getURL("http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library",suppress=True)
+
     if result == 0:
+        printDebug ("Playback from resume point")
         item.setProperty('ResumeTime', str(resume) )
         item.setProperty('TotalTime', str(duration) )
 
