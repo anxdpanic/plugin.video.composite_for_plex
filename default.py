@@ -934,7 +934,11 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
             liz.setProperty('IsPlayable', 'true')
             liz.setProperty('TotalTime', str(extraData.get('duration')))
             liz.setProperty('ResumeTime', '0')
-                       
+            
+            if details.get('overlay') == _OVERLAY_PLEX_PARTIAL:
+                printDebug("Setting IsResumable flag")
+                liz.setProperty('IsResumable', 'True')
+            
             try:
                 #Then set the number of watched and unwatched, which will be displayed per season
                 liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
@@ -2671,7 +2675,6 @@ def movieTag(url, server, tree, movie, randomNumber):
                'ratingKey'    : str(movie.get('ratingKey',0)),
                'duration'     : duration }
 
-
     #Determine what tupe of watched flag [overlay] to use
     if details['playcount'] > 0:
         if g_skinwatched == "xbmc":
@@ -2681,10 +2684,10 @@ def movieTag(url, server, tree, movie, randomNumber):
     elif details['playcount'] == 0: 
         if g_skinwatched == "plexbmc":
             details['overlay']=_OVERLAY_PLEX_UNWATCHED
-    
+
     if g_skinwatched == "plexbmc" and int(view_offset) > 0:
         details['overlay'] = _OVERLAY_PLEX_PARTIAL
-    
+
     #Extended Metadata
     if g_skipmetadata == "false":
         details['cast']     = tempcast
