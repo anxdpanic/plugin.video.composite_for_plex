@@ -1178,7 +1178,7 @@ def Movies( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
         
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle)
     
 def buildContextMenu( url, itemData ): 
     context=[]
