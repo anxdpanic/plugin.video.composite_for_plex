@@ -554,6 +554,8 @@ def getMyPlexURL( url_path, renew=False, suppress=True ):
         conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew)) 
         data = conn.getresponse() 
         if ( int(data.status) == 401 )  and not ( renew ):
+            try: conn.close() 
+            except: pass        
             return getMyPlexURL(url_path,True)
             
         if int(data.status) >= 400:
@@ -561,8 +563,12 @@ def getMyPlexURL( url_path, renew=False, suppress=True ):
             if suppress is False:
                 xbmcgui.Dialog().ok("Error",error)
             print error
+            try: conn.close() 
+            except: pass            
             return False
         elif int(data.status) == 301 and type == "HEAD":
+            try: conn.close() 
+            except: pass        
             return str(data.status)+"@"+data.getheader('Location')
         else:      
             link=data.read()
@@ -582,6 +588,9 @@ def getMyPlexURL( url_path, renew=False, suppress=True ):
         print error
         return False
     else:
+        try: conn.close() 
+        except: pass
+
         return link
 
 def getMyPlexToken( renew=False ): 
@@ -699,6 +708,8 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
             printDebug("====== XML finished ======")
 
         elif ( int(data.status) == 301 ) or ( int(data.status) == 302 ): 
+            try: conn.close() 
+            except: pass
             return data.getheader('Location')
 
         elif int(data.status) >= 400:
@@ -710,6 +721,8 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
                 else:
                     xbmcgui.Dialog().ok("Error",server)
             print error 
+            try: conn.close() 
+            except: pass
             return False
         else:      
             link=data.read()
@@ -737,6 +750,9 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
         print error
         return False
     else:
+        try: conn.close() 
+        except: pass
+
         return link
       
 def mediaType( partData, server, dvdplayback=False ): 
