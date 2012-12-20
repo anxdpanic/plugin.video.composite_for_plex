@@ -1455,7 +1455,7 @@ def TVEpisodes( url, tree=None ):
                  'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')) ,
                  'season'      : int(episode.get('parentIndex',tree.get('parentIndex',0))) }
 
-        if season.get('sorttitle'): details['sorttitle'] = episode.get('sorttitle')    
+        if episode.get('sorttitle'): details['sorttitle'] = episode.get('sorttitle')    
                  
         if tree.get('mixedParents','0') == '1':
             details['title'] = "%s - %sx%s %s" % ( details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'] )
