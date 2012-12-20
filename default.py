@@ -935,15 +935,18 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
             liz.setProperty('TotalTime', str(extraData.get('duration')))
             liz.setProperty('ResumeTime', '0')
             
-            if details.get('overlay') == _OVERLAY_PLEX_PARTIAL:
-                printDebug("Setting IsResumable flag")
-                liz.setProperty('IsResumable', 'True')
-            
-            try:
-                #Then set the number of watched and unwatched, which will be displayed per season
-                liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
-                liz.setProperty('UnWatchedEpisodes', str(extraData['UnWatchedEpisodes']))
-            except: pass
+        if details.get('overlay') == _OVERLAY_PLEX_PARTIAL:
+            printDebug("Setting IsResumable flag")
+            liz.setProperty('IsResumable', 'True')
+        else:
+            printDebug("Setting custom flag")
+            liz.setProperty('overlay', extraData.get('overlay',''))
+        
+        try:
+            #Then set the number of watched and unwatched, which will be displayed per season
+            liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
+            liz.setProperty('UnWatchedEpisodes', str(extraData['UnWatchedEpisodes']))
+        except: pass
         
         #Set the fanart image if it has been enabled
         fanart=str(extraData.get('fanart_image',''))
@@ -1255,7 +1258,7 @@ def TVShows( url, tree=None ):
                  'studio'     : show.get('studio','') ,
                  'plot'       : show.get('summary','') ,
                  'overlay'    : _OVERLAY_XBMC_UNWATCHED ,
-                 'playcount'  : 0 , 
+                 #'playcount'  : 0 , 
                  'season'     : 0 ,
                  'episode'    : int(show.get('leafCount',0)) ,
                  'mpaa'       : show.get('contentRating','') ,
@@ -1278,12 +1281,14 @@ def TVShows( url, tree=None ):
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
             if g_skinwatched == "plexbmc":
-                details['overlay']=_OVERLAY_PLEX_UNWATCHED   
+                details['overlay']=_OVERLAY_PLEX_UNWATCHED 
+                extraData['overlay']="OverlayUnWatched.png"
         elif extraData['UnWatchedEpisodes'] == 0: 
             if g_skinwatched == "xbmc":
                 details['overlay']=_OVERLAY_XBMC_WATCHED   
             elif g_skinwatched == "plexbmc":
                 details['overlay']=_OVERLAY_PLEX_WATCHED   
+                extraData['overlay']="OverlayWatched.png"
         else:
             if g_skinwatched == "plexbmc":
                 details['overlay'] = _OVERLAY_PLEX_PARTIAL
@@ -1348,7 +1353,7 @@ def TVSeasons( url ):
                  'studio'     : season.get('studio','') ,
                  'plot'       : season.get('summary','') ,
                  'overlay'    : _OVERLAY_XBMC_UNWATCHED ,
-                 'playcount'  : 0 , 
+                 #'playcount'  : 0 , 
                  'season'     : 0 ,
                  'episode'    : int(season.get('leafCount',0)) ,
                  'mpaa'       : season.get('contentRating','') ,
@@ -1373,11 +1378,13 @@ def TVSeasons( url ):
         if extraData['WatchedEpisodes'] == 0:
             if g_skinwatched == "plexbmc":
                 details['overlay']=_OVERLAY_PLEX_UNWATCHED   
+                extraData['overlay']="OverlayUnWatched.png"
         elif extraData['UnWatchedEpisodes'] == 0: 
             if g_skinwatched == "xbmc":
                 details['overlay']=_OVERLAY_XBMC_WATCHED   
             elif g_skinwatched == "plexbmc":
                 details['overlay']=_OVERLAY_PLEX_WATCHED   
+                extraData['overlay']="OverlayWatched.png"
         else:
             if g_skinwatched == "plexbmc":
                 details['overlay'] = _OVERLAY_PLEX_PARTIAL
@@ -1485,8 +1492,10 @@ def TVEpisodes( url, tree=None ):
                 details['overlay']=_OVERLAY_XBMC_WATCHED
             elif g_skinwatched == "plexbmc":
                 details['overlay']=_OVERLAY_PLEX_WATCHED
+                extraData['overlay']="OverlayWatched.png"
         else: #if details['playcount'] == 0: 
             if g_skinwatched == "plexbmc":
+                extraData['overlay']="OverlayUnWatched.png"
                 details['overlay']=_OVERLAY_PLEX_UNWATCHED
         
         if g_skinwatched == "plexbmc" and int(view_offset) > 0:
