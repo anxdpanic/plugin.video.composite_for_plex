@@ -308,7 +308,7 @@ def resolveAllServers( ):
       Return list of all media sections configured
       within PleXBMC
       @input: None
-      @Return: unique list of media sections
+      @Return: unique list of media servers
     '''
     printDebug("== ENTER: resolveAllServers ==", False)
     localServers=[]
@@ -3531,7 +3531,8 @@ def displayServers( url ):
     type=url.split('/')[2]
     printDebug("Displaying entries for " + type)
     Servers = resolveAllServers()
-
+    Servers_list=len(Servers)
+    
     #For each of the servers we have identified
     for mediaserver in Servers:
     
@@ -3545,19 +3546,31 @@ def displayServers( url ):
         if type == "video":
             extraData['mode']=_MODE_PLEXPLUGINS
             s_url='http://%s/video' % ( mediaserver.get('address','') )
+            if Servers_list == 1:
+                PlexPlugins(s_url)
+                return
             
         elif type == "online":
             extraData['mode']=_MODE_PLEXONLINE
             s_url='http://%s/system/plexonline' % ( mediaserver.get('address','') )
+            if Servers_list == 1:
+                plexOnline(s_url)
+                return
             
         elif type == "music":
             extraData['mode']=_MODE_MUSIC
             s_url='http://%s/music' % ( mediaserver.get('address','') )
+            if Servers_list == 1:
+                music(s_url)
+                return
             
         elif type == "photo":
             extraData['mode']=_MODE_PHOTOS
             s_url='http://%s/photos' % ( mediaserver.get('address','') )
-                
+            if Servers_list == 1:
+                photo(s_url)
+                return
+        
         addGUIItem(s_url, details, extraData )
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)  
