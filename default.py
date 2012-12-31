@@ -1789,65 +1789,6 @@ def setAudioSubtitles( stream ):
     xbmc.Player().showSubtitles(False)
     return False
 
-def codeToCountry( id ):
-  languages = { "None": "none"              ,
-                "alb" : "Albanian"          ,
-                "ara" : "Arabic"            ,
-                "arm" : "Belarusian"        ,
-                "bos" : "Bosnian"           ,
-                "bul" : "Bulgarian"         ,
-                "cat" : "Catalan"           ,
-                "chi" : "Chinese"           ,
-                "hrv" : "Croatian"          ,
-                "cze" : "Czech"             ,
-                "dan" : "Danish"            ,
-                "dut" : "Dutch"             ,
-                "eng" : "English"           ,
-                "epo" : "Esperanto"         ,
-                "est" : "Estonian"          ,
-                "per" : "Farsi"             ,
-                "fin" : "Finnish"           ,
-                "fre" : "French"            ,
-                "glg" : "Galician"          ,
-                "geo" : "Georgian"          ,
-                "ger" : "German"            ,
-                "ell" : "Greek"             ,
-                "heb" : "Hebrew"            ,
-                "hin" : "Hindi"             ,
-                "hun" : "Hungarian"         ,
-                "ice" : "Icelandic"         ,
-                "ind" : "Indonesian"        ,
-                "ita" : "Italian"           ,
-                "jpn" : "Japanese"          ,
-                "kaz" : "Kazakh"            ,
-                "kor" : "Korean"            ,
-                "lav" : "Latvian"           ,
-                "lit" : "Lithuanian"        ,
-                "ltz" : "Luxembourgish"     ,
-                "mac" : "Macedonian"        ,
-                "may" : "Malay"             ,
-                "nor" : "Norwegian"         ,
-                "oci" : "Occitan"           ,
-                "pol" : "Polish"            ,
-                "por" : "Portuguese"        ,
-                "pob" : "Portuguese (Brazil)" ,
-                "rum" : "Romanian"          ,
-                "rus" : "Russian"           ,
-                "scc" : "SerbianLatin"      ,
-                "scc" : "Serbian"           ,
-                "slo" : "Slovak"            ,
-                "slv" : "Slovenian"         ,
-                "spa" : "Spanish"           ,
-                "swe" : "Swedish"           ,
-                "syr" : "Syriac"            ,
-                "tha" : "Thai"              ,
-                "tur" : "Turkish"           ,
-                "ukr" : "Ukrainian"         ,
-                "urd" : "Urdu"              ,
-                "vie" : "Vietnamese"        ,
-                "all" : "All" }
-  return languages[ id ]
-
 def selectMedia( count, options, server ):
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
@@ -3761,7 +3702,6 @@ def alterAudio ( url ):
 def setWindowHeading(tree) :
     WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
     WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
-
 
 ##So this is where we really start the plugin.
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
