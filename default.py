@@ -3786,9 +3786,6 @@ _PARAM_TOKEN=params.get('X-Plex-Token',None)
 if str(sys.argv[1]) == "skin":
     discoverAllServers()
     skin()
-    #Not working yet
-    #shelf()
-    #shelfChannel()
 elif str(sys.argv[1]) == "shelf":
     discoverAllServers()
     shelf()
