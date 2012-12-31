@@ -3250,8 +3250,11 @@ def shelf( ):
     for media in tree:
     
         if media.get('type',None) == "movie":
-        
-        
+    
+            if __settings__.getSetting('movieShelf') == "false":
+                WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
+                continue
+    
             if media.get('librarySectionID') == library_filter:
                 printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue 
@@ -3273,6 +3276,10 @@ def shelf( ):
             
         elif media.get('type',None) == "season":
         
+            if __settings__.getSetting('tvShelf') == "false":
+                WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
+                continue
+
             printDebug("Found a recent season entry")
             
             s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_TVEPISODES, aToken) 
@@ -3290,7 +3297,10 @@ def shelf( ):
             printDebug("Building Recent window thumb: %s" % s_thumb)
 
         elif media.get('type') == "album":
-        
+            
+            if __settings__.getSetting('musicShelf') == "false":
+                WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
+                continue
             printDebug("Found a recent album entry")
             
             s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_TRACKS, aToken) 
@@ -3347,6 +3357,10 @@ def shelfChannel( ):
   
     channelCount=1
     server=getMasterServer()
+    
+    if __settings__.getSetting('channelShelf') == "false":
+        WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
+        return
     
     html=getURL('http://%s/channels/recentlyViewed' % server)
     if html is None:
