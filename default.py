@@ -3306,7 +3306,37 @@ def shelf( ):
             printDebug("Building Recent window url: %s" % s_url)
             printDebug("Building Recent window thumb: %s" % s_thumb)
 
+    #Clear out old data
+    printDebug("Clearing unused properties")
+
+    try:
+        for i in range(movieCount, 10+1):
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Path"   % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Title"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Thumb"  % ( i ) )
+        printDebug("Done clearing movies")
+    except: pass
             
+    try:        
+        for i in range(seasonCount, 10+1):
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Path"           % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle"   % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.ShowTitle"      % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Thumb"          % ( i ) )
+        printDebug("Done clearing tv")
+    except: pass
+
+    try:        
+        for i in range(seasonCount, 10+1):
+            WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Path"   % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Title"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Artist" % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Thumb"  % ( i ) )
+        printDebug("Done clearing music")
+    except: pass
+
+        
     return
 
 def shelfChannel( ): 
@@ -3363,7 +3393,13 @@ def shelfChannel( ):
             printDebug("Building Recent window url: %s" % p_url)
             printDebug("Building Recent window thumb: %s" % p_thumb)
             
-
+    try:        
+        for i in range(channelCount, 10+1):
+            WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Path"   % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Title"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Thumb"  % ( i ) )
+        printDebug("Done clearing channels")
+    except: pass
             
     return
  
@@ -3470,11 +3506,11 @@ def getTranscodeSettings( override=False ):
             
         g_audioOutput=__settings__.getSetting("audiotype")         
         if g_audioOutput == "0":
-            audio="mp3,aac"
+            audio="mp3,aac{bitrate:160000}"
         elif g_audioOutput == "1":
-            audio="mp3,aac,ac3"
+            audio="mp3,aac{bitrate:160000},ac3"
         elif g_audioOutput == "2":
-            audio="mp3,aac,ac3,dts"
+            audio="mp3,aac{bitrate:160000},ac3,dts"
     
         global capability   
         capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+";videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)              
