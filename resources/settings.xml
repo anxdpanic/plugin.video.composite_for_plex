@@ -21,15 +21,15 @@
 		<setting id="naspass" type="text" label="30065" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
 		<setting id="nasroot" type="text" label="30066" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)" />
     </category>
-		
+
     <category label="Transcoding" >
         <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" />
         <setting id="audiotype" type="enum" label="30057" values="Stereo|AC3|DTS" default="Stereo" />
         <setting id="transcode" type="bool" label="30007" default="false"/>
-		<setting id="subSize" label="30068" type="slider" option="int" range="0,300" default="100" />		
-		<setting id="audioSize" label="30069" type="slider" option="int" range="0,300" default="0" />		
+		<setting id="subSize" label="30068" type="slider" option="int" range="0,300" default="100" />
+		<setting id="audioSize" label="30069" type="slider" option="int" range="0,300" default="0" />
 	</category>
-	   
+
     <category label="Wake On LAN" >
         <setting id="wolon" type="bool" label="Use Wake On LAN" default="false" />
         <setting id="wol1" type="text" label="MAC Address 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />
@@ -44,7 +44,7 @@
         <setting id="wol10" type="text" label="MAC Address 10" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
         <setting id="wol11" type="text" label="MAC Address 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
     </category>
-        
+
     <category label="Look and Feel" >
         <setting id="secondary" type="bool" label="30003" default="false"/>
         <setting id="channelview" type="bool" label="30042" default="false"/>
@@ -74,21 +74,21 @@
 		<setting id="tv_view_2" type="labelenum" label="TV View" values="None|Big List|Thumbnail|Media Info|Media Info 2|Wide Icons" default="None" subsetting="true"  visible="eq(-13,true)+eq(-12,2)" enable="eq(-13,true)+eq(-12,2)"/>
 		<setting id="ep_view_2" type="labelenum" label="Season View" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-14,true)+eq(-13,2)" enable="eq(-14,true)+eq(-13,2)"/>
 		<setting id="ep_view_2" type="labelenum" label="Episode View" values="None|List|Big List|Thumbnail|Media Info|Media Info 2" default="None" subsetting="true"  visible="eq(-15,true)+eq(-14,2)" enable="eq(-15,true)+eq(-14,2)"/>
-		<setting id="mu_view_2" type="labelenum" label="Music View" values="None|List|Big List|Thumbnail|Media Info" default="None" subsetting="true"  visible="eq(-16,true)+eq(-15,2)" enable="eq(-16,true)+eq(-15,2)"/>	
+		<setting id="mu_view_2" type="labelenum" label="Music View" values="None|List|Big List|Thumbnail|Media Info" default="None" subsetting="true"  visible="eq(-16,true)+eq(-15,2)" enable="eq(-16,true)+eq(-15,2)"/>
     </category>
-	
+
     <category label="Shelf" >
 		<setting id="movieShelf" type="bool" label="Enable Movie Shelf" default="true" />
 		<setting id="tvShelf" type="bool" label="Enable TV Shelf" default="true" />
 		<setting id="musicShelf" type="bool" label="Enable Music Shelf" default="true" />
      	<setting id="channelShelf" type="bool" label="Enable Channel Shelf" default="true" />
 		<setting id="contentFilter" type="labelenum" label="Content filter" values="Kids|Teens|Adults" default="Adults" />
-		<setting id="contentNone" type="labelenum" label="Map unknown content as:" values="Kids|Teens|Adults" default="Adults" />		
+		<setting id="contentNone" type="labelenum" label="Map unknown content as:" values="Kids|Teens|Adults" default="Adults" />
 	</category>
 
     <category label="Debug" >
         <setting id="debug" type="bool" label="30014" default="false" />
-		<setting id="libraryfilter" type="text" label="RA Library filter" default="" />
+        <setting id="libraryfilter" type="text" label="RA Library filter" default="" />
     </category>
-		
+
 </settings>
