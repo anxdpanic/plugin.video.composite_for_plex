@@ -3224,6 +3224,79 @@ def skin( ):
 
     return
 
+def displayContent( acceptable_level, content_level ):
+
+    '''
+        Takes a content Rating and decides whether it is an allowable
+        level, as defined by the content filter
+        @input: content rating
+        @output: boolean 
+    '''
+
+    printDebug ("Checking rating flag [%s] against [%s]" % (content_level, acceptable_level))
+
+    if acceptable_level == "Adults":
+        printDebug ("OK to display")
+        return True
+    
+    content_map = { 'Kids' : 0 ,
+                    'Teens' : 1 ,
+                    'Adults' : 2 }
+    
+    rating_map= { 'G' : 0 ,       # MPAA Kids
+                  'PG' : 0 ,      # MPAA Kids
+                  'PG-13' : 1 ,   # MPAA Teens
+                  'R' : 2 ,       # MPAA Adults
+                  'NC-17' : 2 ,   # MPAA Adults
+                  'NR' : 2 ,      # MPAA Adults
+                  'Unrated' : 2 , # MPAA Adults
+                  
+                  'U' : 0 ,       # BBFC Kids
+                  'PG' : 0 ,      # BBFC Kids
+                  '12' : 1 ,      # BBFC Teens
+                  '12A' : 1 ,     # BBFC Teens
+                  '15' : 1 ,      # BBFC Teens
+                  '18' : 2 ,      # BBFC Adults
+                  'R18' : 2 ,     # BBFC Adults
+    
+                  'E' : 0 ,       #ACB Kids (hopefully)
+                  'G' : 0 ,       #ACB Kids 
+                  'PG' : 0 ,      #ACB Kids
+                  'M' : 1 ,       #ACB Teens
+                  'MA15+' : 2 ,   #ADC Adults
+                  'R18+' : 2 ,    #ACB Adults
+                  'X18+' : 2 ,    #ACB Adults
+                  
+                  'TV-Y'  : 0 ,   # US TV - Kids
+                  'TV-Y7' : 0 ,   # US TV - Kids 
+                  'TV -G' : 0 ,   # Us TV - kids
+                  'TV-PG' : 1 ,   # US TV - Teens
+                  'TV-14' : 1 ,   # US TV - Teens
+                  'TV-MA' : 2 ,   # US TV - Adults
+                  
+                  'G' :  0 ,      # CAN - kids
+                  'PG' : 0 ,      # CAN - kids
+                  '14A' : 1 ,     # CAN - teens
+                  '18A' : 2 ,     # CAN - Adults
+                  'R' : 2 ,       # CAN - Adults
+                  'A' : 2 }       # CAN - Adults
+                  
+    if content_level is None or content_level == "None":
+        printDebug("Setting [None] rating as %s" % ( __settings__.getSetting('contentNone') , ))
+        if content_map[__settings__.getSetting('contentNone')] <= content_map[acceptable_level]:
+            printDebug ("OK to display")
+            return True
+    else:
+        try:
+            if rating_map[content_level] <= content_map[acceptable_level]:
+                printDebug ("OK to display")
+                return True
+        except:
+            print "Unknown rating flag [%s] whilst lookuing for [%s] - will filter for now, but needs to be added" % (content_level, acceptable_level)
+ 
+    printDebug ("NOT OK to display")
+    return False
+    
 def shelf( ): 
     #Gather some data and set the window properties
     printDebug("== ENTER: shelf() ==", False)
@@ -3245,22 +3318,26 @@ def shelf( ):
     qToken=getAuthDetails(tree, prefix='?')
 
     library_filter = __settings__.getSetting('libraryfilter')
-    
+    acceptable_level = __settings__.getSetting('contentFilter')
+   
     #For each of the servers we have identified
     for media in tree:
-    
+        
         if media.get('type',None) == "movie":
+
+            printDebug("Found a recent movie entry: [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
     
             if __settings__.getSetting('movieShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
+                continue
+    
+            if not displayContent( acceptable_level , media.get('contentRating') ):
                 continue
     
             if media.get('librarySectionID') == library_filter:
                 printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue 
                 
-            printDebug("Found a recent movie entry")
-            
             m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, aToken) 
             m_thumb=getThumb(media,server)
             
@@ -3275,12 +3352,12 @@ def shelf( ):
             printDebug("Building Recent window thumb: %s" % m_thumb)
             
         elif media.get('type',None) == "season":
+
+            printDebug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
         
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
-
-            printDebug("Found a recent season entry")
             
             s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_TVEPISODES, aToken) 
             s_thumb=getThumb(media,server)

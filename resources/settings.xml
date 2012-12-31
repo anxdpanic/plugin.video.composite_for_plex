@@ -82,6 +82,8 @@
 		<setting id="tvShelf" type="bool" label="Enable TV Shelf" default="true" />
 		<setting id="musicShelf" type="bool" label="Enable Music Shelf" default="true" />
      	<setting id="channelShelf" type="bool" label="Enable Channel Shelf" default="true" />
+		<setting id="contentFilter" type="labelenum" label="Content filter" values="Kids|Teens|Adults" default="Adults" />
+		<setting id="contentNone" type="labelenum" label="Map unknown content as:" values="Kids|Teens|Adults" default="Adults" />		
 	</category>
 
     <category label="Debug" >
