@@ -3777,7 +3777,7 @@ else:
         TVShows(param_url)
 
     elif mode == _MODE_MOVIES:
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE )
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE )
         Movies(param_url)
 
     elif mode == _MODE_ARTISTS:
