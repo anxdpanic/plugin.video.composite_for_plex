@@ -3538,16 +3538,16 @@ def getTranscodeSettings( override=False ):
         printDebug( "Transcode quality is " + g_quality)
 
         baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-mp4-video"
-        if int(g_quality) >= 3:
-            baseCapability+=",http-streaming-video-240p,http-mp4-video-240p"
-        if int(g_quality) >= 4:
-            baseCapability+=",http-streaming-video-320p,http-mp4-video-320p"
-        if int(g_quality) >= 5:
-            baseCapability+=",http-streaming-video-480p,http-mp4-video-480p"
-        if int(g_quality) >= 6:
-            baseCapability+=",http-streaming-video-720p,http-mp4-video-720p"
-        if int(g_quality) >= 9:
-            baseCapability+=",http-streaming-video-1080p,http-mp4-video-1080p"
+        #if int(g_quality) >= 3:
+        #    baseCapability+=",http-streaming-video-240p,http-mp4-video-240p"
+        #if int(g_quality) >= 4:
+        #    baseCapability+=",http-streaming-video-320p,http-mp4-video-320p"
+        #if int(g_quality) >= 5:
+        #    baseCapability+=",http-streaming-video-480p,http-mp4-video-480p"
+        #if int(g_quality) >= 6:
+        #    baseCapability+=",http-streaming-video-720p,http-mp4-video-720p"
+        #if int(g_quality) >= 9:
+        #    baseCapability+=",http-streaming-video-1080p,http-mp4-video-1080p"
 
         g_audioOutput=__settings__.getSetting("audiotype")
         if g_audioOutput == "0":
