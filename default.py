@@ -893,7 +893,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
             mode="&mode=%s" % extraData['mode']
 
         #Create the URL to pass to the item
-        if ( not folder) and ( extraData['type'] =="Picture" ):
+        if ( not folder) and ( extraData['type'] == "image" ):
              u=url+qToken
         elif url.startswith('http'):
             u=sys.argv[0]+"?url="+urllib.quote(url)+mode+aToken
@@ -929,31 +929,34 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
             liz.setProperty('Artist_Description', details.get('plot',''))
             liz.setProperty('Album_Description', details.get('plot',''))
 
+        #For all end items    
         if ( not folder):
-            if g_skipmediaflags == "false":
-                liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
-                liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
-                liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
-                liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
-                liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
-
-                video_codec={}
-                if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
-                if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
-                if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
-                if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
-
-                audio_codec={}
-                if extraData.get('xbmc_AudioCodec') : audio_codec['codec'] = extraData.get('xbmc_AudioCodec')
-                if extraData.get('xbmc_AudioChannels') : audio_codec['channels'] = int(extraData.get('xbmc_AudioChannels'))
-
-                liz.addStreamInfo('video', video_codec )
-                liz.addStreamInfo('audio', audio_codec )
-
             liz.setProperty('IsPlayable', 'true')
-            liz.setProperty('TotalTime', str(extraData.get('duration')))
-            liz.setProperty('ResumeTime', '0')
 
+            if extraData.get('type','video').lower() == "video":
+                liz.setProperty('TotalTime', str(extraData.get('duration')))
+                liz.setProperty('ResumeTime', '0')
+            
+                if g_skipmediaflags == "false":
+                    liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
+                    liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
+                    liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
+                    liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
+                    liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))####
+
+                    video_codec={}
+                    if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
+                    if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
+                    if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
+                    if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))###
+
+                    audio_codec={}
+                    if extraData.get('xbmc_AudioCodec') : audio_codec['codec'] = extraData.get('xbmc_AudioCodec')
+                    if extraData.get('xbmc_AudioChannels') : audio_codec['channels'] = int(extraData.get('xbmc_AudioChannels'))
+
+                    liz.addStreamInfo('video', video_codec )
+                    liz.addStreamInfo('audio', audio_codec )
+                
         if details.get('overlay') == _OVERLAY_PLEX_PARTIAL:
             printDebug("Setting IsResumable flag")
             liz.setProperty('IsResumable', 'True')
@@ -2769,7 +2772,7 @@ def photo( url,tree=None ):
 
         extraData={'thumb'        : getThumb(picture, server) ,
                    'fanart_image' : getFanart(picture, server) ,
-                   'type'         : "Picture" }
+                   'type'         : "image" }
 
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionArt
