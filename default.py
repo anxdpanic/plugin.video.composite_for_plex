@@ -569,8 +569,8 @@ def getMyPlexURL( url_path, renew=False, suppress=True ):
     printDebug("url = "+MYPLEX_SERVER+url_path)
 
     try:
-        conn = httplib.HTTPSConnection(MYPLEX_SERVER)
-        conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew),timeout=5)
+        conn = httplib.HTTPSConnection(MYPLEX_SERVER, timeout=5)
+        conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew))
         data = conn.getresponse()
         if ( int(data.status) == 401 )  and not ( renew ):
             try: conn.close()
