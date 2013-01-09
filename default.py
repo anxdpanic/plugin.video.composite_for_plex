@@ -245,7 +245,6 @@ g_txheaders = {
 #Set up holding variable for session ID
 global g_sessionID
 g_sessionID=None
-
         
 def discoverAllServers( ):
     '''
@@ -571,7 +570,7 @@ def getMyPlexURL( url_path, renew=False, suppress=True ):
 
     try:
         conn = httplib.HTTPSConnection(MYPLEX_SERVER)
-        conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew))
+        conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew),timeout=5)
         data = conn.getresponse()
         if ( int(data.status) == 401 )  and not ( renew ):
             try: conn.close()
@@ -718,7 +717,7 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
 
         printDebug("url = "+url)
         printDebug("header = "+str(authHeader))
-        conn = httplib.HTTPConnection(server)
+        conn = httplib.HTTPConnection(server,timeout=3)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
         if int(data.status) == 200:
@@ -2220,7 +2219,9 @@ def getMasterServer(all=False):
                 if serverData['discovery'] == preferred:
                     printDebug("Returning local")
                     return serverData
-
+    elif len(possibleServers) == 0:
+        return 
+    
     return possibleServers[0]
 
 def transcode( id, url, identifier=None ):
@@ -3280,14 +3281,19 @@ def shelf( ):
     seasonCount=1
     musicCount=1
     server_details=getMasterServer()
-    
-    global _PARAM_TOKEN
+
+    if server_details is None:
+        xbmc.executebuiltin("XBMC.Notification(Unable to any media servers,)")
+        clearShelf(0,0,0)
+        return
+
+        global _PARAM_TOKEN
     _PARAM_TOKEN = server_details['token']
     
     tree=getXML('http://%s/library/recentlyAdded' % server_details['address'])
     if tree is None:
         xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['name']+",)")
-        clearShelf(0,0,0)
+        clearShelf()
         return
 
     aToken=getAuthDetails({'token': _PARAM_TOKEN} )
@@ -3371,7 +3377,7 @@ def shelf( ):
             
     clearShelf( movieCount, seasonCount, musicCount)
 
-def clearShelf (movieCount, seasonCount, musicCount):
+def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
     #Clear out old data
     WINDOW = xbmcgui.Window( 10000 )
     printDebug("Clearing unused properties")
@@ -3414,6 +3420,11 @@ def shelfChannel( ):
 
     channelCount=1
     server_details=getMasterServer()
+    
+    if server_details is None:
+        xbmc.executebuiltin("XBMC.Notification(Unable to any media servers,)")
+        clearChannelShelf()
+        return
     
     global _PARAM_TOKEN
     _PARAM_TOKEN = server_details['token']
@@ -3470,7 +3481,7 @@ def shelfChannel( ):
     clearChannelShelf(channelCount)        
     return
     
-def clearChannelShelf (channelCount):
+def clearChannelShelf (channelCount=0):
             
     WINDOW = xbmcgui.Window( 10000 )
         
