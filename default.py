@@ -2200,7 +2200,8 @@ def getMasterServer(all=False):
         if serverData['master'] == 1:
             possibleServers.append({'address' : serverData['address'] ,
                                     'discovery' : serverData['discovery'],
-                                    'name'      : serverData['serverName'] })
+                                    'name'      : serverData['serverName'],
+                                    'token'     : serverData['token'] })
     printDebug( str(possibleServers) )
 
     if all:
@@ -2211,16 +2212,16 @@ def getMasterServer(all=False):
         for serverData in possibleServers:
             if serverData['name'] == current_master:
                 printDebug("Returning current master")
-                return serverData['address']
+                return serverData
             if preferred == "any":
                 printDebug("Returning 'any'")
-                return serverData['address']
+                return serverData
             else:
                 if serverData['discovery'] == preferred:
                     printDebug("Returning local")
-                    return serverData['address']
+                    return serverData
 
-    return possibleServers[0]['address']
+    return possibleServers[0]
 
 def transcode( id, url, identifier=None ):
     printDebug("== ENTER: transcode ==", False)
@@ -3278,16 +3279,17 @@ def shelf( ):
     movieCount=1
     seasonCount=1
     musicCount=1
-    server=getMasterServer()
-
-    html=getXML('http://%s/library/recentlyAdded' % server)
-    if html is None:
+    server_details=getMasterServer()
+    
+    global _PARAM_TOKEN
+    _PARAM_TOKEN = server_details['token']
+    
+    tree=getXML('http://%s/library/recentlyAdded' % server_details['address'])
+    if tree is None:
         return
 
-    tree=etree.fromstring(html)
-
-    aToken=getAuthDetails(tree)
-    qToken=getAuthDetails(tree, prefix='?')
+    aToken=getAuthDetails({'token': _PARAM_TOKEN} )
+    qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
     library_filter = __settings__.getSetting('libraryfilter')
     acceptable_level = __settings__.getSetting('contentFilter')
@@ -3310,12 +3312,12 @@ def shelf( ):
                 printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue
 
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server,media,server), _MODE_PLAYLIBRARY, aToken)
-            m_thumb=getThumb(media,server)
+            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server_details['address'],media,server_details['address']), _MODE_PLAYLIBRARY, aToken)
+            m_thumb=getThumb(media,server_details['address'])
 
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, media.get('title','Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, m_thumb)
+            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, m_thumb+qToken)
 
             movieCount += 1
 
@@ -3331,14 +3333,14 @@ def shelf( ):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_TVEPISODES, aToken)
-            s_thumb=getThumb(media,server)
+            s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server_details['address'],media,server_details['address']), _MODE_TVEPISODES, aToken)
+            s_thumb=getThumb(media,server_details['address'])
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, '')
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, media.get('parentTitle','Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb)
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb+qToken)
             seasonCount += 1
 
             printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
@@ -3352,13 +3354,13 @@ def shelf( ):
                 continue
             printDebug("Found a recent album entry")
 
-            s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server,media,server), _MODE_TRACKS, aToken)
-            s_thumb=getThumb(media,server)
+            s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server_details['address'],media,server_details['address']), _MODE_TRACKS, aToken)
+            s_thumb=getThumb(media,server_details['address'])
 
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, s_url )
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, media.get('parentTitle','Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, s_thumb)
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, s_thumb+qToken)
             musicCount += 1
 
             printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
@@ -3405,20 +3407,21 @@ def shelfChannel( ):
     WINDOW = xbmcgui.Window( 10000 )
 
     channelCount=1
-    server=getMasterServer()
+    server_details=getMasterServer()
+    
+    global _PARAM_TOKEN
+    _PARAM_TOKEN = server_details['token']
 
     if __settings__.getSetting('channelShelf') == "false":
         WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
         return
 
-    html=getXML('http://%s/channels/recentlyViewed' % server)
-    if html is None:
+    tree=getXML('http://%s/channels/recentlyViewed' % server_details['address'])
+    if tree is None:
         return
 
-    tree=etree.fromstring(html)
-
-    aToken=getAuthDetails(tree)
-    qToken=getAuthDetails(tree, prefix='?')
+    aToken=getAuthDetails({'token': _PARAM_TOKEN} )
+    qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
     #For each of the servers we have identified
     for media in tree:
@@ -3443,12 +3446,12 @@ def shelfChannel( ):
                 channel_window="VideoLibrary"
 
 
-            p_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( channel_window, getLinkURL('http://%s' % server,media,server), mode , aToken)
-            p_thumb=getThumb(media,server)
+            p_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( channel_window, getLinkURL('http://%s' % server_details['address'],media,server_details['address']), mode , aToken)
+            p_thumb=getThumb(media,server_details['address'])
 
             WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, p_url)
             WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title','Unknown'))
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, p_thumb)
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, p_thumb+qToken)
 
             channelCount += 1
 
