@@ -89,6 +89,8 @@
     <category label="Debug" >
         <setting id="debug" type="bool" label="30014" default="false" />
         <setting id="libraryfilter" type="text" label="RA Library filter" default="" />
+        <setting id="selectMaster" label="Select master server" type="action" action="RunScript(plugin.video.plexbmc, master)" />
+        <setting id="masterServer" label="master server" type="text" default="" />
     </category>
 
 </settings>

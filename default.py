@@ -2191,22 +2191,33 @@ def processDirectory( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
-def getMasterServer():
+def getMasterServer(all=False):
     discoverAllServers()
     possibleServers=[]
+    current_master=__settings__.getSetting('masterServer')
     for serverData in resolveAllServers():
         printDebug( str(serverData) )
         if serverData['master'] == 1:
             possibleServers.append({'address' : serverData['address'] ,
-                                    'discovery' : serverData['discovery'] })
+                                    'discovery' : serverData['discovery'],
+                                    'name'      : serverData['serverName'] })
     printDebug( str(possibleServers) )
+
+    if all:
+        return possibleServers
+
     if len(possibleServers) > 1:
         preferred="local"
         for serverData in possibleServers:
+            if serverData['name'] == current_master:
+                printDebug("Returning current master")
+                return serverData['address']
             if preferred == "any":
-                return serverdata['address']
+                printDebug("Returning 'any'")
+                return serverData['address']
             else:
                 if serverData['discovery'] == preferred:
+                    printDebug("Returning local")
                     return serverData['address']
 
     return possibleServers[0]['address']
@@ -3723,6 +3734,29 @@ def setWindowHeading(tree) :
     WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
     WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
 
+def setMasterServer () :
+
+    servers=getMasterServer(True)
+    printDebug(str(servers))
+    
+    current_master=__settings__.getSetting('masterServer')
+    
+    displayList=[]
+    for address in servers:
+        found_server = address['name']
+        if found_server == current_master:
+            found_server = found_server+"*"
+        displayList.append(found_server)
+    
+    audioScreen = xbmcgui.Dialog()
+    result = audioScreen.select('Select master server',displayList)
+    if result == -1:
+        return False
+
+    printDebug("Setting master server to: %s" % (servers[result]['name'],))
+    __settings__.setSetting('masterServer',servers[result]['name'])
+    return
+  
 ##So this is where we really start the plugin.
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
 
@@ -3771,6 +3805,8 @@ elif sys.argv[1] == "subs":
 elif sys.argv[1] == "audio":
     url=sys.argv[2]
     alterAudio(url)
+elif sys.argv[1] == "master":
+    setMasterServer()
 else:
 
     pluginhandle = int(sys.argv[1])
