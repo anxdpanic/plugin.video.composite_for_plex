@@ -926,8 +926,8 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
         #Music related tags
         if extraData.get('type','').lower() == "music":
             liz.setProperty('Artist_Genre', details.get('genre',''))
-            liz.setProperty('Artist_Description', details.get('plot',''))
-            liz.setProperty('Album_Description', details.get('plot',''))
+            liz.setProperty('Artist_Description', extraData.get('plot',''))
+            liz.setProperty('Album_Description', extraData.get('plot',''))
 
         #For all end items    
         if ( not folder):
@@ -2311,8 +2311,7 @@ def artist( url, tree=None ):
     ArtistTag=tree.findall('Directory')
     for artist in ArtistTag:
 
-        details={'plot'    : artist.get('summary','') ,
-                 'artist'  : artist.get('title','').encode('utf-8') }
+        details={'artist'  : artist.get('title','').encode('utf-8') }
 
         details['title']=details['artist']
 
@@ -2321,7 +2320,8 @@ def artist( url, tree=None ):
                    'fanart_image' : getFanart(artist, server) ,
                    'ratingKey'    : artist.get('title','') ,
                    'key'          : artist.get('key','') ,
-                   'mode'         : _MODE_ALBUMS}
+                   'mode'         : _MODE_ALBUMS ,
+                   'plot'         : artist.get('summary','') }
 
         url='http://%s%s' % (server, extraData['key'] )
 
@@ -2351,8 +2351,7 @@ def albums( url, tree=None ):
 
         details={'album'   : album.get('title','').encode('utf-8') ,
                  'year'    : int(album.get('year',0)) ,
-                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')) ,
-                 'plot'    : album.get('summary','') }
+                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')) }
 
         details['title']=details['album']
 
@@ -2360,7 +2359,8 @@ def albums( url, tree=None ):
                    'thumb'        : getThumb(album, server) ,
                    'fanart_image' : getFanart(album, server) ,
                    'key'          : album.get('key',''),
-                   'mode'         : _MODE_TRACKS}
+                   'mode'         : _MODE_TRACKS ,
+                   'plot'         : album.get('summary','')}
 
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
@@ -2791,6 +2791,7 @@ def photo( url,tree=None ):
                         for images in photo:
                             if images.tag == "Part":
                                 extraData['key']="http://"+server+images.get('key','')
+                                details['size']=int(images.get('size',0))
                                 u=extraData['key']
 
             addGUIItem(u,details,extraData,folder=False)
