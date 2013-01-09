@@ -3249,7 +3249,7 @@ def shelf( ):
     musicCount=1
     server=getMasterServer()
 
-    html=getURL('http://%s/library/recentlyAdded' % server)
+    html=getXML('http://%s/library/recentlyAdded' % server)
     if html is None:
         return
 
@@ -3380,7 +3380,7 @@ def shelfChannel( ):
         WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
         return
 
-    html=getURL('http://%s/channels/recentlyViewed' % server)
+    html=getXML('http://%s/channels/recentlyViewed' % server)
     if html is None:
         return
 
