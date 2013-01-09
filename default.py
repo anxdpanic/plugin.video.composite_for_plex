@@ -57,8 +57,8 @@ except:
 
 print "===== PLEXBMC START ====="
 
-print "PleXBMC -> running on " + str(sys.version_info)
-print "PleXBMC -> running on " + str(PLEXBMC_VERSION)
+print "PleXBMC -> running Python: " + str(sys.version_info)
+print "PleXBMC -> running PleXBMC: " + str(PLEXBMC_VERSION)
 
 try:
   from lxml import etree
@@ -137,6 +137,26 @@ def printDebug( msg, functionname=True ):
             print str(msg)
         else:
             print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
+
+def getPlatform( ):
+
+    if xbmc.getCondVisibility('system.platform.osx'):
+        return "OSX"
+    elif xbmc.getCondVisibility('system.platform.atv2'):
+        return "ATV2"
+    elif xbmc.getCondVisibility('system.platform.ios'):
+        return "iOS"
+    elif xbmc.getCondVisibility('system.platform.windows'):
+        return "Windows"
+    elif xbmc.getCondVisibility('system.platform.linux'):
+        return "Linux/RPi"
+    elif xbmc.getCondVisibility('system.platform.android'): 
+        return "Linux/Android"
+
+    return "Unknown"
+
+PLEXBMC_PLATFORM=getPlatform()
+print "PleXBMC -> Platform: " + str(PLEXBMC_PLATFORM)
 
 #Next Check the WOL status - lets give the servers as much time as possible to come up
 g_wolon = __settings__.getSetting('wolon')
@@ -226,7 +246,7 @@ g_txheaders = {
 global g_sessionID
 g_sessionID=None
 
-
+        
 def discoverAllServers( ):
     '''
         Take the users settings and add the required master servers
@@ -636,11 +656,11 @@ def getNewMyPlexToken( suppress=True , title="Error" ):
     token=False
 
     myplex_headers={'X-Plex-Platform': "XBMC",
-                    'X-Plex-Platform-Version': "11.00",
+                    'X-Plex-Platform-Version': "12.00/Frodo",
                     'X-Plex-Provides': "player",
                     'X-Plex-Product': "PleXBMC",
-                    'X-Plex-Version': "2.0b",
-                    'X-Plex-Device': "Not Known",
+                    'X-Plex-Version': PLEXBMC_VERSION,
+                    'X-Plex-Device': PLEXBMC_PLATFORM,
                     'X-Plex-Client-Identifier': "PleXBMC",
                     'Authorization': "Basic %s" % base64string }
 
