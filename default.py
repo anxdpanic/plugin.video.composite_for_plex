@@ -3286,6 +3286,8 @@ def shelf( ):
     
     tree=getXML('http://%s/library/recentlyAdded' % server_details['address'])
     if tree is None:
+        xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['name']+",)")
+        clearShelf(0,0,0)
         return
 
     aToken=getAuthDetails({'token': _PARAM_TOKEN} )
@@ -3366,8 +3368,12 @@ def shelf( ):
             printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
             printDebug("Building Recent window url: %s" % s_url)
             printDebug("Building Recent window thumb: %s" % s_thumb)
+            
+    clearShelf( movieCount, seasonCount, musicCount)
 
+def clearShelf (movieCount, seasonCount, musicCount):
     #Clear out old data
+    WINDOW = xbmcgui.Window( 10000 )
     printDebug("Clearing unused properties")
 
     try:
@@ -3389,7 +3395,7 @@ def shelf( ):
     except: pass
 
     try:
-        for i in range(seasonCount, 10+1):
+        for i in range(musicCount, 10+1):
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Artist" % ( i ) )
@@ -3418,6 +3424,8 @@ def shelfChannel( ):
 
     tree=getXML('http://%s/channels/recentlyViewed' % server_details['address'])
     if tree is None:
+        xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['name']+",)")
+        clearChannelShelf(0)
         return
 
     aToken=getAuthDetails({'token': _PARAM_TOKEN} )
@@ -3459,6 +3467,13 @@ def shelfChannel( ):
             printDebug("Building Recent window url: %s" % p_url)
             printDebug("Building Recent window thumb: %s" % p_thumb)
 
+    clearChannelShelf(channelCount)        
+    return
+    
+def clearChannelShelf (channelCount):
+            
+    WINDOW = xbmcgui.Window( 10000 )
+        
     try:
         for i in range(channelCount, 10+1):
             WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Path"   % ( i ) )
@@ -3797,6 +3812,7 @@ elif sys.argv[1] == "watch":
     watched(url)
 elif sys.argv[1] == "setting":
     __settings__.openSettings()
+    xbmc.executebuiltin("Container.Refresh")
 elif sys.argv[1] == "delete":
     url=sys.argv[2]
     deleteMedia(url)
