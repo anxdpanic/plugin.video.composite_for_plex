@@ -3810,11 +3810,17 @@ if str(sys.argv[1]) == "skin":
     discoverAllServers()
     skin()
 elif str(sys.argv[1]) == "shelf":
-    discoverAllServers()
-    shelf()
+    if __settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false":
+        printDebug("Disabling all shelf items")
+    else:
+        discoverAllServers()
+        shelf()
 elif str(sys.argv[1]) == "channelShelf":
-    discoverAllServers()
-    shelfChannel()
+    if __settings__.getSetting('channelShelf') == "false":
+        printDebug("Disabling channel shelf")
+    else:
+        discoverAllServers()
+        shelfChannel()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
     libraryRefresh(url)
