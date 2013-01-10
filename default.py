@@ -569,7 +569,7 @@ def getMyPlexURL( url_path, renew=False, suppress=True ):
     printDebug("url = "+MYPLEX_SERVER+url_path)
 
     try:
-        conn = httplib.HTTPSConnection(MYPLEX_SERVER, timeout=5)
+        conn = httplib.HTTPSConnection(MYPLEX_SERVER)#, timeout=5)
         conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew))
         data = conn.getresponse()
         if ( int(data.status) == 401 )  and not ( renew ):
@@ -717,7 +717,7 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
 
         printDebug("url = "+url)
         printDebug("header = "+str(authHeader))
-        conn = httplib.HTTPConnection(server,timeout=5)
+        conn = httplib.HTTPConnection(server)#,timeout=5)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
         if int(data.status) == 200:
@@ -873,7 +873,7 @@ def mediaType( partData, server, dvdplayback=False ):
     return filelocation
 
 def addGUIItem( url, details, extraData, context=None, folder=True ):
-        printDebug("== ENTER: addDir ==", False)
+        printDebug("== ENTER: addGUIItem ==", False)
         printDebug("Adding Dir for [%s]" % details.get('title','Unknown'))
         printDebug("Passed details: " + str(details))
         printDebug("Passed extraData: " + str(extraData))
@@ -899,7 +899,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
             u=sys.argv[0]+"?url="+urllib.quote(url)+mode+aToken
         else:
             u=sys.argv[0]+"?url="+str(url)+mode+aToken
-
+            
         if extraData.get('parameters'):
             for argument, value in extraData.get('parameters').items():
                 u="%s&%s=%s" % ( u, argument, urllib.quote(value) )
@@ -1936,6 +1936,8 @@ def videoPluginPlay( vids, prefix=None ):
     printDebug("== ENTER: videopluginplay with URL + " + vids + " ==", False)
 
     server=getServerFromURL(vids)
+    if "node.plexapp.com" in server:
+        server=getMasterServer()['address']
 
     #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
     if '/services/url/lookup' in vids:
@@ -2083,7 +2085,7 @@ def channelSearch (url, prompt):
         and accept the terms.  This URL is then fed back into the correct function for
         onward processing.
     '''
-    printDebug("== ENTER: getSearchResults ==", False)
+    printDebug("== ENTER: channelsearch ==", False)
 
     if prompt:
         prompt=urllib.unquote(prompt)
@@ -2194,6 +2196,8 @@ def processDirectory( url, tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
 def getMasterServer(all=False):
+    printDebug("== ENTER: getmasterserver ==", False)
+
     discoverAllServers()
     possibleServers=[]
     current_master=__settings__.getSetting('masterServer')
@@ -2400,6 +2404,8 @@ def tracks( url,tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
 def getXML (url, tree=None):
+    printDebug("== ENTER: getXML ==", False)
+
     if tree is None:
 
         html=getURL(url)
@@ -2432,7 +2438,12 @@ def PlexPlugins( url, tree=None ):
     if tree is None:
         return
 
+    myplex_url=False
     server=getServerFromURL(url)
+    if (tree.get('identifier') != "com.plexapp.plugins.myplex") and ( "node.plexapp.com" in url ) :
+        myplex_url=True
+        printDebug("This is a myplex URL, attempting to locate master server")
+        server=getMasterServer()['address']
 
     for plugin in tree:
 
@@ -2447,6 +2458,9 @@ def PlexPlugins( url, tree=None ):
                    'type'         : "Video" ,
                    'key'          : plugin.get('key','') }
 
+        if myplex_url:
+            extraData['key']=extraData['key'].replace('node.plexapp.com:32400',server)
+              
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=getFanart(tree, server)
 
@@ -2456,7 +2470,7 @@ def PlexPlugins( url, tree=None ):
 
             if plugin.get('search') == '1':
                 extraData['mode']=_MODE_CHANNELSEARCH
-                extraData['parameters']={'prompt' : plugin.get('prompt',"Enter Search Term") }
+                extraData['parameters']={'prompt' : plugin.get('prompt',"Enter Search Term").encode('utf-8') }
             else:
                 extraData['mode']=_MODE_PLEXPLUGINS
 
@@ -2477,7 +2491,7 @@ def PlexPlugins( url, tree=None ):
             else:
                 value=plugin.get('value')
 
-            details['title']= "%s - [%s]" % (plugin.get('label','Unknown'), value)
+            details['title']= "%s - [%s]" % (plugin.get('label','Unknown').encode('utf-8'), value)
             extraData['mode']=_MODE_CHANNELPREFS
             extraData['parameters']={'id' : plugin.get('id') }
             addGUIItem(url, details, extraData)
@@ -2512,9 +2526,9 @@ def channelSettings ( url, settingID ):
             printDebug("Found correct id entry for: %s" % settingID)
             id=settingID
 
-            label=plugin.get('label',"Enter value")
-            option=plugin.get('option')
-            value=plugin.get('value')
+            label=plugin.get('label',"Enter value").encode('utf-8')
+            option=plugin.get('option').encode('utf-8')
+            value=plugin.get('value').encode('utf-8')
 
             if plugin.get('type') == "text":
                 printDebug("Setting up a text entry screen")
@@ -2876,7 +2890,8 @@ def getThumb( data, server ):
         @ input: elementTree element, server name
         @ return formatted URL
     '''
-    thumbnail=data.get('thumb','').split('?t')[0]
+    thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
+
 
     if thumbnail == '':
         return g_loc+'/resources/plex.png'
@@ -2897,7 +2912,7 @@ def getFanart( data, server, transcode=True ):
         @ return formatted URL for photo resizing
     '''
 
-    fanart=data.get('art','')
+    fanart=data.get('art','').encode('utf-8')
 
     if fanart == '':
         return ''
@@ -2999,7 +3014,8 @@ def plexOnline( url ):
 
         u=getLinkURL(url, plugin, server)
 
-        u=u+"&name="+urllib.quote_plus(details['title'])
+        extraData['parameters']={'name' : details['title'] }
+        
         addGUIItem(u, details, extraData)
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
@@ -3500,6 +3516,7 @@ def clearChannelShelf (channelCount=0):
     return
 
 def myPlexQueue():
+    printDebug("== ENTER: myplexqueue ==", False)
 
     if __settings__.getSetting('myplex_user') == '':
         xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")
@@ -3581,6 +3598,8 @@ def displayServers( url ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
 def getTranscodeSettings( override=False ):
+    printDebug("== ENTER: gettranscodesettings ==", False)
+
     global g_transcode
     g_transcode = __settings__.getSetting('transcode')
 
@@ -3768,6 +3787,7 @@ def setWindowHeading(tree) :
     WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
 
 def setMasterServer () :
+    printDebug("== ENTER: setmasterserver ==", False)
 
     servers=getMasterServer(True)
     printDebug(str(servers))
