@@ -717,7 +717,7 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
 
         printDebug("url = "+url)
         printDebug("header = "+str(authHeader))
-        conn = httplib.HTTPConnection(server,timeout=3)
+        conn = httplib.HTTPConnection(server,timeout=5)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
         if int(data.status) == 200:
