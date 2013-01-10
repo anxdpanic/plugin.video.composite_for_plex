@@ -2451,6 +2451,9 @@ def PlexPlugins( url, tree=None ):
 
         if details['title'] == "Unknown":
             details['title']=plugin.get('name',"Unknown").encode('utf-8')
+            
+        if plugin.get('summary'):
+            details['plot']=plugin.get('summary')
 
         extraData={'thumb'        : getThumb(plugin, server) ,
                    'fanart_image' : getFanart(plugin, server) ,
