@@ -3859,7 +3859,6 @@ elif sys.argv[1] == "watch":
     watched(url)
 elif sys.argv[1] == "setting":
     __settings__.openSettings()
-    xbmc.executebuiltin("Container.Refresh")
 elif sys.argv[1] == "delete":
     url=sys.argv[2]
     deleteMedia(url)
