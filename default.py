@@ -895,7 +895,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
         #Create the URL to pass to the item
         if ( not folder) and ( extraData['type'] == "image" ):
              u=url+qToken
-        elif url.startswith('http'):
+        elif url.startswith('http') or url.startswith('file'):
             u=sys.argv[0]+"?url="+urllib.quote(url)+mode+aToken
         else:
             u=sys.argv[0]+"?url="+str(url)+mode+aToken
