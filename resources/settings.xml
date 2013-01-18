@@ -2,10 +2,11 @@
 <settings>
     <category label="General" >
         <setting id="enable" type="bool" label="Enable Plex Helper" default="True" />
-		<setting id="c_name" type="text" label="Client Name" default="PleXBMC Client" />
+        <setting id="c_name" type="text" label="Client Name" default="PleXBMC Client" />
     </category>
     <category label="Debug" >
         <setting id="debug" type="bool" label="30014" default="false" />
+        <setting id="uuid" type="text" label="Client ID" visible="false" default="" />
     </category>
 
 </settings>
