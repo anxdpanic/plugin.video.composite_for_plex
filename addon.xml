@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon  id="script.plexbmc.helper" 
         name="PleXBMC Helper" 
-        version="0.0.1" 
+        version="3.0.0" 
         provider-name="Hippojay (plexbmc@h-jay.com)">
   <requires>
     <import addon="xbmc.python" version="2.0"/>
@@ -12,7 +12,7 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <minversion>1</minversion>
-    <summary lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</summary>
-    <description lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</description>
+    <summary lang="en">Helps PLEXBMC use Plex Remote applications.</summary>
+    <description lang="en">A helper application that allows iOS and andriod plex remotes communicate with the PleXBMC addon for XBMC.</description>
   </extension>
 </addon>
