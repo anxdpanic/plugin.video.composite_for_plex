@@ -31,7 +31,7 @@ from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from urllib import *
 import json
-import xbmc
+#import xbmc
 
 class MyHandler(BaseHTTPRequestHandler):
     """
@@ -94,9 +94,7 @@ class XBMCjson:
         
     
     def send(self):
-    
-        print "Sending JSON"
-        
+            
         if self.action.lower() == "sendkey":
             request=json.dumps({ "jsonrpc" : "2.0" , "method" : "Input.SendText", "params" : { "text" : "a", "done" : False }} )
         elif self.action.lower() == "playmedia":
@@ -104,15 +102,12 @@ class XBMCjson:
             server=self.arguments.split(';')[0].split('/')[2]
             path=self.arguments.split(';')[1]
             resume=self.arguments.split(';')[4].strip()
-        
-            print "Resume is [%s]" % resume
-        
+                
             if not resume:
                 resume=0
                 
             resume_url="&force=%s" % (resume,)
         
-            print "Using %s%s" % ( server, path )
             fullurl=urllib.quote_plus("http://%s%s" % (server, path))
         
             request=json.dumps({ "id"      : 1,
@@ -126,6 +121,8 @@ class XBMCjson:
                                  "method"  : "JSONRPC.Ping" })
         
         html=self.getURL(self.url, urlData=request)
+        #html=xbmc.executeJSONRPC(request)
+
             
         if html is False:
             print "Problem with request"
@@ -147,10 +144,7 @@ class XBMCjson:
                 print error
                 return False
             else:      
-                print data.status
-                print data.getheaders()
                 link=data.read()
-                print "sent ok"
                 print link
         except socket.gaierror :
             error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
