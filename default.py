@@ -75,6 +75,7 @@ print "PleXBMC Helper -> UUID: " + str(g_identifier)
 mcast_address = '239.0.0.250'
 mcast_port = 32413
 httpd_port = 3000
+is_running=False
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 32)
@@ -100,12 +101,18 @@ while (not xbmc.abortRequested):
             sock.sendto('HELLO'+data, (mcast_address, mcast_port))
             print "sending mcast and listening on port %s" % (httpd_port,)
             httpd.handle_request()
+            if not is_running:
+                xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has started,)")
+            is_running=True
             time.sleep(3)
         except:
             pass
     else:
+        if is_running:
+            xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been suspended,)")
+        is_running=False
         time.sleep(20)
 
 sock.sendto('BYE'+data, (mcast_address, mcast_port))
 time.sleep(1)
-                
+xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been stopped,)")
