@@ -1505,7 +1505,7 @@ def TVEpisodes( url, tree=None ):
                    'ratingKey'    : str(episode.get('ratingKey',0)),
                    'duration'     : duration}
 
-        if extraData['fanart_image'] == "":
+        if extraData['fanart_image'] == "" and g_skipimages == "false":
             extraData['fanart_image']=sectionart
 
         #Determine what tupe of watched flag [overlay] to use
