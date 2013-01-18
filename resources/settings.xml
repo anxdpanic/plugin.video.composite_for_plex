@@ -68,7 +68,7 @@
 		#Quartz V3 Skin
 		<setting id="mo_view_1" type="labelenum" label="Movie View" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true"  visible="eq(-7,true)+eq(-6,1)" enable="eq(-7,true)+eq(-6,1)"/>
 		<setting id="tv_view_1" type="labelenum" label="TV View" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true"  visible="eq(-8,true)+eq(-7,1)" enable="eq(-8,true)+eq(-7,1)"/>
-		<setting id="se_view_1" type="labelenum" label="Season View" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-9,true)+eq(-8,1)" enable="eq(-9,true)+eq(-8,1)"/>
+		<setting id="se_view_1" type="labelenum" label="Season View" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart 1|Fanart 2" default="None" subsetting="true"  visible="eq(-9,true)+eq(-8,1)" enable="eq(-9,true)+eq(-8,1)"/>
 		<setting id="ep_view_1" type="labelenum" label="Episode View" values="None|List|Big List|MediaInfo|MediaInfo 2|Icons|Panel|Wide|Fanart 3" default="None" subsetting="true"  visible="eq(-10,true)+eq(-9,1)" enable="eq(-10,true)+eq(-9,1)"/>
 		<setting id="mu_view_1" type="labelenum" label="Music View" values="None|List|Icons|Fanart 3" default="None" subsetting="true"  visible="eq(-11,true)+eq(-10,1)" enable="eq(-11,true)+eq(-10,1)"/>
 		#Confluence Skin
