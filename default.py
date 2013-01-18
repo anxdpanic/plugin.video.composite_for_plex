@@ -1652,7 +1652,7 @@ def getAudioSubtitlesMedia( server, id ):
     printDebug ( str(streamData) )
     return streamData
 
-def playLibraryMedia( vids, override=False ):
+def playLibraryMedia( vids, override=False, force=None ):
     printDebug("== ENTER: playLibraryMedia ==", False)
 
     getTranscodeSettings(override)
@@ -1691,21 +1691,30 @@ def playLibraryMedia( vids, override=False ):
     item = xbmcgui.ListItem(path=playurl)
     result=1
 
-    if resume > 0:
-        displayTime = str(datetime.timedelta(seconds=int(resume)))
-        dialogOptions = [ "Resume from " + displayTime , "Start from beginning"]
-        printDebug( "We have part way through video.  Display resume dialog")
-        startTime = xbmcgui.Dialog()
-        result = startTime.select('Resuming playback..',dialogOptions)
+    if not force:
 
-        if result == -1:
-            printDebug("Playback canecelled")
-            return
+        if resume > 0:
+            displayTime = str(datetime.timedelta(seconds=int(resume)))
+            dialogOptions = [ "Resume from " + displayTime , "Start from beginning"]
+            printDebug( "We have part way through video.  Display resume dialog")
+            startTime = xbmcgui.Dialog()
+            result = startTime.select('Resuming playback..',dialogOptions)
 
-        if result == 1:
-            printDebug("Playback from Beginning")
-            getURL("http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library",suppress=True)
+            if result == -1:
+                printDebug("Playback canecelled")
+                return
 
+            if result == 1:
+                printDebug("Playback from Beginning")
+                getURL("http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library",suppress=True)
+
+    else:
+        result=0
+        if int(force) > 0:
+            resume=int(int(force)/1000)
+        else:
+            resume=force
+        
     if result == 0:
         printDebug ("Playback from resume point")
         item.setProperty('ResumeTime', str(resume) )
@@ -3835,6 +3844,7 @@ mode=int(params.get('mode',-1))
 param_transcodeOverride=int(params.get('transcode',0))
 param_identifier=params.get('identifier',None)
 _PARAM_TOKEN=params.get('X-Plex-Token',None)
+force=params.get('force')
 
 if str(sys.argv[1]) == "skin":
     discoverAllServers()
@@ -3908,7 +3918,7 @@ else:
         TVSeasons(param_url)
 
     elif mode == _MODE_PLAYLIBRARY:
-        playLibraryMedia(param_url)
+        playLibraryMedia(param_url,force=force)
 
     elif mode == _MODE_TVEPISODES:
         TVEpisodes(param_url)
