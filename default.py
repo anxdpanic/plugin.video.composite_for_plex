@@ -1,3 +1,30 @@
+'''
+    @document   : default.py
+    @package    : PleXBMC Helper add-on
+    @author     : Hippojay (aka Dave Hawes-Johnson)
+    @copyright  : 2013, Hippojay
+    @version    : 3.0 (frodo)
+
+    @license    : Gnu General Public License - see LICENSE.TXT
+    @description: pleXBMC XBMC add-on
+
+    This file is part of the XBMC PleXBMC Helper Script.
+
+    PleXBMC Helper Script is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    PleXBMC Plugin is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with PleXBMC Plugin.  If not, see <http://www.gnu.org/licenses/>.
+
+'''
+
 import time
 import sys
 import socket
@@ -8,6 +35,7 @@ import xbmcaddon
 import inspect
 import os
 import uuid
+import json
 
 __settings__ = xbmcaddon.Addon(id='script.plexbmc.helper')
 __cwd__ = __settings__.getAddonInfo('path')
@@ -68,6 +96,23 @@ print "PleXBMC Helper -> Platform: " + str(PLEXBMC_PLATFORM)
 print "PleXBMC Helper -> Enabled: " + str(g_enabled)
 print "PleXBMC Helper -> UUID: " + str(g_identifier)
 
+#Get PleXBMC version for client notification string
+addon_dependancy=json.dumps({"id" : "1", "jsonrpc": "2.0", "method":"Addons.GetAddonDetails", "params" : {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]}})
+return_data=xbmc.executeJSONRPC(addon_dependancy)
+result=json.loads(return_data)
+
+if result:
+    if result.get('error'):
+        print "PleXBMC addon [plugin.video.plexbmc] not installed"
+        xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PlEXBMC not installed,)")
+        plexbmc_version=None
+    elif result.get('result').get('addon').get('version'):
+        plexbmc_version=result.get('result').get('addon').get('version')
+    else:
+        plexbmc_version="Unknown"
+else:
+    plexbmc_version="Unknown"
+
 #Not required for newer Plex
 #client = Bonjour.Bonjour(name="test server", port=3000, regtype="_plexclient._tcp")
 #client.run()
@@ -80,39 +125,51 @@ is_running=False
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 32)
 
-data=""" * HTTP/1.0
+registration_string=""" * HTTP/1.0
 Content-Type: plex/media-player
 Resource-Identifier: %s
 Name: %s
 Port: %s
 Product: PleXBMC
-Version: 3.0.4
+Version: %s
 
-""" % ( g_identifier, g_client_name, httpd_port )
+""" % ( g_identifier, g_client_name, httpd_port, plexbmc_version )
+
+printDebug("PleXBMC Helper -> registeration string is: %s " % registration_string)
 
 socket.setdefaulttimeout(10)
 server_class = ThreadedHTTPServer
 httpd = server_class(('', httpd_port), MyHandler)
 
+message_count=0
 while (not xbmc.abortRequested):
 
     if __settings__.getSetting('enable') == "true":
         try:
-            sock.sendto('HELLO'+data, (mcast_address, mcast_port))
-            print "sending mcast and listening on port %s" % (httpd_port,)
+            sock.sendto('HELLO'+registration_string, (mcast_address, mcast_port))
             httpd.handle_request()
+            message_count+=1
+            
+            if message_count > 5:
+                printDebug( "PlexBMC Helper still running on port %s" % httpd_port )
+                message_count=0
+            
             if not is_running:
+                print "PleXBMC Helper -> PleXBMC Helper has started"
                 xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has started,)")
+                
             is_running=True
             time.sleep(3)
         except:
             pass
     else:
         if is_running:
+            print "PleXBMC Helper -> PleXBMC Helper has been suspended"
             xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been suspended,)")
         is_running=False
         time.sleep(20)
 
-sock.sendto('BYE'+data, (mcast_address, mcast_port))
+sock.sendto('BYE'+registration_string, (mcast_address, mcast_port))
 time.sleep(1)
+print "PleXBMC Helper -> PleXBMC Helper has been stopped"
 xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been stopped,)")
