@@ -3842,7 +3842,7 @@ except:
 #Now try and assign some data to them
 param_url=params.get('url',None)
 
-if param_url and param_url.startswith('http'):
+if param_url and ( param_url.startswith('http') or param_url.startswith('file') ):
         param_url = urllib.unquote(param_url)
 
 param_name=urllib.unquote_plus(params.get('name',""))
