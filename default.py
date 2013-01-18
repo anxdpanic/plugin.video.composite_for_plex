@@ -3324,7 +3324,7 @@ def shelf( ):
     server_details=getMasterServer()
 
     if server_details is None:
-        xbmc.executebuiltin("XBMC.Notification(Unable to any media servers,)")
+        xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearShelf(0,0,0)
         return
 
