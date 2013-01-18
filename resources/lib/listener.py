@@ -96,7 +96,10 @@ class XBMCjson:
     def send(self):
             
         if self.action.lower() == "sendkey":
-            request=json.dumps({ "jsonrpc" : "2.0" , "method" : "Input.SendText", "params" : { "text" : "a", "done" : False }} )
+            #request=json.dumps({ "jsonrpc" : "2.0" , "method" : "Input.SendText", "params" : { "text" : "a", "done" : False }} )
+            request=json.dumps({ "jsonrpc" : "2.0",
+                                 "method"  : "JSONRPC.Ping" })
+
         elif self.action.lower() == "playmedia":
         
             server=self.arguments.split(';')[0].split('/')[2]
