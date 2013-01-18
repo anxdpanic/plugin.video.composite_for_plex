@@ -2902,6 +2902,10 @@ def getThumb( data, server ):
         @ input: elementTree element, server name
         @ return formatted URL
     '''
+    
+    if g_skipimages == "true":
+        return ''
+        
     thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
 
 
@@ -2923,6 +2927,8 @@ def getFanart( data, server, transcode=True ):
         @ input: elementTree element, server name
         @ return formatted URL for photo resizing
     '''
+    if g_skipimages == "true":
+        return ''
 
     fanart=data.get('art','').encode('utf-8')
 
