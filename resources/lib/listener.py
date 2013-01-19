@@ -31,7 +31,23 @@ from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from urllib import *
 import json
-#import xbmc
+import xbmcaddon
+import xbmc
+import base64
+import string
+
+__settings__ = xbmcaddon.Addon(id='script.plexbmc.helper')
+g_xbmc_port = __settings__.getSetting('xbmcport')
+if not g_xbmc_port:
+    g_xbmc_port=80
+    
+g_header={'Content-Type' : 'application/json'}  
+g_xbmc_user = __settings__.getSetting('xbmcuser')
+if g_xbmc_user:
+    g_xbmc_pass=__settings__.getSetting('xbmcpass')
+    auth = 'Basic ' + string.strip(base64.encodestring(g_xbmc_user + ':' + g_xbmc_pass))
+    g_header['Authorization']=auth
+
 
 class MyHandler(BaseHTTPRequestHandler):
     """
@@ -87,10 +103,10 @@ class XBMCjson:
         self.action = command[0:command.find("(")]
         self.arguments = command[command.find("(")+1:command.find(")")]
         self.hostname = "127.0.0.1"
-        self.port=80
+        self.port=g_xbmc_port
         self.url="/jsonrpc"
         print "remote object setup: [%s] [%s]" % ( self.action , self.arguments )
-        self.header={'Content-Type' : 'application/json'}
+        self.header=g_header
         
     
     def send(self):
@@ -126,9 +142,9 @@ class XBMCjson:
         html=self.getURL(self.url, urlData=request)
         #html=xbmc.executeJSONRPC(request)
 
-            
         if html is False:
             print "Problem with request"
+            xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request,)")
             return
         
         if html:
@@ -150,11 +166,11 @@ class XBMCjson:
                 link=data.read()
                 print link
         except socket.gaierror :
-            error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
+            error = 'Unable to lookup host: ' + self.hostname + "\nCheck host name is correct"
             print error
             return False
         except socket.error, msg : 
-            error="Unable to connect to " + server +"\nReason: " + str(msg)
+            error="Unable to connect to " + self.hostname +"\nReason: " + str(msg)
             print error
             return False
         except:

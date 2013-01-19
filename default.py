@@ -90,11 +90,20 @@ if not g_identifier:
     g_identifier=str(uuid.uuid4())
     __settings__.setSetting('uuid',g_identifier)
 
+g_xbmc_port = __settings__.getSetting('xbmcport')
+if not g_xbmc_port:
+    g_xbmc_port=80
+
+g_xbmc_user = __settings__.getSetting('xbmcuser')
 
 PLEXBMC_PLATFORM=getPlatform()
 print "PleXBMC Helper -> Platform: " + str(PLEXBMC_PLATFORM)
 print "PleXBMC Helper -> Enabled: " + str(g_enabled)
 print "PleXBMC Helper -> UUID: " + str(g_identifier)
+print "PleXBMC Helper -> XBMC Web Port: " + str(g_xbmc_port)
+if g_xbmc_user:
+    print "PleXBMC Helper -> XBMC Web User: " + str(g_xbmc_user)
+
 
 #Get PleXBMC version for client notification string
 addon_dependancy=json.dumps({"id" : "1", "jsonrpc": "2.0", "method":"Addons.GetAddonDetails", "params" : {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]}})
