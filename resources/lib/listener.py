@@ -35,6 +35,7 @@ import xbmcaddon
 import xbmc
 import base64
 import string
+import inspect
 
 __settings__ = xbmcaddon.Addon(id='script.plexbmc.helper')
 g_xbmc_port = __settings__.getSetting('xbmcport')
@@ -48,20 +49,30 @@ if g_xbmc_user:
     auth = 'Basic ' + string.strip(base64.encodestring(g_xbmc_user + ':' + g_xbmc_pass))
     g_header['Authorization']=auth
 
+g_debug = __settings__.getSetting('debug')
+    
+    
+def printDebug( msg, functionname=True ):
+    if g_debug == "true":
+        if functionname is False:
+            print str(msg)
+        else:
+            print "PleXBMC Helper -> " + inspect.stack()[1][3] + ": " + str(msg)
+    
 
 class MyHandler(BaseHTTPRequestHandler):
     """
         Serves a HEAD request
     """
     def do_HEAD(s):
-        print "PleXBMC Helper: Serving HEAD request..."
+        printDebug( "Serving HEAD request..." )
         s.answer_request(0)
 
     """
     Serves a GET request.
     """
     def do_GET(s):
-        print "PleXBMC Helper: Serving GET request..."
+        printDebug( "Serving GET request..." )
         s.answer_request(1)
 
     def answer_request(s, sendData):
@@ -69,7 +80,7 @@ class MyHandler(BaseHTTPRequestHandler):
             s.send_response(200)
             request_path=s.path[1:]
             request_path=re.sub(r"\?.*","",request_path)
-            print "request path is: [%s]" % ( request_path,)
+            printDebug ( "request path is: [%s]" % ( request_path,) )
             if request_path=="version":
                 s.send_response(200)
                 s.end_headers()
@@ -77,12 +88,12 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.wfile.write("Version: 0.1")
             elif request_path == "xbmcCmds/xbmcHttp":
                 s.send_response(200)
-                print "Detected remote application request"
-                print "Path: %s" % ( s.path , )
+                print "PleXBMC Helper -> listener -> Detected remote application request"
+                printDebug ( "Path: %s" % ( s.path , ) )
                 command_path=s.path.split('?')[1]
-                print "Request: %s " % (urllib.unquote(command_path),)
+                printDebug ( "Request: %s " % (urllib.unquote(command_path),) )
                 if command_path.split('=')[0] == 'command':
-                    print "Command: Sending a json to XBMC"
+                    printDebug ( "Command: Sending a json to XBMC" )
                     command=XBMCjson(urllib.unquote(command_path.split('=',1)[1]))
                     command.send()
             else:
@@ -105,7 +116,7 @@ class XBMCjson:
         self.hostname = "127.0.0.1"
         self.port=g_xbmc_port
         self.url="/jsonrpc"
-        print "remote object setup: [%s] [%s]" % ( self.action , self.arguments )
+        printDebug ( "remote object setup: [%s] [%s]" % ( self.action , self.arguments ) )
         self.header=g_header
         
     
@@ -134,7 +145,7 @@ class XBMCjson:
                                  "method"  : "Player.Open",
                                  "params"  : { "item"  :  {"file":"plugin://plugin.video.plexbmc/?url="+fullurl+"&mode=5"+resume_url } } } )
        
-            print "JSON RQST: %s" % request
+            print "PleXBMC Helper -> listener -> JSON RQST: %s" % request 
         else:
             request=json.dumps({ "jsonrpc" : "2.0",
                                  "method"  : "JSONRPC.Ping" })
@@ -143,14 +154,15 @@ class XBMCjson:
         #html=xbmc.executeJSONRPC(request)
 
         if html is False:
-            print "Problem with request"
+            print "PleXBMC Helper -> listener -> request not completed"
             xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request,)")
             return
         
         if html:
+            print "PleXBMC Helper -> listener -> request completed"
             help=json.loads(html)
             results=help.get('result',help.get('error'))
-            print str(results)
+            printDebug ( str(results) )
 
             
     def getURL( self, url , urlData=""):
