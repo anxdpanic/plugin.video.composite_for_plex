@@ -44,7 +44,7 @@ PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
 PLEXBMC_VERSION="3.0.1"
 
-import Bonjour
+#import Bonjour
 from listener import *
 
 def printDebug( msg, functionname=True ):
