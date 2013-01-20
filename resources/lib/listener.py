@@ -77,17 +77,24 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def answer_request(s, sendData):
         try:
-            s.send_response(200)
+            #s.send_response(200)
             request_path=s.path[1:]
             request_path=re.sub(r"\?.*","",request_path)
             printDebug ( "request path is: [%s]" % ( request_path,) )
             if request_path=="version":
-                s.send_response(200)
-                s.end_headers()
+                #s.end_headers()
                 s.wfile.write("PleXBMC Helper Remote Redirector: Running\r\n")
                 s.wfile.write("Version: 0.1")
-            elif request_path == "xbmcCmds/xbmcHttp":
                 s.send_response(200)
+            elif request_path=="verify":
+                print "PleXBMC Helper -> listener -> detected remote verification request"
+                command=XBMCjson("ping()")
+                result=command.send()
+                s.wfile.write("XBMC JSON connection test:\r\n")
+                s.wfile.write(result)
+                s.send_response(200)
+            elif request_path == "xbmcCmds/xbmcHttp":
+                #s.send_response(200)
                 print "PleXBMC Helper -> listener -> Detected remote application request"
                 printDebug ( "Path: %s" % ( s.path , ) )
                 command_path=s.path.split('?')[1]
@@ -126,6 +133,10 @@ class XBMCjson:
             #request=json.dumps({ "jsonrpc" : "2.0" , "method" : "Input.SendText", "params" : { "text" : "a", "done" : False }} )
             request=json.dumps({ "jsonrpc" : "2.0",
                                  "method"  : "JSONRPC.Ping" })
+        elif self.action.lower() == "ping":
+            request=json.dumps({ "jsonrpc" : "2.0",
+                                 "id" : 1 ,
+                                 "method"  : "JSONRPC.Ping" })
 
         elif self.action.lower() == "playmedia":
         
@@ -156,13 +167,14 @@ class XBMCjson:
         if html is False:
             print "PleXBMC Helper -> listener -> request not completed"
             xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request,)")
-            return
+            return False
         
         if html:
             print "PleXBMC Helper -> listener -> request completed"
             help=json.loads(html)
             results=help.get('result',help.get('error'))
             printDebug ( str(results) )
+            return help
 
             
     def getURL( self, url , urlData=""):
