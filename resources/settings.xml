@@ -9,6 +9,7 @@
     </category>
     <category label="Debug" >
         <setting id="debug" type="bool" label="30014" default="false" />
+        <setting id="gdm_debug" type="labelenum" label="Debug Level" values="0|1|2|3" default="0" />
         <setting id="uuid" type="text" label="Client ID" visible="false" default="" />
     </category>
 

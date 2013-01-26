@@ -37,15 +37,16 @@ import os
 import uuid
 import json
 
+
 __settings__ = xbmcaddon.Addon(id='script.plexbmc.helper')
 __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.0.1"
+PLEXBMC_VERSION="3.0.2"
 
-#import Bonjour
 from listener import *
+import plexGDM
 
 def printDebug( msg, functionname=True ):
     if g_debug == "true":
@@ -79,7 +80,7 @@ print "PleXBMC Helper -> running Version: " + str(PLEXBMC_VERSION)
 
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
-g_enabled = __settings__.getSetting('enable') == "true"
+g_gdm_debug = __settings__.getSetting('gdm_debug')
 
 g_client_name = __settings__.getSetting('c_name')
 if not g_client_name:
@@ -98,7 +99,6 @@ g_xbmc_user = __settings__.getSetting('xbmcuser')
 
 PLEXBMC_PLATFORM=getPlatform()
 print "PleXBMC Helper -> Platform: " + str(PLEXBMC_PLATFORM)
-print "PleXBMC Helper -> Enabled: " + str(g_enabled)
 print "PleXBMC Helper -> UUID: " + str(g_identifier)
 print "PleXBMC Helper -> XBMC Web Port: " + str(g_xbmc_port)
 if g_xbmc_user:
@@ -122,63 +122,45 @@ if result:
 else:
     plexbmc_version="Unknown"
 
-#Not required for newer Plex
-#client = Bonjour.Bonjour(name="test server", port=3000, regtype="_plexclient._tcp")
-#client.run()
-
-mcast_address = '239.0.0.250'
-mcast_port = 32413
 httpd_port = 3000
 is_running=False
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 32)
+client=plexGDM.PlexGDM(debug=int(g_gdm_debug))
+client.clientDetails(g_identifier, g_client_name, httpd_port, "PleXBMC" , plexbmc_version)
 
-registration_string=""" * HTTP/1.0
-Content-Type: plex/media-player
-Resource-Identifier: %s
-Name: %s
-Port: %s
-Product: PleXBMC
-Version: %s
-
-""" % ( g_identifier, g_client_name, httpd_port, plexbmc_version )
-
-printDebug("PleXBMC Helper -> registeration string is: %s " % registration_string)
+printDebug("PleXBMC Helper -> registeration string is: %s " % client.getClientDetails() )
 
 socket.setdefaulttimeout(10)
 server_class = ThreadedHTTPServer
 httpd = server_class(('', httpd_port), MyHandler)
 
+client.start_all()
+
 message_count=0
 while (not xbmc.abortRequested):
-
-    if __settings__.getSetting('enable') == "true":
-        try:
-            sock.sendto('HELLO'+registration_string, (mcast_address, mcast_port))
-            httpd.handle_request()
-            message_count+=1
+    try:
+        
+        httpd.handle_request()
+        message_count+=1
+        
+        if message_count > 2:
+            if client.check_client_registration():
+                printDebug("Client is still registered")
+            else:
+                printDebug("Client is no longer registered")
+            printDebug( "PlexBMC Helper still running on port %s" % httpd_port )
+            message_count=0
+        
+        if not is_running:
+            print "PleXBMC Helper -> PleXBMC Helper has started"
+            xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has started,)")
             
-            if message_count > 5:
-                printDebug( "PlexBMC Helper still running on port %s" % httpd_port )
-                message_count=0
-            
-            if not is_running:
-                print "PleXBMC Helper -> PleXBMC Helper has started"
-                xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has started,)")
-                
-            is_running=True
-            time.sleep(3)
-        except:
-            pass
-    else:
-        if is_running:
-            print "PleXBMC Helper -> PleXBMC Helper has been suspended"
-            xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been suspended,)")
-        is_running=False
-        time.sleep(20)
+        is_running=True
+    except:
+        printDebug("Error in loop")
+        time.sleep(3)   #Stop error loops from running away
 
-sock.sendto('BYE'+registration_string, (mcast_address, mcast_port))
-time.sleep(1)
+        
+client.stop_all()
 print "PleXBMC Helper -> PleXBMC Helper has been stopped"
 xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been stopped,)")
