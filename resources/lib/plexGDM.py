@@ -32,7 +32,7 @@ import threading
 import time
 import urllib2
 
-class PlexGDM:
+class plexgdm:
 
     def __init__(self, debug=0):
         
@@ -254,7 +254,7 @@ class PlexGDM:
 
 #Example usage
 if __name__ == '__main__':
-    client = PlexGDM(debug=3)
+    client = plexgdm(debug=3)
     client.clientDetails("Test-Name", "Test Client", "3003", "Test-App", "1.2.3")
     client.start_all()
     while not client.discovery_complete:

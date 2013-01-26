@@ -46,7 +46,7 @@ sys.path.append(BASE_RESOURCE_PATH)
 PLEXBMC_VERSION="3.0.2"
 
 from listener import *
-import plexGDM
+import plexgdm
 
 def printDebug( msg, functionname=True ):
     if g_debug == "true":
@@ -125,7 +125,7 @@ else:
 httpd_port = 3000
 is_running=False
 
-client=plexGDM.PlexGDM(debug=int(g_gdm_debug))
+client=plexgdm.plexgdm(debug=int(g_gdm_debug))
 client.clientDetails(g_identifier, g_client_name, httpd_port, "PleXBMC" , plexbmc_version)
 
 printDebug("PleXBMC Helper -> registeration string is: %s " % client.getClientDetails() )

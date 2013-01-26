@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="General" >
-        <setting id="enable" type="bool" label="Enable Plex Helper" default="True" />
         <setting id="c_name" type="text" label="Client Name" default="PleXBMC Client" />
         <setting id="xbmcport" type="text" label="XBMC Web Port" default="80" />
         <setting id="xbmcuser" type="text" label="XBMC Web User" default="" />
