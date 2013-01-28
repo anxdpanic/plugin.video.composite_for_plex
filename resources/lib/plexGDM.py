@@ -98,15 +98,26 @@ class plexgdm:
     def check_client_registration(self):
         
         if self.client_registered and self.discovery_complete:
+        
+            if not self.server_list:
+                self.__printDebug("Server list is empty. Unable to check",2)
+                return False
 
             try:
                 media_server=self.server_list[0]['server']
                 media_port=self.server_list[0]['port']
-                    
+
+                self.__printDebug("Checking server [%s] on port [%s]" % (media_server, media_port) ,2)                    
                 f = urllib2.urlopen('http://%s:%s/clients' % (media_server, media_port))
-                if self.client_id in f.read():
+                client_result = f.read()
+                if self.client_id in client_result:
                     self.__printDebug("Client registration successful",1)
+                    self.__printDebug("Client data is: %s" % client_result, 3)
                     return True
+                else:
+                    self.__printDebug("Client registration not found",1)
+                    self.__printDebug("Client data is: %s" % client_result, 3)
+                   
             except:
                 self.__printDebug("Unable to check status")
                 pass
@@ -175,7 +186,14 @@ class plexgdm:
                 discovered_servers.append(update)                    
 
         self.server_list = discovered_servers
-    
+        
+        if not self.server_list:
+            self.__printDebug("No servers have been discovered",1)
+        else:
+            self.__printDebug("Number of servers Discovered: %s" % len(self.server_list),1)
+            for items in self.server_list:
+                self.__printDebug("Server Discovered: %s" % items['name'] ,2)
+                
 
     def setInterval(self, interval):
         self.discovery_interval = interval
