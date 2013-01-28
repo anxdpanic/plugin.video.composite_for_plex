@@ -3671,7 +3671,12 @@ def deleteMedia( url ):
         xbmc.executebuiltin("Container.Refresh")
 
     return True
-
+def getAuthTokenFromURL( url ):
+    if "X-Plex-Token=" in url:
+        return url.split('X-Plex-Token=')[1]
+    else:
+        return ""
+        
 def alterSubs ( url ):
     '''
         Display a list of available Subtitle streams and allow a user to select one.
@@ -3720,7 +3725,8 @@ def alterSubs ( url ):
     if result == -1:
         return False
 
-    sub_select_URL="http://%s/library/parts/%s?subtitleStreamID=%s" % ( getServerFromURL(url), part_id, sub_list[result] )
+    authtoken=getAuthTokenFromURL(url)
+    sub_select_URL="http://%s/library/parts/%s?subtitleStreamID=%s" % ( getServerFromURL(url), part_id, sub_list[result] ) +getAuthDetails({'token':authtoken})
 
     printDebug("User has selected stream %s" % sub_list[result])
     printDebug("Setting via URL: %s" % sub_select_URL )
@@ -3785,7 +3791,8 @@ def alterAudio ( url ):
     if result == -1:
         return False
 
-    audio_select_URL="http://%s/library/parts/%s?audioStreamID=%s" % ( getServerFromURL(url), part_id, audio_list[result] )
+    authtoken=getAuthTokenFromURL(url)        
+    audio_select_URL="http://%s/library/parts/%s?audioStreamID=%s" % ( getServerFromURL(url), part_id, audio_list[result] ) +getAuthDetails({'token':authtoken})
     printDebug("User has selected stream %s" % audio_list[result])
     printDebug("Setting via URL: %s" % audio_select_URL )
 
