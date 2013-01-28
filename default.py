@@ -1224,7 +1224,7 @@ def buildContextMenu( url, itemData ):
     context.append(('Mark as Watched', watched , ))
 
     #Delete media from Library
-    deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData)
+    deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
     removed=plugin_url+"delete, " + deleteURL + ")"
     context.append(('Delete media', removed , ))
 
@@ -1237,12 +1237,12 @@ def buildContextMenu( url, itemData ):
     context.append(('Reload Section', listingRefresh , ))
 
     #alter audio
-    alterAudioURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData)
+    alterAudioURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
     alterAudio=plugin_url+"audio, " + alterAudioURL + ")"
     context.append(('Select Audio', alterAudio , ))
 
     #alter subs
-    alterSubsURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData)
+    alterSubsURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
     alterSubs=plugin_url+"subs, " + alterSubsURL + ")"
     context.append(('Select Subtitle', alterSubs , ))
 
