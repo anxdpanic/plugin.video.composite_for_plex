@@ -3642,24 +3642,14 @@ def getTranscodeSettings( override=False ):
         printDebug( "Transcode quality is " + g_quality)
 
         baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-mp4-video"
-        #if int(g_quality) >= 3:
-        #    baseCapability+=",http-streaming-video-240p,http-mp4-video-240p"
-        #if int(g_quality) >= 4:
-        #    baseCapability+=",http-streaming-video-320p,http-mp4-video-320p"
-        #if int(g_quality) >= 5:
-        #    baseCapability+=",http-streaming-video-480p,http-mp4-video-480p"
-        #if int(g_quality) >= 6:
-        #    baseCapability+=",http-streaming-video-720p,http-mp4-video-720p"
-        #if int(g_quality) >= 9:
-        #    baseCapability+=",http-streaming-video-1080p,http-mp4-video-1080p"
 
         g_audioOutput=__settings__.getSetting("audiotype")
         if g_audioOutput == "0":
             audio="mp3,aac{bitrate:160000}"
         elif g_audioOutput == "1":
-            audio="mp3,aac{bitrate:160000},ac3"
+            audio="ac3{channels:6}"
         elif g_audioOutput == "2":
-            audio="mp3,aac{bitrate:160000},ac3,dts"
+            audio="dts{channels:6}"
 
         global capability
         capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+";videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)
