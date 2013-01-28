@@ -1475,7 +1475,7 @@ def TVEpisodes( url, tree=None ):
         details={'plot'        : episode.get('summary','') ,
                  'title'       : episode.get('title','Unknown').encode('utf-8') ,
                  'sorttitle'   : episode.get('titleSort', episode.get('title','Unknown')).encode('utf-8')  ,
-                 'playcount'   : int(episode.get('viewCount',0)) ,
+                 #'playcount'   : int(episode.get('viewCount',0)) ,
                  'rating'      : float(episode.get('rating',0)) ,
                  'studio'      : episode.get('studio',tree.get('studio','')) ,
                  'mpaa'        : episode.get('contentRating', tree.get('grandparentContentRating','')) ,
@@ -1509,7 +1509,7 @@ def TVEpisodes( url, tree=None ):
             extraData['fanart_image']=sectionart
 
         #Determine what tupe of watched flag [overlay] to use
-        if details['playcount'] > 0:
+        if int(episode.get('viewCount',0)) > 0:
             if g_skinwatched == "xbmc":
                 details['overlay']=_OVERLAY_XBMC_WATCHED
             elif g_skinwatched == "plexbmc":
