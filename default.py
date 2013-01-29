@@ -2681,7 +2681,7 @@ def getMediaData ( tag_dict ):
                 'AudioChannels'      : tag_dict.get('audioChannels','') ,
                 'VideoAspect'        : tag_dict.get('aspectRatio','') ,
                 'xbmc_height'        : tag_dict.get('height') ,
-                'xbmc_width'         : tag_dict.get('height') ,
+                'xbmc_width'         : tag_dict.get('width') ,
                 'xbmc_VideoCodec'    : tag_dict.get('videoCodec') ,
                 'xbmc_AudioCodec'    : tag_dict.get('audioCodec') ,
                 'xbmc_AudioChannels' : tag_dict.get('audioChannels') ,
