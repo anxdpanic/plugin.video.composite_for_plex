@@ -182,15 +182,7 @@ g_streamControl = __settings__.getSetting('streamControl')
 g_channelview = __settings__.getSetting('channelview')
 g_flatten = __settings__.getSetting('flatten')
 printDebug("PleXBMC -> Flatten is: "+ g_flatten, False)
-#g_playtheme = __settings__.getSetting('playtvtheme')
 g_forcedvd = __settings__.getSetting('forcedvd')
-g_skintype= __settings__.getSetting('skinwatch')
-g_skinwatched="xbmc"
-g_skin = xbmc.getSkinDir()
-
-if g_skintype == "true":
-    if g_skin.find('.plexbmc'):
-        g_skinwatched="plexbmc"
 
 if g_debug == "true":
     print "PleXBMC -> Settings streaming: " + g_stream
@@ -205,8 +197,6 @@ if g_debug == "true":
     elif g_streamControl == _SUB_AUDIO_NEVER_SHOW:
         print "PleXBMC -> Setting stream Control to : NEVER SHOW (%s)" % g_streamControl
 
-    print "PleXBMC -> Running skin: " + g_skin
-    print "PleXBMC -> Running watch view skin: " + g_skinwatched
     print "PleXBMC -> Force DVD playback: " + g_forcedvd
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
@@ -1103,6 +1093,16 @@ def enforceSkinView(mode):
 
     skinname = __settings__.getSetting('skinname')
 
+    current_skin_name = xbmc.getSkinDir()
+
+    skin_map = { '2' : 'skin.confluence' ,
+                 '0' : 'skin.quartz' ,
+                 '1' : 'skin.quartzv3' }
+    
+    if skin_map[skinname] not in current_skin_name:
+        printDebug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
+        return None
+    
     if mode == "movie":
         printDebug("Looking for movie skin settings")
         viewname = __settings__.getSetting('mo_view_%s' % skinname)
