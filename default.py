@@ -942,13 +942,13 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                     liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
                     liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
                     liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
-                    liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))####
+                    liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
 
                     video_codec={}
                     if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
                     if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
                     if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
-                    if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))###
+                    if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
 
                     audio_codec={}
                     if extraData.get('xbmc_AudioCodec') : audio_codec['codec'] = extraData.get('xbmc_AudioCodec')
@@ -994,7 +994,7 @@ def displaySections( filter=None ):
 
         for section in g_sections:
 
-            details={'title' : section.get('title', 'Unknown') }
+            details={'title' : section.get('title', 'Unknown').encode('utf-8') }
 
             if len(g_serverDict) > 1:
                 details['title']=section.get('serverName')+": "+details['title']
@@ -1276,8 +1276,8 @@ def TVShows( url, tree=None ):
         details={'title'      : show.get('title','Unknown').encode('utf-8') ,
                  'sorttitle'  : show.get('titleSort', show.get('title','Unknown')).encode('utf-8') ,
                  'tvshowname' : show.get('title','Unknown').encode('utf-8') ,
-                 'studio'     : show.get('studio','') ,
-                 'plot'       : show.get('summary','') ,
+                 'studio'     : show.get('studio','').encode('utf-8') ,
+                 'plot'       : show.get('summary','').encode('utf-8') ,
                  'season'     : 0 ,
                  'episode'    : int(show.get('leafCount',0)) ,
                  'mpaa'       : show.get('contentRating','') ,
@@ -1362,8 +1362,8 @@ def TVSeasons( url ):
         details={'title'      : season.get('title','Unknown').encode('utf-8') ,
                  'tvshowname' : season.get('title','Unknown').encode('utf-8') ,
                  'sorttitle'  : season.get('titleSort', season.get('title','Unknown')).encode('utf-8') ,
-                 'studio'     : season.get('studio','') ,
-                 'plot'       : season.get('summary','') ,
+                 'studio'     : season.get('studio','').encode('utf-8') ,
+                 'plot'       : season.get('summary','').encode('utf-8') ,
                  'season'     : 0 ,
                  'episode'    : int(season.get('leafCount',0)) ,
                  'mpaa'       : season.get('contentRating','') ,
@@ -1453,20 +1453,20 @@ def TVEpisodes( url, tree=None ):
         duration=int(mediaarguments.get('duration',episode.get('duration',0)))/1000
 
         #Required listItem entries for XBMC
-        details={'plot'        : episode.get('summary','') ,
+        details={'plot'        : episode.get('summary','').encode('utf-8') ,
                  'title'       : episode.get('title','Unknown').encode('utf-8') ,
                  'sorttitle'   : episode.get('titleSort', episode.get('title','Unknown')).encode('utf-8')  ,
                  'rating'      : float(episode.get('rating',0)) ,
-                 'studio'      : episode.get('studio',tree.get('studio','')) ,
+                 'studio'      : episode.get('studio',tree.get('studio','')).encode('utf-8') ,
                  'mpaa'        : episode.get('contentRating', tree.get('grandparentContentRating','')) ,
                  'year'        : int(episode.get('year',0)) ,
-                 'tagline'     : episode.get('tagline','') ,
+                 'tagline'     : episode.get('tagline','').encode('utf-8') ,
                  'episode'     : int(episode.get('index',0)) ,
                  'aired'       : episode.get('originallyAvailableAt','') ,
-                 'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')) ,
+                 'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') ,
                  'season'      : int(episode.get('parentIndex',tree.get('parentIndex',0))) }
 
-        if episode.get('sorttitle'): details['sorttitle'] = episode.get('sorttitle')
+        if episode.get('sorttitle'): details['sorttitle'] = episode.get('sorttitle').encode('utf-8')
 
         if tree.get('mixedParents','0') == '1':
             details['title'] = "%s - %sx%s %s" % ( details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'] )
@@ -2315,7 +2315,7 @@ def albums( url, tree=None ):
 
         details={'album'   : album.get('title','').encode('utf-8') ,
                  'year'    : int(album.get('year',0)) ,
-                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')) }
+                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')).encode('utf-8') }
 
         details['title']=details['album']
 
@@ -2617,11 +2617,11 @@ def movieTag(url, server, tree, movie, randomNumber):
     duration=int(mediaarguments.get('duration',movie.get('duration',0)))/1000
 
     #Required listItem entries for XBMC
-    details={'plot'      : movie.get('summary','') ,
+    details={'plot'      : movie.get('summary','').encode('utf-8') ,
              'title'     : movie.get('title','Unknown').encode('utf-8') ,
              'sorttitle'  : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
              'rating'    : float(movie.get('rating',0)) ,
-             'studio'    : movie.get('studio','') ,
+             'studio'    : movie.get('studio','').encode('utf-8') ,
              'mpaa'      : "Rated " + movie.get('contentRating', 'unknown') ,
              'year'      : int(movie.get('year',0)) ,
              'tagline'   : movie.get('tagline','') } 
@@ -2698,8 +2698,8 @@ def trackTag( server, tree, track ):
     details={'TrackNumber' : int(track.get('index',0)) ,
              'title'       : str(track.get('index',0)).zfill(2)+". "+track.get('title','Unknown').encode('utf-8') ,
              'rating'      : float(track.get('rating',0)) ,
-             'album'       : track.get('parentTitle', tree.get('parentTitle','')) ,
-             'artist'      : track.get('grandparentTitle', tree.get('grandparentTitle','')) ,
+             'album'       : track.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
+             'artist'      : track.get('grandparentTitle', tree.get('grandparentTitle','')).encode('utf-8') ,
              'duration'    : int(track.get('duration',0))/1000 }
 
     extraData={'type'         : "Music" ,
@@ -2782,10 +2782,10 @@ def music( url, tree=None ):
         if grapes.get('key',None) is None:
             continue
 
-        details={'genre'       : grapes.get('genre','') ,
-                 'artist'      : grapes.get('artist','') ,
+        details={'genre'       : grapes.get('genre','').encode('utf-8') ,
+                 'artist'      : grapes.get('artist','').encode('utf-8') ,
                  'year'        : int(grapes.get('year',0)) ,
-                 'album'       : grapes.get('album','') ,
+                 'album'       : grapes.get('album','').encode('utf-8') ,
                  'tracknumber' : int(grapes.get('index',0)) ,
                  'title'       : "Unknown" }
 
@@ -2814,19 +2814,19 @@ def music( url, tree=None ):
             if grapes.tag == "Artist":
                 printDebug("Artist Tag")
                 xbmcplugin.setContent(pluginhandle, 'artists')
-                details['title']=grapes.get('artist','Unknown')
+                details['title']=grapes.get('artist','Unknown').encode('utf-8')
 
             elif grapes.tag == "Album":
                 printDebug("Album Tag")
                 xbmcplugin.setContent(pluginhandle, 'albums')
-                details['title']=grapes.get('album','Unknown')
+                details['title']=grapes.get('album','Unknown').encode('utf-8')
 
             elif grapes.tag == "Genre":
-                details['title']=grapes.get('genre','Unknown')
+                details['title']=grapes.get('genre','Unknown').encode('utf-8')
 
             else:
                 printDebug("Generic Tag: " + grapes.tag)
-                details['title']=grapes.get('title','Unknown')
+                details['title']=grapes.get('title','Unknown').encode('utf-8')
 
             extraData['mode']=_MODE_MUSIC
             addGUIItem(u,details,extraData)
