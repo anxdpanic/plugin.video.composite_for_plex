@@ -41,7 +41,6 @@ import inspect
 import base64
 import hashlib
 import random
-import cProfile
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
