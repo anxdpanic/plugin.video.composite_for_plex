@@ -935,7 +935,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
 
             if extraData.get('type','video').lower() == "video":
                 liz.setProperty('TotalTime', str(extraData.get('duration')))
-                liz.setProperty('ResumeTime', '0')
+                liz.setProperty('ResumeTime', str(extraData.get('resume')))
             
                 if g_skipmediaflags == "false":
                     liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
@@ -957,17 +957,16 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                     liz.addStreamInfo('video', video_codec )
                     liz.addStreamInfo('audio', audio_codec )
                 
-        if details.get('overlay') == _OVERLAY_PLEX_PARTIAL:
-            printDebug("Setting IsResumable flag")
-            liz.setProperty('IsResumable', 'True')
-        else:
-            printDebug("Setting custom flag")
-            liz.setProperty('overlay', extraData.get('overlay',''))
-
         try:
             #Then set the number of watched and unwatched, which will be displayed per season
             liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
             liz.setProperty('UnWatchedEpisodes', str(extraData['UnWatchedEpisodes']))
+            
+            #Hack to show partial flag for TV shows and seasons
+            if extraData.get('partialTV') == 1:            
+                liz.setProperty('TotalTime', '100')
+                liz.setProperty('ResumeTime', '50')
+                
         except: pass
 
         #Set the fanart image if it has been enabled
@@ -1279,8 +1278,6 @@ def TVShows( url, tree=None ):
                  'tvshowname' : show.get('title','Unknown').encode('utf-8') ,
                  'studio'     : show.get('studio','') ,
                  'plot'       : show.get('summary','') ,
-                 'overlay'    : _OVERLAY_XBMC_UNWATCHED ,
-                 #'playcount'  : 0 ,
                  'season'     : 0 ,
                  'episode'    : int(show.get('leafCount',0)) ,
                  'mpaa'       : show.get('contentRating','') ,
@@ -1302,18 +1299,11 @@ def TVShows( url, tree=None ):
 
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
-            if g_skinwatched == "plexbmc":
-                details['overlay']=_OVERLAY_PLEX_UNWATCHED
-                extraData['overlay']="OverlayUnWatched.png"
+            details['playcount'] = 0
         elif extraData['UnWatchedEpisodes'] == 0:
-            if g_skinwatched == "xbmc":
-                details['overlay']=_OVERLAY_XBMC_WATCHED
-            elif g_skinwatched == "plexbmc":
-                details['overlay']=_OVERLAY_PLEX_WATCHED
-                extraData['overlay']="OverlayWatched.png"
+            details['playcount'] = 1
         else:
-            if g_skinwatched == "plexbmc":
-                details['overlay'] = _OVERLAY_PLEX_PARTIAL
+            extraData['partialTV'] = 1
 
         #Create URL based on whether we are going to flatten the season view
         if g_flatten == "2":
@@ -1374,8 +1364,6 @@ def TVSeasons( url ):
                  'sorttitle'  : season.get('titleSort', season.get('title','Unknown')).encode('utf-8') ,
                  'studio'     : season.get('studio','') ,
                  'plot'       : season.get('summary','') ,
-                 'overlay'    : _OVERLAY_XBMC_UNWATCHED ,
-                 #'playcount'  : 0 ,
                  'season'     : 0 ,
                  'episode'    : int(season.get('leafCount',0)) ,
                  'mpaa'       : season.get('contentRating','') ,
@@ -1398,18 +1386,11 @@ def TVSeasons( url ):
 
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
-            if g_skinwatched == "plexbmc":
-                details['overlay']=_OVERLAY_PLEX_UNWATCHED
-                extraData['overlay']="OverlayUnWatched.png"
+            details['playcount'] = 0
         elif extraData['UnWatchedEpisodes'] == 0:
-            if g_skinwatched == "xbmc":
-                details['overlay']=_OVERLAY_XBMC_WATCHED
-            elif g_skinwatched == "plexbmc":
-                details['overlay']=_OVERLAY_PLEX_WATCHED
-                extraData['overlay']="OverlayWatched.png"
+            details['playcount'] = 1
         else:
-            if g_skinwatched == "plexbmc":
-                details['overlay'] = _OVERLAY_PLEX_PARTIAL
+            extraData['partialTV'] = 1
 
         url='http://%s%s' % ( server , extraData['key'] )
 
@@ -1475,14 +1456,11 @@ def TVEpisodes( url, tree=None ):
         details={'plot'        : episode.get('summary','') ,
                  'title'       : episode.get('title','Unknown').encode('utf-8') ,
                  'sorttitle'   : episode.get('titleSort', episode.get('title','Unknown')).encode('utf-8')  ,
-                 #'playcount'   : int(episode.get('viewCount',0)) ,
                  'rating'      : float(episode.get('rating',0)) ,
                  'studio'      : episode.get('studio',tree.get('studio','')) ,
                  'mpaa'        : episode.get('contentRating', tree.get('grandparentContentRating','')) ,
                  'year'        : int(episode.get('year',0)) ,
                  'tagline'     : episode.get('tagline','') ,
-                 #'duration'    : str(datetime.timedelta(seconds=duration)) ,
-                 'overlay'     : _OVERLAY_XBMC_UNWATCHED ,
                  'episode'     : int(episode.get('index',0)) ,
                  'aired'       : episode.get('originallyAvailableAt','') ,
                  'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')) ,
@@ -1503,25 +1481,17 @@ def TVEpisodes( url, tree=None ):
                    'token'        : _PARAM_TOKEN ,
                    'key'          : episode.get('key',''),
                    'ratingKey'    : str(episode.get('ratingKey',0)),
-                   'duration'     : duration}
+                   'duration'     : duration,
+                   'resume'       : int(int(view_offset)/1000) }
 
         if extraData['fanart_image'] == "" and g_skipimages == "false":
             extraData['fanart_image']=sectionart
 
         #Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount',0)) > 0:
-            if g_skinwatched == "xbmc":
-                details['overlay']=_OVERLAY_XBMC_WATCHED
-            elif g_skinwatched == "plexbmc":
-                details['overlay']=_OVERLAY_PLEX_WATCHED
-                extraData['overlay']="OverlayWatched.png"
-        else: #if details['playcount'] == 0:
-            if g_skinwatched == "plexbmc":
-                extraData['overlay']="OverlayUnWatched.png"
-                details['overlay']=_OVERLAY_PLEX_UNWATCHED
-
-        if g_skinwatched == "plexbmc" and int(view_offset) > 0:
-            details['overlay'] = _OVERLAY_PLEX_PARTIAL
+            details['playcount'] = 1
+        else: 
+            details['playcount'] = 0
 
         #Extended Metadata
         if g_skipmetadata == "false":
@@ -1689,33 +1659,14 @@ def playLibraryMedia( vids, override=False, force=None ):
     printDebug("Resume has been set to " + str(resume))
 
     item = xbmcgui.ListItem(path=playurl)
-    result=1
 
-    if not force:
-
-        if resume > 0:
-            displayTime = str(datetime.timedelta(seconds=int(resume)))
-            dialogOptions = [ "Resume from " + displayTime , "Start from beginning"]
-            printDebug( "We have part way through video.  Display resume dialog")
-            startTime = xbmcgui.Dialog()
-            result = startTime.select('Resuming playback..',dialogOptions)
-
-            if result == -1:
-                printDebug("Playback canecelled")
-                return
-
-            if result == 1:
-                printDebug("Playback from Beginning")
-                getURL("http://"+server+"/:/unscrobble?key="+id+"&identifier=com.plexapp.plugins.library",suppress=True)
-
-    else:
-        result=0
+    if force:
         if int(force) > 0:
             resume=int(int(force)/1000)
         else:
             resume=force
         
-    if result == 0:
+    if resume:
         printDebug ("Playback from resume point")
         item.setProperty('ResumeTime', str(resume) )
         item.setProperty('TotalTime', str(duration) )
@@ -2669,14 +2620,11 @@ def movieTag(url, server, tree, movie, randomNumber):
     details={'plot'      : movie.get('summary','') ,
              'title'     : movie.get('title','Unknown').encode('utf-8') ,
              'sorttitle'  : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
-             'playcount' : int(movie.get('viewCount',0)) ,
              'rating'    : float(movie.get('rating',0)) ,
              'studio'    : movie.get('studio','') ,
              'mpaa'      : "Rated " + movie.get('contentRating', 'unknown') ,
              'year'      : int(movie.get('year',0)) ,
-             'tagline'   : movie.get('tagline','') ,
-             #'duration'  : str(datetime.timedelta(seconds=duration)) ,
-             'overlay'   : _OVERLAY_XBMC_UNWATCHED }
+             'tagline'   : movie.get('tagline','') } 
 
     #Extra data required to manage other properties
     extraData={'type'         : "Video" ,
@@ -2685,20 +2633,14 @@ def movieTag(url, server, tree, movie, randomNumber):
                'token'        : _PARAM_TOKEN ,
                'key'          : movie.get('key',''),
                'ratingKey'    : str(movie.get('ratingKey',0)),
-               'duration'     : duration }
+               'duration'     : duration,
+               'resume'       : int (int(view_offset)/1000) }
 
     #Determine what tupe of watched flag [overlay] to use
-    if details['playcount'] > 0:
-        if g_skinwatched == "xbmc":
-            details['overlay']=_OVERLAY_XBMC_WATCHED
-        elif g_skinwatched == "plexbmc":
-            details['overlay']=_OVERLAY_PLEX_WATCHED
-    elif details['playcount'] == 0:
-        if g_skinwatched == "plexbmc":
-            details['overlay']=_OVERLAY_PLEX_UNWATCHED
-
-    if g_skinwatched == "plexbmc" and int(view_offset) > 0:
-        details['overlay'] = _OVERLAY_PLEX_PARTIAL
+    if int(movie.get('viewCount',0)) > 0:
+        details['playcount'] = 1
+    elif int(movie.get('viewCount',0)) == 0:
+        details['playcount'] = 0
 
     #Extended Metadata
     if g_skipmetadata == "false":
@@ -3671,6 +3613,7 @@ def deleteMedia( url ):
         xbmc.executebuiltin("Container.Refresh")
 
     return True
+
 def getAuthTokenFromURL( url ):
     if "X-Plex-Token=" in url:
         return url.split('X-Plex-Token=')[1]
