@@ -938,6 +938,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                 liz.setProperty('ResumeTime', str(extraData.get('resume')))
             
                 if g_skipmediaflags == "false":
+                    printDebug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
                     liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
                     liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
                     liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
@@ -948,6 +949,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                     if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
                     if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
                     if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
+                    if extraData.get('xbmc_width') : video_codec['width'] = int(extraData.get('xbmc_height'))
                     if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
 
                     audio_codec={}
@@ -2679,6 +2681,7 @@ def getMediaData ( tag_dict ):
                 'AudioChannels'      : tag_dict.get('audioChannels','') ,
                 'VideoAspect'        : tag_dict.get('aspectRatio','') ,
                 'xbmc_height'        : tag_dict.get('height') ,
+                'xbmc_width'         : tag_dict.get('height') ,
                 'xbmc_VideoCodec'    : tag_dict.get('videoCodec') ,
                 'xbmc_AudioCodec'    : tag_dict.get('audioCodec') ,
                 'xbmc_AudioChannels' : tag_dict.get('audioChannels') ,
