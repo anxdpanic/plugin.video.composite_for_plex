@@ -4,7 +4,7 @@
 	<string id="30001">Stream from PMS</string>
     <string id="30002">Get extended metadata from PMS</string>
     <string id="30003">Enable extra filter menus</string>
-	<string id="30004">Bonjour discovery?</string>
+	<string id="30004">Automatic Discovery?</string>
 	<string id="30005">PMS Username: </string>
 	<string id="30006">PMS Password: </string>
     <string id="30007">Always transcode? </string>
@@ -54,7 +54,7 @@
     <string id="30051">Skip Media Flags</string>
     <string id="30052">Skip Context Menus</string>
     <string id="30053">Off</string>
-    <string id="30054">On</string>
+    <string id="30054">Bonjour</string>
     <string id="30056">Play TV Theme Music</string>
     <string id="30057">Select audio output</string>
     <string id="30058">If only one season</string>
@@ -69,4 +69,5 @@
 	<string id="30067">Plex Control</string>
 	<string id="30068">Subtitle Size</string>
 	<string id="30069">Audio Boost</string>
+	<string id="30070">GDM</string>
 </strings>

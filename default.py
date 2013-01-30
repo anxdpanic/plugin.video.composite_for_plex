@@ -49,11 +49,6 @@ PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
 PLEXBMC_VERSION="3.0.5"
 
-try:
-    from bonjourFind import *
-except:
-    print "BonjourFind Import Error"
-
 print "===== PLEXBMC START ====="
 
 print "PleXBMC -> running Python: " + str(sys.version_info)
@@ -248,12 +243,13 @@ def discoverAllServers( ):
         @return: None
     '''
     printDebug("== ENTER: discoverAllServers ==", False)
-    g_bonjour = __settings__.getSetting('bonjour')
+    g_discovery = __settings__.getSetting('discovery')
 
     #Set to Bonjour
-    if g_bonjour == "1":
+    if g_discovery == "1":
         printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
         try:
+            from bonjourFind import *
             printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
             bonjourServer = bonjourFind("_plexmediasvr._tcp")
 
@@ -265,17 +261,51 @@ def discoverAllServers( ):
 
                 g_serverDict.append({'name'      : bj_server_name.split('.')[0] ,
                                      'address'   : bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0] ,
-                                     'discovery' : 'bonjour' ,
+                                     'discovery' : 'auto' ,
                                      'token'     : None ,
                                      'uuid'      : None })
 
 
             else:
-                printDebug("BonjourFind was not able to discovery any servers")
+                printDebug("BonjourFind was not able to discover any servers")
 
         except:
             print "PleXBMC -> Bonjour Issue.  Possibly not installed on system"
-            xbmcgui.Dialog().ok("Bonjour Error","Is Bonojur installed on this system?")
+            xbmcgui.Dialog().ok("Bonjour Error","Is Bonjour installed on this system?")
+    
+    elif g_discovery == "2":
+        printDebug("PleXBMC -> local GDM discovery setting enabled.", False)
+        try:
+            import plexgdm
+            printDebug("Attempting GDM lookup on multicast")
+            if g_debug == "true":
+                GDM_debug=3
+            else:
+                GDM_debug=0
+
+            gdm_client = plexgdm.plexgdm(GDM_debug)
+
+            gdm_client.discover()
+            gdm_server_name = gdm_client.getServerList()
+                        
+            if gdm_client.discovery_complete and gdm_server_name:
+                printDebug("GDM discovery completed")
+                #Add the first found server to the list - we will find rest from here
+
+                g_serverDict.append({'name'      : gdm_server_name[0]['name'].split('.')[0] ,
+                                     'address'   : gdm_server_name[0]['server']+":"+gdm_server_name[0]['port'] ,
+                                     'discovery' : 'auto' ,
+                                     'token'     : None ,
+                                     'uuid'      : None })
+
+
+            else:
+                printDebug("GDM was not able to discover any servers")
+
+        except:
+            print "PleXBMC -> GDM Issue."
+
+    #Set to Disabled
 
     #Set to Disabled
     else:
@@ -323,7 +353,7 @@ def resolveAllServers( ):
 
     for servers in g_serverDict:
 
-        if ( servers['discovery'] == 'local' ) or ( servers['discovery'] == 'bonjour' ):
+        if ( servers['discovery'] == 'local' ) or ( servers['discovery'] == 'auto' ):
             localServers+=getLocalServers()
         elif servers['discovery'] == 'myplex':
             localServers+=getMyPlexServers()
@@ -380,7 +410,7 @@ def getAllSections( ):
 
     for server in g_serverDict:
 
-        if server['discovery'] == "local" or server['discovery'] == "bonjour":
+        if server['discovery'] == "local" or server['discovery'] == "auto":
             html=getURL('http://'+server['address']+'/system/library/sections')
         elif server['discovery'] == "myplex":
             html=getMyPlexURL('/pms/system/library/sections')
@@ -518,7 +548,7 @@ def getLocalServers( ):
 
     for local in g_serverDict:
 
-        if local.get('discovery') == "local" or local.get('discovery') == "bonjour":
+        if local.get('discovery') == "local" or local.get('discovery') == "auto":
             html = getURL(local['address']+url_path)
             break
 
