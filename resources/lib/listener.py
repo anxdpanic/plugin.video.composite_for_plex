@@ -167,7 +167,7 @@ class XBMCjson:
 
         if html is False:
             print "PleXBMC Helper -> listener -> request not completed"
-            xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request,)")
+            #xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request,)")
             return False
         
         if html:
