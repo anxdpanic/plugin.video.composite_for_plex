@@ -94,7 +94,8 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.wfile.write(result)
                 s.send_response(200)
             elif request_path == "xbmcCmds/xbmcHttp":
-                #s.send_response(200)
+                s.wfile.write("<html><li>OK</html>")
+                s.send_response(200)
                 print "PleXBMC Helper -> listener -> Detected remote application request"
                 printDebug ( "Path: %s" % ( s.path , ) )
                 command_path=s.path.split('?')[1]
