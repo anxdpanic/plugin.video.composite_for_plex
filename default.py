@@ -1697,10 +1697,10 @@ def playLibraryMedia( vids, override=False, force=None ):
         else:
             resume=force
         
-    if resume:
-        printDebug ("Playback from resume point")
-        item.setProperty('ResumeTime', str(resume) )
-        item.setProperty('TotalTime', str(duration) )
+        if resume:
+            printDebug ("Playback from resume point")
+            item.setProperty('ResumeTime', str(resume) )
+            item.setProperty('TotalTime', str(duration) )
 
     if override:
         start=xbmc.Player().play(listitem=item)
