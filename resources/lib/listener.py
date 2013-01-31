@@ -115,6 +115,11 @@ class MyHandler(BaseHTTPRequestHandler):
         except:
             pass   
 
+    def address_string(self):
+        host, port = self.client_address[:2]
+        #return socket.getfqdn(host)
+        return host            
+            
 class XBMCjson:
 
     def __init__(self,command):
