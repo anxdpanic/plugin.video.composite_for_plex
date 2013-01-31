@@ -249,9 +249,9 @@ def discoverAllServers( ):
     if g_discovery == "1":
         printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
         try:
-            from bonjourFind import *
+            import bonjourFind
             printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
-            bonjourServer = bonjourFind("_plexmediasvr._tcp")
+            bonjourServer = bonjourFind.bonjourFind("_plexmediasvr._tcp")
 
             if bonjourServer.complete:
                 printDebug("Bonjour discovery completed")
