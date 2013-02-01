@@ -2870,7 +2870,7 @@ def music( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
-def getThumb( data, server ):
+def getThumb( data, server, transcode=False, width=None, height=None ):
     '''
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
@@ -2890,7 +2890,10 @@ def getThumb( data, server ):
         return thumbnail
 
     elif thumbnail[0] == '/':
-        return 'http://'+server+thumbnail
+        if transcode:
+            return photoTranscode(server,'http://localhost:32400'+thumbnail,width,height)
+        else:
+            return 'http://'+server+thumbnail
 
     else:
         return g_loc+'/resources/plex.png'
@@ -2914,7 +2917,7 @@ def getFanart( data, server, transcode=True ):
 
     elif fanart[0] == '/':
         if transcode:
-            return photoTranscode(server,'http://localhost:32400'+fanart)
+            return photoTranscode(server,'http://localhost:32400'+fanart,1280,720)
         else:
             return 'http://%s%s' % (server, fanart)
 
@@ -3104,8 +3107,8 @@ def channelView( url ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
-def photoTranscode( server, url ):
-        return 'http://%s/photo/:/transcode?url=%s&width=1280&height=720' % (server, urllib.quote_plus(url))
+def photoTranscode( server, url, width=1280, height=720 ):
+        return 'http://%s/photo/:/transcode?url=%s&width=%s&height=%s' % (server, urllib.quote_plus(url), width, height)
 
 def skin( ):
     #Gather some data and set the window properties

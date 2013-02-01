@@ -1,4 +1,5 @@
 Current Release:
+[b] Version 3.0.7 [/b] - Fix resume / add plex GDM   
 [b] Version 3.0.6 [/b] - Fix watched flags / skin views / resume / tidy 
 
 Selected Release Highlights..
