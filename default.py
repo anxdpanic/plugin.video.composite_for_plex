@@ -3850,6 +3850,10 @@ elif sys.argv[1] == "watch":
     watched(url)
 elif sys.argv[1] == "setting":
     __settings__.openSettings()
+    WINDOW = xbmcgui.getCurrentWindowId()
+    if WINDOW == 10000:
+        printDebug("Currently in home - refreshing to allow new settings to be taken")
+        xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
 elif sys.argv[1] == "delete":
     url=sys.argv[2]
     deleteMedia(url)
