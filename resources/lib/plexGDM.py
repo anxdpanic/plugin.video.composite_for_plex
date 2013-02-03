@@ -124,12 +124,7 @@ class plexgdm:
             update_sock.sendto("BYE %s\n%s" % (self.client_header, self.client_data), self.client_register_group)
         except:
             self.__printDebug( "Error: Unable to send client update message" ,0)
-           
-        #try:
-        #    update_sock.close()
-        #except:
-        #    pass
-            
+                       
         self.client_registered = False
                            
     def check_client_registration(self):
