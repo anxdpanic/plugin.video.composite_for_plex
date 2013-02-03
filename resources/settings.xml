@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="General" >
-        <setting id="c_name" type="text" label="Client Name" default="PleXBMC Client" />
-        <setting id="xbmcport" type="text" label="XBMC Web Port" default="80" />
-        <setting id="xbmcuser" type="text" label="XBMC Web User" default="" />
-        <setting id="xbmcpass" type="text" option="hidden" label="XBMC Web Password" default="" />
+		<setting id="use_xbmc_name" type=bool label="Use XBMC client name?" default="false" />
+        <setting id="c_name" type="text" label="Client Name" default="PleXBMC Client" visible="eq(-1,false)" />
+		<setting id="use_xbmc_net" type=bool label="Use XBMC Webserver settings?" default="true" />
+        <setting id="xbmcport" type="text" label="XBMC Web Port" default="80" visible="eq(-1,false)" />
+        <setting id="xbmcuser" type="text" label="XBMC Web User" default="" visible="eq(-2,false)" />
+        <setting id="xbmcpass" type="text" option="hidden" label="XBMC Web Password" default="" visible="eq(-3,false)" />
     </category>
     <category label="Debug" >
         <setting id="debug" type="bool" label="30014" default="false" />

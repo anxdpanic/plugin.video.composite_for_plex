@@ -36,14 +36,14 @@ import inspect
 import os
 import uuid
 import json
-
+from xml.dom.minidom import parseString
 
 __settings__ = xbmcaddon.Addon(id='script.plexbmc.helper')
 __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.0.5"
+PLEXBMC_VERSION="3.0.6"
 
 from listener import *
 import plexgdm
@@ -72,7 +72,11 @@ def getPlatform( ):
 
     return "Unknown"
 
-
+def getAddonSetting(doc,id):
+    test = doc.getElementsByTagName(id)
+    data = test[0].toxml()   
+    return data.replace('<%s>' % id, '').replace('</%s>' % id,'').replace('<%s/>' % id, '')       
+            
 print "===== PLEXBMC HELPER START ====="
 
 print "PleXBMC Helper -> running Python: " + str(sys.version_info)
@@ -82,21 +86,45 @@ print "PleXBMC Helper -> running Version: " + str(PLEXBMC_VERSION)
 g_debug = __settings__.getSetting('debug')
 g_gdm_debug = __settings__.getSetting('gdm_debug')
 
-g_client_name = __settings__.getSetting('c_name')
-if not g_client_name:
-    g_client_name="PleXBMC Client"
+#Read XBMC guisettings.xml file
+g_pguisettings = xbmc.translatePath('special://userdata/guisettings.xml')
+
+try:
+    fguisettings = open(g_pguisettings, 'r')
+    data = fguisettings.read()
+    fguisettings.close
+    guisettings = parseString(data)
+except:
+    print "PleXBMC Helper -> Unable to read guisettings.xml - suggest you use custom settings"
+    
+g_use_xbmc = __settings__.getSetting('use_xbmc_name')
+
+if g_use_xbmc == "false":    
+    g_client_name = __settings__.getSetting('c_name')
+    if not g_client_name:
+        g_client_name="PleXBMC Client"
+else:
+        g_client_name=getAddonSetting(guisettings, 'devicename')
+           
+if __settings__.getSetting('use_xbmc_net') == "false":   
+    g_xbmc_port = __settings__.getSetting('xbmcport')
+    if not g_xbmc_port:
+        g_xbmc_port=80
+    print "PleXBMC Helper -> Platform: " + str(PLEXBMC_PLATFORM)
+    g_xbmc_user = __settings__.getSetting('xbmcuser')
+else:
+    xbmc_webserver = getAddonSetting(guisettings, 'webserver')
+    if xbmc_webserver == "false":
+        print "PleXBMC Helper -> XBMC Web server not enabled"
+        xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - XBMC web server not running,)")
+    g_xbmc_port = getAddonSetting(guisettings, 'webserverport')
+    g_xbmc_user = getAddonSetting(guisettings, 'webserverusername')
     
 g_identifier = __settings__.getSetting('uuid')
 if not g_identifier:
     g_identifier=str(uuid.uuid4())
     __settings__.setSetting('uuid',g_identifier)
-
-g_xbmc_port = __settings__.getSetting('xbmcport')
-if not g_xbmc_port:
-    g_xbmc_port=80
-
-g_xbmc_user = __settings__.getSetting('xbmcuser')
-
+    
 PLEXBMC_PLATFORM=getPlatform()
 print "PleXBMC Helper -> Platform: " + str(PLEXBMC_PLATFORM)
 print "PleXBMC Helper -> UUID: " + str(g_identifier)

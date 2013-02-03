@@ -36,22 +36,48 @@ import xbmc
 import base64
 import string
 import inspect
+from xml.dom.minidom import parseString
+
+def getAddonSetting(doc,id):
+    test = doc.getElementsByTagName(id)
+    data = test[0].toxml()   
+    return data.replace('<%s>' % id, '').replace('</%s>' % id,'').replace('<%s/>' % id, '')       
+
 
 __settings__ = xbmcaddon.Addon(id='script.plexbmc.helper')
-g_xbmc_port = __settings__.getSetting('xbmcport')
-if not g_xbmc_port:
-    g_xbmc_port=80
-    
 g_header={'Content-Type' : 'application/json'}  
-g_xbmc_user = __settings__.getSetting('xbmcuser')
-if g_xbmc_user:
+g_pguisettings = xbmc.translatePath('special://userdata/guisettings.xml')
+
+try:
+    fguisettings = open(g_pguisettings, 'r')
+    data = fguisettings.read()
+    fguisettings.close
+    guisettings = parseString(data)
+except:
+    print "PleXBMC Helper -> Unable to read guisettings.xml - suggest you use custom settings"
+
+if __settings__.getSetting('use_xbmc_net') == "false":   
+    g_xbmc_port = __settings__.getSetting('xbmcport')
+    if not g_xbmc_port:
+        g_xbmc_port=80
+    g_xbmc_user = __settings__.getSetting('xbmcuser')
     g_xbmc_pass=__settings__.getSetting('xbmcpass')
+
+else:
+    xbmc_webserver = getAddonSetting(guisettings, 'webserver')
+    if xbmc_webserver == "false":
+        print "PleXBMC Helper -> XBMC Web server not enabled"
+        xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - XBMC web server not running,)")
+    g_xbmc_port = getAddonSetting(guisettings, 'webserverport')
+    g_xbmc_user = getAddonSetting(guisettings, 'webserverusername')
+    g_xbmc_pass = getAddonSetting(guisettings, 'webserverpassword')
+
+if g_xbmc_user:
     auth = 'Basic ' + string.strip(base64.encodestring(g_xbmc_user + ':' + g_xbmc_pass))
     g_header['Authorization']=auth
 
 g_debug = __settings__.getSetting('debug')
-    
-    
+   
 def printDebug( msg, functionname=True ):
     if g_debug == "true":
         if functionname is False:
