@@ -3172,7 +3172,10 @@ def skin( ):
     numOfServers=len(allservers)
 
     for server in allservers:
-
+    
+        aToken=getAuthDetails(server)
+        qToken=getAuthDetails(server, prefix='?')
+        
         if g_channelview == "true":
             WINDOW.setProperty("plexbmc.channel", "1")
             WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['address']+"/system/plugins/all&mode=21"+aToken+",return)")
