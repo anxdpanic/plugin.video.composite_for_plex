@@ -3323,7 +3323,7 @@ def shelf( ):
         if not server_details['owned'] == '1':
             continue
     
-        _PARAM_TOKEN = server_details['token']
+        _PARAM_TOKEN = server_details.get('token','')
         
         tree=getXML('http://'+server_details['server']+":"+server_details['port']+'/library/recentlyAdded')
         if tree is None:
@@ -3467,7 +3467,7 @@ def shelfChannel( ):
             continue
         
         global _PARAM_TOKEN
-        _PARAM_TOKEN = server_details['token']
+        _PARAM_TOKEN = server_details.get('token','')
 
         if __settings__.getSetting('channelShelf') == "false":
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )

@@ -210,7 +210,7 @@ class plexgdm:
                         if "Content-Type:" in each:
                             update['content-type'] = each.split(':')[1].strip()
                         elif "Resource-Identifier:" in each:
-                            update['resource-identifier'] = each.split(':')[1].strip()
+                            update['uuid'] = each.split(':')[1].strip()
                         elif "Name:" in each:
                             update['serverName'] = each.split(':')[1].strip()
                         elif "Port:" in each:
