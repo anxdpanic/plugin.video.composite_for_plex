@@ -202,6 +202,8 @@ class plexgdm:
             
                     for each in response.get('data').split('\n'):
 
+                        update['discovery'] = "auto"
+                    
                         if "Content-Type:" in each:
                             update['content-type'] = each.split(':')[1].strip()
                         elif "Resource-Identifier:" in each:
