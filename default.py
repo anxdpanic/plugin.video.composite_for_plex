@@ -3580,28 +3580,28 @@ def displayServers( url ):
 
         if type == "video":
             extraData['mode']=_MODE_PLEXPLUGINS
-            s_url='http://%s/video' % ( mediaserver.get('address','') )
+            s_url='http://%s:%s/video' % ( mediaserver.get('server',''), mediaserver.get('port') )
             if Servers_list == 1:
                 PlexPlugins(s_url)
                 return
 
         elif type == "online":
             extraData['mode']=_MODE_PLEXONLINE
-            s_url='http://%s/system/plexonline' % ( mediaserver.get('address','') )
+            s_url='http://%s:%s/system/plexonline' % ( mediaserver.get('server', ''),mediaserver.get('port') )
             if Servers_list == 1:
                 plexOnline(s_url)
                 return
 
         elif type == "music":
             extraData['mode']=_MODE_MUSIC
-            s_url='http://%s/music' % ( mediaserver.get('address','') )
+            s_url='http://%s:%s/music' % ( mediaserver.get('server', ''),mediaserver.get('port') )
             if Servers_list == 1:
                 music(s_url)
                 return
 
         elif type == "photo":
             extraData['mode']=_MODE_PHOTOS
-            s_url='http://%s/photos' % ( mediaserver.get('address','') )
+            s_url='http://%s:%s/photos' % ( mediaserver.get('server', ''),mediaserver.get('port') )
             if Servers_list == 1:
                 photo(s_url)
                 return
