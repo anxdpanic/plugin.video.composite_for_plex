@@ -203,13 +203,16 @@ class plexgdm:
                     for each in response.get('data').split('\n'):
 
                         update['discovery'] = "auto"
+                        update['owned']='1'
+                        update['master']= 1
+                        update['role']='master'
                     
                         if "Content-Type:" in each:
                             update['content-type'] = each.split(':')[1].strip()
                         elif "Resource-Identifier:" in each:
                             update['resource-identifier'] = each.split(':')[1].strip()
                         elif "Name:" in each:
-                            update['name'] = each.split(':')[1].strip()
+                            update['serverName'] = each.split(':')[1].strip()
                         elif "Port:" in each:
                             update['port'] = each.split(':')[1].strip()
                         elif "Updated-At:" in each:
@@ -226,7 +229,7 @@ class plexgdm:
         else:
             self.__printDebug("Number of servers Discovered: %s" % len(self.server_list),1)
             for items in self.server_list:
-                self.__printDebug("Server Discovered: %s" % items['name'] ,2)
+                self.__printDebug("Server Discovered: %s" % items['serverName'] ,2)
                 
 
     def setInterval(self, interval):

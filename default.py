@@ -243,35 +243,15 @@ def discoverAllServers( ):
         @return: None
     '''
     printDebug("== ENTER: discoverAllServers ==", False)
+    
+    das_servers={}
+    das_server_index=0
+    
     g_discovery = __settings__.getSetting('discovery')
 
     #Set to Bonjour
     if g_discovery == "1":
         printDebug("PleXBMC -> local Bonjour discovery has been deprecated.", False)
-        #try:
-        #    import bonjourFind
-        #    printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
-        #    bonjourServer = bonjourFind.bonjourFind("_plexmediasvr._tcp")
-
-        #    if bonjourServer.complete:
-        #        printDebug("Bonjour discovery completed")
-        #        #Add the first found server to the list - we will find rest from here
-
-        #        bj_server_name = bonjourServer.bonjourName[0].encode('utf-8')
-
-        #        g_serverDict.append({'name'      : bj_server_name.split('.')[0] ,
-        #                             'address'   : bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0] ,
-        #                             'discovery' : 'auto' ,
-        #                             'token'     : None ,
-        #                             'uuid'      : None })
-
-
-        #    else:
-        #        printDebug("BonjourFind was not able to discover any servers")
-
-        #except:
-        #    print "PleXBMC -> Bonjour Issue.  Possibly not installed on system"
-        #    xbmcgui.Dialog().ok("Bonjour Error","Is Bonjour installed on this system?")
     
     elif g_discovery == "2":
         printDebug("PleXBMC -> local GDM discovery setting enabled.", False)
@@ -290,16 +270,10 @@ def discoverAllServers( ):
                         
             if gdm_client.discovery_complete and gdm_server_name:
                 printDebug("GDM discovery completed")
-                g_serverDict = gdm_server_name
-                #Add the first found server to the list - we will find rest from here
-
-                #g_serverDict.append({'name'      : gdm_server_name[0]['name'].split('.')[0] ,
-                #                     'address'   : gdm_server_name[0]['server']+":"+gdm_server_name[0]['port'] ,
-                #                     'discovery' : 'auto' ,
-                #                     'token'     : None ,
-                #                     'uuid'      : None })
-
-
+                for device in gdm_server_name:
+                
+                    das_servers[das_server_index] = device
+                    das_server_index = das_server_index + 1
             else:
                 printDebug("GDM was not able to discover any servers")
 
@@ -307,189 +281,63 @@ def discoverAllServers( ):
             print "PleXBMC -> GDM Issue."
 
     #Set to Disabled
-
-    #Set to Disabled
     else:
-        g_host = __settings__.getSetting('ipaddress')
-        g_port =__settings__.getSetting('port')
+        das_host = __settings__.getSetting('ipaddress')
+        das_port =__settings__.getSetting('port')
 
-        if not g_host or g_host == "<none>":
-            g_host=None
-        elif not g_port:
+        if not das_host or das_host == "<none>":
+            das_host=None
+        elif not das_port:
             printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT, False)
-            g_host=g_host+":"+DEFAULT_PORT
-        else:
-            g_host=g_host+":"+g_port
-            printDebug( "PleXBMC -> Settings hostname and port: " + g_host, False)
+            das_port=DEFAULT_PORT
+       
+        printDebug( "PleXBMC -> Settings hostname and port: %s : %s" % ( das_host, das_port), False)
 
-        if g_host is not None:
-            g_serverDict.append({'serverName': 'unknown' ,
-                                 'address'   : g_host ,
-                                 'discovery' : 'local' ,
-                                 'token'     : None ,
-                                 'uuid'      : None ,
-                                 'role'      : 'master' })
-
+        if das_host is not None:
+            das_servers[das_server_index] = getLocalServers(das_host, das_port)
+            das_server_index = das_server_index + 1
+                                 
     if __settings__.getSetting('myplex_user') != "":
         printDebug( "PleXBMC -> Adding myplex as a server location", False)
-        g_serverDict.append({'serverName': 'MYPLEX' ,
-                             'address'   : "my.plex.app" ,
-                             'discovery' : 'myplex' ,
-                             'token'     : None ,
-                             'uuid'      : None ,
-                             'role'      : 'master' })
+
+        das_myplex = getMyPlexServers()
+        if das_myplex:
+            printDebug("MyPlex discovery completed")
+            for device in das_myplex:
+            
+                das_servers[das_server_index] = device
+                das_server_index = das_server_index + 1
 
 
-    printDebug("PleXBMC -> serverList is " + str(g_serverDict), False)
+    printDebug("PleXBMC -> serverList is " + str(das_servers), False)
 
-def resolveAllServers( ):
+    return resolveAllServers(das_servers)
+
+def getLocalServers( ip_address, port ):
     '''
-      Return list of all media sections configured
-      within PleXBMC
-      @input: None
-      @Return: unique list of media servers
+        Connect to the defined local server (either direct or via bonjour discovery)
+        and get a list of all known servers.
+        @input: nothing
+        @return: a list of servers (as Dict)
     '''
-    printDebug("== ENTER: resolveAllServers ==", False)
-    localServers=[]
+    printDebug("== ENTER: getLocalServers ==", False)
+    
+    url_path="/"
+    html = getURL(ip_address+":"+port+url_path)
 
-    for servers in g_serverDict:
+    if html is False:
+         return []
 
-        if ( servers['discovery'] == 'local' ) or ( servers['discovery'] == 'auto' ):
-            localServers+=getLocalServers()
-        elif servers['discovery'] == 'myplex':
-            localServers+=getMyPlexServers()
+    server=etree.fromstring(html)
 
-    printDebug ("Resolved server List: " + str(localServers))
-
-    '''If we have more than one server source, then
-       we need to ensure uniqueness amonst the
-       seperate servers.
-
-       If we have only one server source, then the assumption
-       is that Plex will deal with this for us.
-    '''
-
-    if len(g_serverDict) > 1:
-        oneCount=0
-        for onedevice in localServers:
-
-            twoCount=0
-            for twodevice in localServers:
-
-                #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['uuid'] + " and " + twodevice['uuid'])
-
-                if oneCount == twoCount:
-                    #printDebug( "skip" )
-                    twoCount+=1
-                    continue
-
-                if onedevice['uuid'] == twodevice['uuid']:
-                    #printDebug ( "match" )
-                    if onedevice['discovery'] == "local":
-                        localServers.pop(twoCount)
-                    else:
-                        localServers.pop(oneCount)
-                #else:
-                #    printDebug( "no match" )
-
-                twoCount+=1
-
-            oneCount+=1
-
-    printDebug ("Unique server List: " + str(localServers))
-    return localServers
-
-def getAllSections( ):
-    '''
-        from g_serverDict, get a list of all the available sections
-        and deduplicate the sections list
-        @input: None
-        @return: None (alters the global value g_sectionList)
-    '''
-    printDebug("== ENTER: getAllSections ==", False)
-    printDebug("Using servers list: " + str(g_serverDict))
-
-    for server in g_serverDict:
-
-        if server['discovery'] == "local" or server['discovery'] == "auto":
-            html=getURL('http://'+server['address']+'/system/library/sections')
-        elif server['discovery'] == "myplex":
-            html=getMyPlexURL('/pms/system/library/sections')
-
-        if html is False:
-            continue
-
-        tree = etree.fromstring(html).getiterator("Directory")
-
-        for sections in tree:
-
-            g_sections.append({'title':sections.get('title','Unknown').encode('utf-8'),
-                               'address': sections.get('host','Unknown')+":"+sections.get('port'),
-                               'serverName' : sections.get('serverName','Unknown').encode('utf-8'),
-                               'uuid' : sections.get('machineIdentifier','Unknown') ,
-                               'path' : sections.get('path') ,
-                               'token' : sections.get('accessToken',None) ,
-                               'location' : server['discovery'] ,
-                               'art' : sections.get('art') ,
-                               'local' : sections.get('local') ,
-                               'type' : sections.get('type','Unknown') })
-
-    '''If we have more than one server source, then
-       we need to ensure uniqueness amonst the
-       seperate sections.
-
-       If we have only one server source, then the assumption
-       is that Plex will deal with this for us
-    '''
-    if len(g_serverDict) > 1:
-        oneCount=0
-        for onedevice in g_sections:
-
-            twoCount=0
-            for twodevice in g_sections:
-
-                #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title']))
-                #printDebug( "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid'])
-
-                if oneCount == twoCount:
-                    #printDebug( "skip" )
-                    twoCount+=1
-                    continue
-
-                if ( str(onedevice['title']) == str(twodevice['title']) ) and ( onedevice['uuid'] == twodevice['uuid'] ):
-                    #printDebug( "match")
-                    if onedevice['local'] == "1":
-                        #printDebug ( "popping 2 " + str(g_sections.pop(twoCount)))
-                        g_sections.pop(twoCount)
-                    else:
-                        #printDebug ( "popping 1 " + str(g_sections.pop(oneCount)))
-                        g_sections.pop(oneCount)
-                #else:
-                #    printDebug( "no match")
-
-                twoCount+=1
-
-            oneCount+=1
-
-def getAuthDetails( details, url_format=True, prefix="&" ):
-    '''
-        Takes the token and creates the required arguments to allow
-        authentication.  This is really just a formatting tools
-        @input: token as dict, style of output [opt] and prefix style [opt]
-        @return: header string or header dict
-    '''
-    token = details.get('token', None)
-
-    if url_format:
-        if token:
-            return prefix+"X-Plex-Token="+str(token)
-        else:
-            return ""
-    else:
-        if token:
-            return {'X-Plex-Token' : token }
-        else:
-            return {}
+    return {'serverName': server.get('friendlyName','Unknown').encode('utf-8') ,
+                        'server'    : ip_address,
+                        'port'      : port ,
+                        'discovery' : 'local' ,
+                        'token'     : None ,
+                        'uuid'      : server.get('machineIdentifier') ,
+                        'owned'     : '1' ,
+                        'master'    : 1 }
 
 def getMyPlexServers( ):
     '''
@@ -524,7 +372,8 @@ def getMyPlexServers( ):
             accessToken=data.get('accessToken',None)
 
         tempServers.append({'serverName': data['name'].encode('utf-8') ,
-                            'address'   : data['address']+":"+data['port'] ,
+                            'server'    : data['address'] ,
+                            'port'      : data['port'] ,
                             'discovery' : 'myplex' ,
                             'token'     : accessToken ,
                             'uuid'      : data['machineIdentifier'] ,
@@ -532,50 +381,202 @@ def getMyPlexServers( ):
                             'master'    : master })
 
     return tempServers
-
-def getLocalServers( ):
+                                       
+def resolveAllServers( server_list ):
     '''
-        Connect to the defined local server (either direct or via bonjour discovery)
-        and get a list of all known servers.
-        @input: nothing
-        @return: a list of servers (as Dict)
+      Return list of all media sections configured
+      within PleXBMC
+      @input: None
+      @Return: unique list of media servers
+    '''
+    printDebug("== ENTER: resolveAllServers ==", False)
+
+    '''If we have more than one server source, then
+       we need to ensure uniqueness amonst the
+       seperate servers.
+
+       If we have only one server source, then the assumption
+       is that Plex will deal with this for us.
     '''
 
-    printDebug("== ENTER: getLocalServers ==", False)
+    if len(server_list) <= 1:
+        return server_list
 
-    tempServers=[]
-    url_path="/servers"
-    html=False
+    temp_list=server_list.values()
+    oneCount=0
+    for onedevice in temp_list:
 
-    for local in g_serverDict:
+        twoCount=0
+        for twodevice in temp_list:
 
-        if local.get('discovery') == "local" or local.get('discovery') == "auto":
-            html = getURL(local['address']+url_path)
-            break
+            #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['uuid'] + " and " + twodevice['uuid'])
+
+            if oneCount == twoCount:
+                #printDebug( "skip" )
+                twoCount+=1
+                continue
+
+            if onedevice['uuid'] == twodevice['uuid']:
+                #printDebug ( "match" )
+                if onedevice['discovery'] == "local":
+                    temp_list.pop(twoCount)
+                else:
+                    temp_list.pop(oneCount)
+            #else:
+            #    printDebug( "no match" )
+
+            twoCount+=1
+
+        oneCount+=1
+
+
+    count=0
+    unique_list={}
+    for i in temp_list:
+        unique_list[count] = i
+        count = count + 1
+
+    printDebug ("Unique server List: " + str(unique_list))
+
+    return unique_list
+
+def getServerSections ( ip_address, port, name, uuid):
+    printDebug("== ENTER: getServerSections ==", False)
+
+    html=getURL('http://%s:%s/library/sections' % ( ip_address, port))
 
     if html is False:
-         return tempServers
+        return {}
 
-    server=etree.fromstring(html).findall('Server')
-    count=0
-    for servers in server:
-        data=dict(servers.items())
+    tree = etree.fromstring(html).getiterator("Directory")
+    temp_list=[]
+    for sections in tree:
 
-        if count == 0:
-            master=1
+        temp_list.append( {'title'      : sections.get('title','Unknown').encode('utf-8'),
+                'address'    : ip_address+":"+port ,
+                'serverName' : name ,
+                'uuid'       : uuid ,
+                'path'       : '/library/sections/'+sections.get('key') ,
+                'token'      : sections.get('accessToken',None) ,
+                'location'   : "local" ,
+                'art'        : sections.get('art') ,
+                'local'      : '1' ,
+                'type'       : sections.get('type','Unknown') })
+                
+    return temp_list            
+
+def getMyplexSections ( ):
+    printDebug("== ENTER: getMyplexSections ==", False)
+
+    html=getMyPlexURL('/pms/system/library/sections')
+
+    if html is False:
+        return {}
+
+    tree = etree.fromstring(html).getiterator("Directory")
+    temp_list=[]
+    for sections in tree:
+
+        temp_list.append( {'title'      : sections.get('title','Unknown').encode('utf-8'),
+                'address'    : sections.get('host','Unknown')+":"+sections.get('port'),
+                'serverName' : sections.get('serverName','Unknown').encode('utf-8'),
+                'uuid'       : sections.get('machineIdentifier','Unknown') ,
+                'path'       : sections.get('path') ,
+                'token'      : sections.get('accessToken',None) ,
+                'location'   : "myplex" ,
+                'art'        : sections.get('art') ,
+                'local'      : sections.get('local') ,
+                'type'       : sections.get('type','Unknown') })
+    
+    return temp_list            
+
+def getAllSections( server_list = None ):
+    '''
+        from server_list, get a list of all the available sections
+        and deduplicate the sections list
+        @input: None
+        @return: None (alters the global value g_sectionList)
+    '''
+    printDebug("== ENTER: getAllSections ==", False)
+    
+    if not server_list:
+        server_list = discoveryAllServers()
+    
+    printDebug("Using servers list: " + str(server_list))
+
+    section_list=[]
+    my_plex_complete=False
+    
+    for server in server_list.itervalues():
+
+        if server['discovery'] == "local" or server['discovery'] == "auto":
+            section_details =  getServerSections( server['server'], server['port'] , server['serverName'], server['uuid']) 
+            section_list += section_details
+            
+        elif server['discovery'] == "myplex":
+            if not my_plex_complete:
+                section_details = getMyplexSections()
+                section_list += section_details
+                my_plex_complete = True
+
+    '''If we have more than one server source, then
+       we need to ensure uniqueness amonst the
+       seperate sections.
+
+       If we have only one server source, then the assumption
+       is that Plex will deal with this for us
+    '''
+    if len(server_list) > 1:
+        oneCount=0
+        for onedevice in section_list:
+
+            twoCount=0
+            for twodevice in section_list:
+
+                #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title']))
+                #printDebug( "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid'])
+
+                if oneCount == twoCount:
+                    #printDebug( "skip" )
+                    twoCount+=1
+                    continue
+
+                if ( str(onedevice['title']) == str(twodevice['title']) ) and ( onedevice['uuid'] == twodevice['uuid'] ):
+                    #printDebug( "match")
+                    if onedevice['local'] == "1":
+                        #printDebug ( "popping 2 " + str(section_list.pop(twoCount)))
+                        section_list.pop(twoCount)
+                    else:
+                        #printDebug ( "popping 1 " + str(section_list.pop(oneCount)))
+                        section_list.pop(oneCount)
+                #else:
+                #    printDebug( "no match")
+
+                twoCount+=1
+
+            oneCount+=1
+
+    return section_list
+
+def getAuthDetails( details, url_format=True, prefix="&" ):
+    '''
+        Takes the token and creates the required arguments to allow
+        authentication.  This is really just a formatting tools
+        @input: token as dict, style of output [opt] and prefix style [opt]
+        @return: header string or header dict
+    '''
+    token = details.get('token', None)
+
+    if url_format:
+        if token:
+            return prefix+"X-Plex-Token="+str(token)
         else:
-            master=0
-
-        tempServers.append({'serverName': data['name'].encode('utf-8') ,
-                            'address'   : data['address']+":"+data['port'] ,
-                            'discovery' : 'local' ,
-                            'token'     : data.get('accessToken',None) ,
-                            'uuid'      : data['machineIdentifier'] ,
-                            'owned'     : '1' ,
-                            'master'    : master })
-
-        count+=1
-    return tempServers
+            return ""
+    else:
+        if token:
+            return {'X-Plex-Token' : token }
+        else:
+            return {}
 
 def getMyPlexURL( url_path, renew=False, suppress=True ):
     '''
@@ -1010,15 +1011,15 @@ def displaySections( filter=None ):
         printDebug("== ENTER: displaySections() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
-        numOfServers=len(g_serverDict)
-        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(g_serverDict))
-        getAllSections()
-
-        for section in g_sections:
+        ds_servers=discoverAllServers()
+        numOfServers=len(ds_servers)
+        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(ds_servers))
+        
+        for section in getAllSections(ds_servers):
 
             details={'title' : section.get('title', 'Unknown').encode('utf-8') }
 
-            if len(g_serverDict) > 1:
+            if len(ds_servers) > 1:
                 details['title']=section.get('serverName')+": "+details['title']
 
             extraData={ 'fanart_image' : getFanart(section, section.get('address')) ,
@@ -1073,13 +1074,13 @@ def displaySections( filter=None ):
             addGUIItem(s_url, details,extraData, context)
 
         #For each of the servers we have identified
-        allservers=resolveAllServers()
+        allservers=ds_servers
         numOfServers=len(allservers)
 
         if __settings__.getSetting('myplex_user') != '':
             addGUIItem('http://myplexqueue', {'title':'myplex Queue'},{'type':'Video' , 'mode' : _MODE_MYPLEXQUEUE})
 
-        for server in allservers:
+        for server in allservers.itervalues():
 
             #Plex plugin handling
             if (filter is not None) and (filter != "plugins"):
@@ -1095,7 +1096,7 @@ def displaySections( filter=None ):
                        'token' : server.get('token',None) }
 
             extraData['mode']=_MODE_CHANNELVIEW
-            u="http://"+server['address']+"/system/plugins/all"
+            u="http://"+server['server']+":"+server['port']+"/system/plugins/all" 
             addGUIItem(u,details,extraData)
 
             #Create plexonline link
@@ -1104,7 +1105,7 @@ def displaySections( filter=None ):
 
             extraData['mode']=_MODE_PLEXONLINE
 
-            u="http://"+server['address']+"/system/plexonline"
+            u="http://"+server['server']+":"+server['port']+"/system/plexonline"
             addGUIItem(u,details,extraData)
 
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
@@ -3117,12 +3118,13 @@ def skin( ):
     #Get the global host variable set in settings
     WINDOW = xbmcgui.Window( 10000 )
 
-    getAllSections()
     sectionCount=0
     serverCount=0
 
+    server_list = discoverAllServers()
+    
     #For each of the servers we have identified
-    for section in g_sections:
+    for section in getAllSections(server_list):
 
         extraData={ 'fanart_image' : getFanart(section, section['address']) ,
                     'thumb'        : getFanart(section, section['address'], False) }
@@ -3169,24 +3171,24 @@ def skin( ):
         sectionCount += 1
 
     #For each of the servers we have identified
-    allservers=resolveAllServers()
-    numOfServers=len(allservers)
+    #allservers=resolveAllServers()
+    numOfServers=len(server_list)
 
-    for server in allservers:
+    for server in server_list.values():
     
         aToken=getAuthDetails(server)
         qToken=getAuthDetails(server, prefix='?')
         
         if g_channelview == "true":
             WINDOW.setProperty("plexbmc.channel", "1")
-            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['address']+"/system/plugins/all&mode=21"+aToken+",return)")
+            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['server']+":"+server['port']+"/system/plugins/all&mode=21"+aToken+",return)")
         else:
             WINDOW.clearProperty("plexbmc.channel")
-            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server['address']+"/video&mode=7"+aToken)
-            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server['address']+"/music&mode=17"+aToken)
-            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server['address']+"/photos&mode=16"+aToken)
+            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server['server']+":"+server['port']+"/video&mode=7"+aToken)
+            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server['server']+":"+server['port']+"/music&mode=17"+aToken)
+            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server['server']+":"+server['port']+"/photos&mode=16"+aToken)
 
-        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server['address']+"/system/plexonline&mode=19"+aToken)
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server['server']+":"+server['port']+"/system/plexonline&mode=19"+aToken)
 
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server['serverName'])
         printDebug ("Name mapping is :" + server['serverName'])
@@ -3302,100 +3304,104 @@ def shelf( ):
     movieCount=1
     seasonCount=1
     musicCount=1
-    server_details=getMasterServer()
+    server_list=discoverAllServers()
 
-    if server_details is None:
+    if not server_list:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearShelf(0,0,0)
         return
 
-        global _PARAM_TOKEN
-    _PARAM_TOKEN = server_details['token']
+    for server_details in server_list.values():
+
+        if not server_details['owned'] == '1':
+            continue
     
-    tree=getXML('http://%s/library/recentlyAdded' % server_details['address'])
-    if tree is None:
-        xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['name']+",)")
-        clearShelf()
-        return
+        _PARAM_TOKEN = server_details['token']
+        
+        tree=getXML('http://'+server_details['server']+":"+server_details['port']+'/library/recentlyAdded')
+        if tree is None:
+            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
+            clearShelf()
+            return
 
-    aToken=getAuthDetails({'token': _PARAM_TOKEN} )
-    qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
+        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
+        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
-    library_filter = __settings__.getSetting('libraryfilter')
-    acceptable_level = __settings__.getSetting('contentFilter')
+        library_filter = __settings__.getSetting('libraryfilter')
+        acceptable_level = __settings__.getSetting('contentFilter')
 
-    #For each of the servers we have identified
-    for media in tree:
+        #For each of the servers we have identified
+        for media in tree:
 
-        if media.get('type',None) == "movie":
+            if media.get('type',None) == "movie":
 
-            printDebug("Found a recent movie entry: [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
+                printDebug("Found a recent movie entry: [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
 
-            if __settings__.getSetting('movieShelf') == "false":
-                WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
-                continue
+                if __settings__.getSetting('movieShelf') == "false":
+                    WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
+                    continue
 
-            if not displayContent( acceptable_level , media.get('contentRating') ):
-                continue
+                if not displayContent( acceptable_level , media.get('contentRating') ):
+                    continue
 
-            if media.get('librarySectionID') == library_filter:
-                printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
-                continue
+                if media.get('librarySectionID') == library_filter:
+                    printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
+                    continue
 
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://%s' % server_details['address'],media,server_details['address']), _MODE_PLAYLIBRARY, aToken)
-            m_thumb=getThumb(media,server_details['address'])
+                m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), _MODE_PLAYLIBRARY, aToken)
+                m_thumb=getThumb(media,server_details['server']+":"+server_details['port'])
 
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, media.get('title','Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, m_thumb+qToken)
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, media.get('title','Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, m_thumb+qToken)
 
-            movieCount += 1
+                movieCount += 1
 
-            printDebug("Building Recent window title: %s" % media.get('title','Unknown').encode('UTF-8'))
-            printDebug("Building Recent window url: %s" % m_url)
-            printDebug("Building Recent window thumb: %s" % m_thumb)
+                printDebug("Building Recent window title: %s" % media.get('title','Unknown').encode('UTF-8'))
+                printDebug("Building Recent window url: %s" % m_url)
+                printDebug("Building Recent window thumb: %s" % m_thumb)
 
-        elif media.get('type',None) == "season":
+            elif media.get('type',None) == "season":
 
-            printDebug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
+                printDebug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
 
-            if __settings__.getSetting('tvShelf') == "false":
-                WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
-                continue
+                if __settings__.getSetting('tvShelf') == "false":
+                    WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
+                    continue
 
-            s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server_details['address'],media,server_details['address']), _MODE_TVEPISODES, aToken)
-            s_thumb=getThumb(media,server_details['address'])
+                s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), _MODE_TVEPISODES, aToken)
+                s_thumb=getThumb(media,server_details['server']+":"+server_details['port'])
 
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, '')
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title','').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, media.get('parentTitle','Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb+qToken)
-            seasonCount += 1
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, '')
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title','').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, media.get('parentTitle','Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb+qToken)
+                seasonCount += 1
 
-            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
-            printDebug("Building Recent window url: %s" % s_url)
-            printDebug("Building Recent window thumb: %s" % s_thumb)
+                printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
+                printDebug("Building Recent window url: %s" % s_url)
+                printDebug("Building Recent window thumb: %s" % s_thumb)
 
-        elif media.get('type') == "album":
+            elif media.get('type') == "album":
 
-            if __settings__.getSetting('musicShelf') == "false":
-                WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
-                continue
-            printDebug("Found a recent album entry")
+                if __settings__.getSetting('musicShelf') == "false":
+                    WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
+                    continue
+                printDebug("Found a recent album entry")
 
-            s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://%s' % server_details['address'],media,server_details['address']), _MODE_TRACKS, aToken)
-            s_thumb=getThumb(media,server_details['address'])
+                s_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), _MODE_TRACKS, aToken)
+                s_thumb=getThumb(media,server_details['server']+":"+server_details['port'])
 
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, s_url )
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, media.get('parentTitle','Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, s_thumb+qToken)
-            musicCount += 1
+                WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, s_url )
+                WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, media.get('parentTitle','Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, s_thumb+qToken)
+                musicCount += 1
 
-            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
-            printDebug("Building Recent window url: %s" % s_url)
-            printDebug("Building Recent window thumb: %s" % s_thumb)
+                printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
+                printDebug("Building Recent window url: %s" % s_url)
+                printDebug("Building Recent window thumb: %s" % s_thumb)
             
     clearShelf( movieCount, seasonCount, musicCount)
 
@@ -3441,64 +3447,69 @@ def shelfChannel( ):
     WINDOW = xbmcgui.Window( 10000 )
 
     channelCount=1
-    server_details=getMasterServer()
+    server_list=discoverAllServers()
     
-    if server_details is None:
+    if server_list is None:
         xbmc.executebuiltin("XBMC.Notification(Unable to any media servers,)")
         clearChannelShelf()
         return
     
-    global _PARAM_TOKEN
-    _PARAM_TOKEN = server_details['token']
+    for server_details in server_list.values():
 
-    if __settings__.getSetting('channelShelf') == "false":
-        WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
-        return
+        if not server_details['owned'] == '1':
+            continue
+        
+        global _PARAM_TOKEN
+        _PARAM_TOKEN = server_details['token']
 
-    tree=getXML('http://%s/channels/recentlyViewed' % server_details['address'])
-    if tree is None:
-        xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['name']+",)")
-        clearChannelShelf(0)
-        return
+        if __settings__.getSetting('channelShelf') == "false":
+            WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
+            return
 
-    aToken=getAuthDetails({'token': _PARAM_TOKEN} )
-    qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
+        tree=getXML('http://'+server_details['server']+":"+server_details['port']+'/channels/recentlyViewed')
+        if tree is None:
+            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
+            clearChannelShelf(0)
+            return
 
-    #For each of the servers we have identified
-    for media in tree:
+        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
+        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
-        if media.get('type') == "channel":
+        #For each of the servers we have identified
+        for media in tree:
 
-            printDebug("Found a recent channel entry")
+            if media.get('type') == "channel":
 
-            suffix=media.get('key').split('/')[1]
+                printDebug("Found a recent channel entry")
 
-            if suffix == "photos":
-                mode=_MODE_PHOTOS
-                channel_window="Pictures"
-            elif suffix == "video":
-                mode=_MODE_PLEXPLUGINS
-                channel_window="VideoLibrary"
-            elif suffix == "music":
-                mode=_MODE_MUSIC
-                channel_window="MusicFiles"
-            else:
-                mode=_MODE_GETCONTENT
-                channel_window="VideoLibrary"
+                suffix=media.get('key').split('/')[1]
+
+                if suffix == "photos":
+                    mode=_MODE_PHOTOS
+                    channel_window="Pictures"
+                elif suffix == "video":
+                    mode=_MODE_PLEXPLUGINS
+                    channel_window="VideoLibrary"
+                elif suffix == "music":
+                    mode=_MODE_MUSIC
+                    channel_window="MusicFiles"
+                else:
+                    mode=_MODE_GETCONTENT
+                    channel_window="VideoLibrary"
 
 
-            p_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( channel_window, getLinkURL('http://%s' % server_details['address'],media,server_details['address']), mode , aToken)
-            p_thumb=getThumb(media,server_details['address'])
+                p_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( channel_window, getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), mode , aToken)
+                p_thumb=getThumb(media,server_details['server']+":"+server_details['port'])
 
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, p_url)
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title','Unknown'))
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, p_thumb+qToken)
+                WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, p_url)
+                WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title','Unknown'))
+                WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, p_thumb+qToken)
 
-            channelCount += 1
+                channelCount += 1
 
-            printDebug("Building Recent window title: %s" % media.get('title','Unknown'))
-            printDebug("Building Recent window url: %s" % p_url)
-            printDebug("Building Recent window thumb: %s" % p_thumb)
+                printDebug("Building Recent window title: %s" % media.get('title','Unknown'))
+                printDebug("Building Recent window url: %s" % p_url)
+                printDebug("Building Recent window thumb: %s" % p_thumb)
 
     clearChannelShelf(channelCount)        
     return
@@ -3554,11 +3565,11 @@ def displayServers( url ):
     printDebug("== ENTER: displayServers ==", False)
     type=url.split('/')[2]
     printDebug("Displaying entries for " + type)
-    Servers = resolveAllServers()
+    Servers = discoverAllServers()
     Servers_list=len(Servers)
 
     #For each of the servers we have identified
-    for mediaserver in Servers:
+    for mediaserver in Servers.values():
 
         details={'title' : mediaserver.get('serverName','Unknown') }
 
@@ -3887,7 +3898,6 @@ else:
 
     #Run a function based on the mode variable that was passed in the URL
     if ( mode == None ) or ( param_url == None ) or ( len(param_url)<1 ):
-        discoverAllServers()
         displaySections()
 
     elif mode == _MODE_GETCONTENT:
