@@ -2198,17 +2198,17 @@ def processDirectory( url, tree=None ):
 def getMasterServer(all=False):
     printDebug("== ENTER: getmasterserver ==", False)
 
-    discoverAllServers()
+    #discoverAllServers()
     possibleServers=[]
     current_master=__settings__.getSetting('masterServer')
-    for serverData in resolveAllServers():
+    for serverData in discoverAllServers().values():
         printDebug( str(serverData) )
         if serverData['master'] == 1:
-            possibleServers.append({'address' : serverData['address'] ,
+            possibleServers.append({'address' : serverData['server']+":"+serverData['port'] ,
                                     'discovery' : serverData['discovery'],
                                     'name'      : serverData['serverName'],
-                                    'token'     : serverData['token'] })
-    printDebug( str(possibleServers) )
+                                    'token'     : serverData.get('token') })
+    printDebug( "Possible master servers are " + str(possibleServers) )
 
     if all:
         return possibleServers
@@ -3178,7 +3178,6 @@ def skin( ):
         sectionCount += 1
 
     #For each of the servers we have identified
-    #allservers=resolveAllServers()
     numOfServers=len(server_list)
 
     for server in server_list.values():
