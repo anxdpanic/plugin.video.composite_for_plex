@@ -1,5 +1,5 @@
 """
-PlexGDM.py - Version 0.2
+PlexGDM.py - Version 0.1
 
 This class implements the Plex GDM (G'Day Mate) protocol to discover
 local Plex Media Servers.  Also allow client registration into all local
@@ -46,7 +46,7 @@ class plexgdm:
         self.client_register_group = (self._multicast_address, 32413)
         self.client_update_port = 32412
 
-        self.server_list = {}
+        self.server_list = []
         self.discovery_interval = 120
         
         self._discovery_is_running = False
@@ -190,11 +190,10 @@ class plexgdm:
 
         self.discovery_complete = True
 
-        discovered_servers = {}
+        discovered_servers = []
 
         if returnData:
 
-            index=0
             for response in returnData:
                 update = { 'server' : response.get('from')[0] }
 
@@ -216,8 +215,7 @@ class plexgdm:
                         elif "Version:" in each:
                             update['version'] = each.split(':')[1].strip()
 
-                discovered_servers.[index] = update
-                index = index + 1
+                discovered_servers.append(update)                    
 
         self.server_list = discovered_servers
         

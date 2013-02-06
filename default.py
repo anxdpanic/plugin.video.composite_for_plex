@@ -247,31 +247,31 @@ def discoverAllServers( ):
 
     #Set to Bonjour
     if g_discovery == "1":
-        printDebug("PleXBMC -> local Bonjour discovery setting enabled.", False)
-        try:
-            import bonjourFind
-            printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
-            bonjourServer = bonjourFind.bonjourFind("_plexmediasvr._tcp")
+        printDebug("PleXBMC -> local Bonjour discovery has been deprecated.", False)
+        #try:
+        #    import bonjourFind
+        #    printDebug("Attempting bonjour lookup on _plexmediasvr._tcp")
+        #    bonjourServer = bonjourFind.bonjourFind("_plexmediasvr._tcp")
 
-            if bonjourServer.complete:
-                printDebug("Bonjour discovery completed")
-                #Add the first found server to the list - we will find rest from here
+        #    if bonjourServer.complete:
+        #        printDebug("Bonjour discovery completed")
+        #        #Add the first found server to the list - we will find rest from here
 
-                bj_server_name = bonjourServer.bonjourName[0].encode('utf-8')
+        #        bj_server_name = bonjourServer.bonjourName[0].encode('utf-8')
 
-                g_serverDict.append({'name'      : bj_server_name.split('.')[0] ,
-                                     'address'   : bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0] ,
-                                     'discovery' : 'auto' ,
-                                     'token'     : None ,
-                                     'uuid'      : None })
+        #        g_serverDict.append({'name'      : bj_server_name.split('.')[0] ,
+        #                             'address'   : bonjourServer.bonjourIP[0]+":"+bonjourServer.bonjourPort[0] ,
+        #                             'discovery' : 'auto' ,
+        #                             'token'     : None ,
+        #                             'uuid'      : None })
 
 
-            else:
-                printDebug("BonjourFind was not able to discover any servers")
+        #    else:
+        #        printDebug("BonjourFind was not able to discover any servers")
 
-        except:
-            print "PleXBMC -> Bonjour Issue.  Possibly not installed on system"
-            xbmcgui.Dialog().ok("Bonjour Error","Is Bonjour installed on this system?")
+        #except:
+        #    print "PleXBMC -> Bonjour Issue.  Possibly not installed on system"
+        #    xbmcgui.Dialog().ok("Bonjour Error","Is Bonjour installed on this system?")
     
     elif g_discovery == "2":
         printDebug("PleXBMC -> local GDM discovery setting enabled.", False)
@@ -290,13 +290,14 @@ def discoverAllServers( ):
                         
             if gdm_client.discovery_complete and gdm_server_name:
                 printDebug("GDM discovery completed")
+                g_serverDict = gdm_server_name
                 #Add the first found server to the list - we will find rest from here
 
-                g_serverDict.append({'name'      : gdm_server_name[0]['name'].split('.')[0] ,
-                                     'address'   : gdm_server_name[0]['server']+":"+gdm_server_name[0]['port'] ,
-                                     'discovery' : 'auto' ,
-                                     'token'     : None ,
-                                     'uuid'      : None })
+                #g_serverDict.append({'name'      : gdm_server_name[0]['name'].split('.')[0] ,
+                #                     'address'   : gdm_server_name[0]['server']+":"+gdm_server_name[0]['port'] ,
+                #                     'discovery' : 'auto' ,
+                #                     'token'     : None ,
+                #                     'uuid'      : None })
 
 
             else:
