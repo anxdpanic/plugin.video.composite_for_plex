@@ -3227,7 +3227,7 @@ def skin( ):
         WINDOW.setProperty("plexbmc.queue" , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://myplexqueue&mode=24,return)")
         WINDOW.setProperty("plexbmc.myplex",  "1" )
     else:
-        WINDOWS.clearProperty("plexbmc.myplex")
+        WINDOW.clearProperty("plexbmc.myplex")
 
     return
 
