@@ -84,6 +84,13 @@ except ImportError:
             except ImportError:
                 print("PleXBMC -> Failed to import ElementTree from any known place")
 
+try:
+    import StorageServer
+except:
+    import storageserverdummy as StorageServer
+
+cache = StorageServer.StorageServer("plugins.video.plexbmc", 1)                
+                
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
 MYPLEX_SERVER="my.plexapp.com"
