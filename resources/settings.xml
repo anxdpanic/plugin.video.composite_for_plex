@@ -2,7 +2,7 @@
 <settings>
 
 	<category label="Media Sources">
-		<setting id="discovery" type="enum" label="30004" lvalues="30053|30054|30070" default="30070" />
+		<setting id="discovery" type="enum" label="30004" lvalues="30053|30070" default="30070" />
 		<setting id="ipaddress" type="text" label="30000" default="<none>" visible="eq(-1,0)" enable="eq(-1,0)"/>
 		<setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)" enable="eq(-2,0)"/>
 		<setting type="sep" />
