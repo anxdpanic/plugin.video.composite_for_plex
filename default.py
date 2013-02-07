@@ -118,12 +118,6 @@ _MODE_DISPLAYSERVERS=22
 _MODE_PLAYLIBRARY_TRANSCODE=23
 _MODE_MYPLEXQUEUE=24
 
-_OVERLAY_XBMC_UNWATCHED=6  #Blank
-_OVERLAY_XBMC_WATCHED=7    #Tick
-_OVERLAY_PLEX_UNWATCHED=4  #Dot
-_OVERLAY_PLEX_WATCHED=0    #Blank
-_OVERLAY_PLEX_PARTIAL=5    #half - Reusing XBMC overlaytrained
-
 _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
 _SUB_AUDIO_EXTERNAL="2"
@@ -174,9 +168,6 @@ if g_wolon == "true":
                 printDebug("PleXBMC -> Incorrect MAC address format for server " + str(i), False)
             except:
                 printDebug("PleXBMC -> Unknown wake on lan error", False)
-
-g_serverDict=[]
-g_sections=[]
 
 g_stream = __settings__.getSetting('streaming')
 g_secondary = __settings__.getSetting('secondary')
