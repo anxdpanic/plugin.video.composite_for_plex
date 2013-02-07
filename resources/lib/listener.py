@@ -170,6 +170,10 @@ class XBMCjson:
                                  "id" : 1 ,
                                  "method"  : "JSONRPC.Ping" })
 
+        elif self.action.lower() == "setvolume":
+            xbmc.executebuiltin( "XBMC.SetVolume(%d)" % ( int(self.arguments), ) )
+            return True
+
         elif self.action.lower() == "playmedia":
         
             server=self.arguments.split(';')[0].split('/')[2]
