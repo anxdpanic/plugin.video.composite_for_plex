@@ -47,7 +47,7 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.0.8"
+PLEXBMC_VERSION="3.1.0"
 
 print "===== PLEXBMC START ====="
 
@@ -3833,19 +3833,16 @@ _PARAM_TOKEN=params.get('X-Plex-Token',None)
 force=params.get('force')
 
 if str(sys.argv[1]) == "skin":
-    discoverAllServers()
     skin()
 elif str(sys.argv[1]) == "shelf":
     if __settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false":
         printDebug("Disabling all shelf items")
     else:
-        discoverAllServers()
         shelf()
 elif str(sys.argv[1]) == "channelShelf":
     if __settings__.getSetting('channelShelf') == "false":
         printDebug("Disabling channel shelf")
     else:
-        discoverAllServers()
         shelfChannel()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
@@ -3946,7 +3943,6 @@ else:
         channelView(param_url)
 
     elif mode == _MODE_DISPLAYSERVERS:
-        discoverAllServers()
         displayServers(param_url)
 
     elif mode == _MODE_PLAYLIBRARY_TRANSCODE:
