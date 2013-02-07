@@ -532,6 +532,8 @@ def getAllSections( server_list = None ):
     '''Remove any myplex sections that are locally available'''
     if myplex_complete and local_complete:
     
+        printDebug ("Deduplicating myplex sections list")
+    
         for each_server in server_list.values():
         
             printDebug ("Checking server [%s]" % each_server)
@@ -542,7 +544,7 @@ def getAllSections( server_list = None ):
                     
             myplex_section_list = [x for x in myplex_section_list if not x['uuid'] == each_server['uuid']]
             
-        section_list += myplex_section_list
+    section_list += myplex_section_list
 
     return section_list
 
