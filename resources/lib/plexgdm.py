@@ -1,5 +1,5 @@
 """
-PlexGDM.py - Version 0.1
+PlexGDM.py - Version 0.2
 
 This class implements the Plex GDM (G'Day Mate) protocol to discover
 local Plex Media Servers.  Also allow client registration into all local
