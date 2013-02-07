@@ -1119,7 +1119,7 @@ def enforceSkinView(mode):
 
     skin_map = { '2' : 'skin.confluence' ,
                  '0' : 'skin.quartz' ,
-                 '1' : 'skin.quartzv3' }
+                 '1' : 'skin.quartz3' }
     
     if skin_map[skinname] not in current_skin_name:
         printDebug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
