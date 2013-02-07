@@ -1,5 +1,5 @@
 """
-PleXBMC Remote Helper 0.1
+PleXBMC Remote Helper 0.2
 
 Based on XBMCLocalProxy 0.1 Copyright 2011 Torben Gerkensmeyer
 
