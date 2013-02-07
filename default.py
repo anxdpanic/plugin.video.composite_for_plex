@@ -84,13 +84,13 @@ except ImportError:
             except ImportError:
                 print("PleXBMC -> Failed to import ElementTree from any known place")
 
-try:
-    import StorageServer
-except:
-    import storageserverdummy as StorageServer
-
-cache = StorageServer.StorageServer("plugins.video.plexbmc", 1)                
-                
+#try:
+#    import StorageServer
+#except:
+#    import storageserverdummy as StorageServer
+#
+#cache = StorageServer.StorageServer("plugins.video.plexbmc", 1)
+    
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
 MYPLEX_SERVER="my.plexapp.com"
@@ -318,7 +318,7 @@ def discoverAllServers( ):
 
     printDebug("PleXBMC -> serverList is " + str(das_servers), False)
 
-    return resolveAllServers(das_servers)
+    return deduplicateServers(das_servers)
 
 def getLocalServers( ip_address, port ):
     '''
@@ -389,14 +389,14 @@ def getMyPlexServers( ):
 
     return tempServers
                                        
-def resolveAllServers( server_list ):
+def deduplicateServers( server_list ):
     '''
       Return list of all media sections configured
       within PleXBMC
       @input: None
       @Return: unique list of media servers
     '''
-    printDebug("== ENTER: resolveAllServers ==", False)
+    printDebug("== ENTER: deduplicateServers ==", False)
 
     '''If we have more than one server source, then
        we need to ensure uniqueness amonst the
@@ -425,7 +425,7 @@ def resolveAllServers( server_list ):
 
             if onedevice['uuid'] == twodevice['uuid']:
                 #printDebug ( "match" )
-                if onedevice['discovery'] == "local":
+                if onedevice['discovery'] == "auto":
                     temp_list.pop(twoCount)
                 else:
                     temp_list.pop(oneCount)
@@ -512,56 +512,37 @@ def getAllSections( server_list = None ):
     printDebug("Using servers list: " + str(server_list))
 
     section_list=[]
-    my_plex_complete=False
+    myplex_section_list=[]
+    myplex_complete=False
+    local_complete=False
     
     for server in server_list.itervalues():
 
         if server['discovery'] == "local" or server['discovery'] == "auto":
             section_details =  getServerSections( server['server'], server['port'] , server['serverName'], server['uuid']) 
             section_list += section_details
+            local_complete=True
             
         elif server['discovery'] == "myplex":
-            if not my_plex_complete:
+            if not myplex_complete:
                 section_details = getMyplexSections()
-                section_list += section_details
-                my_plex_complete = True
+                myplex_section_list += section_details
+                myplex_complete = True
 
-    '''If we have more than one server source, then
-       we need to ensure uniqueness amonst the
-       seperate sections.
-
-       If we have only one server source, then the assumption
-       is that Plex will deal with this for us
-    '''
-    if len(server_list) > 1:
-        oneCount=0
-        for onedevice in section_list:
-
-            twoCount=0
-            for twodevice in section_list:
-
-                #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + str(onedevice['title']) + " and " + str(twodevice['title']))
-                #printDebug( "and "+ onedevice['uuid'] + " is equal " + twodevice['uuid'])
-
-                if oneCount == twoCount:
-                    #printDebug( "skip" )
-                    twoCount+=1
-                    continue
-
-                if ( str(onedevice['title']) == str(twodevice['title']) ) and ( onedevice['uuid'] == twodevice['uuid'] ):
-                    #printDebug( "match")
-                    if onedevice['local'] == "1":
-                        #printDebug ( "popping 2 " + str(section_list.pop(twoCount)))
-                        section_list.pop(twoCount)
-                    else:
-                        #printDebug ( "popping 1 " + str(section_list.pop(oneCount)))
-                        section_list.pop(oneCount)
-                #else:
-                #    printDebug( "no match")
-
-                twoCount+=1
-
-            oneCount+=1
+    '''Remove any myplex sections that are locally available'''
+    if myplex_complete and local_complete:
+    
+        for each_server in server_list.values():
+        
+            printDebug ("Checking server [%s]" % each_server)
+            
+            if each_server['discovery'] == 'myplex':
+                printDebug ("Skipping as a myplex server")
+                continue
+                    
+            myplex_section_list = [x for x in myplex_section_list if not x['uuid'] == each_server['uuid']]
+            
+        section_list += myplex_section_list
 
     return section_list
 
@@ -2198,7 +2179,6 @@ def processDirectory( url, tree=None ):
 def getMasterServer(all=False):
     printDebug("== ENTER: getmasterserver ==", False)
 
-    #discoverAllServers()
     possibleServers=[]
     current_master=__settings__.getSetting('masterServer')
     for serverData in discoverAllServers().values():
