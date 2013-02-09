@@ -389,14 +389,6 @@ def deduplicateServers( server_list ):
     '''
     printDebug("== ENTER: deduplicateServers ==", False)
 
-    '''If we have more than one server source, then
-       we need to ensure uniqueness amonst the
-       seperate servers.
-
-       If we have only one server source, then the assumption
-       is that Plex will deal with this for us.
-    '''
-
     if len(server_list) <= 1:
         return server_list
 
@@ -416,7 +408,7 @@ def deduplicateServers( server_list ):
 
             if onedevice['uuid'] == twodevice['uuid']:
                 #printDebug ( "match" )
-                if onedevice['discovery'] == "auto":
+                if onedevice['discovery'] == "auto" or onedevice['discovery'] == "local":
                     temp_list.pop(twoCount)
                 else:
                     temp_list.pop(oneCount)
