@@ -1595,6 +1595,7 @@ def getAudioSubtitlesMedia( server, id ):
             
             #Subtitle Streams
             elif stream['streamType'] == '3':
+            
                 if subOffset == -1:
                     subOffset = int(stream.get('index',-1))
                 elif stream.get('index',-1) > 0 and stream.get('index',-1) < subOffset:
@@ -1745,20 +1746,17 @@ def setAudioSubtitles( stream ):
         subtitle=stream['subtitle']
         if subtitle:
             printDebug ("Found preferred subtitle stream" )
-            if 1: #try:
+            try:
                 xbmc.Player().showSubtitles(False)
                 if subtitle.get('key'):
                         xbmc.Player().setSubtitles(subtitle['key']+getAuthDetails({'token':_PARAM_TOKEN},prefix="?"))                
                 else:
                     printDebug ("Enabling embedded subtitles at index %s" % stream['subOffset'])
-                    
-                    print xbmc.Player().getAvailableSubtitleStreams()
                     xbmc.Player().setSubtitleStream(int(stream['subOffset']))
                     
-                #xbmc.Player().showSubtitles(True)
                 return True
-            #except:
-            #    printDebug ("Error setting subtitle")
+            except:
+                printDebug ("Error setting subtitle")
                 
         else:
             printDebug ("No preferred subtitles to set")
