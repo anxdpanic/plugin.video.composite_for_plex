@@ -1551,7 +1551,7 @@ def getAudioSubtitlesMedia( server, id ):
     subCount=0
     audio={}
     audioCount=0
-    external={}
+    external=[]
     media={}
     subOffset=-1
     audioOffset=-1
@@ -1583,32 +1583,35 @@ def getAudioSubtitlesMedia( server, id ):
 
         for bits in tags:
             stream=dict(bits.items())
+            
+            #Audio Streams
             if stream['streamType'] == '2':
                 audioCount += 1
                 audioOffset += 1
-                try:
-                    if stream['selected'] == "1":
-                        printDebug("Found preferred audio id: " + str(stream['id']) )
-                        audio=stream
-                        selectedAudioOffset=audioOffset
-                except: pass
-
+                if stream.get('selected') == "1":
+                    printDebug("Found preferred audio id: " + str(stream['id']) )
+                    audio=stream
+                    selectedAudioOffset=audioOffset
+            
+            #Subtitle Streams
             elif stream['streamType'] == '3':
-                subOffset += 1
-                try:
-                    if stream['key']:
-                        printDebug( "Found external subtitles id : " + str(stream['id']))
-                        external=stream
-                        external['key']='http://'+server+external['key']
-                except:
-                    #Otherwise it's probably embedded
-                    try:
-                        if stream['selected'] == "1":
-                            printDebug( "Found preferred subtitles id : " + str(stream['id']))
-                            subCount += 1
-                            subtitle=stream
-                            selectedSubOffset=subOffset
-                    except: pass
+                if subOffset == -1:
+                    subOffset = int(stream.get('index',-1))
+                elif stream.get('index',-1) > 0 and stream.get('index',-1) < subOffset:
+                    subOffset = int(stream.get('index',-1))
+                    
+                if stream.get('selected') == "1":
+                    printDebug( "Found preferred subtitles id : " + str(stream['id']))
+                    subCount += 1
+                    subtitle=stream
+                    if stream.get('key'):
+                        subtitle['key'] = 'http://'+server+stream['key']
+                    selectedSubOffset=int( stream.get('index') ) - subOffset
+                    
+                if stream.get('key'):
+                    printDebug( "Found external subtitles id : " + str(stream['id']))
+                    stream['key']='http://'+server+stream['key']
+                    external.append(stream)
 
     else:
             printDebug( "Stream selection is set OFF")
@@ -1709,7 +1712,7 @@ def setAudioSubtitles( stream ):
 
     #If we have decided not to collect any sub data then do not set subs
     if stream['contents'] == "type":
-        printDebug ("No streams to process.")
+        printDebug ("No audio or subtitle streams to process.")
 
         #If we have decided to force off all subs, then turn them off now and return
         if g_streamControl == _SUB_AUDIO_NEVER_SHOW :
@@ -1719,60 +1722,46 @@ def setAudioSubtitles( stream ):
         return True
 
     #Set the AUDIO component
-    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ) or ( g_streamControl == _SUB_AUDIO_EXTERNAL ):
+    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ):# or ( g_streamControl == _SUB_AUDIO_EXTERNAL ):
         printDebug("Attempting to set Audio Stream")
 
+        audio = stream['audio']
+        
         if stream['audioCount'] == 1:
             printDebug ("Only one audio stream present - will leave as default")
 
-        elif stream['audioCount'] > 1:
-            audio=stream['audio']
-            language=audio.get('language',audio.get('languageCode','Unknown')).encode('utf8')
-            printDebug ("Attempting to use selected language setting: %s" % language)
+        elif audio:
+            printDebug ("Attempting to use selected language setting: %s" % audio.get('language',audio.get('languageCode','Unknown')).encode('utf8'))
+            printDebug ("Found preferred language at index " + str(stream['audioOffset']))
             try:
-                if audio['selected'] == "1":
-                    printDebug ("Found preferred language at index " + str(stream['audioOffset']))
-                    xbmc.Player().setAudioStream(stream['audioOffset'])
-                    printDebug ("Audio set")
+                xbmc.Player().setAudioStream(stream['audioOffset'])
+                printDebug ("Audio set")
             except:
-                    printDebug ("Error setting audio, will use embedded default stream")
+                printDebug ("Error setting audio, will use embedded default stream")
 
     #Set the SUBTITLE component
     if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
+        printDebug("Attempting to set preferred subtitle Stream", True)
         subtitle=stream['subtitle']
-        printDebug("Attempting to set subtitle Stream", True)
-        try:
-            if stream['subCount'] > 0 and subtitle['languageCode']:
-                printDebug ("Found embedded subtitle for local language" )
-                printDebug ("Enabling embedded subtitles at index %s" % stream['subOffset'])
+        if subtitle:
+            printDebug ("Found preferred subtitle stream" )
+            if 1: #try:
                 xbmc.Player().showSubtitles(False)
-                xbmc.Player().setSubtitleStream(stream['subOffset'])
-                xbmc.Player().showSubtitles(True)
+                if subtitle.get('key'):
+                        xbmc.Player().setSubtitles(subtitle['key']+getAuthDetails({'token':_PARAM_TOKEN},prefix="?"))                
+                else:
+                    printDebug ("Enabling embedded subtitles at index %s" % stream['subOffset'])
+                    
+                    print xbmc.Player().getAvailableSubtitleStreams()
+                    xbmc.Player().setSubtitleStream(int(stream['subOffset']))
+                    
+                #xbmc.Player().showSubtitles(True)
                 return True
-            else:
-                printDebug ("No embedded subtitles to set")
-        except:
-            printDebug("Unable to set subtitles")
-
-    #Set external subtitles if they exist and if embedded have not been set
-    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ) or ( g_streamControl == _SUB_AUDIO_EXTERNAL ):
-        external=stream['external']
-        printDebug("Attempting to set external subtitle stream")
-
-        try:
-            if external:
-                try:
-                    printDebug ("External of type ["+external['codec']+"]")
-                    if external['codec'] == "idx" or external['codec'] =="sub":
-                        printDebug ("Skipping IDX/SUB pair - not supported yet")
-                    else:
-                        xbmc.Player().setSubtitles(external['key']+getAuthDetails({'token':_PARAM_TOKEN},prefix="?"))
-                        return True
-                except: pass
-            else:
-                printDebug ("No external subtitles available. Will turn off subs")
-        except:
-            printDebug ("No External subs to set")
+            #except:
+            #    printDebug ("Error setting subtitle")
+                
+        else:
+            printDebug ("No preferred subtitles to set")
 
     xbmc.Player().showSubtitles(False)
     return False
