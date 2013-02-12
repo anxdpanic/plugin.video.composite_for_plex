@@ -25,7 +25,7 @@
     </category>
 
     <category label="Transcoding" >
-        <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p" />
+        <setting id="quality" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p" />
         <setting id="audiotype" type="enum" label="30057" values="Stereo|AC3|DTS" default="Stereo" />
         <setting id="transcode" type="bool" label="30007" default="false"/>
 		<setting id="subSize" label="30068" type="slider" option="int" range="0,300" default="100" />
