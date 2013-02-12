@@ -974,6 +974,10 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
 
         printDebug( "Setting fan art as " + fanart +" with headers: "+ aToken)
 
+        if extraData.get('banner'):
+            liz.setProperty('banner', extraData.get('banner')+qToken )
+            printDebug( "Setting banner as " + extraData.get('banner')+qToken )
+
         if context is not None:
             printDebug("Building Context Menus")
             liz.addContextMenuItems( context, g_contextReplace )
@@ -1301,7 +1305,7 @@ def TVShows( url, tree=None ):
 
         #banner art
         if show.get('banner',None) is not None:
-            extraData['banner']='http://'+server+show.get('banner').split('?')[0]+"/banner.jpg"
+            extraData['banner']='http://'+server+show.get('banner')
 
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
@@ -1352,6 +1356,7 @@ def TVSeasons( url ):
             willFlatten=True
 
     sectionart=getFanart(tree, server)
+    banner=tree.get('banner')
     setWindowHeading(tree)
     #For all the directory tags
     SeasonTags=tree.findall('Directory')
@@ -1387,6 +1392,9 @@ def TVSeasons( url ):
                    'ratingKey'         : str(season.get('ratingKey',0)) ,
                    'mode'              : _MODE_TVEPISODES }
 
+        if banner:
+            extraData['banner']="http://"+server+banner
+                   
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
 
@@ -1424,6 +1432,7 @@ def TVEpisodes( url, tree=None ):
         return
 
     setWindowHeading(tree)
+    banner = tree.get('banner')
     ShowTags=tree.findall('Video')
     server=getServerFromURL(url)
 
@@ -1493,6 +1502,9 @@ def TVEpisodes( url, tree=None ):
         if extraData['fanart_image'] == "" and g_skipimages == "false":
             extraData['fanart_image']=sectionart
 
+        if banner:
+            extraData['banner'] = "http://"+server+banner
+            
         #Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount',0)) > 0:
             details['playcount'] = 1
