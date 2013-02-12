@@ -3545,28 +3545,28 @@ def displayServers( url ):
             extraData['mode']=_MODE_PLEXPLUGINS
             s_url='http://%s:%s/video' % ( mediaserver.get('server',''), mediaserver.get('port') )
             if Servers_list == 1:
-                PlexPlugins(s_url)
+                PlexPlugins(s_url+getAuthDetails(extraData,prefix="?"))
                 return
 
         elif type == "online":
             extraData['mode']=_MODE_PLEXONLINE
             s_url='http://%s:%s/system/plexonline' % ( mediaserver.get('server', ''),mediaserver.get('port') )
             if Servers_list == 1:
-                plexOnline(s_url)
+                plexOnline(s_url+getAuthDetails(extraData,prefix="?"))
                 return
 
         elif type == "music":
             extraData['mode']=_MODE_MUSIC
             s_url='http://%s:%s/music' % ( mediaserver.get('server', ''),mediaserver.get('port') )
             if Servers_list == 1:
-                music(s_url)
+                music(s_url+getAuthDetails(extraData,prefix="?"))
                 return
 
         elif type == "photo":
             extraData['mode']=_MODE_PHOTOS
             s_url='http://%s:%s/photos' % ( mediaserver.get('server', ''),mediaserver.get('port') )
             if Servers_list == 1:
-                photo(s_url)
+                photo(s_url+getAuthDetails(extraData,prefix="?"))
                 return
 
         addGUIItem(s_url, details, extraData )
