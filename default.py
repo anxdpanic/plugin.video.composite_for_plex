@@ -3279,7 +3279,10 @@ def shelf( ):
         if not server_details['owned'] == '1':
             continue
     
+        global _PARAM_TOKEN
         _PARAM_TOKEN = server_details.get('token','')
+        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
+        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
         
         tree=getXML('http://'+server_details['server']+":"+server_details['port']+'/library/recentlyAdded')
         if tree is None:
@@ -3287,8 +3290,6 @@ def shelf( ):
             clearShelf()
             return
 
-        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
-        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
         library_filter = __settings__.getSetting('libraryfilter')
         acceptable_level = __settings__.getSetting('contentFilter')
@@ -3424,6 +3425,8 @@ def shelfChannel( ):
         
         global _PARAM_TOKEN
         _PARAM_TOKEN = server_details.get('token','')
+        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
+        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
         if __settings__.getSetting('channelShelf') == "false":
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
@@ -3434,9 +3437,6 @@ def shelfChannel( ):
             xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
             clearChannelShelf(0)
             return
-
-        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
-        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
         #For each of the servers we have identified
         for media in tree:
