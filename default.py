@@ -994,7 +994,7 @@ def displaySections( filter=None ):
         
         for section in getAllSections(ds_servers):
 
-            details={'title' : section.get('title', 'Unknown').encode('utf-8') }
+            details={'title' : section.get('title', 'Unknown') }
 
             if len(ds_servers) > 1:
                 details['title']=section.get('serverName')+": "+details['title']
