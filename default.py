@@ -3594,7 +3594,7 @@ def getTranscodeSettings( override=False ):
         printDebug( "Transcode format is " + g_transcodefmt)
         printDebug( "Transcode quality is " + g_quality)
 
-        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-mp4-video"
+        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};"
 
         g_audioOutput=__settings__.getSetting("audiotype")
         if g_audioOutput == "0":
@@ -3605,7 +3605,7 @@ def getTranscodeSettings( override=False ):
             audio="dts{channels:6}"
 
         global capability
-        capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+";videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders="+audio)
+        capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+"audioDecoders="+audio)
         printDebug("Plex Client Capability = " + capability)
 
         import uuid
