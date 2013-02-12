@@ -120,8 +120,7 @@ _MODE_MYPLEXQUEUE=24
 
 _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
-_SUB_AUDIO_EXTERNAL="2"
-_SUB_AUDIO_NEVER_SHOW="3"
+_SUB_AUDIO_NEVER_SHOW="2"
 
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
@@ -185,8 +184,6 @@ if g_debug == "true":
         print "PleXBMC -> Setting stream Control to : XBMC CONTROL (%s)" % g_streamControl
     elif g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
         print "PleXBMC -> Setting stream Control to : PLEX CONTROL (%s)" % g_streamControl
-    elif g_streamControl == _SUB_AUDIO_EXTERNAL:
-        print "PleXBMC -> Setting stream Control to : EXTERNAL (%s)" % g_streamControl
     elif g_streamControl == _SUB_AUDIO_NEVER_SHOW:
         print "PleXBMC -> Setting stream Control to : NEVER SHOW (%s)" % g_streamControl
 
@@ -1563,7 +1560,6 @@ def getAudioSubtitlesMedia( server, id ):
     subCount=0
     audio={}
     audioCount=0
-    external=[]
     media={}
     subOffset=-1
     audioOffset=-1
@@ -1588,7 +1584,7 @@ def getAudioSubtitlesMedia( server, id ):
         except: pass
 
     #if we are deciding internally or forcing an external subs file, then collect the data
-    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL or g_streamControl == _SUB_AUDIO_EXTERNAL:
+    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
 
         contents="all"
         tags=tree.getiterator('Stream')
@@ -1621,11 +1617,6 @@ def getAudioSubtitlesMedia( server, id ):
                         subtitle['key'] = 'http://'+server+stream['key']
                     selectedSubOffset=int( stream.get('index') ) - subOffset
                     
-                if stream.get('key'):
-                    printDebug( "Found external subtitles id : " + str(stream['id']))
-                    stream['key']='http://'+server+stream['key']
-                    external.append(stream)
-
     else:
             printDebug( "Stream selection is set OFF")
 
@@ -1634,7 +1625,6 @@ def getAudioSubtitlesMedia( server, id ):
                 'audioCount' : audioCount ,              #Number of audio streams
                 'subtitle'   : subtitle ,                #Subtitle data (embedded) held as a dict
                 'subCount'   : subCount ,                #Number of subtitle streams
-                'external'   : external ,                #Subtitle data (external files) as a dict
                 'parts'      : parts ,                   #The differet media locations
                 'partsCount' : partsCount ,              #Number of media locations
                 'media'      : media ,                   #Resume/duration data for media
@@ -1735,7 +1725,7 @@ def setAudioSubtitles( stream ):
         return True
 
     #Set the AUDIO component
-    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ):# or ( g_streamControl == _SUB_AUDIO_EXTERNAL ):
+    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ):
         printDebug("Attempting to set Audio Stream")
 
         audio = stream['audio']

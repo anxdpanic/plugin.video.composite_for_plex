@@ -13,7 +13,7 @@
 
 	<category label="Playback">
         <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="30011"/>
-        <setting id="streamControl" type="enum" label="30038" lvalues="30036|30067|30037|30039" Default="30067" />
+        <setting id="streamControl" type="enum" label="30038" lvalues="30036|30067|30039" Default="30067" />
 		<setting id="forcedvd" type="bool" label="30060" default="false"/>
 		<setting id="nasoverride" type="bool" label="30061" default="false"/>
 		<setting id="nasoverrideip" type="text" label="30062" default="" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)" />
