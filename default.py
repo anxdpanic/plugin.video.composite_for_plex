@@ -487,7 +487,7 @@ def getAllSections( server_list = None ):
     printDebug("== ENTER: getAllSections ==", False)
     
     if not server_list:
-        server_list = discoveryAllServers()
+        server_list = discoverAllServers()
     
     printDebug("Using servers list: " + str(server_list))
 
