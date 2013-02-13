@@ -3277,6 +3277,11 @@ def shelf( server_list=None ):
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearShelf(0,0,0)
         return
+        
+    if __settings__.getSetting('homeshelf') == '0':
+        endpoint="/library/recentlyAdded"
+    else:
+        endpoint="/library/onDeck"
 
     for server_details in server_list.values():
 
@@ -3288,7 +3293,7 @@ def shelf( server_list=None ):
         aToken=getAuthDetails({'token': _PARAM_TOKEN} )
         qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
         
-        tree=getXML('http://'+server_details['server']+":"+server_details['port']+'/library/recentlyAdded')
+        tree=getXML('http://'+server_details['server']+":"+server_details['port']+endpoint)
         if tree is None:
             xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
             clearShelf()
@@ -3366,6 +3371,28 @@ def shelf( server_list=None ):
                 WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, media.get('parentTitle','Unknown').encode('UTF-8'))
                 WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, s_thumb+qToken)
                 musicCount += 1
+
+                printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
+                printDebug("Building Recent window url: %s" % s_url)
+                printDebug("Building Recent window thumb: %s" % s_thumb)
+
+            elif media.get('type',None) == "episode":
+
+                printDebug("Found an onDeck episode entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
+
+                if __settings__.getSetting('tvShelf') == "false":
+                    WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
+                    continue
+
+                s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), _MODE_PLAYLIBRARY, aToken)
+                s_thumb="http://"+server_details['server']+":"+server_details['port']+media.get('grandparentThumb','')
+
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, media.get('title','').encode('utf-8'))
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('grandparentTitle','Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, media.get('title','Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb+qToken)
+                seasonCount += 1
 
                 printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
                 printDebug("Building Recent window url: %s" % s_url)

@@ -49,6 +49,7 @@
 
     <category label="Look and Feel" >
         <setting id="secondary" type="bool" label="30003" default="true"/>
+		<setting id="homeshelf" type="enum" label="Shelf Items" values="Recently Added|On Deck" default="Recently Added" />
         <setting id="channelview" type="bool" label="30042" default="false"/>
         <setting id="flatten" type="enum" label="30043" lvalues="30053|30058|30059" default="30053"/>
         <setting id="contextreplace" type="bool" label="30048" default="true"/>
