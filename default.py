@@ -161,12 +161,24 @@ printDebug("PleXBMC Helper -> registeration string is: %s " % client.getClientDe
 socket.setdefaulttimeout(10)
 server_class = ThreadedHTTPServer
 
-try:
-    httpd = server_class(('', httpd_port), MyHandler)
-except:
-    print "PleXBMC Helper -> Cannot start helper server as the port 3000 is already in use"
-    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - Helper Web unable to start due to port clash,)")
+#Try to start the webserver, 12 seconds max waiting.
+start_count=0
+while True:
+    try:
+        httpd = server_class(('', httpd_port), MyHandler)
+        break
+    except:
+        print "PleXBMC Helper -> Unable to start web helper.  Sleep and Retry..."
     
+    time.sleep (3)
+
+    if count == 3:
+        print "PleXBMC Helper -> Unable to start web helper. Giving up."
+        xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - Helper Web unable to start due to port clash,)")
+        break
+    
+    count += 1
+
 client.start_all()
 
 message_count=0
