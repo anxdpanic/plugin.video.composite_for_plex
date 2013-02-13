@@ -3070,7 +3070,7 @@ def channelView( url ):
 def photoTranscode( server, url, width=1280, height=720 ):
         return 'http://%s/photo/:/transcode?url=%s&width=%s&height=%s' % (server, urllib.quote_plus(url), width, height)
 
-def skin( ):
+def skin( server_list=None):
     #Gather some data and set the window properties
     printDebug("== ENTER: skin() ==", False)
     #Get the global host variable set in settings
@@ -3079,7 +3079,8 @@ def skin( ):
     sectionCount=0
     serverCount=0
 
-    server_list = discoverAllServers()
+    if server_list is None:
+        server_list = discoverAllServers()
     
     #For each of the servers we have identified
     for section in getAllSections(server_list):
@@ -3254,18 +3255,25 @@ def displayContent( acceptable_level, content_level ):
     printDebug ("NOT OK to display")
     return False
 
-def shelf( ):
+def shelf( server_list=None ):
     #Gather some data and set the window properties
     printDebug("== ENTER: shelf() ==", False)
+    
+    if __settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false":
+        printDebug("Disabling all shelf items")
+        return
+
     #Get the global host variable set in settings
     WINDOW = xbmcgui.Window( 10000 )
 
     movieCount=1
     seasonCount=1
     musicCount=1
-    server_list=discoverAllServers()
+    
+    if server_list is None:
+        server_list=discoverAllServers()
 
-    if not server_list:
+    if server_list == {}:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearShelf(0,0,0)
         return
@@ -3400,17 +3408,24 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
 
     return
 
-def shelfChannel( ):
+def shelfChannel( server_list = None):
     #Gather some data and set the window properties
     printDebug("== ENTER: shelfChannels() ==", False)
+    
+    if __settings__.getSetting('channelShelf') == "false":
+        printDebug("Disabling channel shelf")
+        return
+        
     #Get the global host variable set in settings
     WINDOW = xbmcgui.Window( 10000 )
 
     channelCount=1
-    server_list=discoverAllServers()
     
     if server_list is None:
-        xbmc.executebuiltin("XBMC.Notification(Unable to any media servers,)")
+        server_list=discoverAllServers()
+    
+    if server_list == {}:
+        xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearChannelShelf()
         return
     
@@ -3802,17 +3817,11 @@ _PARAM_TOKEN=params.get('X-Plex-Token',None)
 force=params.get('force')
 
 if str(sys.argv[1]) == "skin":
-    skin()
+     skin()
 elif str(sys.argv[1]) == "shelf":
-    if __settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false":
-        printDebug("Disabling all shelf items")
-    else:
-        shelf()
+     shelf()
 elif str(sys.argv[1]) == "channelShelf":
-    if __settings__.getSetting('channelShelf') == "false":
-        printDebug("Disabling channel shelf")
-    else:
-        shelfChannel()
+     shelfChannel()
 elif sys.argv[1] == "update":
     url=sys.argv[2]
     libraryRefresh(url)
