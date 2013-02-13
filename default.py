@@ -244,11 +244,7 @@ def discoverAllServers( ):
     
     g_discovery = __settings__.getSetting('discovery')
 
-    #Set to Bonjour
     if g_discovery == "1":
-        printDebug("PleXBMC -> local Bonjour discovery has been deprecated.", False)
-    
-    elif g_discovery == "2":
         printDebug("PleXBMC -> local GDM discovery setting enabled.", False)
         try:
             import plexgdm
