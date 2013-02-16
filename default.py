@@ -3262,6 +3262,7 @@ def shelf( server_list=None ):
     
     if __settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false":
         printDebug("Disabling all shelf items")
+        clearShelf()
         return
 
     #Get the global host variable set in settings
@@ -3452,6 +3453,7 @@ def shelfChannel( server_list = None):
     
     if __settings__.getSetting('channelShelf') == "false":
         printDebug("Disabling channel shelf")
+        clearChannelShelf()
         return
         
     #Get the global host variable set in settings
