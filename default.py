@@ -3271,6 +3271,9 @@ def shelf( server_list=None ):
     movieCount=1
     seasonCount=1
     musicCount=1
+    added_list={}    
+    direction=True
+    full_count=0
     
     if server_list is None:
         server_list=discoverAllServers()
@@ -3283,10 +3286,9 @@ def shelf( server_list=None ):
     if __settings__.getSetting('homeshelf') == '0':
         endpoint="/library/recentlyAdded"
     else:
+        direction=False
         endpoint="/library/onDeck"
 
-    added_list={}    
-        
     for server_details in server_list.values():
 
         if not server_details['owned'] == '1':
@@ -3304,14 +3306,18 @@ def shelf( server_list=None ):
             return
 
         for eachitem in tree:
-        
-            added_list[int(eachitem.get('addedAt',0))] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken )
 
+            if direction:
+                added_list[int(eachitem.get('addedAt',0))] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken )
+            else:
+                added_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken )
+                full_count += 1
+                
     library_filter = __settings__.getSetting('libraryfilter')
     acceptable_level = __settings__.getSetting('contentFilter')
     
     #For each of the servers we have identified
-    for index in sorted(added_list, reverse=True):
+    for index in sorted(added_list, reverse=direction):
         
         media=added_list[index][0]
         server_address=added_list[index][1]
