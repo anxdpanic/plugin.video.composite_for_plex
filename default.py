@@ -1611,7 +1611,8 @@ def getAudioSubtitlesMedia( server, id ):
                     subtitle=stream
                     if stream.get('key'):
                         subtitle['key'] = 'http://'+server+stream['key']
-                    selectedSubOffset=int( stream.get('index') ) - subOffset
+                    else:
+                        selectedSubOffset=int( stream.get('index') ) - subOffset
                     
     else:
             printDebug( "Stream selection is set OFF")
