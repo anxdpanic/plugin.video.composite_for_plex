@@ -3880,6 +3880,11 @@ elif sys.argv[1] == "setting":
     if WINDOW == 10000:
         printDebug("Currently in home - refreshing to allow new settings to be taken")
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+elif sys.argv[1] == "refreshplexbmc":
+    server_list = discoverAllServers()
+    skin(server_list)
+    shelf(server_list)
+    shelfChannel(server_list)
 elif sys.argv[1] == "delete":
     url=sys.argv[2]
     deleteMedia(url)
