@@ -3424,7 +3424,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
     printDebug("Clearing unused properties")
 
     try:
-        for i in range(movieCount, 10+1):
+        for i in range(movieCount, 50+1):
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Thumb"  % ( i ) )
@@ -3432,7 +3432,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
     except: pass
 
     try:
-        for i in range(seasonCount, 10+1):
+        for i in range(seasonCount, 50+1):
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Path"           % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason"  % ( i ) )
@@ -3442,7 +3442,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
     except: pass
 
     try:
-        for i in range(musicCount, 10+1):
+        for i in range(musicCount, 50+1):
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Artist" % ( i ) )
@@ -3539,7 +3539,7 @@ def clearChannelShelf (channelCount=0):
     WINDOW = xbmcgui.Window( 10000 )
         
     try:
-        for i in range(channelCount, 10+1):
+        for i in range(channelCount, 30+1):
             WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Thumb"  % ( i ) )
