@@ -1585,10 +1585,7 @@ def getAudioSubtitlesMedia( server, id, full=False ):
             full_data['aired']       = timings.get('originallyAvailableAt','') 
             full_data['tvshowtitle'] = timings.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') 
             full_data['season']      = int(timings.get('parentIndex',tree.get('parentIndex',0))) 
-                    
-                    
-                    
-                    
+
     options = tree.getiterator('Part')
 
     contents="type"
