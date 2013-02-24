@@ -3419,13 +3419,13 @@ def shelf( server_list=None ):
 
         elif media.get('type',None) == "episode":
 
-            printDebug("Found an onDeck episode entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
+            printDebug("Found an onDeck episode entry [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, aToken)
+            s_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, aToken)
             s_thumb="http://"+server_address+media.get('grandparentThumb','')
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
@@ -3435,7 +3435,7 @@ def shelf( server_list=None ):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, s_thumb+qToken)
             seasonCount += 1
 
-            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
+            printDebug("Building Recent window title: %s" % media.get('title','Unknown').encode('UTF-8'))
             printDebug("Building Recent window url: %s" % s_url)
             printDebug("Building Recent window thumb: %s" % s_thumb)
             
