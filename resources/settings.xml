@@ -58,7 +58,7 @@
         <setting id="skipimages" type="bool"  label="30050" default="false" />
         <setting id="skipflags" type="bool"  label="30051" default="false" />
 		<setting id="skinoverride" type="bool" label="30075" default="false" />
-		<setting id="skinname" type="enum" label="30076" values="Quartz|Quartz V3|Confluence" default="1"  visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true" />
+		<setting id="skinname" type="enum" label="30076" values="Quartz|Quartz V3|Confluence" default="Confluence"  visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true" />
 		#Quartz Skin
 		<setting id="mo_view_0" type="labelenum" label="30077" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
 		<setting id="tv_view_0" type="labelenum" label="30078" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-2,0)" enable="eq(-3,true)+eq(-2,0)"/>/
@@ -84,8 +84,8 @@
 		<setting id="tvShelf" type="bool" label="30083" default="true" />
 		<setting id="musicShelf" type="bool" label="30084" default="true" />
      	<setting id="channelShelf" type="bool" label="30085" default="true" />
-		<setting id="contentFilter" type="labelenum" label="30086" lvalues="Kids|Teens|Adults" default="Adults" />
-		<setting id="contentNone" type="labelenum" label="30087" lvalues="Kids|Teens|Adults" default="Adults" />
+		<setting id="contentFilter" type="labelenum" label="30086" values="Kids|Teens|Adults" default="Adults" />
+		<setting id="contentNone" type="labelenum" label="30087" values="Kids|Teens|Adults" default="Adults" />
 	</category>
 
     <category label="30022" > <!-- debug -->
