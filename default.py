@@ -105,6 +105,7 @@ _MODE_PLEXPLUGINS=7
 _MODE_PROCESSXML=8
 _MODE_CHANNELSEARCH=9
 _MODE_CHANNELPREFS=10
+_MODE_PLAYSHELF=11
 _MODE_BASICPLAY=12
 _MODE_ALBUMS=14
 _MODE_TRACKS=15
@@ -1534,7 +1535,7 @@ def TVEpisodes( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
-def getAudioSubtitlesMedia( server, id ):
+def getAudioSubtitlesMedia( server, id, full=False ):
     '''
         Cycle through the Parts sections to find all "selected" audio and subtitle streams
         If a stream is marked as selected=1 then we will record it in the dict
@@ -1561,12 +1562,24 @@ def getAudioSubtitlesMedia( server, id ):
     audioOffset=-1
     selectedSubOffset=-1
     selectedAudioOffset=-1
+    full_data={}
 
     timings = tree.find('Video')
-
+    
     media['viewOffset']=timings.get('viewOffset',0)
     media['duration']=timings.get('duration',12*60*60)
 
+    if full:
+        full_data={ 'plot'      : timings.get('summary','').encode('utf-8') ,
+                    'title'     : timings.get('title','Unknown').encode('utf-8') ,
+                    'sorttitle' : timings.get('titleSort', timings.get('title','Unknown')).encode('utf-8') ,
+                    'rating'    : float(timings.get('rating',0)) ,
+                    'studio'    : timings.get('studio','').encode('utf-8') ,
+                    'mpaa'      : "Rated " + timings.get('contentRating', 'unknown') ,
+                    'year'      : int(timings.get('year',0)) ,
+                    'tagline'   : timings.get('tagline','') ,
+                    'thumbnailImage': getThumb(timings,server)} 
+                    
     options = tree.getiterator('Part')
 
     contents="type"
@@ -1626,12 +1639,13 @@ def getAudioSubtitlesMedia( server, id ):
                 'partsCount' : partsCount ,              #Number of media locations
                 'media'      : media ,                   #Resume/duration data for media
                 'subOffset'  : selectedSubOffset ,       #Stream index for selected subs
-                'audioOffset': selectedAudioOffset }     #STream index for select audio
+                'audioOffset': selectedAudioOffset ,     #STream index for select audio
+                'full_data'  : full_data }               #Full metadata extract if requested
 
     printDebug ( str(streamData) )
     return streamData
 
-def playLibraryMedia( vids, override=False, force=None ):
+def playLibraryMedia( vids, override=False, force=None, full_data=False ):
     printDebug("== ENTER: playLibraryMedia ==", False)
 
     getTranscodeSettings(override)
@@ -1640,7 +1654,10 @@ def playLibraryMedia( vids, override=False, force=None ):
 
     id=vids.split('?')[0].split('&')[0].split('/')[-1]
 
-    streams=getAudioSubtitlesMedia(server,id)
+    if force:
+        full_data = True
+        
+    streams=getAudioSubtitlesMedia(server,id, full_data)
     url=selectMedia(streams['partsCount'],streams['parts'], server)
 
     if url is None:
@@ -1669,7 +1686,13 @@ def playLibraryMedia( vids, override=False, force=None ):
 
     item = xbmcgui.ListItem(path=playurl)
 
+    if streams['full_data']:
+        item.setInfo( type='Video', infoLabels=streams['full_data'] )
+        item.setThumbnailImage(streams['full_data'].get('thumbnailImage',''))
+        item.setIconImage(streams['full_data'].get('thumbnailImage',''))
+    
     if force:
+        
         if int(force) > 0:
             resume=int(int(force)/1000)
         else:
@@ -3339,7 +3362,7 @@ def shelf( server_list=None ):
                 printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue
 
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYLIBRARY, aToken)
+            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, aToken)
             m_thumb=getThumb(media,server_address)
 
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
@@ -3402,7 +3425,7 @@ def shelf( server_list=None ):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYLIBRARY, aToken)
+            s_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, aToken)
             s_thumb="http://"+server_address+media.get('grandparentThumb','')
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, s_url )
@@ -3934,6 +3957,9 @@ else:
 
     elif mode == _MODE_PLAYLIBRARY:
         playLibraryMedia(param_url,force=force)
+
+    elif mode == _MODE_PLAYSHELF:
+        playLibraryMedia(param_url,full_data=True)
 
     elif mode == _MODE_TVEPISODES:
         TVEpisodes(param_url)
