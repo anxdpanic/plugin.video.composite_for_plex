@@ -15,17 +15,17 @@
     <string id="30014">Enable debug output to log</string>
     <string id="30015">Use transcoding proxy</string>
 
-    <string id="30016">0</string>
-    <string id="30017">1</string>
-    <string id="30018">2</string>
-    <string id="30019">3</string>
-    <string id="30020">4</string>
-    <string id="30021">5</string>
-    <string id="30022">6</string>
-    <string id="30023">7</string>
-    <string id="30024">8</string>
-    <string id="30025">9</string>
-    <string id="30026">10</string>
+    <string id="30016">Media Sources</string>
+    <string id="30017">Playback</string>
+    <string id="30018">Transcoding</string>
+    <string id="30019">Wake On LAN</string>
+    <string id="30020">Look and Feel</string>
+    <string id="30021">Shelf</string>
+    <string id="30022">Debug</string>
+    <string id="30023">Use Wake On LAN</string>
+    <string id="30024">myPlex user</string>
+    <string id="30025">myPlex password</string>
+    <string id="30026">Select master server...</string>
 
     <string id="30027">Authentication required?</string>
     <string id="30028">Load External Subtitles?</string>
@@ -70,4 +70,25 @@
 	<string id="30068">Subtitle Size</string>
 	<string id="30069">Audio Boost</string>
 	<string id="30070">GDM</string>
+	<string id="30071">Current Master Server</string>
+	<string id="30072">Shelf Items</string>
+	<string id="30073">Recently Added</string>
+	<string id="30074">On Deck</string>
+	<string id="30075">Strict Skin Views</string>
+	<string id="30076">Skin Name</string>
+	<string id="30077">Movie View</string>
+	<string id="30078">TV View</string>
+	<string id="30079">Season View</string>
+	<string id="30080">Episode View</string>
+	<string id="30081">Music View</string>
+	<string id="30082">Enable Movie Shelf</string>
+	<string id="30083">Enable TV Shelf</string>
+	<string id="30084">Enable Music Shelf</string>
+	<string id="30085">Enable Channel Shelf</string>
+	<string id="30086">Content filter</string>
+	<string id="30087">Map unknown content as:</string>
+	<string id="30088">RA Library filter</string>
+	<string id="30089">Kids</string>
+	<string id="30090">Teens</string>
+	<string id="30091">Adults</string>
 </strings>
