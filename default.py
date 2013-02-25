@@ -107,6 +107,7 @@ _MODE_CHANNELSEARCH=9
 _MODE_CHANNELPREFS=10
 _MODE_PLAYSHELF=11
 _MODE_BASICPLAY=12
+_MODE_SHARED_MOVIES=13
 _MODE_ALBUMS=14
 _MODE_TRACKS=15
 _MODE_PHOTOS=16
@@ -118,6 +119,9 @@ _MODE_CHANNELVIEW=21
 _MODE_DISPLAYSERVERS=22
 _MODE_PLAYLIBRARY_TRANSCODE=23
 _MODE_MYPLEXQUEUE=24
+_MODE_SHARED_SHOWS=25
+_MODE_SHARED_MUSIC=26
+_MODE_SHARED_PHOTOS=27
 
 _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
@@ -445,7 +449,8 @@ def getServerSections ( ip_address, port, name, uuid):
                 'location'   : "local" ,
                 'art'        : sections.get('art') ,
                 'local'      : '1' ,
-                'type'       : sections.get('type','Unknown') })
+                'type'       : sections.get('type','Unknown'),
+                'owned'      : '1' })
                 
     return temp_list            
 
@@ -470,7 +475,8 @@ def getMyplexSections ( ):
                 'location'   : "myplex" ,
                 'art'        : sections.get('art') ,
                 'local'      : sections.get('local') ,
-                'type'       : sections.get('type','Unknown') })
+                'type'       : sections.get('type','Unknown'),
+                'owned'      : sections.get('owned','0') })
     
     return temp_list            
 
@@ -978,7 +984,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
 
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
 
-def displaySections( filter=None ):
+def displaySections( filter=None, shared=False ):
         printDebug("== ENTER: displaySections() ==", False)
         xbmcplugin.setContent(pluginhandle, 'movies')
 
@@ -988,6 +994,12 @@ def displaySections( filter=None ):
         
         for section in getAllSections(ds_servers):
 
+            print section.get('owned','missing')
+        
+            if shared and section.get('owned') == '1':
+                continue
+                
+        
             details={'title' : section.get('title', 'Unknown') }
 
             if len(ds_servers) > 1:
@@ -1044,10 +1056,15 @@ def displaySections( filter=None ):
             #Build that listing..
             addGUIItem(s_url, details,extraData, context)
 
+        if shared:
+            xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+            return
+                    
         #For each of the servers we have identified
         allservers=ds_servers
         numOfServers=len(allservers)
 
+            
         if __settings__.getSetting('myplex_user') != '':
             addGUIItem('http://myplexqueue', {'title':'myplex Queue'},{'type':'Video' , 'mode' : _MODE_MYPLEXQUEUE})
 
@@ -3108,7 +3125,9 @@ def skin( server_list=None):
 
     sectionCount=0
     serverCount=0
-
+    shared_flag={}
+    hide_shared = __settings__.getSetting('hide_shared')
+    
     if server_list is None:
         server_list = discoverAllServers()
     
@@ -3123,15 +3142,27 @@ def skin( server_list=None):
         path=section['path']
 
         if section['type'] == 'show':
+            if hide_shared == "true" and section.get('owned') == '0':
+                shared_flag['show']=True
+                continue
             window="VideoLibrary"
             mode=_MODE_TVSHOWS
         if  section['type'] == 'movie':
+            if hide_shared == "true" and section.get('owned') == '0':
+                shared_flag['movie']=True
+                continue
             window="VideoLibrary"
             mode=_MODE_MOVIES
         if  section['type'] == 'artist':
+            if hide_shared == "true" and section.get('owned') == '0':
+                shared_flag['artist']=True
+                continue
             window="MusicFiles"
             mode=_MODE_ARTISTS
         if  section['type'] == 'photo':
+            if hide_shared == "true" and section.get('owned') == '0':
+                shared_flag['photo']=True
+                continue
             window="Pictures"
             mode=_MODE_PHOTOS
 
@@ -3159,6 +3190,51 @@ def skin( server_list=None):
         printDebug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
         sectionCount += 1
 
+    if shared_flag.get('movie'):
+        WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+        WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MOVIES)+",return)")
+        #INDOW.setProperty("plexbmc.%d.art"      % (sectionCount) , extraData['fanart_image']+qToken)
+        WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "movie")
+        #WINDOW.setProperty("plexbmc.%d.icon"     % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.thumb"    % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+section['address']+section['path'])
+        sectionCount += 1
+
+    if shared_flag.get('show'):
+        WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+        WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_SHOWS)+",return)")
+        #INDOW.setProperty("plexbmc.%d.art"      % (sectionCount) , extraData['fanart_image']+qToken)
+        WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "show")
+        #WINDOW.setProperty("plexbmc.%d.icon"     % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.thumb"    % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+section['address']+section['path'])
+        sectionCount += 1
+        
+    if shared_flag.get('artist'):
+        WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+        WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MUSIC)+",return)")
+        #INDOW.setProperty("plexbmc.%d.art"      % (sectionCount) , extraData['fanart_image']+qToken)
+        WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "artist")
+        #WINDOW.setProperty("plexbmc.%d.icon"     % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.thumb"    % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+section['address']+section['path'])
+        sectionCount += 1
+        
+    if shared_flag.get('photo'):
+        WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+        WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_PHOTOS)+",return)")
+        #INDOW.setProperty("plexbmc.%d.art"      % (sectionCount) , extraData['fanart_image']+qToken)
+        WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "photo")
+        #WINDOW.setProperty("plexbmc.%d.icon"     % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.thumb"    % (sectionCount) , extraData['thumb']+qToken)
+        #WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+section['address']+section['path'])
+        sectionCount += 1
+        
+        
     #For each of the servers we have identified
     numOfServers=len(server_list)
 
@@ -4017,6 +4093,18 @@ else:
 
     elif mode == _MODE_CHANNELPREFS:
         channelSettings ( param_url, params.get('id') )
+
+    elif mode == _MODE_SHARED_MOVIES:
+        displaySections(filter="movies", shared=True)
+
+    elif mode == _MODE_SHARED_SHOWS:
+        displaySections(filter="tvshows", shared=True)
+        
+    elif mode == _MODE_SHARED_PHOTOS:
+        displaySections(filter="photos", shared=True)
+        
+    elif mode == _MODE_SHARED_MUSIC:
+        displaySections(filter="music", shared=True)
 
 print "===== PLEXBMC STOP ====="
 
