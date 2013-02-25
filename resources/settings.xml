@@ -52,6 +52,7 @@
 		<setting id="homeshelf" type="enum" label="30072" lvalues="30073|30074" default="0" />
         <setting id="channelview" type="bool" label="30042" default="false"/>
         <setting id="flatten" type="enum" label="30043" lvalues="30053|30058|30059" default="0"/>
+        <setting id="hide_shared" type="bool" label="30092" default="false"/>
         <setting id="contextreplace" type="bool" label="30048" default="true"/>
         <setting id="skipcontextmenus" type="bool" label="30052" default="false" />
         <setting id="skipmetadata" type="bool" label="30049" default="false" />
