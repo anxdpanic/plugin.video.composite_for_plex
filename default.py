@@ -604,7 +604,10 @@ def getMyPlexURL( url_path, renew=False, suppress=True ):
         try: conn.close()
         except: pass
 
+    if link:
         return link
+    else:
+        return False
 
 def getMyPlexToken( renew=False ):
     '''
@@ -993,8 +996,6 @@ def displaySections( filter=None, shared=False ):
         printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(ds_servers))
         
         for section in getAllSections(ds_servers):
-
-            print section.get('owned','missing')
         
             if shared and section.get('owned') == '1':
                 continue
