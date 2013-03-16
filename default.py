@@ -290,8 +290,10 @@ def discoverAllServers( ):
         printDebug( "PleXBMC -> Settings hostname and port: %s : %s" % ( das_host, das_port), False)
 
         if das_host is not None:
-            das_servers[das_server_index] = getLocalServers(das_host, das_port)
-            das_server_index = das_server_index + 1
+            local_server = getLocalServers(das_host, das_port)
+            if local_server:
+                das_servers[das_server_index] = local_server
+                das_server_index = das_server_index + 1
                                  
     if __settings__.getSetting('myplex_user') != "":
         printDebug( "PleXBMC -> Adding myplex as a server location", False)
