@@ -1583,6 +1583,7 @@ def getAudioSubtitlesMedia( server, id, full=False ):
     selectedSubOffset=-1
     selectedAudioOffset=-1
     full_data={}
+    contents="type"
 
     timings = tree.find('Video')
     
@@ -1606,17 +1607,33 @@ def getAudioSubtitlesMedia( server, id, full=False ):
             full_data['tvshowtitle'] = timings.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') 
             full_data['season']      = int(timings.get('parentIndex',tree.get('parentIndex',0))) 
 
-    options = tree.getiterator('Part')
 
-    contents="type"
+    details = timings.findall('Media')
+    
+    print details
+    
+    media_details_list=[]
+    for media_details in details:
+        
+        print "media is " + str(media_details)
+        
+        media_details_temp = { 'bitrate'          : round(float(media_details.get('bitrate',0))/1000,1) ,
+                               'videoResolution'  : media_details.get('videoResolution','unknown') ,
+                               'container'        : media_details.get('container','unknown') }
+                                                  
+        options = media_details.findall('Part')
 
-    #Get the media locations (file and web) for later on
-    for stuff in options:
-        try:
-            bits=stuff.get('key'), stuff.get('file')
-            parts.append(bits)
-            partsCount += 1
-        except: pass
+
+        #Get the media locations (file and web) for later on
+        for stuff in options:
+            print "part is " + str(stuff)
+
+            try:
+                bits=stuff.get('key'), stuff.get('file')
+                parts.append(bits)
+                media_details_list.append(media_details_temp)
+                partsCount += 1
+            except: pass
 
     #if we are deciding internally or forcing an external subs file, then collect the data
     if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
@@ -1664,6 +1681,7 @@ def getAudioSubtitlesMedia( server, id, full=False ):
                 'parts'      : parts ,                   #The differet media locations
                 'partsCount' : partsCount ,              #Number of media locations
                 'media'      : media ,                   #Resume/duration data for media
+                'details'    : media_details_list ,      #Bitrate, resolution and container for each part
                 'subOffset'  : selectedSubOffset ,       #Stream index for selected subs
                 'audioOffset': selectedAudioOffset ,     #STream index for select audio
                 'full_data'  : full_data }               #Full metadata extract if requested
