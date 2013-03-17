@@ -1928,7 +1928,7 @@ def PLAY( url ):
         item = xbmcgui.ListItem(path=playurl)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-def videoPluginPlay( vids, prefix=None ):
+def videoPluginPlay( vids, prefix=None, indirect=None ):
     '''
         Plays Plugin Videos, which do not require library feedback
         but require further processing
@@ -1979,7 +1979,7 @@ def videoPluginPlay( vids, prefix=None ):
         return
 
     #Check if there is a further level of XML required
-    if '&indirect=1' in vids:
+    if indirect or '&indirect=1' in vids:
         printDebug("Indirect link")
         html=getURL(vids, suppress=False)
         if not html:
@@ -1999,8 +1999,22 @@ def videoPluginPlay( vids, prefix=None ):
         if not (prefix):
             prefix="system"
         vids=transcode(0, vids, prefix)
-        session=vids
-
+        
+        #Workaround for XBMC HLS request limit of 1024 byts
+        if len(vids) > 1000:
+            printDebug("XBMC HSL limit detected, will pre-fetch m3u8 playlist")
+            
+            playlist = getURL(vids)
+            
+            if not playlist or not "#EXTM3U" in playlist:
+            
+                printDebug("Unable to get valid m3u8 playlist from transcoder")
+                return
+            
+            server=getServerFromURL(vids)
+            session=playlist.split()[-1]
+            vids="http://"+server+"/video/:/transcode/segmented/"+session+"?t=1"
+            
     printDebug("URL to Play: " + vids)
     printDebug("Prefix is: " + str(prefix))
 
@@ -2482,6 +2496,11 @@ def PlexPlugins( url, tree=None ):
 
         elif plugin.tag == "Video":
             extraData['mode']=_MODE_VIDEOPLUGINPLAY
+            
+            for child in plugin:
+                if child.tag == "Media":
+                    extraData['parameters'] = {'indirect' : child.get('indirect','0')}            
+            
             addGUIItem(p_url, details, extraData, folder=False)
 
         elif plugin.tag == "Setting":
@@ -3967,6 +3986,7 @@ param_name=urllib.unquote_plus(params.get('name',""))
 mode=int(params.get('mode',-1))
 param_transcodeOverride=int(params.get('transcode',0))
 param_identifier=params.get('identifier',None)
+param_indirect=params.get('indirect',None)
 _PARAM_TOKEN=params.get('X-Plex-Token',None)
 force=params.get('force')
 
@@ -4071,7 +4091,7 @@ else:
         music(param_url)
 
     elif mode == _MODE_VIDEOPLUGINPLAY:
-        videoPluginPlay(param_url,param_identifier)
+        videoPluginPlay(param_url,param_identifier,param_indirect)
 
     elif mode == _MODE_PLEXONLINE:
         plexOnline(param_url)
