@@ -1826,8 +1826,11 @@ def selectMedia( count, options, server ):
         indexCount=0
         for items in options:
 
-            name=items[1].split('/')[-1]
-
+            if items[1]:
+                name=items[1].split('/')[-1]
+            else:
+                name=items[0].split('.')[-1] + " file"
+                
             if g_forcedvd == "true":
                 if '.ifo' in name.lower():
                     printDebug( "Found IFO DVD file in " + name )
