@@ -1702,7 +1702,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False ):
         full_data = True
         
     streams=getAudioSubtitlesMedia(server,id, full_data)
-    url=selectMedia(streams['partsCount'],streams['parts'], server)
+    url=selectMedia(streams, server)
 
     if url is None:
         return
@@ -1831,12 +1831,15 @@ def setAudioSubtitles( stream ):
     xbmc.Player().showSubtitles(False)
     return False
 
-def selectMedia( count, options, server ):
+def selectMedia( data, server ):
     printDebug("== ENTER: selectMedia ==", False)
     #if we have two or more files for the same movie, then present a screen
     result=0
     dvdplayback=False
 
+    count=data['partsCount']
+    options=data['parts']
+    
     if count > 1:
 
         dialogOptions=[]
