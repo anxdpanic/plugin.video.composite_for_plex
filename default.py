@@ -1609,24 +1609,27 @@ def getAudioSubtitlesMedia( server, id, full=False ):
 
 
     details = timings.findall('Media')
-    
-    print details
-    
+        
     media_details_list=[]
     for media_details in details:
-        
-        print "media is " + str(media_details)
+                
+        if int(media_details.get('videoResolution',0)) >= 1080:
+            resolution="HD 1080"
+        elif int(media_details.get('videoResolution',0)) >= 720:
+            resolution="HD 720"
+        elif int(media_details.get('videoResolution',0)) < 720:
+            resolution="SD"
+        else:
+            resolution="unknown"
         
         media_details_temp = { 'bitrate'          : round(float(media_details.get('bitrate',0))/1000,1) ,
-                               'videoResolution'  : media_details.get('videoResolution','unknown') ,
+                               'videoResolution'  : resolution ,
                                'container'        : media_details.get('container','unknown') }
                                                   
         options = media_details.findall('Part')
-
-
+        
         #Get the media locations (file and web) for later on
         for stuff in options:
-            print "part is " + str(stuff)
 
             try:
                 bits=stuff.get('key'), stuff.get('file')
@@ -1839,6 +1842,7 @@ def selectMedia( data, server ):
 
     count=data['partsCount']
     options=data['parts']
+    details=data['details']
     
     if count > 1:
 
@@ -1849,8 +1853,9 @@ def selectMedia( data, server ):
 
             if items[1]:
                 name=items[1].split('/')[-1]
+                #name="%s %s %sMbps" % (items[1].split('/')[-1], details[indexCount]['videoResolution'], details[indexCount]['bitrate'])
             else:
-                name=items[0].split('.')[-1] + " file"
+                name="%s %s %sMbps" % (items[0].split('.')[-1], details[indexCount]['videoResolution'], details[indexCount]['bitrate'])
                 
             if g_forcedvd == "true":
                 if '.ifo' in name.lower():
