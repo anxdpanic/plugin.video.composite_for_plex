@@ -43,7 +43,7 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.1.1"
+PLEXBMC_VERSION="3.1.2"
 
 from listener import *
 import plexgdm
@@ -110,7 +110,6 @@ if __settings__.getSetting('use_xbmc_net') == "false":
     g_xbmc_port = __settings__.getSetting('xbmcport')
     if not g_xbmc_port:
         g_xbmc_port=80
-    print "PleXBMC Helper -> Platform: " + str(PLEXBMC_PLATFORM)
     g_xbmc_user = __settings__.getSetting('xbmcuser')
 else:
     xbmc_webserver = getAddonSetting(guisettings, 'webserver')
