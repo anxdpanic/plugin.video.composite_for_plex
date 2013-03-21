@@ -1613,14 +1613,18 @@ def getAudioSubtitlesMedia( server, id, full=False ):
     media_details_list=[]
     for media_details in details:
                 
-        if int(media_details.get('videoResolution',0)) >= 1080:
-            resolution="HD 1080"
-        elif int(media_details.get('videoResolution',0)) >= 720:
-            resolution="HD 720"
-        elif int(media_details.get('videoResolution',0)) < 720:
-            resolution="SD"
-        else:
-            resolution="unknown"
+        resolution=""        
+        try:       
+            if media_details.get('videoResolution') == "sd":
+                resolution="SD"
+            elif int(media_details.get('videoResolution',0)) >= 1080:
+                resolution="HD 1080"
+            elif int(media_details.get('videoResolution',0)) >= 720:
+                resolution="HD 720"
+            elif int(media_details.get('videoResolution',0)) < 720:
+                resolution="SD"
+        except:
+            pass
         
         media_details_temp = { 'bitrate'          : round(float(media_details.get('bitrate',0))/1000,1) ,
                                'videoResolution'  : resolution ,
