@@ -26,7 +26,7 @@
 '''
 
 import urllib
-import urllib2
+#import urllib2
 import re
 import xbmcplugin
 import xbmcgui
@@ -35,11 +35,11 @@ import httplib
 import socket
 import sys
 import os
-import datetime
+#import datetime
 import time
 import inspect
 import base64
-import hashlib
+#import hashlib
 import random
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
@@ -2330,6 +2330,7 @@ def transcode( id, url, identifier=None ):
     privateKey = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
 
     import hmac
+    import hashlib
     hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
 
     printDebug("HMAC after hash is " + hash.hexdigest())
