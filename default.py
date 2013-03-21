@@ -171,12 +171,12 @@ while True:
     
     time.sleep (3)
 
-    if count == 3:
+    if start_count == 3:
         print "PleXBMC Helper -> Unable to start web helper. Giving up."
         xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - Helper Web unable to start due to port clash,)")
         break
     
-    count += 1
+    start_count += 1
 
 client.start_all()
 
