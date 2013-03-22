@@ -50,7 +50,7 @@ BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'li
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 CACHEDATA=PLUGINPATH+"/data"
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.1.5"
+PLEXBMC_VERSION="3.1.6"
 
 print "===== PLEXBMC START ====="
 
