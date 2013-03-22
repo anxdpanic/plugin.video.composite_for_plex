@@ -262,7 +262,7 @@ def discoverAllServers( ):
             else:
                 GDM_debug=0
 
-            gdm_cache_file=CACHEDATA+"/gdm.cache"
+            gdm_cache_file=CACHEDATA+"/gdm.server.cache"
             gdm_cache_ok = False    
                       
             gdm_cache_ok, gdm_server_name = checkCache(gdm_cache_file)
@@ -308,7 +308,7 @@ def discoverAllServers( ):
     if __settings__.getSetting('myplex_user') != "":
         printDebug( "PleXBMC -> Adding myplex as a server location", False)
 
-        myplex_cache_file=CACHEDATA+"/myplex.cache"     
+        myplex_cache_file=CACHEDATA+"/myplex.server.cache"     
         success, das_myplex = checkCache(myplex_cache_file)
         
         if not success:
@@ -502,7 +502,7 @@ def deduplicateServers( server_list ):
 def getServerSections ( ip_address, port, name, uuid):
     printDebug("== ENTER: getServerSections ==", False)
 
-    cache_file = "%s/%s_sections.cache" % (CACHEDATA, uuid)
+    cache_file = "%s/%s.sections.cache" % (CACHEDATA, uuid)
     success, temp_list = checkCache(cache_file)
     
     if not success:
@@ -536,7 +536,7 @@ def getServerSections ( ip_address, port, name, uuid):
 def getMyplexSections ( ):
     printDebug("== ENTER: getMyplexSections ==", False)
     
-    cache_file = "%s/myplex_sections.cache" % (CACHEDATA)
+    cache_file = "%s/myplex.sections.cache" % (CACHEDATA)
     success, temp_list = checkCache(cache_file)
     
     if not success:
