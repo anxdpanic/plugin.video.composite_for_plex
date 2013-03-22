@@ -48,7 +48,7 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
-CACHEDATA=PLUGINPATH+"/data"
+CACHEDATA=PLUGINPATH+"/cache"
 sys.path.append(BASE_RESOURCE_PATH)
 PLEXBMC_VERSION="3.1.6"
 
