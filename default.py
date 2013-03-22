@@ -264,29 +264,16 @@ def discoverAllServers( ):
 
             gdm_cache_file=CACHEDATA+"/gdm.cache"
             gdm_cache_ok = False    
-                
-            if xbmcvfs.exists(gdm_cache_file):
-                printDebug("Found gdm.cache file")
-                gdm_cache=xbmcvfs.File(gdm_cache_file)
-                data = gdm_cache.read()
-                printDebug("GDM_CACHE [%s]" % data)
-                if data:
-                    gdm_server_name = pickle.loads(data)
-                    gdm_cache_ok = True
+                      
+            gdm_cache_ok, gdm_server_name = checkCache(gdm_cache_file)
 
-                gdm_cache.close()
-
-            if not gdm_cache_ok:
-                printDebug("No myplex.cache file found")               
-                
+            if not gdm_cache_ok:               
                 gdm_client = plexgdm.plexgdm(GDM_debug)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
 
-                gdm_cache=xbmcvfs.File(gdm_cache_file,'w')
-                gdm_cache.write(pickle.dumps(gdm_server_name))
-                gdm_cache.close()
-                        
+                writeCache(gdm_cache_file, gdm_server_name)
+                
             if  ( gdm_cache_ok or gdm_client.discovery_complete ) and gdm_server_name :
                 printDebug("GDM discovery completed")
                 for device in gdm_server_name:
@@ -321,25 +308,12 @@ def discoverAllServers( ):
     if __settings__.getSetting('myplex_user') != "":
         printDebug( "PleXBMC -> Adding myplex as a server location", False)
 
-        myplex_cache_file=CACHEDATA+"/myplex.cache"
-        myplex_cache_ok = False
+        myplex_cache_file=CACHEDATA+"/myplex.cache"     
+        success, das_myplex = checkCache(myplex_cache_file)
         
-        if xbmcvfs.exists(myplex_cache_file):
-            printDebug("Found myplex.cache file")
-            myplex_cache=xbmcvfs.File(myplex_cache_file)
-            data = myplex_cache.read()
-            if data:
-                printDebug("MYPLEX_CACHE [%s]" % data)
-                das_myplex = pickle.loads(data)
-                myplex_cache_ok = True
-            myplex_cache.close()
- 
-        if not myplex_cache_ok:
-            printDebug("No myplex.cache file found")
+        if not success:
             das_myplex = getMyPlexServers()
-            myplex_cache=xbmcvfs.File(myplex_cache_file,'w')
-            myplex_cache.write(pickle.dumps(das_myplex))
-            myplex_cache.close()
+            writeCache(myplex_cache_file, das_myplex)
 
         if das_myplex:
             printDebug("MyPlex discovery completed")
@@ -348,11 +322,57 @@ def discoverAllServers( ):
                 das_servers[das_server_index] = device
                 das_server_index = das_server_index + 1
 
-
     printDebug("PleXBMC -> serverList is " + str(das_servers), False)
 
     return deduplicateServers(das_servers)
 
+def readCache(cachefile):
+    printDebug("CACHE [%s]: attempting to read" % cachefile)
+    cache=xbmcvfs.File(cachefile)
+    cachedata = cache.read()
+    cache.close()
+    if cachedata:
+        printDebug("CACHE [%s]: read: [%s]" % ( cachefile, cachedata))
+        cacheobject = pickle.loads(cachedata)
+        return (True, cacheobject)
+
+    printDebug("CACHE [%s]: empty" % cachefile)
+    return (False, None)
+
+def writeCache(cachefile, object):
+    cache=xbmcvfs.File(cachefile,'w')
+    cache.write(pickle.dumps(object))
+    cache.close()
+    return True
+
+   
+def checkCache(cachefile, life=60):
+
+    if xbmcvfs.exists(cachefile):
+        printDebug("CACHE [%s]: exists" % cachefile)
+        now = int(round(time.time(),0))
+        created = int(xbmcvfs.Stat(cachefile).st_ctime())
+        modified = int(xbmcvfs.Stat(cachefile).st_mtime())
+        accessed = int(xbmcvfs.Stat(cachefile).st_atime())
+        printDebug ("CACHE [%s]: mod[%s] now[%s] diff[%s]" % ( cachefile, modified, now, now - modified)) 
+        printDebug ("CACHE [%s]: ctd[%s] mod[%s] acc[%s]" % ( cachefile, created, modified, accessed)) 
+        
+        if ( modified < 0) or ( now - modified ) > life:
+            printDebug("CACHE [%s]: too old, delete" % cachefile)
+            success = xbmcvfs.delete(cachefile)
+            if success:
+                printDebug("CACHE [%s]: deleted" % cachefile)
+            else:
+                printDebug("CACHE [%s]: not deleted" % cachefile)
+        else:
+            printDebug("CACHE [%s]: current" % cachefile)
+            
+            return readCache(cachefile)
+    else:
+        printDebug("CACHE [%s]: does not exist" % cachefile)
+    
+    return (False, None)
+    
 def getLocalServers( ip_address, port ):
     '''
         Connect to the defined local server (either direct or via bonjour discovery)
