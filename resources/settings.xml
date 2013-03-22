@@ -9,6 +9,7 @@
 		<setting id="myplex_user" type="text" label="30024" />
 		<setting id="myplex_pass" type="text" option="hidden" label="30025" />
 		<setting id="myplex_token" type="text" visible="false" option="hidden" />
+		<setting id="cache" type="bool" label="30093" default="true" />
 	</category>
 
 	<category label="30017"> <!-- Playback -->

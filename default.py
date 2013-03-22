@@ -340,6 +340,10 @@ def readCache(cachefile):
     return (False, None)
 
 def writeCache(cachefile, object):
+
+    if __settings__.getSetting("cache") == "false":
+        return True
+        
     printDebug("CACHE [%s]: Writing file" % cachefile)
     cache=xbmcvfs.File(cachefile,'w')
     cache.write(pickle.dumps(object))
@@ -347,6 +351,9 @@ def writeCache(cachefile, object):
     return True
    
 def checkCache(cachefile, life=3600):
+
+    if __settings__.getSetting("cache") == "false":
+        return (False, None)
 
     if xbmcvfs.exists(cachefile):
         printDebug("CACHE [%s]: exists" % cachefile)
@@ -495,7 +502,7 @@ def deduplicateServers( server_list ):
 def getServerSections ( ip_address, port, name, uuid):
     printDebug("== ENTER: getServerSections ==", False)
 
-    cache_file = "%s/%s.cache" % (CACHEDATA, uuid)
+    cache_file = "%s/%s_sections.cache" % (CACHEDATA, uuid)
     success, temp_list = checkCache(cache_file)
     
     if not success:
