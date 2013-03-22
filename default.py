@@ -125,6 +125,7 @@ _MODE_MYPLEXQUEUE=24
 _MODE_SHARED_SHOWS=25
 _MODE_SHARED_MUSIC=26
 _MODE_SHARED_PHOTOS=27
+_MODE_DELETE_REFRESH=28
 
 _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
@@ -1182,7 +1183,16 @@ def displaySections( filter=None, shared=False ):
 
             u="http://"+server['server']+":"+server['port']+"/system/plexonline"
             addGUIItem(u,details,extraData)
+            
+        if __settings__.getSetting("cache") == "true":
+            details['title']="Refresh Data"
+            extraData['type']="file"
 
+            extraData['mode']= _MODE_DELETE_REFRESH
+
+            u="http://nothing"
+            addGUIItem(u,details,extraData)
+        
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
         xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
@@ -4250,6 +4260,10 @@ else:
         
     elif mode == _MODE_SHARED_MUSIC:
         displaySections(filter="music", shared=True)
+        
+    elif mode == _MODE_DELETE_REFRESH:
+        deletecache()
+        xbmc.executebuiltin("Container.Refresh")
 
 print "===== PLEXBMC STOP ====="
 
