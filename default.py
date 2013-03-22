@@ -340,13 +340,13 @@ def readCache(cachefile):
     return (False, None)
 
 def writeCache(cachefile, object):
+    printDebug("CACHE [%s]: Writing file" % cachefile)
     cache=xbmcvfs.File(cachefile,'w')
     cache.write(pickle.dumps(object))
     cache.close()
     return True
-
    
-def checkCache(cachefile, life=60):
+def checkCache(cachefile, life=3600):
 
     if xbmcvfs.exists(cachefile):
         printDebug("CACHE [%s]: exists" % cachefile)
@@ -495,27 +495,35 @@ def deduplicateServers( server_list ):
 def getServerSections ( ip_address, port, name, uuid):
     printDebug("== ENTER: getServerSections ==", False)
 
-    html=getURL('http://%s:%s/library/sections' % ( ip_address, port))
+    cache_file = "%s/%s.cache" % (CACHEDATA, uuid)
+    success, temp_list = checkCache(cache_file)
+    
+    if not success:
+    
+        html=getURL('http://%s:%s/library/sections' % ( ip_address, port))
 
-    if html is False:
-        return {}
+        if html is False:
+            return {}
 
-    tree = etree.fromstring(html).getiterator("Directory")
-    temp_list=[]
-    for sections in tree:
+        tree = etree.fromstring(html).getiterator("Directory")
+        temp_list=[]
+        for sections in tree:
 
-        temp_list.append( {'title'      : sections.get('title','Unknown').encode('utf-8'),
-                'address'    : ip_address+":"+port ,
-                'serverName' : name ,
-                'uuid'       : uuid ,
-                'path'       : '/library/sections/'+sections.get('key') ,
-                'token'      : sections.get('accessToken',None) ,
-                'location'   : "local" ,
-                'art'        : sections.get('art') ,
-                'local'      : '1' ,
-                'type'       : sections.get('type','Unknown'),
-                'owned'      : '1' })
+            temp_list.append( {'title'      : sections.get('title','Unknown').encode('utf-8'),
+                    'address'    : ip_address+":"+port ,
+                    'serverName' : name ,
+                    'uuid'       : uuid ,
+                    'path'       : '/library/sections/'+sections.get('key') ,
+                    'token'      : sections.get('accessToken',None) ,
+                    'location'   : "local" ,
+                    'art'        : sections.get('art') ,
+                    'local'      : '1' ,
+                    'type'       : sections.get('type','Unknown'),
+                    'owned'      : '1' })
                 
+            
+        writeCache(cache_file, temp_list)
+        
     return temp_list            
 
 def getMyplexSections ( ):
