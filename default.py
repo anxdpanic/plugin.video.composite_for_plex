@@ -41,11 +41,14 @@ import inspect
 import base64
 #import hashlib
 import random
+import xbmcvfs
+import pickle
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
+CACHEDATA=PLUGINPATH+"/data"
 sys.path.append(BASE_RESOURCE_PATH)
 PLEXBMC_VERSION="3.1.5"
 
@@ -259,12 +262,32 @@ def discoverAllServers( ):
             else:
                 GDM_debug=0
 
-            gdm_client = plexgdm.plexgdm(GDM_debug)
+            gdm_cache_file=CACHEDATA+"/gdm.cache"
+            gdm_cache_ok = False    
+                
+            if xbmcvfs.exists(gdm_cache_file):
+                printDebug("Found gdm.cache file")
+                gdm_cache=xbmcvfs.File(gdm_cache_file)
+                data = gdm_cache.read()
+                printDebug("GDM_CACHE [%s]" % data)
+                if data:
+                    gdm_server_name = pickle.loads(data)
+                    gdm_cache_ok = True
 
-            gdm_client.discover()
-            gdm_server_name = gdm_client.getServerList()
+                gdm_cache.close()
+
+            if not gdm_cache_ok:
+                printDebug("No myplex.cache file found")               
+                
+                gdm_client = plexgdm.plexgdm(GDM_debug)
+                gdm_client.discover()
+                gdm_server_name = gdm_client.getServerList()
+
+                gdm_cache=xbmcvfs.File(gdm_cache_file,'w')
+                gdm_cache.write(pickle.dumps(gdm_server_name))
+                gdm_cache.close()
                         
-            if gdm_client.discovery_complete and gdm_server_name:
+            if  ( gdm_cache_ok or gdm_client.discovery_complete ) and gdm_server_name :
                 printDebug("GDM discovery completed")
                 for device in gdm_server_name:
                 
@@ -298,7 +321,26 @@ def discoverAllServers( ):
     if __settings__.getSetting('myplex_user') != "":
         printDebug( "PleXBMC -> Adding myplex as a server location", False)
 
-        das_myplex = getMyPlexServers()
+        myplex_cache_file=CACHEDATA+"/myplex.cache"
+        myplex_cache_ok = False
+        
+        if xbmcvfs.exists(myplex_cache_file):
+            printDebug("Found myplex.cache file")
+            myplex_cache=xbmcvfs.File(myplex_cache_file)
+            data = myplex_cache.read()
+            if data:
+                printDebug("MYPLEX_CACHE [%s]" % data)
+                das_myplex = pickle.loads(data)
+                myplex_cache_ok = True
+            myplex_cache.close()
+ 
+        if not myplex_cache_ok:
+            printDebug("No myplex.cache file found")
+            das_myplex = getMyPlexServers()
+            myplex_cache=xbmcvfs.File(myplex_cache_file,'w')
+            myplex_cache.write(pickle.dumps(das_myplex))
+            myplex_cache.close()
+
         if das_myplex:
             printDebug("MyPlex discovery completed")
             for device in das_myplex:
@@ -3986,6 +4028,21 @@ def setMasterServer () :
     __settings__.setSetting('masterServer',servers[result]['name'])
     return
   
+def deletecache():
+    printDebug("== ENTER: deleteCache ==", False)
+    dirs, files = xbmcvfs.listdir(CACHEDATA)
+
+    printDebug("List of file: [%s]" % files)
+    printDebug("List of dirs: [%s]" % dirs)
+    
+    for i in files:
+        success = xbmcvfs.delete(CACHEDATA+"/"+i)
+        if success:
+            printDebug("SUCCESSFUL: removed %s" % i)
+        else:
+            printDebug("UNSUCESSFUL: did not remove %s" % i )
+            
+  
 ##So this is where we really start the plugin.
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
 
@@ -4044,6 +4101,11 @@ elif sys.argv[1] == "audio":
     alterAudio(url)
 elif sys.argv[1] == "master":
     setMasterServer()
+elif str(sys.argv[1]) == "cacherefresh":
+     deletecache()
+     skin()
+     shelf()
+     shelfChannel()
 else:
 
     pluginhandle = int(sys.argv[1])
