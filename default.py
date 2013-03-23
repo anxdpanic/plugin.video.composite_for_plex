@@ -1649,7 +1649,7 @@ def TVEpisodes( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
 
-def getAudioSubtitlesMedia( server, id, full=False ):
+def getAudioSubtitlesMedia( server, tree, full=False ):
     '''
         Cycle through the Parts sections to find all "selected" audio and subtitle streams
         If a stream is marked as selected=1 then we will record it in the dict
@@ -1658,12 +1658,6 @@ def getAudioSubtitlesMedia( server, id, full=False ):
     '''
     printDebug("== ENTER: getAudioSubtitlesMedia ==", False)
     printDebug("Gather media stream info" )
-
-    #get metadata for audio and subtitle
-    suburl="http://"+server+"/library/metadata/"+id
-
-    html=getURL(suburl)
-    tree=etree.fromstring(html)
 
     parts=[]
     partsCount=0
@@ -1799,10 +1793,14 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False ):
 
     id=vids.split('?')[0].split('&')[0].split('/')[-1]
 
+    tree=getXML(vids)
+    if not tree:
+        return
+            
     if force:
         full_data = True
         
-    streams=getAudioSubtitlesMedia(server,id, full_data)
+    streams=getAudioSubtitlesMedia(server,tree, full_data)
     url=selectMedia(streams, server)
 
     if url is None:
