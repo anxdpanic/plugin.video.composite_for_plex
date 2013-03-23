@@ -42,7 +42,10 @@ import base64
 #import hashlib
 import random
 import xbmcvfs
-import pickle
+try:
+    import cPickle
+except ImportError:
+    import pickle
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__ = __settings__.getAddonInfo('path')
