@@ -42,8 +42,9 @@ import base64
 #import hashlib
 import random
 import xbmcvfs
+
 try:
-    import cPickle
+    import cPickle as pickle
 except ImportError:
     import pickle
 
