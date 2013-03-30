@@ -4311,4 +4311,3 @@ else:
 print "===== PLEXBMC STOP ====="
 
 #clear done and exit.
-sys.modules.clear()
