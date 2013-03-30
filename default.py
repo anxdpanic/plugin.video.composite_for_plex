@@ -1878,7 +1878,16 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False ):
     if override:
         start=xbmc.Player().play(listitem=item)
     else:
-        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        if streams['type'] == "picture":
+            import json
+            request=json.dumps({ "id"      : 1,
+                                 "jsonrpc" : "2.0",
+                                 "method"  : "Player.Open",
+                                 "params"  : { "item"  :  {"file": playurl } } } )
+            html=xbmc.executeJSONRPC(request)
+            return
+        else:
+            start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
     #Set a loop to wait for positive confirmation of playback
     count = 0
