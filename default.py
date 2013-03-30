@@ -4084,12 +4084,17 @@ def setMasterServer () :
   
 def deletecache():
     printDebug("== ENTER: deleteCache ==", False)
+    cache_header=".cache.directory"
     dirs, files = xbmcvfs.listdir(CACHEDATA)
 
     printDebug("List of file: [%s]" % files)
     printDebug("List of dirs: [%s]" % dirs)
     
     for i in files:
+    
+        if i == cache_header:
+            continue
+    
         success = xbmcvfs.delete(CACHEDATA+"/"+i)
         if success:
             printDebug("SUCCESSFUL: removed %s" % i)
