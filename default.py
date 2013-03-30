@@ -1676,29 +1676,53 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
     selectedAudioOffset=-1
     full_data={}
     contents="type"
+    media_type="unknown"
 
     timings = tree.find('Video')
-    
-    media['viewOffset']=timings.get('viewOffset',0)
+    if timings:
+        media_type="video"
+    else:
+        timings = tree.find('Track')
+        if timings:
+            media_type="music"
+        else:
+            timings = tree.find('Photo')
+            if timings:
+                media_type="picture"
+            else:
+                printDebug("No Video data found")
+                return {}
+
+    media['viewOffset']=timings.get('viewOffset',0)    
     media['duration']=timings.get('duration',12*60*60)
 
     if full:
-        full_data={ 'plot'      : timings.get('summary','').encode('utf-8') ,
-                    'title'     : timings.get('title','Unknown').encode('utf-8') ,
-                    'sorttitle' : timings.get('titleSort', timings.get('title','Unknown')).encode('utf-8') ,
-                    'rating'    : float(timings.get('rating',0)) ,
-                    'studio'    : timings.get('studio','').encode('utf-8') ,
-                    'mpaa'      : "Rated " + timings.get('contentRating', 'unknown') ,
-                    'year'      : int(timings.get('year',0)) ,
-                    'tagline'   : timings.get('tagline','') ,
-                    'thumbnailImage': getThumb(timings,server) }
-                    
-        if timings.get('type') == "episode":
-            full_data['episode']     = int(timings.get('index',0)) 
-            full_data['aired']       = timings.get('originallyAvailableAt','') 
-            full_data['tvshowtitle'] = timings.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') 
-            full_data['season']      = int(timings.get('parentIndex',tree.get('parentIndex',0))) 
+        if media_type == "video":
+            full_data={ 'plot'      : timings.get('summary','').encode('utf-8') ,
+                        'title'     : timings.get('title','Unknown').encode('utf-8') ,
+                        'sorttitle' : timings.get('titleSort', timings.get('title','Unknown')).encode('utf-8') ,
+                        'rating'    : float(timings.get('rating',0)) ,
+                        'studio'    : timings.get('studio','').encode('utf-8') ,
+                        'mpaa'      : "Rated " + timings.get('contentRating', 'unknown') ,
+                        'year'      : int(timings.get('year',0)) ,
+                        'tagline'   : timings.get('tagline','') ,
+                        'thumbnailImage': getThumb(timings,server) }
+                        
+            if timings.get('type') == "episode":
+                full_data['episode']     = int(timings.get('index',0)) 
+                full_data['aired']       = timings.get('originallyAvailableAt','') 
+                full_data['tvshowtitle'] = timings.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') 
+                full_data['season']      = int(timings.get('parentIndex',tree.get('parentIndex',0))) 
 
+        elif media_type == "music":
+                        
+            full_data={'TrackNumber' : int(timings.get('index',0)) ,
+                       'title'       : str(timings.get('index',0)).zfill(2)+". "+timings.get('title','Unknown').encode('utf-8') ,
+                       'rating'      : float(timings.get('rating',0)) ,
+                       'album'       : timings.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
+                       'artist'      : timings.get('grandparentTitle', tree.get('grandparentTitle','')).encode('utf-8') ,
+                       'duration'    : int(timings.get('duration',0))/1000 ,
+                       'thumbnailImage': getThumb(timings,server) }
 
     details = timings.findall('Media')
         
@@ -1735,7 +1759,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
             except: pass
 
     #if we are deciding internally or forcing an external subs file, then collect the data
-    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
+    if type == "video" and g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
 
         contents="all"
         tags=tree.getiterator('Stream')
@@ -1783,7 +1807,8 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                 'details'    : media_details_list ,      #Bitrate, resolution and container for each part
                 'subOffset'  : selectedSubOffset ,       #Stream index for selected subs
                 'audioOffset': selectedAudioOffset ,     #STream index for select audio
-                'full_data'  : full_data }               #Full metadata extract if requested
+                'full_data'  : full_data ,               #Full metadata extract if requested
+                'type'       : media_type }              #Type of metadata
 
     printDebug ( str(streamData) )
     return streamData
@@ -1834,7 +1859,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False ):
     item = xbmcgui.ListItem(path=playurl)
 
     if streams['full_data']:
-        item.setInfo( type='Video', infoLabels=streams['full_data'] )
+        item.setInfo( type=streams['type'], infoLabels=streams['full_data'] )
         item.setThumbnailImage(streams['full_data'].get('thumbnailImage',''))
         item.setIconImage(streams['full_data'].get('thumbnailImage',''))
     
@@ -1868,7 +1893,8 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False ):
     if not (g_transcode == "true" ):
         setAudioSubtitles(streams)
 
-    monitorPlayback(id,server)
+    if streams['type'] == "video":
+        monitorPlayback(id,server)
 
     return
 
