@@ -2889,7 +2889,7 @@ def movieTag(url, server, tree, movie, randomNumber):
     #Required listItem entries for XBMC
     details={'plot'      : movie.get('summary','').encode('utf-8') ,
              'title'     : movie.get('title','Unknown').encode('utf-8') ,
-             'sorttitle'  : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
+             'sorttitle' : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
              'rating'    : float(movie.get('rating',0)) ,
              'studio'    : movie.get('studio','').encode('utf-8') ,
              'mpaa'      : "Rated " + movie.get('contentRating', 'unknown') ,
