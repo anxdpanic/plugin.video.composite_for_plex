@@ -199,14 +199,15 @@ class plexgdm:
 
                 #Check if we had a positive HTTP response                        
                 if "200 OK" in response.get('data'):
+
+                    update['discovery'] = "auto"
+                    update['owned']='1'
+                    update['master']= 1
+                    update['role']='master'
+                    update['class']=None
             
                     for each in response.get('data').split('\n'):
 
-                        update['discovery'] = "auto"
-                        update['owned']='1'
-                        update['master']= 1
-                        update['role']='master'
-                    
                         if "Content-Type:" in each:
                             update['content-type'] = each.split(':')[1].strip()
                         elif "Resource-Identifier:" in each:
@@ -219,6 +220,8 @@ class plexgdm:
                             update['updated'] = each.split(':')[1].strip()
                         elif "Version:" in each:
                             update['version'] = each.split(':')[1].strip()
+                        elif "Server-Class:" in each:
+                            update['class'] = each.split(':')[1].strip()
 
                 discovered_servers.append(update)                    
 
