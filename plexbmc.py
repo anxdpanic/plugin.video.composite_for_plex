@@ -410,7 +410,8 @@ def getLocalServers( ip_address, port ):
                         'token'     : None ,
                         'uuid'      : server.get('machineIdentifier') ,
                         'owned'     : '1' ,
-                        'master'    : 1 }
+                        'master'    : 1 ,
+                        'class'     : server.get('serverClass') }
 
 def getMyPlexServers( ):
     '''
@@ -451,7 +452,8 @@ def getMyPlexServers( ):
                             'token'     : accessToken ,
                             'uuid'      : data['machineIdentifier'] ,
                             'owned'     : data.get('owned',0) ,
-                            'master'    : master })
+                            'master'    : master ,
+                            'class'     : data.get('serverClass') })
 
     return tempServers
                                        
@@ -3610,6 +3612,9 @@ def shelf( server_list=None ):
 
     for server_details in server_list.values():
 
+        if server_details['class'] == "secondary":
+            continue
+    
         if not server_details['owned'] == '1':
             continue
     
@@ -3796,6 +3801,9 @@ def shelfChannel( server_list = None):
     
     for server_details in server_list.values():
 
+        if server_details['class'] == "secondary":
+            continue
+    
         if not server_details['owned'] == '1':
             continue
         
