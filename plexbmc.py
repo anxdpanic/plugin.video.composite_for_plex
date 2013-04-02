@@ -1678,7 +1678,8 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
     full_data={}
     contents="type"
     media_type="unknown"
-
+    extra={}
+    
     timings = tree.find('Video')
     if timings:
         media_type="video"
@@ -1725,6 +1726,9 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                        'duration'    : int(timings.get('duration',0))/1000 ,
                        'thumbnailImage': getThumb(timings,server) }
 
+            extra['album']=timings.get('parentKey')
+            extra['index']=timings.get('index')                       
+                       
     details = timings.findall('Media')
         
     media_details_list=[]
@@ -1809,11 +1813,41 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                 'subOffset'  : selectedSubOffset ,       #Stream index for selected subs
                 'audioOffset': selectedAudioOffset ,     #STream index for select audio
                 'full_data'  : full_data ,               #Full metadata extract if requested
-                'type'       : media_type }              #Type of metadata
-
+                'type'       : media_type ,              #Type of metadata
+                'extra'      : extra }                   #Extra data
+            
     printDebug ( str(streamData) )
     return streamData
 
+def playPlaylist ( server, data ):    
+    printDebug("== ENTER: playPlaylist ==", False)
+    printDebug("Creating new playlist")
+    playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
+    playlist.clear()
+    
+    tree = getXML(server+data['extra'].get('album')+"/children")
+    
+    if not tree:
+        return
+        
+    TrackTags=tree.findall('Track')
+    for track in TrackTags:
+
+        printDebug("Adding playlist item")
+    
+        url, item = trackTag(server, tree, track, listing = False)
+        
+        liz=xbmcgui.ListItem(item.get('title','Unknown'), iconImage=data['full_data'].get('thumbnailImage','') , thumbnailImage=data['full_data'].get('thumbnailImage',''))
+
+        liz.setInfo( type='music', infoLabels=item )        
+        playlist.add(url, liz)
+    
+    index = int(data['extra'].get('index',0)) - 1
+    printDebug("Playlist complete.  Starting playback from track %s [playlist index %s] " % (data['extra'].get('index',0), index ))
+    xbmc.Player().playselected( index )   
+    
+    return
+    
 def playLibraryMedia( vids, override=False, force=None, full_data=False ):
     printDebug("== ENTER: playLibraryMedia ==", False)
 
@@ -1830,7 +1864,12 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False ):
     if force:
         full_data = True
         
-    streams=getAudioSubtitlesMedia(server,tree, full_data)
+    streams=getAudioSubtitlesMedia(server,tree, full_data)  
+    
+    if force and streams['type'] == "music":
+        playPlaylist(server, streams)
+        return
+    
     url=selectMedia(streams, server)
 
     if url is None:
@@ -2911,7 +2950,7 @@ def getMediaData ( tag_dict ):
                 'xbmc_AudioChannels' : tag_dict.get('audioChannels') ,
                 'xbmc_VideoAspect'   : tag_dict.get('aspectRatio') }
 
-def trackTag( server, tree, track ):
+def trackTag( server, tree, track, listing=True ):
     printDebug("== ENTER: trackTAG ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
 
@@ -2947,8 +2986,11 @@ def trackTag( server, tree, track ):
     extraData['mode']=_MODE_BASICPLAY
     u="%s" % (url)
 
-    addGUIItem(u,details,extraData,folder=False)
-
+    if listing:
+        addGUIItem(u,details,extraData,folder=False)
+    else:
+        return ( url, details )
+          
 def photo( url,tree=None ):
     printDebug("== ENTER: photos ==", False)
     server=url.split('/')[2]
