@@ -1165,6 +1165,9 @@ def displaySections( filter=None, shared=False ):
 
         for server in allservers.itervalues():
 
+            if server['class'] == "secondary":
+                continue
+        
             #Plex plugin handling
             if (filter is not None) and (filter != "plugins"):
                 continue
@@ -3456,6 +3459,9 @@ def skin( server_list=None):
 
     for server in server_list.values():
     
+        if server['class'] == "secondary":
+            continue
+    
         aToken=getAuthDetails(server)
         qToken=getAuthDetails(server, prefix='?')
         
@@ -3918,6 +3924,9 @@ def displayServers( url ):
     #For each of the servers we have identified
     for mediaserver in Servers.values():
 
+        if mediaserver['class'] == "secondary":
+            continue
+    
         details={'title' : mediaserver.get('serverName','Unknown') }
 
         if mediaserver.get('token',None):
