@@ -27,3 +27,4 @@
 
 #Import main code (plexbmc.py) and execute
 import plexbmc
+sys.modules.clear()
