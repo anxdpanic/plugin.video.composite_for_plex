@@ -26,7 +26,6 @@
 '''
 
 import urllib
-#import urllib2
 import re
 import xbmcplugin
 import xbmcgui
@@ -35,11 +34,9 @@ import httplib
 import socket
 import sys
 import os
-#import datetime
 import time
 import inspect
 import base64
-#import hashlib
 import random
 import xbmcvfs
 import xbmc
@@ -91,13 +88,6 @@ except ImportError:
                 print("PleXBMC -> Running addon ElementTree version")
             except ImportError:
                 print("PleXBMC -> Failed to import ElementTree from any known place")
-
-#try:
-#    import StorageServer
-#except:
-#    import storageserverdummy as StorageServer
-#
-#cache = StorageServer.StorageServer("plugins.video.plexbmc", 1)
     
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
