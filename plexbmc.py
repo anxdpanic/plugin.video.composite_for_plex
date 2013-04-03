@@ -1067,6 +1067,14 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
 
         if context is not None:
             printDebug("Building Context Menus")
+
+            if (not folder) and extraData.get('type','video').lower() == "video":
+                #Play Transcoded
+                playTranscode=u+"&transcode=1"
+                plugin_url="XBMC.PlayMedia("+ playTranscode + ")"
+                context.append(('Play Transcoded', plugin_url , ))
+                printDebug("Setting transcode options to [%s]" % plugin_url)
+
             liz.addContextMenuItems( context, g_contextReplace )
 
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
@@ -1843,9 +1851,15 @@ def playPlaylist ( server, data ):
     
     return
     
-def playLibraryMedia( vids, override=False, force=None, full_data=False ):
+def playLibraryMedia( vids, override=0, force=None, full_data=False ):
     printDebug("== ENTER: playLibraryMedia ==", False)
 
+    if override == 1:
+        override = True
+        full_data = True
+    else:
+        override = False
+    
     getTranscodeSettings(override)
 
     server=getServerFromURL(vids)
@@ -1910,19 +1924,17 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False ):
             item.setProperty('ResumeTime', str(resume) )
             item.setProperty('TotalTime', str(duration) )
 
-    if override:
-        start=xbmc.Player().play(listitem=item)
+            
+    if streams['type'] == "picture":
+        import json
+        request=json.dumps({ "id"      : 1,
+                             "jsonrpc" : "2.0",
+                             "method"  : "Player.Open",
+                             "params"  : { "item"  :  {"file": playurl } } } )
+        html=xbmc.executeJSONRPC(request)
+        return
     else:
-        if streams['type'] == "picture":
-            import json
-            request=json.dumps({ "id"      : 1,
-                                 "jsonrpc" : "2.0",
-                                 "method"  : "Player.Open",
-                                 "params"  : { "item"  :  {"file": playurl } } } )
-            html=xbmc.executeJSONRPC(request)
-            return
-        else:
-            start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
     #Set a loop to wait for positive confirmation of playback
     count = 0
@@ -4285,7 +4297,7 @@ else:
         TVSeasons(param_url)
 
     elif mode == _MODE_PLAYLIBRARY:
-        playLibraryMedia(param_url,force=force)
+        playLibraryMedia(param_url,force=force, override=param_transcodeOverride)
 
     elif mode == _MODE_PLAYSHELF:
         playLibraryMedia(param_url,full_data=True)
