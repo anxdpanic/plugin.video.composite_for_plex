@@ -2374,7 +2374,7 @@ def getContent( url ):
     if view_group == "movie":
         printDebug( "This is movie XML, passing to Movies")
         if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
-            xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
+            xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE )
         Movies(url, tree)
     elif view_group == "show":
         printDebug( "This is tv show XML")
@@ -4285,7 +4285,7 @@ else:
         TVShows(param_url)
 
     elif mode == _MODE_MOVIES:
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE )
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE  )
         Movies(param_url)
 
     elif mode == _MODE_ARTISTS:
