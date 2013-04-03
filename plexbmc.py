@@ -1072,7 +1072,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
                 #Play Transcoded
                 playTranscode=u+"&transcode=1"
                 plugin_url="XBMC.PlayMedia("+ playTranscode + ")"
-                context.append(('Play Transcoded', plugin_url , ))
+                context.insert(0,('Play Transcoded', plugin_url , ))
                 printDebug("Setting transcode options to [%s]" % plugin_url)
 
             liz.addContextMenuItems( context, g_contextReplace )
