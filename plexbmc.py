@@ -1767,7 +1767,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
             except: pass
 
     #if we are deciding internally or forcing an external subs file, then collect the data
-    if type == "video" and g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
+    if media_type == "video" and g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
 
         contents="all"
         tags=tree.getiterator('Stream')
