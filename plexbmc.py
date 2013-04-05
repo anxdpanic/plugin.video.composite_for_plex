@@ -513,15 +513,19 @@ def getServerSections ( ip_address, port, name, uuid):
         tree = etree.fromstring(html).getiterator("Directory")
         temp_list=[]
         for sections in tree:
+        
+            path = sections.get('key')
+            if not path[0] == "/":
+                path='/library/sections/%s' % path
 
             temp_list.append( {'title'      : sections.get('title','Unknown').encode('utf-8'),
                     'address'    : ip_address+":"+port ,
                     'serverName' : name ,
                     'uuid'       : uuid ,
-                    'path'       : '/library/sections/'+sections.get('key') ,
+                    'path'       : path ,
                     'token'      : sections.get('accessToken',None) ,
                     'location'   : "local" ,
-                    'art'        : sections.get('art') ,
+                    'art'        : sections.get('art','') ,
                     'local'      : '1' ,
                     'type'       : sections.get('type','Unknown'),
                     'owned'      : '1' })
@@ -3014,6 +3018,9 @@ def photo( url,tree=None ):
 
         details={'title' : picture.get('title',picture.get('name','Unknown')).encode('utf-8') }
 
+        if not details['title']:
+            details['title'] = "Unknown"
+        
         extraData={'thumb'        : getThumb(picture, server) ,
                    'fanart_image' : getFanart(picture, server) ,
                    'type'         : "image" }
@@ -3150,7 +3157,7 @@ def getFanart( data, server, transcode=True ):
     '''
     if g_skipimages == "true":
         return ''
-
+        
     fanart=data.get('art','').encode('utf-8')
 
     if fanart == '':
