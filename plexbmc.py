@@ -2001,15 +2001,15 @@ def setAudioSubtitles( stream ):
                 xbmc.Player().showSubtitles(False)
                 if subtitle.get('key'):
                     xbmc.Player().setSubtitles(subtitle['key']+getAuthDetails({'token':_PARAM_TOKEN},prefix="?"))                
-                    xbmc.Player().showSubtitles(False)
                 else:
                     printDebug ("Enabling embedded subtitles at index %s" % stream['subOffset'])
                     xbmc.Player().setSubtitleStream(int(stream['subOffset']))
-                    
+
+                xbmc.Player().showSubtitles(True)      
                 return True
             except:
                 printDebug ("Error setting subtitle")
-                
+
         else:
             printDebug ("No preferred subtitles to set")
 
