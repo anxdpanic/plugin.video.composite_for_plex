@@ -805,17 +805,39 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
         conn = httplib.HTTPConnection(server)#,timeout=5)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
+        
         if int(data.status) == 200:
             link=data.read()
             printDebug("====== XML returned =======")
             printDebug(link, False)
             printDebug("====== XML finished ======")
+            try: conn.close()
+            except: pass
+            return link
 
         elif ( int(data.status) == 301 ) or ( int(data.status) == 302 ):
             try: conn.close()
             except: pass
             return data.getheader('Location')
 
+        elif int(data.status) == 401:
+            error = "Authentication error on server [%s].  Check user/password." % server
+            print "PleXBMC -> %s" % error
+            if suppress is False:
+                if popup == 0:
+                    xbmc.executebuiltin("XBMC.Notification(Server authentication error,)")
+                else:
+                    xbmcgui.Dialog().ok("PleXBMC","Authentication require or incorrect")
+                    
+        elif int(data.status) == 404:
+            error = "Server [%s] XML/web page does not exist." % server
+            print "PleXBMC -> %s" % error
+            if suppress is False:
+                if popup == 0:
+                    xbmc.executebuiltin("XBMC.Notification(Server web/XML page error,)")
+                else:
+                    xbmcgui.Dialog().ok("PleXBMC","Server error, data does not exist")
+                    
         elif int(data.status) >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
             print error
@@ -824,40 +846,38 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
                     xbmc.executebuiltin("XBMC.Notification(URL error: "+ str(data.reason) +",)")
                 else:
                     xbmcgui.Dialog().ok("Error",server)
-            print error
-            try: conn.close()
-            except: pass
-            return False
+                    
         else:
             link=data.read()
             printDebug("====== XML returned =======")
             printDebug(link, False)
             printDebug("====== XML finished ======")
+            try: conn.close()
+            except: pass
+            return link
+            
     except socket.gaierror :
-        error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
-        print error
+        error = "Unable to locate host [%s]\nCheck host name is correct" % server
+        print "PleXBMC %s" % error
         if suppress is False:
             if popup==0:
-                xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to find server,)")
+                xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": Server name incorrect,)")
             else:
-                xbmcgui.Dialog().ok("","Unable to contact host")
-        print error
-        return False
+                xbmcgui.Dialog().ok("PleXBMC","Server [%s] not found" % server)
+        
     except socket.error, msg :
-        error="Unable to connect to " + server +"\nReason: " + str(msg)
-        print error
+        error="Server[%s] is offline, or not responding\nReason: %s" % (server, str(msg))
+        print "PleXBMC -> %s" % error
         if suppress is False:
             if popup == 0:
-                xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": URL error: Unable to connect to server,)")
+                xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\": Server offline or not responding,)")
             else:
-                xbmcgui.Dialog().ok("","Unable to connect to host")
-        print error
-        return False
-    else:
-        try: conn.close()
-        except: pass
+                xbmcgui.Dialog().ok("PleXBMC","Server is offline or not responding")
 
-        return link
+    try: conn.close()
+    except: pass
+    
+    return False
 
 def mediaType( partData, server, dvdplayback=False ):
     printDebug("== ENTER: mediaType ==", False)
@@ -2642,6 +2662,7 @@ def getXML (url, tree=None):
         html=getURL(url)
 
         if html is False:
+            print "PleXBMC -> Server [%s] offline, not responding or no data was receieved" % getServerFromURL(url)
             return None
 
         tree=etree.fromstring(html)
