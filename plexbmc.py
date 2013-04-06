@@ -3245,8 +3245,9 @@ def getLinkURL( url, pathData, server ):
 
         path='&'.join(components)
         return 'plex://'+server+'/'+'/'.join(path.split('/')[3:])
-    elif path[0:5] == "rtmp:":
-        printDebug("Detected plex link")
+        
+    elif path[0:5] == "rtmp:" or path[0:6] == "rtmpe:" :
+        printDebug("Detected RTMP link")
         return path
 
     #Any thing else is assumed to be a relative path and is built on existing url
