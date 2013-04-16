@@ -40,6 +40,7 @@ import base64
 import random
 import xbmcvfs
 import xbmc
+import datetime
 
 try:
     import cPickle as pickle
@@ -1875,7 +1876,7 @@ def playPlaylist ( server, data ):
     
     return
     
-def playLibraryMedia( vids, override=0, force=None, full_data=False ):
+def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False ):
     printDebug("== ENTER: playLibraryMedia ==", False)
 
     if override == 1:
@@ -1927,6 +1928,18 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False ):
     resume=int(int(streams['media']['viewOffset'])/1000)
     duration=int(int(streams['media']['duration'])/1000)
 
+    if shelf:
+        printDebug("Shelf playback: display resume dialog")
+        displayTime = str(datetime.timedelta(seconds=resume))
+        display_list = [ "Resume from " + displayTime , "Start from beginning"]
+        resumeScreen = xbmcgui.Dialog()
+        result = resumeScreen.select('Resume',display_list)
+        if result == -1:
+            return False
+            
+        if result == 1:
+           resume=0
+
     printDebug("Resume has been set to " + str(resume))
 
     item = xbmcgui.ListItem(path=playurl)
@@ -1943,6 +1956,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False ):
         else:
             resume=force
         
+    if force or shelf:    
         if resume:
             printDebug ("Playback from resume point")
             item.setProperty('ResumeTime', str(resume) )
@@ -2639,6 +2653,9 @@ def tracks( url,tree=None ):
     if tree is None:
         return
 
+    playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
+    playlist.clear()
+     
     server=getServerFromURL(url)
     sectionart=getFanart(tree,server)
     setWindowHeading(tree)
@@ -3647,6 +3664,9 @@ def shelf( server_list=None ):
         direction=False
         endpoint="/library/onDeck"
 
+        
+    randomNumber=str(random.randint(1000000000,9999999999))
+        
     for server_details in server_list.values():
 
         if server_details['class'] == "secondary":
@@ -3700,7 +3720,7 @@ def shelf( server_list=None ):
                 printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue
 
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, aToken)
+            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
             m_thumb=getThumb(media,server_address)
 
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, m_url)
@@ -4329,7 +4349,7 @@ else:
         playLibraryMedia(param_url,force=force, override=param_transcodeOverride)
 
     elif mode == _MODE_PLAYSHELF:
-        playLibraryMedia(param_url,full_data=True)
+        playLibraryMedia(param_url,full_data=True, shelf=True)
 
     elif mode == _MODE_TVEPISODES:
         TVEpisodes(param_url)
