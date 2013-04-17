@@ -122,6 +122,7 @@ _MODE_SHARED_SHOWS=25
 _MODE_SHARED_MUSIC=26
 _MODE_SHARED_PHOTOS=27
 _MODE_DELETE_REFRESH=28
+_MODE_SHARED_ALL=29
 
 _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
@@ -4413,6 +4414,9 @@ else:
         
     elif mode == _MODE_SHARED_MUSIC:
         displaySections(filter="music", shared=True)
+
+    elif mode == _MODE_SHARED_ALL:
+        displaySections(shared=True)
         
     elif mode == _MODE_DELETE_REFRESH:
         deletecache()
