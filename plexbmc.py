@@ -1928,7 +1928,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     resume=int(int(streams['media']['viewOffset'])/1000)
     duration=int(int(streams['media']['duration'])/1000)
 
-    if shelf:
+    if not resume == 0 and shelf:
         printDebug("Shelf playback: display resume dialog")
         displayTime = str(datetime.timedelta(seconds=resume))
         display_list = [ "Resume from " + displayTime , "Start from beginning"]
