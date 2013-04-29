@@ -3401,7 +3401,7 @@ def channelView( url ):
 def photoTranscode( server, url, width=1280, height=720 ):
         return 'http://%s/photo/:/transcode?url=%s&width=%s&height=%s' % (server, urllib.quote_plus(url), width, height)
 
-def skin( server_list=None):
+def skin( server_list=None, type=None ):
     #Gather some data and set the window properties
     printDebug("== ENTER: skin() ==", False)
     #Get the global host variable set in settings
@@ -3474,33 +3474,43 @@ def skin( server_list=None):
         printDebug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
         sectionCount += 1
 
-    if shared_flag.get('movie'):
+   
+    if type == "nocat":
         WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MOVIES)+",return)")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_ALL)+",return)")
         WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "movie")
         sectionCount += 1
+    
+    else:
+   
+        if shared_flag.get('movie'):
+            WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+            WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MOVIES)+",return)")
+            WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "movie")
+            sectionCount += 1
 
-    if shared_flag.get('show'):
-        WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
-        WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_SHOWS)+",return)")
-        WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "show")
-        sectionCount += 1
-        
-    if shared_flag.get('artist'):
-        WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
-        WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(MusicFiles,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MUSIC)+",return)")
-        WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "artist")
-        sectionCount += 1
-        
-    if shared_flag.get('photo'):
-        WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
-        WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(Pictures,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_PHOTOS)+",return)")
-        WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "photo")
-        sectionCount += 1
+        if shared_flag.get('show'):
+            WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+            WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_SHOWS)+",return)")
+            WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "show")
+            sectionCount += 1
+            
+        if shared_flag.get('artist'):
+            WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+            WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(MusicFiles,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MUSIC)+",return)")
+            WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "artist")
+            sectionCount += 1
+            
+        if shared_flag.get('photo'):
+            WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
+            WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(Pictures,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_PHOTOS)+",return)")
+            WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "photo")
+            sectionCount += 1
         
         
     #For each of the servers we have identified
@@ -4250,7 +4260,7 @@ def deletecache():
             
   
 ##So this is where we really start the plugin.
-printDebug( "PleXBMC -> Script argument is " + str(sys.argv[1]), False)
+printDebug( "PleXBMC -> Script argument is " + str(sys.argv), False)
 
 try:
     params=get_params(sys.argv[2])
@@ -4271,47 +4281,81 @@ param_indirect=params.get('indirect',None)
 _PARAM_TOKEN=params.get('X-Plex-Token',None)
 force=params.get('force')
 
+#Populate Skin variables
 if str(sys.argv[1]) == "skin":
-     skin()
+    try:
+        type=sys.argv[2]
+    except:
+        type=None
+    skin(type=type)
+ 
+#Populate recently/on deck shelf items 
 elif str(sys.argv[1]) == "shelf":
-     shelf()
+    shelf()
+    
+#Populate channel recently viewed items    
 elif str(sys.argv[1]) == "channelShelf":
-     shelfChannel()
+    shelfChannel()
+    
+#Send a library update to Plex    
 elif sys.argv[1] == "update":
     url=sys.argv[2]
     libraryRefresh(url)
+    
+#Mark an item as watched/unwatched in plex    
 elif sys.argv[1] == "watch":
     url=sys.argv[2]
     watched(url)
+    
+#Open the add-on settings page, then refresh plugin
 elif sys.argv[1] == "setting":
     __settings__.openSettings()
     WINDOW = xbmcgui.getCurrentWindowId()
     if WINDOW == 10000:
         printDebug("Currently in home - refreshing to allow new settings to be taken")
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+              
+#nt currently used              
 elif sys.argv[1] == "refreshplexbmc":
     server_list = discoverAllServers()
     skin(server_list)
     shelf(server_list)
     shelfChannel(server_list)
+
+#delete media from PMS    
 elif sys.argv[1] == "delete":
     url=sys.argv[2]
     deleteMedia(url)
+
+#Refresh the current XBMC listing    
 elif sys.argv[1] == "refresh":
     xbmc.executebuiltin("Container.Refresh")
+    
+#Display subtitle selection screen    
 elif sys.argv[1] == "subs":
     url=sys.argv[2]
     alterSubs(url)
+    
+#Display audio streanm selection screen    
 elif sys.argv[1] == "audio":
     url=sys.argv[2]
     alterAudio(url)
+    
+#Allow a mastre server to be selected (for myplex queue)    
 elif sys.argv[1] == "master":
     setMasterServer()
+
+#Delete cache and refresh it    
 elif str(sys.argv[1]) == "cacherefresh":
-     deletecache()
-     skin()
-     shelf()
-     shelfChannel()
+    deletecache()
+    WINDOW = xbmcgui.getCurrentWindowId()
+    if WINDOW == 10000:
+        printDebug("Currently in home - refreshing")
+        xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+    else:
+        xbmc.executebuiltin("Container.Refresh")
+
+#else move to the main code    
 else:
 
     pluginhandle = int(sys.argv[1])
