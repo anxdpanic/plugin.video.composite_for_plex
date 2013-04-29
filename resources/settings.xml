@@ -93,6 +93,7 @@
     <category label="30022" > <!-- debug -->
         <setting id="debug" type="bool" label="30014" default="false" />
         <setting id="libraryfilter" type="text" label="30088" default="" />
+        <setting id="monitoroff" type="bool" label="Switch off playback monitor" default="false" />
     </category>
 
 </settings>

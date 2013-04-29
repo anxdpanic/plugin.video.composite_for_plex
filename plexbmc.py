@@ -2114,6 +2114,9 @@ def remove_html_tags( data ):
 def monitorPlayback( id, server ):
     printDebug("== ENTER: monitorPlayback ==", False)
 
+    if __settings__.getSetting('monitoroff') == "true":
+        return
+    
     if len(server.split(':')) == 1:
         server=server
 
@@ -2297,6 +2300,9 @@ def pluginTranscodeMonitor( sessionID, server ):
     #Logic may appear backward, but this does allow for a failed start to be detected
     #First while loop waiting for start
 
+    if __settings__.getSetting('monitoroff') == "true":
+        return
+   
     count=0
     while not xbmc.Player().isPlaying():
         printDebug( "Not playing yet...sleep for 2")
