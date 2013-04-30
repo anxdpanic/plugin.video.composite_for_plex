@@ -1248,7 +1248,8 @@ def enforceSkinView(mode):
 
     skin_map = { '2' : 'skin.confluence' ,
                  '0' : 'skin.quartz' ,
-                 '1' : 'skin.quartz3' }
+                 '1' : 'skin.quartz3' ,
+                 '3' : 'skin.amber' }
     
     if skin_map[skinname] not in current_skin_name:
         printDebug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
@@ -1313,10 +1314,19 @@ def enforceSkinView(mode):
                        'Media Info' : 504,
                        'Media Info 2' : 503,
                        'Wide Icons' : 505 }
+    
+    Amber_views = {  'List' : 50,
+                       'Big List' : 52,
+                       'Panel': 51,
+                       'Low List' : 54,
+                       'Icons' : 53,
+                       'Big Panel' : 55,
+                       'Fanart' : 59 }
 
     skin_list={"0" : Quartz_views ,
                "1" : QuartzV3_views,
-               "2" : Confluence_views}
+               "2" : Confluence_views,
+               "3" : Amber_views }
 
     printDebug("Using skin view: %s" % skin_list[skinname][viewname])
 
