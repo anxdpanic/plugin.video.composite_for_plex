@@ -163,7 +163,7 @@ class plexgdm:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Set a timeout so the socket does not block indefinitely
-        sock.settimeout(0.2)
+        sock.settimeout(0.6)
 
         # Set the time-to-live for messages to 1 for local network
         ttl = struct.pack('b', 1)
@@ -206,6 +206,7 @@ class plexgdm:
                         update['owned']='1'
                         update['master']= 1
                         update['role']='master'
+                        update['class']=None
                     
                         if "Content-Type:" in each:
                             update['content-type'] = each.split(':')[1].strip()
@@ -219,6 +220,8 @@ class plexgdm:
                             update['updated'] = each.split(':')[1].strip()
                         elif "Version:" in each:
                             update['version'] = each.split(':')[1].strip()
+                        elif "Server-Class:" in each:
+                            update['class'] = each.split(':')[1].strip()
 
                 discovered_servers.append(update)                    
 
