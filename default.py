@@ -43,7 +43,7 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.1.3"
+PLEXBMC_VERSION="3.1.4"
 
 from listener import *
 import plexgdm
@@ -202,7 +202,7 @@ while (not xbmc.abortRequested):
         is_running=True
     except:
         printDebug("Error in loop")
-        time.sleep(3)   #Stop error loops from running away
+        xbmc.sleep(3000)   #Stop error loops from running away
 
         
 client.stop_all()
