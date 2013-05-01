@@ -163,7 +163,7 @@ class plexgdm:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Set a timeout so the socket does not block indefinitely
-        sock.settimeout(0.5)
+        sock.settimeout(0.6)
 
         # Set the time-to-live for messages to 1 for local network
         ttl = struct.pack('b', 1)
