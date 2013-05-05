@@ -1313,6 +1313,7 @@ def enforceSkinView(mode):
                        'Fanart' : 508,
                        'Media Info' : 504,
                        'Media Info 2' : 503,
+                       'Media Info 3' : 515,
                        'Wide Icons' : 505 }
     
     Amber_views = {  'List' : 50,
