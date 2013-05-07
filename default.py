@@ -2458,7 +2458,7 @@ def getContent( url ):
 def processDirectory( url, tree=None ):
     printDebug("== ENTER: processDirectory ==", False)
     printDebug("Processing secondary menus")
-    xbmcplugin.setContent(pluginhandle, 'movies')
+    xbmcplugin.setContent(pluginhandle, 'files')
 
     server=getServerFromURL(url)
     setWindowHeading(tree)
