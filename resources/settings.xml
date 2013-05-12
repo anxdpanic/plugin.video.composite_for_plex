@@ -74,10 +74,10 @@
 		<setting id="ep_view_1" type="labelenum" label="30080" values="None|List|Big List|MediaInfo|MediaInfo 2|Icons|Panel|Wide|Fanart 3" default="None" subsetting="true"  visible="eq(-10,true)+eq(-9,1)" enable="eq(-10,true)+eq(-9,1)"/>
 		<setting id="mu_view_1" type="labelenum" label="30081" values="None|List|Icons|Fanart 3" default="None" subsetting="true"  visible="eq(-11,true)+eq(-10,1)" enable="eq(-11,true)+eq(-10,1)"/>
 		#Confluence Skin
-		<setting id="mo_view_2" type="labelenum" label="30077" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2" default="None" subsetting="true"  visible="eq(-12,true)+eq(-11,2)" enable="eq(-12,true)+eq(-11,2)"/>
-		<setting id="tv_view_2" type="labelenum" label="30078" values="None|Big List|Thumbnail|Media Info|Media Info 2|Wide Icons" default="None" subsetting="true"  visible="eq(-13,true)+eq(-12,2)" enable="eq(-13,true)+eq(-12,2)"/>
-		<setting id="se_view_2" type="labelenum" label="30079" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2" default="None" subsetting="true"  visible="eq(-14,true)+eq(-13,2)" enable="eq(-14,true)+eq(-13,2)"/>
-		<setting id="ep_view_2" type="labelenum" label="30080" values="None|List|Big List|Thumbnail|Media Info|Media Info 2" default="None" subsetting="true"  visible="eq(-15,true)+eq(-14,2)" enable="eq(-15,true)+eq(-14,2)"/>
+		<setting id="mo_view_2" type="labelenum" label="30077" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-12,true)+eq(-11,2)" enable="eq(-12,true)+eq(-11,2)"/>
+		<setting id="tv_view_2" type="labelenum" label="30078" values="None|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3|Wide Icons" default="None" subsetting="true"  visible="eq(-13,true)+eq(-12,2)" enable="eq(-13,true)+eq(-12,2)"/>
+		<setting id="se_view_2" type="labelenum" label="30079" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-14,true)+eq(-13,2)" enable="eq(-14,true)+eq(-13,2)"/>
+		<setting id="ep_view_2" type="labelenum" label="30080" values="None|List|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-15,true)+eq(-14,2)" enable="eq(-15,true)+eq(-14,2)"/>
 		<setting id="mu_view_2" type="labelenum" label="30081" values="None|List|Big List|Thumbnail|Media Info" default="None" subsetting="true"  visible="eq(-16,true)+eq(-15,2)" enable="eq(-16,true)+eq(-15,2)"/>
 		#Amber Skin
 		<setting id="mo_view_3" type="labelenum" label="30077" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-17,true)+eq(-16,3)" enable="eq(-17,true)+eq(-16,3)"/>
