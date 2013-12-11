@@ -37,6 +37,8 @@ import base64
 import string
 import inspect
 from xml.dom.minidom import parseString
+from urlparse import urlparse
+from urlparse import parse_qs
 
 def getAddonSetting(doc,id):
     test = doc.getElementsByTagName(id)
@@ -130,6 +132,13 @@ class MyHandler(BaseHTTPRequestHandler):
                     printDebug ( "Command: Sending a json to XBMC" )
                     command=XBMCjson(urllib.unquote(command_path.split('=',1)[1]))
                     command.send()
+            elif request_path == "player/playback/playMedia":
+                s.wfile.write("<html><li>OK</html>")
+                s.send_response(200)
+                printDebug("received playMedia request")
+                url = urlparse(s.path)
+                params = parse_qs(url.query)
+                printDebug("key: %s" % (params['key'],))
             else:
                 s.send_response(200)
         except:

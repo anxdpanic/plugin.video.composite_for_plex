@@ -43,7 +43,7 @@ __cwd__ = __settings__.getAddonInfo('path')
 BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
 PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
 sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.1.4"
+PLEXBMC_VERSION="3.1.5"
 
 from listener import *
 import plexgdm
@@ -149,7 +149,7 @@ if result:
 else:
     plexbmc_version="Unknown"
 
-httpd_port = 3000
+httpd_port = 3005
 is_running=False
 
 client=plexgdm.plexgdm(debug=int(g_gdm_debug))

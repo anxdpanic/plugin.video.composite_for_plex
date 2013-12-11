@@ -61,7 +61,7 @@ class plexgdm:
             print "PlexGDM: %s" % message
 
     def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
-        self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % ( c_id, c_name, c_post, c_product, c_version )
+        self.client_data = "Content-Type: plex/media-player\r\nResource-Identifier: %s\r\nName: %s\r\nPort: %s\r\nProduct: %s\r\nVersion: %s\r\nProtocol: plex\r\nProtocol-Version: 1\r\nProtocol-Capabilities: playback\r\nDevice-Class: HTPC" % ( c_id, c_name, c_post, c_product, c_version )
         self.client_id = c_id
         
     def getClientDetails(self):
@@ -89,11 +89,11 @@ class plexgdm:
         update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
         status = update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(self._multicast_address) + socket.inet_aton('0.0.0.0'))
         update_sock.setblocking(0)
-        self.__printDebug("Sending registration data: HELLO %s\n%s" % (self.client_header, self.client_data), 3)
+        self.__printDebug("Sending registration data: HELLO %s\r\n%s" % (self.client_header, self.client_data), 3)
         
         #Send initial client registration
         try:
-            update_sock.sendto("HELLO %s\n%s" % (self.client_header, self.client_data), self.client_register_group)
+            update_sock.sendto("HELLO %s\r\n%s" % (self.client_header, self.client_data), self.client_register_group)
         except:
             self.__printDebug( "Error: Unable to send registeration message" , 0)
         
@@ -108,20 +108,20 @@ class plexgdm:
                 if "M-SEARCH * HTTP/1." in data:
                     self.__printDebug("Detected client discovery request from %s.  Replying" % ( addr ,) , 2)
                     try:
-                        update_sock.sendto("HTTP/1.0 200 OK\n%s" % self.client_data, addr)
+                        update_sock.sendto("HTTP/1.0 200 OK\r\n%s" % self.client_data, addr)
                     except:
                         self.__printDebug( "Error: Unable to send client update message",0)
                     
-                    self.__printDebug("Sending registration data: HTTP/1.0 200 OK\n%s" % (self.client_data), 3)
+                    self.__printDebug("Sending registration data: HTTP/1.0 200 OK\r\n%s" % (self.client_data), 3)
                     self.client_registered = True
             time.sleep(0.5)        
 
         self.__printDebug("Client Update loop stopped",1)
         
         #When we are finished, then send a final goodbye message to deregister cleanly.
-        self.__printDebug("Sending registration data: BYE %s\n%s" % (self.client_header, self.client_data), 3)
+        self.__printDebug("Sending registration data: BYE %s\r\n%s" % (self.client_header, self.client_data), 3)
         try:
-            update_sock.sendto("BYE %s\n%s" % (self.client_header, self.client_data), self.client_register_group)
+            update_sock.sendto("BYE %s\r\n%s" % (self.client_header, self.client_data), self.client_register_group)
         except:
             self.__printDebug( "Error: Unable to send client update message" ,0)
                        
@@ -180,7 +180,7 @@ class plexgdm:
                 try:
                     data, server = sock.recvfrom(1024)
                     self.__printDebug("Received data from %s, %s" % server, 3)
-                    self.__printDebug("Data received is:\n %s" % data, 3)
+                    self.__printDebug("Data received is:\r\n %s" % data, 3)
                     returnData.append( { 'from' : server,
                                          'data' : data } )
                 except socket.timeout:
@@ -200,7 +200,7 @@ class plexgdm:
                 #Check if we had a positive HTTP response                        
                 if "200 OK" in response.get('data'):
             
-                    for each in response.get('data').split('\n'):
+                    for each in response.get('data').split('\r\n'):
 
                         update['discovery'] = "auto"
                         update['owned']='1'
