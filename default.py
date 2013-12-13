@@ -1743,7 +1743,10 @@ def TVEpisodes( url, tree=None ):
 
         extraData['mode']=_MODE_PLAYLIBRARY
         # http:// <server> <path> &mode=<mode> &t=<rnd>
-        u="http://%s%s?t=%s" % (server, extraData['key'], randomNumber)
+        separator = "?"
+        if "?" in extraData['key']:
+            separator = "&"
+        u="http://%s%s%st=%s" % (server, extraData['key'], separator, randomNumber)
 
         addGUIItem(u,details,extraData, context, folder=False)
 
@@ -2491,7 +2494,7 @@ def getContent( url ):
 
     if view_group == "movie":
         printDebug( "This is movie XML, passing to Movies")
-        if not (lastbit.startswith('recently') or lastbit.startswith('newest')):
+        if not (lastbit.startswith('recently') or lastbit.startswith('newest') or lastbit.startswith('onDeck')):
             xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE )
         Movies(url, tree)
     elif view_group == "show":
