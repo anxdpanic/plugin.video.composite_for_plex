@@ -4571,7 +4571,7 @@ def shelf( server_list=None ):
             
     clearShelf( movieCount, seasonCount, musicCount)
 
-def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
+def clearShelf (movieCount=0, seasonCount=0, musicCount=0, photoCount=0):
     #Clear out old data
     WINDOW = xbmcgui.Window( 10000 )
     printDebug("Clearing unused properties")
