@@ -2255,7 +2255,7 @@ def PLAY( url ):
         item = xbmcgui.ListItem(path=playurl)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-def videoPluginPlay( vids, prefix=None, indirect=None ):
+def videoPluginPlay(vids, prefix=None, indirect=None ):
     '''
         Plays Plugin Videos, which do not require library feedback
         but require further processing
@@ -2773,7 +2773,7 @@ def getXML (url, tree=None):
 
     return tree
 
-def PlexPlugins( url, tree=None ):
+def PlexPlugins(url, tree=None):
     '''
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -2782,9 +2782,9 @@ def PlexPlugins( url, tree=None ):
         @return: nothing, creates XBMC GUI listing
     '''
     printDebug("== ENTER: PlexPlugins ==", False)
-    xbmcplugin.setContent(pluginhandle, 'movies')
+    xbmcplugin.setContent(pluginhandle, 'addons')
 
-    tree=getXML(url,tree)
+    tree = getXML(url, tree)
     if tree is None:
         return
 
@@ -3313,8 +3313,13 @@ def getLinkURL( url, pathData, server ):
         @ return: Usable http URL
     '''
     printDebug("== ENTER: getLinkURL ==")
-    path=pathData.get('key','')
-    printDebug("Path is " + path)
+    if not season_shelf:
+        path = pathData.get('key', '')
+        printDebug("Path is " + path)
+    
+    else:
+        path = pathData.get('parentKey', '') + "/children"
+        printDebug("Path is " + path)
 
     if path == '':
         printDebug("Empty Path")
@@ -4411,7 +4416,7 @@ elif str(sys.argv[1]) == "amberskin":
 #Populate recently/on deck shelf items 
 elif str(sys.argv[1]) == "shelf":
     shelf()
-    
+
 #Populate channel recently viewed items    
 elif str(sys.argv[1]) == "channelShelf":
     shelfChannel()
