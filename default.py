@@ -3058,7 +3058,10 @@ def movieTag(url, server, tree, movie, randomNumber):
         context=None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
     extraData['mode']=_MODE_PLAYLIBRARY
-    u="http://%s%s?t=%s" % (server, extraData['key'], randomNumber)
+    separator = "?"
+    if "?" in extraData['key']:
+        separator = "&"
+    u="http://%s%s%st=%s" % (server, extraData['key'], separator, randomNumber)
 
     addGUIItem(u,details,extraData,context,folder=False)
     return
