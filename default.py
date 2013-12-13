@@ -5093,11 +5093,7 @@ if str(sys.argv[1]) == "skin":
     skin(type=type)
 
 elif str(sys.argv[1]) == "amberskin":
-    try:
-        type=sys.argv[2]
-    except:
-        type=None
-    amberskin(type=type)
+    amberskin()
  
 #Populate recently/on deck shelf items 
 elif str(sys.argv[1]) == "shelf":
