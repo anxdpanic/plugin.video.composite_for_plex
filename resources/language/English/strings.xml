@@ -94,4 +94,6 @@
 	<string id="30092">Use menu for shared sections</string>
     <string id="30093">Cache Data</string>
     <string id="30094">Both</string>
+	<string id="30095">Use full-res thumbs</string>
+	<string id="30096">Use full-res fanart</string>
 </strings>
