@@ -47,19 +47,6 @@ try:
 except ImportError:
     import pickle
 
-__settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
-__cwd__ = __settings__.getAddonInfo('path')
-BASE_RESOURCE_PATH = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
-PLUGINPATH=xbmc.translatePath( os.path.join( __cwd__) )
-CACHEDATA=PLUGINPATH+"/cache"
-sys.path.append(BASE_RESOURCE_PATH)
-PLEXBMC_VERSION="3.2.2"
-
-print "===== PLEXBMC START ====="
-
-print "PleXBMC -> running Python: " + str(sys.version_info)
-print "PleXBMC -> running PleXBMC: " + str(PLEXBMC_VERSION)
-
 try:
   from lxml import etree
   print("PleXBMC -> Running with lxml.etree")
@@ -89,7 +76,24 @@ except ImportError:
                 print("PleXBMC -> Running addon ElementTree version")
             except ImportError:
                 print("PleXBMC -> Failed to import ElementTree from any known place")
-    
+
+__addon__ = xbmcaddon.Addon()
+__plugin__ = __addon__.getAddonInfo('name')
+__version__ = __addon__.getAddonInfo('version')
+__icon__ = __addon__.getAddonInfo('icon')
+__cachedir__ = __addon__.getAddonInfo('profile')
+__settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
+__cwd__ = __settings__.getAddonInfo('path')
+BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
+PLUGINPATH = xbmc.translatePath(os.path.join(__cwd__))
+sys.path.append(BASE_RESOURCE_PATH)
+CACHEDATA = __cachedir__
+PLEXBMC_VERSION = __version__
+
+print "===== PLEXBMC START ====="
+print "PleXBMC -> running Python: " + str(sys.version_info)
+print "PleXBMC -> running PleXBMC: " + str(PLEXBMC_VERSION)
+
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
 MYPLEX_SERVER="my.plexapp.com"
