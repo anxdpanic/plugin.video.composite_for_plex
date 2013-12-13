@@ -47,7 +47,7 @@
   </category>
   <category label="30020" > <!-- Look and feel -->
     <setting id="secondary" type="bool" label="30003" default="true"/>
-    <setting id="homeshelf" type="enum" label="30072" lvalues="30073|30074|30094" default="3" />
+    <setting id="homeshelf" type="enum" label="30072" lvalues="30073|30074" default="1" />
     <setting id="channelview" type="bool" label="30042" default="false"/>
     <setting id="flatten" type="enum" label="30043" lvalues="30053|30058|30059" default="0"/>
     <setting id="hide_shared" type="bool" label="30092" default="true"/>
