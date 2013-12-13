@@ -3686,6 +3686,7 @@ def skin( server_list=None, type=None ):
         printDebug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
 
         for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
+            WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.title"    % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.subtitle" % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.url"      % ( i ) )
@@ -4464,18 +4465,18 @@ def shelf( server_list=None ):
             else:
                 added_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken )
                 full_count += 1
-                
+
     library_filter = __settings__.getSetting('libraryfilter')
     acceptable_level = __settings__.getSetting('contentFilter')
-    
+
     #For each of the servers we have identified
     for index in sorted(added_list, reverse=direction):
-        
+
         media=added_list[index][0]
         server_address=added_list[index][1]
         aToken=added_list[index][2]
         qToken=added_list[index][3]
-        
+
         if media.get('type',None) == "movie":
 
             printDebug("Found a recent movie entry: [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
@@ -4579,7 +4580,11 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
         for i in range(movieCount, 50+1):
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Title"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Year"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Rating"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Duration"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Thumb"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.uuid"  % ( i ) )
         printDebug("Done clearing movies")
     except: pass
 
@@ -4590,11 +4595,12 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.ShowTitle"      % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Thumb"          % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.uuid"  % ( i ) )
         printDebug("Done clearing tv")
     except: pass
 
     try:
-        for i in range(musicCount, 50+1):
+        for i in range(musicCount, 25+1):
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Artist" % ( i ) )
@@ -4602,10 +4608,47 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0):
         printDebug("Done clearing music")
     except: pass
 
+    try:
+        for i in range(photoCount, 25+1):
+            WINDOW.clearProperty("Plexbmc.LatestPhoto.%s.Path"   % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestPhoto.%s.Title"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.LatestPhoto.%s.Thumb"  % ( i ) )
+        printDebug("Done clearing photos")
+    except: pass
+
+    return
+def clearOnDeckShelf (movieCount=0, seasonCount=0):
+    #Clear out old data
+    WINDOW = xbmcgui.Window( 10000 )
+    printDebug("Clearing unused On Deck properties")
+
+    try:
+        for i in range(movieCount, 50+1):
+            WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Path"   % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Title"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Thumb"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Rating"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Duration"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Year"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.uuid"  % ( i ) )
+        printDebug("Done clearing On Deck movies")
+    except: pass
+
+    try:
+        for i in range(seasonCount, 50+1):
+            WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.Path"           % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle"   % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason"  % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle"      % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.Thumb"          % ( i ) )
+            WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.uuid"  % ( i ) )
+        printDebug("Done clearing On Deck tv")
+    except: pass
+
 
     return
 
-def shelfChannel( server_list = None):
+def shelfChannel(server_list = None):
     #Gather some data and set the window properties
     printDebug("== ENTER: shelfChannels() ==", False)
     
