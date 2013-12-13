@@ -608,7 +608,7 @@ def getAllSections( server_list = None ):
                 myplex_section_list += section_details
                 myplex_complete = True
 
-    '''Remove any myplex sections that are locally available'''
+    #Remove any myplex sections that are locally available
     if myplex_complete and local_complete:
     
         printDebug ("Deduplicating myplex sections list")
@@ -647,7 +647,7 @@ def getAuthDetails( details, url_format=True, prefix="&" ):
         else:
             return {}
 
-def getMyPlexURL( url_path, renew=False, suppress=True ):
+def getMyPlexURL(url_path, renew=False, suppress=True):
     '''
         Connect to the my.plexapp.com service and get an XML pages
         A seperate function is required as interfacing into myplex
@@ -3271,12 +3271,12 @@ def getLinkURL( url, pathData, server ):
     #If key starts with a / then prefix with server address
     elif path[0] == '/':
         printDebug("Detected base path link")
-        return 'http://%s%s' % ( server, path )
+        return 'http://%s%s' % (server, path)
 
     #If key starts with plex:// then it requires transcoding
     elif path[0:5] == "plex:":
         printDebug("Detected plex link")
-        components=path.split('&')
+        components = path.split('&')
         for i in components:
             if 'prefix=' in i:
                 del components[components.index(i)]
@@ -3294,13 +3294,13 @@ def getLinkURL( url, pathData, server ):
     #Any thing else is assumed to be a relative path and is built on existing url
     else:
         printDebug("Detected relative link")
-        return "%s/%s" % ( url, path )
+        return "%s/%s" % (url, path)
 
     return url
 
 def plexOnline( url ):
     printDebug("== ENTER: plexOnline ==")
-    xbmcplugin.setContent(pluginhandle, 'files')
+    xbmcplugin.setContent(pluginhandle, 'addons')
 
     server=getServerFromURL(url)
 
@@ -3330,7 +3330,7 @@ def plexOnline( url ):
         
         addGUIItem(u, details, extraData)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def install( url, name ):
     printDebug("== ENTER: install ==", False)
@@ -3419,7 +3419,7 @@ def channelView( url ):
 
         addGUIItem(p_url,details,extraData)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def photoTranscode( server, url, width=1280, height=720 ):
         return 'http://%s/photo/:/transcode?url=%s&width=%s&height=%s' % (server, urllib.quote_plus(url), width, height)
@@ -4307,7 +4307,7 @@ def deletecache():
         if i == cache_header:
             continue
     
-        success = xbmcvfs.delete(CACHEDATA+"/"+i)
+        success = xbmcvfs.delete(CACHEDATA+i)
         if success:
             printDebug("SUCCESSFUL: removed %s" % i)
         else:
