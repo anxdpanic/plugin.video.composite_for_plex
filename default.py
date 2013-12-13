@@ -1706,10 +1706,17 @@ def TVEpisodes( url, tree=None ):
                    'resume'       : int(int(view_offset)/1000) }
 
         if extraData['fanart_image'] == "" and g_skipimages == "false":
-            extraData['fanart_image']=sectionart
+            extraData['fanart_image'] = sectionart
+
+        if season_thumb:
+            extraData['season_thumb'] = "http://" + server + season_thumb
+
+        #get ALL SEASONS thumb
+        if not season_thumb and episode.get('parentThumb', ""):
+            extraData['season_thumb'] = "http://" + server + episode.get('parentThumb', "")
 
         if banner:
-            extraData['banner'] = "http://"+server+banner
+            extraData['banner'] = "http://" + server + banner
             
         #Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount',0)) > 0:
