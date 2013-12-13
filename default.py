@@ -1217,7 +1217,7 @@ def displaySections( filter=None, shared=False ):
             addGUIItem(s_url, details,extraData, context)
 
         if shared:
-            xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+            xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
             return
                     
         #For each of the servers we have identified
@@ -1536,7 +1536,7 @@ def TVShows( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
 
 def TVSeasons( url ):
     printDebug("== ENTER: season() ==", False)
@@ -1621,7 +1621,7 @@ def TVSeasons( url ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def TVEpisodes( url, tree=None ):
     printDebug("== ENTER: TVEpisodes() ==", False)
@@ -1739,7 +1739,7 @@ def TVEpisodes( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def getAudioSubtitlesMedia( server, tree, full=False ):
     '''
@@ -2508,22 +2508,22 @@ def processDirectory( url, tree=None ):
     printDebug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, 'files')
 
-    server=getServerFromURL(url)
+    server = getServerFromURL(url)
     setWindowHeading(tree)
     for directory in tree:
         details={'title' : directory.get('title','Unknown').encode('utf-8') }
         extraData={'thumb'        : getThumb(directory, server) ,
                    'fanart_image' : getFanart(tree, server, False) }
 
-        if extraData['thumb'] == '':
-            extraData['thumb']=extraData['fanart_image']
+        #if extraData['thumb'] == '':
+        #    extraData['thumb']=extraData['fanart_image']
 
-        extraData['mode']=_MODE_GETCONTENT
-        u='%s' % ( getLinkURL(url,directory,server))
+        extraData['mode'] = _MODE_GETCONTENT
+        u='%s' % (getLinkURL(url, directory, server))
 
-        addGUIItem(u,details,extraData)
+        addGUIItem(u, details, extraData)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
 
 def getMasterServer(all=False):
     printDebug("== ENTER: getmasterserver ==", False)
@@ -2708,7 +2708,7 @@ def albums( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def tracks( url,tree=None ):
     printDebug("== ENTER: tracks ==", False)
@@ -2734,7 +2734,7 @@ def tracks( url,tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def getXML (url, tree=None):
     printDebug("== ENTER: getXML ==", False)
@@ -2839,7 +2839,7 @@ def PlexPlugins( url, tree=None ):
             addGUIItem(url, details, extraData)
 
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def channelSettings ( url, settingID ):
     '''
@@ -2965,7 +2965,7 @@ def processXML( url, tree=None ):
             TVEpisodes(url, tree)
             return
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def movieTag(url, server, tree, movie, randomNumber):
 
@@ -3150,7 +3150,7 @@ def photo( url,tree=None ):
 
             addGUIItem(u,details,extraData,folder=False)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def music( url, tree=None ):
     printDebug("== ENTER: music ==", False)
@@ -4122,7 +4122,7 @@ def displayServers( url ):
 
         addGUIItem(s_url, details, extraData )
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def getTranscodeSettings( override=False ):
     printDebug("== ENTER: gettranscodesettings ==", False)
