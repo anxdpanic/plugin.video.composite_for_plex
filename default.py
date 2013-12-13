@@ -4715,9 +4715,8 @@ def shelfChannel(server_list = None):
                     mode=_MODE_GETCONTENT
                     channel_window="VideoLibrary"
 
-
                 p_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( channel_window, getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), mode , aToken)
-                p_thumb=getThumb(media,server_details['server']+":"+server_details['port'])
+                p_thumb=getThumb(media,server_details['server']+":"+server_details['port'], False)
 
                 WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, p_url)
                 WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title','Unknown'))
