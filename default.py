@@ -2682,7 +2682,7 @@ def artist( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def albums( url, tree=None ):
     printDebug("== ENTER: albums ==", False)
