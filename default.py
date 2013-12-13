@@ -220,13 +220,16 @@ else:
     g_contextReplace=False
 
 g_skipcontext = __settings__.getSetting("skipcontextmenus")
-g_skipmetadata= __settings__.getSetting("skipmetadata")
-g_skipmediaflags= __settings__.getSetting("skipflags")
-g_skipimages= __settings__.getSetting("skipimages")
+g_skipmetadata = __settings__.getSetting("skipmetadata")
+g_skipmediaflags = __settings__.getSetting("skipflags")
+g_skipimages = __settings__.getSetting("skipimages")
+g_thumb_transcode = not (__settings__.getSetting("fullres_thumbs"))
+g_fanart_transcode = not (__settings__.getSetting("fullres_fanart"))
 
+#g_loc = PLUGINPATH   * Does not work right, why? *
 g_loc = "special://home/addons/plugin.video.plexbmc"
 g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
-#g_loc = PLUGINPATH
+
 
 #Create the standard header structure and load with a User Agent to ensure we get back a response.
 g_txheaders = {
