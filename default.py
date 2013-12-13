@@ -987,13 +987,16 @@ def mediaType( partData, server, dvdplayback=False ):
     printDebug("Returning URL: " + filelocation)
     return filelocation
 
-def addGUIItem( url, details, extraData, context=None, folder=True ):
+def addGUIItem(url, details, extraData, context=None, folder=True):
+
+        item_title = details.get('title', 'Unknown')
+
         printDebug("== ENTER: addGUIItem ==", False)
-        printDebug("Adding Dir for [%s]" % details.get('title','Unknown'))
+        printDebug("Adding Dir for [%s]" % item_title)
         printDebug("Passed details: " + str(details))
         printDebug("Passed extraData: " + str(extraData))
 
-        if details.get('title','') == '':
+        if item_title == '':
             return
 
         if (extraData.get('token',None) is None) and _PARAM_TOKEN:
@@ -1017,26 +1020,25 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
             
         if extraData.get('parameters'):
             for argument, value in extraData.get('parameters').items():
-                u="%s&%s=%s" % ( u, argument, urllib.quote(value) )
+                u = "%s&%s=%s" % (u, argument, urllib.quote(value))
 
         printDebug("URL to use for listing: " + u)
 
-        #Create the ListItem that will be displayed
-        thumb=str(extraData.get('thumb',''))
+        thumb = str(extraData.get('thumb', ''))
         if thumb.startswith('http'):
             if '?' in thumb:
-                thumbPath=thumb+aToken
+                thumbPath = thumb+aToken
             else:
-                thumbPath=thumb+qToken
+                thumbPath = thumb+qToken
         else:
-            thumbPath=thumb
+            thumbPath = thumb
 
-        liz=xbmcgui.ListItem(details.get('title','Unknown'), iconImage=thumbPath, thumbnailImage=thumbPath)
+        liz=xbmcgui.ListItem(item_title, thumbnailImage=thumbPath)
 
         printDebug("Setting thumbnail as " + thumbPath)
 
         #Set the properties of the item, such as summary, name, season, etc
-        liz.setInfo( type=extraData.get('type','Video'), infoLabels=details )
+        liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
 
         #Music related tags
         if extraData.get('type','').lower() == "music":
@@ -1115,7 +1117,7 @@ def addGUIItem( url, details, extraData, context=None, folder=True ):
 
 def displaySections( filter=None, shared=False ):
         printDebug("== ENTER: displaySections() ==", False)
-        xbmcplugin.setContent(pluginhandle, 'movies')
+        xbmcplugin.setContent(pluginhandle, 'files')
 
         ds_servers=discoverAllServers()
         numOfServers=len(ds_servers)
