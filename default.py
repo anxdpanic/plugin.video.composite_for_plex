@@ -3338,7 +3338,7 @@ def getServerFromURL( url ):
     else:
         return url.split('/')[0]
 
-def getLinkURL( url, pathData, server ):
+def getLinkURL(url, pathData, server, season_shelf=False):
     '''
         Investigate the passed URL and determine what is required to
         turn it into a usable URL
