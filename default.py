@@ -1208,7 +1208,7 @@ def displaySections( filter=None, shared=False ):
             if g_skipcontext == "false":
                 context=[]
                 refreshURL="http://"+section.get('address')+section.get('path')+"/refresh"
-                libraryRefresh = "XBMC.RunScript("+g_loc+"/default.py, update ," + refreshURL + ")"
+                libraryRefresh = "RunScript(plugin.video.plexbmc, update ," + refreshURL + ")"
                 context.append(('Refresh library section', libraryRefresh , ))
             else:
                 context=None
@@ -1413,7 +1413,7 @@ def buildContextMenu( url, itemData ):
     context=[]
     server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
-    plugin_url="XBMC.RunScript("+g_loc+"/default.py, "
+    plugin_url="RunScript(plugin.video.plexbmc, "
     ID=itemData.get('ratingKey','0')
 
     #Initiate Library refresh
