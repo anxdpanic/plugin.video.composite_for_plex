@@ -135,7 +135,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.wfile.write("<html><li>OK</html>")
                 s.send_response(200)
                 printDebug("received stop command")
-                command=XBMCjson("Player.Stop", {})
+                command=XBMCjson("Player.Stop", {"playerid" : 1})
                 command.send()
             else:
                 s.send_response(200)
