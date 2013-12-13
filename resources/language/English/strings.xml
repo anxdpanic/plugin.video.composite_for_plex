@@ -92,5 +92,6 @@
 	<string id="30090">Teens</string>
 	<string id="30091">Adults</string>
 	<string id="30092">Use menu for shared sections</string>
-	<string id="30093">Cache Data</string>
+    <string id="30093">Cache Data</string>
+    <string id="30094">Both</string>
 </strings>
