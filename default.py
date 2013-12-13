@@ -1165,9 +1165,9 @@ def displaySections( filter=None, shared=False ):
             if len(ds_servers) > 1:
                 details['title']=section.get('serverName')+": "+details['title']
 
-            extraData={ 'fanart_image' : getFanart(section, section.get('address')) ,
-                        'type'         : "Video" ,
-                        'thumb'        : getFanart(section, section.get('address'), False) ,
+            extraData={ 'fanart_image' : getFanart(section, section.get('address')),
+                        'type'         : "Video",
+                        'thumb'        : g_thumb,
                         'token'        : section.get('token',None) }
 
             #Determine what we are going to do process after a link is selected by the user, based on the content we find
@@ -1226,7 +1226,7 @@ def displaySections( filter=None, shared=False ):
 
             
         if __settings__.getSetting('myplex_user') != '':
-            addGUIItem('http://myplexqueue', {'title':'myplex Queue'},{'type':'Video' , 'mode' : _MODE_MYPLEXQUEUE})
+            addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'thumb': g_thumb, 'type': 'Video', 'mode': _MODE_MYPLEXQUEUE})
 
         for server in allservers.itervalues():
 
@@ -1244,6 +1244,7 @@ def displaySections( filter=None, shared=False ):
 
             details={'title' : prefix+"Channels" }
             extraData={'type' : "Video",
+                       'thumb' : g_thumb,
                        'token' : server.get('token',None) }
 
             extraData['mode']=_MODE_CHANNELVIEW
@@ -1252,9 +1253,9 @@ def displaySections( filter=None, shared=False ):
 
             #Create plexonline link
             details['title']=prefix+"Plex Online"
-            extraData['type']="file"
-
-            extraData['mode']=_MODE_PLEXONLINE
+            extraData['type'] = "file"
+            extraData['thumb'] = g_thumb
+            extraData['mode'] = _MODE_PLEXONLINE
 
             u="http://"+server['server']+":"+server['port']+"/system/plexonline"
             addGUIItem(u,details,extraData)
@@ -1267,17 +1268,20 @@ def displaySections( filter=None, shared=False ):
 
             u="http://nothing"
             addGUIItem(u,details,extraData)
-        
+
+
         #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
-        xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=False)
+        xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=False)
 
 def enforceSkinView(mode):
+
     '''
-        Ensure that the views are consistance across plugin usage, depending
-        upon view selected by user
-        @input: User view selection
-        @return: view id for skin
+    Ensure that the views are consistance across plugin usage, depending
+    upon view selected by user
+    @input: User view selection
+    @return: view id for skin
     '''
+
     printDebug("== ENTER: enforceSkinView ==", False)
 
     if __settings__.getSetting('skinoverride') == "false":
@@ -1499,7 +1503,9 @@ def TVShows( url, tree=None ):
 
         #banner art
         if show.get('banner',None) is not None:
-            extraData['banner']='http://'+server+show.get('banner')
+            extraData['banner'] = 'http://'+server+show.get('banner')
+        else:
+            extraData['banner'] = g_thumb
 
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
