@@ -1089,17 +1089,48 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         except: pass
 
         #Set the fanart image if it has been enabled
-        fanart=str(extraData.get('fanart_image',''))
-        if '?' in fanart:
-            liz.setProperty('fanart_image', fanart+aToken)
-        else:
-            liz.setProperty('fanart_image', fanart+qToken)
+        fanart = str(extraData.get('fanart_image', 'None'))
 
-        printDebug( "Setting fan art as " + fanart +" with headers: "+ aToken)
+        if fanart != 'None':
+            if '?' in fanart:
+                liz.setProperty('fanart_image', fanart+aToken)
+            else:
+                liz.setProperty('fanart_image', fanart+qToken)
+
+            printDebug("Setting fan art as " + fanart + " with headers: " + aToken)
+
+        else:
+            printDebug("Skipping fanart as None found", False)
 
         if extraData.get('banner'):
-            liz.setProperty('banner', extraData.get('banner')+qToken )
-            printDebug( "Setting banner as " + extraData.get('banner')+qToken )
+            bannerImg = str(extraData.get('banner', ''))
+            if bannerImg.startswith('http'):
+                if '?' in bannerImg:
+                    bannerPath = bannerImg+aToken
+                else:
+                    bannerPath = bannerImg+qToken
+            else:
+                bannerPath = bannerImg
+
+            liz.setProperty('banner', bannerPath)
+            printDebug("Setting banner as " + bannerPath)
+
+        if extraData.get('season_thumb'):
+            seasonImg = str(extraData.get('season_thumb', ''))
+            if seasonImg.startswith('http'):
+                if '?' in seasonImg:
+                    seasonPath = seasonImg+aToken
+                else:
+                    seasonPath = seasonImg+qToken
+            else:
+                seasonPath = seasonImg
+
+            liz.setProperty('seasonThumb', seasonPath)
+            printDebug("Setting season Thumb as " + seasonPath)
+
+        #if extraData.get('banner'):
+        #    liz.setProperty('banner', extraData.get('banner') + aToken)
+        #    printDebug("Setting banner as " + extraData.get('banner') + aToken)
 
         if context is not None:
             printDebug("Building Context Menus")
