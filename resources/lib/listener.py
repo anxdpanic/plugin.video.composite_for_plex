@@ -116,29 +116,27 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.send_response(200)
             elif request_path=="verify":
                 print "PleXBMC Helper -> listener -> detected remote verification request"
-                command=XBMCjson("ping()")
+                command=XBMCjson("ping")
                 result=command.send()
                 s.wfile.write("XBMC JSON connection test:\r\n")
                 s.wfile.write(result)
                 s.send_response(200)
-            elif request_path == "xbmcCmds/xbmcHttp":
-                s.wfile.write("<html><li>OK</html>")
-                s.send_response(200)
-                print "PleXBMC Helper -> listener -> Detected remote application request"
-                printDebug ( "Path: %s" % ( s.path , ) )
-                command_path=s.path.split('?')[1]
-                printDebug ( "Request: %s " % (urllib.unquote(command_path),) )
-                if command_path.split('=')[0] == 'command':
-                    printDebug ( "Command: Sending a json to XBMC" )
-                    command=XBMCjson(urllib.unquote(command_path.split('=',1)[1]))
-                    command.send()
             elif request_path == "player/playback/playMedia":
                 s.wfile.write("<html><li>OK</html>")
                 s.send_response(200)
-                printDebug("received playMedia request")
                 url = urlparse(s.path)
                 params = parse_qs(url.query)
-                printDebug("key: %s" % (params['key'],))
+                resume = ("0", "1")[int(params['viewOffset'][0]) > 0]                
+                fullurl = params['protocol'][0]+"://"+params['address'][0]+":"+params['port'][0]+params['key'][0]
+                printDebug("fullurl: %s" % fullurl)
+                command=XBMCjson("playmedia", [fullurl, resume])
+                command.send()
+            elif request_path == "player/playback/stop":
+                s.wfile.write("<html><li>OK</html>")
+                s.send_response(200)
+                printDebug("received stop command")
+                command=XBMCjson("Player.Stop", {})
+                command.send()
             else:
                 s.send_response(200)
         except:
@@ -157,23 +155,21 @@ class MyHandler(BaseHTTPRequestHandler):
             
 class XBMCjson:
 
-    def __init__(self,command):
+    def __init__(self,action,arguments):
     
-        self.action = command[0:command.find("(")]
-        self.arguments = command[command.find("(")+1:command.find(")")]
+        self.action = action
+        self.arguments = arguments
         self.hostname = "127.0.0.1"
         self.port=g_xbmc_port
         self.url="/jsonrpc"
-        printDebug ( "remote object setup: [%s] [%s]" % ( self.action , self.arguments ) )
         self.header=g_header
         
     
     def send(self):
             
         if self.action.lower() == "sendkey":
-            #request=json.dumps({ "jsonrpc" : "2.0" , "method" : "Input.SendText", "params" : { "text" : "a", "done" : False }} )
-            request=json.dumps({ "jsonrpc" : "2.0",
-                                 "method"  : "JSONRPC.Ping" })
+            request=json.dumps({ "jsonrpc" : "2.0" , "method" : "Input.SendText", "params" : { "text" : self.arguments[0], "done" : False }} )
+                        
         elif self.action.lower() == "ping":
             request=json.dumps({ "jsonrpc" : "2.0",
                                  "id" : 1 ,
@@ -184,48 +180,38 @@ class XBMCjson:
             return True
 
         elif self.action.lower() == "playmedia":
-        
-            server=self.arguments.split(';')[0].split('/')[2]
-            path=self.arguments.split(';')[1]
-            resume=self.arguments.split(';')[4].strip()
-                
-            if not resume:
-                resume=0
-                
-            resume_url="&force=%s" % (resume,)
-        
-            fullurl=urllib.quote_plus("http://%s%s" % (server, path))
-        
+            fullurl=self.arguments[0]
+            resume=self.arguments[1]
             request=json.dumps({ "id"      : 1,
                                  "jsonrpc" : "2.0",
                                  "method"  : "Player.Open",
-                                 "params"  : { "item"  :  {"file":"plugin://plugin.video.plexbmc/?url="+fullurl+"&mode=5"+resume_url } } } )
-       
-            print "PleXBMC Helper -> listener -> JSON RQST: %s" % request 
+                                 "params"  : { "item"  :  {"file":"plugin://plugin.video.plexbmc/?mode=5&force="+resume+"&url="+fullurl } } } )
+            printDebug("Sending Player.Open: %s" % request)
+            
         else:
-            request=json.dumps({ "jsonrpc" : "2.0",
-                                 "method"  : "JSONRPC.Ping" })
+            request=json.dumps({ "id" : 1,
+                                 "jsonrpc" : "2.0",
+                                 "method"  : self.action,
+                                 "params"  : self.arguments})
         
-        html=self.getURL(self.url, urlData=request)
-        #html=xbmc.executeJSONRPC(request)
+        html=self.getURL(request)
 
         if html is False:
-            print "PleXBMC Helper -> listener -> request not completed"
-            #xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request,)")
+            xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request.)")
             return False
         
         if html:
-            print "PleXBMC Helper -> listener -> request completed"
+            printDebug("PleXBMC Helper -> listener -> request completed")
             help=json.loads(html)
             results=help.get('result',help.get('error'))
             printDebug ( str(results) )
             return help
 
             
-    def getURL( self, url , urlData=""):
+    def getURL( self, urlData=""):
         try:        
             conn = httplib.HTTPConnection("%s:%s" % (self.hostname, self.port ) ) 
-            conn.request("POST", url, urlData, self.header) 
+            conn.request("POST", self.url, urlData, self.header) 
             data = conn.getresponse() 
             if int(data.status) >= 400:
                 error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
