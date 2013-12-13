@@ -1632,7 +1632,13 @@ def TVEpisodes( url, tree=None ):
         return
 
     setWindowHeading(tree)
+
+    #get banner thumb
     banner = tree.get('banner')
+
+    #get season thumb for SEASON NODE
+    season_thumb = tree.get('thumb', '')
+
     ShowTags=tree.findall('Video')
     server=getServerFromURL(url)
 
