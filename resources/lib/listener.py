@@ -86,7 +86,50 @@ def printDebug( msg, functionname=True ):
             print str(msg)
         else:
             print "PleXBMC Helper -> " + inspect.stack()[1][3] + ": " + str(msg)
+
+""" methods for getting info from XBMC """
+def jsonrpc(action, arguments = {}):
+    command=XBMCjson(action, arguments)
+    return command.send().get('result', [])
+
+def getPlayers():
+    info = jsonrpc("Player.GetActivePlayers")
+    ret = []
+    for player in info:
+        printDebug("found active %s player with id %i" % (player['type'], player['playerid']))
+        player['playerid'] = int(player['playerid'])
+        ret.append(player)
+    return ret
     
+def getPlayerIds():
+    ret = []
+    for player in getPlayers():
+        ret.append(player['playerid'])
+    return ret
+    
+def getVideoPlayerId():
+    for player in getPlayers():
+        if player['type'].lower() == "video":
+            return player['playerid']
+    return 0
+
+def getAudioPlayerId():
+    for player in getPlayers():
+        if player['type'].lower() == "audio":
+            return player['playerid']
+    return 0
+
+def getPicturePlayerId():
+    for player in getPlayers():
+        if "picture" in player['type'].lower():
+            return player['playerid']
+    return 0
+    
+def getVolume():
+    return jsonrpc('Application.GetProperties', { "properties": [ "volume" ] })
+    
+def notifySubscribers(action=""):
+    return True
 
 class MyHandler(BaseHTTPRequestHandler):
     """
@@ -105,40 +148,68 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def answer_request(s, sendData):
         try:
-            #s.send_response(200)
             request_path=s.path[1:]
             request_path=re.sub(r"\?.*","",request_path)
             printDebug ( "request path is: [%s]" % ( request_path,) )
             if request_path=="version":
-                #s.end_headers()
                 s.wfile.write("PleXBMC Helper Remote Redirector: Running\r\n")
                 s.wfile.write("Version: 0.1")
-                s.send_response(200)
             elif request_path=="verify":
                 print "PleXBMC Helper -> listener -> detected remote verification request"
                 command=XBMCjson("ping")
                 result=command.send()
                 s.wfile.write("XBMC JSON connection test:\r\n")
                 s.wfile.write(result)
-                s.send_response(200)
-            elif request_path == "player/playback/playMedia":
-                s.wfile.write("<html><li>OK</html>")
-                s.send_response(200)
+            elif request_path == "player/playback/setParameters":
                 url = urlparse(s.path)
                 params = parse_qs(url.query)
-                resume = ("0", "1")[int(params['viewOffset'][0]) > 0]                
+                if 'volume' in params:
+                    volume = int(params['volume'][0])
+                    printDebug("adjusting the volume to %s%%" % volume)
+                    jsonrpc("Application.SetVolume", {"volume": volume})
+                    notifySubscribers('volume');
+            elif request_path == "player/playback/playMedia":
+                url = urlparse(s.path)
+                params = parse_qs(url.query)
+                resume = ("0", "1")[int(params.get('viewOffset', [0])[0]) > 0]                
                 fullurl = params['protocol'][0]+"://"+params['address'][0]+":"+params['port'][0]+params['key'][0]
-                printDebug("fullurl: %s" % fullurl)
+                printDebug("playMedia command -> fullurl: %s" % fullurl)
                 command=XBMCjson("playmedia", [fullurl, resume])
                 command.send()
+                notifySubscribers('play');
             elif request_path == "player/playback/stop":
-                s.wfile.write("<html><li>OK</html>")
-                s.send_response(200)
                 printDebug("received stop command")
-                command=XBMCjson("Player.Stop", {"playerid" : 1})
-                command.send()
-            else:
-                s.send_response(200)
+                for playerid in getPlayerIds():
+                    command=XBMCjson("Player.Stop", {"playerid" : playerid})
+                    command.send()
+                notifySubscribers('stop');
+            elif request_path == "player/playback/stepForward":
+                printDebug("received stepForward command")
+                for playerid in getPlayerIds():
+                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"smallforward"})
+                    command.send()
+                notifySubscribers('seek');
+            elif request_path == "player/playback/stepBack":
+                printDebug("received stepBack command")
+                for playerid in getPlayerIds():
+                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"smallbackward"})
+                    command.send()
+                notifySubscribers('seek');
+            elif request_path == "player/playback/skipNext":
+                printDebug("received stepForward command")
+                for playerid in getPlayerIds():
+                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"bigforward"})
+                    command.send()
+                notifySubscribers('seek');
+            elif request_path == "player/playback/skipPrevious":
+                printDebug("received stepBack command")
+                for playerid in getPlayerIds():
+                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"bigbackward"})
+                    command.send()
+                notifySubscribers('seek');
+            
+            s.send_response(200)
+                
         except:
                 traceback.print_exc()
                 s.wfile.close()
@@ -151,11 +222,12 @@ class MyHandler(BaseHTTPRequestHandler):
     def address_string(self):
         host, port = self.client_address[:2]
         #return socket.getfqdn(host)
-        return host            
+        return host
+    
             
 class XBMCjson:
 
-    def __init__(self,action,arguments):
+    def __init__(self,action,arguments={}):
     
         self.action = action
         self.arguments = arguments
@@ -174,11 +246,7 @@ class XBMCjson:
             request=json.dumps({ "jsonrpc" : "2.0",
                                  "id" : 1 ,
                                  "method"  : "JSONRPC.Ping" })
-
-        elif self.action.lower() == "setvolume":
-            xbmc.executebuiltin( "XBMC.SetVolume(%d)" % ( int(self.arguments), ) )
-            return True
-
+                                 
         elif self.action.lower() == "playmedia":
             fullurl=self.arguments[0]
             resume=self.arguments[1]
@@ -187,12 +255,16 @@ class XBMCjson:
                                  "method"  : "Player.Open",
                                  "params"  : { "item"  :  {"file":"plugin://plugin.video.plexbmc/?mode=5&force="+resume+"&url="+fullurl } } } )
             printDebug("Sending Player.Open: %s" % request)
-            
-        else:
+        
+        elif self.arguments:
             request=json.dumps({ "id" : 1,
                                  "jsonrpc" : "2.0",
                                  "method"  : self.action,
                                  "params"  : self.arguments})
+        else:
+            request=json.dumps({ "id" : 1,
+                                 "jsonrpc" : "2.0",
+                                 "method"  : self.action})
         
         html=self.getURL(request)
 
