@@ -174,38 +174,42 @@ class MyHandler(BaseHTTPRequestHandler):
                 resume = ("0", "1")[int(params.get('viewOffset', [0])[0]) > 0]                
                 fullurl = params['protocol'][0]+"://"+params['address'][0]+":"+params['port'][0]+params['key'][0]
                 printDebug("playMedia command -> fullurl: %s" % fullurl)
-                command=XBMCjson("playmedia", [fullurl, resume])
-                command.send()
+                jsonrpc("playmedia", [fullurl, resume])
+                notifySubscribers('play');
+            elif request_path == "player/playback/play":
+                printDebug("received play command")
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": True})
+                notifySubscribers('play');
+            elif request_path == "player/playback/pause":
+                printDebug("received pause command")
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": False})
                 notifySubscribers('play');
             elif request_path == "player/playback/stop":
                 printDebug("received stop command")
                 for playerid in getPlayerIds():
-                    command=XBMCjson("Player.Stop", {"playerid" : playerid})
-                    command.send()
+                    jsonrpc("Player.Stop", {"playerid" : playerid})
                 notifySubscribers('stop');
             elif request_path == "player/playback/stepForward":
                 printDebug("received stepForward command")
                 for playerid in getPlayerIds():
-                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"smallforward"})
-                    command.send()
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallforward"})
                 notifySubscribers('seek');
             elif request_path == "player/playback/stepBack":
                 printDebug("received stepBack command")
                 for playerid in getPlayerIds():
-                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"smallbackward"})
-                    command.send()
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallbackward"})
                 notifySubscribers('seek');
             elif request_path == "player/playback/skipNext":
                 printDebug("received stepForward command")
                 for playerid in getPlayerIds():
-                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"bigforward"})
-                    command.send()
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigforward"})
                 notifySubscribers('seek');
             elif request_path == "player/playback/skipPrevious":
                 printDebug("received stepBack command")
                 for playerid in getPlayerIds():
-                    command=XBMCjson("Player.Seek", {"playerid":playerid, "value":"bigbackward"})
-                    command.send()
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigbackward"})
                 notifySubscribers('seek');
             
             s.send_response(200)
