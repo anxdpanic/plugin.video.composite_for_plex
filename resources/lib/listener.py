@@ -171,7 +171,7 @@ class MyHandler(BaseHTTPRequestHandler):
             elif request_path == "player/playback/playMedia":
                 url = urlparse(s.path)
                 params = parse_qs(url.query)
-                resume = ("0", "1")[int(params.get('viewOffset', [0])[0]) > 0]                
+                resume = params.get('viewOffset', ["0"])[0]
                 fullurl = params['protocol'][0]+"://"+params['address'][0]+":"+params['port'][0]+params['key'][0]
                 printDebug("playMedia command -> fullurl: %s" % fullurl)
                 jsonrpc("playmedia", [fullurl, resume])
