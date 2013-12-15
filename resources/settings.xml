@@ -9,8 +9,8 @@
     <setting id="myplex_pass" type="text" option="hidden" label="30025" />
     <setting id="myplex_token" type="text" visible="false" option="hidden" />
     <setting id="cache" type="bool" label="30093" default="true" />
-	<setting id="fullres_thumbs" type="bool" label="30095" default="false" />
-	<setting id="fullres_fanart" type="bool" label="30096" default="false" />
+	<setting id="fullres_thumbs" type="bool" label="30095" default="true" />
+	<setting id="fullres_fanart" type="bool" label="30096" default="true" />
   </category>
   <category label="30017"> <!-- Playback -->
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="0"/>
