@@ -223,8 +223,6 @@ g_skipcontext = __settings__.getSetting("skipcontextmenus")
 g_skipmetadata = __settings__.getSetting("skipmetadata")
 g_skipmediaflags = __settings__.getSetting("skipflags")
 g_skipimages = __settings__.getSetting("skipimages")
-g_thumb_transcode = not (__settings__.getSetting("fullres_thumbs"))
-g_fanart_transcode = not (__settings__.getSetting("fullres_fanart"))
 
 #g_loc = PLUGINPATH   * Does not work right, why? *
 g_loc = "special://home/addons/plugin.video.plexbmc"
@@ -2532,7 +2530,7 @@ def processDirectory( url, tree=None ):
     for directory in tree:
         details={'title' : directory.get('title','Unknown').encode('utf-8') }
         extraData={'thumb'        : getThumb(directory, server) ,
-                   'fanart_image' : getFanart(tree, server, False) }
+                   'fanart_image' : getFanart(tree, server) }
 
         #if extraData['thumb'] == '':
         #    extraData['thumb']=extraData['fanart_image']
@@ -3246,7 +3244,7 @@ def music( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
-def getThumb(data, server, width=720, height=720):
+def getThumb(data, server, width=600, height=600):
     '''
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
@@ -3265,10 +3263,11 @@ def getThumb(data, server, width=720, height=720):
         return thumbnail
 
     elif thumbnail[0] == '/':
-        if g_thumb_transcode:
-            return photoTranscode(server,'http://localhost:32400'+thumbnail,width,height)
-        else:
+        if __settings__.getSetting("fullres_thumbs") != "false":
             return 'http://'+server+thumbnail
+
+        else:
+            return photoTranscode(server, 'http://localhost:32400'+thumbnail, width, height)
 
     else:
         return g_thumb
@@ -3293,10 +3292,12 @@ def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
         return thumbnail
 
     elif thumbnail[0] == '/':
-        if g_thumb_transcode:
-            return photoTranscode(server,'http://localhost:32400'+thumbnail,width,height)
-        else:
+        if __settings__.getSetting("fullres_thumbs") != "false":
             return 'http://'+server+thumbnail
+
+        else:
+            return photoTranscode(server, 'http://localhost:32400' + thumbnail, width, height)
+
 
     else:
         return g_thumb
@@ -3319,10 +3320,10 @@ def getFanart(data, server, width=1280, height=720):
         return fanart
 
     elif fanart[0] == '/':
-        if g_fanart_transcode:
-            return photoTranscode(server,'http://localhost:32400'+fanart, width, height)
-        else:
+        if __settings__.getSetting("fullres_fanart") != "false":
             return 'http://%s%s' % (server, fanart)
+        else:
+            return photoTranscode(server, 'http://localhost:32400' + fanart, width, height)
 
     else:
         return ''
