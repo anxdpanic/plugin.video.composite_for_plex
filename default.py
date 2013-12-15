@@ -4029,20 +4029,8 @@ def fullShelf(server_list=None):
                 print "PLEXBMC -> RecentlyAdded items not found on: "+server_details['serverName']+section.get("path")
                 continue
 
-            #Dont limit episodes and stack them to seasons
             libraryuuid = tree.attrib["librarySectionUUID"]
-            for eachitem in tree:
-
-                if eachitem.get("type", "") == "episode":
-                    key = int(eachitem.get("parentRatingKey"))
-                    if key in recent_list:
-                        pass
-                    else:
-                        recent_list[key] = (eachitem, server_details['server'] + ":" + server_details['port'], aToken, qToken, libraryuuid)
-                else:
-                    pass
-
-            #Make recent list for all items except episodes
+            ep_helper = {}  # helper season counter
             ra_item_count = 1
             for eachitem in tree:
                 if ra_item_count > 15:
@@ -4051,7 +4039,16 @@ def fullShelf(server_list=None):
                 ra_item_count +=1
 
                 if eachitem.get("type", "") == "episode":
-                    pass
+                    key = int(eachitem.get("parentRatingKey"))  # season identifier
+
+                    if key in ep_helper:
+                        pass
+
+                    else:
+                        recent_list[full_count] = (eachitem, server_details['server'] + ":" + server_details['port'], aToken, qToken, libraryuuid)
+                        ep_helper[key] = key  # use seasons as dict key so we can check
+                        full_count += 1
+
                 else:
                     recent_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
                     full_count += 1
