@@ -1,3 +1,4 @@
+import uuid
 import xbmc
 import xbmcaddon
 from xml.dom.minidom import parseString

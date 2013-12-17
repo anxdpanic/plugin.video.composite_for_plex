@@ -7,6 +7,7 @@ class SubscriptionManager:
     def __init__(self):
         self.subscribers = {}
         self.info = {}
+        self.lastkey = ""
 
     def msg(self, sub):
         msg = getXMLHeader()
