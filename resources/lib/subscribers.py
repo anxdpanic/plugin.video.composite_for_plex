@@ -5,11 +5,12 @@ from settings import *
 
 class SubscriptionManager:
     def __init__(self):
-        self.subscribers = []
+        self.subscribers = {}
         self.info = {}
 
     def msg(self, sub):
-        msg = "<MediaContainer commandID=\"%s\"" % sub.commandID
+        msg = getXMLHeader()
+        msg += "<MediaContainer commandID=\"%s\"" % sub.commandID
         if not self.info:
             # we must not be playing a video
             msg += " location=\"navigation\">"
@@ -27,28 +28,29 @@ class SubscriptionManager:
         msg += "</MediaContainer>"
         return msg
 
-    def notify(self, action=""):
+    def notify(self):
         if not self.subscribers:
             return True
         self.generateVideoInfo()
         with threading.RLock():
-            for sub in self.subscribers:
+            for sub in self.subscribers.values():
                 sub.send_update(self.msg(sub))
         return True
         
     def controllable(self):
         return "playPause,play,stop,skipPrevious,skipNext,volume,stepBack,stepForward,seekTo"
         
-    def addSubscriber(self, host, port, id):
-        sub = Subscriber(host, port, id)
+    def addSubscriber(self, protocol, host, port, uuid, commandID, poller=False):
+        sub = Subscriber(protocol, host, port, uuid, commandID, poller)
         with threading.RLock():
-            if sub not in self.subscribers:
-                self.subscribers.append(sub)
+            self.subscribers[sub.uuid] = sub
         return sub
-        
-    def removeSubscriber(self, host, id):
+                
+    def removeSubscriber(self, uuid):
         with threading.RLock():
-            self.subscribers.remove(Subscriber(host, commandID=id))
+            for sub in self.subscribers.values():
+                if sub.uuid == uuid or sub.host == uuid:
+                    del self.subscribers[sub.uuid]
             
     def generateVideoInfo(self):
         videoid = getVideoPlayerId()
@@ -69,43 +71,22 @@ class SubscriptionManager:
         #self.info['key'] = m[1]
 
 class Subscriber:
-    def __init__(self, host, port=32400, commandID=0):
-        self.host = str(host)
-        self.port = str(port)
-        self.commandID = str(commandID)
+    def __init__(self, protocol, host, port, uuid, commandID, poller=False):
+        self.protocol = protocol or "http"
+        self.host = host
+        self.port = port or 32400
+        self.uuid = uuid or host
+        self.commandID = int(commandID) or 0
+        self.poller = poller
     def __eq__(self, other):
-        return self.host == other.host and (self.commandID == other.commandID or self.commandID == 0)
+        return self.uuid == other.uuid
     def tostr(self):
-        return "%s:%s/timeline?commandID=%s" % (self.host, self.port, self.commandID)
+        return "uuid=%s,commandID=%i" % (self.uuid, self.commandID)
     def send_update(self, msg):
         printDebug("sending xml to subscriber %s: %s" % (self.tostr(), msg))
-        if not http_post(self.host, self.port, "/:/timeline", msg, self.headers()):
-            getSubMgr().removeSubscriber(self.host, self.commandID)
-    def headers(self):
-        h = {
-          "X-Plex-Version": getSettings('version'),
-          "X-Plex-Client-Identifier": getSettings('uuid'),
-          "X-Plex-Provides": "player",
-          "X-Plex-Product": "PleXBMC",
-          "X-Plex-Device-Name": getSettings('client_name'),
-          "X-Plex-Platform": "XBMC",
-          "X-Plex-Model": getPlatform(),
-          "X-Plex-Device": getPlatform(),
-          "X-Plex-Client-Capabilities": self.capabilities()
-        }
-        if getSettings('myplex_user'):
-            h["X-Plex-Username"] = getSettings('myplex_user')
-        return h
-    def capabilities(self):
-        protocols = "protocols=shoutcast,http-video;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=mp3,aac"
-        audiomode = int(getGUI('mode', within='audiooutput'))
-        if audiomode == 1 or audiomode == 2:
-            if getGUI('dtspassthrough', within='audiooutput') == "true":
-                protocols += ",dts{bitrate:800000&channels:8}"
-            if getGUI('ac3passthrough', within='audiooutput') == "true":
-                protocols += ",ac3{bitrate:800000&channels:8}"
-        return protocols
-        
+        if not http_post(self.host, self.port, "/:/timeline", msg, getPlexHeaders(), self.protocol):
+            getSubMgr().removeSubscriber(self.uuid)
+
 subMgr = SubscriptionManager()
 def getSubMgr():
     global subMgr

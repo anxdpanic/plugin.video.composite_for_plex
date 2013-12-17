@@ -42,16 +42,19 @@ def printDebug( msg, functionname=True ):
             print "PleXBMC Helper -> " + inspect.stack()[1][3] + ": " + str(msg)
             
 
-def http_post(host, port, path, body, header={}):
-    try:        
-        conn = httplib.HTTPConnection(host, port) 
+def http_post(host, port, path, body, header={}, protocol="http"):
+    try:
+        if protocol == "https":
+            conn = httplib.HTTPSConnection(host, port)
+        else: 
+            conn = httplib.HTTPConnection(host, port) 
         conn.request("POST", path, body, header) 
         data = conn.getresponse()
         if int(data.status) >= 400:
             print "HTTP response error: " + str(data.status) + " " + str(data.reason)
             return False
         else:      
-            return data.read()
+            return data.read() or "OK"
     except:
         print "Unable to connect to %s\nReason: %s" % (host, sys.exc_info()[0])
         return False
@@ -104,6 +107,29 @@ def jsonrpc(action, arguments = {}):
 
     return parsed.get('result', False)
 
+def getXMLHeader():
+    return '<?xml version="1.0" encoding="utf-8"?>'+"\r\n"
+
+def getOKMsg():
+    return getXMLHeader() + '<Response code="200" status="OK" />'
+
+def getPlexHeaders():
+    h = {
+      "Content-type": "application/xml",
+      "Access-Control-Allow-Origin": "*",
+      "X-Plex-Version": getSettings('version'),
+      "X-Plex-Client-Identifier": getSettings('uuid'),
+      "X-Plex-Provides": "player",
+      "X-Plex-Product": "PleXBMC",
+      "X-Plex-Device-Name": getSettings('client_name'),
+      "X-Plex-Platform": "XBMC",
+      "X-Plex-Model": getPlatform(),
+      "X-Plex-Device": getPlatform(),
+    }
+    if getSettings('myplex_user'):
+        h["X-Plex-Username"] = getSettings('myplex_user')
+    return h
+
 def getServerByHost(host):
     list = getSettings('serverList')
     if len(list) == 1:
@@ -147,4 +173,4 @@ def getPicturePlayerId():
     return 0
     
 def getVolume():
-    return str(jsonrpc('Application.GetProperties', { "properties": [ "volume" ] }))
+    return str(jsonrpc('Application.GetProperties', { "properties": [ "volume" ] }).get('volume', 100))
