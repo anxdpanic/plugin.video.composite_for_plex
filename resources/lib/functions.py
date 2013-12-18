@@ -8,14 +8,37 @@ import sys
 import uuid
 import xbmc
 import xbmcaddon
-from settings import *
+from settings import settings
 
-plexbmc_version = False
-def getPlexbmcVersion():
-    global plexbmc_version
-    if not plexbmc_version:
-        plexbmc_version = jsonrpc("Addons.GetAddonDetails", {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]})['addon']['version']
-    return plexbmc_version
+def xbmc_photo():
+    return "photo"
+def xbmc_video():
+    return "video"
+def xbmc_audio():
+    return "audio"
+
+def plex_photo():
+    return "photo"
+def plex_video():
+    return "video"
+def plex_audio():
+    return "music"
+
+def xbmc_type(plex_type):
+    if plex_type == plex_photo():
+        return xbmc_photo()
+    elif plex_type == plex_video():
+        return xbmc_video()
+    elif plex_type == plex_audio():
+        return xbmc_audio()
+        
+def plex_type(xbmc_type):
+    if xbmc_type == xbmc_photo():
+        return plex_photo()
+    elif xbmc_type == xbmc_video():
+        return plex_video()
+    elif xbmc_type == xbmc_audio():
+        return plex_audio()
 
 def getPlatform():
     if xbmc.getCondVisibility('system.platform.osx'):
@@ -35,7 +58,7 @@ def getPlatform():
     return "Unknown"
     
 def printDebug( msg, functionname=True ):
-    if getSettings('debug'):
+    if settings['debug']:
         if functionname is False:
             print str(msg)
         else:
@@ -49,6 +72,24 @@ def http_post(host, port, path, body, header={}, protocol="http"):
         else: 
             conn = httplib.HTTPConnection(host, port) 
         conn.request("POST", path, body, header) 
+        data = conn.getresponse()
+        if int(data.status) >= 400:
+            print "HTTP response error: " + str(data.status) + " " + str(data.reason)
+            # this should return false, but I'm hacking it since iOS returns 404 no matter what
+            return True
+        else:      
+            return data.read() or "OK"
+    except:
+        print "Unable to connect to %s\nReason: %s" % (host, sys.exc_info()[0])
+        return False
+        
+def http_get(host, port, path, header={}, protocol="http"):
+    try:
+        if protocol == "https":
+            conn = httplib.HTTPSConnection(host, port)
+        else: 
+            conn = httplib.HTTPConnection(host, port) 
+        conn.request("GET", path, "", header) 
         data = conn.getresponse()
         if int(data.status) >= 400:
             print "HTTP response error: " + str(data.status) + " " + str(data.reason)
@@ -88,11 +129,11 @@ def jsonrpc(action, arguments = {}):
     printDebug("Sending request to XBMC: %s" % request)
     jsonraw = http_post(
         "127.0.0.1", 
-        getSettings('port'), 
+        settings['port'], 
         "/jsonrpc", 
         request, 
         { 'Content-Type' : 'application/json',
-          'Authorization' : 'Basic ' + string.strip(base64.encodestring(getSettings('user') + ':' + getSettings('passwd'))) })
+          'Authorization' : 'Basic ' + string.strip(base64.encodestring(settings['user'] + ':' + settings['passwd'])) })
                 
     """ parse the request """
     if not jsonraw:
@@ -117,21 +158,21 @@ def getPlexHeaders():
     h = {
       "Content-type": "application/xml",
       "Access-Control-Allow-Origin": "*",
-      "X-Plex-Version": getSettings('version'),
-      "X-Plex-Client-Identifier": getSettings('uuid'),
+      "X-Plex-Version": settings['version'],
+      "X-Plex-Client-Identifier": settings['uuid'],
       "X-Plex-Provides": "player",
       "X-Plex-Product": "PleXBMC",
-      "X-Plex-Device-Name": getSettings('client_name'),
+      "X-Plex-Device-Name": settings['client_name'],
       "X-Plex-Platform": "XBMC",
       "X-Plex-Model": getPlatform(),
       "X-Plex-Device": getPlatform(),
     }
-    if getSettings('myplex_user'):
-        h["X-Plex-Username"] = getSettings('myplex_user')
+    if settings['myplex_user']:
+        h["X-Plex-Username"] = settings['myplex_user']
     return h
 
 def getServerByHost(host):
-    list = getSettings('serverList')
+    list = settings['serverList']
     if len(list) == 1:
         return list[0]
     for server in list:
@@ -141,36 +182,39 @@ def getServerByHost(host):
     
 def getPlayers():
     info = jsonrpc("Player.GetActivePlayers") or []
-    ret = []
+    ret = {}
     for player in info:
         printDebug("found active %s player with id %i" % (player['type'], player['playerid']))
         player['playerid'] = int(player['playerid'])
-        ret.append(player)
+        ret[player['type']] = player
     return ret
     
 def getPlayerIds():
     ret = []
-    for player in getPlayers():
+    for player in getPlayers().values():
         ret.append(player['playerid'])
     return ret
     
-def getVideoPlayerId():
-    for player in getPlayers():
-        if player['type'].lower() == "video":
-            return player['playerid']
-    return 0
+def getVideoPlayerId(players = False):
+    if not players:
+        players = getPlayers()
+    return players.get(xbmc_video(), {}).get('playerid', 0)
 
-def getAudioPlayerId():
-    for player in getPlayers():
-        if player['type'].lower() == "audio":
-            return player['playerid']
-    return 0
+def getAudioPlayerId(players = False):
+    if not players:
+        players = getPlayers()
+    return players.get(xbmc_audio(), {}).get('playerid', 0)
 
-def getPicturePlayerId():
-    for player in getPlayers():
-        if "picture" in player['type'].lower():
-            return player['playerid']
-    return 0
+def getPhotoPlayerId(players = False):
+    if not players:
+        players = getPlayers()
+    return players.get(xbmc_photo(), {}).get('playerid', 0)
     
 def getVolume():
     return str(jsonrpc('Application.GetProperties', { "properties": [ "volume" ] }).get('volume', 100))
+
+def timeToMillis(time):
+    return (time['hours']*3600 + time['minutes']*60 + time['seconds'])*1000 + time['milliseconds']
+
+def textFromXml(element):
+    return element.firstChild.data

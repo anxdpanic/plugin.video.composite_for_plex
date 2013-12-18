@@ -3,15 +3,7 @@ import xbmc
 import xbmcaddon
 from xml.dom.minidom import parseString
 
-settings = {}
-def getSettings(key):
-    global settings
-    return settings.get(key, False)
-    
-def setSettings(key, val):
-    global settings
-    settings[key] = val
-     
+settings = {}     
 guidoc = False   
 try:
     guifile = open(xbmc.translatePath('special://userdata/guisettings.xml'), 'r')
@@ -51,3 +43,4 @@ addon.setSetting('uuid', settings['uuid'])
 settings['version'] = addon.getAddonInfo('version')
 settings['myplex_user'] = plexbmc.getSetting('myplex_user')
 settings['serverList'] = []
+settings['myport'] = 3005

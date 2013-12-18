@@ -40,9 +40,9 @@ __resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' )
 
 # local includes
 sys.path.append (__resource__)
-from settings import *
+from settings import settings
 from functions import *
-from subscribers import *
+from subscribers import subMgr
 from listener import *
 import plexgdm
 
@@ -50,25 +50,24 @@ print "===== PLEXBMC HELPER START ====="
 print "PleXBMC Helper -> running Python: " + str(sys.version_info)
 print "PleXBMC Helper -> running Version: " + __version__
 print "PleXBMC Helper -> Platform: " + getPlatform()
-print "PleXBMC Helper -> UUID: " + getSettings('uuid')
-print "PleXBMC Helper -> XBMC Web Port: %i" % getSettings('port')
-if getSettings('user'):
-    print "PleXBMC Helper -> XBMC Web User: " + getSettings('user')
+print "PleXBMC Helper -> UUID: " + settings['uuid']
+print "PleXBMC Helper -> XBMC Web Port: %i" % settings['port']
+if settings['user']:
+    print "PleXBMC Helper -> XBMC Web User: " + settings['user']
 
-if not getPlexbmcVersion():
+settings['plexbmc_version'] = jsonrpc("Addons.GetAddonDetails", {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]})['addon']['version']
+if not settings['plexbmc_version']:
     xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed.)")
 
-httpd_port=3005
-
 # Start GDM for server/client discovery
-client=plexgdm.plexgdm(debug=getSettings('gdm_debug'))
-client.clientDetails(getSettings('uuid'), getSettings('client_name'), httpd_port, "PleXBMC" , getPlexbmcVersion())
+client=plexgdm.plexgdm(debug=settings['gdm_debug'])
+client.clientDetails(settings['uuid'], settings['client_name'], settings['myport'], "PleXBMC" , settings['plexbmc_version'])
 printDebug("PleXBMC Helper -> registration string is: %s " % client.getClientDetails() )
 
 start_count=0
 while True:
     try:
-        httpd = ThreadedHTTPServer(('', httpd_port), MyHandler)
+        httpd = ThreadedHTTPServer(('', settings['myport']), MyHandler)
         httpd.timeout = 1.0
         break
     except:
@@ -101,7 +100,7 @@ if httpd:
                     printDebug("Client is still registered")
                 else:
                     printDebug("Client is no longer registered")
-                printDebug( "PlexBMC Helper still running on port %s" % httpd_port )
+                printDebug( "PlexBMC Helper still running on port %s" % settings['myport'])
                 message_count=0
             
             if not is_running:
@@ -109,9 +108,9 @@ if httpd:
                 xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has started,)")
                 
             is_running=True
-            #if message_count % 4:
-            #    getSubMgr().notify()
-            setSettings('serverList', client.getServerList())
+            if message_count % 2 == 0:
+                subMgr.notify()
+            settings['serverList'] = client.getServerList()
         except:
             printDebug("Error in loop")
             break

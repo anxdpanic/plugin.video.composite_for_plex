@@ -4,9 +4,9 @@ import traceback
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from urlparse import urlparse, parse_qs
-from settings import *
+from settings import settings
 from functions import *
-from subscribers import *
+from subscribers import subMgr
 
 class MyHandler(BaseHTTPRequestHandler):
     def do_HEAD(s):
@@ -46,14 +46,14 @@ class MyHandler(BaseHTTPRequestHandler):
                 resp = getXMLHeader()
                 resp += "<MediaContainer>"
                 resp += "<Player"
-                resp += ' title="%s"' % getSettings('client_name')
+                resp += ' title="%s"' % settings['client_name']
                 resp += ' protocol="plex"'
                 resp += ' protocolVersion="1"'
                 resp += ' protocolCapabilities="navigation,playback,timeline"'
-                resp += ' machineIdentifier="%s"' % getSettings('uuid')
+                resp += ' machineIdentifier="%s"' % settings['uuid']
                 resp += ' product="PleXBMC"'
                 resp += ' platform="%s"' % getPlatform()
-                resp += ' platformVersion="%s"' % getPlexbmcVersion()
+                resp += ' platformVersion="%s"' % settings['plexbmc_version']
                 resp += ' deviceClass="pc"'
                 resp += "/>"
                 resp += "</MediaContainer>"
@@ -66,19 +66,17 @@ class MyHandler(BaseHTTPRequestHandler):
                 port = params.get('port', False)
                 uuid = s.headers.get('X-Plex-Client-Identifier', "")
                 commandID = params.get('commandID', 0)
-                getSubMgr().addSubscriber(protocol, host, port, uuid, commandID)
-                getSubMgr().notify()
+                subMgr.addSubscriber(protocol, host, port, uuid, commandID)
             elif "/unsubscribe" in request_path:
                 s.wfile.write(getOKMsg())
                 uuid = s.headers.get('X-Plex-Client-Identifier', False) or s.client_address[0]
-                getSubMgr().removeSubscriber(uuid)
+                subMgr.removeSubscriber(uuid)
             elif request_path == "player/playback/setParameters":
                 s.wfile.write(getOKMsg())
                 if 'volume' in params:
                     volume = int(params['volume'])
                     printDebug("adjusting the volume to %s%%" % volume)
                     jsonrpc("Application.SetVolume", {"volume": volume})
-                    getSubMgr().notify();
             elif "/playMedia" in request_path:
                 s.wfile.write(getOKMsg())
                 resume = params.get('viewOffset', params.get('offset', "0"))
@@ -89,49 +87,43 @@ class MyHandler(BaseHTTPRequestHandler):
                 fullurl = protocol+"://"+address+":"+port+params['key']
                 printDebug("playMedia command -> fullurl: %s" % fullurl)
                 jsonrpc("playmedia", [fullurl, resume])
-                getSubMgr().notify();
+                subMgr.lastkey = params['key']
+                subMgr.lookup(address, port)
             elif request_path == "player/playback/play":
                 s.wfile.write(getOKMsg())
                 printDebug("received play command")
                 for playerid in getPlayerIds():
                     jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": True})
-                getSubMgr().notify();
             elif request_path == "player/playback/pause":
                 s.wfile.write(getOKMsg())
                 printDebug("received pause command")
                 for playerid in getPlayerIds():
                     jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": False})
-                getSubMgr().notify();
             elif request_path == "player/playback/stop":
                 s.wfile.write(getOKMsg())
                 printDebug("received stop command")
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Stop", {"playerid" : playerid})
-                getSubMgr().notify();
             elif request_path == "player/playback/stepForward":
                 s.wfile.write(getOKMsg())
                 printDebug("received stepForward command")
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallforward"})
-                getSubMgr().notify();
             elif request_path == "player/playback/stepBack":
                 s.wfile.write(getOKMsg())
                 printDebug("received stepBack command")
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallbackward"})
-                getSubMgr().notify();
             elif request_path == "player/playback/skipNext":
                 s.wfile.write(getOKMsg())
                 printDebug("received stepForward command")
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigforward"})
-                getSubMgr().notify();
             elif request_path == "player/playback/skipPrevious":
                 s.wfile.write(getOKMsg())
                 printDebug("received stepBack command")
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigbackward"})
-                getSubMgr().notify();
         except:
             traceback.print_exc()
         s.wfile.close()
