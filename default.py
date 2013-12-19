@@ -3929,33 +3929,35 @@ def amberskin():
         WINDOW.setProperty("plexbmc.myplex",  "1" )
 
         #Now let's populate queue shelf items since we have MyPlex login
-        printDebug("== ENTER: Queue Shelf ==", False)
-        aToken = getMyPlexToken()
-        myplex_server = getMyPlexURL('/pms/playlists/queue/all')
-        root = etree.fromstring(myplex_server)
-        server_address = getMasterServer()['address']
-        queue_count = 1
+        if __settings__.getSetting('homeshelf') != '3':
+            printDebug("== ENTER: Queue Shelf ==", False)
+            aToken = getMyPlexToken()
+            myplex_server = getMyPlexURL('/pms/playlists/queue/all')
+            root = etree.fromstring(myplex_server)
+            server_address = getMasterServer()['address']
+            queue_count = 1
 
-        for media in root:
-            printDebug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
-            m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s&t=%s" % (getLinkURL('http://'+server_address, media, server_address), 18, 1, aToken)
-            m_thumb = getShelfThumb(media, server_address, seasonThumb=0)+aToken
-            movie_runtime = media.get('duration', 0)
-            movie_runtime = str(int(float(movie_runtime)/1000/60))
+            for media in root:
+                printDebug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
+                m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s&t=%s" % (getLinkURL('http://'+server_address, media, server_address), 18, 1, aToken)
+                m_thumb = getShelfThumb(media, server_address, seasonThumb=0)+aToken
+                movie_runtime = media.get('duration', 0)
+                movie_runtime = str(int(float(movie_runtime)/1000/60))
 
-            WINDOW.setProperty("Plexbmc.Queue.%s.Path" % queue_count, m_url)
-            WINDOW.setProperty("Plexbmc.Queue.%s.Title" % queue_count, media.get('title', 'Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.Queue.%s.Year" % queue_count, media.get('originallyAvailableAt', '').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.Queue.%s.Duration" % queue_count, movie_runtime)
-            WINDOW.setProperty("Plexbmc.Queue.%s.Thumb" % queue_count, m_thumb)
+                WINDOW.setProperty("Plexbmc.Queue.%s.Path" % queue_count, m_url)
+                WINDOW.setProperty("Plexbmc.Queue.%s.Title" % queue_count, media.get('title', 'Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.Queue.%s.Year" % queue_count, media.get('originallyAvailableAt', '').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.Queue.%s.Duration" % queue_count, movie_runtime)
+                WINDOW.setProperty("Plexbmc.Queue.%s.Thumb" % queue_count, m_thumb)
 
-            queue_count += 1
+                queue_count += 1
 
-            printDebug("Building Queue item: %s" % media.get('title', 'Unknown').encode('UTF-8'))
-            printDebug("Building Queue item url: %s" % m_url)
-            printDebug("Building Queue item thumb: %s" % m_thumb)
+                printDebug("Building Queue item: %s" % media.get('title', 'Unknown').encode('UTF-8'))
+                printDebug("Building Queue item url: %s" % m_url)
+                printDebug("Building Queue item thumb: %s" % m_thumb)
 
-        clearQueueShelf(queue_count)
+            clearQueueShelf(queue_count)
+
     else:
         WINDOW.clearProperty("plexbmc.myplex")
 
@@ -3965,10 +3967,12 @@ def fullShelf(server_list=None):
     #Gather some data and set the window properties
     printDebug("== ENTER: shelf() ==", False)
 
-    #if __settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false":
-    #    printDebug("Disabling all shelf items")
-    #    clearShelf()
-    #    return
+    if __settings__.getSetting('homeshelf') == '3' or (__settings__.getSetting('movieShelf') == "false" and\
+                    __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false"):
+        printDebug("Disabling all shelf items")
+        clearShelf()
+        clearOnDeckShelf()
+        return
 
     #Get the global host variable set in settings
     WINDOW = xbmcgui.Window( 10000 )
@@ -4008,95 +4012,99 @@ def fullShelf(server_list=None):
 
         #ra_log_count = 1
 
-        for section in getAllSections(server_list):
-            if (section.get("type","unknown") != "episode" and section.get("type","unknown") != "artist" and section.get("type","unknown") != "movie" and section.get("type","unknown") != "show" and section.get("type","unknown") != "photo"):
-                continue
-            tree=getXML('http://'+server_details['server']+":"+server_details['port']+section.get("path")+"/recentlyAdded")
+        if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
 
-            '''
-            eetee = etree.ElementTree()
-            eetee._setroot(tree)
-            logfile = PLUGINPATH+"/RecentlyAdded"+ str(ra_file_count) + ".xml"
-            logfileh = open(logfile, "w")
-            eetee.write(logfileh)
-            logfileh.close()
-            ra_log_count += 1
-            '''
-            if tree is None:
-                #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
-                #clearShelf()
-                #return
-                print "PLEXBMC -> RecentlyAdded items not found on: "+server_details['serverName']+section.get("path")
-                continue
+            for section in getAllSections(server_list):
+                if (section.get("type","unknown") != "episode" and section.get("type","unknown") != "artist" and section.get("type","unknown") != "movie" and section.get("type","unknown") != "show" and section.get("type","unknown") != "photo"):
+                    continue
+                tree=getXML('http://'+server_details['server']+":"+server_details['port']+section.get("path")+"/recentlyAdded")
 
-            libraryuuid = tree.attrib["librarySectionUUID"]
-            ep_helper = {}  # helper season counter
-            ra_item_count = 1
-            for eachitem in tree:
-                if ra_item_count > 15:
-                    break
-
-                ra_item_count +=1
-
-                if eachitem.get("type", "") == "episode":
-                    key = int(eachitem.get("parentRatingKey"))  # season identifier
-
-                    if key in ep_helper:
-                        pass
-
-                    else:
-                        recent_list[full_count] = (eachitem, server_details['server'] + ":" + server_details['port'], aToken, qToken, libraryuuid)
-                        ep_helper[key] = key  # use seasons as dict key so we can check
-                        full_count += 1
-
-                else:
-                    recent_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
-                    full_count += 1
-
-        full_count = 0
-
-        '''
-        logfile = PLUGINPATH+"/Recent_list.log"
-        logfileh = open(logfile, "w")
-        for item in recent_list:
-            logfileh.write("%s\n" % item)
-        logfileh.close()
-        '''
-
-        #deck_log_count = 1
-
-        for section in getAllSections(server_list):
-            if (section.get("type","unknown") != "episode" and section.get("type","unknown") != "movie" and section.get("type","unknown") != "show"):
-                continue
-
-            tree=getXML('http://'+server_details['server']+":"+server_details['port']+section.get("path")+"/onDeck")
-
-            '''
-            eetee = etree.ElementTree()
-            eetee._setroot(tree)
-            logfile = PLUGINPATH+"/OnDeck"+ str(deck_file_count) + ".xml"
-            logfileh = open(logfile, "w")
-            eetee.write(logfileh)
-            logfileh.close()
-            deck_log_count += 1
-            '''
-
-            if tree is None:
-                #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
-                #clearShelf()
-                #return
-                print "PLEXBMC -> OnDeck items not found on: "+server_details['serverName']+section.get("path")
-                continue
-
-            deck_item_count = 1
-            libraryuuid = tree.attrib["librarySectionUUID"]
-            for eachitem in tree:
-                if deck_item_count > 15: break
-                deck_item_count +=1
+                '''
+                eetee = etree.ElementTree()
+                eetee._setroot(tree)
+                logfile = PLUGINPATH+"/RecentlyAdded"+ str(ra_file_count) + ".xml"
+                logfileh = open(logfile, "w")
+                eetee.write(logfileh)
+                logfileh.close()
+                ra_log_count += 1
+                '''
+                if tree is None:
+                    #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
+                    #clearShelf()
+                    #return
+                    print "PLEXBMC -> RecentlyAdded items not found on: "+server_details['serverName']+section.get("path")
+                    continue
 
                 libraryuuid = tree.attrib["librarySectionUUID"]
-                ondeck_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid )
-                full_count += 1
+                ep_helper = {}  # helper season counter
+                ra_item_count = 1
+                for eachitem in tree:
+                    if ra_item_count > 15:
+                        break
+
+                    if eachitem.get("type", "") == "episode":
+                        key = int(eachitem.get("parentRatingKey"))  # season identifier
+
+                        if key in ep_helper:
+                            pass
+
+                        else:
+                            recent_list[full_count] = (eachitem, server_details['server'] + ":" + server_details['port'], aToken, qToken, libraryuuid)
+                            ep_helper[key] = key  # use seasons as dict key so we can check
+                            full_count += 1
+                            ra_item_count += 1
+
+                    else:
+                        recent_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
+                        full_count += 1
+                        ra_item_count += 1
+
+            full_count = 0
+
+            '''
+            logfile = PLUGINPATH+"/Recent_list.log"
+            logfileh = open(logfile, "w")
+            for item in recent_list:
+                logfileh.write("%s\n" % item)
+            logfileh.close()
+            '''
+
+            #deck_log_count = 1
+
+        if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
+
+            for section in getAllSections(server_list):
+                if (section.get("type","unknown") != "episode" and section.get("type","unknown") != "movie" and section.get("type","unknown") != "show"):
+                    continue
+
+                tree=getXML('http://'+server_details['server']+":"+server_details['port']+section.get("path")+"/onDeck")
+
+                '''
+                eetee = etree.ElementTree()
+                eetee._setroot(tree)
+                logfile = PLUGINPATH+"/OnDeck"+ str(deck_file_count) + ".xml"
+                logfileh = open(logfile, "w")
+                eetee.write(logfileh)
+                logfileh.close()
+                deck_log_count += 1
+                '''
+
+                if tree is None:
+                    #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
+                    #clearShelf()
+                    #return
+                    print "PLEXBMC -> OnDeck items not found on: "+server_details['serverName']+section.get("path")
+                    continue
+
+                deck_item_count = 1
+                libraryuuid = tree.attrib["librarySectionUUID"]
+                for eachitem in tree:
+                    if deck_item_count > 15: break
+                    deck_item_count +=1
+
+                    libraryuuid = tree.attrib["librarySectionUUID"]
+                    ondeck_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid )
+                    full_count += 1
 
     #For each of the servers we have identified
     for index in recent_list:
@@ -4115,28 +4123,33 @@ def fullShelf(server_list=None):
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
                 continue
 
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
-            m_thumb = getShelfThumb(media,server_address,seasonThumb=0)+aToken
-            movie_runtime = media.get('duration', '0')
-            movie_runtime = str(int(float(movie_runtime)/1000/60))
-            if media.get('rating') > 0:
-                movie_rating = str(round(float(media.get('rating')), 1))
+            if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
+
+                m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
+                m_thumb = getShelfThumb(media,server_address,seasonThumb=0)+aToken
+                movie_runtime = media.get('duration', '0')
+                movie_runtime = str(int(float(movie_runtime)/1000/60))
+                if media.get('rating') > 0:
+                    movie_rating = str(round(float(media.get('rating')), 1))
+                else:
+                    movie_rating = ''
+
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % recentMovieCount, m_url)
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % recentMovieCount, media.get('title', 'Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Year" % recentMovieCount, media.get('year', '').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Rating" % recentMovieCount, movie_rating)
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Duration" % recentMovieCount, movie_runtime)
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % recentMovieCount, m_thumb)
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.uuid" % recentMovieCount, libuuid.encode('UTF-8'))
+
+                recentMovieCount += 1
+
+                printDebug("Building Recent window title: %s" % media.get('title', 'Unknown').encode('UTF-8'))
+                printDebug("Building Recent window url: %s" % m_url)
+                printDebug("Building Recent window thumb: %s" % m_thumb)
+
             else:
-                movie_rating = ''
-
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % recentMovieCount, m_url)
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % recentMovieCount, media.get('title', 'Unknown').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Year" % recentMovieCount, media.get('year', '').encode('UTF-8'))
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Rating" % recentMovieCount, movie_rating)
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Duration" % recentMovieCount, movie_runtime)
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % recentMovieCount, m_thumb)
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.uuid" % recentMovieCount, libuuid.encode('UTF-8'))
-
-            recentMovieCount += 1
-
-            printDebug("Building Recent window title: %s" % media.get('title', 'Unknown').encode('UTF-8'))
-            printDebug("Building Recent window url: %s" % m_url)
-            printDebug("Building Recent window thumb: %s" % m_thumb)
+                continue
 
         elif media.get('type',None) == "season":
 
@@ -4246,9 +4259,9 @@ def fullShelf(server_list=None):
                 WINDOW.clearProperty("Plexbmc.OnDeckMovie.1.Path" )
                 continue
 
-            m_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
-            m_thumb=getShelfThumb(media,server_address,seasonThumb=0)+aToken
-            m_runtime = media.get('duration', '0')
+            m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
+            m_thumb = getShelfThumb(media,server_address,seasonThumb=0)+aToken
+            movie_runtime = media.get('duration', '0')
             m_runtime = str(int(float(movie_runtime)/1000/60))
             if media.get('rating') > 0:
                 m_rating = str(round(float(media.get('rating')), 1))
@@ -4321,10 +4334,13 @@ def fullShelf(server_list=None):
 
     clearOnDeckShelf(ondeckMovieCount, ondeckSeasonCount)
 
-    if __settings__.getSetting('channelShelf') == "false":
+    if __settings__.getSetting('channelShelf') == "true" or __settings__.getSetting('homeshelf') != '3':
         shelfChannel(server_list)
+
     else:
-        pass
+        printDebug("Disabling channel shelf items")
+        clearChannelShelf()
+
 
 def displayContent( acceptable_level, content_level ):
 
@@ -4403,7 +4419,8 @@ def shelf( server_list=None ):
     #Gather some data and set the window properties
     printDebug("== ENTER: shelf() ==", False)
 
-    if __settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false":
+    if (__settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and\
+                    __settings__.getSetting('musicShelf') == "false") or __settings__.getSetting('homeshelf') == '3':
         printDebug("Disabling all shelf items")
         clearShelf()
         return
@@ -4426,7 +4443,7 @@ def shelf( server_list=None ):
         clearShelf(0,0,0)
         return
         
-    if __settings__.getSetting('homeshelf') == '0':
+    if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
         endpoint="/library/recentlyAdded"
     else:
         direction=False
@@ -4648,7 +4665,7 @@ def shelfChannel(server_list = None):
     #Gather some data and set the window properties
     printDebug("== ENTER: shelfChannels() ==", False)
     
-    if __settings__.getSetting('channelShelf') == "false":
+    if __settings__.getSetting('channelShelf') == "false" or __settings__.getSetting('homeshelf') == '3':
         printDebug("Disabling channel shelf")
         clearChannelShelf()
         return
@@ -4679,7 +4696,7 @@ def shelfChannel(server_list = None):
         aToken=getAuthDetails({'token': _PARAM_TOKEN} )
         qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
-        if __settings__.getSetting('channelShelf') == "false":
+        if __settings__.getSetting('channelShelf') == "false" or __settings__.getSetting('homeshelf') == '3':
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
             return
 
