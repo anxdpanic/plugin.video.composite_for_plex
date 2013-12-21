@@ -1,15 +1,11 @@
 import base64
 import inspect
 import json
-import platform
-import requests
 import string
-import sys
 import traceback
-import uuid
 import xbmc
-import xbmcaddon
 from settings import settings
+from httppersist import requests
 
 def xbmc_photo():
     return "photo"
@@ -65,34 +61,6 @@ def printDebug( msg, functionname=True ):
         else:
             print "PleXBMC Helper -> " + inspect.stack()[1][3] + ": " + str(msg)
             
-
-rsess = requests.Session()
-def http_post(host, port, path, body, header={}, protocol="http"):
-    try:
-        conn = rsess.post(url=protocol+'://'+host+':'+str(port)+path, data=body, headers=header)
-        if int(conn.status_code) >= 400:
-            print "HTTP response error: " + str(conn.status_code)
-            # this should return false, but I'm hacking it since iOS returns 404 no matter what
-            return conn.text or True
-        else:      
-            return conn.text or True
-    except:
-        print "Unable to connect to %s\nReason: %s" % (host, traceback.print_exc())
-        return False
-        
-def http_get(host, port, path, header={}, protocol="http"):
-    try:
-        url = protocol+'://'+host+':'+port+path
-        conn = rsess.get(url=url, headers=header)
-        if int(conn.status_code) >= 400:
-            print "HTTP response error: " + str(conn.status_code)
-            return False
-        else:      
-            return conn.text or True
-    except:
-        print "Unable to connect to %s\nReason: %s" % (url, traceback.print_exc())
-        return False
-
 """ communicate with XBMC """
 def jsonrpc(action, arguments = {}):
     """ put some JSON together for the JSON-RPC APIv6 """
@@ -120,7 +88,7 @@ def jsonrpc(action, arguments = {}):
                              "method"  : action})
     
     printDebug("Sending request to XBMC: %s" % request)
-    jsonraw = http_post(
+    jsonraw = requests.post(
         "127.0.0.1", 
         settings['port'], 
         "/jsonrpc", 

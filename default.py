@@ -39,12 +39,12 @@ __cwd__        = __addon__.getAddonInfo('path')
 __version__    = __addon__.getAddonInfo('version')
 __profile__    = xbmc.translatePath( __addon__.getAddonInfo('profile') )
 __resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
-__external__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'external', 'requests' ) )
 
 # local includes
 sys.path.append (__resource__)
-sys.path.append (__external__)
+
 from settings import settings
+from httppersist import requests
 from functions import *
 from subscribers import subMgr
 from listener import *
@@ -122,7 +122,7 @@ else:
                 break
         
         httpd.socket.shutdown(socket.SHUT_RDWR)
-        rsess.close()
+        requests.dumpConnections()
         client.stop_all()
         print "PleXBMC Helper -> PleXBMC Helper has been stopped"
         xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been stopped,)")

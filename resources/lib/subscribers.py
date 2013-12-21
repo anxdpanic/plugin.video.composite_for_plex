@@ -1,9 +1,9 @@
 import re
 import threading
-import xbmc
 from xml.dom.minidom import parseString
 from functions import *
 from settings import settings
+from httppersist import requests
 
 class SubscriptionManager:
     def __init__(self):
@@ -20,10 +20,10 @@ class SubscriptionManager:
         self.volume = getVolume()
 
     def msg(self, players):
-        self.getVolume()
         msg = getXMLHeader()
         msg += '<MediaContainer commandID="INSERTCOMMANDID"'
         if players:
+            self.getVolume()
             maintype = plex_audio()
             for p in players.values():
                 if p.get('type') == xbmc_video():
@@ -72,7 +72,7 @@ class SubscriptionManager:
         return ret
  
     def lookup(self, server, port):
-        rawxml = http_get(server, port, self.lastkey)
+        rawxml = requests.get(server, port, self.lastkey)
         if rawxml:
             doc = parseString(rawxml)
             self.guid = doc.getElementsByTagName('Video')[0].getAttribute('guid')
@@ -114,6 +114,7 @@ class SubscriptionManager:
         try:
             # get info from the player
             props = jsonrpc("Player.GetProperties", {"playerid": playerid, "properties": ["time", "totaltime", "speed", "shuffled"]})
+            printDebug(jsonrpc("Player.GetItem", {"playerid": playerid, "properties": ["file", "showlink", "episode", "season"]}))
             info['time'] = timeToMillis(props['time'])
             info['duration'] = timeToMillis(props['totaltime'])
             info['state'] = ("paused", "playing")[int(props['speed'])]
@@ -150,7 +151,7 @@ class Subscriber:
             self.navlocationsent = True
         msg = re.sub(r"INSERTCOMMANDID", str(self.commandID), msg)
         printDebug("sending xml to subscriber %s: %s" % (self.tostr(), msg))
-        if not http_post(self.host, self.port, "/:/timeline", msg, getPlexHeaders(), self.protocol):
+        if not requests.post(self.host, self.port, "/:/timeline", msg, getPlexHeaders(), self.protocol):
             subMgr.removeSubscriber(self.uuid)
 
 subMgr = SubscriptionManager()    
