@@ -15,7 +15,6 @@ class SubscriptionManager:
         self.server = ""
         self.protocol = "http"
         self.port = ""
-        self.sentnavlocation = False
         
     def getVolume(self):
         self.volume = getVolume()
@@ -89,16 +88,10 @@ class SubscriptionManager:
         if not self.subscribers:
             return True
         players = getPlayers()
-        if players:
-            self.sentnavlocation = False
-        elif self.sentnavlocation:
-            return True
-        else:
-            self.sentnavlocation = True
         msg = self.msg(players)
         with threading.RLock():
             for sub in self.subscribers.values():
-                sub.send_update(msg)
+                sub.send_update(msg, len(players)==0)
         return True
         
     def controllable(self):
@@ -143,12 +136,18 @@ class Subscriber:
         self.port = port or 32400
         self.uuid = uuid or host
         self.commandID = int(commandID) or 0
-        self.poller = poller
+        self.navlocationsent = False
     def __eq__(self, other):
         return self.uuid == other.uuid
     def tostr(self):
         return "uuid=%s,commandID=%i" % (self.uuid, self.commandID)
-    def send_update(self, msg):
+    def send_update(self, msg, is_nav):
+        if not is_nav:
+            self.navlocationsent = False
+        elif self.navlocationsent:
+            return True
+        else:
+            self.navlocationsent = True
         msg = re.sub(r"INSERTCOMMANDID", str(self.commandID), msg)
         printDebug("sending xml to subscriber %s: %s" % (self.tostr(), msg))
         if not http_post(self.host, self.port, "/:/timeline", msg, getPlexHeaders(), self.protocol):
