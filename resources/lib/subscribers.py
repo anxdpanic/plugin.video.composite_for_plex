@@ -15,13 +15,13 @@ class SubscriptionManager:
         self.server = ""
         self.protocol = "http"
         self.port = ""
+        self.sentnavlocation = False
         
     def getVolume(self):
         self.volume = getVolume()
 
-    def msg(self):
+    def msg(self, players):
         self.getVolume()
-        players = getPlayers()
         msg = getXMLHeader()
         msg += '<MediaContainer commandID="INSERTCOMMANDID"'
         if players:
@@ -39,7 +39,7 @@ class SubscriptionManager:
         msg += self.getTimelineXML(getAudioPlayerId(players), plex_audio())
         msg += self.getTimelineXML(getPhotoPlayerId(players), plex_photo())
         msg += self.getTimelineXML(getVideoPlayerId(players), plex_video())
-        msg += "</MediaContainer>"
+        msg += "\r\n</MediaContainer>"
         return msg
         
     def getTimelineXML(self, playerid, ptype):
@@ -50,18 +50,19 @@ class SubscriptionManager:
         else:
             state = "stopped"
             time = 0
-        ret = '<Timeline location="%s" state="%s" time="%s" type="%s"' % (self.mainlocation, state, time, ptype)
+        ret = "\r\n"+'<Timeline location="%s" state="%s" time="%s" type="%s"' % (self.mainlocation, state, time, ptype)
         if playerid > 0:
+            serv = getServerByHost(self.server)
             ret += ' duration="%s"' % info['duration']
             ret += ' seekRange="0-%s"' % info['duration']
             ret += ' controllable="%s"' % self.controllable()
-            ret += ' machineIdentifier="%s"' % settings['uuid']
-            ret += ' protocol="%s"' % self.protocol
-            ret += ' address="%s"' % self.server
-            ret += ' port="%s"' % self.port
+            ret += ' machineIdentifier="%s"' % serv.get('uuid', "")
+            ret += ' protocol="%s"' % serv.get('protocol', "http")
+            ret += ' address="%s"' % serv.get('server', self.server)
+            ret += ' port="%s"' % serv.get('port', self.port)
             ret += ' guid="%s"' % info['guid']
-            ret += ' containerKey="%s"' % self.lastkey
-            ret += ' key="%s"' % self.lastkey
+            ret += ' containerKey="%s"' % (self.lastkey or "/library/metadata/900000")
+            ret += ' key="%s"' % (self.lastkey or "/library/metadata/1")
             m = re.search(r'(\d+)$', self.lastkey)
             if m:
                 ret += ' ratingKey="%s"' % m.group()
@@ -74,16 +75,27 @@ class SubscriptionManager:
     def lookup(self, server, port):
         rawxml = http_get(server, port, self.lastkey)
         if rawxml:
-          doc = parseString(rawxml)
-          self.guid = doc.getElementsByTagName('Video')[0].getAttribute('guid')
-          self.protocol = "http"
-          self.server = server
-          self.port = port
+            doc = parseString(rawxml)
+            self.guid = doc.getElementsByTagName('Video')[0].getAttribute('guid')
+            self.protocol = "http"
+            self.server = server
+            self.port = port
     
-    def notify(self):
+    def updateCommandID(self, uuid, commandID):
+        if commandID and self.subscribers.get(uuid, False):
+            self.subscribers[uuid].commandID = int(commandID)            
+    
+    def notify(self, event = False):
         if not self.subscribers:
             return True
-        msg = self.msg()
+        players = getPlayers()
+        if players:
+            self.sentnavlocation = False
+        elif self.sentnavlocation:
+            return True
+        else:
+            self.sentnavlocation = True
+        msg = self.msg(players)
         with threading.RLock():
             for sub in self.subscribers.values():
                 sub.send_update(msg)

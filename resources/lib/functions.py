@@ -1,10 +1,11 @@
 import base64
-import httplib
 import inspect
 import json
 import platform
+import requests
 import string
 import sys
+import traceback
 import uuid
 import xbmc
 import xbmcaddon
@@ -65,39 +66,31 @@ def printDebug( msg, functionname=True ):
             print "PleXBMC Helper -> " + inspect.stack()[1][3] + ": " + str(msg)
             
 
+rsess = requests.Session()
 def http_post(host, port, path, body, header={}, protocol="http"):
     try:
-        if protocol == "https":
-            conn = httplib.HTTPSConnection(host, port)
-        else: 
-            conn = httplib.HTTPConnection(host, port) 
-        conn.request("POST", path, body, header) 
-        data = conn.getresponse()
-        if int(data.status) >= 400:
-            print "HTTP response error: " + str(data.status) + " " + str(data.reason)
+        conn = rsess.post(url=protocol+'://'+host+':'+str(port)+path, data=body, headers=header)
+        if int(conn.status_code) >= 400:
+            print "HTTP response error: " + str(conn.status_code)
             # this should return false, but I'm hacking it since iOS returns 404 no matter what
-            return True
+            return conn.text or True
         else:      
-            return data.read() or "OK"
+            return conn.text or True
     except:
-        print "Unable to connect to %s\nReason: %s" % (host, sys.exc_info()[0])
+        print "Unable to connect to %s\nReason: %s" % (host, traceback.print_exc())
         return False
         
 def http_get(host, port, path, header={}, protocol="http"):
     try:
-        if protocol == "https":
-            conn = httplib.HTTPSConnection(host, port)
-        else: 
-            conn = httplib.HTTPConnection(host, port) 
-        conn.request("GET", path, "", header) 
-        data = conn.getresponse()
-        if int(data.status) >= 400:
-            print "HTTP response error: " + str(data.status) + " " + str(data.reason)
+        url = protocol+'://'+host+':'+port+path
+        conn = rsess.get(url=url, headers=header)
+        if int(conn.status_code) >= 400:
+            print "HTTP response error: " + str(conn.status_code)
             return False
         else:      
-            return data.read() or "OK"
+            return conn.text or True
     except:
-        print "Unable to connect to %s\nReason: %s" % (host, sys.exc_info()[0])
+        print "Unable to connect to %s\nReason: %s" % (url, traceback.print_exc())
         return False
 
 """ communicate with XBMC """
@@ -156,7 +149,7 @@ def getOKMsg():
 
 def getPlexHeaders():
     h = {
-      "Content-type": "application/xml",
+      "Content-type": "application/x-www-form-urlencoded",
       "Access-Control-Allow-Origin": "*",
       "X-Plex-Version": settings['version'],
       "X-Plex-Client-Identifier": settings['uuid'],
@@ -165,7 +158,7 @@ def getPlexHeaders():
       "X-Plex-Device-Name": settings['client_name'],
       "X-Plex-Platform": "XBMC",
       "X-Plex-Model": getPlatform(),
-      "X-Plex-Device": getPlatform(),
+      "X-Plex-Device": "PC",
     }
     if settings['myplex_user']:
         h["X-Plex-Username"] = settings['myplex_user']
@@ -184,7 +177,6 @@ def getPlayers():
     info = jsonrpc("Player.GetActivePlayers") or []
     ret = {}
     for player in info:
-        printDebug("found active %s player with id %i" % (player['type'], player['playerid']))
         player['playerid'] = int(player['playerid'])
         ret[player['type']] = player
     return ret
@@ -196,17 +188,17 @@ def getPlayerIds():
     return ret
     
 def getVideoPlayerId(players = False):
-    if not players:
+    if players is None:
         players = getPlayers()
     return players.get(xbmc_video(), {}).get('playerid', 0)
 
 def getAudioPlayerId(players = False):
-    if not players:
+    if players is None:
         players = getPlayers()
     return players.get(xbmc_audio(), {}).get('playerid', 0)
 
 def getPhotoPlayerId(players = False):
-    if not players:
+    if players is None:
         players = getPlayers()
     return players.get(xbmc_photo(), {}).get('playerid', 0)
     
@@ -215,6 +207,16 @@ def getVolume():
 
 def timeToMillis(time):
     return (time['hours']*3600 + time['minutes']*60 + time['seconds'])*1000 + time['milliseconds']
+
+def millisToTime(t):
+    millis = int(t)
+    seconds = millis / 1000
+    minutes = seconds / 60
+    hours = minutes / 60
+    seconds = seconds % 60
+    minutes = minutes % 60
+    millis = millis % 1000
+    return {'hours':hours,'minutes':minutes,'seconds':seconds,'milliseconds':millis}
 
 def textFromXml(element):
     return element.firstChild.data
