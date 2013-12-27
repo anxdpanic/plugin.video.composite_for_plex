@@ -4723,37 +4723,43 @@ def shelfChannel(server_list = None):
         #For each of the servers we have identified
         for media in tree:
 
-            if media.get('type') == "channel":
+            printDebug("Found a recent channel entry")
+            suffix=media.get('key').split('/')[1]
 
-                printDebug("Found a recent channel entry")
+            if suffix == "photos":
+                mode=_MODE_PHOTOS
+                channel_window = "Pictures"
 
-                suffix=media.get('key').split('/')[1]
+            elif suffix == "video":
+                mode=_MODE_PLEXPLUGINS
+                channel_window="VideoLibrary"
 
-                if suffix == "photos":
-                    mode=_MODE_PHOTOS
-                    channel_window="Pictures"
-                elif suffix == "video":
-                    mode=_MODE_PLEXPLUGINS
-                    channel_window="VideoLibrary"
-                elif suffix == "music":
-                    mode=_MODE_MUSIC
-                    channel_window="MusicFiles"
-                else:
-                    mode=_MODE_GETCONTENT
-                    channel_window="VideoLibrary"
+            elif suffix == "music":
+                mode=_MODE_MUSIC
+                channel_window="MusicFiles"
 
-                p_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( channel_window, getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), mode , aToken)
-                p_thumb=getThumb(media,server_details['server']+":"+server_details['port'], False)
+            else:
+                mode=_MODE_GETCONTENT
+                channel_window="VideoLibrary"
 
-                WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, p_url)
-                WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title','Unknown'))
-                WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, p_thumb+qToken)
+            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( channel_window, getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), mode , aToken)
+            pms_thumb = str(media.get('thumb', ''))
 
-                channelCount += 1
+            if pms_thumb.startswith('/'):
+                c_thumb = 'http://' + server_details['server'] + ":" + server_details['port'] + pms_thumb
 
-                printDebug("Building Recent window title: %s" % media.get('title','Unknown'))
-                printDebug("Building Recent window url: %s" % p_url)
-                printDebug("Building Recent window thumb: %s" % p_thumb)
+            else:
+                c_thumb = pms_thumb
+
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, c_url)
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title', 'Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, c_thumb+aToken)
+
+            channelCount += 1
+
+            printDebug("Building Recent window title: %s" % media.get('title', 'Unknown'))
+            printDebug("Building Recent window url: %s" % c_url)
+            printDebug("Building Recent window thumb: %s" % c_thumb)
 
     clearChannelShelf(channelCount)        
     return
