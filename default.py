@@ -4049,7 +4049,7 @@ def fullShelf(server_list=None):
                     if eachitem.get("type", "") == "episode":
                         key = int(eachitem.get("parentRatingKey"))  # season identifier
 
-                        if key in ep_helper:
+                        if key in ep_helper or (__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0):
                             pass
 
                         else:
