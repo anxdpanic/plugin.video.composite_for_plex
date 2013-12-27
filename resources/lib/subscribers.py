@@ -1,5 +1,6 @@
 import re
 import threading
+import xbmcgui
 from xml.dom.minidom import parseString
 from functions import *
 from settings import settings
@@ -51,6 +52,13 @@ class SubscriptionManager:
             time = 0
         ret = "\r\n"+'<Timeline location="%s" state="%s" time="%s" type="%s"' % (self.mainlocation, state, time, ptype)
         if playerid > 0:
+            WINDOW = xbmcgui.Window(10000)
+            pbmc_server = str(WINDOW.getProperty('plexbmc.nowplaying.server'))
+            keyid = str(WINDOW.getProperty('plexbmc.nowplaying.id'))
+            if keyid:
+                self.lastkey = "/library/metadata/%s"%keyid
+                if pbmc_server:
+                    (self.server, self.port) = pbmc_server.split(':')
             serv = getServerByHost(self.server)
             ret += ' duration="%s"' % info['duration']
             ret += ' seekRange="0-%s"' % info['duration']
@@ -61,7 +69,7 @@ class SubscriptionManager:
             ret += ' port="%s"' % serv.get('port', self.port)
             ret += ' guid="%s"' % info['guid']
             ret += ' containerKey="%s"' % (self.lastkey or "/library/metadata/900000")
-            ret += ' key="%s"' % (self.lastkey or "/library/metadata/1")
+            ret += ' key="%s"' % (self.lastkey or "/library/metadata/900000")
             m = re.search(r'(\d+)$', self.lastkey)
             if m:
                 ret += ' ratingKey="%s"' % m.group()
@@ -70,21 +78,13 @@ class SubscriptionManager:
         
         ret += '/>'
         return ret
- 
-    def lookup(self, server, port):
-        rawxml = requests.get(server, port, self.lastkey)
-        if rawxml:
-            doc = parseString(rawxml)
-            self.guid = doc.getElementsByTagName('Video')[0].getAttribute('guid')
-            self.protocol = "http"
-            self.server = server
-            self.port = port
-    
+     
     def updateCommandID(self, uuid, commandID):
         if commandID and self.subscribers.get(uuid, False):
             self.subscribers[uuid].commandID = int(commandID)            
-    
+        
     def notify(self, event = False):
+        self.cleanup()
         if not self.subscribers:
             return True
         players = getPlayers()
@@ -107,6 +107,14 @@ class SubscriptionManager:
         with threading.RLock():
             for sub in self.subscribers.values():
                 if sub.uuid == uuid or sub.host == uuid:
+                    sub.cleanup()
+                    del self.subscribers[sub.uuid]
+                    
+    def cleanup(self):
+        with threading.RLock():
+            for sub in self.subscribers.values():
+                if sub.age > 30:
+                    sub.cleanup()
                     del self.subscribers[sub.uuid]
             
     def getPlayerProperties(self, playerid):
@@ -138,11 +146,15 @@ class Subscriber:
         self.uuid = uuid or host
         self.commandID = int(commandID) or 0
         self.navlocationsent = False
+        self.age = 0
     def __eq__(self, other):
         return self.uuid == other.uuid
     def tostr(self):
         return "uuid=%s,commandID=%i" % (self.uuid, self.commandID)
+    def cleanup(self):
+        requests.closeConnection(self.protocol, self.host, self.port)
     def send_update(self, msg, is_nav):
+        self.age += 1
         if not is_nav:
             self.navlocationsent = False
         elif self.navlocationsent:

@@ -2,6 +2,7 @@
     @document   : default.py
     @package    : PleXBMC Helper add-on
     @author     : wickning1 (aka Nick Wing)
+    @author     : hippojay (aka Dave Hawes-Johnson)
     @copyright  : 2013, wickning1
     @version    : 3.2.0 (frodo)
 

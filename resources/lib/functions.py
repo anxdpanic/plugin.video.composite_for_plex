@@ -137,7 +137,7 @@ def getServerByHost(host):
     if len(list) == 1:
         return list[0]
     for server in list:
-        if server.get('serverName') == host or server.get('server') == host:
+        if server.get('serverName') in host or server.get('server') in host:
             return server
     return {}
     

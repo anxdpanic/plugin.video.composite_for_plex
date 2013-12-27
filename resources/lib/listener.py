@@ -1,5 +1,4 @@
 import re
-import socket
 import traceback
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
@@ -94,7 +93,10 @@ class MyHandler(BaseHTTPRequestHandler):
                 printDebug("playMedia command -> fullurl: %s" % fullurl)
                 jsonrpc("playmedia", [fullurl, resume])
                 subMgr.lastkey = params['key']
-                subMgr.lookup(address, port)
+                subMgr.server = server
+                subMgr.port = port
+                subMgr.protocol = protocol
+                subMgr.notify()
             elif request_path == "player/playback/play":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
@@ -111,22 +113,27 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":millisToTime(params.get('offset', 0))})
+                subMgr.notify()
             elif request_path == "player/playback/stepForward":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallforward"})
+                subMgr.notify()
             elif request_path == "player/playback/stepBack":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallbackward"})
+                subMgr.notify()
             elif request_path == "player/playback/skipNext":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigforward"})
+                subMgr.notify()
             elif request_path == "player/playback/skipPrevious":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
                     jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigbackward"})
+                subMgr.notify()
             elif request_path == "player/navigation/moveUp":
                 s.response(getOKMsg(), getPlexHeaders())
                 jsonrpc("Input.Up")

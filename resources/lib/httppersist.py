@@ -14,6 +14,12 @@ class RequestMgr:
                 conn = httplib.HTTPConnection(host, port)
         return conn
         
+    def closeConnection(self, protocol, host, port):
+        conn = self.conns.get(protocol+host+str(port), False)
+        if conn:
+            conn.close()
+            self.conns.pop(protocol+host+str(port), None)
+        
     def dumpConnections(self):
         for conn in self.conns.values():
             conn.close()
@@ -33,7 +39,8 @@ class RequestMgr:
             else:      
                 return data.read() or True
         except:
-            print "Unable to connect to %s\nReason: %s" % (host, traceback.print_exc())
+            print "Unable to connect to %s\nReason:" % host
+            traceback.print_exc()
             self.conns.pop(protocol+host+str(port), None)
             if conn:
                 conn.close()
