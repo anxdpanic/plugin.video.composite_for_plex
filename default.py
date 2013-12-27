@@ -2050,6 +2050,12 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     else:
         start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
+    # record the playing file and server in the home window
+    # so that plexbmc helper can find out what is playing
+    WINDOW = xbmcgui.Window( 10000 )
+    WINDOW.setProperty('plexbmc.nowplaying.server', server)
+    WINDOW.setProperty('plexbmc.nowplaying.id', id)
+
     #Set a loop to wait for positive confirmation of playback
     count = 0
     while not xbmc.Player().isPlaying():
