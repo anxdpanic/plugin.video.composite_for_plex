@@ -2096,7 +2096,7 @@ def setAudioSubtitles( stream ):
         return True
 
     #Set the AUDIO component
-    if ( g_streamControl == _SUB_AUDIO_PLEX_CONTROL ):
+    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
         printDebug("Attempting to set Audio Stream")
 
         audio = stream['audio']
@@ -2134,8 +2134,8 @@ def setAudioSubtitles( stream ):
 
         else:
             printDebug ("No preferred subtitles to set")
+            xbmc.Player().showSubtitles(False)
 
-    xbmc.Player().showSubtitles(False)
     return False
 
 def selectMedia( data, server ):
