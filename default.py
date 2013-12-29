@@ -4158,6 +4158,17 @@ def fullShelf(server_list=None):
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Duration" % recentMovieCount, movie_runtime)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % recentMovieCount, m_thumb)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.uuid" % recentMovieCount, libuuid.encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Plot" % recentMovieCount, media.get('summary', '').encode('UTF-8'))
+
+                m_genre = []
+
+                for child in media:
+                    if child.tag == "Genre":
+                        m_genre.append(child.get('tag'))
+                    else:
+                        continue
+
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Genre" % recentMovieCount, ", ".join(m_genre).encode('UTF-8'))
 
                 recentMovieCount += 1
 
