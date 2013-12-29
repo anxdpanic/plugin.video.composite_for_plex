@@ -1079,6 +1079,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 
         try:
             #Then set the number of watched and unwatched, which will be displayed per season
+            liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
             liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
             liz.setProperty('UnWatchedEpisodes', str(extraData['UnWatchedEpisodes']))
             
@@ -1479,7 +1480,7 @@ def TVShows( url, tree=None ):
         for child in show:
             tempgenre.append(child.get('tag',''))
 
-        watched=int(show.get('viewedLeafCount',0))
+        watched = int(show.get('viewedLeafCount',0))
 
         #Create the basic data structures to pass up
         details={'title'      : show.get('title','Unknown').encode('utf-8') ,
@@ -1494,8 +1495,9 @@ def TVShows( url, tree=None ):
                  'genre'      : " / ".join(tempgenre) }
 
         extraData={'type'              : 'video' ,
-                   'WatchedEpisodes'   : watched ,
-                   'UnWatchedEpisodes' : details['episode'] - watched ,
+                   'UnWatchedEpisodes' : int(details['episode']) - watched,
+                   'WatchedEpisodes'   : watched,
+                   'TotalEpisodes'     : details['episode'],
                    'thumb'             : getThumb(show, server) ,
                    'fanart_image'      : getFanart(show, server) ,
                    'token'             : _PARAM_TOKEN ,
