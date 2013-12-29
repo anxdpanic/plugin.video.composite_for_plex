@@ -2531,13 +2531,13 @@ def getContent( url ):
 def processDirectory( url, tree=None ):
     printDebug("== ENTER: processDirectory ==", False)
     printDebug("Processing secondary menus")
-    xbmcplugin.setContent(pluginhandle, 'files')
+    xbmcplugin.setContent(pluginhandle, "")
 
     server = getServerFromURL(url)
     setWindowHeading(tree)
     for directory in tree:
         details={'title' : directory.get('title','Unknown').encode('utf-8') }
-        extraData={'thumb'        : getThumb(directory, server) ,
+        extraData={'thumb'        : getThumb(tree, server) ,
                    'fanart_image' : getFanart(tree, server) }
 
         #if extraData['thumb'] == '':
