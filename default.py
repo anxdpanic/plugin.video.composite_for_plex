@@ -1808,8 +1808,8 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                         'title'     : timings.get('title','Unknown').encode('utf-8') ,
                         'sorttitle' : timings.get('titleSort', timings.get('title','Unknown')).encode('utf-8') ,
                         'rating'    : float(timings.get('rating',0)) ,
-                        'studio'    : timings.get('studio','').encode('utf-8') ,
-                        'mpaa'      : "Rated " + timings.get('contentRating', 'unknown') ,
+                        'studio'    : timings.get('studio','').encode('utf-8'),
+                        'mpaa'      : timings.get('contentRating', '').encode('utf-8'),
                         'year'      : int(timings.get('year',0)) ,
                         'tagline'   : timings.get('tagline','') ,
                         'thumbnailImage': getThumb(timings,server) }
@@ -3023,10 +3023,10 @@ def movieTag(url, server, tree, movie, randomNumber):
              'title'     : movie.get('title','Unknown').encode('utf-8') ,
              'sorttitle' : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
              'rating'    : float(movie.get('rating',0)) ,
-             'studio'    : movie.get('studio','').encode('utf-8') ,
-             'mpaa'      : "Rated " + movie.get('contentRating', 'unknown') ,
-             'year'      : int(movie.get('year',0)) ,
-             'tagline'   : movie.get('tagline','') } 
+             'studio'    : movie.get('studio','').encode('utf-8'),
+             'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
+             'year'      : int(movie.get('year',0)),
+             'tagline'   : movie.get('tagline','')}
 
     #Extra data required to manage other properties
     extraData={'type'         : "Video" ,
