@@ -3252,7 +3252,7 @@ def music( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
-def getThumb(data, server, width=600, height=600):
+def getThumb(data, server, width=720, height=720):
     '''
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
