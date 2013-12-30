@@ -1478,7 +1478,8 @@ def TVShows( url, tree=None ):
         tempgenre=[]
 
         for child in show:
-            tempgenre.append(child.get('tag',''))
+            if child.tag == "Genre":
+                        tempgenre.append(child.get('tag',''))
 
         watched = int(show.get('viewedLeafCount',0))
 
