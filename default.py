@@ -430,7 +430,8 @@ def getMyPlexServers( ):
     if html is False:
         return {}
 
-    server=etree.fromstring(html).findall('Server')
+    #server=etree.fromstring(html).findall('Server')
+    server=etree.fromstring(html)
     count=0
     for servers in server:
         data=dict(servers.items())
@@ -2740,7 +2741,7 @@ def tracks( url,tree=None ):
     printDebug("== ENTER: tracks ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
 
-    tree=getXML(url,tree)
+    tree=getXML(url, tree)
     if tree is None:
         return
 
@@ -2749,8 +2750,10 @@ def tracks( url,tree=None ):
      
     server=getServerFromURL(url)
     sectionart=getFanart(tree,server)
+
     setWindowHeading(tree)
     TrackTags=tree.findall('Track')
+
     for track in TrackTags:
 
         trackTag(server, tree, track)
