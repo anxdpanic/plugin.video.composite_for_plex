@@ -3954,10 +3954,9 @@ def amberskin():
                 m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s&t=%s" % (getLinkURL('http://'+server_address, media, server_address), 18, 1, aToken)
                 m_thumb = getShelfThumb(media, server_address, seasonThumb=0)+aToken
 
-                if media.get('duration') > 0:
-                    #movie_runtime = media.get('duration', '0')
+                try:
                     movie_runtime = str(int(float(media.get('duration'))/1000/60))
-                else:
+                except:
                     movie_runtime = ""
 
                 WINDOW.setProperty("Plexbmc.Queue.%s.Path" % queue_count, m_url)
