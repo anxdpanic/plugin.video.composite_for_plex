@@ -48,34 +48,21 @@ except ImportError:
     import pickle
 
 try:
-  from lxml import etree
-  print("PleXBMC -> Running with lxml.etree")
-except ImportError:
-  try:
     # Python 2.5
     import xml.etree.cElementTree as etree
     print("PleXBMC -> Running with cElementTree on Python 2.5+")
-  except ImportError:
+except ImportError:
     try:
-      # Python 2.5
-      import xml.etree.ElementTree as etree
-      print("PleXBMC -> Running with ElementTree on Python 2.5+")
-    except ImportError:
-      try:
         # normal cElementTree install
         import cElementTree as etree
         print("PleXBMC -> Running with built-in cElementTree")
-      except ImportError:
+    except ImportError:
         try:
-          # normal ElementTree install
-          import elementtree.ElementTree as etree
-          print("PleXBMC -> Running with built-in ElementTree")
+            # normal ElementTree install
+            import xml.etree.ElementTree as etree
+            print("PleXBMC -> Running with built-in ElementTree")
         except ImportError:
-            try:
-                import ElementTree as etree
-                print("PleXBMC -> Running addon ElementTree version")
-            except ImportError:
-                print("PleXBMC -> Failed to import ElementTree from any known place")
+            print("PleXBMC -> Failed to import ElementTree from any known place")
 
 __addon__ = xbmcaddon.Addon()
 __plugin__ = __addon__.getAddonInfo('name')
@@ -83,7 +70,9 @@ __version__ = __addon__.getAddonInfo('version')
 __icon__ = __addon__.getAddonInfo('icon')
 __cachedir__ = __addon__.getAddonInfo('profile')
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
-__cwd__ = __settings__.getAddonInfo('path')
+#__cwd__ = __settings__.getAddonInfo('path')
+__cwd__ = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
+
 BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
 PLUGINPATH = xbmc.translatePath(os.path.join(__cwd__))
 sys.path.append(BASE_RESOURCE_PATH)
@@ -91,8 +80,10 @@ CACHEDATA = __cachedir__
 PLEXBMC_VERSION = __version__
 
 print "===== PLEXBMC START ====="
-print "PleXBMC -> running Python: " + str(sys.version_info)
-print "PleXBMC -> running PleXBMC: " + str(PLEXBMC_VERSION)
+print "PleXBMC -> Running Python: " + str(sys.version_info)
+print "PleXBMC -> Running PleXBMC: " + str(PLEXBMC_VERSION)
+print "PleXBMC -> FullRes Thumbs are se to: " + __settings__.getSetting("fullres_thumbs")
+print "PleXBMC -> CWD is set to: " + __cwd__
 
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
@@ -813,7 +804,7 @@ def getURL( url, suppress=True, type="GET", popup=0 ):
 
         printDebug("url = "+url)
         printDebug("header = "+str(authHeader))
-        conn = httplib.HTTPConnection(server)#,timeout=5)
+        conn = httplib.HTTPConnection(server, timeout=8)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
         
@@ -3733,7 +3724,7 @@ def skin( server_list=None, type=None ):
 
 def amberskin():
     #Gather some data and set the window properties
-    printDebug("== ENTER: skin() ==", False)
+    printDebug("== ENTER: amberskin() ==", False)
     #Get the global host variable set in settings
     WINDOW = xbmcgui.Window( 10000 )
 
@@ -3786,6 +3777,10 @@ def amberskin():
 
         aToken=getAuthDetails(section)
         qToken=getAuthDetails(section, prefix='?')
+
+        printDebug("===TOKENS ARE===", False)
+        printDebug(aToken, False)
+        printDebug("===/TOKENS ===", False)
 
         if g_secondary == "true":
             mode=_MODE_GETCONTENT
@@ -5109,23 +5104,24 @@ def setMasterServer () :
   
 def deletecache():
     printDebug("== ENTER: deleteCache ==", False)
-    cache_header=".cache.directory"
+    #cache_header=".cache.directory"
+    cache_suffix = "cache"
     dirs, files = xbmcvfs.listdir(CACHEDATA)
 
     printDebug("List of file: [%s]" % files)
     printDebug("List of dirs: [%s]" % dirs)
     
     for i in files:
-    
-        if i == cache_header:
+
+        if cache_suffix not in i:
             continue
-    
+
         success = xbmcvfs.delete(CACHEDATA+i)
         if success:
             printDebug("SUCCESSFUL: removed %s" % i)
         else:
             printDebug("UNSUCESSFUL: did not remove %s" % i )
-            
+
   
 ##So this is where we really start the plugin.
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv), False)

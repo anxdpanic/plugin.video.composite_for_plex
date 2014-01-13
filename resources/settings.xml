@@ -83,7 +83,7 @@
   <category label="30022" > <!-- advanced -->
     <setting id="libraryfilter" type="text" label="30088" default="" />
     <setting id="monitoroff" type="bool" label="Switch off playback monitor" default="false" />
-	<setting id="fullres_thumbs" type="bool" label="30095" default="true" />
+	<setting id="fullres_thumbs" type="bool" label="30095" default="false" />
 	<setting id="fullres_fanart" type="bool" label="30096" default="true" />
 	<setting id="cache" type="bool" label="30093" default="true" />
 	<setting id="contextreplace" type="bool" label="30048" default="true"/>
