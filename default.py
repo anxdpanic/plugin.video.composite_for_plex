@@ -96,7 +96,7 @@ print "PleXBMC -> running PleXBMC: " + str(PLEXBMC_VERSION)
 
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
-MYPLEX_SERVER="plex.tv"
+MYPLEX_SERVER="my.plexapp.com"
 _MODE_GETCONTENT=0
 _MODE_TVSHOWS=1
 _MODE_MOVIES=2
@@ -653,7 +653,7 @@ def getAuthDetails( details, url_format=True, prefix="&" ):
 
 def getMyPlexURL(url_path, renew=False, suppress=True):
     '''
-        Connect to the plex.tv service and get an XML pages
+        Connect to the my.plexapp.com service and get an XML pages
         A seperate function is required as interfacing into myplex
         is slightly different than getting a standard URL
         @input: url to get, whether we need a new token, whether to display on screen err
@@ -2276,7 +2276,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     printDebug("== ENTER: videopluginplay with URL + " + vids + " ==", False)
 
     server=getServerFromURL(vids)
-    if "node.plex.tv" in server:
+    if "node.plexapp.com" in server:
         server=getMasterServer()['address']
 
     #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
@@ -2593,7 +2593,7 @@ def transcode( id, url, identifier=None ):
     server=getServerFromURL(url)
 
     #Check for myplex user, which we need to alter to a master server
-    if 'plex.tv' in url:
+    if 'plexapp.com' in url:
         server=getMasterServer()
 
     printDebug("Using preferred transcoding server: " + server)
@@ -2616,7 +2616,7 @@ def transcode( id, url, identifier=None ):
         transcode_target=url.split('url=')[1]
         transcode_settings['webkit']=1
     else:
-        transcode_settings['identifier']="tv.plex.plugins.library"
+        transcode_settings['identifier']="com.plexapp.plugins.library"
         transcode_settings['key']=urllib.quote_plus("http://%s/library/metadata/%s" % (server, id))
         transcode_target=urllib.quote_plus("http://127.0.0.1:32400"+"/"+"/".join(url.split('/')[3:]))
         printDebug ("filestream URL is: %s" % transcode_target )
@@ -2803,7 +2803,7 @@ def PlexPlugins(url, tree=None):
 
     myplex_url=False
     server=getServerFromURL(url)
-    if (tree.get('identifier') != "tv.plex.plugins.myplex") and ( "node.plex.tv" in url ) :
+    if (tree.get('identifier') != "com.plexapp.plugins.myplex") and ( "node.plexapp.com" in url ) :
         myplex_url=True
         printDebug("This is a myplex URL, attempting to locate master server")
         server=getMasterServer()['address']
@@ -2825,7 +2825,7 @@ def PlexPlugins(url, tree=None):
                    'key'          : plugin.get('key','') }
 
         if myplex_url:
-            extraData['key']=extraData['key'].replace('node.plex.tv:32400',server)
+            extraData['key']=extraData['key'].replace('node.plexapp.com:32400',server)
               
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=getFanart(tree, server)
@@ -4824,7 +4824,7 @@ def myPlexQueue():
     html=getMyPlexURL('/pms/playlists/queue/all')
     tree=etree.fromstring(html)
 
-    PlexPlugins('http://plex.tv/playlists/queue/all', tree)
+    PlexPlugins('http://my.plexapp.com/playlists/queue/all', tree)
     return
 
 def libraryRefresh( url ):
