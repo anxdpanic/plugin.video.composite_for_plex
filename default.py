@@ -393,12 +393,12 @@ def getLocalServers(ip_address="localhost", port=32400):
 
     server=etree.fromstring(html)
 
-    return {'serverName': server.attrib('friendlyName','Server').encode('utf-8'),
+    return {'serverName': server.attrib['friendlyName'].encode('utf-8'),
                         'server'    : ip_address,
-                        'port'      : port ,
-                        'discovery' : 'local' ,
+                        'port'      : port,
+                        'discovery' : 'local',
                         'token'     : None ,
-                        'uuid'      : server.attrib('machineIdentifier'),
+                        'uuid'      : server.attrib['machineIdentifier'],
                         'owned'     : '1',
                         'master'    : 1,
                         'class'     : ''}
