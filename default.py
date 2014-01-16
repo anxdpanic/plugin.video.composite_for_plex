@@ -393,15 +393,15 @@ def getLocalServers(ip_address="localhost", port=32400):
 
     server=etree.fromstring(html)
 
-    return {'serverName': server.get('friendlyName','Unknown').encode('utf-8') ,
+    return {'serverName': server.attrib('friendlyName','Server').encode('utf-8'),
                         'server'    : ip_address,
                         'port'      : port ,
                         'discovery' : 'local' ,
                         'token'     : None ,
-                        'uuid'      : server.get('machineIdentifier') ,
-                        'owned'     : '1' ,
-                        'master'    : 1 ,
-                        'class'     : server.get('serverClass') }
+                        'uuid'      : server.attrib('machineIdentifier'),
+                        'owned'     : '1',
+                        'master'    : 1,
+                        'class'     : ''}
 
 def getMyPlexServers( ):
     '''
@@ -2483,9 +2483,7 @@ def getContent( url ):
 
     tree=etree.fromstring(html)
 
-    WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
-    WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
-
+    setWindowHeading(tree)
 
     if lastbit == "folder":
         processXML(url,tree)
@@ -2770,7 +2768,7 @@ def getXML (url, tree=None):
         xbmcgui.Dialog().ok(tree.get('header','Message'),tree.get('message',''))
         return None
 
-    setWindowHeading(tree)
+    #setWindowHeading(tree)
 
     return tree
 
@@ -5076,7 +5074,14 @@ def alterAudio ( url ):
 
 def setWindowHeading(tree) :
     WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
-    WINDOW.setProperty("heading", tree.get('title2',tree.get('title1','')))
+    try:
+        WINDOW.setProperty("heading", tree.get('title1'))
+    except:
+        WINDOW.clearProperty("heading")
+    try:
+        WINDOW.setProperty("heading2", tree.get('title2'))
+    except:
+        WINDOW.clearProperty("heading2")
 
 def setMasterServer () :
     printDebug("== ENTER: setmasterserver ==", False)
@@ -5229,6 +5234,7 @@ else:
 
     WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
     WINDOW.clearProperty("heading")
+    WINDOW.clearProperty("heading2")
 
     if g_debug == "true":
         print "PleXBMC -> Mode: "+str(mode)
