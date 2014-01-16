@@ -2,7 +2,7 @@
 <settings>
   <category label="30016"> <!-- Media Sources -->
     <setting id="discovery" type="enum" label="30004" lvalues="30094|30070" default="1"/>
-    <setting id="ipaddress" type="text" label="30000" default="none" visible="eq(-1,0)" enable="eq(-1,0)"/>
+    <setting id="ipaddress" type="text" label="30000" default="localhost" visible="eq(-1,0)" enable="eq(-1,0)"/>
     <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)" enable="eq(-2,0)"/>
     <!--<setting type="sep" />-->
     <setting id="selectMaster" label="30026" type="action" action="RunScript(plugin.video.plexbmc, master)" />
@@ -85,7 +85,7 @@
     <setting id="monitoroff" type="bool" label="Switch off playback monitor" default="false" />
 	<setting id="fullres_thumbs" type="bool" label="30095" default="false" />
 	<setting id="fullres_fanart" type="bool" label="30096" default="true" />
-	<setting id="cache" type="bool" label="30093" default="true" />
+	<setting id="cache" type="bool" label="30093" visible="false" default="false" />
 	<setting id="contextreplace" type="bool" label="30048" default="true"/>
     <setting id="skipcontextmenus" type="bool" label="30052" default="false" />
     <setting id="skipmetadata" type="bool" label="30049" default="false" />
