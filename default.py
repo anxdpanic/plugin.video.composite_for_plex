@@ -125,9 +125,17 @@ _SUB_AUDIO_NEVER_SHOW="2"
 
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
+g_debug_dev = __settings__.getSetting('debug_dev')
 
 def printDebug( msg, functionname=True ):
     if g_debug == "true":
+        if functionname is False:
+            print str(msg)
+        else:
+            print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
+
+def printDev( msg, functionname=True ):
+    if g_debug_dev == "true":
         if functionname is False:
             print str(msg)
         else:
@@ -323,6 +331,9 @@ def discoverAllServers( ):
     return deduplicateServers(das_servers)
 
 def readCache(cachefile):
+    if __settings__.getSetting("cache") == "false":
+        return (False, None)
+
     printDebug("CACHE [%s]: attempting to read" % cachefile)
     cache=xbmcvfs.File(cachefile)
     cachedata = cache.read()
@@ -413,37 +424,40 @@ def getMyPlexServers( ):
 
     printDebug("== ENTER: getMyPlexServers ==", False)
 
-    tempServers=[]
-    url_path="/pms/servers"
+    tempServers = []
+    url_path = "/pms/servers"
 
-    html = getMyPlexURL(url_path)
+    xml = getMyPlexURL(url_path)
 
-    if html is False:
+    if xml is False:
         return {}
 
-    server=etree.fromstring(html).findall('Server')
-    count=0
-    for servers in server:
-        data=dict(servers.items())
+    servers = etree.fromstring(xml)
 
-        if data.get('owned',None) == "1":
+    count = 0
+    for server in servers:
+        #data = dict(server.items())
+
+        if server.get('owned', None) == "1":
+            owned = '1'
             if count == 0:
-                master=1
-                count=-1
-            accessToken=getMyPlexToken()
+                master = 1
+                count =- 1
+            accessToken = getMyPlexToken()
         else:
-            master='0'
-            accessToken=data.get('accessToken',None)
+            owned = '0'
+            master = 0
+            accessToken = server.get('accessToken')
 
-        tempServers.append({'serverName': data['name'].encode('utf-8') ,
-                            'server'    : data['address'] ,
-                            'port'      : data['port'] ,
-                            'discovery' : 'myplex' ,
-                            'token'     : accessToken ,
-                            'uuid'      : data['machineIdentifier'] ,
-                            'owned'     : data.get('owned',0) ,
-                            'master'    : master ,
-                            'class'     : data.get('serverClass') })
+        tempServers.append({'serverName': server.get('name').encode('utf-8'),
+                            'server'    : server.get('address'),
+                            'port'      : server.get('port'),
+                            'discovery' : 'myplex',
+                            'token'     : accessToken,
+                            'uuid'      : server.get('machineIdentifier'),
+                            'owned'     : owned,
+                            'master'    : master,
+                            'class'     : ""})
 
     return tempServers
                                        
@@ -497,7 +511,7 @@ def deduplicateServers( server_list ):
 
     return unique_list
 
-def getServerSections ( ip_address, port, name, uuid):
+def getServerSections (ip_address, port, name, uuid):
     printDebug("== ENTER: getServerSections ==", False)
 
     cache_file = "%s%s.sections.cache" % (CACHEDATA, uuid)
@@ -510,26 +524,26 @@ def getServerSections ( ip_address, port, name, uuid):
         if html is False:
             return {}
 
-        tree = etree.fromstring(html).getiterator("Directory")
-        temp_list=[]
-        for sections in tree:
+        sections = etree.fromstring(html)
+        temp_list = []
+        for section in sections:
         
-            path = sections.get('key')
+            path = section.get('key')
             if not path[0] == "/":
-                path='/library/sections/%s' % path
+                path = '/library/sections/%s' % path
 
-            temp_list.append( {'title'      : sections.get('title','Unknown').encode('utf-8'),
-                    'address'    : ip_address+":"+port ,
-                    'serverName' : name ,
-                    'uuid'       : uuid ,
-                    'sectionuuid' : sections.get('uuid','').encode('utf-8'),
-                    'path'       : path ,
-                    'token'      : sections.get('accessToken',None) ,
-                    'location'   : "local" ,
-                    'art'        : sections.get('art','') ,
-                    'local'      : '1' ,
-                    'type'       : sections.get('type','Unknown'),
-                    'owned'      : '1' })
+            temp_list.append( {'title': section.get('title', 'Unknown').encode('utf-8'),
+                    'address'    : ip_address + ":" + port,
+                    'serverName' : name,
+                    'uuid'       : uuid,
+                    'sectionuuid' : section.get('uuid', ''),
+                    'path'       : path,
+                    'token'      : section.get('accessToken', None),
+                    'location'   : "local",
+                    'art'        : section.get('art', None),
+                    'local'      : '1',
+                    'type'       : section.get('type', ''),
+                    'owned'      : '1'})
                 
             
         writeCache(cache_file, temp_list)
@@ -579,7 +593,7 @@ def getAllSections( server_list = None ):
     '''
     printDebug("== ENTER: getAllSections ==", False)
     
-    if not server_list:
+    if server_list is None:
         server_list = discoverAllServers()
     
     printDebug("Using servers list: " + str(server_list))
@@ -592,7 +606,7 @@ def getAllSections( server_list = None ):
     for server in server_list.itervalues():
 
         if server['discovery'] == "local" or server['discovery'] == "auto":
-            section_details =  getServerSections( server['server'], server['port'] , server['serverName'], server['uuid']) 
+            section_details = getServerSections(server['server'], server['port'], server['serverName'], server['uuid'])
             section_list += section_details
             local_complete=True
             
@@ -601,6 +615,16 @@ def getAllSections( server_list = None ):
                 section_details = getMyplexSections()
                 myplex_section_list += section_details
                 myplex_complete = True
+
+    '''
+    logfile = PLUGINPATH + "/_section_list.txt"
+    with open(logfile, 'wb') as f:
+        f.write(str(section_list))
+
+    logfile = PLUGINPATH + "/_myplex_section_list.txt"
+    with open(logfile, 'wb') as f:
+        f.write(str(myplex_section_list))
+    '''
 
     #Remove any myplex sections that are locally available
     if myplex_complete and local_complete:
@@ -618,6 +642,12 @@ def getAllSections( server_list = None ):
             myplex_section_list = [x for x in myplex_section_list if not x['uuid'] == each_server['uuid']]
             
     section_list += myplex_section_list
+
+    '''
+    logfile = PLUGINPATH + "/_final_section_list.txt"
+    with open(logfile, 'wb') as f:
+        f.write(str(section_list))
+    '''
 
     return section_list
 
@@ -699,7 +729,7 @@ def getMyPlexURL(url_path, renew=False, suppress=True):
     else:
         return False
 
-def getMyPlexToken( renew=False ):
+def getMyPlexToken(renew=False):
     '''
         Get the myplex token.  If the user ID stored with the token
         does not match the current userid, then get new token.  This stops old token
@@ -710,17 +740,17 @@ def getMyPlexToken( renew=False ):
     printDebug("== ENTER: getMyPlexToken ==", False)
 
     try:
-        user,token=(__settings__.getSetting('myplex_token')).split('|')
+        user, token = (__settings__.getSetting('myplex_token')).split('|')
     except:
-        token=""
+        token = None
 
-    if ( token == "" ) or (renew) or (user != __settings__.getSetting('myplex_user')):
+    if (token is None) or (renew) or (user != __settings__.getSetting('myplex_user')):
         token = getNewMyPlexToken()
 
     printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
     return token
 
-def getNewMyPlexToken( suppress=True , title="Error" ):
+def getNewMyPlexToken(suppress=True, title="Error"):
     '''
         Get a new myplex token from myplex API
         @input: nothing
@@ -733,13 +763,13 @@ def getNewMyPlexToken( suppress=True , title="Error" ):
     myplex_username = __settings__.getSetting('myplex_user')
     myplex_password = __settings__.getSetting('myplex_pass')
 
-    if ( myplex_username or myplex_password ) == "":
+    if (myplex_username or myplex_password) == "":
         printDebug("No myplex details in config..")
         return ""
 
     base64string = base64.encodestring('%s:%s' % (myplex_username, myplex_password)).replace('\n', '')
-    txdata=""
-    token=False
+    txdata = ""
+    token = False
 
     myplex_headers={'X-Plex-Platform': "XBMC",
                     'X-Plex-Platform-Version': "12.00/Frodo",
@@ -748,7 +778,7 @@ def getNewMyPlexToken( suppress=True , title="Error" ):
                     'X-Plex-Version': PLEXBMC_VERSION,
                     'X-Plex-Device': PLEXBMC_PLATFORM,
                     'X-Plex-Client-Identifier': "PleXBMC",
-                    'Authorization': "Basic %s" % base64string }
+                    'Authorization': "Basic %s" % base64string}
 
     try:
         conn = httplib.HTTPSConnection(MYPLEX_SERVER)
@@ -756,12 +786,12 @@ def getNewMyPlexToken( suppress=True , title="Error" ):
         data = conn.getresponse()
 
         if int(data.status) == 201:
-            link=data.read()
+            link = data.read()
             printDebug("====== XML returned =======")
 
             try:
-                token=etree.fromstring(link).findtext('authentication-token')
-                __settings__.setSetting('myplex_token',myplex_username+"|"+token)
+                token = etree.fromstring(link).findtext('authentication-token')
+                __settings__.setSetting('myplex_token', myplex_username + "|" + token)
             except:
                 printDebug(link)
 
@@ -769,25 +799,25 @@ def getNewMyPlexToken( suppress=True , title="Error" ):
         else:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
             if suppress is False:
-                xbmcgui.Dialog().ok(title,error)
+                xbmcgui.Dialog().ok(title, error)
             print error
             return ""
     except socket.gaierror :
-        error = 'Unable to lookup host: ' + server + "\nCheck host name is correct"
+        error = 'Unable to lookup host: MyPlex' + "\nCheck host name is correct"
         if suppress is False:
-            xbmcgui.Dialog().ok(title,error)
+            xbmcgui.Dialog().ok(title, error)
         print error
         return ""
-    except socket.error, msg :
-        error="Unable to connect to " + server +"\nReason: " + str(msg)
+    except socket.error, msg:
+        error="Unable to connect to MyPlex" + "\nReason: " + str(msg)
         if suppress is False:
-            xbmcgui.Dialog().ok(title,error)
+            xbmcgui.Dialog().ok(title, error)
         print error
         return ""
 
     return token
 
-def getURL( url, suppress=True, type="GET", popup=0 ):
+def getURL(url, suppress=True, type="GET", popup=0):
     printDebug("== ENTER: getURL ==", False)
     try:
         if url[0:4] == "http":
@@ -3733,11 +3763,17 @@ def amberskin():
     hide_shared = __settings__.getSetting('hide_shared')
 
     server_list = discoverAllServers()
-
     printDebug("Using list of " + str(len(server_list)) + " servers: " + str(server_list))
 
     #For each of the servers we have identified
-    for section in getAllSections(server_list):
+    sections = getAllSections(server_list)
+    printDebug("Total sections: " + str(len(sections)), False)
+
+    for section in sections:
+
+        printDebug("=Enter amberskin section=", False)
+        printDebug(str(section), False)
+        printDebug("=/section=", False)
 
         extraData = {'fanart_image': getFanart(section, section['address']), 'thumb': g_thumb}
 
@@ -3751,26 +3787,32 @@ def amberskin():
                 continue
             window="VideoLibrary"
             mode=_MODE_TVSHOWS
-        if  section['type'] == 'movie':
+        elif  section['type'] == 'movie':
             if hide_shared == "true" and section.get('owned') == '0':
                 shared_flag['movie']=True
                 sharedCount += 1
                 continue
             window="VideoLibrary"
             mode=_MODE_MOVIES
-        if  section['type'] == 'artist':
+        elif  section['type'] == 'artist':
             if hide_shared == "true" and section.get('owned') == '0':
                 shared_flag['artist']=True
                 sharedCount += 1
                 continue
             window="MusicFiles"
             mode=_MODE_ARTISTS
-        if  section['type'] == 'photo':
+        elif  section['type'] == 'photo':
             if hide_shared == "true" and section.get('owned') == '0':
                 shared_flag['photo']=True
                 sharedCount += 1
                 continue
             window="Pictures"
+        else:
+            if hide_shared == "true" and section.get('owned') == '0':
+                shared_flag['movie']=True
+                sharedCount += 1
+                continue
+            window="Videos"
             mode=_MODE_PHOTOS
 
         aToken=getAuthDetails(section)
@@ -3966,14 +4008,13 @@ def amberskin():
     else:
         WINDOW.clearProperty("plexbmc.myplex")
 
-    return fullShelf (server_list)
+    fullShelf (server_list)
 
-def fullShelf(server_list=None):
+def fullShelf(server_list={}):
     #Gather some data and set the window properties
-    printDebug("== ENTER: shelf() ==", False)
+    printDebug("== ENTER: fullShelf ==", False)
 
-    if __settings__.getSetting('homeshelf') == '3' or (__settings__.getSetting('movieShelf') == "false" and\
-                    __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false"):
+    if __settings__.getSetting('homeshelf') == '3' or ((__settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false")):
         printDebug("Disabling all shelf items")
         clearShelf()
         clearOnDeckShelf()
@@ -3992,20 +4033,24 @@ def fullShelf(server_list=None):
     ondeck_list={}
     full_count=0
 
-    if server_list is None:
-        server_list=discoverAllServers()
+    #if server_list == {}:
+    #    server_list=discoverAllServers()
 
     if server_list == {}:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
-        clearShelf(0,0,0,0)
+        clearShelf(0, 0, 0, 0)
         return
 
     randomNumber = str(random.randint(1000000000,9999999999))
 
-    for server_details in server_list.values():
+    '''
+    logfile = PLUGINPATH+"/_server_list.txt"
+    logfileh = open(logfile, "w")
+    logfileh.write(str(server_list))
+    logfileh.close()
+    '''
 
-        if server_details['class'] == "secondary":
-            continue
+    for server_details in server_list.values():
 
         if not server_details['owned'] == '1':
             continue
@@ -4015,14 +4060,21 @@ def fullShelf(server_list=None):
         aToken=getAuthDetails({'token': _PARAM_TOKEN})
         qToken='?' + aToken
 
+        sections = getAllSections(server_list)
         #ra_log_count = 1
 
         if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
 
-            for section in getAllSections(server_list):
-                if (section.get("type","unknown") != "episode" and section.get("type","unknown") != "artist" and section.get("type","unknown") != "movie" and section.get("type","unknown") != "show" and section.get("type","unknown") != "photo"):
-                    continue
-                tree=getXML('http://'+server_details['server']+":"+server_details['port']+section.get("path")+"/recentlyAdded")
+            '''
+            logfile = PLUGINPATH+"/_shelf_sections_.txt"
+            logfileh = open(logfile, "w")
+            logfileh.write(str(sections))
+            logfileh.close()
+            '''
+            
+            for section in sections:
+                fullpath = section.get('address') + section.get("path")
+                tree = getXML('http://' + fullpath + "/recentlyAdded")
 
                 '''
                 eetee = etree.ElementTree()
@@ -4033,11 +4085,9 @@ def fullShelf(server_list=None):
                 logfileh.close()
                 ra_log_count += 1
                 '''
+
                 if tree is None:
-                    #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
-                    #clearShelf()
-                    #return
-                    print "PLEXBMC -> RecentlyAdded items not found on: "+server_details['serverName']+section.get("path")
+                    printDebug("PLEXBMC -> RecentlyAdded items not found on: " + fullpath, False)
                     continue
 
                 libraryuuid = tree.attrib["librarySectionUUID"]
@@ -4050,7 +4100,7 @@ def fullShelf(server_list=None):
                     if eachitem.get("type", "") == "episode":
                         key = int(eachitem.get("parentRatingKey"))  # season identifier
 
-                        if key in ep_helper or (__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0):
+                        if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
                             pass
 
                         else:
@@ -4078,11 +4128,10 @@ def fullShelf(server_list=None):
 
         if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
 
-            for section in getAllSections(server_list):
-                if (section.get("type","unknown") != "episode" and section.get("type","unknown") != "movie" and section.get("type","unknown") != "show"):
-                    continue
+            for section in sections:
 
-                tree=getXML('http://'+server_details['server']+":"+server_details['port']+section.get("path")+"/onDeck")
+                fullpath = section.get("address") + section.get("path")
+                tree = getXML('http://' + fullpath + "/onDeck")
 
                 '''
                 eetee = etree.ElementTree()
@@ -4098,7 +4147,7 @@ def fullShelf(server_list=None):
                     #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
                     #clearShelf()
                     #return
-                    print "PLEXBMC -> OnDeck items not found on: "+server_details['serverName']+section.get("path")
+                    print ("PLEXBMC -> OnDeck items not found on: " + fullpath, False)
                     continue
 
                 deck_item_count = 1
@@ -4107,8 +4156,8 @@ def fullShelf(server_list=None):
                     if deck_item_count > 15: break
                     deck_item_count +=1
 
-                    libraryuuid = tree.attrib["librarySectionUUID"]
-                    ondeck_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid )
+                    #libraryuuid = tree.attrib["librarySectionUUID"]
+                    ondeck_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
                     full_count += 1
 
     #For each of the servers we have identified
@@ -4222,7 +4271,7 @@ def fullShelf(server_list=None):
             printDebug("Found a recent photo entry: [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
 
             p_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=http://%s%s&mode=%s%s,return" % ( server_address, "/recentlyAdded", _MODE_PHOTOS, aToken)
-            p_thumb=getShelfThumb(media,server_address,seasonThumb=0)+aToken
+            p_thumb = getShelfThumb(media, server_address, seasonThumb=0) + aToken
 
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Path" % recentPhotoCount, p_url)
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Title" % recentPhotoCount, media.get('title','Unknown').encode('UTF-8'))
@@ -4243,8 +4292,7 @@ def fullShelf(server_list=None):
                 continue
 
             s_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address, media, server_address, season_shelf=True), _MODE_TVEPISODES, aToken)
-            #s_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s)" % ( getLinkURL('http://'+server_address, media, server_address), _MODE_PLAYSHELF, randomNumber, aToken)
-            s_thumb = getShelfThumb(media, server_address, seasonThumb=1)+aToken
+            s_thumb = getShelfThumb(media, server_address, seasonThumb=1) + aToken
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, s_url)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, media.get('title', '').encode('utf-8'))
@@ -4255,11 +4303,11 @@ def fullShelf(server_list=None):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % recentSeasonCount, s_thumb)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, libuuid.encode('utf-8'))
 
-            recentSeasonCount += 1
+            printDebug("Building RecentEpisode window title: %s" % media.get('title','Unknown').encode('UTF-8'))
+            printDebug("Building RecentEpisode window url: %s" % s_url)
+            printDebug("Building RecentEpisode window thumb: %s" % s_thumb)
 
-            printDebug("Building Recent window title: %s" % media.get('title','Unknown').encode('UTF-8'))
-            printDebug("Building Recent window url: %s" % s_url)
-            printDebug("Building Recent window thumb: %s" % s_thumb)
+            recentSeasonCount += 1
 
     clearShelf(recentMovieCount, recentSeasonCount, recentMusicCount, recentPhotoCount)
 
