@@ -85,7 +85,7 @@
     <setting id="monitoroff" type="bool" label="Switch off playback monitor" default="false" />
 	<setting id="fullres_thumbs" type="bool" label="30095" default="false" />
 	<setting id="fullres_fanart" type="bool" label="30096" default="true" />
-	<setting id="cache" type="bool" label="30093" visible="false" default="false" />
+	<setting id="cache" type="bool" label="30093" default="true" />
 	<setting id="contextreplace" type="bool" label="30048" default="true"/>
     <setting id="skipcontextmenus" type="bool" label="30052" default="false" />
     <setting id="skipmetadata" type="bool" label="30049" default="false" />
