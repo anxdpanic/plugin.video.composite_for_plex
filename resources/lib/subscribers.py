@@ -97,12 +97,12 @@ class SubscriptionManager:
     def controllable(self):
         return "playPause,play,stop,skipPrevious,skipNext,volume,stepBack,stepForward,seekTo"
         
-    def addSubscriber(self, protocol, host, port, uuid, commandID, poller=False):
-        sub = Subscriber(protocol, host, port, uuid, commandID, poller)
+    def addSubscriber(self, protocol, host, port, uuid, commandID):
+        sub = Subscriber(protocol, host, port, uuid, commandID)
         with threading.RLock():
             self.subscribers[sub.uuid] = sub
         return sub
-                
+        
     def removeSubscriber(self, uuid):
         with threading.RLock():
             for sub in self.subscribers.values():
@@ -139,7 +139,7 @@ class SubscriptionManager:
         return info
 
 class Subscriber:
-    def __init__(self, protocol, host, port, uuid, commandID, poller=False):
+    def __init__(self, protocol, host, port, uuid, commandID):
         self.protocol = protocol or "http"
         self.host = host
         self.port = port or 32400

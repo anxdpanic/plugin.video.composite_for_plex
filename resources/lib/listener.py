@@ -1,5 +1,6 @@
 import re
 import traceback
+import xbmc
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from urlparse import urlparse, parse_qs
@@ -9,6 +10,9 @@ from subscribers import subMgr
 
 class MyHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
+    def log_message(s, format, *args):
+        # I have my own logging, suppressing BaseHTTPRequestHandler's
+        #printDebug(format % args)
     def do_HEAD(s):
         printDebug( "Serving HEAD request..." )
         s.answer_request(0)
@@ -16,6 +20,19 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_GET(s):
         printDebug( "Serving GET request..." )
         s.answer_request(1)
+
+    def do_OPTIONS(s):
+        s.send_response(200)
+        s.send_header('Content-Length', '0')
+        s.send_header('X-Plex-Client-Identifier', settings['uuid'])
+        s.send_header('Content-Type', 'text/plain')
+        s.send_header('Connection', 'close')
+        s.send_header('Access-Control-Max-Age', '1209600')
+        s.send_header('Access-Control-Allow-Origin', '*')
+        s.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT, HEAD')
+        s.send_header('Access-Control-Allow-Headers', 'x-plex-version, x-plex-platform-version, x-plex-username, x-plex-client-identifier, x-plex-target-client-identifier, x-plex-device-name, x-plex-platform, x-plex-product, accept, x-plex-device')
+        s.end_headers()
+        s.wfile.close()
 
     def response(s, body, headers = {}, code = 200):
         try:
@@ -72,6 +89,16 @@ class MyHandler(BaseHTTPRequestHandler):
                 uuid = s.headers.get('X-Plex-Client-Identifier', "")
                 commandID = params.get('commandID', 0)
                 subMgr.addSubscriber(protocol, host, port, uuid, commandID)
+            elif "/poll" in request_path:
+                if params.get('wait', False) == '1':
+                    xbmc.sleep(950)
+                commandID = params.get('commandID', 0)
+                s.response(re.sub(r"INSERTCOMMANDID", str(commandID), subMgr.msg(getPlayers())), {
+                  'X-Plex-Client-Identifier': settings['uuid'],
+                  'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
+                  'Access-Control-Allow-Origin': '*',
+                  'Content-Type': 'text/xml'
+                })
             elif "/unsubscribe" in request_path:
                 s.response(getOKMsg(), getPlexHeaders())
                 uuid = s.headers.get('X-Plex-Client-Identifier', False) or s.client_address[0]

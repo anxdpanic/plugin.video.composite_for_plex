@@ -76,7 +76,7 @@ else:
     while True:
         try:
             httpd = ThreadedHTTPServer(('', settings['myport']), MyHandler)
-            httpd.timeout = 1.0
+            httpd.timeout = 0.95
             break
         except:
             print "PleXBMC Helper -> Unable to start web helper.  Sleep and Retry..."
