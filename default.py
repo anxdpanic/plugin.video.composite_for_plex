@@ -63,7 +63,7 @@ if settings['user']:
 settings['plexbmc_version'] = jsonrpc("Addons.GetAddonDetails", {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]}).get('addon',{}).get('version', False)
 if not settings['plexbmc_version']:
     xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
-else if not settings['webserver_enabled']:
+elif not settings['webserver_enabled']:
     xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: XBMC HTTP Server must be enabled,)")
 else:
 
