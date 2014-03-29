@@ -13,6 +13,7 @@ class MyHandler(BaseHTTPRequestHandler):
     def log_message(s, format, *args):
         # I have my own logging, suppressing BaseHTTPRequestHandler's
         #printDebug(format % args)
+        return True
     def do_HEAD(s):
         printDebug( "Serving HEAD request..." )
         s.answer_request(0)
