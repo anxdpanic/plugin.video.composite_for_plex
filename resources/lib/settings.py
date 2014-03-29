@@ -24,6 +24,7 @@ def getGUI(name, within=False):
 addon = xbmcaddon.Addon()
 plexbmc = xbmcaddon.Addon('plugin.video.plexbmc')
 
+settings['webserver_enabled'] = (getGUI('webserver') == "true")
 if addon.getSetting('use_xbmc_net') == "false":
     settings['port'] = int(addon.getSetting('xbmcport')) or 80
     settings['user'] = addon.getSetting('xbmcuser')
