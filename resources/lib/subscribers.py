@@ -90,8 +90,10 @@ class SubscriptionManager:
     def notify(self, event = False):
         self.cleanup()
         players = getPlayers()
+        # fetch the message, subscribers or not, since the server
+        # will need the info anyway
+        msg = self.msg(players)
         if self.subscribers:
-            msg = self.msg(players)
             with threading.RLock():
                 for sub in self.subscribers.values():
                     sub.send_update(msg, len(players)==0)
