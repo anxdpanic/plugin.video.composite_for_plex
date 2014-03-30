@@ -1,5 +1,6 @@
 import httplib
 import traceback
+import string
 
 class RequestMgr:
     def __init__(self):
@@ -45,10 +46,18 @@ class RequestMgr:
             if conn:
                 conn.close()
             return False
-            
+    
+    def getwithparams(self, host, port, path, params, header={}, protocol="http"):
+        newpath = path + '?'
+        pairs = []
+        for key in params:
+            pairs.append(str(key)+'='+str(params[key]))
+        newpath += string.join(pairs, '&')
+        return self.get(host, port, newpath, header, protocol)
+        
     def get(self, host, port, path, header={}, protocol="http"):
         try:
-            conn = getConnection(protocol, host, port)
+            conn = self.getConnection(protocol, host, port)
             header['Connection'] = "keep-alive"
             conn.request("GET", path, headers=header)
             data = conn.getresponse()

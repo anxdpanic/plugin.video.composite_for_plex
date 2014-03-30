@@ -16,6 +16,8 @@ class SubscriptionManager:
         self.server = ""
         self.protocol = "http"
         self.port = ""
+        self.playerprops = {}
+        self.sentstopped = True
         
     def getVolume(self):
         self.volume = getVolume()
@@ -45,6 +47,8 @@ class SubscriptionManager:
     def getTimelineXML(self, playerid, ptype):
         if playerid > 0:
             info = self.getPlayerProperties(playerid)
+            # save this info off so the server update can use it too
+            self.playerprops[playerid] = info;
             state = info['state']
             time = info['time']
         else:
@@ -85,15 +89,39 @@ class SubscriptionManager:
         
     def notify(self, event = False):
         self.cleanup()
-        if not self.subscribers:
-            return True
         players = getPlayers()
-        msg = self.msg(players)
-        with threading.RLock():
-            for sub in self.subscribers.values():
-                sub.send_update(msg, len(players)==0)
+        if self.subscribers:
+            msg = self.msg(players)
+            with threading.RLock():
+                for sub in self.subscribers.values():
+                    sub.send_update(msg, len(players)==0)
+        self.notifyServer(players)
         return True
-        
+    
+    def notifyServer(self, players):
+        if not players and self.sentstopped: return True
+        params = {'state': 'stopped'}
+        for p in players.values():
+            info = self.playerprops[p.get('playerid')]
+            params = {}
+            params['containerKey'] = (self.lastkey or "/library/metadata/900000")
+            params['key'] = (self.lastkey or "/library/metadata/900000")
+            m = re.search(r'(\d+)$', self.lastkey)
+            if m:
+                params['ratingKey'] = m.group()
+            params['state'] = info['state']
+            params['time'] = info['time']
+            params['duration'] = info['duration']
+        serv = getServerByHost(self.server)
+        requests.getwithparams(self.server, self.port, "/:/timeline", params, getPlexHeaders(), serv.get('protocol', 'http'))
+        printDebug("sent server notification with state = %s" % params['state'])
+        WINDOW = xbmcgui.Window(10000)
+        WINDOW.setProperty('plexbmc.nowplaying.sent', '1')
+        if players:
+            self.sentstopped = False
+        else:
+            self.sentstopped = True
+    
     def controllable(self):
         return "playPause,play,stop,skipPrevious,skipNext,volume,stepBack,stepForward,seekTo"
         
