@@ -3761,7 +3761,7 @@ def amberskin():
     WINDOW = xbmcgui.Window( 10000 )
 
     sectionCount=0
-    #serverCount=0
+    serverCount=0
     sharedCount=0
     shared_flag={}
     hide_shared = __settings__.getSetting('hide_shared')
