@@ -2787,24 +2787,24 @@ def tracks( url,tree=None ):
 
 def getXML (url, media = None):
     printDebug("== ENTER: getXML ==", False)
-
+    print 'ARH',url,media
     if media is None:
 
-        media = getURL(url)
+        tree = getURL(url)
 
-        if media is False:
+        if tree is False:
             print "PleXBMC -> Server [%s] offline, not responding or no data was receieved" % getServerFromURL(url)
             return None
 
-        tree = etree.fromstring(media)
+        media = etree.fromstring(tree)
 
-    if tree.get('message'):
-        xbmcgui.Dialog().ok(tree.get('header','Message'),tree.get('message',''))
+    if media.get('message'):
+        xbmcgui.Dialog().ok(media.get('header','Message'),media.get('message',''))
         return None
 
-    #setWindowHeading(tree)
+    #setWindowHeading(media)
 
-    return tree
+    return media
 
 def PlexPlugins(url, tree=None):
     '''
