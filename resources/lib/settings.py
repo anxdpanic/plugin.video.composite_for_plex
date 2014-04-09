@@ -19,7 +19,10 @@ def getGUI(name, within=False):
     parent = guidoc
     if within:
         parent = guidoc.getElementsByTagName(within)[0]
-    return parent.getElementsByTagName(name)[0].toxml().replace('<%s>' % name, '').replace('</%s>' % name,'').replace('<%s/>' % name, '')
+    textNode = parent.getElementsByTagName(name)[0].firstChild
+    if not textNode:
+        return ""
+    return textNode.nodeValue
 
 addon = xbmcaddon.Addon()
 plexbmc = xbmcaddon.Addon('plugin.video.plexbmc')
