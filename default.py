@@ -2787,7 +2787,6 @@ def tracks( url,tree=None ):
 
 def getXML (url, media = None):
     printDebug("== ENTER: getXML ==", False)
-    print 'ARH',url,media
     if media is None:
 
         tree = getURL(url)
@@ -4008,7 +4007,7 @@ def amberskin():
     else:
         WINDOW.clearProperty("plexbmc.myplex")
 
-    #fullShelf (server_list)
+    fullShelf(server_list)
 
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
@@ -4086,6 +4085,7 @@ def fullShelf(server_list={}):
                 for section in sections:
                     recent_url = section.get('address') + section.get("path") + "/recentlyAdded"
                     tree = getURL(recent_url)
+                    tree = etree.fromstring(tree)
 
                     '''
                     eetee = etree.ElementTree()
@@ -4100,7 +4100,6 @@ def fullShelf(server_list={}):
                     if tree is None:
                         printDebug("PLEXBMC -> RecentlyAdded items not found on: " + recent_url, False)
                         continue
-
                     libraryuuid = tree.attrib["librarySectionUUID"]
                     ep_helper = {}  # helper season counter
                     ra_item_count = 1
@@ -4143,6 +4142,7 @@ def fullShelf(server_list={}):
 
                     ondeck_url = section.get('address') + section.get("path") + "/onDeck"
                     tree = getURL(ondeck_url)
+                    tree = etree.fromstring(tree)
 
                     '''
                     eetee = etree.ElementTree()
