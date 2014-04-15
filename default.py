@@ -326,6 +326,12 @@ def discoverAllServers( ):
                 das_servers[das_server_index] = device
                 das_server_index = das_server_index + 1
 
+    # Remove Cloud Sync servers, since they cause problems
+    for das_server_index,das_server in das_servers.items():
+        # Cloud sync "servers" don't have a version key in the dictionary
+        if 'version' not in das_server:
+            del das_servers[das_server_index]
+
     printDebug("PleXBMC -> serverList is " + str(das_servers), False)
 
     return deduplicateServers(das_servers)
@@ -2781,24 +2787,23 @@ def tracks( url,tree=None ):
 
 def getXML (url, media = None):
     printDebug("== ENTER: getXML ==", False)
-
     if media is None:
 
-        media = getURL(url)
+        tree = getURL(url)
 
-        if media is False:
+        if tree is False:
             print "PleXBMC -> Server [%s] offline, not responding or no data was receieved" % getServerFromURL(url)
             return None
 
-        tree = etree.fromstring(media)
+        media = etree.fromstring(tree)
 
-    if tree.get('message'):
-        xbmcgui.Dialog().ok(tree.get('header','Message'),tree.get('message',''))
+    if media.get('message'):
+        xbmcgui.Dialog().ok(media.get('header','Message'),media.get('message',''))
         return None
 
-    #setWindowHeading(tree)
+    #setWindowHeading(media)
 
-    return tree
+    return media
 
 def PlexPlugins(url, tree=None):
     '''
@@ -3755,7 +3760,7 @@ def amberskin():
     WINDOW = xbmcgui.Window( 10000 )
 
     sectionCount=0
-    #serverCount=0
+    serverCount=0
     sharedCount=0
     shared_flag={}
     hide_shared = __settings__.getSetting('hide_shared')
@@ -4002,7 +4007,7 @@ def amberskin():
     else:
         WINDOW.clearProperty("plexbmc.myplex")
 
-    #fullShelf (server_list)
+    fullShelf(server_list)
 
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
@@ -4080,6 +4085,7 @@ def fullShelf(server_list={}):
                 for section in sections:
                     recent_url = section.get('address') + section.get("path") + "/recentlyAdded"
                     tree = getURL(recent_url)
+                    tree = etree.fromstring(tree)
 
                     '''
                     eetee = etree.ElementTree()
@@ -4094,7 +4100,6 @@ def fullShelf(server_list={}):
                     if tree is None:
                         printDebug("PLEXBMC -> RecentlyAdded items not found on: " + recent_url, False)
                         continue
-
                     libraryuuid = tree.attrib["librarySectionUUID"]
                     ep_helper = {}  # helper season counter
                     ra_item_count = 1
@@ -4137,6 +4142,7 @@ def fullShelf(server_list={}):
 
                     ondeck_url = section.get('address') + section.get("path") + "/onDeck"
                     tree = getURL(ondeck_url)
+                    tree = etree.fromstring(tree)
 
                     '''
                     eetee = etree.ElementTree()
