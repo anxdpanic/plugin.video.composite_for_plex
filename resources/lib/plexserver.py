@@ -39,7 +39,7 @@ class plexserver:
                                 thumb = sections.gwet('thumb') ,
                                 fanart = sections.get('art') ,
                                 library = sections.get('key') ,
-                                last_update = sectipons.get('lastUpdated') ,
+                                last_update = sections.get('lastUpdated') ,
                                 uuid = section.get('uuid'))
                                
             self.section_list.append(section)
