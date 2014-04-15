@@ -1,260 +1,190 @@
-"""
-PleXBMC Remote Helper 0.2
-
-Based on XBMCLocalProxy 0.1 Copyright 2011 Torben Gerkensmeyer
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-MA 02110-1301, USA.
-"""
-
-import base64
 import re
-import time
-import urllib
-import sys
 import traceback
-import socket
-import httplib
+import xbmc
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from urllib import *
-import json
-import xbmcaddon
-import xbmc
-import base64
-import string
-import inspect
-from xml.dom.minidom import parseString
-
-def getAddonSetting(doc,id):
-    test = doc.getElementsByTagName(id)
-    data = test[0].toxml()   
-    return data.replace('<%s>' % id, '').replace('</%s>' % id,'').replace('<%s/>' % id, '')       
-
-
-__settings__ = xbmcaddon.Addon(id='script.plexbmc.helper')
-g_header={'Content-Type' : 'application/json'}  
-g_pguisettings = xbmc.translatePath('special://userdata/guisettings.xml')
-
-try:
-    fguisettings = open(g_pguisettings, 'r')
-    data = fguisettings.read()
-    fguisettings.close
-    guisettings = parseString(data)
-except:
-    print "PleXBMC Helper -> Unable to read guisettings.xml - suggest you use custom settings"
-
-if __settings__.getSetting('use_xbmc_net') == "false":   
-    g_xbmc_port = __settings__.getSetting('xbmcport')
-    if not g_xbmc_port:
-        g_xbmc_port=80
-    g_xbmc_user = __settings__.getSetting('xbmcuser')
-    g_xbmc_pass=__settings__.getSetting('xbmcpass')
-
-else:
-    xbmc_webserver = getAddonSetting(guisettings, 'webserver')
-    if xbmc_webserver == "false":
-        print "PleXBMC Helper -> XBMC Web server not enabled"
-        xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - XBMC web server not running,)")
-    g_xbmc_port = getAddonSetting(guisettings, 'webserverport')
-    g_xbmc_user = getAddonSetting(guisettings, 'webserverusername')
-    g_xbmc_pass = getAddonSetting(guisettings, 'webserverpassword')
-
-if g_xbmc_user:
-    auth = 'Basic ' + string.strip(base64.encodestring(g_xbmc_user + ':' + g_xbmc_pass))
-    g_header['Authorization']=auth
-
-g_debug = __settings__.getSetting('debug')
-   
-def printDebug( msg, functionname=True ):
-    if g_debug == "true":
-        if functionname is False:
-            print str(msg)
-        else:
-            print "PleXBMC Helper -> " + inspect.stack()[1][3] + ": " + str(msg)
-    
+from urlparse import urlparse, parse_qs
+from settings import settings
+from functions import *
+from subscribers import subMgr
 
 class MyHandler(BaseHTTPRequestHandler):
-    """
-        Serves a HEAD request
-    """
+    protocol_version = 'HTTP/1.1'
+    def log_message(s, format, *args):
+        # I have my own logging, suppressing BaseHTTPRequestHandler's
+        #printDebug(format % args)
+        return True
     def do_HEAD(s):
         printDebug( "Serving HEAD request..." )
         s.answer_request(0)
 
-    """
-    Serves a GET request.
-    """
     def do_GET(s):
         printDebug( "Serving GET request..." )
         s.answer_request(1)
 
-    def answer_request(s, sendData):
+    def do_OPTIONS(s):
+        s.send_response(200)
+        s.send_header('Content-Length', '0')
+        s.send_header('X-Plex-Client-Identifier', settings['uuid'])
+        s.send_header('Content-Type', 'text/plain')
+        s.send_header('Connection', 'close')
+        s.send_header('Access-Control-Max-Age', '1209600')
+        s.send_header('Access-Control-Allow-Origin', '*')
+        s.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT, HEAD')
+        s.send_header('Access-Control-Allow-Headers', 'x-plex-version, x-plex-platform-version, x-plex-username, x-plex-client-identifier, x-plex-target-client-identifier, x-plex-device-name, x-plex-platform, x-plex-product, accept, x-plex-device')
+        s.end_headers()
+        s.wfile.close()
+
+    def response(s, body, headers = {}, code = 200):
         try:
-            #s.send_response(200)
-            request_path=s.path[1:]
-            request_path=re.sub(r"\?.*","",request_path)
-            printDebug ( "request path is: [%s]" % ( request_path,) )
-            if request_path=="version":
-                #s.end_headers()
-                s.wfile.write("PleXBMC Helper Remote Redirector: Running\r\n")
-                s.wfile.write("Version: 0.1")
-                s.send_response(200)
-            elif request_path=="verify":
-                print "PleXBMC Helper -> listener -> detected remote verification request"
-                command=XBMCjson("ping()")
-                result=command.send()
-                s.wfile.write("XBMC JSON connection test:\r\n")
-                s.wfile.write(result)
-                s.send_response(200)
-            elif request_path == "xbmcCmds/xbmcHttp":
-                s.wfile.write("<html><li>OK</html>")
-                s.send_response(200)
-                print "PleXBMC Helper -> listener -> Detected remote application request"
-                printDebug ( "Path: %s" % ( s.path , ) )
-                command_path=s.path.split('?')[1]
-                printDebug ( "Request: %s " % (urllib.unquote(command_path),) )
-                if command_path.split('=')[0] == 'command':
-                    printDebug ( "Command: Sending a json to XBMC" )
-                    command=XBMCjson(urllib.unquote(command_path.split('=',1)[1]))
-                    command.send()
-            else:
-                s.send_response(200)
-        except:
-                traceback.print_exc()
-                s.wfile.close()
-                return
-        try:
+            s.send_response(code)
+            for key in headers:
+                s.send_header(key, headers[key])
+            s.send_header('Content-Length', len(body))
+            s.send_header('Connection', "close")
+            s.end_headers()
+            s.wfile.write(body)
             s.wfile.close()
         except:
-            pass   
+            pass
 
-    def address_string(self):
-        host, port = self.client_address[:2]
-        #return socket.getfqdn(host)
-        return host            
-            
-class XBMCjson:
-
-    def __init__(self,command):
-    
-        self.action = command[0:command.find("(")]
-        self.arguments = command[command.find("(")+1:command.find(")")]
-        self.hostname = "127.0.0.1"
-        self.port=g_xbmc_port
-        self.url="/jsonrpc"
-        printDebug ( "remote object setup: [%s] [%s]" % ( self.action , self.arguments ) )
-        self.header=g_header
-        
-    
-    def send(self):
-            
-        if self.action.lower() == "sendkey":
-            #request=json.dumps({ "jsonrpc" : "2.0" , "method" : "Input.SendText", "params" : { "text" : "a", "done" : False }} )
-            request=json.dumps({ "jsonrpc" : "2.0",
-                                 "method"  : "JSONRPC.Ping" })
-        elif self.action.lower() == "ping":
-            request=json.dumps({ "jsonrpc" : "2.0",
-                                 "id" : 1 ,
-                                 "method"  : "JSONRPC.Ping" })
-
-        elif self.action.lower() == "setvolume":
-            xbmc.executebuiltin( "XBMC.SetVolume(%d)" % ( int(self.arguments), ) )
-            return True
-
-        elif self.action.lower() == "playmedia":
-        
-            server=self.arguments.split(';')[0].split('/')[2]
-            path=self.arguments.split(';')[1]
-            resume=self.arguments.split(';')[4].strip()
-                
-            if not resume:
-                resume=0
-                
-            resume_url="&force=%s" % (resume,)
-        
-            fullurl=urllib.quote_plus("http://%s%s" % (server, path))
-        
-            request=json.dumps({ "id"      : 1,
-                                 "jsonrpc" : "2.0",
-                                 "method"  : "Player.Open",
-                                 "params"  : { "item"  :  {"file":"plugin://plugin.video.plexbmc/?url="+fullurl+"&mode=5"+resume_url } } } )
-       
-            print "PleXBMC Helper -> listener -> JSON RQST: %s" % request 
-        else:
-            request=json.dumps({ "jsonrpc" : "2.0",
-                                 "method"  : "JSONRPC.Ping" })
-        
-        html=self.getURL(self.url, urlData=request)
-        #html=xbmc.executeJSONRPC(request)
-
-        if html is False:
-            print "PleXBMC Helper -> listener -> request not completed"
-            #xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: Unable to complete remote play request,)")
-            return False
-        
-        if html:
-            print "PleXBMC Helper -> listener -> request completed"
-            help=json.loads(html)
-            results=help.get('result',help.get('error'))
-            printDebug ( str(results) )
-            return help
-
-            
-    def getURL( self, url , urlData=""):
-        try:        
-            conn = httplib.HTTPConnection("%s:%s" % (self.hostname, self.port ) ) 
-            conn.request("POST", url, urlData, self.header) 
-            data = conn.getresponse() 
-            if int(data.status) >= 400:
-                error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
-                print error
-                return False
-            else:      
-                link=data.read()
-                print link
-        except socket.gaierror :
-            error = 'Unable to lookup host: ' + self.hostname + "\nCheck host name is correct"
-            print error
-            return False
-        except socket.error, msg : 
-            error="Unable to connect to " + self.hostname +"\nReason: " + str(msg)
-            print error
-            return False
+    def answer_request(s, sendData):
+        try:
+            request_path=s.path[1:]
+            request_path=re.sub(r"\?.*","",request_path)
+            url = urlparse(s.path)
+            paramarrays = parse_qs(url.query)
+            params = {}
+            for key in paramarrays:
+                params[key] = paramarrays[key][0]
+            printDebug ( "request path is: [%s]" % ( request_path,) )
+            printDebug ( "params are: %s" % params )
+            subMgr.updateCommandID(s.headers.get('X-Plex-Client-Identifier', s.client_address[0]), params.get('commandID', False))
+            if request_path=="version":
+                s.response("PleXBMC Helper Remote Redirector: Running\r\nVersion: %s" % settings['version'])
+            elif request_path=="verify":
+                result=jsonrpc("ping")
+                s.response("XBMC JSON connection test:\r\n"+result)
+            elif "resources" == request_path:
+                resp = getXMLHeader()
+                resp += "<MediaContainer>"
+                resp += "<Player"
+                resp += ' title="%s"' % settings['client_name']
+                resp += ' protocol="plex"'
+                resp += ' protocolVersion="1"'
+                resp += ' protocolCapabilities="navigation,playback,timeline"'
+                resp += ' machineIdentifier="%s"' % settings['uuid']
+                resp += ' product="PleXBMC"'
+                resp += ' platform="%s"' % getPlatform()
+                resp += ' platformVersion="%s"' % settings['plexbmc_version']
+                resp += ' deviceClass="pc"'
+                resp += "/>"
+                resp += "</MediaContainer>"
+                printDebug("crafted resources response: %s" % resp)
+                s.response(resp, getPlexHeaders())
+            elif "/subscribe" in request_path:
+                s.response(getOKMsg(), getPlexHeaders())
+                protocol = params.get('protocol', False)
+                host = s.client_address[0]
+                port = params.get('port', False)
+                uuid = s.headers.get('X-Plex-Client-Identifier', "")
+                commandID = params.get('commandID', 0)
+                subMgr.addSubscriber(protocol, host, port, uuid, commandID)
+            elif "/poll" in request_path:
+                if params.get('wait', False) == '1':
+                    xbmc.sleep(950)
+                commandID = params.get('commandID', 0)
+                s.response(re.sub(r"INSERTCOMMANDID", str(commandID), subMgr.msg(getPlayers())), {
+                  'X-Plex-Client-Identifier': settings['uuid'],
+                  'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
+                  'Access-Control-Allow-Origin': '*',
+                  'Content-Type': 'text/xml'
+                })
+            elif "/unsubscribe" in request_path:
+                s.response(getOKMsg(), getPlexHeaders())
+                uuid = s.headers.get('X-Plex-Client-Identifier', False) or s.client_address[0]
+                subMgr.removeSubscriber(uuid)
+            elif request_path == "player/playback/setParameters":
+                s.response(getOKMsg(), getPlexHeaders())
+                if 'volume' in params:
+                    volume = int(params['volume'])
+                    printDebug("adjusting the volume to %s%%" % volume)
+                    jsonrpc("Application.SetVolume", {"volume": volume})
+            elif "/playMedia" in request_path:
+                s.response(getOKMsg(), getPlexHeaders())
+                resume = params.get('viewOffset', params.get('offset', "0"))
+                protocol = params.get('protocol', "http")
+                address = params.get('address', s.client_address[0])
+                server = getServerByHost(address)
+                port = params.get('port', server.get('port', '32400'))
+                fullurl = protocol+"://"+address+":"+port+params['key']
+                printDebug("playMedia command -> fullurl: %s" % fullurl)
+                jsonrpc("playmedia", [fullurl, resume])
+                subMgr.lastkey = params['key']
+                subMgr.server = server
+                subMgr.port = port
+                subMgr.protocol = protocol
+                subMgr.notify()
+            elif request_path == "player/playback/play":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": True})
+            elif request_path == "player/playback/pause":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": False})
+            elif request_path == "player/playback/stop":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.Stop", {"playerid" : playerid})
+            elif request_path == "player/playback/seekTo":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":millisToTime(params.get('offset', 0))})
+                subMgr.notify()
+            elif request_path == "player/playback/stepForward":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallforward"})
+                subMgr.notify()
+            elif request_path == "player/playback/stepBack":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallbackward"})
+                subMgr.notify()
+            elif request_path == "player/playback/skipNext":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigforward"})
+                subMgr.notify()
+            elif request_path == "player/playback/skipPrevious":
+                s.response(getOKMsg(), getPlexHeaders())
+                for playerid in getPlayerIds():
+                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigbackward"})
+                subMgr.notify()
+            elif request_path == "player/navigation/moveUp":
+                s.response(getOKMsg(), getPlexHeaders())
+                jsonrpc("Input.Up")
+            elif request_path == "player/navigation/moveDown":
+                s.response(getOKMsg(), getPlexHeaders())
+                jsonrpc("Input.Down")
+            elif request_path == "player/navigation/moveLeft":
+                s.response(getOKMsg(), getPlexHeaders())
+                jsonrpc("Input.Left")
+            elif request_path == "player/navigation/moveRight":
+                s.response(getOKMsg(), getPlexHeaders())
+                jsonrpc("Input.Right")
+            elif request_path == "player/navigation/select":
+                s.response(getOKMsg(), getPlexHeaders())
+                jsonrpc("Input.Select")
+            elif request_path == "player/navigation/home":
+                s.response(getOKMsg(), getPlexHeaders())
+                jsonrpc("Input.Home")
+            elif request_path == "player/navigation/back":
+                s.response(getOKMsg(), getPlexHeaders())
+                jsonrpc("Input.Back")
         except:
-            print "unknown error"
-            return False
-            
-        return link
-        
+            traceback.print_exc()
     
-            
-class Server(HTTPServer):
-    """HTTPServer class with timeout."""
-
-    def get_request(self):
-        """Get the request and client address from the socket."""
-        self.socket.settimeout(5.0)
-        result = None
-        while result is None:
-            try:
-                result = self.socket.accept()
-            except socket.timeout:
-                pass
-        result[0].settimeout(1000)
-        return result
-
-class ThreadedHTTPServer(ThreadingMixIn, Server):
-    """Handle requests in a separate thread."""
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
