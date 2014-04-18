@@ -69,7 +69,7 @@ class plexsection:
         self.last_update=update
         self.uuid=uuid
         
-    def get_detals)self):
+    def get_details(self):
          
         return { 'title'        : self.title , 
                  'type'         : self.type ,
