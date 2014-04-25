@@ -426,12 +426,14 @@ def getMyPlexServers( ):
 
     tempServers = []
     url_path = "/pms/servers"
-    all_servers = getMyPlexURL(url_path)
 
-    if all_servers is False:
+    xml = getMyPlexURL(url_path)
+
+    if xml is False:
         return {}
 
-    servers = etree.fromstring(all_servers)
+    servers = etree.fromstring(xml)
+
     count = 0
     for server in servers:
         #data = dict(server.items())
@@ -681,7 +683,7 @@ def getMyPlexURL(url_path, renew=False, suppress=True):
     printDebug("url = "+MYPLEX_SERVER+url_path)
 
     try:
-        conn = httplib.HTTPSConnection(MYPLEX_SERVER, timeout=5)
+        conn = httplib.HTTPSConnection(MYPLEX_SERVER)#, timeout=5)
         conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew))
         data = conn.getresponse()
         if ( int(data.status) == 401 )  and not ( renew ):
@@ -2779,18 +2781,18 @@ def tracks( url,tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
-def getXML (url, media = None):
+def getXML (url, tree=None):
     printDebug("== ENTER: getXML ==", False)
 
-    if media is None:
+    if tree is None:
 
-        media = getURL(url)
+        html=getURL(url)
 
-        if media is False:
+        if html is False:
             print "PleXBMC -> Server [%s] offline, not responding or no data was receieved" % getServerFromURL(url)
             return None
 
-        tree = etree.fromstring(media)
+        tree=etree.fromstring(html)
 
     if tree.get('message'):
         xbmcgui.Dialog().ok(tree.get('header','Message'),tree.get('message',''))
@@ -3755,7 +3757,7 @@ def amberskin():
     WINDOW = xbmcgui.Window( 10000 )
 
     sectionCount=0
-    #serverCount=0
+    serverCount=0
     sharedCount=0
     shared_flag={}
     hide_shared = __settings__.getSetting('hide_shared')
@@ -3815,6 +3817,10 @@ def amberskin():
 
         aToken=getAuthDetails(section)
         qToken=getAuthDetails(section, prefix='?')
+
+        printDebug("===TOKENS ARE===", False)
+        printDebug(aToken, False)
+        printDebug("===/TOKENS ===", False)
 
         if g_secondary == "true":
             mode=_MODE_GETCONTENT
@@ -4002,7 +4008,7 @@ def amberskin():
     else:
         WINDOW.clearProperty("plexbmc.myplex")
 
-    #fullShelf (server_list)
+    fullShelf (server_list)
 
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
@@ -4027,8 +4033,8 @@ def fullShelf(server_list={}):
     ondeck_list={}
     full_count=0
 
-    if server_list == {}:
-        server_list=discoverAllServers()
+    #if server_list == {}:
+    #    server_list=discoverAllServers()
 
     if server_list == {}:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
@@ -4037,7 +4043,6 @@ def fullShelf(server_list={}):
 
     randomNumber = str(random.randint(1000000000,9999999999))
 
-
     '''
     logfile = PLUGINPATH+"/_server_list.txt"
     logfileh = open(logfile, "w")
@@ -4045,127 +4050,117 @@ def fullShelf(server_list={}):
     logfileh.close()
     '''
 
+    for server_details in server_list.values():
 
-    serverList = []
+        if not server_details['owned'] == '1':
+            continue
 
-    for key, value in server_list.iteritems():
-        temp = [key, value]
-        serverList.append(temp)
+        global _PARAM_TOKEN
+        _PARAM_TOKEN = server_details.get('token', '')
+        aToken=getAuthDetails({'token': _PARAM_TOKEN})
+        qToken='?' + aToken
 
+        sections = getAllSections(server_list)
+        #ra_log_count = 1
 
-    for index in serverList:
+        if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
 
-        for server_details in server_list.values():
-
-            if not server_details['owned'] == '1':
-                continue
-
-            global _PARAM_TOKEN
-            _PARAM_TOKEN = server_details.get('token', '')
-            aToken=getAuthDetails({'token': _PARAM_TOKEN})
-            qToken='?' + aToken
-
-            sections = getAllSections(server_list)
-            ra_log_count = 1
-
-            if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
+            '''
+            logfile = PLUGINPATH+"/_shelf_sections_.txt"
+            logfileh = open(logfile, "w")
+            logfileh.write(str(sections))
+            logfileh.close()
+            '''
+            
+            for section in sections:
+                fullpath = section.get('address') + section.get("path")
+                tree = getXML('http://' + fullpath + "/recentlyAdded")
 
                 '''
-                logfile = PLUGINPATH+"/_shelf_sections_.txt"
+                eetee = etree.ElementTree()
+                eetee._setroot(tree)
+                logfile = PLUGINPATH+"/RecentlyAdded"+ str(ra_file_count) + ".xml"
                 logfileh = open(logfile, "w")
-                logfileh.write(str(sections))
+                eetee.write(logfileh)
                 logfileh.close()
+                ra_log_count += 1
                 '''
 
-                for section in sections:
-                    recent_url = section.get('address') + section.get("path") + "/recentlyAdded"
-                    tree = getURL(recent_url)
+                if tree is None:
+                    printDebug("PLEXBMC -> RecentlyAdded items not found on: " + fullpath, False)
+                    continue
 
-                    '''
-                    eetee = etree.ElementTree()
-                    eetee._setroot(tree)
-                    logfile = PLUGINPATH+"/RecentlyAdded"+ str(ra_log_count) + ".xml"
-                    logfileh = open(logfile, "w")
-                    eetee.write(logfileh)
-                    logfileh.close()
-                    ra_log_count += 1
-                    '''
+                libraryuuid = tree.attrib["librarySectionUUID"]
+                ep_helper = {}  # helper season counter
+                ra_item_count = 1
+                for eachitem in tree:
+                    if ra_item_count > 15:
+                        break
 
-                    if tree is None:
-                        printDebug("PLEXBMC -> RecentlyAdded items not found on: " + recent_url, False)
-                        continue
+                    if eachitem.get("type", "") == "episode":
+                        key = int(eachitem.get("parentRatingKey"))  # season identifier
 
-                    libraryuuid = tree.attrib["librarySectionUUID"]
-                    ep_helper = {}  # helper season counter
-                    ra_item_count = 1
-                    for eachitem in tree:
-                        if ra_item_count > 15:
-                            break
-
-                        if eachitem.get("type", "") == "episode":
-                            key = int(eachitem.get("parentRatingKey"))  # season identifier
-
-                            if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
-                                pass
-
-                            else:
-                                recent_list[full_count] = (eachitem, section.get('address'), aToken, qToken, libraryuuid)
-                                ep_helper[key] = key  # use seasons as dict key so we can check
-                                full_count += 1
-                                ra_item_count += 1
+                        if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
+                            pass
 
                         else:
-                            recent_list[full_count] = (eachitem, section.get('address'), aToken, qToken, libraryuuid)
+                            recent_list[full_count] = (eachitem, server_details['server'] + ":" + server_details['port'], aToken, qToken, libraryuuid)
+                            ep_helper[key] = key  # use seasons as dict key so we can check
                             full_count += 1
                             ra_item_count += 1
 
-                full_count = 0
-
-                '''
-                logfile = PLUGINPATH+"/Recent_list.log"
-                logfileh = open(logfile, "w")
-                for item in recent_list:
-                    logfileh.write("%s\n" % item)
-                logfileh.close()
-                '''
-
-                #deck_log_count = 1
-
-            if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
-
-                for section in sections:
-
-                    ondeck_url = section.get('address') + section.get("path") + "/onDeck"
-                    tree = getURL(ondeck_url)
-
-                    '''
-                    eetee = etree.ElementTree()
-                    eetee._setroot(tree)
-                    logfile = PLUGINPATH+"/OnDeck"+ str(deck_file_count) + ".xml"
-                    logfileh = open(logfile, "w")
-                    eetee.write(logfileh)
-                    logfileh.close()
-                    deck_log_count += 1
-                    '''
-
-                    if tree is None:
-                        #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
-                        #clearShelf()
-                        #return
-                        print ("PLEXBMC -> OnDeck items not found on: " + ondeck_url, False)
-                        continue
-
-                    deck_item_count = 1
-                    libraryuuid = tree.attrib["librarySectionUUID"]
-                    for eachitem in tree:
-                        if deck_item_count > 15: break
-                        deck_item_count +=1
-
-                        #libraryuuid = tree.attrib["librarySectionUUID"]
-                        ondeck_list[full_count] = (eachitem, section.get('address'), aToken, qToken, libraryuuid)
+                    else:
+                        recent_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
                         full_count += 1
+                        ra_item_count += 1
 
-        #For each of the servers we have identified
+            full_count = 0
+
+            '''
+            logfile = PLUGINPATH+"/Recent_list.log"
+            logfileh = open(logfile, "w")
+            for item in recent_list:
+                logfileh.write("%s\n" % item)
+            logfileh.close()
+            '''
+
+            #deck_log_count = 1
+
+        if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
+
+            for section in sections:
+
+                fullpath = section.get("address") + section.get("path")
+                tree = getXML('http://' + fullpath + "/onDeck")
+
+                '''
+                eetee = etree.ElementTree()
+                eetee._setroot(tree)
+                logfile = PLUGINPATH+"/OnDeck"+ str(deck_file_count) + ".xml"
+                logfileh = open(logfile, "w")
+                eetee.write(logfileh)
+                logfileh.close()
+                deck_log_count += 1
+                '''
+
+                if tree is None:
+                    #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
+                    #clearShelf()
+                    #return
+                    print ("PLEXBMC -> OnDeck items not found on: " + fullpath, False)
+                    continue
+
+                deck_item_count = 1
+                libraryuuid = tree.attrib["librarySectionUUID"]
+                for eachitem in tree:
+                    if deck_item_count > 15: break
+                    deck_item_count +=1
+
+                    #libraryuuid = tree.attrib["librarySectionUUID"]
+                    ondeck_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
+                    full_count += 1
+
+    #For each of the servers we have identified
     for index in recent_list:
 
         media = recent_list[index][0]
@@ -5214,13 +5209,9 @@ if str(sys.argv[1]) == "skin":
 elif str(sys.argv[1]) == "amberskin":
     amberskin()
  
-#Populate recently OR on deck shelf items
+#Populate recently/on deck shelf items 
 elif str(sys.argv[1]) == "shelf":
     shelf()
-
-#Populate both recently AND on deck shelf items
-elif str(sys.argv[1]) == "fullshelf":
-    fullShelf()
 
 #Populate channel recently viewed items    
 elif str(sys.argv[1]) == "channelShelf":
@@ -5277,7 +5268,12 @@ elif sys.argv[1] == "master":
 #Delete cache and refresh it    
 elif str(sys.argv[1]) == "cacherefresh":
     deletecache()
-    xbmc.executebuiltin("ReloadSkin()")
+    WINDOW = xbmcgui.getCurrentWindowId()
+    if WINDOW == 10000:
+        printDebug("Currently in home - refreshing")
+        xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+    else:
+        xbmc.executebuiltin("Container.Refresh")
 
 #else move to the main code    
 else:
