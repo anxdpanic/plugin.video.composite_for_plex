@@ -56,15 +56,10 @@ print "PleXBMC Helper -> running Python: " + str(sys.version_info)
 print "PleXBMC Helper -> running Version: " + __version__
 print "PleXBMC Helper -> Platform: " + getPlatform()
 print "PleXBMC Helper -> UUID: " + settings['uuid']
-print "PleXBMC Helper -> XBMC Web Port: %i" % settings['port']
-if settings['user']:
-    print "PleXBMC Helper -> XBMC Web User: " + settings['user']
 
 settings['plexbmc_version'] = jsonrpc("Addons.GetAddonDetails", {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]}).get('addon',{}).get('version', False)
 if not settings['plexbmc_version']:
     xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
-elif not settings['webserver_enabled']:
-    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: XBMC HTTP Server must be enabled,)")
 else:
 
     # Start GDM for server/client discovery

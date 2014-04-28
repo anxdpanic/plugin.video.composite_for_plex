@@ -1,41 +1,25 @@
 import uuid
 import xbmc
 import xbmcaddon
-from xml.dom.minidom import parseString
+import xml.etree.ElementTree as etree
 
-settings = {}     
-guidoc = False   
+settings = {}
 try:
-    guifile = open(xbmc.translatePath('special://userdata/guisettings.xml'), 'r')
-    guidoc = parseString(guifile.read())
-    guifile.close()
+    guidoc = etree.parse(xbmc.translatePath('special://userdata/guisettings.xml')).getroot()
 except:
-    print "Unable to read XBMC's guisettings.xml"
+    print "Unable to read XBMC's guisettings.xml"    
 
-def getGUI(name, within=False):
+def getGUI(name):
     global guidoc
-    if not guidoc:
+    if guidoc is None:
         return False
-    parent = guidoc
-    if within:
-        parent = guidoc.getElementsByTagName(within)[0]
-    textNode = parent.getElementsByTagName(name)[0].firstChild
-    if not textNode:
-        return ""
-    return textNode.nodeValue
+    for elem in guidoc.iter(tag=name):
+      return elem.text
+    return False
 
 addon = xbmcaddon.Addon()
 plexbmc = xbmcaddon.Addon('plugin.video.plexbmc')
 
-settings['webserver_enabled'] = (getGUI('webserver') == "true")
-if addon.getSetting('use_xbmc_net') == "false":
-    settings['port'] = int(addon.getSetting('xbmcport')) or 80
-    settings['user'] = addon.getSetting('xbmcuser')
-    settings['passwd'] = addon.getSetting('xbmcpass')
-else:
-    settings['port'] = int(getGUI('webserverport'))
-    settings['user'] = getGUI('webserverusername')
-    settings['passwd'] = getGUI('webserverpassword')
 settings['debug'] = addon.getSetting('debug') == "true"
 settings['gdm_debug'] = int(addon.getSetting('gdm_debug'))
 if addon.getSetting('use_xbmc_name'):

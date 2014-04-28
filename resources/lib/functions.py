@@ -1,11 +1,9 @@
-import base64
 import inspect
 import json
 import string
 import traceback
 import xbmc
 from settings import settings
-from httppersist import requests
 
 def xbmc_photo():
     return "photo"
@@ -73,10 +71,8 @@ def jsonrpc(action, arguments = {}):
     elif action.lower() == "playmedia":
         fullurl=arguments[0]
         resume=arguments[1]
-        request=json.dumps({ "id"      : 1,
-                             "jsonrpc" : "2.0",
-                             "method"  : "Player.Open",
-                             "params"  : { "item"  :  {"file":"plugin://plugin.video.plexbmc/?mode=5&force="+resume+"&url="+fullurl } } })
+        xbmc.Player().play("plugin://plugin.video.plexbmc/?mode=5&force="+resume+"&url="+fullurl)
+        return True
     elif arguments:
         request=json.dumps({ "id" : 1,
                              "jsonrpc" : "2.0",
@@ -88,13 +84,7 @@ def jsonrpc(action, arguments = {}):
                              "method"  : action})
     
     printDebug("Sending request to XBMC: %s" % request)
-    jsonraw = requests.post(
-        "127.0.0.1", 
-        settings['port'], 
-        "/jsonrpc", 
-        request, 
-        { 'Content-Type' : 'application/json',
-          'Authorization' : 'Basic ' + string.strip(base64.encodestring(settings['user'] + ':' + settings['passwd'])) })
+    jsonraw = xbmc.executeJSONRPC(request)
                 
     """ parse the request """
     if not jsonraw:
