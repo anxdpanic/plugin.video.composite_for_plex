@@ -47,23 +47,6 @@ try:
 except ImportError:
     import pickle
 
-try:
-    # Python 2.5
-    import xml.etree.cElementTree as etree
-    print("PleXBMC -> Running with cElementTree on Python 2.5+")
-except ImportError:
-    try:
-        # normal cElementTree install
-        import cElementTree as etree
-        print("PleXBMC -> Running with built-in cElementTree")
-    except ImportError:
-        try:
-            # normal ElementTree install
-            import xml.etree.ElementTree as etree
-            print("PleXBMC -> Running with built-in ElementTree")
-        except ImportError:
-            print("PleXBMC -> Failed to import ElementTree from any known place")
-
 __addon__ = xbmcaddon.Addon()
 __plugin__ = __addon__.getAddonInfo('name')
 __version__ = __addon__.getAddonInfo('version')
@@ -126,6 +109,30 @@ _SUB_AUDIO_NEVER_SHOW="2"
 #Check debug first...
 g_debug = __settings__.getSetting('debug')
 g_debug_dev = __settings__.getSetting('debug_dev')
+
+# elementtree imports. If debugging on, use python elementtree, as c implementation
+# is horrible for debugging.
+
+if g_debug == "true":
+    print("PleXBMC -> Running with built-in ElemenTree (debug).")
+    import xml.etree.ElementTree as etree
+else:
+    try:
+        # Python 2.5
+        import xml.etree.cElementTree as etree
+        print("PleXBMC -> Running with cElementTree on Python 2.5+")
+    except ImportError:
+        try:
+            # normal cElementTree install
+            import cElementTree as etree
+            print("PleXBMC -> Running with built-in cElementTree")
+        except ImportError:
+            try:
+                # normal ElementTree install
+                import xml.etree.ElementTree as etree
+                print("PleXBMC -> Running with built-in ElementTree")
+            except ImportError:
+                print("PleXBMC -> Failed to import ElementTree from any known place")
 
 def printDebug( msg, functionname=True ):
     if g_debug == "true":
@@ -1288,7 +1295,8 @@ def displaySections( filter=None, shared=False ):
             addGUIItem(u,details,extraData)
             
         if __settings__.getSetting("cache") == "true":
-            details['title']="Refresh Data"
+            details = {'title' : "Refresh Data"}
+            extraData = {}
             extraData['type']="file"
 
             extraData['mode']= _MODE_DELETE_REFRESH
