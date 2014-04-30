@@ -333,11 +333,11 @@ def discoverAllServers( ):
                 das_servers[das_server_index] = device
                 das_server_index = das_server_index + 1
 
-    # Remove Cloud Sync servers, since they cause problems
-    for das_server_index,das_server in das_servers.items():
-        # Cloud sync "servers" don't have a version key in the dictionary
-        if 'version' not in das_server:
-            del das_servers[das_server_index]
+    # # Remove Cloud Sync servers, since they cause problems
+    # for das_server_index,das_server in das_servers.items():
+    #     # Cloud sync "servers" don't have a version key in the dictionary
+    #     if 'version' not in das_server:
+    #         del das_servers[das_server_index]
 
     printDebug("PleXBMC -> serverList is " + str(das_servers), False)
 
