@@ -1821,7 +1821,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
     extra={}
     
     timings = tree.find('Video')
-    if timings:
+    if timings is not None:
         media_type="video"
     else:
         timings = tree.find('Track')
@@ -1967,7 +1967,7 @@ def playPlaylist ( server, data ):
     
     tree = getXML(server+data['extra'].get('album')+"/children")
     
-    if not tree:
+    if tree is None:
         return
         
     TrackTags=tree.findall('Track')
@@ -4092,6 +4092,7 @@ def fullShelf(server_list={}):
 
                 for section in sections:
                     recent_url = section.get('address') + section.get("path") + "/recentlyAdded"
+                    _PARAM_TOKEN = section.get('token', '')
                     tree = getURL(recent_url)
                     tree = etree.fromstring(tree)
 
