@@ -4095,6 +4095,7 @@ def fullShelf(server_list={}):
                     _PARAM_TOKEN = section.get('token', '')
                     tree = getURL(recent_url)
                     tree = etree.fromstring(tree)
+                    _PARAM_TOKEN = server_details.get('token', '')
 
                     '''
                     eetee = etree.ElementTree()
@@ -4150,9 +4151,10 @@ def fullShelf(server_list={}):
                 for section in sections:
 
                     ondeck_url = section.get('address') + section.get("path") + "/onDeck"
+                    _PARAM_TOKEN = section.get('token', '')
                     tree = getURL(ondeck_url)
                     tree = etree.fromstring(tree)
-
+                    _PARAM_TOKEN = server_details.get('token', '')
                     '''
                     eetee = etree.ElementTree()
                     eetee._setroot(tree)
