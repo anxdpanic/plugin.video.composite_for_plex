@@ -120,9 +120,9 @@ else:
                 break
         
         try:
-        		httpd.socket.shutdown(socket.SHUT_RDWR)
+            httpd.socket.shutdown(socket.SHUT_RDWR)
         finally:
-        		httpd.socket.close()
+            httpd.socket.close()
         requests.dumpConnections()
         client.stop_all()
         print "PleXBMC Helper -> PleXBMC Helper has been stopped"
