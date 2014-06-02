@@ -57,10 +57,11 @@ print "PleXBMC Helper -> running Version: " + __version__
 print "PleXBMC Helper -> Platform: " + getPlatform()
 print "PleXBMC Helper -> UUID: " + settings['uuid']
 
-settings['plexbmc_version'] = jsonrpc("Addons.GetAddonDetails", {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]}).get('addon',{}).get('version', False)
-if not settings['plexbmc_version']:
-    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
-else:
+# this doesn't seem to work on the login screen, so I'm just going to skip it for now
+#settings['plexbmc_version'] = jsonrpc("Addons.GetAddonDetails", {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]}).get('addon',{}).get('version', False)
+#if not settings['plexbmc_version']:
+#    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
+#else:
 
     # Start GDM for server/client discovery
     client=plexgdm.plexgdm(debug=settings['gdm_debug'])
