@@ -62,6 +62,7 @@ print "PleXBMC Helper -> UUID: " + settings['uuid']
 #if not settings['plexbmc_version']:
 #    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
 #else:
+if 1:
 
     # Start GDM for server/client discovery
     client=plexgdm.plexgdm(debug=settings['gdm_debug'])
