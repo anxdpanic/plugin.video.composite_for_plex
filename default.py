@@ -2228,6 +2228,7 @@ def monitorPlayback( id, server ):
     monitorCount=0
     progress = 0
     complete = 0
+    playedTime = 0
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
@@ -2245,8 +2246,9 @@ def monitorPlayback( id, server ):
         #If we are less than 95% completem, store resume time
         elif progress < 95:
             printDebug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
-            getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000),suppress=True)
+            getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)+"&state=playing",suppress=True)
             complete=0
+            playedTime = currentTime
 
         #Otherwise, mark as watched
         else:
@@ -2254,11 +2256,16 @@ def monitorPlayback( id, server ):
                 printDebug( "Movie marked as watched. Over 95% complete")
                 getURL("http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library",suppress=True)
                 complete=1
+                # playedTime = 0 in order to avoid a bug of tract plex plugin (check on completed tv episode when time==duration)
+                playedTime = 0
 
         xbmc.sleep(5000)
 
     #If we get this far, playback has stopped
     printDebug("Playback Stopped")
+
+    # The follwing progress:stopped update is necessary only for plugin trakt to 'cancel watching' on trakt.tv server, otherwise it will keep status 'watching' for about 15min
+    getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(playedTime*1000)+"&state=stopped",suppress=True)
 
     if g_sessionID is not None:
         printDebug("Stopping PMS transcode job with session " + g_sessionID)
