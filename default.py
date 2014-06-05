@@ -357,7 +357,7 @@ def writeCache(cachefile, object):
     cache.close()
     return True
 
-def checkCache(cachefile, life=3600):
+def checkCache(cachefile, life=5):
 
     if __settings__.getSetting("cache") == "false":
         return (False, None)
@@ -1439,10 +1439,6 @@ def buildContextMenu( url, itemData ):
     plugin_url="RunScript(plugin.video.plexbmc, "
     ID=itemData.get('ratingKey','0')
 
-    #Initiate Library refresh
-    libraryRefresh = plugin_url+"update, " + refreshURL.split('?')[0]+getAuthDetails(itemData,prefix="?") + ")"
-    context.append(('Rescan library section', libraryRefresh , ))
-
     #Mark media unwatched
     unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(itemData)
     unwatched=plugin_url+"watch, " + unwatchURL + ")"
@@ -1453,14 +1449,18 @@ def buildContextMenu( url, itemData ):
     watched=plugin_url+"watch, " + watchURL + ")"
     context.append(('Mark as Watched', watched , ))
 
+    #Initiate Library refresh
+    libraryRefresh = plugin_url+"update, " + refreshURL.split('?')[0]+getAuthDetails(itemData,prefix="?") + ")"
+    context.append(('Rescan library section', libraryRefresh , ))
+
     #Delete media from Library
     deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
     removed=plugin_url+"delete, " + deleteURL + ")"
     context.append(('Delete media', removed , ))
 
     #Display plugin setting menu
-    settingDisplay=plugin_url+"setting)"
-    context.append(('PleXBMC settings', settingDisplay , ))
+    #settingDisplay=plugin_url+"setting)"
+    #context.append(('PleXBMC settings', settingDisplay , ))
 
     #Reload media section
     listingRefresh=plugin_url+"refresh)"
@@ -2531,22 +2531,46 @@ def getContent( url ):
     if view_group == "movie":
         printDebug( "This is movie XML, passing to Movies")
         if not (lastbit.startswith('recently') or lastbit.startswith('newest') or lastbit.startswith('onDeck')):
-            xbmcplugin.addSortMethod(pluginhandle,xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE )
+            xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+            xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+            xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+            xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+            xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
+            xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
+        
         Movies(url, tree)
     elif view_group == "show":
         printDebug( "This is tv show XML")
+        xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+        xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+        xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+        xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
         TVShows(url,tree)
     elif view_group == "episode":
         printDebug("This is TV episode XML")
+        xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+        xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+        xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+        xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
+        xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
         TVEpisodes(url,tree)
     elif view_group == 'artist':
         printDebug( "This is music XML")
+        xbmcplugin.addSortMethod(pluginhandle, 12 ) #artist title ignore THE
+        xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
+        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
         artist(url, tree)
     elif view_group== 'album' or view_group == 'albums':
+        xbmcplugin.addSortMethod(pluginhandle, 24 ) #album title ignore THE
+        xbmcplugin.addSortMethod(pluginhandle, 12 )  #artist ignore THE
+        xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
+        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
         albums(url,tree)
-    elif view_group == "track":
+    elif view_group == 'track':
         printDebug("This is track XML")
-        tracks(url, tree)
+        tracks(url, tree) #sorthing is handled here
     elif view_group =="photo":
         printDebug("This is a photo XML")
         photo(url,tree)
@@ -2765,6 +2789,11 @@ def albums( url, tree=None ):
 def tracks( url,tree=None ):
     printDebug("== ENTER: tracks ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
+    xbmcplugin.addSortMethod(pluginhandle, 10 ) #title title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+    xbmcplugin.addSortMethod(pluginhandle, 8 ) #duration
+    xbmcplugin.addSortMethod(pluginhandle, 27 ) #song rating
+    xbmcplugin.addSortMethod(pluginhandle, 7 ) #track number
 
     tree=getXML(url,tree)
     if tree is None:
@@ -2774,12 +2803,17 @@ def tracks( url,tree=None ):
     playlist.clear()
      
     server=getServerFromURL(url)
-    sectionart=getFanart(tree,server)
+    sectionart=getFanart(tree, server)
+    sectionthumb=getThumb(tree, server)
     setWindowHeading(tree)
     TrackTags=tree.findall('Track')
     for track in TrackTags:
+        if track.get('thumb'):
+            sectionthumb=getThumb(track, server)
+        else:
+            continue
 
-        trackTag(server, tree, track)
+        trackTag(server, tree, track, sectionart, sectionthumb)
 
     printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('music')
@@ -3119,7 +3153,7 @@ def getMediaData ( tag_dict ):
                 'xbmc_AudioChannels' : tag_dict.get('audioChannels') ,
                 'xbmc_VideoAspect'   : tag_dict.get('aspectRatio') }
 
-def trackTag( server, tree, track, listing=True ):
+def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True ):
     printDebug("== ENTER: trackTAG ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
 
@@ -3135,19 +3169,22 @@ def trackTag( server, tree, track, listing=True ):
              'rating'      : float(track.get('rating',0)) ,
              'album'       : track.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
              'artist'      : track.get('grandparentTitle', tree.get('grandparentTitle','')).encode('utf-8') ,
-             'duration'    : int(track.get('duration',0))/1000 }
+             'duration'    : int(track.get('duration',0))/1000 
+             }
 
     extraData={'type'         : "Music" ,
-               'fanart_image' : getFanart(track, server) ,
-               'thumb'        : getThumb(track, server) ,
+               #'fanart_image' : getFanart(track, server) ,
+               #'thumb'        : getThumb(track, server) ,
+               'fanart_image' : sectionart ,
+               'thumb'      : sectionthumb ,
                'ratingKey'    : track.get('key','') }
 
-    if '/resources/plex.png' in extraData['thumb']:
-        printDebug("thumb is default")
-        extraData['thumb']=getThumb(tree, server)
+    #if '/resources/plex.png' in extraData['thumb']:
+    #    printDebug("thumb is default")
+    #    extraData['thumb']=getThumb(tree, server)
 
-    if extraData['fanart_image'] == "":
-        extraData['fanart_image']=getFanart(tree, server)
+    #if extraData['fanart_image'] == "":
+    #    extraData['fanart_image']=getFanart(tree, server)
 
     #If we are streaming, then get the virtual location
     url=mediaType(partDetails,server)
@@ -5309,7 +5346,7 @@ else:
         TVShows(param_url)
 
     elif mode == _MODE_MOVIES:
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE  )
+        xbmcplugin.addSortMethod(pluginhandle, 25  )
         Movies(param_url)
 
     elif mode == _MODE_ARTISTS:
