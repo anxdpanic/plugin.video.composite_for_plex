@@ -1068,6 +1068,9 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('Artist_Description', extraData.get('plot',''))
             liz.setProperty('Album_Description', extraData.get('plot',''))
 
+        if extraData.get('type','').lower() == "video":
+            liz.setInfo( type="Video", infoLabels={ "DateAdded": extraData.get('addedAt',0) })
+
         #For all end items    
         if ( not folder):
             liz.setProperty('IsPlayable', 'true')
@@ -1075,7 +1078,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             if extraData.get('type','video').lower() == "video":
                 liz.setProperty('TotalTime', str(extraData.get('duration')))
                 liz.setProperty('ResumeTime', str(extraData.get('resume')))
-            
+
                 if g_skipmediaflags == "false":
                     printDebug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
                     liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
@@ -2530,14 +2533,13 @@ def getContent( url ):
 
     if view_group == "movie":
         printDebug( "This is movie XML, passing to Movies")
-        if not (lastbit.startswith('recently') or lastbit.startswith('newest') or lastbit.startswith('onDeck')):
-            xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
-            xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
-            xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
-            xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
-            xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
-            xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
-        
+        xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+        xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
+        xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+        xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+        xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
+        xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
         Movies(url, tree)
     elif view_group == "show":
         printDebug( "This is tv show XML")
@@ -2550,6 +2552,7 @@ def getContent( url ):
     elif view_group == "episode":
         printDebug("This is TV episode XML")
         xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+        xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
         xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
         xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
         xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
@@ -2790,7 +2793,6 @@ def tracks( url,tree=None ):
     printDebug("== ENTER: tracks ==", False)
     xbmcplugin.setContent(pluginhandle, 'songs')
     xbmcplugin.addSortMethod(pluginhandle, 10 ) #title title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
     xbmcplugin.addSortMethod(pluginhandle, 8 ) #duration
     xbmcplugin.addSortMethod(pluginhandle, 27 ) #song rating
     xbmcplugin.addSortMethod(pluginhandle, 7 ) #track number
@@ -2810,8 +2812,6 @@ def tracks( url,tree=None ):
     for track in TrackTags:
         if track.get('thumb'):
             sectionthumb=getThumb(track, server)
-        else:
-            continue
 
         trackTag(server, tree, track, sectionart, sectionthumb)
 
