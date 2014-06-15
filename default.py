@@ -1069,7 +1069,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('Album_Description', extraData.get('plot',''))
 
         if extraData.get('type','').lower() == "video":
-            liz.setInfo( type="Video", infoLabels={ "DateAdded": extraData.get('addedAt',0) })
+            liz.setInfo( type="Video", infoLabels={ "DateAdded": extraData.get('dateadded','')})
 
         #For all end items    
         if ( not folder):
@@ -1411,6 +1411,13 @@ def enforceSkinView(mode):
 def Movies( url, tree=None ):
     printDebug("== ENTER: Movies() ==", False)
     xbmcplugin.setContent(pluginhandle, 'movies')
+    xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
+    xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+    xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+    xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
+    xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
 
     #get the server name from the URL, which was passed via the on screen listing..
     tree=getXML(url,tree)
@@ -1486,6 +1493,11 @@ def buildContextMenu( url, itemData ):
 def TVShows( url, tree=None ):
     printDebug("== ENTER: TVShows() ==", False)
     xbmcplugin.setContent(pluginhandle, 'tvshows')
+    xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+    xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+    xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
 
     #Get the URL and server name.  Get the XML and parse
     tree=getXML(url,tree)
@@ -1654,6 +1666,13 @@ def TVSeasons( url ):
 def TVEpisodes( url, tree=None ):
     printDebug("== ENTER: TVEpisodes() ==", False)
     xbmcplugin.setContent(pluginhandle, 'episodes')
+    xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
+    xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+    xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+    xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
+    xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
 
     tree=getXML(url,tree)
     if tree is None:
@@ -2533,43 +2552,17 @@ def getContent( url ):
 
     if view_group == "movie":
         printDebug( "This is movie XML, passing to Movies")
-        xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
-        xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
-        xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
-        xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
-        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
-        xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
-        xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
         Movies(url, tree)
     elif view_group == "show":
         printDebug( "This is tv show XML")
-        xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
-        xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
-        xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
-        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
-        xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
         TVShows(url,tree)
     elif view_group == "episode":
         printDebug("This is TV episode XML")
-        xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
-        xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
-        xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
-        xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
-        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
-        xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
-        xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
         TVEpisodes(url,tree)
     elif view_group == 'artist':
         printDebug( "This is music XML")
-        xbmcplugin.addSortMethod(pluginhandle, 12 ) #artist title ignore THE
-        xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
-        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
         artist(url, tree)
     elif view_group== 'album' or view_group == 'albums':
-        xbmcplugin.addSortMethod(pluginhandle, 24 ) #album title ignore THE
-        xbmcplugin.addSortMethod(pluginhandle, 12 )  #artist ignore THE
-        xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
-        xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
         albums(url,tree)
     elif view_group == 'track':
         printDebug("This is track XML")
@@ -2713,7 +2706,10 @@ def artist( url, tree=None ):
     '''
     printDebug("== ENTER: artist ==", False)
     xbmcplugin.setContent(pluginhandle, 'artists')
-
+    xbmcplugin.addSortMethod(pluginhandle, 12 ) #artist title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
+    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+ 
     #Get the URL and server name.  Get the XML and parse
     tree=getXML(url,tree)
     if tree is None:
@@ -2750,7 +2746,11 @@ def artist( url, tree=None ):
 def albums( url, tree=None ):
     printDebug("== ENTER: albums ==", False)
     xbmcplugin.setContent(pluginhandle, 'albums')
-
+    xbmcplugin.addSortMethod(pluginhandle, 24 ) #album title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 12 )  #artist ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
+    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+    
     #Get the URL and server name.  Get the XML and parse
     tree=getXML(url,tree)
     if tree is None:
@@ -3089,6 +3089,7 @@ def movieTag(url, server, tree, movie, randomNumber):
              'studio'    : movie.get('studio','').encode('utf-8'),
              'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
              'year'      : int(movie.get('year',0)),
+             'date'      : time.strftime('%d.%m.%Y',(time.strptime(movie.get('originallyAvailableAt'), '%Y-%m-%d'))),
              'tagline'   : movie.get('tagline','')}
 
     #Extra data required to manage other properties
@@ -3099,6 +3100,7 @@ def movieTag(url, server, tree, movie, randomNumber):
                'key'          : movie.get('key',''),
                'ratingKey'    : str(movie.get('ratingKey',0)),
                'duration'     : duration,
+               'dateadded'    : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt',0)))),
                'resume'       : int (int(view_offset)/1000) }
 
     #Determine what tupe of watched flag [overlay] to use
@@ -5346,7 +5348,6 @@ else:
         TVShows(param_url)
 
     elif mode == _MODE_MOVIES:
-        xbmcplugin.addSortMethod(pluginhandle, 25  )
         Movies(param_url)
 
     elif mode == _MODE_ARTISTS:
