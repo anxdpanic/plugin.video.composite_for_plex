@@ -48,21 +48,11 @@ except ImportError:
     import pickle
 
 try:
-    # Python 2.5
-    import xml.etree.cElementTree as etree
-    print("PleXBMC -> Running with cElementTree on Python 2.5+")
+    # normal ElementTree install
+    import xml.etree.ElementTree as etree
+    print("PleXBMC -> Running with built-in ElementTree")
 except ImportError:
-    try:
-        # normal cElementTree install
-        import cElementTree as etree
-        print("PleXBMC -> Running with built-in cElementTree")
-    except ImportError:
-        try:
-            # normal ElementTree install
-            import xml.etree.ElementTree as etree
-            print("PleXBMC -> Running with built-in ElementTree")
-        except ImportError:
-            print("PleXBMC -> Failed to import ElementTree from any known place")
+    print("PleXBMC -> Failed to import ElementTree from any known place")
 
 __addon__ = xbmcaddon.Addon()
 __plugin__ = __addon__.getAddonInfo('name')
@@ -880,7 +870,7 @@ def getURL(url, suppress=True, type="GET", popup=0):
                     xbmcgui.Dialog().ok("Error",server)
                     
         else:
-            link=data.read()
+            link=str(data.read())
             printDebug("====== XML returned =======")
             printDebug(link, False)
             printDebug("====== XML finished ======")
@@ -1831,7 +1821,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
     extra={}
     
     timings = tree.find('Video')
-    if timings:
+    if timings is not None:
         media_type="video"
     else:
         timings = tree.find('Track')
@@ -1977,7 +1967,7 @@ def playPlaylist ( server, data ):
     
     tree = getXML(server+data['extra'].get('album')+"/children")
     
-    if not tree:
+    if tree is None:
         return
         
     TrackTags=tree.findall('Track')
@@ -4119,8 +4109,11 @@ def fullShelf(server_list={}):
             '''
             
             for section in sections:
+                
+                _PARAM_TOKEN = section.get('token', '')
                 fullpath = section.get('address') + section.get("path")
                 tree = getXML('http://' + fullpath + "/recentlyAdded")
+                _PARAM_TOKEN = server_details.get('token', '')
 
                 '''
                 eetee = etree.ElementTree()
@@ -4175,10 +4168,12 @@ def fullShelf(server_list={}):
         if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
 
             for section in sections:
-
+                
+                _PARAM_TOKEN = section.get('token', '')
                 fullpath = section.get("address") + section.get("path")
                 tree = getXML('http://' + fullpath + "/onDeck")
-
+                _PARAM_TOKEN = server_details.get('token', '')
+                
                 '''
                 eetee = etree.ElementTree()
                 eetee._setroot(tree)
