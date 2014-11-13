@@ -673,7 +673,7 @@ def getMyPlexURL(url_path, renew=False, suppress=True):
     printDebug("url = "+MYPLEX_SERVER+url_path)
 
     try:
-        conn = httplib.HTTPSConnection(MYPLEX_SERVER)#, timeout=5)
+        conn = httplib.HTTPSConnection(MYPLEX_SERVER, timeout=10)
         conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew))
         data = conn.getresponse()
         if ( int(data.status) == 401 )  and not ( renew ):
@@ -824,7 +824,7 @@ def getURL(url, suppress=True, type="GET", popup=0):
 
         printDebug("url = "+url)
         printDebug("header = "+str(authHeader))
-        conn = httplib.HTTPConnection(server, timeout=8)
+        conn = httplib.HTTPConnection(server, timeout=10)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
         
@@ -1401,6 +1401,7 @@ def enforceSkinView(mode):
 def Movies( url, tree=None ):
     printDebug("== ENTER: Movies() ==", False)
     xbmcplugin.setContent(pluginhandle, 'movies')
+    
     xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
     xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
@@ -1408,7 +1409,7 @@ def Movies( url, tree=None ):
     xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
     xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
     xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
-
+    
     #get the server name from the URL, which was passed via the on screen listing..
     tree=getXML(url,tree)
     if tree is None:
@@ -1656,9 +1657,10 @@ def TVSeasons( url ):
 def TVEpisodes( url, tree=None ):
     printDebug("== ENTER: TVEpisodes() ==", False)
     xbmcplugin.setContent(pluginhandle, 'episodes')
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE )  #episode
+    xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
     xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
-    xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
     xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
     xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
     xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
@@ -3070,6 +3072,10 @@ def movieTag(url, server, tree, movie, randomNumber):
     #Gather some data
     view_offset=movie.get('viewOffset',0)
     duration=int(mediaarguments.get('duration',movie.get('duration',0)))/1000
+    if movie.get('originallyAvailableAt') is not None:
+        release_date = time.strftime('%d.%m.%Y',(time.strptime(movie.get('originallyAvailableAt'), '%Y-%m-%d')))
+    else:
+        release_date = ""
 
     #Required listItem entries for XBMC
     details={'plot'      : movie.get('summary','').encode('utf-8') ,
@@ -3079,7 +3085,7 @@ def movieTag(url, server, tree, movie, randomNumber):
              'studio'    : movie.get('studio','').encode('utf-8'),
              'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
              'year'      : int(movie.get('year',0)),
-             'date'      : time.strftime('%d.%m.%Y',(time.strptime(movie.get('originallyAvailableAt'), '%Y-%m-%d'))),
+             'date'      : release_date,
              'tagline'   : movie.get('tagline','')}
 
     #Extra data required to manage other properties
@@ -4212,7 +4218,7 @@ def fullShelf(server_list={}):
 
         if media.get('type',None) == "movie":
 
-            printDebug("Found a recent movie entry: [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
+            printDebug("Found a recent movie entry: [%s]" % (media.get('title','Unknown').encode('UTF-8')), False)
 
             if __settings__.getSetting('movieShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
@@ -4255,16 +4261,16 @@ def fullShelf(server_list={}):
 
                 recentMovieCount += 1
 
-                printDebug("Building Recent window title: %s" % media.get('title', 'Unknown').encode('UTF-8'))
-                printDebug("Building Recent window url: %s" % m_url)
-                printDebug("Building Recent window thumb: %s" % m_thumb)
+                printDebug("Building Recent window title: %s" % media.get('title', 'Unknown').encode('UTF-8'), False)
+                printDebug("Building Recent window url: %s" % m_url, False)
+                printDebug("Building Recent window thumb: %s" % m_thumb, False)
 
             else:
                 continue
 
         elif media.get('type',None) == "season":
 
-            printDebug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
+            printDebug("Found a recent season entry [%s]" % (media.get('parentTitle','Unknown').encode('UTF-8')), False)
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
@@ -4282,9 +4288,9 @@ def fullShelf(server_list={}):
 
             recentSeasonCount += 1
 
-            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'))
-            printDebug("Building Recent window url: %s" % s_url)
-            printDebug("Building Recent window thumb: %s" % s_thumb)
+            printDebug("Building Recent window title: %s" % media.get('parentTitle','Unknown').encode('UTF-8'), False)
+            printDebug("Building Recent window url: %s" % s_url, False)
+            printDebug("Building Recent window thumb: %s" % s_thumb, False)
 
         elif media.get('type') == "album":
 
