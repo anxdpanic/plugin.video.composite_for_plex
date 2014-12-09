@@ -5,7 +5,6 @@ This class implements the Plex GDM (G'Day Mate) protocol to discover
 local Plex Media Servers.  Also allow client registration into all local
 media servers.
 
-
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -95,13 +94,13 @@ class plexgdm:
         try:
             update_sock.sendto("HELLO %s\n%s" % (self.client_header, self.client_data), self.client_register_group)
         except:
-            self.__printDebug( "Error: Unable to send registeration message" , 0)
+            self.__printDebug( "Error: Unable to send registration message" , 0)
         
-        #Now, listen for client discovery reguests and respond.
+        #Now, listen for client discovery requests and respond.
         while self._registration_is_running:
             try:
                 data, addr = update_sock.recvfrom(1024)
-                self.__printDebug("Recieved UDP packet from [%s] containing [%s]" % (addr, data.strip()), 3)
+                self.__printDebug("Received UDP packet from [%s] containing [%s]" % (addr, data.strip()), 3)
             except socket.error, e:
                 pass
             else:
@@ -118,7 +117,7 @@ class plexgdm:
 
         self.__printDebug("Client Update loop stopped",1)
         
-        #When we are finished, then send a final goodbye message to deregister cleanly.
+        #When we are finished, then send a final goodbye message to de-register cleanly.
         self.__printDebug("Sending registration data: BYE %s\n%s" % (self.client_header, self.client_data), 3)
         try:
             update_sock.sendto("BYE %s\n%s" % (self.client_header, self.client_data), self.client_register_group)

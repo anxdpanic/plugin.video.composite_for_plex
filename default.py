@@ -47,6 +47,7 @@ try:
 except ImportError:
     import pickle
 
+	
 __addon__ = xbmcaddon.Addon()
 __plugin__ = __addon__.getAddonInfo('name')
 __version__ = __addon__.getAddonInfo('version')
@@ -59,7 +60,8 @@ __cwd__ = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
 BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
 PLUGINPATH = xbmc.translatePath(os.path.join(__cwd__))
 sys.path.append(BASE_RESOURCE_PATH)
-CACHEDATA = __cachedir__
+
+
 PLEXBMC_VERSION = __version__
 
 print "===== PLEXBMC START ====="
@@ -110,12 +112,16 @@ _SUB_AUDIO_NEVER_SHOW="2"
 g_debug = __settings__.getSetting('debug')
 g_debug_dev = __settings__.getSetting('debug_dev')
 
+import CacheControl
+CACHE=CacheControl.CacheControl(__cachedir__+"cache", True)	
+
+
 # elementtree imports. If debugging on, use python elementtree, as c implementation
 # is horrible for debugging.
 
 if g_debug == "true":
-    print("PleXBMC -> Running with built-in ElemenTree (debug).")
-    import xml.etree.ElementTree as etree
+    print("PleXBMC -> Running with built-in cElemenTree (debug).")
+    import xml.etree.cElementTree as etree
 else:
     try:
         # Python 2.5
@@ -191,6 +197,7 @@ g_channelview = __settings__.getSetting('channelview')
 g_flatten = __settings__.getSetting('flatten')
 printDebug("PleXBMC -> Flatten is: "+ g_flatten, False)
 g_forcedvd = __settings__.getSetting('forcedvd')
+
 
 if g_debug == "true":
     print "PleXBMC -> Settings streaming: " + g_stream
@@ -273,17 +280,17 @@ def discoverAllServers( ):
             else:
                 GDM_debug=0
 
-            gdm_cache_file=CACHEDATA+"gdm.server.cache"
+            gdm_cache_file="gdm.server.cache"
             gdm_cache_ok = False
 
-            gdm_cache_ok, gdm_server_name = checkCache(gdm_cache_file)
+            gdm_cache_ok, gdm_server_name = CACHE.checkCache(gdm_cache_file)
 
             if not gdm_cache_ok:
                 gdm_client = plexgdm.plexgdm(GDM_debug)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
 
-                writeCache(gdm_cache_file, gdm_server_name)
+                CACHE.writeCache(gdm_cache_file, gdm_server_name)
 
             if  ( gdm_cache_ok or gdm_client.discovery_complete ) and gdm_server_name :
                 printDebug("GDM discovery completed")
@@ -319,12 +326,12 @@ def discoverAllServers( ):
     if __settings__.getSetting('myplex_user') != "":
         printDebug( "PleXBMC -> Adding myplex as a server location", False)
 
-        myplex_cache_file=CACHEDATA+"myplex.server.cache"
-        success, das_myplex = checkCache(myplex_cache_file)
+        myplex_cache_file="myplex.server.cache"
+        success, das_myplex = CACHE.checkCache(myplex_cache_file)
 
         if not success:
             das_myplex = getMyPlexServers()
-            writeCache(myplex_cache_file, das_myplex)
+            CACHE.writeCache(myplex_cache_file, das_myplex)
 
         if das_myplex:
             printDebug("MyPlex discovery completed")
@@ -342,63 +349,6 @@ def discoverAllServers( ):
     printDebug("PleXBMC -> serverList is " + str(das_servers), False)
 
     return deduplicateServers(das_servers)
-
-def readCache(cachefile):
-    if __settings__.getSetting("cache") == "false":
-        return (False, None)
-
-    printDebug("CACHE [%s]: attempting to read" % cachefile)
-    cache=xbmcvfs.File(cachefile)
-    cachedata = cache.read()
-    cache.close()
-    if cachedata:
-        printDebug("CACHE [%s]: read: [%s]" % ( cachefile, cachedata))
-        cacheobject = pickle.loads(cachedata)
-        return (True, cacheobject)
-
-    printDebug("CACHE [%s]: empty" % cachefile)
-    return (False, None)
-
-def writeCache(cachefile, object):
-
-    if __settings__.getSetting("cache") == "false":
-        return True
-
-    printDebug("CACHE [%s]: Writing file" % cachefile)
-    cache=xbmcvfs.File(cachefile,'w')
-    cache.write(pickle.dumps(object))
-    cache.close()
-    return True
-
-def checkCache(cachefile, life=3600):
-
-    if __settings__.getSetting("cache") == "false":
-        return (False, None)
-
-    if xbmcvfs.exists(cachefile):
-        printDebug("CACHE [%s]: exists" % cachefile)
-        now = int(round(time.time(),0))
-        created = int(xbmcvfs.Stat(cachefile).st_ctime())
-        modified = int(xbmcvfs.Stat(cachefile).st_mtime())
-        accessed = int(xbmcvfs.Stat(cachefile).st_atime())
-        printDebug ("CACHE [%s]: mod[%s] now[%s] diff[%s]" % ( cachefile, modified, now, now - modified))
-        printDebug ("CACHE [%s]: ctd[%s] mod[%s] acc[%s]" % ( cachefile, created, modified, accessed))
-
-        if ( modified < 0) or ( now - modified ) > life:
-            printDebug("CACHE [%s]: too old, delete" % cachefile)
-            success = xbmcvfs.delete(cachefile)
-            if success:
-                printDebug("CACHE [%s]: deleted" % cachefile)
-            else:
-                printDebug("CACHE [%s]: not deleted" % cachefile)
-        else:
-            printDebug("CACHE [%s]: current" % cachefile)
-
-            return readCache(cachefile)
-    else:
-        printDebug("CACHE [%s]: does not exist" % cachefile)
-
-    return (False, None)
 
 def getLocalServers(ip_address="localhost", port=32400):
     '''
@@ -525,8 +475,8 @@ def deduplicateServers( server_list ):
 def getServerSections (ip_address, port, name, uuid):
     printDebug("== ENTER: getServerSections ==", False)
 
-    cache_file = "%s%s.sections.cache" % (CACHEDATA, uuid)
-    success, temp_list = checkCache(cache_file)
+    cache_file = "%s.sections.cache" % (uuid)
+    success, temp_list = CACHE.checkCache(cache_file)
     
     if not success:
     
@@ -557,15 +507,15 @@ def getServerSections (ip_address, port, name, uuid):
                     'owned'      : '1'})
                 
             
-        writeCache(cache_file, temp_list)
+        CACHE.writeCache(cache_file, temp_list)
         
     return temp_list            
 
 def getMyplexSections ( ):
     printDebug("== ENTER: getMyplexSections ==", False)
     
-    cache_file = "%smyplex.sections.cache" % (CACHEDATA)
-    success, temp_list = checkCache(cache_file)
+    cache_file = "myplex.sections.cache"
+    success, temp_list = CACHE.checkCache(cache_file)
     
     if not success:
     
@@ -591,7 +541,7 @@ def getMyplexSections ( ):
                     'type'       : sections.get('type','Unknown'),
                     'owned'      : sections.get('owned','0') })
                     
-        writeCache(cache_file, temp_list)
+        CACHE.writeCache(cache_file, temp_list)
         
     return temp_list            
 
@@ -5177,7 +5127,6 @@ def setMasterServer () :
     __settings__.setSetting('masterServer',servers[result]['name'])
     return
   
-def deletecache():
     printDebug("== ENTER: deleteCache ==", False)
     #cache_header=".cache.directory"
     cache_suffix = "cache"
@@ -5293,7 +5242,7 @@ elif sys.argv[1] == "master":
 
 #Delete cache and refresh it    
 elif str(sys.argv[1]) == "cacherefresh":
-    deletecache()
+    CACHE.deletecache()
     xbmc.executebuiltin("ReloadSkin()")
 
 #else move to the main code    
@@ -5405,7 +5354,7 @@ else:
         displaySections(shared=True)
         
     elif mode == _MODE_DELETE_REFRESH:
-        deletecache()
+        CACHE.deletecache()
         xbmc.executebuiltin("Container.Refresh")
 
 print "===== PLEXBMC STOP ====="
