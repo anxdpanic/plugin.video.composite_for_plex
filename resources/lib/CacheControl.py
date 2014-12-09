@@ -105,7 +105,7 @@ class CacheControl:
 
 		return (False, None)
 		
-	def deletecache(self):
+	def deleteCache(self):
 		self.__printDebug("== ENTER: deleteCache ==", False)
 		cache_suffix = "cache"
 		dirs, files = xbmcvfs.listdir(self.cache_location)

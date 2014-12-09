@@ -42,11 +42,6 @@ import xbmcvfs
 import xbmc
 import datetime
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 	
 __addon__ = xbmcaddon.Addon()
 __plugin__ = __addon__.getAddonInfo('name')
@@ -5127,25 +5122,7 @@ def setMasterServer () :
     __settings__.setSetting('masterServer',servers[result]['name'])
     return
   
-    printDebug("== ENTER: deleteCache ==", False)
-    #cache_header=".cache.directory"
-    cache_suffix = "cache"
-    dirs, files = xbmcvfs.listdir(CACHEDATA)
-
-    printDebug("List of file: [%s]" % files)
-    printDebug("List of dirs: [%s]" % dirs)
-    
-    for i in files:
-
-        if cache_suffix not in i:
-            continue
-
-        success = xbmcvfs.delete(CACHEDATA+i)
-        if success:
-            printDebug("SUCCESSFUL: removed %s" % i)
-        else:
-            printDebug("UNSUCESSFUL: did not remove %s" % i )
-
+	CACHE.deleteCache()
   
 ##So this is where we really start the plugin.
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv), False)
@@ -5242,7 +5219,7 @@ elif sys.argv[1] == "master":
 
 #Delete cache and refresh it    
 elif str(sys.argv[1]) == "cacherefresh":
-    CACHE.deletecache()
+    CACHE.deleteCache()
     xbmc.executebuiltin("ReloadSkin()")
 
 #else move to the main code    
@@ -5354,7 +5331,7 @@ else:
         displaySections(shared=True)
         
     elif mode == _MODE_DELETE_REFRESH:
-        CACHE.deletecache()
+        CACHE.deleteCache()
         xbmc.executebuiltin("Container.Refresh")
 
 print "===== PLEXBMC STOP ====="
