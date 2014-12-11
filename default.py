@@ -38,7 +38,6 @@ import time
 import inspect
 import base64
 import random
-import xbmcvfs
 import xbmc
 import datetime
 
