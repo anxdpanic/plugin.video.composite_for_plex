@@ -2797,14 +2797,14 @@ def getXML (url, tree=None):
 
         tree=etree.fromstring(html)
 
-    if media.get('message'):
-        xbmcgui.Dialog().ok(media.get('header','Message'),media.get('message',''))
+    if tree.get('message'):
+        xbmcgui.Dialog().ok(tree.get('header','Message'),tree.get('message',''))
         return None
 
-    #setWindowHeading(media)
+    #setWindowHeading(tree)
 
-    return media
-
+    return tree
+	
 def PlexPlugins(url, tree=None):
     '''
         Main function to parse plugin XML from PMS
