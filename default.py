@@ -245,6 +245,7 @@ g_txheaders = {
 global g_sessionID
 g_sessionID=None
         
+#Move to discovery code
 def discoverAllServers( ):
     '''
         Take the users settings and add the required master servers
@@ -295,8 +296,8 @@ def discoverAllServers( ):
             else:
                 printDebug("GDM was not able to discover any servers")
 
-        except:
-            print "PleXBMC -> GDM Issue."
+        except Exception, e:
+            print "PleXBMC -> GDM Issue [%s]" % e
 
     #Set to Disabled
     else:
@@ -344,6 +345,7 @@ def discoverAllServers( ):
 
     return deduplicateServers(das_servers)
 
+#marked for removal
 def getLocalServers(ip_address="localhost", port=32400):
     '''
         Connect to the defined local server (either direct or via bonjour discovery)
@@ -370,6 +372,7 @@ def getLocalServers(ip_address="localhost", port=32400):
                         'owned'     : '1',
                         'master'    : 1,
                         'class'     : ''}
+
 
 def getMyPlexServers( ):
     '''
@@ -5120,8 +5123,6 @@ def setMasterServer () :
     printDebug("Setting master server to: %s" % (servers[result]['name'],))
     __settings__.setSetting('masterServer',servers[result]['name'])
     return
-  
-	CACHE.deleteCache()
   
 ##So this is where we really start the plugin.
 printDebug( "PleXBMC -> Script argument is " + str(sys.argv), False)
