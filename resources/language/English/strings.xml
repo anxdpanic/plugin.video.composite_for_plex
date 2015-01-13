@@ -98,4 +98,7 @@
 	<string id="30095">Use full-res thumbs</string>
 	<string id="30096">Use full-res fanart</string>
 	<string id="30097">Hide watched recently added items</string>
+	<string id="30098">Info</string>
+	<string id="30099">Debug</string>
+	<string id="30100">Debug+</string>
 </strings>

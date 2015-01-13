@@ -20,9 +20,15 @@ except ImportError:
 
 class CacheControl:
 
-	def __init__(self, cache_location, debug=False):
+	def __init__(self, cache_location, debug=0):
 	
 		self.cache_location=cache_location
+		
+		self.DEBUG_OFF=0
+		self.DEBUG_INFO=1
+		self.DEBUG_DEBUG=2
+		self.DEBUG_DEBUGPLUS=3
+		
 		self.debug=debug
 		
 		if self.cache_location[-1] != "/":
@@ -33,14 +39,11 @@ class CacheControl:
 				self.__printDebug("CACHE [%s]: Location does not exist" % self.cache_location)
 				self.cache_location=None
 		
-		self.__printDebug("Running with cache location: %s" % self.cache_location, False)
+		self.__printDebug("Running with cache location: %s" % self.cache_location)
 		
-	def __printDebug(self, msg, functionname=True ):
-		if self.debug:
-			if functionname is False:
-				print "KodeX: %s " % msg
-			else:
-				print "KodeX -> %s: %s" % (inspect.stack()[1][3], msg)
+	def __printDebug(self, msg, level=1):
+		if self.debug >= level:
+			print "KodeX -> %s: %s" % (inspect.stack()[1][3], msg)
 		
 	def readCache(self, cache_name):
 		if self.cache_location is None:
@@ -55,7 +58,8 @@ class CacheControl:
 			self.__printDebug("CACHE [%s]: read error [%s]" % ( cache_name, e))
 		
 		if cachedata:
-			self.__printDebug("CACHE [%s]: read: [%s]" % ( cache_name, cachedata))
+			self.__printDebug("CACHE [%s]: read" % cache_name)
+			self.__printDebug("CACHE [%s]: data: [%s]" % ( cache_name, cachedata), level=self.DEBUG_DEBUGPLUS)
 			cacheobject = pickle.loads(cachedata)
 			return (True, cacheobject)
 
@@ -106,7 +110,7 @@ class CacheControl:
 		return (False, None)
 		
 	def deleteCache(self):
-		self.__printDebug("== ENTER: deleteCache ==", False)
+		self.__printDebug("== ENTER: deleteCache ==")
 		cache_suffix = "cache"
 		dirs, files = xbmcvfs.listdir(self.cache_location)
 

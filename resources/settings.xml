@@ -93,7 +93,7 @@
     <setting id="skipflags" type="bool"  label="30051" default="false" />
   </category>
   <category label="30010" > <!-- debug -->
-  	<setting id="debug" type="bool" label="30014" default="false" />
+  	<setting id="debug" type="enum" label="30014" lvalues="30053|30098|30099|30100" default="0" />
 	<setting id="debug_dev" type="bool" label="Developer Debug" visible="false" default="true" />
   </category>
 </settings>
