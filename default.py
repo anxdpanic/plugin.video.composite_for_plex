@@ -40,6 +40,7 @@ import base64
 import random
 import xbmc
 import datetime
+import xml.etree.ElementTree as etree
 
 __addon__ = xbmcaddon.Addon()
 __plugin__ = __addon__.getAddonInfo('name')
@@ -112,26 +113,6 @@ CACHE=CacheControl.CacheControl(__cachedir__+"cache", True)
 # elementtree imports. If debugging on, use python elementtree, as c implementation
 # is horrible for debugging.
 
-if g_debug == "true":
-    print("PleXBMC -> Running with built-in cElemenTree (debug).")
-    import xml.etree.cElementTree as etree
-else:
-    try:
-        # Python 2.5
-        import xml.etree.cElementTree as etree
-        print("PleXBMC -> Running with cElementTree on Python 2.5+")
-    except ImportError:
-        try:
-            # normal cElementTree install
-            import cElementTree as etree
-            print("PleXBMC -> Running with built-in cElementTree")
-        except ImportError:
-            try:
-                # normal ElementTree install
-                import xml.etree.ElementTree as etree
-                print("PleXBMC -> Running with built-in ElementTree")
-            except ImportError:
-                print("PleXBMC -> Failed to import ElementTree from any known place")
 
 def printDebug( msg, functionname=True ):
     if g_debug == "true":
