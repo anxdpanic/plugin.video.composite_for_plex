@@ -768,7 +768,7 @@ def getURL(url, suppress=True, type="GET", popup=0):
         server=url.split('/')[serversplit]
         urlPath="/"+"/".join(url.split('/')[urlsplit:])
 
-        authHeader=getAuthDetails({'token':_PARAM_TOKEN})
+        authHeader=getAuthDetails({'token':_PARAM_TOKEN}, url_format=False)
 
         printDebug("url = "+url)
         printDebug("header = "+str(authHeader))
