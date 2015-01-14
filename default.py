@@ -1029,7 +1029,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                     if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
                     if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
                     if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
-                    if extraData.get('xbmc_width') : video_codec['width'] = int(extraData.get('xbmc_height'))
+                    if extraData.get('xbmc_width') : video_codec['width'] = int(extraData.get('xbmc_width'))
                     if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
 
                     audio_codec={}
