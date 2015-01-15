@@ -3381,12 +3381,12 @@ def getLinkURL(url, pathData, server, season_shelf=False):
 
     #If key starts with http, then return it
     if path[0:4] == "http":
-        printDebug("Detected http link")
+        printDebug("Detected http link", level=DEBUG_DEBUG)
         return path
 
     #If key starts with a / then prefix with server address
     elif path[0] == '/':
-        printDebug("Detected base path link")
+        printDebug("Detected base path link", level=DEBUG_DEBUG)
         return 'http://%s%s' % (server, path)
 
     #If key starts with plex:// then it requires transcoding
@@ -3404,12 +3404,12 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         return 'plex://'+server+'/'+'/'.join(path.split('/')[3:])
         
     elif path[0:5] == "rtmp:" or path[0:6] == "rtmpe:" :
-        printDebug("Detected RTMP link")
+        printDebug("Detected RTMP link", level=DEBUG_DEBUG)
         return path
 
     #Any thing else is assumed to be a relative path and is built on existing url
     else:
-        printDebug("Detected relative link")
+        printDebug("Detected relative link", level=DEBUG_DEBUG)
         return "%s/%s" % (url, path)
 
     return url
@@ -4291,7 +4291,7 @@ def fullShelf(server_list={}):
 
             recentSeasonCount += 1
 
-        printDebug(" Building Recent window title: %s\n    Building Recent window url: %s\n    Building Recent window thumb: %s" % (title_name, title_url, title_thumb))
+        printDebug(" Building Recent window title: %s\n    Building Recent window url: %s\n    Building Recent window thumb: %s" % (title_name, title_url, title_thumb), level=DEBUG_DEBUG)
         
     clearShelf(recentMovieCount, recentSeasonCount, recentMusicCount, recentPhotoCount)
 
@@ -4381,7 +4381,7 @@ def fullShelf(server_list={}):
 
             ondeckSeasonCount += 1
 
-        printDebug(" Building onDeck window title: %s\n    Building onDeck window url: %s\n    Building onDeck window thumb: %s" % (title_name, title_url, title_thumb))
+        printDebug(" Building onDeck window title: %s\n    Building onDeck window url: %s\n    Building onDeck window thumb: %s" % (title_name, title_url, title_thumb), level=DEBUG_DEBUG)
 
     clearOnDeckShelf(ondeckMovieCount, ondeckSeasonCount)
 
@@ -4391,7 +4391,6 @@ def fullShelf(server_list={}):
     else:
         printDebug("Disabling channel shelf items")
         clearChannelShelf()
-
 
 def displayContent( acceptable_level, content_level ):
 
@@ -4623,7 +4622,7 @@ def shelf( server_list=None ):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb+qToken)
             seasonCount += 1
 
-        printDebug(" Building Recent window title: %s\n        Building Recent window url: %s\n        Building Recent window thumb: %s" % (title_name, title_url, title_thumb))
+        printDebug(" Building Recent window title: %s\n        Building Recent window url: %s\n        Building Recent window thumb: %s" % (title_name, title_url, title_thumb), level=DEBUG_DEBUG)
      
     clearShelf( movieCount, seasonCount, musicCount)
 
@@ -4787,7 +4786,7 @@ def shelfChannel(server_list = None):
 
             channelCount += 1
 
-            printDebug("Building Recent window title: %s\n      Building Recent window url: %s\n      Building Recent window thumb: %s" % (media.get('title', 'Unknown'),c_url,c_thumb))
+            printDebug("Building Recent window title: %s\n      Building Recent window url: %s\n      Building Recent window thumb: %s" % (media.get('title', 'Unknown'),c_url,c_thumb), level=DEBUG_DEBUG)
 
     clearChannelShelf(channelCount)        
     return
