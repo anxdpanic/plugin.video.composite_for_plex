@@ -47,7 +47,6 @@ print "===== PLEXBMC START ====="
 __addon__    = xbmcaddon.Addon()
 __plugin__   = __addon__.getAddonInfo('name')
 __version__  = __addon__.getAddonInfo('version')
-__icon__     = __addon__.getAddonInfo('icon')
 __cachedir__ = __addon__.getAddonInfo('profile')
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
 __cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
