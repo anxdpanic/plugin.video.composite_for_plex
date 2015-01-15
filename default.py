@@ -43,26 +43,31 @@ import xbmc
 import datetime
 import xml.etree.ElementTree as etree
 
-__addon__ = xbmcaddon.Addon()
-__plugin__ = __addon__.getAddonInfo('name')
-__version__ = __addon__.getAddonInfo('version')
-__icon__ = __addon__.getAddonInfo('icon')
+print "===== PLEXBMC START ====="
+
+__addon__    = xbmcaddon.Addon()
+__plugin__   = __addon__.getAddonInfo('name')
+__version__  = __addon__.getAddonInfo('version')
+__icon__     = __addon__.getAddonInfo('icon')
 __cachedir__ = __addon__.getAddonInfo('profile')
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
-__cwd__ = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
+__cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
 
 BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
 PLUGINPATH = xbmc.translatePath(os.path.join(__cwd__))
 sys.path.append(BASE_RESOURCE_PATH)
 
+from settings import addonSettings
+
+settings=addonSettings('plugin.video.plexbmc')
+print settings.__dict__
 
 PLEXBMC_VERSION = __version__
 
-print "===== PLEXBMC START ====="
-print "PleXBMC -> Running Python: " + str(sys.version_info)
-print "PleXBMC -> Running PleXBMC: " + str(PLEXBMC_VERSION)
-print "PleXBMC -> FullRes Thumbs are se to: " + __settings__.getSetting("fullres_thumbs")
-print "PleXBMC -> CWD is set to: " + __cwd__
+print "PleXBMC -> Running Python: %s" % sys.version_info
+print "PleXBMC -> Running PleXBMC: %s " % PLEXBMC_VERSION
+print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.fullres_thumbnails
+print "PleXBMC -> CWD is set to: %s" % __cwd__
 
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
@@ -103,14 +108,11 @@ _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
 _SUB_AUDIO_NEVER_SHOW="2"
 
-#Check debug first...
-g_debug = int(__settings__.getSetting('debug'))
-
 import CacheControl
-CACHE=CacheControl.CacheControl(__cachedir__+"cache", g_debug)	
+CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug)
 
 def printDebug( msg, level=1 ):
-    if g_debug >= level :
+    if settings.debug >= level :
         print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
 
 def getPlatform( ):
@@ -167,10 +169,10 @@ DEBUG_MAP={ DEBUG_OFF : "off",
             DEBUG_DEBUG : "debug",
             DEBUG_DEBUGPLUS : "debug+"}
 
-if g_debug >= DEBUG_INFO:
-    print "PleXBMC -> Settings streaming: " + g_stream
-    print "PleXBMC -> Setting filter menus: " + g_secondary
-    print "PleXBMC -> Setting debug to " + DEBUG_MAP[g_debug]
+if settings.debug >= DEBUG_INFO:
+    print "PleXBMC -> Settings streaming: %s" % g_stream
+    print "PleXBMC -> Setting filter menus: %s" % g_secondary
+    print "PleXBMC -> Setting debug: %s" + DEBUG_MAP[settings.debug]
     if g_streamControl == _SUB_AUDIO_XBMC_CONTROL:
         print "PleXBMC -> Setting stream Control to : XBMC CONTROL (%s)" % g_streamControl
     elif g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
@@ -236,7 +238,7 @@ def discoverAllServers( ):
         try:
             import plexgdm
             printDebug("Attempting GDM lookup on multicast")
-            if g_debug >= DEBUG_INFO:
+            if settings.debug >= DEBUG_INFO:
                 GDM_debug=3
             else:
                 GDM_debug=0
@@ -5243,7 +5245,7 @@ else:
     WINDOW.clearProperty("heading")
     WINDOW.clearProperty("heading2")
 
-    if g_debug >= DEBUG_INFO:
+    if settings.debug >= DEBUG_INFO:
         print "PleXBMC -> Mode: "+str(mode)
         print "PleXBMC -> URL: "+str(param_url)
         print "PleXBMC -> Name: "+str(param_name)
