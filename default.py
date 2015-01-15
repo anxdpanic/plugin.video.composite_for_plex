@@ -167,9 +167,7 @@ def discoverAllServers( ):
     das_servers={}
     das_server_index=0
 
-    g_discovery = __settings__.getSetting('discovery')
-
-    if g_discovery == "1":
+    if settings.discovery == "1":
         printDebug("PleXBMC -> local GDM discovery setting enabled.")
         try:
             import plexgdm
@@ -205,24 +203,21 @@ def discoverAllServers( ):
 
     #Set to Disabled
     else:
-        das_host = __settings__.getSetting('ipaddress')
-        das_port =__settings__.getSetting('port')
 
-        if not das_host or das_host == "<none>":
-            das_host=None
-        elif not das_port:
-            printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
-            das_port=DEFAULT_PORT
+        if settings.das_host:
 
-        printDebug( "PleXBMC -> Settings hostname and port: %s : %s" % ( das_host, das_port))
+            if not settings.das_port:
+                printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
+                settings.das_port=DEFAULT_PORT
 
-        if das_host is not None:
-            local_server = getLocalServers(das_host, das_port)
+            printDebug( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.das_host, settings.das_port))
+
+            local_server = getLocalServers(settings.das_host, settings.das_port)
             if local_server:
                 das_servers[das_server_index] = local_server
                 das_server_index = das_server_index + 1
 
-    if __settings__.getSetting('myplex_user') != "":
+    if settings.myplex_user:
         printDebug( "PleXBMC -> Adding myplex as a server location")
 
         myplex_cache_file="myplex.server.cache"
@@ -275,7 +270,6 @@ def getLocalServers(ip_address="localhost", port=32400):
                         'owned'     : '1',
                         'master'    : 1,
                         'class'     : ''}
-
 
 def getMyPlexServers( ):
     '''

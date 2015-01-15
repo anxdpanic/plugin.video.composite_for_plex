@@ -36,7 +36,12 @@ class addonSettings:
         self.skipmediaflags = self.__translate_bool_settings(settings.getSetting("skipflags"))
         self.skipimages = self.__translate_bool_settings(settings.getSetting("skipimages"))
         self.transcode = self.__translate_bool_settings(settings.getSetting('transcode'))
+        self.discovery = settings.getSetting('discovery')
+        self.das_host = settings.getSetting('ipaddress')
+        self.das_port = settings.getSetting('port')
+        self.myplex_user = settings.getSetting('myplex_user')
 
+        
     def dumpSettings(self):
         return self.__dict__
 
