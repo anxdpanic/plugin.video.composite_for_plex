@@ -2784,7 +2784,7 @@ def getXML (url, tree=None):
     #setWindowHeading(tree)
 
     return tree
-	
+
 def PlexPlugins(url, tree=None):
     '''
         Main function to parse plugin XML from PMS
@@ -3049,7 +3049,7 @@ def movieTag(url, server, tree, movie, randomNumber):
                'dateadded'    : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt',0)))),
                'resume'       : int (int(view_offset)/1000) }
 
-    #Determine what tupe of watched flag [overlay] to use
+    #Determine what type of watched flag [overlay] to use
     if int(movie.get('viewCount',0)) > 0:
         details['playcount'] = 1
     elif int(movie.get('viewCount',0)) == 0:
