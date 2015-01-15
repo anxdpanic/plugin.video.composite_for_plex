@@ -12,30 +12,29 @@ class addonSettings:
         
         self.debug = int(settings.getSetting('debug'))
         self.stream = settings.getSetting('streaming')
-        self.secondary = settings.getSetting('secondary')
+        self.secondary = self.__translate_bool_settings(settings.getSetting('secondary'))
         self.streamControl = settings.getSetting('streamControl')
-        self.channelview = settings.getSetting('channelview')
+        self.channelview = self.__translate_bool_settings(settings.getSetting('channelview'))
         self.flatten = settings.getSetting('flatten')
-        self.forcedvd = settings.getSetting('forcedvd')
-        self.wolon = settings.getSetting('wolon')
+        self.forcedvd = self.__translate_bool_settings(settings.getSetting('forcedvd'))
+        self.wolon = self.__translate_bool_settings(settings.getSetting('wolon'))
         self.wakeserver=[]
-        if self.wolon == "true":
+        if self.wolon:
             for servers in range(1,12):
-                self.wakeserver[servers] = settings.getSetting('wol'+str(i))
+                self.wakeserver.append(settings.getSetting('wol%s' % servers))
         
-        self.fullres_thumbnails = settings.getSetting('fullres_thumbs')
-        self.nasoverride = settings.getSetting('nasoverride')
+        self.fullres_thumbnails = self.__translate_bool_settings(settings.getSetting('fullres_thumbs'))
+        self.fullres_fanart= self.__translate_bool_settings(settings.getSetting("fullres_fanart"))
+        self.nasoverride = self.__translate_bool_settings(settings.getSetting('nasoverride'))
         self.nasoverrideip = settings.getSetting('nasoverrideip')
         self.nasroot = settings.getSetting('nasroot')
-        if settings.getSetting("contextreplace") == "true":
-            self.contextReplace=True
-        else:
-            self.contextReplace=False
-            
-        self.skipcontext = settings.getSetting("skipcontextmenus")
-        self.skipmetadata = settings.getSetting("skipmetadata")
-        self.skipmediaflags = settings.getSetting("skipflags")
-        self.skipimages = settings.getSetting("skipimages")
+        self.nasuserid=settings.getSetting('nasuserid')
+        self.naspass=settings.getSetting('naspass')
+        self.contextReplace=self.__translate_bool_settings(settings.getSetting("contextreplace"))        
+        self.skipcontext = self.__translate_bool_settings(settings.getSetting("skipcontextmenus"))
+        self.skipmetadata = self.__translate_bool_settings(settings.getSetting("skipmetadata"))
+        self.skipmediaflags = self.__translate_bool_settings(settings.getSetting("skipflags"))
+        self.skipimages = self.__translate_bool_settings(settings.getSetting("skipimages"))
         self.transcode = self.__translate_bool_settings(settings.getSetting('transcode'))
 
     def dumpSettings(self):

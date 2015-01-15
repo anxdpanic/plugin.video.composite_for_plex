@@ -129,35 +129,24 @@ def getPlatform( ):
         return "Linux/RPi"
     elif xbmc.getCondVisibility('system.platform.android'): 
         return "Linux/Android"
-
     return "Unknown"
 
-PLEXBMC_PLATFORM=getPlatform()
-print "PleXBMC -> Platform: " + str(PLEXBMC_PLATFORM)
+print "PleXBMC -> Platform: %s" % getPlatform()
 
 #Next Check the WOL status - lets give the servers as much time as possible to come up
-g_wolon = __settings__.getSetting('wolon')
-if g_wolon == "true":
+if settings.wolon:
     from WOL import wake_on_lan
-    printDebug("PleXBMC -> Wake On LAN: " + g_wolon)
-    for i in range(1,12):
-        wakeserver = __settings__.getSetting('wol'+str(i))
-        if not wakeserver == "":
+    printDebug("PleXBMC -> Wake On LAN: true")
+    for servers in settings.wakeserver:
+        if servers:
             try:
-                printDebug ("PleXBMC -> Waking server " + str(i) + " with MAC: " + wakeserver)
-                wake_on_lan(wakeserver)
+                printDebug("PleXBMC -> Waking server with MAC: %s" % servers)
+                wake_on_lan(servers)
             except ValueError:
-                printDebug("PleXBMC -> Incorrect MAC address format for server " + str(i))
+                printDebug("PleXBMC -> Incorrect MAC address format for server %s" % servers)
             except:
                 printDebug("PleXBMC -> Unknown wake on lan error")
 
-g_stream = __settings__.getSetting('streaming')
-g_secondary = __settings__.getSetting('secondary')
-g_streamControl = __settings__.getSetting('streamControl')
-g_channelview = __settings__.getSetting('channelview')
-g_flatten = __settings__.getSetting('flatten')
-printDebug("PleXBMC -> Flatten is: "+ g_flatten)
-g_forcedvd = __settings__.getSetting('forcedvd')
 
 DEBUG_OFF=0
 DEBUG_INFO=1
@@ -170,42 +159,27 @@ DEBUG_MAP={ DEBUG_OFF : "off",
             DEBUG_DEBUGPLUS : "debug+"}
 
 if settings.debug >= DEBUG_INFO:
-    print "PleXBMC -> Settings streaming: %s" % g_stream
-    print "PleXBMC -> Setting filter menus: %s" % g_secondary
-    print "PleXBMC -> Setting debug: %s" + DEBUG_MAP[settings.debug]
-    if g_streamControl == _SUB_AUDIO_XBMC_CONTROL:
-        print "PleXBMC -> Setting stream Control to : XBMC CONTROL (%s)" % g_streamControl
-    elif g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
-        print "PleXBMC -> Setting stream Control to : PLEX CONTROL (%s)" % g_streamControl
-    elif g_streamControl == _SUB_AUDIO_NEVER_SHOW:
-        print "PleXBMC -> Setting stream Control to : NEVER SHOW (%s)" % g_streamControl
+    print "PleXBMC -> Settings streaming: %s" % settings.stream
+    print "PleXBMC -> Setting filter menus: %s" % settings.secondary
+    print "PleXBMC -> Setting debug: %s" % DEBUG_MAP[settings.debug]
+    print "PleXBMC -> Flatten is: %s" % settings.flatten
+    if settings.streamControl == _SUB_AUDIO_XBMC_CONTROL:
+        print "PleXBMC -> Setting stream Control to : XBMC CONTROL"
+    elif settings.streamControl == _SUB_AUDIO_PLEX_CONTROL:
+        print "PleXBMC -> Setting stream Control to : PLEX CONTROL"
+    elif settings.streamControl == _SUB_AUDIO_NEVER_SHOW:
+        print "PleXBMC -> Setting stream Control to : NEVER SHOW"
 
-    print "PleXBMC -> Force DVD playback: " + g_forcedvd
+    print "PleXBMC -> Force DVD playback: %s" % settings.forcedvd
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
 #NAS Override
-g_nasoverride = __settings__.getSetting('nasoverride')
-printDebug("PleXBMC -> SMB IP Override: " + g_nasoverride)
-if g_nasoverride == "true":
-    g_nasoverrideip = __settings__.getSetting('nasoverrideip')
-    if g_nasoverrideip == "":
-        printDebug("PleXBMC -> No NAS IP Specified.  Ignoring setting")
-    else:
-        printDebug("PleXBMC -> NAS IP: " + g_nasoverrideip)
-
-    g_nasroot = __settings__.getSetting('nasroot')
-
-#Get look and feel
-if __settings__.getSetting("contextreplace") == "true":
-    g_contextReplace=True
+printDebug("PleXBMC -> SMB IP Override: %s" % settings.nasoverride)
+if settings.nasoverride and not settings.nasoverrideip:
+    printDebug("PleXBMC -> No NAS IP Specified.  Ignoring setting")
 else:
-    g_contextReplace=False
-
-g_skipcontext = __settings__.getSetting("skipcontextmenus")
-g_skipmetadata = __settings__.getSetting("skipmetadata")
-g_skipmediaflags = __settings__.getSetting("skipflags")
-g_skipimages = __settings__.getSetting("skipimages")
+    printDebug("PleXBMC -> NAS IP: " + settings.nasoverrideip)
 
 g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
 
@@ -843,9 +817,7 @@ def mediaType( partData, server, dvdplayback=False ):
     stream=partData['key']
     file=partData['file']
 
-    global g_stream
-
-    if ( file is None ) or ( g_stream == "1" ):
+    if ( file is None ) or ( settings.stream == "1" ):
         printDebug( "Selecting stream")
         return "http://"+server+stream
 
@@ -866,7 +838,7 @@ def mediaType( partData, server, dvdplayback=False ):
         type="notsure"
 
     # 0 is auto select.  basically check for local file first, then stream if not found
-    if g_stream == "0":
+    if settings.stream == "0":
         #check if the file can be found locally
         if type == "nixfile" or type == "winfile":
             try:
@@ -880,14 +852,14 @@ def mediaType( partData, server, dvdplayback=False ):
         printDebug("No local file")
         if dvdplayback:
             printDebug("Forcing SMB for DVD playback")
-            g_stream="2"
+            settings.stream="2"
         else:
             return "http://"+server+stream
 
 
     # 2 is use SMB
-    elif g_stream == "2" or g_stream == "3":
-        if g_stream == "2":
+    elif settings.stream == "2" or settings.stream == "3":
+        if settings.stream == "2":
             protocol="smb"
         else:
             protocol="afp"
@@ -900,15 +872,14 @@ def mediaType( partData, server, dvdplayback=False ):
             server=server.split(':')[0]
             loginstring=""
 
-            if g_nasoverride == "true":
-                if not g_nasoverrideip == "":
-                    server=g_nasoverrideip
+            if settings.nasoverride:
+                if settings.nasoverrideip:
+                    server=settings.nasoverrideip
                     printDebug("Overriding server with: " + server)
 
-                nasuser=__settings__.getSetting('nasuserid')
-                if not nasuser == "":
-                    loginstring=__settings__.getSetting('nasuserid')+":"+__settings__.getSetting('naspass')+"@"
-                    printDebug("Adding AFP/SMB login info for user " + nasuser)
+                if settings.nasuserid:
+                    loginstring="%s:%s@" % (settings.nasuserid, settings.naspass)
+                    printDebug("Adding AFP/SMB login info for user: %s" % settings.nasuserid)
 
 
             if file.find('Volumes') > 0:
@@ -920,12 +891,12 @@ def mediaType( partData, server, dvdplayback=False ):
                     #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
                     filelocation=protocol+"://"+loginstring+server+file
 
-        if g_nasoverride == "true" and g_nasroot != "":
+        if settings.nasoverride and settings.nasroot:
             #Re-root the file path
-            printDebug("Altering path " + filelocation + " so root is: " +  g_nasroot)
-            if '/'+g_nasroot+'/' in filelocation:
+            printDebug("Altering path " + filelocation + " so root is: " +  settings.nasroot)
+            if '/'+settings.nasroot+'/' in filelocation:
                 components = filelocation.split('/')
-                index = components.index(g_nasroot)
+                index = components.index(settings.nasroot)
                 for i in range(3,index):
                     components.pop(3)
                 filelocation='/'.join(components)
@@ -1017,7 +988,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 liz.setProperty('TotalTime', str(extraData.get('duration')))
                 liz.setProperty('ResumeTime', str(extraData.get('resume')))
 
-                if g_skipmediaflags == "false":
+                if not settings.skipmediaflags:
                     printDebug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
                     liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
                     liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
@@ -1093,7 +1064,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 context.insert(0,('Play Transcoded', plugin_url , ))
                 printDebug("Setting transcode options to [%s]" % plugin_url)
 
-            liz.addContextMenuItems( context, g_contextReplace )
+            liz.addContextMenuItems( context, settings.contextReplace )
 
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
 
@@ -1148,7 +1119,7 @@ def displaySections( filter=None, shared=False ):
                 printDebug("Ignoring section "+details['title']+" of type " + section.get('type') + " as unable to process")
                 continue
 
-            if g_secondary == "true":
+            if settings.secondary:
                 mode=_MODE_GETCONTENT
             else:
                 path=path+'/all'
@@ -1156,7 +1127,7 @@ def displaySections( filter=None, shared=False ):
             extraData['mode']=mode
             s_url='http://%s%s' % ( section['address'], path)
 
-            if g_skipcontext == "false":
+            if not settings.skipcontext:
                 context=[]
                 refreshURL="http://"+section.get('address')+section.get('path')+"/refresh"
                 libraryRefresh = "RunScript(plugin.video.plexbmc, update ," + refreshURL + ")"
@@ -1494,7 +1465,7 @@ def TVShows( url, tree=None ):
             extraData['partialTV'] = 1
 
         #Create URL based on whether we are going to flatten the season view
-        if g_flatten == "2":
+        if settings.flatten == "2":
             printDebug("Flattening all shows")
             extraData['mode']=_MODE_TVEPISODES
             u='http://%s%s'  % ( server, extraData['key'].replace("children","allLeaves"))
@@ -1502,7 +1473,7 @@ def TVShows( url, tree=None ):
             extraData['mode']=_MODE_TVSEASONS
             u='http://%s%s'  % ( server, extraData['key'])
 
-        if g_skipcontext == "false":
+        if not settings.skipcontext:
             context=buildContextMenu(url, extraData)
         else:
             context=None
@@ -1527,7 +1498,7 @@ def TVSeasons( url ):
         return
 
     willFlatten=False
-    if g_flatten == "1":
+    if settings.flatten == "1":
         #check for a single season
         if int(tree.get('size',0)) == 1:
             printDebug("Flattening single season show")
@@ -1586,7 +1557,7 @@ def TVSeasons( url ):
 
         url='http://%s%s' % ( server , extraData['key'] )
 
-        if g_skipcontext == "false":
+        if not settings.skipcontext:
             context=buildContextMenu(url, season)
         else:
             context=None
@@ -1628,7 +1599,7 @@ def TVEpisodes( url, tree=None ):
     ShowTags=tree.findall('Video')
     server=getServerFromURL(url)
 
-    if g_skipimages == "false":
+    if not settings.skipimages:
         sectionart=getFanart(tree, server)
 
     randomNumber=str(random.randint(1000000000,9999999999))
@@ -1644,13 +1615,13 @@ def TVEpisodes( url, tree=None ):
         for child in episode:
             if child.tag == "Media":
                 mediaarguments = dict(child.items())
-            elif child.tag == "Genre" and g_skipmetadata == "false":
+            elif child.tag == "Genre" and not settings.skipmetadata:
                 tempgenre.append(child.get('tag'))
-            elif child.tag == "Writer"  and g_skipmetadata == "false":
+            elif child.tag == "Writer"  and not settings.skipmetadata:
                 tempwriter.append(child.get('tag'))
-            elif child.tag == "Director"  and g_skipmetadata == "false":
+            elif child.tag == "Director"  and not settings.skipmetadata:
                 tempdir.append(child.get('tag'))
-            elif child.tag == "Role"  and g_skipmetadata == "false":
+            elif child.tag == "Role"  and not settings.skipmetadata:
                 tempcast.append(child.get('tag'))
 
         printDebug("Media attributes are " + str(mediaarguments))
@@ -1692,7 +1663,7 @@ def TVEpisodes( url, tree=None ):
                    'duration'     : duration,
                    'resume'       : int(int(view_offset)/1000) }
 
-        if extraData['fanart_image'] == "" and g_skipimages == "false":
+        if extraData['fanart_image'] == "" and not settings.skipimages:
             extraData['fanart_image'] = sectionart
 
         if season_thumb:
@@ -1712,18 +1683,18 @@ def TVEpisodes( url, tree=None ):
             details['playcount'] = 0
 
         #Extended Metadata
-        if g_skipmetadata == "false":
+        if not settings.skipmetadata:
             details['cast']     = tempcast
             details['director'] = " / ".join(tempdir)
             details['writer']   = " / ".join(tempwriter)
             details['genre']    = " / ".join(tempgenre)
 
         #Add extra media flag data
-        if g_skipmediaflags == "false":
+        if not settings.skipmediaflags:
             extraData.update(getMediaData(mediaarguments))
 
         #Build any specific context menu entries
-        if g_skipcontext == "false":
+        if not settings.skipcontext:
             context=buildContextMenu(url, extraData)
         else:
             context=None
@@ -1854,7 +1825,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
             except: pass
 
     #if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == "video" and g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
+    if media_type == "video" and settings.streamControl == _SUB_AUDIO_PLEX_CONTROL:
 
         contents="all"
         tags=tree.getiterator('Stream')
@@ -2073,14 +2044,14 @@ def setAudioSubtitles( stream ):
         printDebug ("No audio or subtitle streams to process.")
 
         #If we have decided to force off all subs, then turn them off now and return
-        if g_streamControl == _SUB_AUDIO_NEVER_SHOW :
+        if settings.streamControl == _SUB_AUDIO_NEVER_SHOW :
             xbmc.Player().showSubtitles(False)
             printDebug ("All subs disabled")
 
         return True
 
     #Set the AUDIO component
-    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
+    if settings.streamControl == _SUB_AUDIO_PLEX_CONTROL:
         printDebug("Attempting to set Audio Stream")
 
         audio = stream['audio']
@@ -2098,7 +2069,7 @@ def setAudioSubtitles( stream ):
                 printDebug ("Error setting audio, will use embedded default stream")
 
     #Set the SUBTITLE component
-    if g_streamControl == _SUB_AUDIO_PLEX_CONTROL:
+    if settings.streamControl == _SUB_AUDIO_PLEX_CONTROL:
         printDebug("Attempting to set preferred subtitle Stream")
         subtitle=stream['subtitle']
         if subtitle:
@@ -2145,7 +2116,7 @@ def selectMedia( data, server ):
             else:
                 name="%s %s %sMbps" % (items[0].split('.')[-1], details[indexCount]['videoResolution'], details[indexCount]['bitrate'])
                 
-            if g_forcedvd == "true":
+            if settings.forcedvd:
                 if '.ifo' in name.lower():
                     printDebug( "Found IFO DVD file in " + name )
                     name="DVD Image"
@@ -2165,7 +2136,7 @@ def selectMedia( data, server ):
             dvdplayback=True
 
     else:
-        if g_forcedvd == "true":
+        if settings.forcedvd:
             if '.ifo' in options[result]:
                 dvdplayback=True
 
@@ -3009,13 +2980,13 @@ def movieTag(url, server, tree, movie, randomNumber):
     for child in movie:
         if child.tag == "Media":
             mediaarguments = dict(child.items())
-        elif child.tag == "Genre" and g_skipmetadata == "false":
+        elif child.tag == "Genre" and not settings.skipmetadata:
             tempgenre.append(child.get('tag'))
-        elif child.tag == "Writer"  and g_skipmetadata == "false":
+        elif child.tag == "Writer"  and not settings.skipmetadata:
             tempwriter.append(child.get('tag'))
-        elif child.tag == "Director"  and g_skipmetadata == "false":
+        elif child.tag == "Director"  and not settings.skipmetadata:
             tempdir.append(child.get('tag'))
-        elif child.tag == "Role"  and g_skipmetadata == "false":
+        elif child.tag == "Role"  and not settings.skipmetadata:
             tempcast.append(child.get('tag'))
 
     printDebug("Media attributes are " + str(mediaarguments))
@@ -3057,18 +3028,18 @@ def movieTag(url, server, tree, movie, randomNumber):
         details['playcount'] = 0
 
     #Extended Metadata
-    if g_skipmetadata == "false":
+    if not settings.skipmetadata:
         details['cast']     = tempcast
         details['director'] = " / ".join(tempdir)
         details['writer']   = " / ".join(tempwriter)
         details['genre']    = " / ".join(tempgenre)
 
     #Add extra media flag data
-    if g_skipmediaflags == "false":
+    if not settings.skipmediaflags:
         extraData.update(getMediaData(mediaarguments))
 
     #Build any specific context menu entries
-    if g_skipcontext == "false":
+    if not settings.skipcontext:
         context=buildContextMenu(url, extraData)
     else:
         context=None
@@ -3290,7 +3261,7 @@ def getThumb(data, server, width=720, height=720):
         @ return formatted URL
     '''
 
-    if g_skipimages == "true":
+    if settings.skipimages:
         return ''
 
     thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
@@ -3302,9 +3273,8 @@ def getThumb(data, server, width=720, height=720):
         return thumbnail
 
     elif thumbnail[0] == '/':
-        if __settings__.getSetting("fullres_thumbs") != "false":
+        if settings.fullres_thumbnails:
             return 'http://'+server+thumbnail
-
         else:
             return photoTranscode(server, 'http://localhost:32400'+thumbnail, width, height)
 
@@ -3331,9 +3301,8 @@ def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
         return thumbnail
 
     elif thumbnail[0] == '/':
-        if __settings__.getSetting("fullres_thumbs") != "false":
+        if settings.fullres_thumbnails:
             return 'http://'+server+thumbnail
-
         else:
             return photoTranscode(server, 'http://localhost:32400' + thumbnail, width, height)
 
@@ -3347,7 +3316,7 @@ def getFanart(data, server, width=1280, height=720):
         @ input: elementTree element, server name
         @ return formatted URL for photo resizing
     '''
-    if g_skipimages == "true":
+    if settings.skipimages:
         return ''
         
     fanart=data.get('art','').encode('utf-8')
@@ -3359,7 +3328,7 @@ def getFanart(data, server, width=1280, height=720):
         return fanart
 
     elif fanart[0] == '/':
-        if __settings__.getSetting("fullres_fanart") != "false":
+        if settings.fullres_fanart:
             return 'http://%s%s' % (server, fanart)
         else:
             return photoTranscode(server, 'http://localhost:32400' + fanart, width, height)
@@ -3611,7 +3580,7 @@ def skin( server_list=None, type=None ):
         aToken=getAuthDetails(section)
         qToken=getAuthDetails(section, prefix='?')
 
-        if g_secondary == "true":
+        if settings.secondary:
             mode=_MODE_GETCONTENT
         else:
             path=path+'/all'
@@ -3704,7 +3673,7 @@ def skin( server_list=None, type=None ):
         aToken=getAuthDetails(server)
         qToken=getAuthDetails(server, prefix='?')
         
-        if g_channelview == "true":
+        if settings.channelview:
             WINDOW.setProperty("plexbmc.channel", "1")
             WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['server']+":"+server['port']+"/system/plugins/all&mode=21"+aToken+",return)")
         else:
@@ -3832,7 +3801,7 @@ def amberskin():
         printDebug(aToken)
         printDebug("===/TOKENS ===")
 
-        if g_secondary == "true":
+        if settings.secondary:
             mode=_MODE_GETCONTENT
         else:
             path=path+'/all'
@@ -3929,7 +3898,7 @@ def amberskin():
         aToken=getAuthDetails(server)
         #qToken=getAuthDetails(server, prefix='?')
 
-        if g_channelview == "true":
+        if settings.channelview:
             WINDOW.setProperty("plexbmc.channel", "1")
             WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['server']+":"+server['port']+"/system/plugins/all&mode=21"+aToken+",return)")
         else:
@@ -4936,8 +4905,7 @@ def getTranscodeSettings( override=False ):
 
     if g_transcode == "true":
         #If transcode is set, ignore the stream setting for file and smb:
-        global g_stream
-        g_stream = "1"
+        settings.stream = "1"
         printDebug( "We are set to Transcode, overriding stream selection")
         global g_transcodefmt
         g_transcodefmt="m3u8"
