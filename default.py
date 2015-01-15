@@ -1217,7 +1217,16 @@ def displaySections( filter=None, shared=False ):
 
             u="http://"+server['server']+":"+server['port']+"/system/plexonline"
             addGUIItem(u,details,extraData)
-                        
+            
+            #create playlist link
+            details['title']=prefix+"Playlists"
+            extraData['type'] = "file"
+            extraData['thumb'] = g_thumb
+            extraData['mode'] = _MODE_PLAYLISTS
+
+            u="http://"+server['server']+":"+server['port']+"/playlists"
+            addGUIItem(u,details,extraData)
+            
             
         if __settings__.getSetting("cache") == "true":
             details = {'title' : "Refresh Data"}
@@ -2481,7 +2490,7 @@ def getContent( url ):
 
     setWindowHeading(tree)
 
-    if lastbit == "folder":
+    if lastbit == "folder" or lastbit == "playlists":
         processXML(url,tree)
         return
 
@@ -2767,7 +2776,7 @@ def getXML (url, tree=None):
         html=getURL(url)
 
         if html is False:
-            print "PleXBMC -> Server [%s] offline, not responding or no data was receieved" % getServerFromURL(url)
+            print "PleXBMC -> Server [%s] offline, not responding or no data was received" % getServerFromURL(url)
             return None
 
         tree=etree.fromstring(html)
@@ -2979,6 +2988,9 @@ def processXML( url, tree=None ):
 
         elif plugin.tag == "Track":
             trackTag(server, tree, plugin)
+
+        elif plugin.tag == "Playlist":
+            playlistTag(url, server, tree, plugin)
             
         elif tree.get('viewGroup') == "movie":
             Movies(url, tree)
@@ -3131,6 +3143,30 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
 
     if listing:
         addGUIItem(u,details,extraData,folder=False)
+    else:
+        return ( url, details )
+
+def playlistTag(url, server, tree, track, sectionart="", sectionthumb="", listing=True ):
+    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+
+    details={'title'       : track.get('title','Unknown').encode('utf-8') ,
+             'duration'    : int(track.get('duration',0))/1000 
+             }
+
+    extraData={'type'         : track.get('playlistType', ''),
+               'thumb'      : getThumb({'thumb' : track.get('composite', '')},server)} 
+
+    if extraData['type'] == "video":
+        extraData['mode'] = _MODE_MOVIES
+    elif extraData['type'] == "audio":
+        extraData['mode'] = _MODE_TRACKS
+    else:
+        extraData['mode']=_MODE_GETCONTENT
+    
+    u=getLinkURL(url, track, server)
+
+    if listing:
+        addGUIItem(u,details,extraData,folder=True)
     else:
         return ( url, details )
 
@@ -5316,6 +5352,9 @@ else:
     elif mode == _MODE_DELETE_REFRESH:
         CACHE.deleteCache()
         xbmc.executebuiltin("Container.Refresh")
+
+    elif mode == _MODE_PLAYLISTS:
+        processXML(param_url)
         
 
         
