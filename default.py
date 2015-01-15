@@ -3369,11 +3369,10 @@ def getLinkURL(url, pathData, server, season_shelf=False):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
     if not season_shelf:
         path = pathData.get('key', '')
-        printDebug("Path is " + path)
-    
     else:
         path = pathData.get('parentKey', '') + "/children"
-        printDebug("Path is " + path)
+        
+    printDebug("Path is " + path, level=DEBUG_DEBUG)
 
     if path == '':
         printDebug("Empty Path")
@@ -3391,7 +3390,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
 
     #If key starts with plex:// then it requires transcoding
     elif path[0:5] == "plex:":
-        printDebug("Detected plex link")
+        printDebug("Detected plex link", level=DEBUG_DEBUG)
         components = path.split('&')
         for i in components:
             if 'prefix=' in i:
@@ -4168,12 +4167,12 @@ def fullShelf(server_list={}):
 
         if media.get('type',None) == "movie":
 
-            title_name=media.get('title','Unknown').encode('UTF-8')
-            printDebug("Found a recent movie entry: [%s]" % title_name)
-
             if __settings__.getSetting('movieShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
                 continue
+
+            title_name=media.get('title','Unknown').encode('UTF-8')
+            printDebug("Found a recent movie entry: [%s]" % title_name)
 
             if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
 
@@ -4241,12 +4240,13 @@ def fullShelf(server_list={}):
             if __settings__.getSetting('musicShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
                 continue
-            printDebug("Found a recent album entry")
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_TRACKS, aToken)
             title_thumb=getShelfThumb(media,server_address,seasonThumb=0)+aToken
 
+            printDebug("Found a recent album entry: [%s]", title_name)
+            
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % recentMusicCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % recentMusicCount, media.get('title','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % recentMusicCount, title_name)
@@ -4256,11 +4256,12 @@ def fullShelf(server_list={}):
 
         elif media.get('type') == "photo":
 
-            printDebug("Found a recent photo entry: [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
 
             title_name=media.get('title','Unknown').encode('UTF-8')
             title_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=http://%s%s&mode=%s%s,return" % ( server_address, "/recentlyAdded", _MODE_PHOTOS, aToken)
             title_thumb = getShelfThumb(media, server_address, seasonThumb=0) + aToken
+
+            printDebug("Found a recent photo entry: [%s]" % title_name)
 
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Path" % recentPhotoCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Title" % recentPhotoCount, title_name)
@@ -4270,13 +4271,13 @@ def fullShelf(server_list={}):
 
         elif media.get('type',None) == "episode":
 
-            printDebug("Found an Recent episode entry [%s]" % ( media.get('title','Unknown').encode('UTF-8') , ))
+            title_name=media.get('title','Unknown').encode('UTF-8')
+            printDebug("Found an Recent episode entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_name=media.get('title','Unknown').encode('UTF-8')
             title_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address, media, server_address, season_shelf=True), _MODE_TVEPISODES, aToken)
             title_thumb = getShelfThumb(media, server_address, seasonThumb=1) + aToken
 
