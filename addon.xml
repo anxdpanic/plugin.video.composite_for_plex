@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.plexbmc" name="PleXBMC" version="3.5.5" provider-name="Hippojay (plexbmc@h-jay.com)">
+<addon  id="plugin.video.plexbmc" name="PleXBMC" version="3.6.0" provider-name="Hippojay (plexbmc@h-jay.com)">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
   </requires>
