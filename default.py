@@ -1956,7 +1956,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     id=vids.split('?')[0].split('&')[0].split('/')[-1]
 
     tree=getXML(vids)
-    if not tree:
+    if tree is not None:
         return
             
     if force:
