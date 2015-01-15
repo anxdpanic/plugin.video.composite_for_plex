@@ -36,7 +36,6 @@ import socket
 import sys
 import os
 import time
-import inspect
 import base64
 import random
 import xbmc
@@ -58,16 +57,8 @@ PLUGINPATH = xbmc.translatePath(os.path.join(__cwd__))
 sys.path.append(BASE_RESOURCE_PATH)
 
 from settings import addonSettings
-
-settings=addonSettings('plugin.video.plexbmc')
-print settings.__dict__
-
-PLEXBMC_VERSION = __version__
-
-print "PleXBMC -> Running Python: %s" % sys.version_info
-print "PleXBMC -> Running PleXBMC: %s " % PLEXBMC_VERSION
-print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.fullres_thumbnails
-print "PleXBMC -> CWD is set to: %s" % __cwd__
+import CacheControl
+from common import *
 
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
@@ -108,46 +99,6 @@ _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
 _SUB_AUDIO_NEVER_SHOW="2"
 
-import CacheControl
-CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug)
-
-def printDebug( msg, level=1 ):
-    if settings.debug >= level :
-        print "PleXBMC -> " + inspect.stack()[1][3] + ": " + str(msg)
-
-def getPlatform( ):
-
-    if xbmc.getCondVisibility('system.platform.osx'):
-        return "OSX"
-    elif xbmc.getCondVisibility('system.platform.atv2'):
-        return "ATV2"
-    elif xbmc.getCondVisibility('system.platform.ios'):
-        return "iOS"
-    elif xbmc.getCondVisibility('system.platform.windows'):
-        return "Windows"
-    elif xbmc.getCondVisibility('system.platform.linux'):
-        return "Linux/RPi"
-    elif xbmc.getCondVisibility('system.platform.android'): 
-        return "Linux/Android"
-    return "Unknown"
-
-print "PleXBMC -> Platform: %s" % getPlatform()
-
-#Next Check the WOL status - lets give the servers as much time as possible to come up
-if settings.wolon:
-    from WOL import wake_on_lan
-    printDebug("PleXBMC -> Wake On LAN: true")
-    for servers in settings.wakeserver:
-        if servers:
-            try:
-                printDebug("PleXBMC -> Waking server with MAC: %s" % servers)
-                wake_on_lan(servers)
-            except ValueError:
-                printDebug("PleXBMC -> Incorrect MAC address format for server %s" % servers)
-            except:
-                printDebug("PleXBMC -> Unknown wake on lan error")
-
-
 DEBUG_OFF=0
 DEBUG_INFO=1
 DEBUG_DEBUG=2
@@ -158,10 +109,24 @@ DEBUG_MAP={ DEBUG_OFF : "off",
             DEBUG_DEBUG : "debug",
             DEBUG_DEBUGPLUS : "debug+"}
 
+settings=addonSettings('plugin.video.plexbmc')
+print settings.__dict__
+
+CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug)
+
+        
+print "PleXBMC -> Running Python: %s" % sys.version_info
+print "PleXBMC -> Running PleXBMC: %s " % __version__
+print "PleXBMC -> CWD is set to: %s" % __cwd__
+print "PleXBMC -> Platform: %s" % getPlatform()
+
+wake_servers()
+
 if settings.debug >= DEBUG_INFO:
+    print "PleXBMC -> Setting debug: %s" % DEBUG_MAP[settings.debug]
+    print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.fullres_thumbnails
     print "PleXBMC -> Settings streaming: %s" % settings.stream
     print "PleXBMC -> Setting filter menus: %s" % settings.secondary
-    print "PleXBMC -> Setting debug: %s" % DEBUG_MAP[settings.debug]
     print "PleXBMC -> Flatten is: %s" % settings.flatten
     if settings.streamControl == _SUB_AUDIO_XBMC_CONTROL:
         print "PleXBMC -> Setting stream Control to : XBMC CONTROL"
@@ -171,15 +136,13 @@ if settings.debug >= DEBUG_INFO:
         print "PleXBMC -> Setting stream Control to : NEVER SHOW"
 
     print "PleXBMC -> Force DVD playback: %s" % settings.forcedvd
+    print "PleXBMC -> SMB IP Override: %s" % settings.nasoverride
+    if settings.nasoverride and not settings.nasoverrideip:
+        print "PleXBMC -> No NAS IP Specified.  Ignoring setting"
+    else:
+        print "PleXBMC -> NAS IP: " + settings.nasoverrideip
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
-
-#NAS Override
-printDebug("PleXBMC -> SMB IP Override: %s" % settings.nasoverride)
-if settings.nasoverride and not settings.nasoverrideip:
-    printDebug("PleXBMC -> No NAS IP Specified.  Ignoring setting")
-else:
-    printDebug("PleXBMC -> NAS IP: " + settings.nasoverrideip)
 
 g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
 
@@ -676,7 +639,7 @@ def getNewMyPlexToken(suppress=True, title="Error"):
                     'X-Plex-Platform-Version': "12.00/Frodo",
                     'X-Plex-Provides': "player",
                     'X-Plex-Product': "PleXBMC",
-                    'X-Plex-Version': PLEXBMC_VERSION,
+                    'X-Plex-Version': __version__,
                     'X-Plex-Device': PLEXBMC_PLATFORM,
                     'X-Plex-Client-Identifier': "PleXBMC",
                     'Authorization': "Basic %s" % base64string}
