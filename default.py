@@ -1355,6 +1355,7 @@ def Movies( url, tree=None ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
     xbmcplugin.setContent(pluginhandle, 'movies')
     
+    xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
     xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
     xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
