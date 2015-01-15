@@ -26,6 +26,7 @@
 '''
 
 import urllib
+import urlparse
 import re
 import xbmcplugin
 import xbmcgui
@@ -97,6 +98,7 @@ _MODE_SHARED_MUSIC=26
 _MODE_SHARED_PHOTOS=27
 _MODE_DELETE_REFRESH=28
 _MODE_SHARED_ALL=29
+_MODE_PLAYLISTS=30
 
 _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
@@ -168,9 +170,9 @@ DEBUG_DEBUG=2
 DEBUG_DEBUGPLUS=3
 
 DEBUG_MAP={ DEBUG_OFF : "off",
-			DEBUG_INFO : "info",
-			DEBUG_DEBUG : "debug",
-			DEBUG_DEBUGPLUS : "debug+"}
+            DEBUG_INFO : "info",
+            DEBUG_DEBUG : "debug",
+            DEBUG_DEBUGPLUS : "debug+"}
 
 if g_debug >= DEBUG_INFO:
     print "PleXBMC -> Settings streaming: " + g_stream
@@ -213,12 +215,6 @@ g_skipimages = __settings__.getSetting("skipimages")
 #g_loc = PLUGINPATH   * Does not work right, why? *
 g_loc = "special://home/addons/plugin.video.plexbmc"
 g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
-
-
-#Create the standard header structure and load with a User Agent to ensure we get back a response.
-g_txheaders = {
-              'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US;rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)',
-              }
 
 #Set up holding variable for session ID
 global g_sessionID
@@ -947,6 +943,18 @@ def mediaType( partData, server, dvdplayback=False ):
     printDebug("Returning URL: " + filelocation)
     return filelocation
 
+def appendURLArgument(url, arguments):
+    '''add a dict of arguments to a URL safely '''
+    
+    url_parts = urlparse.urlparse(url)
+
+    query_args = urlparse.parse_qsl(url_parts.query)
+    query_args += arguments.items()
+
+    new_query_args = urllib.urlencode(query_args, True)
+
+    return urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
+    
 def addGUIItem(url, details, extraData, context=None, folder=True):
 
         item_title = details.get('title', 'Unknown')
@@ -956,13 +964,15 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         printDebug("Passed details: " + str(details))
         printDebug("Passed extraData: " + str(extraData))
 
-        if item_title == '':
-            return
+        #Remove, as this is never going to evaluate as true
+        #if item_title == '':
+        #    return
 
         if (extraData.get('token',None) is None) and _PARAM_TOKEN:
             extraData['token']=_PARAM_TOKEN
 
         aToken=getAuthDetails(extraData)
+        nToken=getAuthDetails(extraData,url_format=False)
         qToken=getAuthDetails(extraData, prefix='?')
 
         if extraData.get('mode',None) is None:
@@ -986,10 +996,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         thumb = str(extraData.get('thumb', ''))
         if thumb.startswith('http'):
-            if '?' in thumb:
-                thumbPath = thumb+aToken
-            else:
-                thumbPath = thumb+qToken
+            thumbPath = appendURLArgument(thumb,nToken)
         else:
             thumbPath = thumb
 
@@ -1056,10 +1063,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         fanart = str(extraData.get('fanart_image', 'None'))
 
         if fanart != 'None':
-            if '?' in fanart:
-                liz.setProperty('fanart_image', fanart+aToken)
-            else:
-                liz.setProperty('fanart_image', fanart+qToken)
+            liz.setProperty('fanart_image', appendURLArgument(fanart,nToken))
 
             printDebug("Setting fan art as " + fanart + " with headers: " + aToken)
 
@@ -1069,10 +1073,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         if extraData.get('banner'):
             bannerImg = str(extraData.get('banner', ''))
             if bannerImg.startswith('http'):
-                if '?' in bannerImg:
-                    bannerPath = bannerImg+aToken
-                else:
-                    bannerPath = bannerImg+qToken
+                bannerPath = appendURLArgument(bannerImg,nToken)
             else:
                 bannerPath = bannerImg
 
@@ -1082,19 +1083,12 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         if extraData.get('season_thumb'):
             seasonImg = str(extraData.get('season_thumb', ''))
             if seasonImg.startswith('http'):
-                if '?' in seasonImg:
-                    seasonPath = seasonImg+aToken
-                else:
-                    seasonPath = seasonImg+qToken
+                seasonPath = appendURLArgument(seasonImg,nToken)
             else:
                 seasonPath = seasonImg
 
             liz.setProperty('seasonThumb', seasonPath)
             printDebug("Setting season Thumb as " + seasonPath)
-
-        #if extraData.get('banner'):
-        #    liz.setProperty('banner', extraData.get('banner') + aToken)
-        #    printDebug("Setting banner as " + extraData.get('banner') + aToken)
 
         if context is not None:
             printDebug("Building Context Menus")
@@ -1223,6 +1217,7 @@ def displaySections( filter=None, shared=False ):
 
             u="http://"+server['server']+":"+server['port']+"/system/plexonline"
             addGUIItem(u,details,extraData)
+                        
             
         if __settings__.getSetting("cache") == "true":
             details = {'title' : "Refresh Data"}
@@ -2984,7 +2979,7 @@ def processXML( url, tree=None ):
 
         elif plugin.tag == "Track":
             trackTag(server, tree, plugin)
-
+            
         elif tree.get('viewGroup') == "movie":
             Movies(url, tree)
             return
@@ -3080,7 +3075,7 @@ def movieTag(url, server, tree, movie, randomNumber):
 
     addGUIItem(u,details,extraData,context,folder=False)
     return
-
+    
 def getMediaData ( tag_dict ):
     '''
         Extra the media details from the XML
@@ -3127,12 +3122,6 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
                'thumb'      : sectionthumb ,
                'ratingKey'    : track.get('key','') }
 
-    #if '/resources/plex.png' in extraData['thumb']:
-    #    printDebug("thumb is default")
-    #    extraData['thumb']=getThumb(tree, server)
-
-    #if extraData['fanart_image'] == "":
-    #    extraData['fanart_image']=getFanart(tree, server)
 
     #If we are streaming, then get the virtual location
     url=mediaType(partDetails,server)
@@ -3144,7 +3133,7 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
         addGUIItem(u,details,extraData,folder=False)
     else:
         return ( url, details )
-          
+
 def photo( url,tree=None ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
     server=url.split('/')[2]
@@ -5327,7 +5316,9 @@ else:
     elif mode == _MODE_DELETE_REFRESH:
         CACHE.deleteCache()
         xbmc.executebuiltin("Container.Refresh")
+        
 
+        
 print "===== PLEXBMC STOP ====="
 
 #clear done and exit.
