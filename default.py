@@ -49,7 +49,6 @@ __version__ = __addon__.getAddonInfo('version')
 __icon__ = __addon__.getAddonInfo('icon')
 __cachedir__ = __addon__.getAddonInfo('profile')
 __settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
-#__cwd__ = __settings__.getAddonInfo('path')
 __cwd__ = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
 
 BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
@@ -106,15 +105,9 @@ _SUB_AUDIO_NEVER_SHOW="2"
 
 #Check debug first...
 g_debug = int(__settings__.getSetting('debug'))
-g_debug_dev = __settings__.getSetting('debug_dev')
 
 import CacheControl
 CACHE=CacheControl.CacheControl(__cachedir__+"cache", g_debug)	
-
-
-# elementtree imports. If debugging on, use python elementtree, as c implementation
-# is horrible for debugging.
-
 
 def printDebug( msg, level=1 ):
     if g_debug >= level :
@@ -212,8 +205,6 @@ g_skipmetadata = __settings__.getSetting("skipmetadata")
 g_skipmediaflags = __settings__.getSetting("skipflags")
 g_skipimages = __settings__.getSetting("skipimages")
 
-#g_loc = PLUGINPATH   * Does not work right, why? *
-g_loc = "special://home/addons/plugin.video.plexbmc"
 g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
 
 #Set up holding variable for session ID
