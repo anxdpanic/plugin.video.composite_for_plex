@@ -40,6 +40,8 @@ class addonSettings:
         self.das_host = settings.getSetting('ipaddress')
         self.das_port = settings.getSetting('port')
         self.myplex_user = settings.getSetting('myplex_user')
+        self.myplex_pass = settings.getSetting('myplex_pass')
+        self.myplex_token= settings.getSetting('myplex_token')
 
         
     def dumpSettings(self):

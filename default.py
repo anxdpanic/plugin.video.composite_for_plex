@@ -58,7 +58,10 @@ sys.path.append(BASE_RESOURCE_PATH)
 from settings import addonSettings
 import CacheControl
 from common import *
-
+import plex
+network=plex.Plex()
+#network.discover()
+#print network.discovered
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
 MYPLEX_SERVER="my.plexapp.com"
@@ -633,7 +636,7 @@ def getNewMyPlexToken(suppress=True, title="Error"):
                     'X-Plex-Provides': "player",
                     'X-Plex-Product': "PleXBMC",
                     'X-Plex-Version': __version__,
-                    'X-Plex-Device': PLEXBMC_PLATFORM,
+                    'X-Plex-Device': getPlatform(),
                     'X-Plex-Client-Identifier': "PleXBMC",
                     'Authorization': "Basic %s" % base64string}
 
