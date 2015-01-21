@@ -59,9 +59,7 @@ from settings import addonSettings
 import CacheControl
 from common import *
 import plex
-network=plex.Plex()
-#network.discover()
-#print network.discovered
+
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"
 MYPLEX_SERVER="my.plexapp.com"
@@ -153,224 +151,6 @@ global g_sessionID
 g_sessionID=None
         
 #Move to discovery code
-def discoverAllServers( ):
-    '''
-        Take the users settings and add the required master servers
-        to the server list.  These are the devices which will be queried
-        for complete library listings.  There are 3 types:
-            local server - from IP configuration
-            bonjour server - from a bonjour lookup
-            myplex server - from myplex configuration
-        Alters the global g_serverDict value
-        @input: None
-        @return: None
-    '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-
-    das_servers={}
-    das_server_index=0
-
-    if settings.discovery == "1":
-        printDebug("PleXBMC -> local GDM discovery setting enabled.")
-        try:
-            import plexgdm
-            printDebug("Attempting GDM lookup on multicast")
-            if settings.debug >= DEBUG_INFO:
-                GDM_debug=3
-            else:
-                GDM_debug=0
-
-            gdm_cache_file="gdm.server.cache"
-            gdm_cache_ok = False
-
-            gdm_cache_ok, gdm_server_name = CACHE.checkCache(gdm_cache_file)
-
-            if not gdm_cache_ok:
-                gdm_client = plexgdm.plexgdm(GDM_debug)
-                gdm_client.discover()
-                gdm_server_name = gdm_client.getServerList()
-
-                CACHE.writeCache(gdm_cache_file, gdm_server_name)
-
-            if  ( gdm_cache_ok or gdm_client.discovery_complete ) and gdm_server_name :
-                printDebug("GDM discovery completed")
-                for device in gdm_server_name:
-
-                    das_servers[das_server_index] = device
-                    das_server_index = das_server_index + 1
-            else:
-                printDebug("GDM was not able to discover any servers")
-
-        except Exception, e:
-            print "PleXBMC -> GDM Issue [%s]" % e
-
-    #Set to Disabled
-    else:
-
-        if settings.das_host:
-
-            if not settings.das_port:
-                printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
-                settings.das_port=DEFAULT_PORT
-
-            printDebug( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.das_host, settings.das_port))
-
-            local_server = getLocalServers(settings.das_host, settings.das_port)
-            if local_server:
-                das_servers[das_server_index] = local_server
-                das_server_index = das_server_index + 1
-
-    if settings.myplex_user:
-        printDebug( "PleXBMC -> Adding myplex as a server location")
-
-        myplex_cache_file="myplex.server.cache"
-        success, das_myplex = CACHE.checkCache(myplex_cache_file)
-
-        if not success:
-            das_myplex = getMyPlexServers()
-            CACHE.writeCache(myplex_cache_file, das_myplex)
-
-        if das_myplex:
-            printDebug("MyPlex discovery completed")
-            for device in das_myplex:
-
-                das_servers[das_server_index] = device
-                das_server_index = das_server_index + 1
-
-    # # Remove Cloud Sync servers, since they cause problems
-    # for das_server_index,das_server in das_servers.items():
-    #     # Cloud sync "servers" don't have a version key in the dictionary
-    #     if 'version' not in das_server:
-    #         del das_servers[das_server_index]
-
-    printDebug("PleXBMC -> serverList is " + str(das_servers))
-
-    return deduplicateServers(das_servers)
-
-def getLocalServers(ip_address="localhost", port=32400):
-    '''
-        Connect to the defined local server (either direct or via bonjour discovery)
-        and get a list of all known servers.
-        @input: nothing
-        @return: a list of servers (as Dict)
-    '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    
-    url_path="/"
-    html = getURL(ip_address+":"+port+url_path)
-
-    if html is False:
-         return []
-
-    server=etree.fromstring(html)
-
-    return {'serverName': server.attrib['friendlyName'].encode('utf-8'),
-                        'server'    : ip_address,
-                        'port'      : port,
-                        'discovery' : 'local',
-                        'token'     : None ,
-                        'uuid'      : server.attrib['machineIdentifier'],
-                        'owned'     : '1',
-                        'master'    : 1,
-                        'class'     : ''}
-
-def getMyPlexServers( ):
-    '''
-        Connect to the myplex service and get a list of all known
-        servers.
-        @input: nothing
-        @return: a list of servers (as Dict)
-    '''
-
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-
-    tempServers = []
-    url_path = "/pms/servers"
-
-    xml = getMyPlexURL(url_path)
-
-    if xml is False:
-        return {}
-
-    servers = etree.fromstring(xml)
-
-    count = 0
-    for server in servers:
-        #data = dict(server.items())
-
-        if server.get('owned', None) == "1":
-            owned = '1'
-            if count == 0:
-                master = 1
-                count =- 1
-            accessToken = getMyPlexToken()
-        else:
-            owned = '0'
-            master = 0
-            accessToken = server.get('accessToken')
-
-        tempServers.append({'serverName': server.get('name').encode('utf-8'),
-                            'server'    : server.get('address'),
-                            'port'      : server.get('port'),
-                            'discovery' : 'myplex',
-                            'token'     : accessToken,
-                            'uuid'      : server.get('machineIdentifier'),
-                            'owned'     : owned,
-                            'master'    : master,
-                            'class'     : ""})
-
-    return tempServers
-                                       
-def deduplicateServers( server_list ):
-    '''
-      Return list of all media sections configured
-      within PleXBMC
-      @input: None
-      @Return: unique list of media servers
-    '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-
-    if len(server_list) <= 1:
-        return server_list
-
-    temp_list=server_list.values()
-    oneCount=0
-    for onedevice in temp_list:
-
-        twoCount=0
-        for twodevice in temp_list:
-
-            #printDebug( "["+str(oneCount)+":"+str(twoCount)+"] Checking " + onedevice['uuid'] + " and " + twodevice['uuid'])
-
-            if oneCount == twoCount:
-                #printDebug( "skip" )
-                twoCount+=1
-                continue
-
-            if onedevice['uuid'] == twodevice['uuid']:
-                #printDebug ( "match" )
-                if onedevice['discovery'] == "auto" or onedevice['discovery'] == "local":
-                    temp_list.pop(twoCount)
-                else:
-                    temp_list.pop(oneCount)
-            #else:
-            #    printDebug( "no match" )
-
-            twoCount+=1
-
-        oneCount+=1
-
-
-    count=0
-    unique_list={}
-    for i in temp_list:
-        unique_list[count] = i
-        count = count + 1
-
-    printDebug ("Unique server List: " + str(unique_list))
-
-    return unique_list
-
 def getServerSections (ip_address, port, name, uuid):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
 
@@ -418,7 +198,7 @@ def getMyplexSections ( ):
     
     if not success:
     
-        html=getMyPlexURL('/pms/system/library/sections')
+        html=plex_network.get_myplex_sections()
 
         if html is False:
             return {}
@@ -454,7 +234,8 @@ def getAllSections( server_list = None ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
     
     if server_list is None:
-        server_list = discoverAllServers()
+        plex_network.discover()
+        server_list = plex_network.get_server_list()
     
     printDebug("Using servers list: " + str(server_list))
 
@@ -530,152 +311,6 @@ def getAuthDetails( details, url_format=True, prefix="&" ):
             return {'X-Plex-Token' : token }
         else:
             return {}
-
-def getMyPlexURL(url_path, renew=False, suppress=True):
-    '''
-        Connect to the my.plexapp.com service and get an XML pages
-        A seperate function is required as interfacing into myplex
-        is slightly different than getting a standard URL
-        @input: url to get, whether we need a new token, whether to display on screen err
-        @return: an xml page as string or false
-    '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    printDebug("url = "+MYPLEX_SERVER+url_path)
-
-    try:
-        conn = httplib.HTTPSConnection(MYPLEX_SERVER, timeout=10)
-        conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew))
-        data = conn.getresponse()
-        if ( int(data.status) == 401 )  and not ( renew ):
-            try: conn.close()
-            except: pass
-            return getMyPlexURL(url_path,True)
-
-        if int(data.status) >= 400:
-            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
-            if suppress is False:
-                xbmcgui.Dialog().ok("Error",error)
-            print error
-            try: conn.close()
-            except: pass
-            return False
-        elif int(data.status) == 301 and type == "HEAD":
-            try: conn.close()
-            except: pass
-            return str(data.status)+"@"+data.getheader('Location')
-        else:
-            link=data.read()
-            printDebug("====== XML returned =======", level=DEBUG_DEBUGPLUS)
-            printDebug(link, level=DEBUG_DEBUGPLUS)
-            printDebug("====== XML finished ======", level=DEBUG_DEBUGPLUS)
-    except socket.gaierror :
-        error = 'Unable to lookup host: ' + MYPLEX_SERVER + "\nCheck host name is correct"
-        if suppress is False:
-            xbmcgui.Dialog().ok("Error",error)
-        print error
-        return False
-    except socket.error, msg :
-        error="Unable to connect to " + MYPLEX_SERVER +"\nReason: " + str(msg)
-        if suppress is False:
-            xbmcgui.Dialog().ok("Error",error)
-        print error
-        return False
-    else:
-        try: conn.close()
-        except: pass
-
-    if link:
-        return link
-    else:
-        return False
-
-def getMyPlexToken(renew=False):
-    '''
-        Get the myplex token.  If the user ID stored with the token
-        does not match the current userid, then get new token.  This stops old token
-        being used if plex ID is changed. If token is unavailable, then get a new one
-        @input: whether to get new token
-        @return: myplex token
-    '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-
-    try:
-        user, token = (__settings__.getSetting('myplex_token')).split('|')
-    except:
-        token = None
-
-    if (token is None) or (renew) or (user != __settings__.getSetting('myplex_user')):
-        token = getNewMyPlexToken()
-
-    printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
-    return token
-
-def getNewMyPlexToken(suppress=True, title="Error"):
-    '''
-        Get a new myplex token from myplex API
-        @input: nothing
-        @return: myplex token
-    '''
-
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-
-    printDebug("Getting New token")
-    myplex_username = __settings__.getSetting('myplex_user')
-    myplex_password = __settings__.getSetting('myplex_pass')
-
-    if (myplex_username or myplex_password) == "":
-        printDebug("No myplex details in config..")
-        return ""
-
-    base64string = base64.encodestring('%s:%s' % (myplex_username, myplex_password)).replace('\n', '')
-    txdata = ""
-    token = False
-
-    myplex_headers={'X-Plex-Platform': "XBMC",
-                    'X-Plex-Platform-Version': "12.00/Frodo",
-                    'X-Plex-Provides': "player",
-                    'X-Plex-Product': "PleXBMC",
-                    'X-Plex-Version': __version__,
-                    'X-Plex-Device': getPlatform(),
-                    'X-Plex-Client-Identifier': "PleXBMC",
-                    'Authorization': "Basic %s" % base64string}
-
-    try:
-        conn = httplib.HTTPSConnection(MYPLEX_SERVER)
-        conn.request("POST", "/users/sign_in.xml", txdata, myplex_headers)
-        data = conn.getresponse()
-
-        if int(data.status) == 201:
-            link = data.read()
-            printDebug("====== XML returned =======")
-
-            try:
-                token = etree.fromstring(link).findtext('authentication-token')
-                __settings__.setSetting('myplex_token', myplex_username + "|" + token)
-            except:
-                printDebug(link)
-
-            printDebug("====== XML finished ======")
-        else:
-            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
-            if suppress is False:
-                xbmcgui.Dialog().ok(title, error)
-            print error
-            return ""
-    except socket.gaierror :
-        error = 'Unable to lookup host: MyPlex' + "\nCheck host name is correct"
-        if suppress is False:
-            xbmcgui.Dialog().ok(title, error)
-        print error
-        return ""
-    except socket.error, msg:
-        error="Unable to connect to MyPlex" + "\nReason: " + str(msg)
-        if suppress is False:
-            xbmcgui.Dialog().ok(title, error)
-        print error
-        return ""
-
-    return token
 
 def getURL(url, suppress=True, type="GET", popup=0):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
@@ -1031,7 +666,8 @@ def displaySections( filter=None, shared=False ):
         printDebug("== ENTER ==", level=DEBUG_DEBUG)
         xbmcplugin.setContent(pluginhandle, 'files')
 
-        ds_servers=discoverAllServers()
+        plex_network.discover()
+        ds_servers=plex_network.get_server_list()
         numOfServers=len(ds_servers)
         printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(ds_servers))
         
@@ -2472,7 +2108,8 @@ def getMasterServer(all=False):
 
     possibleServers=[]
     current_master=__settings__.getSetting('masterServer')
-    for serverData in discoverAllServers().values():
+    plex_network.discover()
+    for serverData in plex_network.get_server_list().values():
         printDebug( str(serverData) )
         if serverData['master'] == 1:
             possibleServers.append({'address' : serverData['server']+":"+serverData['port'] ,
@@ -3499,7 +3136,8 @@ def skin( server_list=None, type=None ):
     hide_shared = __settings__.getSetting('hide_shared')
 
     if server_list is None:
-        server_list = discoverAllServers()
+        plex_network.discover()
+        server_list=plex_network.get_server_list()
 
     #For each of the servers we have identified
     for section in getAllSections(server_list):
@@ -3700,7 +3338,8 @@ def amberskin():
     shared_flag={}
     hide_shared = __settings__.getSetting('hide_shared')
 
-    server_list = discoverAllServers()
+    plex_network.discover()
+    server_list=plex_network.get_server_list()
     printDebug("Using list of " + str(len(server_list)) + " servers: " + str(server_list))
 
     #For each of the servers we have identified
@@ -3913,9 +3552,11 @@ def amberskin():
         #Now let's populate queue shelf items since we have MyPlex login
         if __settings__.getSetting('homeshelf') != '3':
             printDebug("== ENTER ==", level=DEBUG_DEBUG)
-            aToken = getMyPlexToken()
-            myplex_server = getMyPlexURL('/pms/playlists/queue/all')
-            root = etree.fromstring(myplex_server)
+            try:
+                aToken = plex_network.myplex_token['X-Plex-Token']
+            except: aToken=''
+            myplex_queue = plex_network.get_myplex_queue()
+            root = etree.fromstring(myplex_queue)
             server_address = getMasterServer()['address']
             queue_count = 1
 
@@ -3972,7 +3613,8 @@ def fullShelf(server_list={}):
     full_count=0
 
     #if server_list == {}:
-    #    server_list=discoverAllServers()
+    #   plex_network.discover()
+    #    server_list=plex_network.get_server_list()
 
     if server_list == {}:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
@@ -4434,7 +4076,8 @@ def shelf( server_list=None ):
     full_count=0
     
     if server_list is None:
-        server_list=discoverAllServers()
+        plex_network.discover()
+        server_list=plex_network.get_server_list()
 
     if server_list == {}:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
@@ -4667,7 +4310,8 @@ def shelfChannel(server_list = None):
     channelCount=1
     
     if server_list is None:
-        server_list=discoverAllServers()
+        plex_network.discover()
+        server_list=plex_network.get_server_list()
     
     if server_list == {}:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
@@ -4774,7 +4418,7 @@ def myPlexQueue():
         xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")
         return
 
-    html=getMyPlexURL('/pms/playlists/queue/all')
+    html=plex_network.get_myplex_queue()
     tree=etree.fromstring(html)
 
     PlexPlugins('http://my.plexapp.com/playlists/queue/all', tree)
@@ -4804,7 +4448,8 @@ def displayServers( url ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
     type=url.split('/')[2]
     printDebug("Displaying entries for " + type)
-    Servers = discoverAllServers()
+    plex_network.discover()
+    Servers = plex_network.get_server_list()
     Servers_list=len(Servers)
 
     #For each of the servers we have identified
@@ -5091,6 +4736,8 @@ param_indirect=params.get('indirect',None)
 _PARAM_TOKEN=params.get('X-Plex-Token',None)
 force=params.get('force')
 
+plex_network=plex.Plex()
+
 #Populate Skin variables
 if str(sys.argv[1]) == "skin":
     try:
@@ -5130,7 +4777,8 @@ elif sys.argv[1] == "setting":
               
 #nt currently used              
 elif sys.argv[1] == "refreshplexbmc":
-    server_list = discoverAllServers()
+    plex_network.discover()
+    server_list = plex_network.get_server_list()
     skin(server_list)
     shelf(server_list)
     shelfChannel(server_list)

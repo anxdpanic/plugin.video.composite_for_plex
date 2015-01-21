@@ -25,8 +25,7 @@ class Plex:
 
     def __init__(self, settings=None, cache=None):
     
-        #Welcome to the Plex Network
-        #Will start by looking for some media servers
+        # Provide an interface into Plex 
         if not settings:
             self.settings = addonSettings('plugin.video.plexbmc')
         else:
@@ -37,19 +36,21 @@ class Plex:
         self.DEBUG_INFO=1
         self.DEBUG_DEBUG=2
         self.DEBUG_DEBUGPLUS=3
-        self.my_plex_token=None
+        self.myplex_token=None
+        self.myplex_server='https://my.plexapp.com'
         self.logged_into_myplex=False
         self.server_list=[]
         self.discovered=False
-        
-        print self.getMyPlexToken()
-        
+                
     def discover(self):
         self.server_list = self.discover_all_servers()
         
         if self.server_list:
             self.discovered=True
 
+    def get_server_list(self):
+        return self.server_list
+            
     def plex_identification(self):
 
         return {'X-Plex-Device'            : 'XBMC/KODI' ,
@@ -63,7 +64,7 @@ class Plex:
                 'X-Plex-Platform-Version'  : 'unknown' ,
                 'X-Plex-Version'           : 'unknown'  ,
                 'X-Plex-Provides'          : "player",
-                'X-Plex-Token'             : self.my_plex_token}
+                'X-Plex-Token'             : self.myplex_token}
         
     def talk_to_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
     
@@ -145,10 +146,10 @@ class Plex:
             printDebug( "PleXBMC -> Adding myplex as a server location")
 
             myplex_cache_file="myplex.server.cache"
-            success, das_myplex = cache.checkCache(myplex_cache_file)
+            success, das_myplex = self.cache.checkCache(myplex_cache_file)
 
             if not success:
-                das_myplex = getMyPlexServers()
+                das_myplex = self.getMyPlexServers()
                 self.cache.writeCache(myplex_cache_file, das_myplex)
 
             if das_myplex:
@@ -195,6 +196,26 @@ class Plex:
                 'master'    : 1,
                 'class'     : ''}
 
+    def get_myplex_queue(self):
+        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+
+        xml = self.getMyPlexURL('/pms/playlists/queue/all')
+
+        if xml is False:
+            return {}
+
+        return xml
+
+    def get_myplex_sections(self):
+        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+
+        xml = self.getMyPlexURL('/pms/system/library/sections')
+
+        if xml is False:
+            return {}
+
+        return xml
+        
     def getMyPlexServers(self):
         '''
             Connect to the myplex service and get a list of all known
@@ -208,7 +229,7 @@ class Plex:
         tempServers = []
         url_path = "/pms/servers"
 
-        xml = getMyPlexURL(url_path)
+        xml = self.getMyPlexURL(url_path)
 
         if xml is False:
             return {}
@@ -224,7 +245,7 @@ class Plex:
                 if count == 0:
                     master = 1
                     count =- 1
-                accessToken = getMyPlexToken()
+                accessToken = self.getMyPlexToken()
             else:
                 owned = '0'
                 master = 0
@@ -286,7 +307,7 @@ class Plex:
 
         return unique_list
         
-    def getMyPlexURL(url_path, renew=False, suppress=True):
+    def getMyPlexURL(self, url_path, renew=False, suppress=True):
         '''
             Connect to the my.plexapp.com service and get an XML pages
             A seperate function is required as interfacing into myplex
@@ -294,55 +315,39 @@ class Plex:
             @input: url to get, whether we need a new token, whether to display on screen err
             @return: an xml page as string or false
         '''
-        printDebug("== ENTER ==", level=DEBUG_DEBUG)
-        printDebug("url = "+MYPLEX_SERVER+url_path)
+        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug("url = "+self.myplex_server+url_path)
 
-        try:
-            conn = httplib.HTTPSConnection(MYPLEX_SERVER, timeout=10)
-            conn.request("GET", url_path+"?X-Plex-Token="+getMyPlexToken(renew))
-            data = conn.getresponse()
-            if ( int(data.status) == 401 )  and not ( renew ):
-                try: conn.close()
-                except: pass
-                return getMyPlexURL(url_path,True)
+        response = requests.get("%s%s" % (self.myplex_server, url_path), params=dict(self.plex_identification(), **self.getMyPlexToken(renew)))
+        
+        if  response.status_code == 401   and not ( renew ):
+            return self.getMyPlexURL(url_path,True)
 
-            if int(data.status) >= 400:
-                error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
-                if suppress is False:
-                    xbmcgui.Dialog().ok("Error",error)
-                print error
-                try: conn.close()
-                except: pass
-                return False
-            elif int(data.status) == 301 and type == "HEAD":
-                try: conn.close()
-                except: pass
-                return str(data.status)+"@"+data.getheader('Location')
-            else:
-                link=data.read()
-                printDebug("====== XML returned =======", level=DEBUG_DEBUGPLUS)
-                printDebug(link, level=DEBUG_DEBUGPLUS)
-                printDebug("====== XML finished ======", level=DEBUG_DEBUGPLUS)
-        except socket.gaierror :
-            error = 'Unable to lookup host: ' + MYPLEX_SERVER + "\nCheck host name is correct"
-            if suppress is False:
-                xbmcgui.Dialog().ok("Error",error)
-            print error
-            return False
-        except socket.error, msg :
-            error="Unable to connect to " + MYPLEX_SERVER +"\nReason: " + str(msg)
+        if response.status_code >= 400:
+            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
             if suppress is False:
                 xbmcgui.Dialog().ok("Error",error)
             print error
             return False
         else:
-            try: conn.close()
-            except: pass
+            link=response.text
+            printDebug("====== XML returned =======", level=self.DEBUG_DEBUGPLUS)
+            printDebug(link, level=self.DEBUG_DEBUGPLUS)
+            printDebug("====== XML finished ======", level=self.DEBUG_DEBUGPLUS)
+    # except socket.gaierror :
+        # error = 'Unable to lookup host: ' + MYPLEX_SERVER + "\nCheck host name is correct"
+        # if suppress is False:
+            # xbmcgui.Dialog().ok("Error",error)
+        # print error
+        # return False
+    # except socket.error, msg :
+        # error="Unable to connect to " + MYPLEX_SERVER +"\nReason: " + str(msg)
+        # if suppress is False:
+            # xbmcgui.Dialog().ok("Error",error)
+        # print error
+        # return False
 
-        if link:
-            return link
-        else:
-            return False        
+        return link        
     
     def getMyPlexToken(self,renew=False):
         '''
@@ -354,30 +359,26 @@ class Plex:
         '''
         printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
 
-        try:
-            user, token = self.settings.myplex_token.split('|')
-        except:
-            token = None
+        if self.myplex_token is None:
+        
+            try:
+                user, token = self.settings.myplex_token.split('|')
+            except:
+                token = None
 
-        if (token is None) or (renew) or (user != self.settings.myplex_user):
-            token = self.getNewMyPlexToken()
+            if (token is None) or (renew) or (user != self.settings.myplex_user):
+                self.myplex_token = self.getNewMyPlexToken()
 
-        printDebug("Using token: " + str(token) + "[Renew: " + str(renew) + "]")
-        return token
+            printDebug("Using token: " + str(self.myplex_token) + "[Renew: " + str(renew) + "]")
+        return { 'X-Plex-Token' : self.myplex_token }
 
     def getNewMyPlexToken(self,suppress=True, title="Error"):
-        '''
-            Get a new myplex token from myplex API
-            @input: nothing
-            @return: myplex token
-        '''
-
         printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
 
         printDebug("Getting New token")
         if not self.settings.myplex_user:
             printDebug("No myplex details in config..")
-            return ""
+            return None
 
         base64string = base64.encodestring('%s:%s' % (self.settings.myplex_user, self.settings.myplex_pass)).replace('\n', '')
         txdata = ""
@@ -385,14 +386,14 @@ class Plex:
 
         myplex_headers={'Authorization': "Basic %s" % base64string}
 
-        response = requests.post("https://my.plexapp.com/users/sign_in.xml", headers=dict(self.plex_identification(), **myplex_headers))
+        response = requests.post("%s/users/sign_in.xml" % self.myplex_server, headers=dict(self.plex_identification(), **myplex_headers))
         print response.status_code
         
         if response.status_code == 201:
             try:
                 print response.text
                 token = etree.fromstring(response.text).findtext('authentication-token')
-                #__settings__.setSetting('myplex_token', myplex_username + "|" + token)
+                settings.update_token(token)
             except:
                 printDebug(response.text, level=self.DEBUG_DEBUGPLUS)
 
@@ -403,7 +404,7 @@ class Plex:
             if suppress is False:
                 xbmcgui.Dialog().ok(title, error)
             print error
-            return ""
+            return None
         # except socket.gaierror :
             # error = 'Unable to lookup host: MyPlex' + "\nCheck host name is correct"
             # if suppress is False:

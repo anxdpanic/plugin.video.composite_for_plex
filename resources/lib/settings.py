@@ -59,3 +59,8 @@ class addonSettings:
         else:
             return False
         
+    def update_token(self, value):
+        settings.setSetting('myplex_token','%s|%s' % (self.myplex_user,value))
+        self.myplex_token = '%s|%s' % (self.myplex_user,value)
+        
+    
