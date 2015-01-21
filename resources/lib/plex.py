@@ -18,6 +18,7 @@ from settings import addonSettings
 from common import *
 import CacheControl
 import requests
+from plexserver import PlexMediaServer
 
 DEFAULT_PORT="32400"
 
@@ -77,17 +78,6 @@ class Plex:
             return response.text
      
     def discover_all_servers(self):
-
-        # Take the users settings and add the required master servers
-        # to the server list.  These are the devices which will be queried
-        # for complete library listings.  There are 3 types:
-            # local server - from IP configuration
-            # gdm server - from a gdm lookup
-            # myplex server - from myplex configuration
-        # Alters the global g_serverDict value
-        # @input: None
-        # @return: None
-
         printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
 
         das_servers={}
@@ -118,7 +108,9 @@ class Plex:
                     printDebug("GDM discovery completed")
                     for device in gdm_server_name:
 
-                        das_servers[das_server_index] = device
+                        server=PlexMediaServer(address=device['server'], port=device['port'], discovery='local')
+                        server.refresh()
+                        das_servers[das_server_index] = server
                         das_server_index = das_server_index + 1
                 else:
                     printDebug("GDM was not able to discover any servers")
@@ -137,8 +129,10 @@ class Plex:
 
                 printDebug( "PleXBMC -> Settings hostname and port: %s : %s" % ( self.settings.das_host, self.settings.das_port))
 
-                local_server = self.getLocalServers(self.settings.das_host, self.settings.das_port)
-                if local_server:
+                local_server=PlexMediaServer(address=self.settings.das_host, port=self.settings.das_port, discovery='local')
+                local_server.refresh()
+                local_server = self.get_local_servers(self.settings.das_host, self.settings.das_port)
+                if local_server.discovered:
                     das_servers[das_server_index] = local_server
                     das_server_index = das_server_index + 1
 
@@ -149,7 +143,7 @@ class Plex:
             success, das_myplex = self.cache.checkCache(myplex_cache_file)
 
             if not success:
-                das_myplex = self.getMyPlexServers()
+                das_myplex = self.get_myplex_servers()
                 self.cache.writeCache(myplex_cache_file, das_myplex)
 
             if das_myplex:
@@ -169,7 +163,7 @@ class Plex:
 
         return self.deduplicateServers(das_servers)
 
-    def getLocalServers(self, ip_address="localhost", port=32400):
+    def get_local_servers(self, ip_address="localhost", port=32400):
         '''
             Connect to the defined local server (either direct or via bonjour discovery)
             and get a list of all known servers.
@@ -216,7 +210,7 @@ class Plex:
 
         return xml
         
-    def getMyPlexServers(self):
+    def get_myplex_servers(self):
         '''
             Connect to the myplex service and get a list of all known
             servers.

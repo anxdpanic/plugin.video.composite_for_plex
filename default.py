@@ -246,8 +246,8 @@ def getAllSections( server_list = None ):
     
     for server in server_list.itervalues():
 
-        if server['discovery'] == "local" or server['discovery'] == "auto":
-            section_details = getServerSections(server['server'], server['port'], server['serverName'], server['uuid'])
+        if server.get_discovery() == "local" or server.get_discovery() == "auto":
+            section_details = getServerSections(server.get_address()[0], server.get_port(), server.get_name(), server.get_uuid())
             section_list += section_details
             local_complete=True
             
@@ -3490,7 +3490,7 @@ def amberskin():
 
     for server in server_list.values():
 
-        if server['class'] == "secondary":
+        if server.get_class() == "secondary":
             continue
 
         aToken=getAuthDetails(server)
@@ -4320,14 +4320,14 @@ def shelfChannel(server_list = None):
     
     for server_details in server_list.values():
 
-        if server_details['class'] == "secondary":
+        if server_details.get_class() == "secondary":
             continue
     
-        if not server_details['owned'] == '1':
+        if not server_details.get_owned() == '1':
             continue
         
         global _PARAM_TOKEN
-        _PARAM_TOKEN = server_details.get('token','')
+        _PARAM_TOKEN = server_details.get_token()
         aToken=getAuthDetails({'token': _PARAM_TOKEN} )
         qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
@@ -4335,9 +4335,9 @@ def shelfChannel(server_list = None):
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
             return
 
-        tree=getXML('http://'+server_details['server']+":"+server_details['port']+'/channels/recentlyViewed')
+        tree=getXML('http://'+server_details.get_address()+":"+server_details.get_port()+'/channels/recentlyViewed')
         if tree is None:
-            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
+            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details.get_name()+",)")
             clearChannelShelf(0)
             return
 
