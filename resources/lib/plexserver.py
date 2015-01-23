@@ -27,6 +27,7 @@ class PlexMediaServer:
         self.DEBUG_DEBUG=2
         self.DEBUG_DEBUGPLUS=3
 
+        self.protocol="http"
         self.uuid=uuid
         self.server_name=name
         self.address=[address]
@@ -79,6 +80,12 @@ class PlexMediaServer:
     def get_port(self):
         return self.port
 
+    def get_url_location(self):
+        return '%s:\\%s:%s' % ( self.protocol, self.address[0], self.port)
+        
+    def get_location(self):
+        return '%s:%s' % ( self.address[0], self.port)
+    
     def get_token(self):
         return self.token
 
@@ -111,7 +118,6 @@ class PlexMediaServer:
         return 
 
     def refresh(self):
-
         data=self.talk()
         
         if data:
@@ -128,3 +134,7 @@ class PlexMediaServer:
             
     def is_offline(self):
         return self.offline
+        
+    def get_sections(self):
+        return self.talk("/library/sections")
+        

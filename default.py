@@ -150,15 +150,15 @@ global g_sessionID
 g_sessionID=None
         
 #Move to discovery code
-def getServerSections (ip_address, port, name, uuid):
+def getServerSections (server):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
 
-    cache_file = "%s.sections.cache" % (uuid)
+    cache_file = "%s.sections.cache" % (server.get_uuid())
     success, temp_list = CACHE.checkCache(cache_file)
     
     if not success:
     
-        html=getURL('http://%s:%s/library/sections' % ( ip_address, port))
+        html=server.get_sections()
 
         if html is False:
             return {}
@@ -172,9 +172,9 @@ def getServerSections (ip_address, port, name, uuid):
                 path = '/library/sections/%s' % path
 
             temp_list.append( {'title': section.get('title', 'Unknown').encode('utf-8'),
-                    'address'    : ip_address + ":" + port,
-                    'serverName' : name,
-                    'uuid'       : uuid,
+                    'address'    : server.get_location(),
+                    'serverName' : server.get_name(),
+                    'uuid'       : server.get_uuid(),
                     'sectionuuid' : section.get('uuid', ''),
                     'path'       : path,
                     'token'      : section.get('accessToken', None),
@@ -249,7 +249,7 @@ def getAllSections( server_list = None ):
             continue
     
         if server.get_discovery() == "local" or server.get_discovery() == "auto":
-            section_details = getServerSections(server.get_address()[0], server.get_port(), server.get_name(), server.get_uuid())
+            section_details = getServerSections(server)
             section_list += section_details
             local_complete=True
             
