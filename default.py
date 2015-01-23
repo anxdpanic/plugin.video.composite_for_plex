@@ -257,15 +257,6 @@ def getAllSections( server_list = None ):
                 myplex_section_list += section_details
                 myplex_complete = True
 
-    '''
-    logfile = PLUGINPATH + "/_section_list.txt"
-    with open(logfile, 'wb') as f:
-        f.write(str(section_list))
-
-    logfile = PLUGINPATH + "/_myplex_section_list.txt"
-    with open(logfile, 'wb') as f:
-        f.write(str(myplex_section_list))
-    '''
 
     #Remove any myplex sections that are locally available
     if myplex_complete and local_complete:
@@ -3326,6 +3317,8 @@ def skin( server_list=None, type=None ):
 
     return
 
+    
+
 def amberskin():
     #Gather some data and set the window properties
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
@@ -3488,27 +3481,28 @@ def amberskin():
     numOfServers=len(server_list)
     shelfChannel (server_list)
 
-    for server in server_list.values():
+    for server in server_list:
 
+        printDebug(server.get_details())
+    
         if server.get_class() == "secondary":
             continue
 
         aToken=getAuthDetails(server)
-        #qToken=getAuthDetails(server, prefix='?')
 
         if settings.channelview:
             WINDOW.setProperty("plexbmc.channel", "1")
-            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['server']+":"+server['port']+"/system/plugins/all&mode=21"+aToken+",return)")
+            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s, return" % return_server_url(server, "/system/plugins/all", {'mode' : 21}))
         else:
             WINDOW.clearProperty("plexbmc.channel")
-            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server['server']+":"+server['port']+"/video&mode=7"+aToken)
-            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server['server']+":"+server['port']+"/music&mode=17"+aToken)
-            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server['server']+":"+server['port']+"/photos&mode=16"+aToken)
+            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , return_server_url(server, "/video", {'mode': 7}))
+            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , return_server_url(server, "/music", {'mode': 17}))
+            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , return_server_url(server, "/photos", {'mode': 16}))
 
-        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server['server']+":"+server['port']+"/system/plexonline&mode=19"+aToken)
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , return_server_url(server, "/system/plexonline", {'mode':19}))
 
-        WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server['serverName'])
-        printDebug ("Name mapping is :" + server['serverName'])
+        WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server.get_name())
+        printDebug ("Name mapping is :" + server.get_name())
 
         serverCount+=1
 
@@ -3589,6 +3583,12 @@ def amberskin():
 
     fullShelf (server_list)
 
+def return_server_url(server, path, arguments):
+
+    arguments['X-Plex-Token'] = server.get_token()
+
+    return appendURLArgument("http://%s:%s%s" % (server.get_address[0], server.get_port(), path), arguments)
+    
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
     printDebug("== ENTER ==", level=DEBUG_DEBUG)

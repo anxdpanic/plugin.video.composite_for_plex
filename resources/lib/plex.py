@@ -188,7 +188,7 @@ class Plex:
                 'uuid'      : server.attrib['machineIdentifier'],
                 'owned'     : '1',
                 'master'    : 1,
-                'class'     : ''}
+                'class'     : server.get('machineIdentifier', 'primary')}
 
     def get_myplex_queue(self):
         printDebug("== ENTER ==", level=self.DEBUG_DEBUG)

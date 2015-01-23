@@ -20,7 +20,7 @@ DEFAULT_PORT="32400"
 
 class PlexMediaServer:
 
-    def __init__(self, uuid=None, name=None, address=None, port=None, token=None, discovery=None, ):
+    def __init__(self, uuid=None, name=None, address=None, port=None, token=None, discovery=None, class_type='primary' ):
 
         self.DEBUG_OFF=0
         self.DEBUG_INFO=1
@@ -36,7 +36,7 @@ class PlexMediaServer:
         self.discovery=discovery
         self.owned=1
         self.master=1
-        self.class_type=''
+        self.class_type=class_type
         self.discovered=False
         
     def get_details(self):
@@ -103,7 +103,8 @@ class PlexMediaServer:
             printDebug("===XML===\n%s\n===XML===" % response.text, self.DEBUG_DEBUGPLUS)
             return response.text
             
-        return     
+        return  
+        
     def refresh(self):
 
         server=etree.fromstring(self.talk())
@@ -114,5 +115,5 @@ class PlexMediaServer:
         self.uuid=server.attrib['machineIdentifier']
         self.owned=1
         self.master=1
-        self.class_type=''    
+        self.class_type=server.get('serverClass','primary')
         self.discovered=True
