@@ -109,7 +109,7 @@ class Plex:
                     printDebug("GDM discovery completed")
                     for device in gdm_server_name:
 
-                        server=PlexMediaServer(address=device['server'], port=device['port'], discovery='local')
+                        server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local')
                         server.refresh()
                         das_servers.append(server)
                 else:

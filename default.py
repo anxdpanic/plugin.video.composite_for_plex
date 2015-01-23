@@ -727,8 +727,8 @@ def displaySections( filter=None, shared=False ):
             addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'thumb': g_thumb, 'type': 'Video', 'mode': _MODE_MYPLEXQUEUE})
 
         for server in ds_servers:
-
-            if server.get_class() == "secondary":
+        
+            if server.is_offline() or server.get_class() == "secondary":
                 continue
         
             #Plex plugin handling
