@@ -109,7 +109,7 @@ class PlexMediaServer:
                 return response.text
             
         return 
-        
+
     def refresh(self):
 
         data=self.talk()
@@ -125,3 +125,6 @@ class PlexMediaServer:
             self.master=1
             self.class_type=server.get('serverClass','primary')
             self.discovered=True
+            
+    def is_offline(self):
+        return self.offline

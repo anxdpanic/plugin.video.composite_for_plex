@@ -112,8 +112,6 @@ class Plex:
                         server=PlexMediaServer(address=device['server'], port=device['port'], discovery='local')
                         server.refresh()
                         das_servers.append(server)
-                        #das_servers[das_server_index] = server
-                        #das_server_index = das_server_index + 1
                 else:
                     printDebug("GDM was not able to discover any servers")
 
@@ -136,8 +134,6 @@ class Plex:
                 local_server = self.get_local_servers(self.settings.das_host, self.settings.das_port)
                 if local_server.discovered:
                     das_servers.append(local_server)
-                    #das_servers[das_server_index] = local_server
-                    #das_server_index = das_server_index + 1
 
         if self.settings.myplex_user:
             printDebug( "PleXBMC -> Adding myplex as a server location")
@@ -154,9 +150,6 @@ class Plex:
                 for device in das_myplex:
 
                     das_servers.append(device)
-
-                    #das_servers[das_server_index] = device
-                    #das_server_index = das_server_index + 1
 
         # # # Remove Cloud Sync servers, since they cause problems
         # # for das_server_index,das_server in das_servers.items():

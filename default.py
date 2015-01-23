@@ -114,7 +114,6 @@ print settings.__dict__
 
 CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug)
 
-        
 print "PleXBMC -> Running Python: %s" % sys.version_info
 print "PleXBMC -> Running PleXBMC: %s " % __version__
 print "PleXBMC -> CWD is set to: %s" % __cwd__
@@ -246,6 +245,9 @@ def getAllSections( server_list = None ):
     
     for server in server_list:
 
+        if server.is_offline():
+            continue
+    
         if server.get_discovery() == "local" or server.get_discovery() == "auto":
             section_details = getServerSections(server.get_address()[0], server.get_port(), server.get_name(), server.get_uuid())
             section_list += section_details
@@ -653,15 +655,13 @@ def displaySections( filter=None, shared=False ):
 
         plex_network.discover()
         ds_servers=plex_network.get_server_list()
-        numOfServers=len(ds_servers)
-        printDebug( "Using list of "+str(numOfServers)+" servers: " +  str(ds_servers))
+        printDebug( "Using list of %s servers: %s" % ( len(ds_servers), ds_servers))
         
         for section in getAllSections(ds_servers):
-        
+
             if shared and section.get('owned') == '1':
                 continue
-                
-        
+
             details={'title' : section.get('title', 'Unknown') }
 
             if len(ds_servers) > 1:
@@ -722,15 +722,11 @@ def displaySections( filter=None, shared=False ):
             xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
             return
                     
-        #For each of the servers we have identified
-        allservers=ds_servers
-        numOfServers=len(allservers)
-
-            
+        #For each of the servers we have identified            
         if __settings__.getSetting('myplex_user') != '':
             addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'thumb': g_thumb, 'type': 'Video', 'mode': _MODE_MYPLEXQUEUE})
 
-        for server in allservers:
+        for server in ds_servers:
 
             if server.get_class() == "secondary":
                 continue
@@ -739,7 +735,7 @@ def displaySections( filter=None, shared=False ):
             if (filter is not None) and (filter != "plugins"):
                 continue
 
-            if numOfServers > 1:
+            if len(ds_servers) > 1:
                 prefix=server.get_name()+": "
             else:
                 prefix=""
