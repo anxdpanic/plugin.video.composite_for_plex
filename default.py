@@ -244,7 +244,7 @@ def getAllSections( server_list = None ):
     myplex_complete=False
     local_complete=False
     
-    for server in server_list.itervalues():
+    for server in server_list:
 
         if server.get_discovery() == "local" or server.get_discovery() == "auto":
             section_details = getServerSections(server.get_address()[0], server.get_port(), server.get_name(), server.get_uuid())
@@ -263,23 +263,17 @@ def getAllSections( server_list = None ):
     
         printDebug ("Deduplicating myplex sections list")
     
-        for each_server in server_list.values():
+        for each_server in server_list:
         
             printDebug ("Checking server [%s]" % each_server)
             
-            if each_server['discovery'] == 'myplex':
+            if each_server.get_discover() == 'myplex':
                 printDebug ("Skipping as a myplex server")
                 continue
                     
-            myplex_section_list = [x for x in myplex_section_list if not x['uuid'] == each_server['uuid']]
+            myplex_section_list = [x for x in myplex_section_list if not x.get_uuid() == each_server.get_uuid()]
             
     section_list += myplex_section_list
-
-    '''
-    logfile = PLUGINPATH + "/_final_section_list.txt"
-    with open(logfile, 'wb') as f:
-        f.write(str(section_list))
-    '''
 
     return section_list
 
@@ -736,7 +730,7 @@ def displaySections( filter=None, shared=False ):
         if __settings__.getSetting('myplex_user') != '':
             addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'thumb': g_thumb, 'type': 'Video', 'mode': _MODE_MYPLEXQUEUE})
 
-        for server in allservers.itervalues():
+        for server in allservers:
 
             if server.get_class() == "secondary":
                 continue

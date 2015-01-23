@@ -38,6 +38,7 @@ class PlexMediaServer:
         self.master=1
         self.class_type=class_type
         self.discovered=False
+        self.offline=False
         
     def get_details(self):
                  
@@ -94,26 +95,33 @@ class PlexMediaServer:
         return self.master
           
     def talk(self,url='/'):
-    
-        response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=2)
-        
-        printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
-        
-        if response.status_code == requests.codes.ok:
-            printDebug("===XML===\n%s\n===XML===" % response.text, self.DEBUG_DEBUGPLUS)
-            return response.text
+        try:
+            response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=2)
+        except requests.exceptions.ConnectionError, e:
+            printDebug("Server: %s is offline or uncontactable. error: %s" % (self.address[0], e))
+            self.offline=True
+        else:
+
+            printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
             
-        return  
+            if response.status_code == requests.codes.ok:
+                printDebug("===XML===\n%s\n===XML===" % response.text, self.DEBUG_DEBUGPLUS)
+                return response.text
+            
+        return 
         
     def refresh(self):
 
-        server=etree.fromstring(self.talk())
+        data=self.talk()
+        
+        if data:
+            server=etree.fromstring(data)
 
-        self.server_name = server.attrib['friendlyName'].encode('utf-8')
-        self.locality='local'
-        self.token=None
-        self.uuid=server.attrib['machineIdentifier']
-        self.owned=1
-        self.master=1
-        self.class_type=server.get('serverClass','primary')
-        self.discovered=True
+            self.server_name = server.attrib['friendlyName'].encode('utf-8')
+            self.locality='local'
+            self.token=None
+            self.uuid=server.attrib['machineIdentifier']
+            self.owned=1
+            self.master=1
+            self.class_type=server.get('serverClass','primary')
+            self.discovered=True

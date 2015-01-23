@@ -80,12 +80,13 @@ class Plex:
     def discover_all_servers(self):
         printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
 
-        das_servers={}
+        das_servers=[]
         das_server_index=0
 
         if self.settings.discovery == "1":
             printDebug("local GDM discovery setting enabled.")
-            try:
+            #try:
+            if True:
                 printDebug("Attempting GDM lookup on multicast")
                 if self.settings.debug >= self.DEBUG_INFO:
                     GDM_debug=3
@@ -110,13 +111,14 @@ class Plex:
 
                         server=PlexMediaServer(address=device['server'], port=device['port'], discovery='local')
                         server.refresh()
-                        das_servers[das_server_index] = server
-                        das_server_index = das_server_index + 1
+                        das_servers.append(server)
+                        #das_servers[das_server_index] = server
+                        #das_server_index = das_server_index + 1
                 else:
                     printDebug("GDM was not able to discover any servers")
 
-            except Exception, e:
-                print "PleXBMC -> GDM Issue [%s]" % e
+            #except Exception, e:
+            #    print "PleXBMC -> GDM Issue [%s]" % e
 
         #Set to Disabled
         else:
@@ -133,8 +135,9 @@ class Plex:
                 local_server.refresh()
                 local_server = self.get_local_servers(self.settings.das_host, self.settings.das_port)
                 if local_server.discovered:
-                    das_servers[das_server_index] = local_server
-                    das_server_index = das_server_index + 1
+                    das_servers.append(local_server)
+                    #das_servers[das_server_index] = local_server
+                    #das_server_index = das_server_index + 1
 
         if self.settings.myplex_user:
             printDebug( "PleXBMC -> Adding myplex as a server location")
@@ -150,8 +153,10 @@ class Plex:
                 printDebug("MyPlex discovery completed")
                 for device in das_myplex:
 
-                    das_servers[das_server_index] = device
-                    das_server_index = das_server_index + 1
+                    das_servers.append(device)
+
+                    #das_servers[das_server_index] = device
+                    #das_server_index = das_server_index + 1
 
         # # # Remove Cloud Sync servers, since they cause problems
         # # for das_server_index,das_server in das_servers.items():
@@ -159,7 +164,7 @@ class Plex:
         # #     if 'version' not in das_server:
         # #         del das_servers[das_server_index]
 
-        printDebug("PleXBMC -> serverList is " + str(das_servers))
+        printDebug("PleXBMC -> serverList is: %s " % das_servers)
 
         return self.deduplicateServers(das_servers)
 
@@ -269,37 +274,30 @@ class Plex:
         if len(server_list) <= 1:
             return server_list
 
-        temp_list=server_list.values()
         oneCount=0
-        for onedevice in temp_list:
+        for onedevice in server_list:
 
             twoCount=0
-            for twodevice in temp_list:
+            for twodevice in server_list:
 
                 if oneCount == twoCount:
                     twoCount+=1
                     continue
 
-                if onedevice['uuid'] == twodevice['uuid']:
-                    if onedevice['discovery'] == "auto" or onedevice['discovery'] == "local":
-                        temp_list.pop(twoCount)
+                if onedevice.get_uuid() == twodevice.get_uuid():
+                    if onedevice.get_discovery() == "auto" or onedevice.get_discover() == "local":
+                        server_list.pop(twoCount)
                     else:
-                        temp_list.pop(oneCount)
+                        server_list.pop(oneCount)
 
                 twoCount+=1
 
             oneCount+=1
 
+        printDebug ("Unique server List: %s" % server_list)
 
-        count=0
-        unique_list={}
-        for i in temp_list:
-            unique_list[count] = i
-            count = count + 1
-
-        printDebug ("Unique server List: " + str(unique_list))
-
-        return unique_list
+        self.server_list = server_list
+        return self.server_list
         
     def getMyPlexURL(self, url_path, renew=False, suppress=True):
         '''
