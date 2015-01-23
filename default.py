@@ -747,7 +747,7 @@ def displaySections( filter=None, shared=False ):
 
         for server in allservers.itervalues():
 
-            if server['class'] == "secondary":
+            if server.get_class() == "secondary":
                 continue
         
             #Plex plugin handling
@@ -755,17 +755,17 @@ def displaySections( filter=None, shared=False ):
                 continue
 
             if numOfServers > 1:
-                prefix=server['serverName']+": "
+                prefix=server.get_name()+": "
             else:
                 prefix=""
 
             details={'title' : prefix+"Channels" }
             extraData={'type' : "Video",
                        'thumb' : g_thumb,
-                       'token' : server.get('token',None) }
+                       'token' : server.get_token()}
 
             extraData['mode']=_MODE_CHANNELVIEW
-            u="http://"+server['server']+":"+server['port']+"/system/plugins/all" 
+            u="http://"+server.get_address()[0]+":"+server.get_port()+"/system/plugins/all" 
             addGUIItem(u,details,extraData)
 
             #Create plexonline link
@@ -774,7 +774,7 @@ def displaySections( filter=None, shared=False ):
             extraData['thumb'] = g_thumb
             extraData['mode'] = _MODE_PLEXONLINE
 
-            u="http://"+server['server']+":"+server['port']+"/system/plexonline"
+            u="http://"+server.get_address()[0]+":"+server.get_port()+"/system/plexonline"
             addGUIItem(u,details,extraData)
             
             #create playlist link
@@ -783,7 +783,7 @@ def displaySections( filter=None, shared=False ):
             extraData['thumb'] = g_thumb
             extraData['mode'] = _MODE_PLAYLISTS
 
-            u="http://"+server['server']+":"+server['port']+"/playlists"
+            u="http://"+server.get_address()[0]+":"+server.get_port()+"/playlists"
             addGUIItem(u,details,extraData)
             
             
