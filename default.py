@@ -112,7 +112,7 @@ DEBUG_MAP={ DEBUG_OFF : "off",
 settings=addonSettings('plugin.video.plexbmc')
 print settings.__dict__
 
-CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug)
+CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug, settings.cache)
 
 print "PleXBMC -> Running Python: %s" % sys.version_info
 print "PleXBMC -> Running PleXBMC: %s " % __version__
@@ -184,7 +184,6 @@ def getServerSections (server):
                     'type'       : section.get('type', ''),
                     'owned'      : '1'})
                 
-            
         CACHE.writeCache(cache_file, temp_list)
         
     return temp_list            

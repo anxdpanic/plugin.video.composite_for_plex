@@ -42,6 +42,7 @@ class addonSettings:
         self.myplex_user = settings.getSetting('myplex_user')
         self.myplex_pass = settings.getSetting('myplex_pass')
         self.myplex_token= settings.getSetting('myplex_token')
+        self.cache=self.__translate_bool_settings(settings.getSetting('cache'))
 
         
     def dumpSettings(self):

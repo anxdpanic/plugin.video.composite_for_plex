@@ -20,7 +20,7 @@ except ImportError:
 
 class CacheControl:
 
-	def __init__(self, cache_location, debug=0):
+	def __init__(self, cache_location, debug=0, enabled=True):
 	
 		self.cache_location=cache_location
 		
@@ -30,16 +30,22 @@ class CacheControl:
 		self.DEBUG_DEBUGPLUS=3
 		
 		self.debug=debug
+		self.enabled=enabled
+
+		if self.enabled:
 		
-		if self.cache_location[-1] != "/":
-			self.cache_location+="/"
-		
-		if not xbmcvfs.exists(self.cache_location):
-			if not xbmcvfs.mkdir(self.cache_location):
-				self.__printDebug("CACHE [%s]: Location does not exist" % self.cache_location)
-				self.cache_location=None
-		
-		self.__printDebug("Running with cache location: %s" % self.cache_location)
+			if self.cache_location[-1] != "/":
+				self.cache_location+="/"
+
+			if not xbmcvfs.exists(self.cache_location):
+				if not xbmcvfs.mkdir(self.cache_location):
+					self.__printDebug("CACHE [%s]: Location does not exist" % self.cache_location)
+					self.cache_location=None
+			self.__printDebug("Running with cache location: %s" % self.cache_location)
+
+		else:
+			self.cache_location=None
+			self.__printDebug("Cache is disabled")
 		
 	def __printDebug(self, msg, level=1):
 		if self.debug >= level:

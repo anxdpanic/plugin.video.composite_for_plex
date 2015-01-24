@@ -32,7 +32,7 @@ class Plex:
         else:
             self.settings = settings
             
-        self.cache=CacheControl.CacheControl(__cachedir__+"cache/servers", self.settings.debug)
+        self.cache=CacheControl.CacheControl(__cachedir__+"cache/servers", self.settings.debug,self.settings.cache)
         self.DEBUG_OFF=0
         self.DEBUG_INFO=1
         self.DEBUG_DEBUG=2
