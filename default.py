@@ -727,7 +727,7 @@ def displaySections( filter=None, shared=False ):
 
         for server in ds_servers:
         
-            if server.is_offline() or server.get_class() == "secondary":
+            if server.is_offline() or server.is_secondary():
                 continue
         
             #Plex plugin handling
@@ -3244,7 +3244,7 @@ def skin( server_list=None, type=None ):
 
     for server in server_list:
     
-        if server.get_class() == "secondary":
+        if server.is_secondary():
             continue
     
         aToken=getAuthDetails(server)
@@ -3474,7 +3474,7 @@ def amberskin():
 
         printDebug(server.get_details())
     
-        if server.get_class() == "secondary":
+        if server.is_secondary():
             continue
 
         if settings.channelview:
@@ -4038,10 +4038,7 @@ def shelf( server_list=None ):
         
     for server_details in server_list():
 
-        if server_details.get_class() == "secondary":
-            continue
-    
-        if not server_details.is_owned():
+        if server_details.is_secondary() or not server_details.is_owned():
             continue
     
         global _PARAM_TOKEN
@@ -4263,10 +4260,7 @@ def shelfChannel(server_list = None):
     
     for server_details in server_list:
 
-        if server_details.get_class() == "secondary":
-            continue
-    
-        if not server_details.is_owned():
+        if server_details.is_secondary() or not server_details.is_owned():
             continue
         
         global _PARAM_TOKEN
@@ -4396,42 +4390,42 @@ def displayServers( url ):
     Servers_list=len(Servers)
 
     #For each of the servers we have identified
-    for mediaserver in Servers.values():
+    for mediaserver in Servers:
 
-        if mediaserver['class'] == "secondary":
+        if mediaserver.is_secondary():
             continue
     
-        details={'title' : mediaserver.get('serverName','Unknown') }
+        details={'title' : mediaserver.get_name() }
 
-        if mediaserver.get('token',None):
-            extraData={'token' : mediaserver.get('token') }
+        if mediaserver.get_token():
+            extraData={'token' : mediaserver.get_token() }
         else:
             extraData={}
 
         if type == "video":
             extraData['mode']=_MODE_PLEXPLUGINS
-            s_url='http://%s:%s/video' % ( mediaserver.get('server',''), mediaserver.get('port') )
+            s_url='%s%s' % ( mediaserver.get_url_location(), '/video' )
             if Servers_list == 1:
                 PlexPlugins(s_url+getAuthDetails(extraData,prefix="?"))
                 return
 
         elif type == "online":
             extraData['mode']=_MODE_PLEXONLINE
-            s_url='http://%s:%s/system/plexonline' % ( mediaserver.get('server', ''),mediaserver.get('port') )
+            s_url='%s%s' % ( mediaserver.get_url_location() , '/system/plexonline')
             if Servers_list == 1:
                 plexOnline(s_url+getAuthDetails(extraData,prefix="?"))
                 return
 
         elif type == "music":
             extraData['mode']=_MODE_MUSIC
-            s_url='http://%s:%s/music' % ( mediaserver.get('server', ''),mediaserver.get('port') )
+            s_url='%s%s' % ( mediaserver.get_url_location(), '/music' )
             if Servers_list == 1:
                 music(s_url+getAuthDetails(extraData,prefix="?"))
                 return
 
         elif type == "photo":
             extraData['mode']=_MODE_PHOTOS
-            s_url='http://%s:%s/photos' % ( mediaserver.get('server', ''),mediaserver.get('port') )
+            s_url='%s%s' % ( mediaserver.get_url_location(), '/photos' )
             if Servers_list == 1:
                 photo(s_url+getAuthDetails(extraData,prefix="?"))
                 return

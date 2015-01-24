@@ -143,4 +143,9 @@ class PlexMediaServer:
         if self.owned == 1 or self.owned == '1':
             return True
         return False
+
+    def is_secondary(self):
         
+        if self.class_type == "secondary":
+            return True
+        return False
