@@ -3612,7 +3612,7 @@ def fullShelf(server_list={}):
 
     for server_details in server_list:
 
-        if not server_details.get_owned() == '1':
+        if not server_details.is_owned():
             continue
 
         global _PARAM_TOKEN
@@ -4041,7 +4041,7 @@ def shelf( server_list=None ):
         if server_details.get_class() == "secondary":
             continue
     
-        if not server_details.get_owned() == '1':
+        if not server_details.is_owned():
             continue
     
         global _PARAM_TOKEN
@@ -4266,7 +4266,7 @@ def shelfChannel(server_list = None):
         if server_details.get_class() == "secondary":
             continue
     
-        if not server_details.get_owned() == '1':
+        if not server_details.is_owned():
             continue
         
         global _PARAM_TOKEN

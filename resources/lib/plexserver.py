@@ -138,3 +138,9 @@ class PlexMediaServer:
     def get_sections(self):
         return self.talk("/library/sections")
         
+    def is_owned(self):
+        
+        if self.owned == 1 or self.owned == '1':
+            return True
+        return False
+        
