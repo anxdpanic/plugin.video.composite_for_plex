@@ -4306,11 +4306,11 @@ def shelfChannel(server_list = None):
                 mode=_MODE_GETCONTENT
                 channel_window="VideoLibrary"
 
-            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( channel_window, getLinkURL('http://'+server_details['server']+":"+server_details['port'],media,server_details['server']+":"+server_details['port']), mode , aToken)
+            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( channel_window, getLinkURL(server_details.get_url_location(),media,server_details.get_location()), mode , aToken)
             pms_thumb = str(media.get('thumb', ''))
 
             if pms_thumb.startswith('/'):
-                c_thumb = 'http://' + server_details['server'] + ":" + server_details['port'] + pms_thumb
+                c_thumb = server_details.get_url_location() + pms_thumb
 
             else:
                 c_thumb = pms_thumb
