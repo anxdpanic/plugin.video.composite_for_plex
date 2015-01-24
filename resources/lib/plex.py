@@ -5,14 +5,6 @@ import sys
 import os
 import xml.etree.ElementTree as etree
 import base64
-
-__addon__    = xbmcaddon.Addon()
-__cachedir__ = __addon__.getAddonInfo('profile')
-__cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
-
-__resources__ = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
-sys.path.append(__resources__)
-
 import plexgdm
 from settings import addonSettings
 from common import *
@@ -20,6 +12,7 @@ import CacheControl
 import requests
 from plexserver import PlexMediaServer
 
+printDebug=printDebug("PleXBMC", "plex")
 DEFAULT_PORT="32400"
 
 class Plex:
@@ -32,7 +25,7 @@ class Plex:
         else:
             self.settings = settings
             
-        self.cache=CacheControl.CacheControl(__cachedir__+"cache/servers", self.settings.debug,self.settings.cache)
+        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", self.settings.debug,self.settings.cache)
         self.DEBUG_OFF=0
         self.DEBUG_INFO=1
         self.DEBUG_DEBUG=2
@@ -42,7 +35,7 @@ class Plex:
         self.logged_into_myplex=False
         self.server_list=[]
         self.discovered=False
-                
+                        
     def discover(self):
         self.server_list = self.discover_all_servers()
         

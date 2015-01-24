@@ -5,16 +5,11 @@ import sys
 import os
 import xml.etree.ElementTree as etree
 
-__addon__    = xbmcaddon.Addon()
-__cachedir__ = __addon__.getAddonInfo('profile')
-__cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
-
-__resources__ = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
-sys.path.append(__resources__)
-
 from settings import addonSettings
 from common import *
 import requests
+
+printDebug=printDebug("PleXBMC", "plexserver")
 
 DEFAULT_PORT="32400"
 

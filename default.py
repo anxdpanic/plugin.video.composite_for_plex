@@ -30,7 +30,6 @@ import urlparse
 import re
 import xbmcplugin
 import xbmcgui
-import xbmcaddon
 import httplib
 import socket
 import sys
@@ -41,24 +40,19 @@ import random
 import xbmc
 import datetime
 import xml.etree.ElementTree as etree
+from common import *  #Needed first to setup import locations
+from settings import addonSettings
+import CacheControl
+import plex
 
 print "===== PLEXBMC START ====="
 
-__addon__    = xbmcaddon.Addon()
-__plugin__   = __addon__.getAddonInfo('name')
-__version__  = __addon__.getAddonInfo('version')
-__cachedir__ = __addon__.getAddonInfo('profile')
-__settings__ = xbmcaddon.Addon(id='plugin.video.plexbmc')
-__cwd__      = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
+__version__  = GLOBAL_SETUP['__version__']
+__cachedir__ = GLOBAL_SETUP['__cachedir__']
+__settings__ = GLOBAL_SETUP['__settings__']
+__cwd__      = GLOBAL_SETUP['__cwd__']
 
-BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__cwd__, 'resources', 'lib'))
-PLUGINPATH = xbmc.translatePath(os.path.join(__cwd__))
-sys.path.append(BASE_RESOURCE_PATH)
-
-from settings import addonSettings
-import CacheControl
-from common import *
-import plex
+printDebug=printDebug("PleXBMC")
 
 #Get the setting from the appropriate file.
 DEFAULT_PORT="32400"

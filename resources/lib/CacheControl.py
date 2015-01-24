@@ -9,20 +9,22 @@ Implementation of file based caching for python objects.
 Utilises pickle to store object data as file within the KODI virtual file system.
 
 '''
-
 import xbmcvfs
-import inspect
 import time
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
-
+    
+from common import *
+    
 class CacheControl:
 
     def __init__(self, cache_location, debug=0, enabled=True):
     
         self.cache_location=cache_location
+        
+        self.__printDebug=printDebug("PleXBMC", "cachecontrol")
         
         self.DEBUG_OFF=0
         self.DEBUG_INFO=1
@@ -46,11 +48,7 @@ class CacheControl:
         else:
             self.cache_location=None
             self.__printDebug("Cache is disabled")
-        
-    def __printDebug(self, msg, level=1):
-        if self.debug >= level:
-            print "KodeX -> %s: %s" % (inspect.stack()[1][3], msg)
-        
+                
     def readCache(self, cache_name):
         if self.cache_location is None:
             return (False, None)

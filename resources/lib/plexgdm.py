@@ -30,6 +30,7 @@ import re
 import threading
 import time
 import urllib2
+from common import *
 
 class plexgdm:
 
@@ -54,10 +55,7 @@ class plexgdm:
         self.discovery_complete = False
         self.client_registered = False
         self.debug = debug
-
-    def __printDebug(self, message, level=1):
-        if self.debug >= level:
-            print "PlexGDM: %s" % message
+        self.__printDebug=printDebug("PleXBMC", "PlexGDM")
 
     def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
         self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % ( c_id, c_name, c_post, c_product, c_version )
