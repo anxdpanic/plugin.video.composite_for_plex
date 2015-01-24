@@ -81,7 +81,7 @@ class PlexMediaServer:
         return self.port
 
     def get_url_location(self):
-        return '%s:\\%s:%s' % ( self.protocol, self.address[0], self.port)
+        return '%s://%s:%s' % ( self.protocol, self.address[0], self.port)
         
     def get_location(self):
         return '%s:%s' % ( self.address[0], self.port)

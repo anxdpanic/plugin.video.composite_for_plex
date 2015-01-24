@@ -3650,7 +3650,7 @@ def fullShelf(server_list={}):
                             pass
 
                         else:
-                            recent_list[full_count] = (eachitem, server_detailsget_location(), aToken, qToken, libraryuuid)
+                            recent_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
                             ep_helper[key] = key  # use seasons as dict key so we can check
                             full_count += 1
                             ra_item_count += 1
@@ -4278,7 +4278,7 @@ def shelfChannel(server_list = None):
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
             return
 
-        tree=getXML('http://'+server_details.get_address()+":"+server_details.get_port()+'/channels/recentlyViewed')
+        tree=getXML(server_details.get_url_location()+'/channels/recentlyViewed')
         if tree is None:
             xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details.get_name()+",)")
             clearChannelShelf(0)
