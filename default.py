@@ -246,7 +246,7 @@ def getAllSections( server_list = None ):
             section_list += section_details
             local_complete=True
             
-        elif server['discovery'] == "myplex":
+        elif server.get_discovery() == "myplex":
             if not myplex_complete:
                 section_details = getMyplexSections()
                 myplex_section_list += section_details
@@ -262,11 +262,11 @@ def getAllSections( server_list = None ):
         
             printDebug ("Checking server [%s]" % each_server)
             
-            if each_server.get_discover() == 'myplex':
+            if each_server.get_discovery() == 'myplex':
                 printDebug ("Skipping as a myplex server")
                 continue
                     
-            myplex_section_list = [x for x in myplex_section_list if not x.get_uuid() == each_server.get_uuid()]
+            myplex_section_list = [x for x in myplex_section_list if not x.get('machineIdentifier') == each_server.get_uuid()]
             
     section_list += myplex_section_list
 
@@ -2087,9 +2087,9 @@ def getMasterServer(all=False):
         printDebug( str(serverData) )
         if serverData.get_master() == 1:
             possibleServers.append({'address' : serverData.get_location() ,
-                                    'discovery' : serverData.get_discover(),
+                                    'discovery' : serverData.get_discovery(),
                                     'name'      : serverData.get_name(),
-                                    'token'     : serverData.get+token() })
+                                    'token'     : serverData.get_token() })
     printDebug( "Possible master servers are " + str(possibleServers) )
 
     if all:

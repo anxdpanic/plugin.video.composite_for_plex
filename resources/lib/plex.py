@@ -124,7 +124,6 @@ class Plex:
 
                 local_server=PlexMediaServer(address=self.settings.das_host, port=self.settings.das_port, discovery='local')
                 local_server.refresh()
-                local_server = self.get_local_servers(self.settings.das_host, self.settings.das_port)
                 if local_server.discovered:
                     das_servers.append(local_server)
 
@@ -219,32 +218,22 @@ class Plex:
         if xml is False:
             return {}
 
-        servers = etree.fromstring(xml)
+        server_list = etree.fromstring(xml)
 
         count = 0
-        for server in servers:
-            #data = dict(server.items())
+        for server in server_list:
+        
+            myplex_server=PlexMediaServer( name = server.get('name').encode('utf-8'),
+                                           address = server.get('address') ,
+                                           port = server.get('port'),
+                                           discovery = "myplex" ,
+                                           token = server.get('accessToken'),
+                                           uuid = server.get('machineIdentifier'))
 
-            if server.get('owned', None) == "1":
-                owned = '1'
-                if count == 0:
-                    master = 1
-                    count =- 1
-                accessToken = self.getMyPlexToken()
-            else:
-                owned = '0'
-                master = 0
-                accessToken = server.get('accessToken')
+            if server.get('owned', None) == "0":
+                myplex_server.set_owned(0)
 
-            tempServers.append({'serverName': server.get('name').encode('utf-8'),
-                                'server'    : server.get('address'),
-                                'port'      : server.get('port'),
-                                'discovery' : 'myplex',
-                                'token'     : accessToken,
-                                'uuid'      : server.get('machineIdentifier'),
-                                'owned'     : owned,
-                                'master'    : master,
-                                'class'     : ""})
+            tempServers.append(myplex_server)
 
         return tempServers
                                            
@@ -271,7 +260,7 @@ class Plex:
                     continue
 
                 if onedevice.get_uuid() == twodevice.get_uuid():
-                    if onedevice.get_discovery() == "auto" or onedevice.get_discover() == "local":
+                    if onedevice.get_discovery() == "auto" or onedevice.get_discovery() == "local":
                         server_list.pop(twoCount)
                     else:
                         server_list.pop(oneCount)

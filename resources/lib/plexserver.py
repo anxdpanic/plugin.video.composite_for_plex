@@ -95,7 +95,16 @@ class PlexMediaServer:
 
     def get_master(self):
         return self.master
-          
+
+    def set_owned(self, value):
+        self.owned=value
+
+    def set_class(self, value):
+        self.class_type=value
+
+    def set_master(self, value):
+        self.master=value
+        
     def talk(self,url='/'):
         try:
             response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=2)
@@ -119,7 +128,6 @@ class PlexMediaServer:
             server=etree.fromstring(data)
 
             self.server_name = server.attrib['friendlyName'].encode('utf-8')
-            self.locality='local'
             self.token=None
             self.uuid=server.attrib['machineIdentifier']
             self.owned=1
