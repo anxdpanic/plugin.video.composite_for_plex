@@ -2089,13 +2089,13 @@ def getMasterServer(all=False):
     possibleServers=[]
     current_master=__settings__.getSetting('masterServer')
     plex_network.discover()
-    for serverData in plex_network.get_server_list().values():
+    for serverData in plex_network.get_server_list():
         printDebug( str(serverData) )
-        if serverData['master'] == 1:
-            possibleServers.append({'address' : serverData['server']+":"+serverData['port'] ,
-                                    'discovery' : serverData['discovery'],
-                                    'name'      : serverData['serverName'],
-                                    'token'     : serverData.get('token') })
+        if serverData.get_master() == 1:
+            possibleServers.append({'address' : serverData.get_location() ,
+                                    'discovery' : serverData.get_discover(),
+                                    'name'      : serverData.get_name(),
+                                    'token'     : serverData.get+token() })
     printDebug( "Possible master servers are " + str(possibleServers) )
 
     if all:
@@ -3242,9 +3242,9 @@ def skin( server_list=None, type=None ):
     #For each of the servers we have identified
     numOfServers=len(server_list)
 
-    for server in server_list.values():
+    for server in server_list:
     
-        if server['class'] == "secondary":
+        if server.get_class() == "secondary":
             continue
     
         aToken=getAuthDetails(server)
@@ -3477,8 +3477,6 @@ def amberskin():
         if server.get_class() == "secondary":
             continue
 
-        aToken=getAuthDetails(server)
-
         if settings.channelview:
             WINDOW.setProperty("plexbmc.channel", "1")
             WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s, return" % return_server_url(server, "/system/plugins/all", {'mode' : 21}))
@@ -3576,7 +3574,7 @@ def return_server_url(server, path, arguments):
 
     arguments['X-Plex-Token'] = server.get_token()
 
-    return appendURLArgument("http://%s:%s%s" % (server.get_address[0], server.get_port(), path), arguments)
+    return appendURLArgument("http://%s:%s%s" % (server.get_address()[0], server.get_port(), path), arguments)
     
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
@@ -3612,20 +3610,13 @@ def fullShelf(server_list={}):
 
     randomNumber = str(random.randint(1000000000,9999999999))
 
-    '''
-    logfile = PLUGINPATH+"/_server_list.txt"
-    logfileh = open(logfile, "w")
-    logfileh.write(str(server_list))
-    logfileh.close()
-    '''
+    for server_details in server_list:
 
-    for server_details in server_list.values():
-
-        if not server_details['owned'] == '1':
+        if not server_details.get_owned() == '1':
             continue
 
         global _PARAM_TOKEN
-        _PARAM_TOKEN = server_details.get('token', '')
+        _PARAM_TOKEN = server_details.get_token()
         aToken=getAuthDetails({'token': _PARAM_TOKEN})
         qToken='?' + aToken
 
@@ -3633,30 +3624,13 @@ def fullShelf(server_list={}):
         #ra_log_count = 1
 
         if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
-
-            '''
-            logfile = PLUGINPATH+"/_shelf_sections_.txt"
-            logfileh = open(logfile, "w")
-            logfileh.write(str(sections))
-            logfileh.close()
-            '''
             
             for section in sections:
                 
                 _PARAM_TOKEN = section.get('token', '')
                 fullpath = section.get('address') + section.get("path")
                 tree = getXML('http://' + fullpath + "/recentlyAdded")
-                _PARAM_TOKEN = server_details.get('token', '')
-
-                '''
-                eetee = etree.ElementTree()
-                eetee._setroot(tree)
-                logfile = PLUGINPATH+"/RecentlyAdded"+ str(ra_file_count) + ".xml"
-                logfileh = open(logfile, "w")
-                eetee.write(logfileh)
-                logfileh.close()
-                ra_log_count += 1
-                '''
+                _PARAM_TOKEN = server_details.get_token()
 
                 if tree is None:
                     printDebug("PLEXBMC -> RecentlyAdded items not found on: " + fullpath)
@@ -3676,27 +3650,17 @@ def fullShelf(server_list={}):
                             pass
 
                         else:
-                            recent_list[full_count] = (eachitem, server_details['server'] + ":" + server_details['port'], aToken, qToken, libraryuuid)
+                            recent_list[full_count] = (eachitem, server_detailsget_location(), aToken, qToken, libraryuuid)
                             ep_helper[key] = key  # use seasons as dict key so we can check
                             full_count += 1
                             ra_item_count += 1
 
                     else:
-                        recent_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
+                        recent_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
                         full_count += 1
                         ra_item_count += 1
 
             full_count = 0
-
-            '''
-            logfile = PLUGINPATH+"/Recent_list.log"
-            logfileh = open(logfile, "w")
-            for item in recent_list:
-                logfileh.write("%s\n" % item)
-            logfileh.close()
-            '''
-
-            #deck_log_count = 1
 
         if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
 
@@ -3705,18 +3669,8 @@ def fullShelf(server_list={}):
                 _PARAM_TOKEN = section.get('token', '')
                 fullpath = section.get("address") + section.get("path")
                 tree = getXML('http://' + fullpath + "/onDeck")
-                _PARAM_TOKEN = server_details.get('token', '')
+                _PARAM_TOKEN = server_details.get_token()
                 
-                '''
-                eetee = etree.ElementTree()
-                eetee._setroot(tree)
-                logfile = PLUGINPATH+"/OnDeck"+ str(deck_file_count) + ".xml"
-                logfileh = open(logfile, "w")
-                eetee.write(logfileh)
-                logfileh.close()
-                deck_log_count += 1
-                '''
-
                 if tree is None:
                     #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
                     #clearShelf()
@@ -3731,7 +3685,7 @@ def fullShelf(server_list={}):
                     deck_item_count +=1
 
                     #libraryuuid = tree.attrib["librarySectionUUID"]
-                    ondeck_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken, libraryuuid)
+                    ondeck_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
                     full_count += 1
 
     #For each of the servers we have identified
@@ -4082,31 +4036,31 @@ def shelf( server_list=None ):
         
     randomNumber=str(random.randint(1000000000,9999999999))
         
-    for server_details in server_list.values():
+    for server_details in server_list():
 
-        if server_details['class'] == "secondary":
+        if server_details.get_class() == "secondary":
             continue
     
-        if not server_details['owned'] == '1':
+        if not server_details.get_owned() == '1':
             continue
     
         global _PARAM_TOKEN
-        _PARAM_TOKEN = server_details.get('token','')
+        _PARAM_TOKEN = server_details.get_token()
         aToken=getAuthDetails({'token': _PARAM_TOKEN} )
         qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
         
-        tree=getXML('http://'+server_details['server']+":"+server_details['port']+endpoint)
+        tree=getXML(server.get_url_location()+endpoint)
         if tree is None:
-            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
+            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details.get_name()+",)")
             clearShelf()
             return
 
         for eachitem in tree:
 
             if direction:
-                added_list[int(eachitem.get('addedAt',0))] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken )
+                added_list[int(eachitem.get('addedAt',0))] = (eachitem, server_details.get_location(), aToken, qToken )
             else:
-                added_list[full_count] = (eachitem, server_details['server']+":"+server_details['port'], aToken, qToken )
+                added_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken )
                 full_count += 1
 
     library_filter = __settings__.getSetting('libraryfilter')
@@ -4307,7 +4261,7 @@ def shelfChannel(server_list = None):
         clearChannelShelf()
         return
     
-    for server_details in server_list.values():
+    for server_details in server_list:
 
         if server_details.get_class() == "secondary":
             continue
