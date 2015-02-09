@@ -26,20 +26,20 @@ class Plex:
             self.settings = settings
             
         self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", self.settings.debug,self.settings.cache)
-        self.myplex_token=None
         self.myplex_server='https://plex.tv'
+        self.myplex_token=None
         self.logged_into_myplex=False
-        self.server_list=[]
+        self.server_list={}
         self.discovered=False
                         
     def discover(self):
-        self.server_list = self.discover_all_servers()
+        self.discover_all_servers()
         
         if self.server_list:
             self.discovered=True
 
     def get_server_list(self):
-        return self.server_list
+        return self.server_list.values()
             
     def plex_identification(self):
 
@@ -55,7 +55,18 @@ class Plex:
                 'X-Plex-Version'           : 'unknown'  ,
                 'X-Plex-Provides'          : "player",
                 'X-Plex-Token'             : self.myplex_token}
+
+    def ping_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
+    
+        response = requests.head("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
         
+        printDebug.debug("URL was: %s" % response.url)
+        
+        if response.status_code == requests.codes.ok:
+            return True
+            
+        return False
+                
     def talk_to_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
     
         response = requests.get("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
@@ -68,9 +79,6 @@ class Plex:
      
     def discover_all_servers(self):
         printDebug.debug("== ENTER ==")
-
-        das_servers=[]
-        das_server_index=0
 
         if self.settings.discovery == "1":
             printDebug.info("local GDM discovery setting enabled.")
@@ -99,7 +107,7 @@ class Plex:
 
                         server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local')
                         server.refresh()
-                        das_servers.append(server)
+                        self.server_list[server.get_uuid()] = server
                 else:
                     printDebug.info("GDM was not able to discover any servers")
 
@@ -120,7 +128,7 @@ class Plex:
                 local_server=PlexMediaServer(address=self.settings.das_host, port=self.settings.das_port, discovery='local')
                 local_server.refresh()
                 if local_server.discovered:
-                    das_servers.append(local_server)
+                    self.server_list[local_server.get_uuid()] = local_server
 
         if self.settings.myplex_user:
             printDebug.info( "PleXBMC -> Adding myplex as a server location")
@@ -134,46 +142,11 @@ class Plex:
 
             if das_myplex:
                 printDebug.info("MyPlex discovery completed")
-                for device in das_myplex:
+                self.merge_myplex(das_myplex)
 
-                    das_servers.append(device)
+        printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
 
-        # # # Remove Cloud Sync servers, since they cause problems
-        # # for das_server_index,das_server in das_servers.items():
-        # #     # Cloud sync "servers" don't have a version key in the dictionary
-        # #     if 'version' not in das_server:
-        # #         del das_servers[das_server_index]
-
-        printDebug.info("PleXBMC -> serverList is: %s " % das_servers)
-
-        return self.deduplicateServers(das_servers)
-
-    def get_local_servers(self, ip_address="localhost", port=32400):
-        '''
-            Connect to the defined local server (either direct or via bonjour discovery)
-            and get a list of all known servers.
-            @input: nothing
-            @return: a list of servers (as Dict)
-        '''
-        printDebug.debug("== ENTER ==")
-        
-        url_path="/"
-        html = self.talk_to_server(ip_address, port, url_path)
-
-        if not html:
-             return []
-
-        server=etree.fromstring(html)
-
-        return {'serverName': server.attrib['friendlyName'].encode('utf-8'),
-                'server'    : ip_address,
-                'port'      : port,
-                'discovery' : 'local',
-                'token'     : None ,
-                'uuid'      : server.attrib['machineIdentifier'],
-                'owned'     : '1',
-                'master'    : 1,
-                'class'     : server.get('machineIdentifier', 'primary')}
+        return 
 
     def get_myplex_queue(self):
         printDebug.debug("== ENTER ==")
@@ -205,10 +178,8 @@ class Plex:
 
         printDebug.debug("== ENTER ==")
 
-        tempServers = []
-        url_path = "/pms/servers"
-
-        xml = self.getMyPlexURL(url_path)
+        tempServers = {}
+        xml = self.getMyPlexURL("/pms/servers")
 
         if xml is False:
             return {}
@@ -228,46 +199,25 @@ class Plex:
             if server.get('owned', None) == "0":
                 myplex_server.set_owned(0)
 
-            tempServers.append(myplex_server)
+            tempServers[myplex_server.get_uuid()]=myplex_server
 
         return tempServers
                                            
-    def deduplicateServers( self, server_list ):
-        '''
-          Return list of all media sections configured
-          within PleXBMC
-          @input: None
-          @Return: unique list of media servers
-        '''
+    def merge_myplex(self, remote ):
         printDebug.debug("== ENTER ==")
 
-        if len(server_list) <= 1:
-            return server_list
+        if len(remote) <= 1:
+            return 
 
-        oneCount=0
-        for onedevice in server_list:
+        for uuid in remote:
+        
+            if uuid in self.server_list.keys():
+                printDebug.debug("Merging server")
+            else:
+                printDebug.debug("Adding new server")
+                self.server_list[uuid]=remote[uuid]
 
-            twoCount=0
-            for twodevice in server_list:
-
-                if oneCount == twoCount:
-                    twoCount+=1
-                    continue
-
-                if onedevice.get_uuid() == twodevice.get_uuid():
-                    if onedevice.get_discovery() == "auto" or onedevice.get_discovery() == "local":
-                        server_list.pop(twoCount)
-                    else:
-                        server_list.pop(oneCount)
-
-                twoCount+=1
-
-            oneCount+=1
-
-        printDebug.info("Unique server List: %s" % server_list)
-
-        self.server_list = server_list
-        return self.server_list
+        return 
         
     def getMyPlexURL(self, url_path, renew=False, suppress=True):
         '''

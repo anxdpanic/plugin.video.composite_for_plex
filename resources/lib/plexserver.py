@@ -105,24 +105,28 @@ class PlexMediaServer:
     def set_master(self, value):
         self.master=value
         
-    def talk(self,url='/'):
-        try:
-            response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=2)
-        except requests.exceptions.ConnectionError, e:
-            printDebug("Server: %s is offline or uncontactable. error: %s" % (self.address[0], e))
-            self.offline=True
-        else:
+    def talk(self,url='/',refresh=False):
+    
+        if not self.offline or refresh:
+        
+            try:
+                response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=2)
+                self.offline=False
+            except requests.exceptions.ConnectionError, e:
+                printDebug("Server: %s is offline or uncontactable. error: %s" % (self.address[0], e))
+                self.offline=True
+            else:
 
-            printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
-            
-            if response.status_code == requests.codes.ok:
-                printDebug("===XML===\n%s\n===XML===" % response.text, self.DEBUG_DEBUGPLUS)
-                return response.text
-            
-        return 
+                printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
+                
+                if response.status_code == requests.codes.ok:
+                    printDebug("===XML===\n%s\n===XML===" % response.text, self.DEBUG_DEBUGPLUS)
+                    return response.text
+                    
+        return '<?xml version="1.0" encoding="UTF-8"?><status>offline</status>'
 
     def refresh(self):
-        data=self.talk()
+        data=self.talk(refresh=True)
         
         if data:
             server=etree.fromstring(data)
