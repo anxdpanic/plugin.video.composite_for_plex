@@ -26,10 +26,6 @@ class Plex:
             self.settings = settings
             
         self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", self.settings.debug,self.settings.cache)
-        self.DEBUG_OFF=0
-        self.DEBUG_INFO=1
-        self.DEBUG_DEBUG=2
-        self.DEBUG_DEBUGPLUS=3
         self.myplex_token=None
         self.myplex_server='https://plex.tv'
         self.logged_into_myplex=False
@@ -64,23 +60,23 @@ class Plex:
     
         response = requests.get("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
         
-        printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
+        printDebug.debug("URL was: %s" % response.url)
         
         if response.status_code == requests.codes.ok:
-            printDebug("===XML===\n%s\n===XML===" % response.text, self.DEBUG_DEBUGPLUS)
+            printDebug.debugplus("===XML===\n%s\n===XML===" % response.text)
             return response.text
      
     def discover_all_servers(self):
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
         das_servers=[]
         das_server_index=0
 
         if self.settings.discovery == "1":
-            printDebug("local GDM discovery setting enabled.")
+            printDebug.info("local GDM discovery setting enabled.")
             try:
-                printDebug("Attempting GDM lookup on multicast")
-                if self.settings.debug >= self.DEBUG_INFO:
+                printDebug.info("Attempting GDM lookup on multicast")
+                if self.settings.debug >= printDebug.DEBUG_INFO:
                     GDM_debug=3
                 else:
                     GDM_debug=0
@@ -98,14 +94,14 @@ class Plex:
                     self.cache.writeCache(gdm_cache_file, gdm_server_name)
 
                 if  ( gdm_cache_ok or gdm_client.discovery_complete ) and gdm_server_name :
-                    printDebug("GDM discovery completed")
+                    printDebug.info("GDM discovery completed")
                     for device in gdm_server_name:
 
                         server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local')
                         server.refresh()
                         das_servers.append(server)
                 else:
-                    printDebug("GDM was not able to discover any servers")
+                    printDebug.info("GDM was not able to discover any servers")
 
             except Exception, e:
                 print "PleXBMC -> GDM Issue [%s]" % e
@@ -116,10 +112,10 @@ class Plex:
             if self.settings.das_host:
 
                 if not self.settings.das_port:
-                    printDebug( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
+                    printDebug.info( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
                     self.settings.das_port=DEFAULT_PORT
 
-                printDebug( "PleXBMC -> Settings hostname and port: %s : %s" % ( self.settings.das_host, self.settings.das_port))
+                printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( self.settings.das_host, self.settings.das_port))
 
                 local_server=PlexMediaServer(address=self.settings.das_host, port=self.settings.das_port, discovery='local')
                 local_server.refresh()
@@ -127,7 +123,7 @@ class Plex:
                     das_servers.append(local_server)
 
         if self.settings.myplex_user:
-            printDebug( "PleXBMC -> Adding myplex as a server location")
+            printDebug.info( "PleXBMC -> Adding myplex as a server location")
 
             myplex_cache_file="myplex.server.cache"
             success, das_myplex = self.cache.checkCache(myplex_cache_file)
@@ -137,7 +133,7 @@ class Plex:
                 self.cache.writeCache(myplex_cache_file, das_myplex)
 
             if das_myplex:
-                printDebug("MyPlex discovery completed")
+                printDebug.info("MyPlex discovery completed")
                 for device in das_myplex:
 
                     das_servers.append(device)
@@ -148,7 +144,7 @@ class Plex:
         # #     if 'version' not in das_server:
         # #         del das_servers[das_server_index]
 
-        printDebug("PleXBMC -> serverList is: %s " % das_servers)
+        printDebug.info("PleXBMC -> serverList is: %s " % das_servers)
 
         return self.deduplicateServers(das_servers)
 
@@ -159,7 +155,7 @@ class Plex:
             @input: nothing
             @return: a list of servers (as Dict)
         '''
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
         
         url_path="/"
         html = self.talk_to_server(ip_address, port, url_path)
@@ -180,7 +176,7 @@ class Plex:
                 'class'     : server.get('machineIdentifier', 'primary')}
 
     def get_myplex_queue(self):
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
         xml = self.getMyPlexURL('/pms/playlists/queue/all')
 
@@ -190,7 +186,7 @@ class Plex:
         return xml
 
     def get_myplex_sections(self):
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
         xml = self.getMyPlexURL('/pms/system/library/sections')
 
@@ -207,7 +203,7 @@ class Plex:
             @return: a list of servers (as Dict)
         '''
 
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
         tempServers = []
         url_path = "/pms/servers"
@@ -243,7 +239,7 @@ class Plex:
           @input: None
           @Return: unique list of media servers
         '''
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
         if len(server_list) <= 1:
             return server_list
@@ -268,7 +264,7 @@ class Plex:
 
             oneCount+=1
 
-        printDebug ("Unique server List: %s" % server_list)
+        printDebug.info("Unique server List: %s" % server_list)
 
         self.server_list = server_list
         return self.server_list
@@ -281,8 +277,8 @@ class Plex:
             @input: url to get, whether we need a new token, whether to display on screen err
             @return: an xml page as string or false
         '''
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
-        printDebug("url = "+self.myplex_server+url_path)
+        printDebug.debug("== ENTER ==")
+        printDebug.info("url = "+self.myplex_server+url_path)
 
         response = requests.get("%s%s" % (self.myplex_server, url_path), params=dict(self.plex_identification(), **self.getMyPlexToken(renew)))
         
@@ -297,9 +293,9 @@ class Plex:
             return False
         else:
             link=response.text
-            printDebug("====== XML returned =======", level=self.DEBUG_DEBUGPLUS)
-            printDebug(link, level=self.DEBUG_DEBUGPLUS)
-            printDebug("====== XML finished ======", level=self.DEBUG_DEBUGPLUS)
+            printDebug.debugplus("====== XML returned =======")
+            printDebug.debugplus(link)
+            printDebug.debugplus("====== XML finished ======")
     # except socket.gaierror :
         # error = 'Unable to lookup host: ' + MYPLEX_SERVER + "\nCheck host name is correct"
         # if suppress is False:
@@ -323,7 +319,7 @@ class Plex:
             @input: whether to get new token
             @return: myplex token
         '''
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
         if self.myplex_token is None:
         
@@ -335,15 +331,15 @@ class Plex:
             if (token is None) or (renew) or (user != self.settings.myplex_user):
                 self.myplex_token = self.getNewMyPlexToken()
 
-            printDebug("Using token: " + str(self.myplex_token) + "[Renew: " + str(renew) + "]")
+            printDebug.info("Using token: " + str(self.myplex_token) + "[Renew: " + str(renew) + "]")
         return { 'X-Plex-Token' : self.myplex_token }
 
     def getNewMyPlexToken(self,suppress=True, title="Error"):
-        printDebug("== ENTER ==", level=self.DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
-        printDebug("Getting New token")
+        printDebug.info("Getting New token")
         if not self.settings.myplex_user:
-            printDebug("No myplex details in config..")
+            printDebug.info("No myplex details in config..")
             return None
 
         base64string = base64.encodestring('%s:%s' % (self.settings.myplex_user, self.settings.myplex_pass)).replace('\n', '')
@@ -361,9 +357,9 @@ class Plex:
                 token = etree.fromstring(response.text).findtext('authentication-token')
                 settings.update_token(token)
             except:
-                printDebug(response.text, level=self.DEBUG_DEBUGPLUS)
+                printDebug.debugplus(response.text)
 
-            printDebug("====== XML finished ======")
+            printDebug.info("====== XML finished ======")
         
         else:
             error = "HTTP response error: %s %s" % (response.status_code, response.reason)
