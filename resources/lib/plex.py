@@ -31,7 +31,7 @@ class Plex:
         self.DEBUG_DEBUG=2
         self.DEBUG_DEBUGPLUS=3
         self.myplex_token=None
-        self.myplex_server='https://my.plexapp.com'
+        self.myplex_server='https://plex.tv'
         self.logged_into_myplex=False
         self.server_list=[]
         self.discovered=False
@@ -78,8 +78,7 @@ class Plex:
 
         if self.settings.discovery == "1":
             printDebug("local GDM discovery setting enabled.")
-            #try:
-            if True:
+            try:
                 printDebug("Attempting GDM lookup on multicast")
                 if self.settings.debug >= self.DEBUG_INFO:
                     GDM_debug=3
@@ -108,8 +107,8 @@ class Plex:
                 else:
                     printDebug("GDM was not able to discover any servers")
 
-            #except Exception, e:
-            #    print "PleXBMC -> GDM Issue [%s]" % e
+            except Exception, e:
+                print "PleXBMC -> GDM Issue [%s]" % e
 
         #Set to Disabled
         else:

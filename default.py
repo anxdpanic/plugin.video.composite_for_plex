@@ -3300,8 +3300,6 @@ def skin( server_list=None, type=None ):
 
     return
 
-    
-
 def amberskin():
     #Gather some data and set the window properties
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
@@ -3615,72 +3613,62 @@ def fullShelf(server_list={}):
         qToken='?' + aToken
 
         sections = getAllSections(server_list)
-        #ra_log_count = 1
-
+        print "********************************************************************************************************************************************************************************************"
+        
         if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
-            
-            for section in sections:
-                
-                _PARAM_TOKEN = section.get('token', '')
-                fullpath = section.get('address') + section.get("path")
-                tree = getXML('http://' + fullpath + "/recentlyAdded")
-                _PARAM_TOKEN = server_details.get_token()
+                        
+            tree = getXML(server_details.get_url_location() + "/library/recentlyAdded")
+            _PARAM_TOKEN = server_details.get_token()
 
-                if tree is None:
-                    printDebug("PLEXBMC -> RecentlyAdded items not found on: " + fullpath)
-                    continue
+            if tree is None:
+                printDebug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
+                continue
 
-                libraryuuid = tree.attrib["librarySectionUUID"]
-                ep_helper = {}  # helper season counter
-                ra_item_count = 1
-                for eachitem in tree:
-                    if ra_item_count > 15:
-                        break
+            ep_helper = {}  # helper season counter
+            ra_item_count = 1
+            for eachitem in tree:
+                libraryuuid = eachitem.get("librarySectionUUID")
+                if ra_item_count > 15:
+                    break
 
-                    if eachitem.get("type", "") == "episode":
-                        key = int(eachitem.get("parentRatingKey"))  # season identifier
+                if eachitem.get("type", "") == "episode":
+                    key = int(eachitem.get("parentRatingKey"))  # season identifier
 
-                        if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
-                            pass
-
-                        else:
-                            recent_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
-                            ep_helper[key] = key  # use seasons as dict key so we can check
-                            full_count += 1
-                            ra_item_count += 1
+                    if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
+                        pass
 
                     else:
                         recent_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
+                        ep_helper[key] = key  # use seasons as dict key so we can check
                         full_count += 1
                         ra_item_count += 1
+
+                else:
+                    recent_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
+                    full_count += 1
+                    ra_item_count += 1
 
             full_count = 0
 
         if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
+            
+            tree = getXML(server_details.get_url_location() + "/library/onDeck")
+            _PARAM_TOKEN = server_details.get_token()
+            
+            if tree is None:
+                print ("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location(), False)
+                continue
 
-            for section in sections:
-                
-                _PARAM_TOKEN = section.get('token', '')
-                fullpath = section.get("address") + section.get("path")
-                tree = getXML('http://' + fullpath + "/onDeck")
-                _PARAM_TOKEN = server_details.get_token()
-                
-                if tree is None:
-                    #xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details['serverName']+",)")
-                    #clearShelf()
-                    #return
-                    print ("PLEXBMC -> OnDeck items not found on: " + fullpath, False)
-                    continue
+            deck_item_count = 1
+            for eachitem in tree:
+                libraryuuid = eachitem.get("librarySectionUUID")
 
-                deck_item_count = 1
-                libraryuuid = tree.attrib["librarySectionUUID"]
-                for eachitem in tree:
-                    if deck_item_count > 15: break
-                    deck_item_count +=1
+                if deck_item_count > 15: break
+                deck_item_count +=1
 
-                    #libraryuuid = tree.attrib["librarySectionUUID"]
-                    ondeck_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
-                    full_count += 1
+                #libraryuuid = tree.attrib["librarySectionUUID"]
+                ondeck_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
+                full_count += 1
 
     #For each of the servers we have identified
     for index in recent_list:

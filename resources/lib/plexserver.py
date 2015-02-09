@@ -140,6 +140,13 @@ class PlexMediaServer:
         
     def get_sections(self):
         return self.talk("/library/sections")
+
+    def get_recently_added(self):
+        return self.talk("/library/recentlyAdded")
+
+    def get_ondeck(self):
+        return self.talk("/library/onDeck")
+        
         
     def is_owned(self):
         
