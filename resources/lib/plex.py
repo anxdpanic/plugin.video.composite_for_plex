@@ -275,11 +275,11 @@ class Plex:
         if self.myplex_token is None:
         
             try:
-                user, token = self.settings.myplex_token.split('|')
+                user, self.myplex_token = self.settings.myplex_token.split('|')
             except:
-                token = None
+                self.myplex_token = None
 
-            if (token is None) or (renew) or (user != self.settings.myplex_user):
+            if (self.myplex_token is None) or (renew) or (user != self.settings.myplex_user):
                 self.myplex_token = self.getNewMyPlexToken()
 
             printDebug.info("Using token: " + str(self.myplex_token) + "[Renew: " + str(renew) + "]")
@@ -306,7 +306,7 @@ class Plex:
                 printDebug.debugplus(response.text)
                 printDebug.info("Received new plex token")
                 token = etree.fromstring(response.text).findtext('authentication-token')
-                settings.update_token(token)
+                self.settings.update_token(token)
             except:
                 printDebug.info("No authentication token found")
                 
@@ -318,18 +318,8 @@ class Plex:
                 xbmcgui.Dialog().ok(title, error)
             print error
             return None
-        # except socket.gaierror :
-            # error = 'Unable to lookup host: MyPlex' + "\nCheck host name is correct"
-            # if suppress is False:
-                # xbmcgui.Dialog().ok(title, error)
-            # print error
-            # return ""
-        # except socket.error, msg:
-            # error="Unable to connect to MyPlex" + "\nReason: " + str(msg)
-            # if suppress is False:
-                # xbmcgui.Dialog().ok(title, error)
-            # print error
-            # return ""
 
         return token
 
+    
+        
