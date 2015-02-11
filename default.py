@@ -246,29 +246,29 @@ def getAllSections( server_list = None ):
             section_list += section_details
             local_complete=True
             
-        elif server.get_discovery() == "myplex":
-            if not myplex_complete:
-                section_details = getMyplexSections()
-                myplex_section_list += section_details
-                myplex_complete = True
+        #elif server.get_discovery() == "myplex":
+        #    if not myplex_complete:
+        #        section_details = getMyplexSections()
+        #        myplex_section_list += section_details
+        #        myplex_complete = True
 
 
     #Remove any myplex sections that are locally available
-    if myplex_complete and local_complete:
-    
-        printDebug ("Deduplicating myplex sections list")
-    
-        for each_server in server_list:
-        
-            printDebug ("Checking server [%s]" % each_server)
-            
-            if each_server.get_discovery() == 'myplex':
-                printDebug ("Skipping as a myplex server")
-                continue
-                    
-            myplex_section_list = [x for x in myplex_section_list if not x.get('machineIdentifier') == each_server.get_uuid()]
-            
-    section_list += myplex_section_list
+    #if myplex_complete and local_complete:
+    #
+    #    printDebug ("Deduplicating myplex sections list")
+   # 
+   #     for each_server in server_list:
+   #     
+   #         printDebug ("Checking server [%s]" % each_server)
+   #         
+   #         if each_server.get_discovery() == 'myplex':
+   #             printDebug ("Skipping as a myplex server")
+   #             continue
+   #                 
+   #         myplex_section_list = [x for x in myplex_section_list if not x.get('machineIdentifier') == each_server.get_uuid()]
+   #         
+    #section_list += myplex_section_list
 
     return section_list
 

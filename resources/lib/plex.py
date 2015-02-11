@@ -107,6 +107,7 @@ class Plex:
 
                         server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local')
                         server.refresh()
+                        printDebug("Adding server %s %s" % (server.get_name(), server.get_uuid()))
                         self.server_list[server.get_uuid()] = server
                 else:
                     printDebug.info("GDM was not able to discover any servers")
@@ -200,22 +201,22 @@ class Plex:
                 myplex_server.set_owned(0)
 
             tempServers[myplex_server.get_uuid()]=myplex_server
-
+            printDebug.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
+            
         return tempServers
                                            
-    def merge_myplex(self, remote ):
+    def merge_myplex(self, remote):
         printDebug.debug("== ENTER ==")
 
-        if len(remote) <= 1:
-            return 
-
-        for uuid in remote:
+        printDebug.info("remote is %s" % remote)
         
+        for uuid,server in remote.iteritems():
+            
             if uuid in self.server_list.keys():
-                printDebug.debug("Merging server")
+                printDebug.debug("Merging server %s %s" % (server.get_name(), server.get_uuid()))
             else:
-                printDebug.debug("Adding new server")
-                self.server_list[uuid]=remote[uuid]
+                printDebug.debug("Adding new server %s %s" % (server.get_name(), server.get_uuid()))
+                self.server_list[uuid]=server
 
         return 
         
@@ -299,17 +300,17 @@ class Plex:
         myplex_headers={'Authorization': "Basic %s" % base64string}
 
         response = requests.post("%s/users/sign_in.xml" % self.myplex_server, headers=dict(self.plex_identification(), **myplex_headers))
-        print response.status_code
         
         if response.status_code == 201:
             try:
-                print response.text
+                printDebug.debugplus(response.text)
+                printDebug.info("Received new plex token")
                 token = etree.fromstring(response.text).findtext('authentication-token')
                 settings.update_token(token)
             except:
-                printDebug.debugplus(response.text)
-
-            printDebug.info("====== XML finished ======")
+                printDebug.info("No authentication token found")
+                
+            printDebug.debugplus("====== XML finished ======")
         
         else:
             error = "HTTP response error: %s %s" % (response.status_code, response.reason)

@@ -138,6 +138,8 @@ class PlexMediaServer:
             self.master=1
             self.class_type=server.get('serverClass','primary')
             self.discovered=True
+        else:
+            self.discovered=False
             
     def is_offline(self):
         return self.offline
