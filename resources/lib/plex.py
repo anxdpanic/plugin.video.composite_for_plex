@@ -294,7 +294,6 @@ class Plex:
             return None
 
         base64string = base64.encodestring('%s:%s' % (self.settings.myplex_user, self.settings.myplex_pass)).replace('\n', '')
-        txdata = ""
         token = False
 
         myplex_headers={'Authorization': "Basic %s" % base64string}
