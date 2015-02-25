@@ -153,7 +153,7 @@ class PlexMediaServer:
         arguments="?unwatched=1"
 
         if section < 0:
-            return self.talk("/library/recentlyAdded%s" % arguments)    
+            return self.processed_xml("/library/recentlyAdded%s" % arguments)    
             
         if size > 0:
             arguments="%s&X-Plex-Container-Start=%s&X-Plex-Container-Size=%s" % (arguments, start, size)
@@ -165,13 +165,19 @@ class PlexMediaServer:
         arguments=""
 
         if section < 0:
-            return self.talk("/library/onDeck%s" % arguments)    
+            return self.processed_xml("/library/onDeck%s" % arguments)    
             
         if size > 0:
             arguments="%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s" % (arguments, start, size)
             
         return self.processed_xml("/library/sections/%s/onDeck%s" % (section, arguments))
 
+    def get_server_recentlyadded(self):
+        return self.get_recentlyadded(section=-1)
+  
+    def get_server_ondeck(self):
+        return self.get_ondeck(section=-1)
+  
     def get_channel_recentlyviewed(self):
             
         return self.processed_xml("/channels/recentlyViewed") 

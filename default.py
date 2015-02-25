@@ -4000,14 +4000,7 @@ def shelf( server_list=None ):
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearShelf(0,0,0)
         return
-        
-    if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
-        endpoint="/library/recentlyAdded"
-    else:
-        direction=False
-        endpoint="/library/onDeck"
 
-        
     randomNumber=str(random.randint(1000000000,9999999999))
         
     for server_details in server_list():
@@ -4020,7 +4013,12 @@ def shelf( server_list=None ):
         aToken=getAuthDetails({'token': _PARAM_TOKEN} )
         qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
         
-        tree=getXML(server.get_url_location()+endpoint)
+        if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
+            tree=server_details.get_server_recentlyadded()
+        else:
+            direction=False
+            tree=server_details.get_server_ondeck()
+
         if tree is None:
             xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details.get_name()+",)")
             clearShelf()
