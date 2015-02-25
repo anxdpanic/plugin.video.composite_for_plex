@@ -171,6 +171,7 @@ def getServerSections (server):
                     'uuid'       : server.get_uuid(),
                     'sectionuuid' : section.get('uuid', ''),
                     'path'       : path,
+                    'key'        : section.get('key'),
                     'token'      : section.get('accessToken', None),
                     'location'   : "local",
                     'art'        : section.get('art', None),
@@ -3587,8 +3588,8 @@ def fullShelf(server_list={}):
     recentPhotoCount=1
     ondeckMovieCount=1
     ondeckSeasonCount=1
-    recent_list={}
-    ondeck_list={}
+    recent_list=[]
+    ondeck_list=[]
     full_count=0
 
     #if server_list == {}:
@@ -3612,72 +3613,63 @@ def fullShelf(server_list={}):
         aToken=getAuthDetails({'token': _PARAM_TOKEN})
         qToken='?' + aToken
 
-        sections = getAllSections(server_list)
+        section_list = getAllSections(server_list)
         print "********************************************************************************************************************************************************************************************"
+
+        for section in section_list:
         
-        if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
-                        
-            tree = getXML(server_details.get_url_location() + "/library/recentlyAdded")
-            _PARAM_TOKEN = server_details.get_token()
+            if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
+                
+                
+                tree = server_details.get_recently_added(section=section['key'], size=15)
+                _PARAM_TOKEN = server_details.get_token()
 
-            if tree is None:
-                printDebug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
-                continue
+                if tree is None:
+                    printDebug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
+                    continue
 
-            ep_helper = {}  # helper season counter
-            ra_item_count = 1
-            for eachitem in tree:
-                libraryuuid = eachitem.get("librarySectionUUID")
-                if ra_item_count > 15:
-                    break
+                libraryuuid = tree.get("librarySectionUUID")
 
-                if eachitem.get("type", "") == "episode":
-                    key = int(eachitem.get("parentRatingKey"))  # season identifier
+                ep_helper = {}  # helper season counter
+                for eachitem in tree:
 
-                    if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
-                        pass
+                    if eachitem.get("type", "") == "episode":
+                        key = int(eachitem.get("parentRatingKey"))  # season identifier
+
+                        if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
+                            pass
+
+                        else:
+                            recent_list.append((eachitem, server_details.get_location(), aToken, qToken, libraryuuid))
+                            ep_helper[key] = key  # use seasons as dict key so we can check
 
                     else:
-                        recent_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
-                        ep_helper[key] = key  # use seasons as dict key so we can check
-                        full_count += 1
-                        ra_item_count += 1
+                        recent_list.append((eachitem, server_details.get_location(), aToken, qToken, libraryuuid))
 
-                else:
-                    recent_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
-                    full_count += 1
-                    ra_item_count += 1
+            if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
+                
+                tree = server_details.get_ondeck(section=section['key'],size=15)
+                _PARAM_TOKEN = server_details.get_token()
+                
+                if tree is None:
+                    print ("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location(), False)
+                    continue
 
-            full_count = 0
+                for eachitem in tree:
+                    ondeck_list.append((eachitem, server_details.get_location(), aToken, qToken, libraryuuid))
 
-        if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
-            
-            tree = getXML(server_details.get_url_location() + "/library/onDeck")
-            _PARAM_TOKEN = server_details.get_token()
-            
-            if tree is None:
-                print ("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location(), False)
-                continue
-
-            deck_item_count = 1
-            for eachitem in tree:
-                libraryuuid = eachitem.get("librarySectionUUID")
-
-                if deck_item_count > 15: break
-                deck_item_count +=1
-
-                #libraryuuid = tree.attrib["librarySectionUUID"]
-                ondeck_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken, libraryuuid)
-                full_count += 1
-
+    printDebug.debugplus("Recent object is: %s" % recent_list)
+    printDebug.debugplus("ondeck object is: %s" % ondeck_list)
+    
+                    
     #For each of the servers we have identified
     for index in recent_list:
 
-        media = recent_list[index][0]
-        server_address = recent_list[index][1]
-        aToken = recent_list[index][2]
-        qToken = recent_list[index][3]
-        libuuid = recent_list[index][4]
+        media = index[0]
+        server_address = index[1]
+        aToken = index[2]
+        qToken = index[3]
+        libuuid = index[4]
 
         if media.get('type',None) == "movie":
 
@@ -3811,13 +3803,13 @@ def fullShelf(server_list={}):
     clearShelf(recentMovieCount, recentSeasonCount, recentMusicCount, recentPhotoCount)
 
     #For each of the servers we have identified
-    for index in sorted(ondeck_list):
+    for index in ondeck_list:
 
-        media = ondeck_list[index][0]
-        server_address = ondeck_list[index][1]
-        aToken = ondeck_list[index][2]
-        qToken = ondeck_list[index][3]
-        libuuid = ondeck_list[index][4]
+        media = index[0]
+        server_address = index[1]
+        aToken = index[2]
+        qToken = index[3]
+        libuuid = index[4]
 
         if media.get('type',None) == "movie":
 

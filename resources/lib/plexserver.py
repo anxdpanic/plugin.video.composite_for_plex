@@ -120,8 +120,9 @@ class PlexMediaServer:
                 printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
                 
                 if response.status_code == requests.codes.ok:
-                    printDebug("===XML===\n%s\n===XML===" % response.text, self.DEBUG_DEBUGPLUS)
-                    return response.text
+                    printDebug.debug("Encoding: %s" % response.encoding)
+                    printDebug("===XML===\n%s\n===XML===" % response.text.encode('utf-8'), self.DEBUG_DEBUGPLUS)
+                    return response.text.encode('utf-8')
                     
         return '<?xml version="1.0" encoding="UTF-8"?><status>offline</status>'
 
@@ -147,12 +148,35 @@ class PlexMediaServer:
     def get_sections(self):
         return self.talk("/library/sections")
 
-    def get_recently_added(self):
-        return self.talk("/library/recentlyAdded")
+    def get_recently_added(self,section=-1,start=0,size=0):
+    
+        arguments="?unwatched=1"
 
-    def get_ondeck(self):
-        return self.talk("/library/onDeck")
+        if section < 0:
+            return self.talk("/library/recentlyAdded%s" % arguments)    
             
+        if size > 0:
+            arguments="%s&X-Plex-Container-Start=%s&X-Plex-Container-Size=%s" % (arguments, start, size)
+            
+        return self.processed_xml("/library/sections/%s/recentlyAdded%s" % (section, arguments))
+    
+    def get_ondeck(self,section=-1,start=0,size=0):
+    
+        arguments=""
+
+        if section < 0:
+            return self.talk("/library/onDeck%s" % arguments)    
+            
+        if size > 0:
+            arguments="%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s" % (arguments, start, size)
+            
+        return self.processed_xml("/library/sections/%s/onDeck%s" % (section, arguments))
+
+    def processed_xml(self,url):
+    
+        data = self.talk(url)
+        return etree.fromstring(data)
+   
     def is_owned(self):
         
         if self.owned == 1 or self.owned == '1':
