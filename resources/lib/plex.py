@@ -11,6 +11,7 @@ from common import *
 import CacheControl
 import requests
 from plexserver import PlexMediaServer
+import urlparse
 
 printDebug=printDebug("PleXBMC", "plex")
 DEFAULT_PORT="32400"
@@ -320,5 +321,39 @@ class Plex:
 
         return token
 
-    
+    def get_server_from_ip(self, ip):
         
+        if ':' in ip:
+            #We probably have an IP:port being passed
+            ip=ip.split(':')[0]
+        
+        if not is_ip(ip):
+            printDebug.warn("Not an IP Address")
+            return None
+            
+        for server in self.server_list:
+            
+            if ip == server.get_address():
+                printDebug("Translated %s to server %s" % (ip, server.get_name()))
+                return server
+
+        printDebug.warn("Unable to translate %s to server" % ip )
+                
+        return None
+        
+    def get_server_from_url(self, url):
+        
+        url_parts = urlparse.urlparse(url)    
+                
+        return self.get_server_from_ip(url_parts.netloc)        
+       
+    def get_processed_xml(self, url):
+        
+        url_parts = urlparse.urlparse(url)
+        
+        server = self.get_server_from_ip(url_parts.netloc)
+        
+        if server:
+            return server.processed_xml(url_parts.path)
+        
+        return ''

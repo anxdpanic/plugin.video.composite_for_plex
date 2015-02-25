@@ -3,6 +3,7 @@ import xbmcaddon
 import inspect
 import os
 import sys
+import socket
 
 class printDebug:
 
@@ -83,7 +84,17 @@ def setup_python_locations():
     sys.path.append(setup['__resources__'])
     print sys.path
     return setup                
-    
+ 
+def is_ip(address):
+    '''from http://www.seanelavelle.com/2012/04/16/checking-for-a-valid-ip-in-python/'''
+    try:
+        socket.inet_aton(address)
+        ip = True
+    except socket.error:
+        ip = False
+
+    return ip
+ 
 GLOBAL_SETUP=setup_python_locations()
 from settings import addonSettings
 settings=addonSettings('plugin.video.plexbmc')
