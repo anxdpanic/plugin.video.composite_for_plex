@@ -172,6 +172,10 @@ class PlexMediaServer:
             
         return self.processed_xml("/library/sections/%s/onDeck%s" % (section, arguments))
 
+    def get_channel_recentlyviewed(self):
+            
+        return self.processed_xml("/channels/recentlyViewed") 
+        
     def processed_xml(self,url):
     
         data = self.talk(url)

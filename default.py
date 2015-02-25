@@ -4246,7 +4246,7 @@ def shelfChannel(server_list = None):
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
             return
 
-        tree=getXML(server_details.get_url_location()+'/channels/recentlyViewed')
+        tree=server_details.get_channel_recentlyviewed()
         if tree is None:
             xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details.get_name()+",)")
             clearChannelShelf(0)
