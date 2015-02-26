@@ -198,3 +198,48 @@ class PlexMediaServer:
         if self.class_type == "secondary":
             return True
         return False
+
+class plex_section:
+
+    def __init__(self, data=None):
+    
+        self.title = None
+        self.sectionuuid = None
+        self.path = None
+        self.key = None
+        self.art = None
+        self.type = None
+    
+        if data:
+            self.populate(data)
+    
+    def populate(self,data):
+    
+        path = section.get('key')
+        if not path[0] == "/":
+             path = '/library/sections/%s' % path
+    
+        self.title       = data.get('title', 'Unknown').encode('utf-8')
+        self.sectionuuid = data.get('uuid', '')
+        self.path        = path
+        self.key         = data.get('key')
+        self.token       = data.get('accessToken', None)
+        self.location    = "local"
+        self.art         = data.get('art', None)
+        self.type        = data.get('type', '')
+
+    def get_details(self):
+    
+        return {'title': section.get('title', 'Unknown').encode('utf-8'),
+                'address'    : server.get_location(),
+                'serverName' : server.get_name(),
+                'uuid'       : server.get_uuid(),
+                'sectionuuid' : section.get('uuid', ''),
+                'path'       : path,
+                'key'        : section.get('key'),
+                'token'      : section.get('accessToken', None),
+                'location'   : "local",
+                'art'        : section.get('art', None),
+                'local'      : '1',
+                'type'       : section.get('type', ''),
+                'owned'      : '1'}
