@@ -110,7 +110,7 @@ class PlexMediaServer:
         if not self.offline or refresh:
         
             try:
-                response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=2)
+                response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=3)
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
                 printDebug("Server: %s is offline or uncontactable. error: %s" % (self.address[0], e))

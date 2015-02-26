@@ -4214,7 +4214,6 @@ def shelfChannel(server_list = None):
         global _PARAM_TOKEN
         _PARAM_TOKEN = server_details.get_token()
         aToken=getAuthDetails({'token': _PARAM_TOKEN} )
-        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
 
         if __settings__.getSetting('channelShelf') == "false" or __settings__.getSetting('homeshelf') == '3':
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
