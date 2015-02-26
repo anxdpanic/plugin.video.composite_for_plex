@@ -18,7 +18,7 @@ DEFAULT_PORT="32400"
 
 class Plex:
 
-    def __init__(self, settings=None, cache=None):
+    def __init__(self, settings=None, cache=None, load=False):
     
         # Provide an interface into Plex 
         if not settings:
@@ -32,7 +32,19 @@ class Plex:
         self.logged_into_myplex=False
         self.server_list={}
         self.discovered=False
-                        
+        self.server_list_cache="discovered_plex_servers.cache"
+        
+        if load:
+            self.load()
+
+    def load(self):
+        printDebug.info("Loading cached server list")
+        data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
+        
+        if not data_ok:
+            printDebug.info("unsuccessful")
+            self.server_list={}
+    
     def discover(self):
         self.discover_all_servers()
         
@@ -146,6 +158,7 @@ class Plex:
                 printDebug.info("MyPlex discovery completed")
                 self.merge_myplex(das_myplex)
 
+        self.cache.writeCache(self.server_list_cache, self.server_list)        
         printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
 
         return 

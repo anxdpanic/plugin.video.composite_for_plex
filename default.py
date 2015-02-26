@@ -4645,7 +4645,7 @@ param_indirect=params.get('indirect',None)
 _PARAM_TOKEN=params.get('X-Plex-Token',None)
 force=params.get('force')
 
-plex_network=plex.Plex()
+plex_network=plex.Plex(load=True)
 
 #Populate Skin variables
 if str(sys.argv[1]) == "skin":
