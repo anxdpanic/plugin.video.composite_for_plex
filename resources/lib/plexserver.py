@@ -27,7 +27,7 @@ class PlexMediaServer:
         self.server_name=name
         self.address=[address]
         self.port=port
-        self.section_list=None
+        self.section_list=[]
         self.token=token
         self.discovery=discovery
         self.owned=1
@@ -144,9 +144,22 @@ class PlexMediaServer:
             
     def is_offline(self):
         return self.offline
-        
+
     def get_sections(self):
-        return self.talk("/library/sections")
+    
+        temp_list=[]
+    
+        for section in self.section_list:        
+            temp_list.append(sections.get_details)
+            
+        printDebug.debug("Returning sections: %s" % temp_list)
+        return temp_list
+        
+    def discover_sections(self):
+        
+            for section in self.processed_xml("/library/sections"):
+            
+                self.section_list.append(plex_section(section))
 
     def get_recently_added(self,section=-1,start=0,size=0):
     
@@ -209,13 +222,14 @@ class plex_section:
         self.key = None
         self.art = None
         self.type = None
+        self.location = "local"
     
-        if data:
+        if data is not None:
             self.populate(data)
     
     def populate(self,data):
     
-        path = section.get('key')
+        path = data.get('key')
         if not path[0] == "/":
              path = '/library/sections/%s' % path
     
@@ -223,23 +237,22 @@ class plex_section:
         self.sectionuuid = data.get('uuid', '')
         self.path        = path
         self.key         = data.get('key')
-        self.token       = data.get('accessToken', None)
-        self.location    = "local"
         self.art         = data.get('art', None)
         self.type        = data.get('type', '')
 
     def get_details(self):
     
-        return {'title': section.get('title', 'Unknown').encode('utf-8'),
+        return {'title'       : self.title,
+                'sectionuuid' : self.sectionuuid,
+                'path'       : self.path,
+                'key'        : self.key,
+                'location'   : self.local,
+                'art'        : self.art,
+                'type'       : self.type}
+                
+                ''''local'      : '1',
                 'address'    : server.get_location(),
                 'serverName' : server.get_name(),
                 'uuid'       : server.get_uuid(),
-                'sectionuuid' : section.get('uuid', ''),
-                'path'       : path,
-                'key'        : section.get('key'),
                 'token'      : section.get('accessToken', None),
-                'location'   : "local",
-                'art'        : section.get('art', None),
-                'local'      : '1',
-                'type'       : section.get('type', ''),
-                'owned'      : '1'}
+                'owned'      : '1'}'''
