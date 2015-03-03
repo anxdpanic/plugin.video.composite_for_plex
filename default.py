@@ -3601,7 +3601,7 @@ def fullShelf(server_list={}):
                 _PARAM_TOKEN = server_details.get_token()
 
                 if tree is None:
-                    printDebug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
+                    printDebug.debug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
                     continue
 
                 libraryuuid = tree.get("librarySectionUUID")
