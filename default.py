@@ -3576,7 +3576,7 @@ def fullShelf(server_list={}):
             if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
                 
                 
-                tree = server_details.get_recently_added(section=section['key'], size=15)
+                tree = server_details.get_recently_added(section=section.get_key(), size=15)
                 _PARAM_TOKEN = server_details.get_token()
 
                 if tree is None:
@@ -3603,7 +3603,7 @@ def fullShelf(server_list={}):
 
             if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
                 
-                tree = server_details.get_ondeck(section=section['key'],size=15)
+                tree = server_details.get_ondeck(section=section.get_key(),size=15)
                 _PARAM_TOKEN = server_details.get_token()
                 
                 if tree is None:
