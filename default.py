@@ -575,76 +575,79 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
 
-def displaySections( filter=None, shared=False ):
+def displaySections( filter=None, display_shared=False ):
         printDebug("== ENTER ==", level=DEBUG_DEBUG)
         xbmcplugin.setContent(pluginhandle, 'files')
 
         plex_network.discover()
-        ds_servers=plex_network.get_server_list()
-        printDebug( "Using list of %s servers: %s" % ( len(ds_servers), ds_servers))
+        server_list=plex_network.get_server_list()
+        printDebug( "Using list of %s servers: %s" % ( len(server_list), server_list))
         
-        for section in getAllSections(ds_servers):
+        for server in server_list:
+        
+            server.discover_sections()
+        
+            for section in server.get_sections():
 
-            if shared and section.get('owned') == '1':
-                continue
-
-            details={'title' : section.get('title', 'Unknown') }
-
-            if len(ds_servers) > 1:
-                details['title']=section.get('serverName')+": "+details['title']
-
-            extraData={ 'fanart_image' : getFanart(section, section.get('address')),
-                        'type'         : "Video",
-                        'thumb'        : g_thumb,
-                        'token'        : section.get('token',None) }
-
-            #Determine what we are going to do process after a link is selected by the user, based on the content we find
-
-            path=section['path']
-
-            if section.get('type') == 'show':
-                mode=_MODE_TVSHOWS
-                if (filter is not None) and (filter != "tvshows"):
+                if display_shared and server.is_owned():
                     continue
 
-            elif section.get('type') == 'movie':
-                mode=_MODE_MOVIES
-                if (filter is not None) and (filter != "movies"):
+                details={'title' : section.get_title() }
+
+                if len(server_list) > 1:
+                    details['title']="%s: %s" % (server.get_name(), details['title'])
+
+                extraData={ 'fanart_image' : server.get_fanart(section),
+                            'type'         : "Video",
+                            'thumb'        : g_thumb,
+                            'token'        : server.get_token()}
+
+                #Determine what we are going to do process after a link is selected by the user, based on the content we find
+
+                path=section.get_path()
+
+                if section.is_show():
+                    mode=_MODE_TVSHOWS
+                    if (filter is not None) and (filter != "tvshows"):
+                        continue
+
+                elif section.is_movie():
+                    mode=_MODE_MOVIES
+                    if (filter is not None) and (filter != "movies"):
+                        continue
+
+                elif section.is_artist():
+                    mode=_MODE_ARTISTS
+                    if (filter is not None) and (filter != "music"):
+                        continue
+
+                elif section.is_photo():
+                    mode=_MODE_PHOTOS
+                    if (filter is not None) and (filter != "photos"):
+                        continue
+                else:
+                    printDebug("Ignoring section %s of type %s as unable to process" % ( details['title'], section.get_type() ) )
                     continue
 
-            elif section.get('type') == 'artist':
-                mode=_MODE_ARTISTS
-                if (filter is not None) and (filter != "music"):
-                    continue
+                if settings.secondary:
+                    mode=_MODE_GETCONTENT
+                else:
+                    path=path+'/all'
 
-            elif section.get('type') == 'photo':
-                mode=_MODE_PHOTOS
-                if (filter is not None) and (filter != "photos"):
-                    continue
-            else:
-                printDebug("Ignoring section "+details['title']+" of type " + section.get('type') + " as unable to process")
-                continue
+                extraData['mode']=mode
+                section_url='%s%s' % ( server.get_url_location(), path)
 
-            if settings.secondary:
-                mode=_MODE_GETCONTENT
-            else:
-                path=path+'/all'
+                if not settings.skipcontext:
+                    context=[]
+                    libraryRefresh = "RunScript(plugin.video.plexbmc, update , %s%s/refresh )" % (server.get_url_location(), section.get_path())
+                    context.append(('Refresh library section', libraryRefresh , ))
+                else:
+                    context=None
 
-            extraData['mode']=mode
-            s_url='http://%s%s' % ( section['address'], path)
+                #Build that listing..
+                addGUIItem(section_url, details,extraData, context)
 
-            if not settings.skipcontext:
-                context=[]
-                refreshURL="http://"+section.get('address')+section.get('path')+"/refresh"
-                libraryRefresh = "RunScript(plugin.video.plexbmc, update ," + refreshURL + ")"
-                context.append(('Refresh library section', libraryRefresh , ))
-            else:
-                context=None
-
-            #Build that listing..
-            addGUIItem(s_url, details,extraData, context)
-
-        if shared:
+        if display_shared:
             xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
             return
                     
@@ -652,7 +655,7 @@ def displaySections( filter=None, shared=False ):
         if __settings__.getSetting('myplex_user') != '':
             addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'thumb': g_thumb, 'type': 'Video', 'mode': _MODE_MYPLEXQUEUE})
 
-        for server in ds_servers:
+        for server in server_list:
         
             if server.is_offline() or server.is_secondary():
                 continue
@@ -661,7 +664,7 @@ def displaySections( filter=None, shared=False ):
             if (filter is not None) and (filter != "plugins"):
                 continue
 
-            if len(ds_servers) > 1:
+            if len(server_list) > 1:
                 prefix=server.get_name()+": "
             else:
                 prefix=""
@@ -672,7 +675,7 @@ def displaySections( filter=None, shared=False ):
                        'token' : server.get_token()}
 
             extraData['mode']=_MODE_CHANNELVIEW
-            u="http://"+server.get_address()[0]+":"+server.get_port()+"/system/plugins/all" 
+            u="%s/system/plugins/all" % server.get_url_location()
             addGUIItem(u,details,extraData)
 
             #Create plexonline link
@@ -681,7 +684,7 @@ def displaySections( filter=None, shared=False ):
             extraData['thumb'] = g_thumb
             extraData['mode'] = _MODE_PLEXONLINE
 
-            u="http://"+server.get_address()[0]+":"+server.get_port()+"/system/plexonline"
+            u="%s/system/plexonline" % server.get_url_location()            
             addGUIItem(u,details,extraData)
             
             #create playlist link
@@ -690,7 +693,7 @@ def displaySections( filter=None, shared=False ):
             extraData['thumb'] = g_thumb
             extraData['mode'] = _MODE_PLAYLISTS
 
-            u="http://"+server.get_address()[0]+":"+server.get_port()+"/playlists"
+            u="%s/system/playlists" % server.get_url_location()            
             addGUIItem(u,details,extraData)
             
             
