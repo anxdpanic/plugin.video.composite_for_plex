@@ -2803,15 +2803,14 @@ def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
     if thumbnail == '':
         return g_thumb
 
-    elif thumbnail[0:4] == "http" :
+    elif thumbnail.startswith("http"):
         return thumbnail
 
-    elif thumbnail[0] == '/':
+    elif thumbnail.startswith('/'):
         if settings.fullres_thumbnails:
-            return 'http://'+server+thumbnail
+            return server.get_formatted_url(thumbnail)
         else:
-            return photoTranscode(server, 'http://localhost:32400' + thumbnail, width, height)
-
+            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
 
     else:
         return g_thumb
@@ -2873,17 +2872,17 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         return
 
     #If key starts with http, then return it
-    if path[0:4] == "http":
+    if path.startswith('http'):
         printDebug("Detected http link", level=DEBUG_DEBUG)
         return path
 
     #If key starts with a / then prefix with server address
-    elif path[0] == '/':
+    elif path.startswith('/'):
         printDebug("Detected base path link", level=DEBUG_DEBUG)
         return 'http://%s%s' % (server, path)
 
     #If key starts with plex:// then it requires transcoding
-    elif path[0:5] == "plex:":
+    elif path.startswith("plex:") :
         printDebug("Detected plex link", level=DEBUG_DEBUG)
         components = path.split('&')
         for i in components:
@@ -2896,7 +2895,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         path='&'.join(components)
         return 'plex://'+server+'/'+'/'.join(path.split('/')[3:])
         
-    elif path[0:5] == "rtmp:" or path[0:6] == "rtmpe:" :
+    elif path.startswirth("rtmp"):
         printDebug("Detected RTMP link", level=DEBUG_DEBUG)
         return path
 
@@ -3252,11 +3251,6 @@ def amberskin():
     server_list=plex_network.get_server_list()
     printDebug("Using list of " + str(len(server_list)) + " servers: " + str(server_list))
 
-    #For each of the servers we have identified
-    #sections = getAllSections(server_list)
-    
-    #printDebug("Total sections: " + str(len(sections)))
-
     for server in server_list:
     
         server.discover_sections()
@@ -3308,9 +3302,6 @@ def amberskin():
                 window="Videos"
                 mode=_MODE_PHOTOS
 
-            #aToken=getAuthDetails(section)
-            #qToken=getAuthDetails(section, prefix='?')
-
             printDebug("===TOKENS ARE===")
             printDebug(server.get_token())
             printDebug("===/TOKENS ===")
@@ -3319,8 +3310,6 @@ def amberskin():
                 mode=_MODE_GETCONTENT
             else:
                 path=path+'/all'
-
-            #s_url='http://%s%s&mode=%s%s' % ( server.get_location(), path, mode, aToken)
 
             #Build that listing..
             WINDOW.setProperty("plexbmc.%d.uuid" % (sectionCount) , section.get_uuid())
@@ -3533,10 +3522,6 @@ def fullShelf(server_list={}):
     ondeck_list=[]
     full_count=0
 
-    #if server_list == {}:
-    #   plex_network.discover()
-    #    server_list=plex_network.get_server_list()
-
     if server_list == {}:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearShelf(0, 0, 0, 0)
@@ -3549,20 +3534,11 @@ def fullShelf(server_list={}):
         if not server_details.is_owned():
             continue
 
-        global _PARAM_TOKEN
-        _PARAM_TOKEN = server_details.get_token()
-        aToken=getAuthDetails({'token': _PARAM_TOKEN})
-        qToken='?' + aToken
-
-        #section_list = getAllSections(server_list)
-        print "********************************************************************************************************************************************************************************************"
-
         for section in server_details.get_sections():
         
             if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
                 
                 tree = server_details.get_recently_added(section=section.get_key(), size=15)
-                _PARAM_TOKEN = server_details.get_token()
 
                 if tree is None:
                     printDebug.debug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
@@ -3577,39 +3553,28 @@ def fullShelf(server_list={}):
                         key = int(eachitem.get("parentRatingKey"))  # season identifier
 
                         if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
-                            pass
+                            continue
 
-                        else:
-                            recent_list.append((eachitem, server_details.get_location(), aToken, qToken, libraryuuid))
-                            ep_helper[key] = key  # use seasons as dict key so we can check
+                        ep_helper[key] = key  # use seasons as dict key so we can check
 
-                    else:
-                        recent_list.append((eachitem, server_details.get_location(), aToken, qToken, libraryuuid))
+                    recent_list.append((eachitem, server_details, libraryuuid))
 
             if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
                 
                 tree = server_details.get_ondeck(section=section.get_key(),size=15)
-                _PARAM_TOKEN = server_details.get_token()
                 
                 if tree is None:
                     print ("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location(), False)
                     continue
 
                 for eachitem in tree:
-                    ondeck_list.append((eachitem, server_details.get_location(), aToken, qToken, libraryuuid))
+                    ondeck_list.append((eachitem, server_details, libraryuuid))
 
     printDebug.debugplus("Recent object is: %s" % recent_list)
     printDebug.debugplus("ondeck object is: %s" % ondeck_list)
-    
                     
     #For each of the servers we have identified
-    for index in recent_list:
-
-        media = index[0]
-        server_address = index[1]
-        aToken = index[2]
-        qToken = index[3]
-        libuuid = index[4]
+    for media, source_server, libuuid in recent_list:
 
         if media.get('type',None) == "movie":
 
@@ -3622,8 +3587,8 @@ def fullShelf(server_list={}):
 
             if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
 
-                title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
-                title_thumb = getShelfThumb(media,server_address,seasonThumb=0)+aToken
+                title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_PLAYSHELF, randomNumber)
+                title_thumb = getShelfThumb(media,source_server,seasonThumb=0)
 
                 if media.get('duration') > 0:
                     #movie_runtime = media.get('duration', '0')
@@ -3669,8 +3634,8 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_TVEPISODES, aToken)
-            title_thumb=getShelfThumb(media,server_address,seasonThumb=0)+aToken
+            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_TVEPISODES)
+            title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, '')
@@ -3688,8 +3653,8 @@ def fullShelf(server_list={}):
                 continue
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_TRACKS, aToken)
-            title_thumb=getShelfThumb(media,server_address,seasonThumb=0)+aToken
+            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_TRACKS)
+            title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
             printDebug("Found a recent album entry: [%s]", title_name)
             
@@ -3704,8 +3669,8 @@ def fullShelf(server_list={}):
 
 
             title_name=media.get('title','Unknown').encode('UTF-8')
-            title_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=http://%s%s&mode=%s%s,return" % ( server_address, "/recentlyAdded", _MODE_PHOTOS, aToken)
-            title_thumb = getShelfThumb(media, server_address, seasonThumb=0) + aToken
+            title_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return" % ( source_server.get_url_location(), "/recentlyAdded", _MODE_PHOTOS)
+            title_thumb = getShelfThumb(media, source_server, seasonThumb=0)
 
             printDebug("Found a recent photo entry: [%s]" % title_name)
 
@@ -3724,8 +3689,8 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address, media, server_address, season_shelf=True), _MODE_TVEPISODES, aToken)
-            title_thumb = getShelfThumb(media, server_address, seasonThumb=1) + aToken
+            title_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(), media, source_server.get_location(), season_shelf=True), _MODE_TVEPISODES)
+            title_thumb = getShelfThumb(media, source_server, seasonThumb=1)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, title_name)
@@ -3743,13 +3708,7 @@ def fullShelf(server_list={}):
     clearShelf(recentMovieCount, recentSeasonCount, recentMusicCount, recentPhotoCount)
 
     #For each of the servers we have identified
-    for index in ondeck_list:
-
-        media = index[0]
-        server_address = index[1]
-        aToken = index[2]
-        qToken = index[3]
-        libuuid = index[4]
+    for media, source_server, libuuid in ondeck_list:
 
         if media.get('type',None) == "movie":
 
@@ -3760,8 +3719,8 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.OnDeckMovie.1.Path" )
                 continue
 
-            title_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
-            title_thumb = getShelfThumb(media,server_address,seasonThumb=0)+aToken
+            title_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_PLAYSHELF, randomNumber)
+            title_thumb = getShelfThumb(media,source_server,seasonThumb=0)
 
             if media.get('duration') > 0:
                 #movie_runtime = media.get('duration', '0')
@@ -3793,8 +3752,8 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
                 continue
 
-            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_TVEPISODES, aToken)
-            title_thumb=getShelfThumb(media,server_address,seasonThumb=0)+aToken
+            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_TVEPISODES)
+            title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, '')
@@ -3813,9 +3772,8 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
                 continue
 
-            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s)" % (getLinkURL('http://'+server_address, media, server_address), _MODE_PLAYSHELF, randomNumber, aToken)
-            #s_thumb="http://"+server_address+media.get('grandparentThumb','')
-            title_thumb=getShelfThumb(media, server_address, seasonThumb=1)
+            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s)" % (getLinkURL(source_server.get_url_location(), media, source_server.get_location()), _MODE_PLAYSHELF, randomNumber)
+            title_thumb=getShelfThumb(media, source_server, seasonThumb=1)
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, title_name)
@@ -3823,7 +3781,7 @@ def fullShelf(server_list={}):
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason" % ondeckSeasonCount, media.get('grandparentTitle','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeasonNumber" % ondeckSeasonCount, media.get('parentIndex','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle" % ondeckSeasonCount, title_name)
-            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % ondeckSeasonCount, title_thumb+aToken)
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % ondeckSeasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.uuid" % ondeckSeasonCount, libuuid.encode('UTF-8'))
 
             ondeckSeasonCount += 1

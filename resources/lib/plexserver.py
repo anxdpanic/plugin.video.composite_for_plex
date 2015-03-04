@@ -204,7 +204,7 @@ class PlexMediaServer:
         return self.processed_xml("/library/sections/%s/onDeck%s" % (section, arguments))
 
     def get_server_recentlyadded(self):
-        return self.get_recentlyadded(section=-1)
+        return self.get_recently_added(section=-1)
   
     def get_server_ondeck(self):
         return self.get_ondeck(section=-1)
