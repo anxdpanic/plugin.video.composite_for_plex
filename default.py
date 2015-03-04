@@ -3544,7 +3544,7 @@ def fullShelf(server_list={}):
                     printDebug.debug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
                     continue
 
-                libraryuuid = tree.get("librarySectionUUID")
+                libraryuuid = tree.get("librarySectionUUID").encode('utf-8')
 
                 ep_helper = {}  # helper season counter
                 for eachitem in tree:
@@ -3607,7 +3607,7 @@ def fullShelf(server_list={}):
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Rating" % recentMovieCount, movie_rating)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Duration" % recentMovieCount, movie_runtime)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % recentMovieCount, title_thumb)
-                WINDOW.setProperty("Plexbmc.LatestMovie.%s.uuid" % recentMovieCount, libuuid.encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.uuid" % recentMovieCount, libuuid)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Plot" % recentMovieCount, media.get('summary', '').encode('UTF-8'))
 
                 m_genre = []
@@ -3699,7 +3699,7 @@ def fullShelf(server_list={}):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeasonNumber" % recentSeasonCount, media.get('parentIndex','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % recentSeasonCount, media.get('grandparentTitle','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % recentSeasonCount, title_thumb)
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, libuuid.encode('utf-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, libuuid)
 
             recentSeasonCount += 1
 
@@ -3739,7 +3739,7 @@ def fullShelf(server_list={}):
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Rating" % ondeckMovieCount, title_rating)
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Duration" % ondeckMovieCount, movie_runtime)
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Thumb" % ondeckMovieCount, title_thumb)
-            WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.uuid" % ondeckMovieCount, libuuid.encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.uuid" % ondeckMovieCount, libuuid)
 
             ondeckMovieCount += 1
 
@@ -3782,7 +3782,7 @@ def fullShelf(server_list={}):
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeasonNumber" % ondeckSeasonCount, media.get('parentIndex','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle" % ondeckSeasonCount, title_name)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % ondeckSeasonCount, title_thumb)
-            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.uuid" % ondeckSeasonCount, libuuid.encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.uuid" % ondeckSeasonCount, libuuid)
 
             ondeckSeasonCount += 1
 
