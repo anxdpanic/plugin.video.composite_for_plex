@@ -4,6 +4,8 @@ import xbmcgui
 import sys
 import os
 import xml.etree.ElementTree as etree
+import urlparse
+import urllib
 
 from settings import addonSettings
 from common import *
@@ -35,7 +37,23 @@ class PlexMediaServer:
         self.class_type=class_type
         self.discovered=False
         self.offline=False
+
+    def plex_identification(self):
+
+        return {'X-Plex-Device'            : 'XBMC/KODI' ,
+                'X-Plex-Client-Platform'   : 'XBMC/KODI' ,
+                'X-Plex-Device-Name'       : 'unknown' ,
+                'X-Plex-Language'          : 'en',
+                'X-Plex-Model'             : 'unknown' ,
+                'X-Plex-Platform'          : 'unknown' ,
+                'X-Plex-Client-Identifier' : 'unknown' ,
+                'X-Plex-Product'           : 'unknown' ,
+                'X-Plex-Platform-Version'  : 'unknown' ,
+                'X-Plex-Version'           : 'unknown'  ,
+                'X-Plex-Provides'          : "player",
+                'X-Plex-Token'             : self.token}
         
+
     def get_details(self):
                  
         return {'serverName': self.server_name,
@@ -147,13 +165,13 @@ class PlexMediaServer:
 
     def get_sections(self):
     
-        temp_list=[]
+        #temp_list=[]
     
-        for section in self.section_list:        
-            temp_list.append(sections.get_details)
+        #for section in self.section_list:        
+        #    temp_list.append(sections.get_details)
             
-        printDebug.debug("Returning sections: %s" % temp_list)
-        return temp_list
+        printDebug.debug("Returning sections: %s" % self.section_list)
+        return self.section_list
         
     def discover_sections(self):
         
@@ -212,6 +230,41 @@ class PlexMediaServer:
             return True
         return False
 
+    def get_formatted_url(self, url, options={}):
+    
+        options.update(self.plex_identification())
+    
+        location = "%s%s" % (self.get_location, url)
+        
+        url_parts = urlparse.urlparse(location)
+
+        query_args = urlparse.parse_qsl(url_parts.query)
+        query_args += options.items()
+
+        new_query_args = urllib.urlencode(query_args, True)
+
+        return urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
+
+    def get_fanart(self, section, width=1280, height=720):
+        '''
+            Simply take a URL or path and determine how to format for fanart
+            @ input: elementTree element, server name
+            @ return formatted URL for photo resizing
+        '''
+        
+        printDebug.debug("Getting fanart for %s" % section.get_title())
+        
+        if settings.skipimages:
+            return ''
+            
+        if section.get_art().startswith('/'):
+            if settings.fullres_fanart:
+                return self.get_formatted_url(section.get_art())
+            else:
+                return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus("http://localhost:32400"+section.get_art()), width, height))
+
+        return section.get_art()     
+        
 class plex_section:
 
     def __init__(self, data=None):
@@ -235,9 +288,9 @@ class plex_section:
     
         self.title       = data.get('title', 'Unknown').encode('utf-8')
         self.sectionuuid = data.get('uuid', '')
-        self.path        = path
+        self.path        = path.encode('utf-8')
         self.key         = data.get('key')
-        self.art         = data.get('art', None)
+        self.art         = data.get('art', '').encode('utf-8')
         self.type        = data.get('type', '')
 
     def get_details(self):
@@ -250,9 +303,41 @@ class plex_section:
                 'art'        : self.art,
                 'type'       : self.type}
                 
-                ''''local'      : '1',
-                'address'    : server.get_location(),
-                'serverName' : server.get_name(),
-                'uuid'       : server.get_uuid(),
-                'token'      : section.get('accessToken', None),
-                'owned'      : '1'}'''
+    def get_title(self):
+        return self.title
+
+    def get_uuid(self):
+        return self.sectionuuid
+
+    def get_path(self):
+        return self.path
+
+    def get_key(self):
+        return self.key
+
+    def get_art(self):
+        return self.art
+
+    def get_type(self):
+        return self.type
+
+    def is_show(self):
+        if self.type == 'show':
+            return True
+        return False
+    
+    def is_movie(self):
+        if self.type == 'movie':
+            return True
+        return False
+
+    def is_artist(self):
+        if self.type == 'artist':
+            return True
+        return False
+
+    def is_photo(self):
+        if self.type == 'photo':
+            return True
+        return False
+                
