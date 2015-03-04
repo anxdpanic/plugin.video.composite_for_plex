@@ -143,18 +143,6 @@ g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
 global g_sessionID
 g_sessionID=None
         
-#Move to discovery code
-def getServerSections (server):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-
-    cache_file = "%s.sections.cache" % (server.get_uuid())
-    success, temp_list = CACHE.checkCache(cache_file)
-    
-    if not success:
-    
-        server.discover_sections()
-        
-    return server.get_sections()
 
 def getMyplexSections ( ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
@@ -206,19 +194,14 @@ def getAllSections( server_list = None ):
     printDebug("Using servers list: " + str(server_list))
 
     section_list=[]
-    myplex_section_list=[]
-    myplex_complete=False
-    local_complete=False
     
     for server in server_list:
 
         if server.is_offline():
             continue
-    
-        if server.get_discovery() == "local" or server.get_discovery() == "auto":
-            section_details = getServerSections(server)
-            section_list += section_details
-            local_complete=True
+            
+        server.discover_sections()
+        section_list += server.get_sections()
             
     return section_list
 
@@ -3574,7 +3557,6 @@ def fullShelf(server_list={}):
         for section in server_details.get_sections():
         
             if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
-                
                 
                 tree = server_details.get_recently_added(section=section.get_key(), size=15)
                 _PARAM_TOKEN = server_details.get_token()
