@@ -234,7 +234,7 @@ class PlexMediaServer:
     
         options.update(self.plex_identification())
     
-        location = "%s%s" % (self.get_location, url)
+        location = "%s%s" % (self.get_url_location(), url)
         
         url_parts = urlparse.urlparse(location)
 
