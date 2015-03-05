@@ -362,7 +362,11 @@ class Plex:
         url_parts = urlparse.urlparse(url)    
                 
         return self.get_server_from_ip(url_parts.netloc)        
-       
+
+    def get_server_from_uuid(self, uuid):
+                  
+        return self.server_list[uuid]
+        
     def get_processed_xml(self, url):
         
         url_parts = urlparse.urlparse(url)
