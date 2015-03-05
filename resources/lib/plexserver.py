@@ -280,6 +280,11 @@ class PlexMediaServer:
     def mark_item_unwatched(self, id):
         self.talk('/:/unscrobble?key=%s&identifier=com.plexapp.plugins.library' % id)
         return
+
+    def refresh_section(self, key):
+        self.talk('/library/section/%s/refresh' % key)
+        return
+
         
 class plex_section:
 
