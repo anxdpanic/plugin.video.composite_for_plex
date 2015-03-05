@@ -339,6 +339,7 @@ class Plex:
         if ':' in ip:
             #We probably have an IP:port being passed
             ip=ip.split(':')[0]
+            port=ip.split(':')[1]
         
         if not is_ip(ip):
             printDebug.warn("Not an IP Address")
@@ -354,7 +355,7 @@ class Plex:
 
         printDebug.info("Unable to translate %s to server" % ip )
                 
-        return None
+        return PlexMediaServer(name="Unknown",address=ip, port=port, discovery='local')
         
     def get_server_from_url(self, url):
         
