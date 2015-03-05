@@ -1867,9 +1867,8 @@ def pluginTranscodeMonitor( sessionID, server ):
 
     printDebug("Playback Stopped")
     printDebug("Stopping PMS transcode job with session: " + sessionID)
-    stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+sessionID
-
-    html=getURL(stopURL)
+    media_server=plex_network.get_server_from_ip(server)
+    media_server.stop_transcode_session(sessionID)
 
     return
 
