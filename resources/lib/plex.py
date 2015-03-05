@@ -26,7 +26,7 @@ class Plex:
         else:
             self.settings = settings
             
-        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", self.settings.debug,self.settings.cache)
+        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", self.settings.debug)
         self.myplex_server='https://plex.tv'
         self.myplex_token=None
         self.logged_into_myplex=False
@@ -344,9 +344,9 @@ class Plex:
             printDebug.warn("Not an IP Address")
             return None
             
-        for uuid, server in self.server_list:
+        for server in self.server_list.values():
             
-            printDebug.debug("checking ip %s against server ip %s" % (ip, server.get_address))
+            printDebug.debug("checking ip %s against server ip %s" % (ip, server.get_address()))
             
             if ip == server.get_address():
                 printDebug("Translated %s to server %s" % (ip, server.get_name()))
