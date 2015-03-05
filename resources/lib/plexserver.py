@@ -138,7 +138,7 @@ class PlexMediaServer:
                 printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
                 
                 if response.status_code == requests.codes.ok:
-                    printDebug.debug("Encoding: %s" % response.encoding)
+                    printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
                     printDebug("===XML===\n%s\n===XML===" % response.text.encode('utf-8'), self.DEBUG_DEBUGPLUS)
                     return response.text.encode('utf-8')
                     
