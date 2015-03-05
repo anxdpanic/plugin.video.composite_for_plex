@@ -88,7 +88,7 @@ class PlexMediaServer:
         return self.server_name
 
     def get_address(self):
-        return self.address
+        return self.address[0]
 
     def get_port(self):
         return self.port
@@ -264,6 +264,19 @@ class PlexMediaServer:
                 return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus("http://localhost:32400"+section.get_art()), width, height))
 
         return section.get_art()     
+
+    def stop_transcode_session(self, session):
+        self.talk ('/video/:/transcode/segmented/stop?session=%s' % session)
+        return
+   
+    def report_playback_progress(self, id, time, state='playing'):
+        self.talk('/:/progress?key=%s&identifier=com.plexapp.plugins.library&time=%s&state=%s' % (id, time, state))
+        return
+
+    def mark_item_watched(self, id):
+        self.talk('/:/scrobble?key=%s&identifier=com.plexapp.plugins.library' % id)
+        return
+
         
 class plex_section:
 

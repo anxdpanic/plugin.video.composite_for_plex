@@ -344,13 +344,15 @@ class Plex:
             printDebug.warn("Not an IP Address")
             return None
             
-        for server in self.server_list:
+        for uuid, server in self.server_list:
+            
+            printDebug.debug("checking ip %s against server ip %s" % (ip, server.get_address))
             
             if ip == server.get_address():
                 printDebug("Translated %s to server %s" % (ip, server.get_name()))
                 return server
 
-        printDebug.warn("Unable to translate %s to server" % ip )
+        printDebug.info("Unable to translate %s to server" % ip )
                 
         return None
         

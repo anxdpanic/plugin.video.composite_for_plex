@@ -1654,15 +1654,14 @@ def remove_html_tags( data ):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
 
-def monitorPlayback( id, server ):
+def monitorPlayback( id, server_ip ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
 
     if __settings__.getSetting('monitoroff') == "true":
         return
     
-    if len(server.split(':')) == 1:
-        server=server
-
+    server = plex_network.get_server_from_ip(server_ip)
+    
     monitorCount=0
     progress = 0
     complete = 0
@@ -1684,7 +1683,7 @@ def monitorPlayback( id, server ):
         #If we are less than 95% completem, store resume time
         elif progress < 95:
             printDebug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
-            getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(currentTime*1000)+"&state=playing",suppress=True)
+            server.report_playback_progress(id,currentTime*1000)
             complete=0
             playedTime = currentTime
 
@@ -1692,7 +1691,7 @@ def monitorPlayback( id, server ):
         else:
             if complete == 0:
                 printDebug( "Movie marked as watched. Over 95% complete")
-                getURL("http://"+server+"/:/scrobble?key="+id+"&identifier=com.plexapp.plugins.library",suppress=True)
+                server.mark_item_watched(id)
                 complete=1
                 # playedTime = 0 in order to avoid a bug of tract plex plugin (check on completed tv episode when time==duration)
                 playedTime = 0
@@ -1703,12 +1702,11 @@ def monitorPlayback( id, server ):
     printDebug("Playback Stopped")
 
     # The follwing progress:stopped update is necessary only for plugin trakt to 'cancel watching' on trakt.tv server, otherwise it will keep status 'watching' for about 15min
-    getURL("http://"+server+"/:/progress?key="+id+"&identifier=com.plexapp.plugins.library&time="+str(playedTime*1000)+"&state=stopped",suppress=True)
+    server.report_playback_progress(id,playedTime*1000, state='stopped')
 
     if g_sessionID is not None:
         printDebug("Stopping PMS transcode job with session " + g_sessionID)
-        stopURL='http://'+server+'/video/:/transcode/segmented/stop?session='+g_sessionID
-        html=getURL(stopURL)
+        server.stop_transcode_session(g_sessionID)
 
     return
 
@@ -2895,7 +2893,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         path='&'.join(components)
         return 'plex://'+server+'/'+'/'.join(path.split('/')[3:])
         
-    elif path.startswirth("rtmp"):
+    elif path.startswith("rtmp"):
         printDebug("Detected RTMP link", level=DEBUG_DEBUG)
         return path
 
