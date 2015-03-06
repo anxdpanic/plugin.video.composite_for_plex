@@ -896,7 +896,7 @@ def buildContextMenu( url, itemData,server=None ):
     #alter subs
     #alterSubsURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
     #alterSubs="RunScript(plugin.video.plexbmc, subs, " + alterSubsURL + ")"
-    #context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % ( server.get_uuid(), ID) ) ))
+    context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % ( server.get_uuid(), ID) ))
 
     printDebug("Using context menus " + str(context))
 
@@ -4354,16 +4354,16 @@ def getAuthTokenFromURL( url ):
     else:
         return ""
         
-def alterSubs ( url ):
+def alterSubs ( server_uuid, metadata_id ):
     '''
         Display a list of available Subtitle streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     '''
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    html=getURL(url)
 
-    tree=etree.fromstring(html)
-
+    server = plex_network.get_server_from_uuid(server_uuid)
+    tree = server.get_metadata(metadata_id)
+    
     sub_list=['']
     display_list=["None"]
     fl_select=False
@@ -4402,14 +4402,8 @@ def alterSubs ( url ):
     if result == -1:
         return False
 
-    authtoken=getAuthTokenFromURL(url)
-    sub_select_URL="http://%s/library/parts/%s?subtitleStreamID=%s" % ( getServerFromURL(url), part_id, sub_list[result] ) +getAuthDetails({'token':authtoken})
-
     printDebug("User has selected stream %s" % sub_list[result])
-    printDebug("Setting via URL: %s" % sub_select_URL )
-    outcome=getURL(sub_select_URL, type="PUT")
-
-    printDebug( sub_select_URL )
+    server.set_subtitle_stream(part_id,  sub_list[result])
 
     return True
 
@@ -4589,8 +4583,9 @@ elif sys.argv[1] == "refresh":
     
 #Display subtitle selection screen    
 elif sys.argv[1] == "subs":
-    url=sys.argv[2]
-    alterSubs(url)
+    server_uuid=sys.argv[2]
+    metadata_id=sys.argv[3]
+    alterSubs(server_uuid, metadata_id)
     
 #Display audio streanm selection screen    
 elif sys.argv[1] == "audio":

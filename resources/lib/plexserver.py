@@ -297,6 +297,9 @@ class PlexMediaServer:
     def set_audio_stream(self, part_id, stream_id):
         return self.tell("/library/parts/%s?audioStreamID=%s" % (part_id, stream_id) )
         
+    def set_subtitle_stream(self, part_id, stream_id):
+        return self.tell("/library/parts/%s?subtitleStreamID=%s" % (part_id, stream_id) )
+        
 class plex_section:
 
     def __init__(self, data=None):
