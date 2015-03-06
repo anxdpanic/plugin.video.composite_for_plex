@@ -855,7 +855,7 @@ def Movies( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def buildContextMenu( url, itemData,server=None ):
+def buildContextMenu( url, itemData, server ):
     context=[]
     url_parts = urlparse.urlparse(url)
     section=url_parts.path.split('/')[3]  
@@ -965,7 +965,7 @@ def TVShows( url, tree=None ):
             u='http://%s%s'  % ( server, extraData['key'])
 
         if not settings.skipcontext:
-            context=buildContextMenu(url, extraData)
+            context=buildContextMenu(url, extraData, plex_network.get_server_from_ip(server))
         else:
             context=None
 
@@ -1049,7 +1049,7 @@ def TVSeasons( url ):
         url='http://%s%s' % ( server , extraData['key'] )
 
         if not settings.skipcontext:
-            context=buildContextMenu(url, season)
+            context=buildContextMenu(url, season, plex_network.get_server_from_ip(server))
         else:
             context=None
 
@@ -1186,7 +1186,7 @@ def TVEpisodes( url, tree=None ):
 
         #Build any specific context menu entries
         if not settings.skipcontext:
-            context=buildContextMenu(url, extraData)
+            context=buildContextMenu(url, extraData,plex_network.get_server_from_ip(server))
         else:
             context=None
 
