@@ -267,11 +267,11 @@ def getURL(url, suppress=True, type="GET", popup=0):
                     xbmcgui.Dialog().ok("PleXBMC","Server error, data does not exist")
                     
         elif int(data.status) >= 400:
-            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
+            error = "HTTP response error: [%s] %s " % (data.status, data.reason)
             print error
             if suppress is False:
                 if popup == 0:
-                    xbmc.executebuiltin("XBMC.Notification(URL error: "+ str(data.reason) +",)")
+                    xbmc.executebuiltin("XBMC.Notification(URL error: %s, )" % data.reason)
                 else:
                     xbmcgui.Dialog().ok("Error",server)
                     
@@ -359,7 +359,7 @@ def mediaType( partData, server, dvdplayback=False ):
 
         printDebug.debug( "Selecting smb/unc")
         if type=="UNC":
-            filelocation=protocol+":"+file.replace("\\","/")
+            filelocation="%s:%s" % (protocol, file.replace("\\","/"))
         else:
             #Might be OSX type, in which case, remove Volumes and replace with server
             server=server.split(':')[0]
@@ -376,10 +376,10 @@ def mediaType( partData, server, dvdplayback=False ):
 
 
             if file.find('Volumes') > 0:
-                filelocation=protocol+":/"+file.replace("Volumes",loginstring+server)
+                filelocation="%s:/%s" % (protocol, file.replace("Volumes",loginstring+server))
             else:
                 if type == "winfile":
-                    filelocation=protocol+"://"+loginstring+server+"/"+file[3:]
+                    filelocation="%s://%s%s/%s" % (protocol, loginstring, server, file[3:])
                 else:
                     #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
                     filelocation=protocol+"://"+loginstring+server+file
@@ -552,8 +552,8 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
             if (not folder) and extraData.get('type','video').lower() == "video":
                 #Play Transcoded
-                playTranscode=u+"&transcode=1"
-                plugin_url="XBMC.PlayMedia("+ playTranscode + ")"
+                playTranscode="%s&transcode=1" % u
+                plugin_url="XBMC.PlayMedia(%s)" % playTranscode
                 context.insert(0,('Play Transcoded', plugin_url , ))
                 printDebug.debug("Setting transcode options to [%s]" % plugin_url)
 
@@ -1132,10 +1132,10 @@ def TVEpisodes( url, tree=None ):
 
         #get ALL SEASONS thumb
         if not season_thumb and episode.get('parentThumb', ""):
-            extraData['season_thumb'] = "http://" + server + episode.get('parentThumb', "")
+            extraData['season_thumb'] = "http://%s%s" % (server, episode.get('parentThumb', ""))
 
         if banner:
-            extraData['banner'] = "http://" + server + banner
+            extraData['banner'] = "http://%s%s" % (server, banner)
             
         #Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount',0)) > 0:
@@ -1312,7 +1312,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                     subOffset = int(stream.get('index',-1))
                     
                 if stream.get('selected') == "1":
-                    printDebug.debug( "Found preferred subtitles id : %s " stream['id'])
+                    printDebug.debug( "Found preferred subtitles id : %s " % stream['id'])
                     subCount += 1
                     subtitle=stream
                     if stream.get('key'):
@@ -1425,7 +1425,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     if not resume == 0 and shelf:
         printDebug.debug("Shelf playback: display resume dialog")
         displayTime = str(datetime.timedelta(seconds=resume))
-        display_list = [ "Resume from " + displayTime , "Start from beginning"]
+        display_list = [ "Resume from %s" % displayTime , "Start from beginning"]
         resumeScreen = xbmcgui.Dialog()
         result = resumeScreen.select('Resume',display_list)
         if result == -1:
@@ -1770,7 +1770,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
             
             server=getServerFromURL(vids)
             session=playlist.split()[-1]
-            vids="http://"+server+"/video/:/transcode/segmented/"+session+"?t=1"
+            vids="http://%s/video/:/transcode/segmented/%s?t=1" % (server, session)
             
     printDebug.debug("URL to Play: %s " % vids)
     printDebug.debug("Prefix is: %s" % prefix)
@@ -2062,7 +2062,7 @@ def transcode( id, url, identifier=None ):
     token=base64.b64encode(hash.digest())
 
     #Send as part of URL to avoid the case sensitive header issue.
-    fullURL="http://"+server+transcode_request+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)+"&"+capability
+    fullURL="http://%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (server, transcode_request, publicKey, now, urllib.quote_plus(token), capability)
 
     printDebug.debug("Transcoded media location URL: %s" % fullURL)
 
@@ -2965,7 +2965,7 @@ def channelView( url ):
         suffix=channels.get('path').split('/')[1]
 
         if channels.get('unique','')=='0':
-            details['title']=details['title']+" ("+suffix+")"
+            details['title']="%s (%s)" % ( details['title'], suffix )
 
         #Alter data sent into getlinkurl, as channels use path rather than key
         p_url=getLinkURL(url, {'key': channels.get('path',None), 'identifier' : channels.get('path',None)} , server)
@@ -3050,12 +3050,12 @@ def skin( server_list=None, type=None ):
         #Build that listing..
         WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , section['title'])
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , section['serverName'])
-        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s,return)" % (window, s_url))
         WINDOW.setProperty("plexbmc.%d.art"      % (sectionCount) , extraData['fanart_image']+qToken)
         WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , section['type'])
         WINDOW.setProperty("plexbmc.%d.icon"     % (sectionCount) , extraData['thumb']+qToken)
         WINDOW.setProperty("plexbmc.%d.thumb"    % (sectionCount) , extraData['thumb']+qToken)
-        WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=http://"+section['address']+section['path'])
+        WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=http://%s%s" % (window, section['address'], section['path']))
         WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=http://%s%s%s&mode=%s%s,return)" % (window, section['address'], section['path'], "/search?type=1", mode, aToken) )
         WINDOW.setProperty("plexbmc.%d.recent" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=http://%s%s%s&mode=%s%s,return)" % (window, section['address'], section['path'], "/recentlyAdded", mode, aToken) )
         WINDOW.setProperty("plexbmc.%d.all" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=http://%s%s%s&mode=%s%s,return)" % (window, section['address'], section['path'], "/all", mode, aToken) )
@@ -3082,9 +3082,9 @@ def skin( server_list=None, type=None ):
     if type == "nocat":
         WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_ALL)+",return)")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_ALL )
         WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "movie")
-        WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+        WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
         sectionCount += 1
     
     else:
@@ -3092,23 +3092,23 @@ def skin( server_list=None, type=None ):
         if shared_flag.get('movie'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MOVIES)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_MOVIES )
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "movie")
-            WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+            WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
             sectionCount += 1
 
         if shared_flag.get('show'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_SHOWS)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_SHOWS)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "show")
-            WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+            WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
             sectionCount += 1
             
         if shared_flag.get('artist'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(MusicFiles,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MUSIC)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(MusicFiles,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_MUSIC)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "artist")
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
             sectionCount += 1
@@ -3116,7 +3116,7 @@ def skin( server_list=None, type=None ):
         if shared_flag.get('photo'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(Pictures,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_PHOTOS)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(Pictures,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_PHOTOS)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "photo")
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
             sectionCount += 1
@@ -3135,14 +3135,14 @@ def skin( server_list=None, type=None ):
         
         if settings.channelview:
             WINDOW.setProperty("plexbmc.channel", "1")
-            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://"+server['server']+":"+server['port']+"/system/plugins/all&mode=21"+aToken+",return)")
+            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://%s:%s/system/plugins/all&mode=21%s,return)" % (server['server'], server['port'], aToken))
         else:
             WINDOW.clearProperty("plexbmc.channel")
-            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://"+server['server']+":"+server['port']+"/video&mode=7"+aToken)
-            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://"+server['server']+":"+server['port']+"/music&mode=17"+aToken)
-            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://"+server['server']+":"+server['port']+"/photos&mode=16"+aToken)
+            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "http://%s:%s/video&mode=7%s" %( server['server'], server['port'], aToken))
+            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "http://%s:%s/music&mode=17%s" %( server['server'], server['port'], aToken))
+            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "http://%s:%s/photos&mode=16%s" %( server['server'], server['port'], aToken))
 
-        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server['server']+":"+server['port']+"/system/plexonline&mode=19"+aToken)
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://%s:%s/system/plexonline&mode=19%s" % (server['server'], server['port'], aToken))
 
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server['serverName'])
         printDebug ("Name mapping is: %s" % server['serverName'])
@@ -3151,7 +3151,7 @@ def skin( server_list=None, type=None ):
 
     #Clear out old data
     try:
-        printDebug.debug("Clearing properties from [%s] to [%s]" % (sectionCount, WINDOW.getProperty("plexbmc.sectionCount"))
+        printDebug.debug("Clearing properties from [%s] to [%s]" % (sectionCount, WINDOW.getProperty("plexbmc.sectionCount")))
 
         for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
             WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
@@ -3203,7 +3203,7 @@ def amberskin():
 
     plex_network.discover()
     server_list=plex_network.get_server_list()
-    printDebug.debug("Using list of %s servers: " % (len(server_list), server_list))
+    printDebug.debug("Using list of %s servers: %s " % (len(server_list), server_list))
 
     for server in server_list:
     
@@ -3270,7 +3270,7 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , section.get_type())
             WINDOW.setProperty("plexbmc.%d.icon"     % (sectionCount) , extraData['thumb'])
             WINDOW.setProperty("plexbmc.%d.thumb"    % (sectionCount) , extraData['thumb'])
-            WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url=%s%s" % (server.get_url_location(),section.get_path()))
+            WINDOW.setProperty("plexbmc.%d.partialpath" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s" % (window, server.get_url_location(),section.get_path()))
             WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=1", mode) )
             WINDOW.setProperty("plexbmc.%d.recent" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/recentlyAdded", mode) )
             WINDOW.setProperty("plexbmc.%d.all" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/all", mode) )
@@ -3297,7 +3297,7 @@ def amberskin():
     if __settings__.getSetting('myplex_user') != '' and hide_shared == 'true' and sharedCount != 0:
         WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared Content")
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_ALL)+",return)")
+        WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_ALL)
         WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
         WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
         sectionCount += 1
@@ -3307,7 +3307,7 @@ def amberskin():
         if shared_flag.get('movie'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MOVIES)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_MOVIES)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
             sectionCount += 1
@@ -3315,7 +3315,7 @@ def amberskin():
         if shared_flag.get('show'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_SHOWS)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_SHOWS)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
             sectionCount += 1
@@ -3323,7 +3323,7 @@ def amberskin():
         if shared_flag.get('artist'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(MusicFiles,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_MUSIC)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(MusicFiles,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)"% _MODE_SHARED_MUSIC)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
             sectionCount += 1
@@ -3331,7 +3331,7 @@ def amberskin():
         if shared_flag.get('photo'):
             WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared...")
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
-            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(Pictures,plugin://plugin.video.plexbmc/?url=/&mode="+str(_MODE_SHARED_PHOTOS)+",return)")
+            WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(Pictures,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % _MODE_SHARED_PHOTOS)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
             sectionCount += 1
@@ -3868,7 +3868,7 @@ def shelf( server_list=None ):
             tree=server_details.get_server_ondeck()
 
         if tree is None:
-            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details.get_name()+",)")
+            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: %s,)" % server_details.get_name() )
             clearShelf()
             return
 
@@ -4093,7 +4093,7 @@ def shelfChannel(server_list = None):
 
         tree=server_details.get_channel_recentlyviewed()
         if tree is None:
-            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: "+server_details.get_name()+",)")
+            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: %s, )" % server_details.get_name())
             clearChannelShelf(0)
             return
 
@@ -4292,7 +4292,7 @@ def getTranscodeSettings( override=False ):
             audio="dts{channels:6}"
 
         global capability
-        capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+"audioDecoders="+audio)
+        capability="X-Plex-Client-Capabilities=%sprotocols=%saudioDecoders=%s" % (urllib.quote_plus(baseCapability), urllib.quote_plus(audio))
         printDebug.debug("Plex Client Capability = %s" % capability)
 
         import uuid
@@ -4580,12 +4580,12 @@ else:
     WINDOW.clearProperty("heading")
     WINDOW.clearProperty("heading2")
 
-    if settings.debug >= DEBUG_INFO:
-        print "PleXBMC -> Mode: "+str(mode)
-        print "PleXBMC -> URL: "+str(param_url)
-        print "PleXBMC -> Name: "+str(param_name)
-        print "PleXBMC -> identifier: " + str(param_identifier)
-        print "PleXBMC -> token: " + str(_PARAM_TOKEN)
+    if settings.debug >= printDebug.DEBUG_INFO:
+        print "PleXBMC -> Mode: %s " % mode
+        print "PleXBMC -> URL: %s" % param_url
+        print "PleXBMC -> Name: %s" % param_name
+        print "PleXBMC -> identifier: %s" % param_identifier
+        print "PleXBMC -> token: %s"  % _PARAM_TOKEN
 
     #Run a function based on the mode variable that was passed in the URL
     if ( mode == None ) or ( param_url == None ) or ( len(param_url)<1 ):
