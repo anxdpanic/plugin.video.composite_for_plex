@@ -288,8 +288,7 @@ class PlexMediaServer:
         return
 
     def refresh_section(self, key):
-        self.talk('/library/section/%s/refresh' % key)
-        return
+        return self.talk('/library/sections/%s/refresh' % key)
 
     def get_metadata(self, id):
         return self.processed_xml('/library/metadata/%s' % id)

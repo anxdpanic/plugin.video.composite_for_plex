@@ -639,8 +639,7 @@ def displaySections( filter=None, display_shared=False ):
 
                 if not settings.skipcontext:
                     context=[]
-                    libraryRefresh = "RunScript(plugin.video.plexbmc, update , %s%s/refresh )" % (server.get_url_location(), section.get_path())
-                    context.append(('Refresh library section', libraryRefresh , ))
+                    context.append(('Refresh library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section.get_key()) ))
                 else:
                     context=None
 
@@ -860,6 +859,9 @@ def buildContextMenu( url, itemData,server=None ):
     context=[]
     #server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
+    url_parts = urlparse.urlparse(url)
+    section=url_parts.path.split('/')[3]
+    
     #plugin_url="RunScript(plugin.video.plexbmc, "
     ID=itemData.get('ratingKey','0')
 
@@ -875,7 +877,7 @@ def buildContextMenu( url, itemData,server=None ):
 
     #Initiate Library refresh
     #libraryRefresh = "RunScript(plugin.video.plexbmc, update, " + refreshURL.split('?')[0]+getAuthDetails(itemData,prefix="?") + ")"
-    #context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % ( server, refreshURL.split('?')[0] ) ))
+    context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % ( server.get_uuid(), section ) ))
 
     #Delete media from Library
     #deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
@@ -4222,9 +4224,12 @@ def myPlexQueue():
     PlexPlugins('http://my.plexapp.com/playlists/queue/all', tree)
     return
 
-def libraryRefresh( url ):
+def libraryRefresh( server_uuid , section_id):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    html=getURL(url)
+    
+    server=plex_network.get_server_from_uuid(server_uuid)
+    server.refresh_section(section_id)
+    
     printDebug ("Library refresh requested")
     xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",Library Refresh started,100)")
     return
@@ -4548,8 +4553,9 @@ elif str(sys.argv[1]) == "channelShelf":
     
 #Send a library update to Plex    
 elif sys.argv[1] == "update":
-    url=sys.argv[2]
-    libraryRefresh(url)
+    server_uuid=sys.argv[2]
+    section_id=sys.argv[3]
+    libraryRefresh(server_uuid, section_id)
     
 #Mark an item as watched/unwatched in plex    
 elif sys.argv[1] == "watch":
