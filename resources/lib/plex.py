@@ -45,6 +45,8 @@ class Plex:
             printDebug.info("unsuccessful")
             self.server_list={}
     
+        printDebug.debug("Server list is now: %s" % self.server_list)
+    
     def discover(self):
         self.discover_all_servers()
         
@@ -336,10 +338,11 @@ class Plex:
 
     def get_server_from_ip(self, ip):
         
+        printDebug.debug("IP to lookup: %s" % ip)
+        
         if ':' in ip:
             #We probably have an IP:port being passed
-            ip=ip.split(':')[0]
-            port=ip.split(':')[1]
+            ip, port = ip.split(':')
         
         if not is_ip(ip):
             printDebug.warn("Not an IP Address")

@@ -856,49 +856,47 @@ def Movies( url, tree=None ):
 
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def buildContextMenu( url, itemData ):
+def buildContextMenu( url, itemData,server=None ):
     context=[]
-    server=getServerFromURL(url)
+    #server=getServerFromURL(url)
     refreshURL=url.replace("/all", "/refresh")
-    plugin_url="RunScript(plugin.video.plexbmc, "
+    #plugin_url="RunScript(plugin.video.plexbmc, "
     ID=itemData.get('ratingKey','0')
 
     #Mark media unwatched
-    unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(itemData)
-    unwatched=plugin_url+"watch, " + unwatchURL + ")"
-    context.append(('Mark as Unwatched', unwatched , ))
+    #unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(itemData)
+    #unwatched="RunScript(plugin.video.plexbmc, watch, " + unwatchURL + ")"
+    #context.append(('Mark as Unwatched', unwatched ))
 
     #Mark media watched
-    watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(itemData)
-    watched=plugin_url+"watch, " + watchURL + ")"
-    context.append(('Mark as Watched', watched , ))
+    #watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(itemData)
+    #watched="RunScript(plugin.video.plexbmc, watch, " + watchURL + ")"
+    #context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s)' % ( server, ID ) , ))
 
     #Initiate Library refresh
-    libraryRefresh = plugin_url+"update, " + refreshURL.split('?')[0]+getAuthDetails(itemData,prefix="?") + ")"
-    context.append(('Rescan library section', libraryRefresh , ))
+    #libraryRefresh = "RunScript(plugin.video.plexbmc, update, " + refreshURL.split('?')[0]+getAuthDetails(itemData,prefix="?") + ")"
+    #context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % ( server, refreshURL.split('?')[0] ) ))
 
     #Delete media from Library
-    deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
-    removed=plugin_url+"delete, " + deleteURL + ")"
-    context.append(('Delete media', removed , ))
+    #deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
+    #1removed="RunScript(plugin.video.plexbmc, delete, " + deleteURL + ")"
+    #context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % ( server.get_uuid(), ID) ))
 
     #Display plugin setting menu
     #settingDisplay=plugin_url+"setting)"
     #context.append(('PleXBMC settings', settingDisplay , ))
 
     #Reload media section
-    listingRefresh=plugin_url+"refresh)"
-    context.append(('Reload Section', listingRefresh , ))
+    #context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)' ))
 
     #alter audio
-    alterAudioURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
-    alterAudio=plugin_url+"audio, " + alterAudioURL + ")"
-    context.append(('Select Audio', alterAudio , ))
+    #alterAudio="RunScript(plugin.video.plexbmc, audio, %s, %s)" % ( server.get_uuid(), ID)
+    context.append(('Select Audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % ( server.get_uuid(), ID) ))
 
     #alter subs
-    alterSubsURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
-    alterSubs=plugin_url+"subs, " + alterSubsURL + ")"
-    context.append(('Select Subtitle', alterSubs , ))
+    #alterSubsURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
+    #alterSubs="RunScript(plugin.video.plexbmc, subs, " + alterSubsURL + ")"
+    #context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % ( server.get_uuid(), ID) ) ))
 
     printDebug("Using context menus " + str(context))
 
@@ -2543,7 +2541,8 @@ def movieTag(url, server, tree, movie, randomNumber):
 
     #Build any specific context menu entries
     if not settings.skipcontext:
-        context=buildContextMenu(url, extraData)
+        
+        context=buildContextMenu(url, extraData, plex_network.get_server_from_ip(server))
     else:
         context=None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
@@ -4414,16 +4413,16 @@ def alterSubs ( url ):
 
     return True
 
-def alterAudio ( url ):
+def alterAudio ( server_uuid, metadata_id ):
     '''
         Display a list of available audio streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     '''
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
 
-    html=getURL(url)
-    tree=etree.fromstring(html)
-
+    server = plex_network.get_server_from_uuid(server_uuid)
+    tree = server.get_metadata(metadata_id)
+    
     audio_list=[]
     display_list=[]
     for parts in tree.getiterator('Part'):
@@ -4469,12 +4468,9 @@ def alterAudio ( url ):
     if result == -1:
         return False
 
-    authtoken=getAuthTokenFromURL(url)        
-    audio_select_URL="http://%s/library/parts/%s?audioStreamID=%s" % ( getServerFromURL(url), part_id, audio_list[result] ) +getAuthDetails({'token':authtoken})
     printDebug("User has selected stream %s" % audio_list[result])
-    printDebug("Setting via URL: %s" % audio_select_URL )
 
-    outcome=getURL(audio_select_URL, type="PUT")
+    server.set_audio_stream(part_id, audio_list[result])
 
     return True
 
@@ -4598,8 +4594,9 @@ elif sys.argv[1] == "subs":
     
 #Display audio streanm selection screen    
 elif sys.argv[1] == "audio":
-    url=sys.argv[2]
-    alterAudio(url)
+    server_uuid=sys.argv[2]
+    metadata_id=sys.argv[3]
+    alterAudio(server_uuid, metadata_id)
     
 #Allow a mastre server to be selected (for myplex queue)    
 elif sys.argv[1] == "master":

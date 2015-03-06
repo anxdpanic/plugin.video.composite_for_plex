@@ -292,7 +292,10 @@ class PlexMediaServer:
         return
 
     def get_metadata(self, id):
-        return self.talk('/library/metadata/%s' % id)
+        return self.processed_xml('/library/metadata/%s' % id)
+        
+    def set_audio_stream(self, part_id, stream_id):
+        return self.tell("/library/parts/%s?audioStreamID=%s" % (part_id, stream_id) )
         
 class plex_section:
 
