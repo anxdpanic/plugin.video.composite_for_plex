@@ -869,11 +869,12 @@ def buildContextMenu( url, itemData,server=None ):
     #unwatchURL="http://"+server+"/:/unscrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(itemData)
     #unwatched="RunScript(plugin.video.plexbmc, watch, " + unwatchURL + ")"
     #context.append(('Mark as Unwatched', unwatched ))
+    context.append(('Mark as Unwatched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % ( server.get_uuid(), ID, 'unwatch' ) ))
 
     #Mark media watched
     #watchURL="http://"+server+"/:/scrobble?key="+ID+"&identifier=com.plexapp.plugins.library"+getAuthDetails(itemData)
     #watched="RunScript(plugin.video.plexbmc, watch, " + watchURL + ")"
-    #context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s)' % ( server, ID ) , ))
+    context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % ( server.get_uuid(), ID, 'watch' ) ))
 
     #Initiate Library refresh
     #libraryRefresh = "RunScript(plugin.video.plexbmc, update, " + refreshURL.split('?')[0]+getAuthDetails(itemData,prefix="?") + ")"
@@ -889,7 +890,7 @@ def buildContextMenu( url, itemData,server=None ):
     #context.append(('PleXBMC settings', settingDisplay , ))
 
     #Reload media section
-    #context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)' ))
+    context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)' ))
 
     #alter audio
     #alterAudio="RunScript(plugin.video.plexbmc, audio, %s, %s)" % ( server.get_uuid(), ID)
@@ -4234,15 +4235,18 @@ def libraryRefresh( server_uuid , section_id):
     xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",Library Refresh started,100)")
     return
 
-def watched( url ):
+def watched( server_uuid, metadata_id, watched='watch' ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
 
-    if url.find("unscrobble") > 0:
-        printDebug ("Marking as unwatched with: " + url)
-    else:
-        printDebug ("Marking as watched with: " + url)
+    server=plex_network.get_server_from_uuid(server_uuid)
 
-    html=getURL(url)
+    if watched == 'watch':
+        printDebug ("Marking %s as watched" % metadata_id)
+        server.mark_item_watched(metadata_id)
+    else:
+        printDebug ("Marking %s as unwatched" % metadata_id)
+        server.mark_item_unwatched(metadata_id)
+
     xbmc.executebuiltin("Container.Refresh")
 
     return
@@ -4559,8 +4563,10 @@ elif sys.argv[1] == "update":
     
 #Mark an item as watched/unwatched in plex    
 elif sys.argv[1] == "watch":
-    url=sys.argv[2]
-    watched(url)
+    server_uuid=sys.argv[2]
+    metadata_id=sys.argv[3]
+    watch_status=sys.argv[4]
+    watched(server_uuid, metadata_id, watch_status )
     
 #Open the add-on settings page, then refresh plugin
 elif sys.argv[1] == "setting":
