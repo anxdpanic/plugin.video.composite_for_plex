@@ -3299,10 +3299,6 @@ def amberskin():
                 window="Videos"
                 mode=_MODE_PHOTOS
 
-            printDebug("===TOKENS ARE===")
-            printDebug(server.get_token())
-            printDebug("===/TOKENS ===")
-
             if settings.secondary:
                 mode=_MODE_GETCONTENT
             else:
