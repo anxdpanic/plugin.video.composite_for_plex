@@ -21,7 +21,14 @@ class printDebug:
         self.DEBUG_INFO=1
         self.DEBUG_DEBUG=2
         self.DEBUG_DEBUGPLUS=3
+        
+        self.DEBUG_MAP={ self.DEBUG_OFF       : "off",
+                         self.DEBUG_INFO      : "info",
+                         self.DEBUG_DEBUG     : "debug",
+                         self.DEBUG_DEBUGPLUS : "debug+"}
 
+    def get_name(self, level):
+        return self.DEBUG_MAP[level]
         
     def info(self, message):
         return self.__printDebug(message, 1)

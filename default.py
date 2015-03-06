@@ -93,16 +93,6 @@ _SUB_AUDIO_XBMC_CONTROL="0"
 _SUB_AUDIO_PLEX_CONTROL="1"
 _SUB_AUDIO_NEVER_SHOW="2"
 
-DEBUG_OFF=0
-DEBUG_INFO=1
-DEBUG_DEBUG=2
-DEBUG_DEBUGPLUS=3
-
-DEBUG_MAP={ DEBUG_OFF : "off",
-            DEBUG_INFO : "info",
-            DEBUG_DEBUG : "debug",
-            DEBUG_DEBUGPLUS : "debug+"}
-
 settings=addonSettings('plugin.video.plexbmc')
 print settings.__dict__
 
@@ -115,8 +105,8 @@ print "PleXBMC -> Platform: %s" % getPlatform()
 
 wake_servers()
 
-if settings.debug >= DEBUG_INFO:
-    print "PleXBMC -> Setting debug: %s" % DEBUG_MAP[settings.debug]
+if settings.debug >= printDebug.DEBUG_INFO:
+    print "PleXBMC -> Setting debug: %s" % printDebug.get_name(settings.debug)
     print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.fullres_thumbnails
     print "PleXBMC -> Settings streaming: %s" % settings.stream
     print "PleXBMC -> Setting filter menus: %s" % settings.secondary
@@ -145,7 +135,7 @@ g_sessionID=None
         
 
 def getMyplexSections ( ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     
     cache_file = "myplex.sections.cache"
     success, temp_list = CACHE.checkCache(cache_file)
@@ -185,13 +175,13 @@ def getAllSections( server_list = None ):
         @input: None
         @return: None (alters the global value g_sectionList)
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     
     if server_list is None:
         plex_network.discover()
         server_list = plex_network.get_server_list()
     
-    printDebug("Using servers list: " + str(server_list))
+    printDebug.debug("Using servers list: %s" % server_list)
 
     section_list=[]
     
@@ -226,7 +216,7 @@ def getAuthDetails( details, url_format=True, prefix="&" ):
             return {}
 
 def getURL(url, suppress=True, type="GET", popup=0):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     try:
         if url[0:4] == "http":
             serversplit=2
@@ -240,17 +230,15 @@ def getURL(url, suppress=True, type="GET", popup=0):
 
         authHeader=getAuthDetails({'token':_PARAM_TOKEN}, url_format=False)
 
-        printDebug("url = "+url)
-        printDebug("header = "+str(authHeader))
+        printDebug.debug("url = "+url)
+        printDebug.debug("header = "+str(authHeader))
         conn = httplib.HTTPConnection(server, timeout=10)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
         
         if int(data.status) == 200:
             link=data.read()
-            printDebug("====== XML returned =======", level=DEBUG_DEBUGPLUS)
-            printDebug(link, level=DEBUG_DEBUGPLUS)
-            printDebug("====== XML finished ======", level=DEBUG_DEBUGPLUS)
+            printDebug.debugplus("====== XML returned =======\n %s \n ====== XML finished ======" % link)
             try: conn.close()
             except: pass
             return link
@@ -289,9 +277,7 @@ def getURL(url, suppress=True, type="GET", popup=0):
                     
         else:
             link=str(data.read())
-            printDebug("====== XML returned =======", level=DEBUG_DEBUGPLUS)
-            printDebug(link, level=DEBUG_DEBUGPLUS)
-            printDebug("====== XML finished ======", level=DEBUG_DEBUGPLUS)
+            printDebug.debugplus("====== XML returned =======\n %s \n ====== XML finished ======" % link)
             try: conn.close()
             except: pass
             return link
@@ -320,28 +306,28 @@ def getURL(url, suppress=True, type="GET", popup=0):
     return False
 
 def mediaType( partData, server, dvdplayback=False ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     stream=partData['key']
     file=partData['file']
 
     if ( file is None ) or ( settings.stream == "1" ):
-        printDebug( "Selecting stream")
+        printDebug.debug( "Selecting stream")
         return "http://"+server+stream
 
     #First determine what sort of 'file' file is
 
     if file[0:2] == "\\\\":
-        printDebug("Looks like a UNC")
+        printDebug.debug("Looks like a UNC")
         type="UNC"
     elif file[0:1] == "/" or file[0:1] == "\\":
-        printDebug("looks like a unix file")
+        printDebug.debug("looks like a unix file")
         type="nixfile"
     elif file[1:3] == ":\\" or file[1:2] == ":/":
-        printDebug("looks like a windows file")
+        printDebug.debug("looks like a windows file")
         type="winfile"
     else:
-        printDebug("uknown file type")
-        printDebug(str(file))
+        printDebug.debug("unknown file type")
+        printDebug.debug(str(file))
         type="notsure"
 
     # 0 is auto select.  basically check for local file first, then stream if not found
@@ -349,16 +335,16 @@ def mediaType( partData, server, dvdplayback=False ):
         #check if the file can be found locally
         if type == "nixfile" or type == "winfile":
             try:
-                printDebug("Checking for local file")
+                printDebug.debug("Checking for local file")
                 exists = open(file, 'r')
-                printDebug("Local file found, will use this")
+                printDebug.debug("Local file found, will use this")
                 exists.close()
                 return "file:"+file
             except: pass
 
-        printDebug("No local file")
+        printDebug.debug("No local file")
         if dvdplayback:
-            printDebug("Forcing SMB for DVD playback")
+            printDebug.debug("Forcing SMB for DVD playback")
             settings.stream="2"
         else:
             return "http://"+server+stream
@@ -371,7 +357,7 @@ def mediaType( partData, server, dvdplayback=False ):
         else:
             protocol="afp"
 
-        printDebug( "Selecting smb/unc")
+        printDebug.debug( "Selecting smb/unc")
         if type=="UNC":
             filelocation=protocol+":"+file.replace("\\","/")
         else:
@@ -382,11 +368,11 @@ def mediaType( partData, server, dvdplayback=False ):
             if settings.nasoverride:
                 if settings.nasoverrideip:
                     server=settings.nasoverrideip
-                    printDebug("Overriding server with: " + server)
+                    printDebug.debug("Overriding server with: " + server)
 
                 if settings.nasuserid:
                     loginstring="%s:%s@" % (settings.nasuserid, settings.naspass)
-                    printDebug("Adding AFP/SMB login info for user: %s" % settings.nasuserid)
+                    printDebug.debug("Adding AFP/SMB login info for user: %s" % settings.nasuserid)
 
 
             if file.find('Volumes') > 0:
@@ -400,7 +386,7 @@ def mediaType( partData, server, dvdplayback=False ):
 
         if settings.nasoverride and settings.nasroot:
             #Re-root the file path
-            printDebug("Altering path " + filelocation + " so root is: " +  settings.nasroot)
+            printDebug.debug("Altering path " + filelocation + " so root is: " +  settings.nasroot)
             if '/'+settings.nasroot+'/' in filelocation:
                 components = filelocation.split('/')
                 index = components.index(settings.nasroot)
@@ -408,10 +394,10 @@ def mediaType( partData, server, dvdplayback=False ):
                     components.pop(3)
                 filelocation='/'.join(components)
     else:
-        printDebug( "No option detected, streaming is safest to choose" )
+        printDebug.debug( "No option detected, streaming is safest to choose" )
         filelocation="http://"+server+stream
 
-    printDebug("Returning URL: " + filelocation)
+    printDebug.debug("Returning URL: " + filelocation)
     return filelocation
 
 def appendURLArgument(url, arguments):
@@ -430,10 +416,10 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         item_title = details.get('title', 'Unknown')
 
-        printDebug("== ENTER ==", level=DEBUG_DEBUG)
-        printDebug("Adding Dir for [%s]" % item_title)
-        printDebug("Passed details: " + str(details))
-        printDebug("Passed extraData: " + str(extraData))
+        printDebug.debug("== ENTER ==")
+        printDebug.debug("Adding Dir for [%s]" % item_title)
+        printDebug.debug("Passed details: " + str(details))
+        printDebug.debug("Passed extraData: " + str(extraData))
 
         #Remove, as this is never going to evaluate as true
         #if item_title == '':
@@ -463,7 +449,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             for argument, value in extraData.get('parameters').items():
                 u = "%s&%s=%s" % (u, argument, urllib.quote(value))
 
-        printDebug("URL to use for listing: " + u)
+        printDebug.debug("URL to use for listing: " + u)
 
         thumb = str(extraData.get('thumb', ''))
         if thumb.startswith('http'):
@@ -473,7 +459,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         liz=xbmcgui.ListItem(item_title, thumbnailImage=thumbPath)
 
-        printDebug("Setting thumbnail as " + thumbPath)
+        printDebug.debug("Setting thumbnail as " + thumbPath)
 
         #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
@@ -496,7 +482,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 liz.setProperty('ResumeTime', str(extraData.get('resume')))
 
                 if not settings.skipmediaflags:
-                    printDebug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
+                    printDebug.debug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
                     liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
                     liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
                     liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
@@ -536,10 +522,10 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         if fanart != 'None':
             liz.setProperty('fanart_image', appendURLArgument(fanart,nToken))
 
-            printDebug("Setting fan art as " + fanart + " with headers: " + aToken)
+            printDebug.debug("Setting fan art as " + fanart + " with headers: " + aToken)
 
         else:
-            printDebug("Skipping fanart as None found")
+            printDebug.debug("Skipping fanart as None found")
 
         if extraData.get('banner'):
             bannerImg = str(extraData.get('banner', ''))
@@ -549,7 +535,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 bannerPath = bannerImg
 
             liz.setProperty('banner', bannerPath)
-            printDebug("Setting banner as " + bannerPath)
+            printDebug.debug("Setting banner as " + bannerPath)
 
         if extraData.get('season_thumb'):
             seasonImg = str(extraData.get('season_thumb', ''))
@@ -559,29 +545,29 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 seasonPath = seasonImg
 
             liz.setProperty('seasonThumb', seasonPath)
-            printDebug("Setting season Thumb as " + seasonPath)
+            printDebug.debug("Setting season Thumb as " + seasonPath)
 
         if context is not None:
-            printDebug("Building Context Menus")
+            printDebug.debug("Building Context Menus")
 
             if (not folder) and extraData.get('type','video').lower() == "video":
                 #Play Transcoded
                 playTranscode=u+"&transcode=1"
                 plugin_url="XBMC.PlayMedia("+ playTranscode + ")"
                 context.insert(0,('Play Transcoded', plugin_url , ))
-                printDebug("Setting transcode options to [%s]" % plugin_url)
+                printDebug.debug("Setting transcode options to [%s]" % plugin_url)
 
             liz.addContextMenuItems( context, settings.contextReplace )
 
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
 
 def displaySections( filter=None, display_shared=False ):
-        printDebug("== ENTER ==", level=DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
         xbmcplugin.setContent(pluginhandle, 'files')
 
         plex_network.discover()
         server_list=plex_network.get_server_list()
-        printDebug( "Using list of %s servers: %s" % ( len(server_list), server_list))
+        printDebug.debug( "Using list of %s servers: %s" % ( len(server_list), server_list))
         
         for server in server_list:
         
@@ -626,7 +612,7 @@ def displaySections( filter=None, display_shared=False ):
                     if (filter is not None) and (filter != "photos"):
                         continue
                 else:
-                    printDebug("Ignoring section %s of type %s as unable to process" % ( details['title'], section.get_type() ) )
+                    printDebug.debug("Ignoring section %s of type %s as unable to process" % ( details['title'], section.get_type() ) )
                     continue
 
                 if settings.secondary:
@@ -719,7 +705,7 @@ def enforceSkinView(mode):
     @return: view id for skin
     '''
 
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if __settings__.getSetting('skinoverride') == "false":
         return None
@@ -734,33 +720,33 @@ def enforceSkinView(mode):
                  '3' : 'skin.amber' }
     
     if skin_map[skinname] not in current_skin_name:
-        printDebug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
+        printDebug.debug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
         return None
     
     if mode == "movie":
-        printDebug("Looking for movie skin settings")
+        printDebug.debug("Looking for movie skin settings")
         viewname = __settings__.getSetting('mo_view_%s' % skinname)
 
     elif mode == "tv":
-        printDebug("Looking for tv skin settings")
+        printDebug.debug("Looking for tv skin settings")
         viewname = __settings__.getSetting('tv_view_%s' % skinname)
 
     elif mode == "music":
-        printDebug("Looking for music skin settings")
+        printDebug.debug("Looking for music skin settings")
         viewname = __settings__.getSetting('mu_view_%s' % skinname)
 
     elif mode == "episode":
-        printDebug("Looking for music skin settings")
+        printDebug.debug("Looking for music skin settings")
         viewname = __settings__.getSetting('ep_view_%s' % skinname)
 
     elif mode == "season":
-        printDebug("Looking for music skin settings")
+        printDebug.debug("Looking for music skin settings")
         viewname = __settings__.getSetting('se_view_%s' % skinname)
 
     else:
         viewname = "None"
 
-    printDebug("view name is %s" % viewname)
+    printDebug.debug("view name is %s" % viewname)
 
     if viewname == "None":
         return None
@@ -811,7 +797,7 @@ def enforceSkinView(mode):
                "2" : Confluence_views,
                "3" : Amber_views }
 
-    printDebug("Using skin view: %s" % skin_list[skinname][viewname])
+    printDebug.debug("Using skin view: %s" % skin_list[skinname][viewname])
 
     try:
         return skin_list[skinname][viewname]
@@ -820,7 +806,7 @@ def enforceSkinView(mode):
         return None
 
 def Movies( url, tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
     
     xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
@@ -870,12 +856,12 @@ def buildContextMenu( url, itemData, server ):
     context.append(('Select Audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % ( server.get_uuid(), ID) ))
     context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % ( server.get_uuid(), ID) ))
 
-    printDebug.debug("Using context menus " + str(context))
+    printDebug.debug("Using context menus: %s" % context)
 
     return context
 
 def TVShows( url, tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'tvshows')
     xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
@@ -941,7 +927,7 @@ def TVShows( url, tree=None ):
 
         #Create URL based on whether we are going to flatten the season view
         if settings.flatten == "2":
-            printDebug("Flattening all shows")
+            printDebug.debug("Flattening all shows")
             extraData['mode']=_MODE_TVEPISODES
             u='http://%s%s'  % ( server, extraData['key'].replace("children","allLeaves"))
         else:
@@ -963,7 +949,7 @@ def TVShows( url, tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
 
 def TVSeasons( url ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'seasons')
 
     #Get URL, XML and parse
@@ -976,7 +962,7 @@ def TVSeasons( url ):
     if settings.flatten == "1":
         #check for a single season
         if int(tree.get('size',0)) == 1:
-            printDebug("Flattening single season show")
+            printDebug.debug("Flattening single season show")
             willFlatten=True
 
     sectionart=getFanart(tree, server)
@@ -1048,7 +1034,7 @@ def TVSeasons( url ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def TVEpisodes( url, tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'episodes')
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE )  #episode
     xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
@@ -1081,7 +1067,7 @@ def TVEpisodes( url, tree=None ):
 
     for episode in ShowTags:
 
-        printDebug("---New Item---")
+        printDebug.debug("---New Item---")
         tempgenre=[]
         tempcast=[]
         tempdir=[]
@@ -1099,7 +1085,7 @@ def TVEpisodes( url, tree=None ):
             elif child.tag == "Role"  and not settings.skipmetadata:
                 tempcast.append(child.get('tag'))
 
-        printDebug("Media attributes are " + str(mediaarguments))
+        printDebug.debug("Media attributes are " + str(mediaarguments))
 
         #Gather some data
         view_offset=episode.get('viewOffset',0)
@@ -1197,8 +1183,8 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
         Any that are not, are ignored as we do not need to set them
         We also record the media locations for playback decision later on
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    printDebug("Gather media stream info" )
+    printDebug.debug("== ENTER ==")
+    printDebug.debug("Gather media stream info" )
 
     parts=[]
     partsCount=0
@@ -1228,7 +1214,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
             if timings:
                 media_type="picture"
             else:
-                printDebug("No Video data found")
+                printDebug.debug("No Video data found")
                 return {}
 
     media['viewOffset']=timings.get('viewOffset',0)    
@@ -1313,7 +1299,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                 audioCount += 1
                 audioOffset += 1
                 if stream.get('selected') == "1":
-                    printDebug("Found preferred audio id: " + str(stream['id']) )
+                    printDebug.debug("Found preferred audio id: " + str(stream['id']) )
                     audio=stream
                     selectedAudioOffset=audioOffset
             
@@ -1326,7 +1312,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                     subOffset = int(stream.get('index',-1))
                     
                 if stream.get('selected') == "1":
-                    printDebug( "Found preferred subtitles id : " + str(stream['id']))
+                    printDebug.debug( "Found preferred subtitles id : " + str(stream['id']))
                     subCount += 1
                     subtitle=stream
                     if stream.get('key'):
@@ -1335,7 +1321,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                         selectedSubOffset=int( stream.get('index') ) - subOffset
                     
     else:
-            printDebug( "Stream selection is set OFF")
+            printDebug.debug( "Stream selection is set OFF")
 
     streamData={'contents'   : contents ,                #What type of data we are holding
                 'audio'      : audio ,                   #Audio data held in a dict
@@ -1356,8 +1342,8 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
     return streamData
 
 def playPlaylist ( server, data ):    
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    printDebug("Creating new playlist")
+    printDebug.debug("== ENTER ==")
+    printDebug.debug("Creating new playlist")
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
     
@@ -1369,7 +1355,7 @@ def playPlaylist ( server, data ):
     TrackTags=tree.findall('Track')
     for track in TrackTags:
 
-        printDebug("Adding playlist item")
+        printDebug.debug("Adding playlist item")
     
         url, item = trackTag(server, tree, track, listing = False)
         
@@ -1379,13 +1365,13 @@ def playPlaylist ( server, data ):
         playlist.add(url, liz)
     
     index = int(data['extra'].get('index',0)) - 1
-    printDebug("Playlist complete.  Starting playback from track %s [playlist index %s] " % (data['extra'].get('index',0), index ))
+    printDebug.debug("Playlist complete.  Starting playback from track %s [playlist index %s] " % (data['extra'].get('index',0), index ))
     xbmc.Player().playselected( index )   
     
     return
     
 def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if override == 1:
         override = True
@@ -1420,12 +1406,12 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     protocol=url.split(':',1)[0]
 
     if protocol == "file":
-        printDebug( "We are playing a local file")
+        printDebug.debug( "We are playing a local file")
         playurl=url.split(':',1)[1]
     elif protocol == "http":
-        printDebug( "We are playing a stream")
+        printDebug.debug( "We are playing a stream")
         if g_transcode == "true":
-            printDebug( "We will be transcoding the stream")
+            printDebug.debug( "We will be transcoding the stream")
             playurl=transcode(id,url)+getAuthDetails({'token':_PARAM_TOKEN})
 
         else:
@@ -1437,7 +1423,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     duration=int(int(streams['media']['duration'])/1000)
 
     if not resume == 0 and shelf:
-        printDebug("Shelf playback: display resume dialog")
+        printDebug.debug("Shelf playback: display resume dialog")
         displayTime = str(datetime.timedelta(seconds=resume))
         display_list = [ "Resume from " + displayTime , "Start from beginning"]
         resumeScreen = xbmcgui.Dialog()
@@ -1448,7 +1434,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
         if result == 1:
            resume=0
 
-    printDebug("Resume has been set to " + str(resume))
+    printDebug.debug("Resume has been set to " + str(resume))
 
     item = xbmcgui.ListItem(path=playurl)
 
@@ -1491,7 +1477,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     #Set a loop to wait for positive confirmation of playback
     count = 0
     while not xbmc.Player().isPlaying():
-        printDebug( "Not playing yet...sleep for 2")
+        printDebug.debug( "Not playing yet...sleep for 2")
         count = count + 2
         if count >= 20:
             return
@@ -1512,7 +1498,7 @@ def setAudioSubtitles( stream ):
         If we do not have any subs then we switch them off
     '''
 
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     #If we have decided not to collect any sub data then do not set subs
     if stream['contents'] == "type":
@@ -1527,7 +1513,7 @@ def setAudioSubtitles( stream ):
 
     #Set the AUDIO component
     if settings.streamControl == _SUB_AUDIO_PLEX_CONTROL:
-        printDebug("Attempting to set Audio Stream")
+        printDebug.debug("Attempting to set Audio Stream")
 
         audio = stream['audio']
         
@@ -1545,7 +1531,7 @@ def setAudioSubtitles( stream ):
 
     #Set the SUBTITLE component
     if settings.streamControl == _SUB_AUDIO_PLEX_CONTROL:
-        printDebug("Attempting to set preferred subtitle Stream")
+        printDebug.debug("Attempting to set preferred subtitle Stream")
         subtitle=stream['subtitle']
         if subtitle:
             printDebug ("Found preferred subtitle stream" )
@@ -1569,7 +1555,7 @@ def setAudioSubtitles( stream ):
     return False
 
 def selectMedia( data, server ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     #if we have two or more files for the same movie, then present a screen
     result=0
     dvdplayback=False
@@ -1593,21 +1579,21 @@ def selectMedia( data, server ):
                 
             if settings.forcedvd:
                 if '.ifo' in name.lower():
-                    printDebug( "Found IFO DVD file in " + name )
+                    printDebug.debug( "Found IFO DVD file in " + name )
                     name="DVD Image"
                     dvdIndex.append(indexCount)
 
             dialogOptions.append(name)
             indexCount+=1
 
-        printDebug("Create selection dialog box - we have a decision to make!")
+        printDebug.debug("Create selection dialog box - we have a decision to make!")
         startTime = xbmcgui.Dialog()
         result = startTime.select('Select media to play',dialogOptions)
         if result == -1:
             return None
 
         if result in dvdIndex:
-            printDebug( "DVD Media selected")
+            printDebug.debug( "DVD Media selected")
             dvdplayback=True
 
     else:
@@ -1617,7 +1603,7 @@ def selectMedia( data, server ):
 
     newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server,dvdplayback)
 
-    printDebug("We have selected media at " + newurl)
+    printDebug.debug("We have selected media at " + newurl)
     return newurl
 
 def remove_html_tags( data ):
@@ -1625,7 +1611,7 @@ def remove_html_tags( data ):
     return p.sub('', data)
 
 def monitorPlayback( id, server_ip ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if __settings__.getSetting('monitoroff') == "true":
         return
@@ -1648,11 +1634,11 @@ def monitorPlayback( id, server_ip ):
             progress = 0
 
         if currentTime < 30:
-            printDebug("Less that 30 seconds, will not set resume")
+            printDebug.debug("Less that 30 seconds, will not set resume")
 
         #If we are less than 95% completem, store resume time
         elif progress < 95:
-            printDebug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
+            printDebug.debug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
             server.report_playback_progress(id,currentTime*1000)
             complete=0
             playedTime = currentTime
@@ -1660,7 +1646,7 @@ def monitorPlayback( id, server_ip ):
         #Otherwise, mark as watched
         else:
             if complete == 0:
-                printDebug( "Movie marked as watched. Over 95% complete")
+                printDebug.debug( "Movie marked as watched. Over 95% complete")
                 server.mark_item_watched(id)
                 complete=1
                 # playedTime = 0 in order to avoid a bug of tract plex plugin (check on completed tv episode when time==duration)
@@ -1669,26 +1655,26 @@ def monitorPlayback( id, server_ip ):
         xbmc.sleep(5000)
 
     #If we get this far, playback has stopped
-    printDebug("Playback Stopped")
+    printDebug.debug("Playback Stopped")
 
     # The follwing progress:stopped update is necessary only for plugin trakt to 'cancel watching' on trakt.tv server, otherwise it will keep status 'watching' for about 15min
     server.report_playback_progress(id,playedTime*1000, state='stopped')
 
     if g_sessionID is not None:
-        printDebug("Stopping PMS transcode job with session " + g_sessionID)
+        printDebug.debug("Stopping PMS transcode job with session " + g_sessionID)
         server.stop_transcode_session(g_sessionID)
 
     return
 
 def PLAY( url ):
-        printDebug("== ENTER ==", level=DEBUG_DEBUG)
+        printDebug.debug("== ENTER ==")
 
         if url[0:4] == "file":
-            printDebug( "We are playing a local file")
+            printDebug.debug( "We are playing a local file")
             #Split out the path from the URL
             playurl=url.split(':',1)[1]
         elif url[0:4] == "http":
-            printDebug( "We are playing a stream")
+            printDebug.debug( "We are playing a stream")
             if '?' in url:
                 playurl=url+getAuthDetails({'token':_PARAM_TOKEN})
             else:
@@ -1706,7 +1692,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
         @input: url of video, plugin identifier
         @return: nothing. End of Script
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     server=getServerFromURL(vids)
     if "node.plexapp.com" in server:
@@ -1714,7 +1700,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
 
     #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
     if '/services/url/lookup' in vids:
-        printDebug("URL Lookup service")
+        printDebug.debug("URL Lookup service")
         html=getURL(vids, suppress=False)
         if not html:
             return
@@ -1732,7 +1718,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
             tempDict['identifier']=tree.get('identifier','')
             mediaDetails.append(tempDict)
 
-        printDebug( str(mediaDetails) )
+        printDebug.debug( str(mediaDetails) )
 
         #If we have options, create a dialog menu
         result=0
@@ -1751,7 +1737,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
 
     #Check if there is a further level of XML required
     if indirect or '&indirect=1' in vids:
-        printDebug("Indirect link")
+        printDebug.debug("Indirect link")
         html=getURL(vids, suppress=False)
         if not html:
             return
@@ -1765,7 +1751,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
 
     #if we have a plex URL, then this is a transcoding URL
     if 'plex://' in vids:
-        printDebug("found webkit video, pass to transcoder")
+        printDebug.debug("found webkit video, pass to transcoder")
         getTranscodeSettings(True)
         if not (prefix):
             prefix="system"
@@ -1773,21 +1759,21 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
         
         #Workaround for XBMC HLS request limit of 1024 byts
         if len(vids) > 1000:
-            printDebug("XBMC HSL limit detected, will pre-fetch m3u8 playlist")
+            printDebug.debug("XBMC HSL limit detected, will pre-fetch m3u8 playlist")
             
             playlist = getURL(vids)
             
             if not playlist or not "#EXTM3U" in playlist:
             
-                printDebug("Unable to get valid m3u8 playlist from transcoder")
+                printDebug.debug("Unable to get valid m3u8 playlist from transcoder")
                 return
             
             server=getServerFromURL(vids)
             session=playlist.split()[-1]
             vids="http://"+server+"/video/:/transcode/segmented/"+session+"?t=1"
             
-    printDebug("URL to Play: " + vids)
-    printDebug("Prefix is: " + str(prefix))
+    printDebug.debug("URL to Play: " + vids)
+    printDebug.debug("Prefix is: " + str(prefix))
 
     #If this is an Apple movie trailer, add User Agent to allow access
     if 'trailers.apple.com' in vids:
@@ -1797,7 +1783,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     else:
         url=vids
 
-    printDebug("Final URL is : " + url)
+    printDebug.debug("Final URL is : " + url)
 
     item = xbmcgui.ListItem(path=url)
     start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
@@ -1806,14 +1792,14 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
         try:
             pluginTranscodeMonitor(g_sessionID,server)
         except:
-            printDebug("Unable to start transcode monitor")
+            printDebug.debug("Unable to start transcode monitor")
     else:
-        printDebug("Not starting monitor")
+        printDebug.debug("Not starting monitor")
 
     return
 
 def pluginTranscodeMonitor( sessionID, server ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     #Logic may appear backward, but this does allow for a failed start to be detected
     #First while loop waiting for start
@@ -1823,7 +1809,7 @@ def pluginTranscodeMonitor( sessionID, server ):
    
     count=0
     while not xbmc.Player().isPlaying():
-        printDebug( "Not playing yet...sleep for 2")
+        printDebug.debug( "Not playing yet...sleep for 2")
         count = count + 2
         if count >= 40:
             #Waited 20 seconds and still no movie playing - assume it isn't going to..
@@ -1832,19 +1818,19 @@ def pluginTranscodeMonitor( sessionID, server ):
             time.sleep(2)
 
     while xbmc.Player().isPlaying():
-        printDebug("Waiting for playback to finish")
+        printDebug.debug("Waiting for playback to finish")
         time.sleep(4)
 
-    printDebug("Playback Stopped")
-    printDebug("Stopping PMS transcode job with session: " + sessionID)
+    printDebug.debug("Playback Stopped")
+    printDebug.debug("Stopping PMS transcode job with session: " + sessionID)
     media_server=plex_network.get_server_from_ip(server)
     media_server.stop_transcode_session(sessionID)
 
     return
 
 def get_params( paramstring ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    printDebug("Parameter string: " + paramstring)
+    printDebug.debug("== ENTER ==")
+    printDebug.debug("Parameter string: " + paramstring)
     param={}
     if len(paramstring)>=2:
             params=paramstring
@@ -1874,7 +1860,7 @@ def channelSearch (url, prompt):
         and accept the terms.  This URL is then fed back into the correct function for
         onward processing.
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if prompt:
         prompt=urllib.unquote(prompt)
@@ -1886,7 +1872,7 @@ def channelSearch (url, prompt):
     kb.doModal()
     if (kb.isConfirmed()):
         text = kb.getText()
-        printDebug("Search term input: "+ text)
+        printDebug.debug("Search term input: "+ text)
         url=url+'&query='+urllib.quote(text)
         PlexPlugins( url )
     return
@@ -1899,21 +1885,21 @@ def getContent( url ):
         @input: URL of XML page
         @return: nothing, redirects to another function
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     server=getServerFromURL(url)
     lastbit=url.split('/')[-1]
-    printDebug("URL suffix: " + str(lastbit))
+    printDebug.debug("URL suffix: " + str(lastbit))
 
     #Catch search requests, as we need to process input before getting results.
     if lastbit.startswith('search'):
-        printDebug("This is a search URL.  Bringing up keyboard")
+        printDebug.debug("This is a search URL.  Bringing up keyboard")
         kb = xbmc.Keyboard('', 'heading')
         kb.setHeading('Enter search term')
         kb.doModal()
         if (kb.isConfirmed()):
             text = kb.getText()
-            printDebug("Search term input: "+ text)
+            printDebug.debug("Search term input: "+ text)
             url=url+'&query='+urllib.quote(text)
         else:
             return
@@ -1934,24 +1920,24 @@ def getContent( url ):
     view_group=tree.get('viewGroup',None)
 
     if view_group == "movie":
-        printDebug( "This is movie XML, passing to Movies")
+        printDebug.debug( "This is movie XML, passing to Movies")
         Movies(url, tree)
     elif view_group == "show":
-        printDebug( "This is tv show XML")
+        printDebug.debug( "This is tv show XML")
         TVShows(url,tree)
     elif view_group == "episode":
-        printDebug("This is TV episode XML")
+        printDebug.debug("This is TV episode XML")
         TVEpisodes(url,tree)
     elif view_group == 'artist':
-        printDebug( "This is music XML")
+        printDebug.debug( "This is music XML")
         artist(url, tree)
     elif view_group== 'album' or view_group == 'albums':
         albums(url,tree)
     elif view_group == 'track':
-        printDebug("This is track XML")
+        printDebug.debug("This is track XML")
         tracks(url, tree) #sorthing is handled here
     elif view_group =="photo":
-        printDebug("This is a photo XML")
+        printDebug.debug("This is a photo XML")
         photo(url,tree)
     else:
         processDirectory(url,tree)
@@ -1959,8 +1945,8 @@ def getContent( url ):
     return
 
 def processDirectory( url, tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    printDebug("Processing secondary menus")
+    printDebug.debug("== ENTER ==")
+    printDebug.debug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, "")
 
     server = getServerFromURL(url)
@@ -1981,19 +1967,19 @@ def processDirectory( url, tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
 
 def getMasterServer(all=False):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     possibleServers=[]
     current_master=__settings__.getSetting('masterServer')
     plex_network.discover()
     for serverData in plex_network.get_server_list():
-        printDebug( str(serverData) )
+        printDebug.debug( str(serverData) )
         if serverData.get_master() == 1:
             possibleServers.append({'address' : serverData.get_location() ,
                                     'discovery' : serverData.get_discovery(),
                                     'name'      : serverData.get_name(),
                                     'token'     : serverData.get_token() })
-    printDebug( "Possible master servers are " + str(possibleServers) )
+    printDebug.debug( "Possible master servers are " + str(possibleServers) )
 
     if all:
         return possibleServers
@@ -2002,14 +1988,14 @@ def getMasterServer(all=False):
         preferred="local"
         for serverData in possibleServers:
             if serverData['name'] == current_master:
-                printDebug("Returning current master")
+                printDebug.debug("Returning current master")
                 return serverData
             if preferred == "any":
-                printDebug("Returning 'any'")
+                printDebug.debug("Returning 'any'")
                 return serverData
             else:
                 if serverData['discovery'] == preferred:
-                    printDebug("Returning local")
+                    printDebug.debug("Returning local")
                     return serverData
     elif len(possibleServers) == 0:
         return 
@@ -2017,7 +2003,7 @@ def getMasterServer(all=False):
     return possibleServers[0]
 
 def transcode( id, url, identifier=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     server=getServerFromURL(url)
 
@@ -2025,7 +2011,7 @@ def transcode( id, url, identifier=None ):
     if 'plexapp.com' in url:
         server=getMasterServer()
 
-    printDebug("Using preferred transcoding server: " + server)
+    printDebug.debug("Using preferred transcoding server: " + server)
     printDebug ("incoming URL is: %s" % url)
 
     transcode_request="/video/:/transcode/segmented/start.m3u8"
@@ -2055,12 +2041,12 @@ def transcode( id, url, identifier=None ):
     for argument, value in transcode_settings.items():
                 transcode_request="%s&%s=%s" % ( transcode_request, argument, value )
 
-    printDebug("new transcode request is: %s" % transcode_request )
+    printDebug.debug("new transcode request is: %s" % transcode_request )
 
     now=str(int(round(time.time(),0)))
 
     msg = transcode_request+"@"+now
-    printDebug("Message to hash is " + msg)
+    printDebug.debug("Message to hash is " + msg)
 
     #These are the DEV API keys - may need to change them on release
     publicKey="KQMIY6GATPC63AIMC4R2"
@@ -2070,7 +2056,7 @@ def transcode( id, url, identifier=None ):
     import hashlib
     hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
 
-    printDebug("HMAC after hash is " + hash.hexdigest())
+    printDebug.debug("HMAC after hash is " + hash.hexdigest())
 
     #Encode the binary hash in base64 for transmission
     token=base64.b64encode(hash.digest())
@@ -2078,7 +2064,7 @@ def transcode( id, url, identifier=None ):
     #Send as part of URL to avoid the case sensitive header issue.
     fullURL="http://"+server+transcode_request+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)+"&"+capability
 
-    printDebug("Transcoded media location URL " + fullURL)
+    printDebug.debug("Transcoded media location URL " + fullURL)
 
     return fullURL
 
@@ -2088,7 +2074,7 @@ def artist( url, tree=None ):
         @input: url of XML page, or existing tree of XML page
         @return: nothing
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
     xbmcplugin.addSortMethod(pluginhandle, 12 ) #artist title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
@@ -2128,7 +2114,7 @@ def artist( url, tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def albums( url, tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'albums')
     xbmcplugin.addSortMethod(pluginhandle, 24 ) #album title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 12 )  #artist ignore THE
@@ -2174,7 +2160,7 @@ def albums( url, tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def tracks( url,tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
     xbmcplugin.addSortMethod(pluginhandle, 10 ) #title title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 8 ) #duration
@@ -2207,7 +2193,7 @@ def tracks( url,tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def getXML (url, tree=None):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if tree is None:
 
@@ -2235,7 +2221,7 @@ def PlexPlugins(url, tree=None):
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
 
     tree = getXML(url, tree)
@@ -2246,7 +2232,7 @@ def PlexPlugins(url, tree=None):
     server=getServerFromURL(url)
     if (tree.get('identifier') != "com.plexapp.plugins.myplex") and ( "node.plexapp.com" in url ) :
         myplex_url=True
-        printDebug("This is a myplex URL, attempting to locate master server")
+        printDebug.debug("This is a myplex URL, attempting to locate master server")
         server=getMasterServer()['address']
 
     for plugin in tree:
@@ -2319,11 +2305,11 @@ def channelSettings ( url, settingID ):
         @ input: url
         @ return: nothing
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    printDebug("Setting preference for ID: %s" % settingID )
+    printDebug.debug("== ENTER ==")
+    printDebug.debug("Setting preference for ID: %s" % settingID )
 
     if not settingID:
-        printDebug("ID not set")
+        printDebug.debug("ID not set")
         return
 
     tree=getXML(url)
@@ -2335,7 +2321,7 @@ def channelSettings ( url, settingID ):
     for plugin in tree:
 
         if plugin.get('id') == settingID:
-            printDebug("Found correct id entry for: %s" % settingID)
+            printDebug.debug("Found correct id entry for: %s" % settingID)
             id=settingID
 
             label=plugin.get('label',"Enter value").encode('utf-8')
@@ -2343,7 +2329,7 @@ def channelSettings ( url, settingID ):
             value=plugin.get('value').encode('utf-8')
 
             if plugin.get('type') == "text":
-                printDebug("Setting up a text entry screen")
+                printDebug.debug("Setting up a text entry screen")
                 kb = xbmc.Keyboard(value, 'heading')
                 kb.setHeading(label)
 
@@ -2355,23 +2341,23 @@ def channelSettings ( url, settingID ):
                 kb.doModal()
                 if (kb.isConfirmed()):
                     value = kb.getText()
-                    printDebug("Value input: "+ value)
+                    printDebug.debug("Value input: "+ value)
                 else:
-                    printDebug("User cancelled dialog")
+                    printDebug.debug("User cancelled dialog")
                     return False
 
             elif plugin.get('type') == "enum":
-                printDebug("Setting up an enum entry screen")
+                printDebug.debug("Setting up an enum entry screen")
 
                 values=plugin.get('values').split('|')
 
                 settingScreen = xbmcgui.Dialog()
                 value = settingScreen.select(label,values)
                 if value == -1:
-                    printDebug("User cancelled dialog")
+                    printDebug.debug("User cancelled dialog")
                     return False
             else:
-                printDebug('Unknown option type: %s' % plugin.get('id') )
+                printDebug.debug('Unknown option type: %s' % plugin.get('id') )
 
         else:
             value=plugin.get('value')
@@ -2396,7 +2382,7 @@ def processXML( url, tree=None ):
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
     server=getServerFromURL(url)
     tree=getXML(url,tree)
@@ -2442,7 +2428,7 @@ def processXML( url, tree=None ):
 
 def movieTag(url, server, tree, movie, randomNumber):
 
-    printDebug("---New Item---")
+    printDebug.debug("---New Item---")
     tempgenre=[]
     tempcast=[]
     tempdir=[]
@@ -2462,7 +2448,7 @@ def movieTag(url, server, tree, movie, randomNumber):
         elif child.tag == "Role"  and not settings.skipmetadata:
             tempcast.append(child.get('tag'))
 
-    printDebug("Media attributes are " + str(mediaarguments))
+    printDebug.debug("Media attributes are " + str(mediaarguments))
 
     #Gather some data
     view_offset=movie.get('viewOffset',0)
@@ -2533,7 +2519,7 @@ def getMediaData ( tag_dict ):
         @input: dict of <media /> tag attributes
         @output: dict of required values
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     return     {'VideoResolution'    : tag_dict.get('videoResolution','') ,
                 'VideoCodec'         : tag_dict.get('videoCodec','') ,
@@ -2548,7 +2534,7 @@ def getMediaData ( tag_dict ):
                 'xbmc_VideoAspect'   : tag_dict.get('aspectRatio') }
 
 def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
 
     for child in track:
@@ -2556,7 +2542,7 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
             if babies.tag == "Part":
                 partDetails=(dict(babies.items()))
 
-    printDebug( "Part is " + str(partDetails))
+    printDebug.debug( "Part is " + str(partDetails))
 
     details={'TrackNumber' : int(track.get('index',0)) ,
              'title'       : str(track.get('index',0)).zfill(2)+". "+track.get('title','Unknown').encode('utf-8') ,
@@ -2586,7 +2572,7 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
         return ( url, details )
 
 def playlistTag(url, server, tree, track, sectionart="", sectionthumb="", listing=True ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     details={'title'       : track.get('title','Unknown').encode('utf-8') ,
              'duration'    : int(track.get('duration',0))/1000 
@@ -2610,7 +2596,7 @@ def playlistTag(url, server, tree, track, sectionart="", sectionthumb="", listin
         return ( url, details )
 
 def photo( url,tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     server=url.split('/')[2]
 
     xbmcplugin.setContent(pluginhandle, 'photo')
@@ -2657,7 +2643,7 @@ def photo( url,tree=None ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def music( url, tree=None ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
 
     server=getServerFromURL(url)
@@ -2690,7 +2676,7 @@ def music( url, tree=None ):
         u=getLinkURL(url, grapes, server)
 
         if grapes.tag == "Track":
-            printDebug("Track Tag")
+            printDebug.debug("Track Tag")
             xbmcplugin.setContent(pluginhandle, 'songs')
 
             details['title']=grapes.get('track',grapes.get('title','Unknown')).encode('utf-8')
@@ -2702,12 +2688,12 @@ def music( url, tree=None ):
         else:
 
             if grapes.tag == "Artist":
-                printDebug("Artist Tag")
+                printDebug.debug("Artist Tag")
                 xbmcplugin.setContent(pluginhandle, 'artists')
                 details['title']=grapes.get('artist','Unknown').encode('utf-8')
 
             elif grapes.tag == "Album":
-                printDebug("Album Tag")
+                printDebug.debug("Album Tag")
                 xbmcplugin.setContent(pluginhandle, 'albums')
                 details['title']=grapes.get('album','Unknown').encode('utf-8')
 
@@ -2715,7 +2701,7 @@ def music( url, tree=None ):
                 details['title']=grapes.get('genre','Unknown').encode('utf-8')
 
             else:
-                printDebug("Generic Tag: " + grapes.tag)
+                printDebug.debug("Generic Tag: " + grapes.tag)
                 details['title']=grapes.get('title','Unknown').encode('utf-8')
 
             extraData['mode']=_MODE_MUSIC
@@ -2827,31 +2813,31 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         @ input: url, XML data and PM server address
         @ return: Usable http URL
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     if not season_shelf:
         path = pathData.get('key', '')
     else:
         path = pathData.get('parentKey', '') + "/children"
         
-    printDebug("Path is " + path, level=DEBUG_DEBUG)
+    printDebug.debug("Path is " + path)
 
     if path == '':
-        printDebug("Empty Path")
+        printDebug.debug("Empty Path")
         return
 
     #If key starts with http, then return it
     if path.startswith('http'):
-        printDebug("Detected http link", level=DEBUG_DEBUG)
+        printDebug.debug("Detected http link")
         return path
 
     #If key starts with a / then prefix with server address
     elif path.startswith('/'):
-        printDebug("Detected base path link", level=DEBUG_DEBUG)
+        printDebug.debug("Detected base path link")
         return 'http://%s%s' % (server, path)
 
     #If key starts with plex:// then it requires transcoding
     elif path.startswith("plex:") :
-        printDebug("Detected plex link", level=DEBUG_DEBUG)
+        printDebug.debug("Detected plex link")
         components = path.split('&')
         for i in components:
             if 'prefix=' in i:
@@ -2864,18 +2850,18 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         return 'plex://'+server+'/'+'/'.join(path.split('/')[3:])
         
     elif path.startswith("rtmp"):
-        printDebug("Detected RTMP link", level=DEBUG_DEBUG)
+        printDebug.debug("Detected RTMP link")
         return path
 
     #Any thing else is assumed to be a relative path and is built on existing url
     else:
-        printDebug("Detected relative link", level=DEBUG_DEBUG)
+        printDebug.debug("Detected relative link")
         return "%s/%s" % (url, path)
 
     return url
 
 def plexOnline( url ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
 
     server=getServerFromURL(url)
@@ -2909,7 +2895,7 @@ def plexOnline( url ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def install( url, name ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     tree=getXML(url)
     if tree is None:
         return
@@ -2921,16 +2907,16 @@ def install( url, name ):
 
         #If we find an install option, switch to a yes/no dialog box
         if operations[i].lower() == "install":
-            printDebug("Not installed.  Print dialog")
+            printDebug.debug("Not installed.  Print dialog")
             ret = xbmcgui.Dialog().yesno("Plex Online","About to install " + name)
 
             if ret:
-                printDebug("Installing....")
+                printDebug.debug("Installing....")
                 installed = getURL(url+"/install")
                 tree = etree.fromstring(installed)
 
                 msg=tree.get('message','(blank)')
-                printDebug(msg)
+                printDebug.debug(msg)
                 xbmcgui.Dialog().ok("Plex Online",msg)
             return
 
@@ -2940,17 +2926,17 @@ def install( url, name ):
     ret = xbmcgui.Dialog().select("This plugin is already installed..",operations.values())
 
     if ret == -1:
-        printDebug("No option selected, cancelling")
+        printDebug.debug("No option selected, cancelling")
         return
 
-    printDebug("Option " + str(ret) + " selected.  Operation is " + operations[ret])
+    printDebug.debug("Option " + str(ret) + " selected.  Operation is " + operations[ret])
     u=url+"/"+operations[ret].lower()
 
     action = getURL(u)
     tree = etree.fromstring(action)
 
     msg=tree.get('message')
-    printDebug(msg)
+    printDebug.debug(msg)
     xbmcgui.Dialog().ok("Plex Online",msg)
     xbmc.executebuiltin("Container.Refresh")
 
@@ -2958,7 +2944,7 @@ def install( url, name ):
     return
 
 def channelView( url ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     tree=getXML(url)
     if tree is None:
         return
@@ -3002,7 +2988,7 @@ def photoTranscode( server, url, width=1280, height=720 ):
 
 def skin( server_list=None, type=None ):
     #Gather some data and set the window properties
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     #Get the global host variable set in settings
     WINDOW = xbmcgui.Window( 10000 )
 
@@ -3088,8 +3074,8 @@ def skin( server_list=None, type=None ):
         elif section['type'] == "movie":
             WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=http://%s%s%s&mode=%s%s,return)" % (window, section['address'], section['path'], "/search?type=1", mode, aToken) )
         
-        printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + section['title'] + "]")
-        printDebug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
+        printDebug.debug("Building window properties index [" + str(sectionCount) + "] which is [" + section['title'] + "]")
+        printDebug.debug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
         sectionCount += 1
 
    
@@ -3165,7 +3151,7 @@ def skin( server_list=None, type=None ):
 
     #Clear out old data
     try:
-        printDebug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
+        printDebug.debug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
 
         for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
             WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
@@ -3191,8 +3177,8 @@ def skin( server_list=None, type=None ):
     except:
         pass
 
-    printDebug("Total number of skin sections is [" + str(sectionCount) + "]")
-    printDebug("Total number of servers is ["+str(numOfServers)+"]")
+    printDebug.debug("Total number of skin sections is [" + str(sectionCount) + "]")
+    printDebug.debug("Total number of servers is ["+str(numOfServers)+"]")
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
     if __settings__.getSetting('myplex_user') != '':
@@ -3205,7 +3191,7 @@ def skin( server_list=None, type=None ):
 
 def amberskin():
     #Gather some data and set the window properties
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     #Get the global host variable set in settings
     WINDOW = xbmcgui.Window( 10000 )
 
@@ -3217,7 +3203,7 @@ def amberskin():
 
     plex_network.discover()
     server_list=plex_network.get_server_list()
-    printDebug("Using list of " + str(len(server_list)) + " servers: " + str(server_list))
+    printDebug.debug("Using list of " + str(len(server_list)) + " servers: " + str(server_list))
 
     for server in server_list:
     
@@ -3225,9 +3211,9 @@ def amberskin():
     
         for section in server.get_sections():
 
-            printDebug("=Enter amberskin section=")
-            printDebug(str(section.__dict__))
-            printDebug("=/section=")
+            printDebug.debug("=Enter amberskin section=")
+            printDebug.debug(str(section.__dict__))
+            printDebug.debug("=/section=")
 
             extraData = {'fanart_image': server.get_fanart(section), 
                          'thumb': g_thumb}
@@ -3303,8 +3289,8 @@ def amberskin():
             elif section.is_movie():
                 WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=1", mode) )
 
-            printDebug("Building window properties index [" + str(sectionCount) + "] which is [" + section.get_title() + "]")
-            printDebug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return)" % ( window, server.get_url_location(), path, mode))
+            printDebug.debug("Building window properties index [" + str(sectionCount) + "] which is [" + section.get_title() + "]")
+            printDebug.debug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return)" % ( window, server.get_url_location(), path, mode))
             sectionCount += 1
 
 
@@ -3359,7 +3345,7 @@ def amberskin():
 
     for server in server_list:
 
-        printDebug(server.get_details())
+        printDebug.debug(server.get_details())
     
         if server.is_secondary():
             continue
@@ -3382,7 +3368,7 @@ def amberskin():
 
     #Clear out old data
     try:
-        printDebug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
+        printDebug.debug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
 
         for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
             WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
@@ -3408,8 +3394,8 @@ def amberskin():
     except:
         pass
 
-    printDebug("Total number of skin sections is [" + str(sectionCount) + "]")
-    printDebug("Total number of servers is ["+str(numOfServers)+"]")
+    printDebug.debug("Total number of skin sections is [" + str(sectionCount) + "]")
+    printDebug.debug("Total number of servers is ["+str(numOfServers)+"]")
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
 
@@ -3419,7 +3405,7 @@ def amberskin():
 
         #Now let's populate queue shelf items since we have MyPlex login
         if __settings__.getSetting('homeshelf') != '3':
-            printDebug("== ENTER ==", level=DEBUG_DEBUG)
+            printDebug.debug("== ENTER ==")
             try:
                 aToken = plex_network.myplex_token['X-Plex-Token']
             except: aToken=''
@@ -3429,7 +3415,7 @@ def amberskin():
             queue_count = 1
 
             for media in root:
-                printDebug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
+                printDebug.debug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
                 m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s&t=%s" % (getLinkURL('http://'+server_address, media, server_address), 18, 1, aToken)
                 m_thumb = getShelfThumb(media, server_address, seasonThumb=0)+aToken
 
@@ -3446,9 +3432,9 @@ def amberskin():
 
                 queue_count += 1
 
-                printDebug("Building Queue item: %s" % media.get('title', 'Unknown').encode('UTF-8'))
-                printDebug("Building Queue item url: %s" % m_url)
-                printDebug("Building Queue item thumb: %s" % m_thumb)
+                printDebug.debug("Building Queue item: %s" % media.get('title', 'Unknown').encode('UTF-8'))
+                printDebug.debug("Building Queue item url: %s" % m_url)
+                printDebug.debug("Building Queue item thumb: %s" % m_thumb)
 
             clearQueueShelf(queue_count)
 
@@ -3465,10 +3451,10 @@ def return_server_url(server, path, arguments):
     
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if __settings__.getSetting('homeshelf') == '3' or ((__settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false")):
-        printDebug("Disabling all shelf items")
+        printDebug.debug("Disabling all shelf items")
         clearShelf()
         clearOnDeckShelf()
         return
@@ -3547,7 +3533,7 @@ def fullShelf(server_list={}):
                 continue
 
             title_name=media.get('title','Unknown').encode('UTF-8')
-            printDebug("Found a recent movie entry: [%s]" % title_name)
+            printDebug.debug("Found a recent movie entry: [%s]" % title_name)
 
             if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
 
@@ -3592,7 +3578,7 @@ def fullShelf(server_list={}):
         elif media.get('type',None) == "season":
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            printDebug("Found a recent season entry [%s]" % title_name)
+            printDebug.debug("Found a recent season entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
@@ -3620,7 +3606,7 @@ def fullShelf(server_list={}):
             title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_TRACKS)
             title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
-            printDebug("Found a recent album entry: [%s]", title_name)
+            printDebug.debug("Found a recent album entry: [%s]" % title_name)
             
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % recentMusicCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % recentMusicCount, media.get('title','Unknown').encode('UTF-8'))
@@ -3636,7 +3622,7 @@ def fullShelf(server_list={}):
             title_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return" % ( source_server.get_url_location(), "/recentlyAdded", _MODE_PHOTOS)
             title_thumb = getShelfThumb(media, source_server, seasonThumb=0)
 
-            printDebug("Found a recent photo entry: [%s]" % title_name)
+            printDebug.debug("Found a recent photo entry: [%s]" % title_name)
 
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Path" % recentPhotoCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Title" % recentPhotoCount, title_name)
@@ -3647,7 +3633,7 @@ def fullShelf(server_list={}):
         elif media.get('type',None) == "episode":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
-            printDebug("Found an Recent episode entry [%s]" % title_name)
+            printDebug.debug("Found an Recent episode entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
@@ -3667,7 +3653,7 @@ def fullShelf(server_list={}):
 
             recentSeasonCount += 1
 
-        printDebug(" Building Recent window title: %s\n    Building Recent window url: %s\n    Building Recent window thumb: %s" % (title_name, title_url, title_thumb), level=DEBUG_DEBUG)
+        printDebug.debug(" Building Recent window title: %s\n    Building Recent window url: %s\n    Building Recent window thumb: %s" % (title_name, title_url, title_thumb))
         
     clearShelf(recentMovieCount, recentSeasonCount, recentMusicCount, recentPhotoCount)
 
@@ -3677,7 +3663,7 @@ def fullShelf(server_list={}):
         if media.get('type',None) == "movie":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
-            printDebug("Found a OnDeck movie entry: [%s]" % title_name)
+            printDebug.debug("Found a OnDeck movie entry: [%s]" % title_name)
 
             if __settings__.getSetting('movieShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.OnDeckMovie.1.Path" )
@@ -3710,7 +3696,7 @@ def fullShelf(server_list={}):
         elif media.get('type',None) == "season":
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            printDebug("Found a OnDeck season entry [%s]" % title_name)
+            printDebug.debug("Found a OnDeck season entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
@@ -3730,7 +3716,7 @@ def fullShelf(server_list={}):
         elif media.get('type',None) == "episode":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
-            printDebug("Found an onDeck episode entry [%s]" % title_name)
+            printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
@@ -3750,7 +3736,7 @@ def fullShelf(server_list={}):
 
             ondeckSeasonCount += 1
 
-        printDebug(" Building onDeck window title: %s\n    Building onDeck window url: %s\n    Building onDeck window thumb: %s" % (title_name, title_url, title_thumb), level=DEBUG_DEBUG)
+        printDebug.debug(" Building onDeck window title: %s\n    Building onDeck window url: %s\n    Building onDeck window thumb: %s" % (title_name, title_url, title_thumb))
 
     clearOnDeckShelf(ondeckMovieCount, ondeckSeasonCount)
 
@@ -3758,7 +3744,7 @@ def fullShelf(server_list={}):
         shelfChannel(server_list)
 
     else:
-        printDebug("Disabling channel shelf items")
+        printDebug.debug("Disabling channel shelf items")
         clearChannelShelf()
 
 def displayContent( acceptable_level, content_level ):
@@ -3819,7 +3805,7 @@ def displayContent( acceptable_level, content_level ):
                   'A' : 2 }       # CAN - Adults
 
     if content_level is None or content_level == "None":
-        printDebug("Setting [None] rating as %s" % ( __settings__.getSetting('contentNone') , ))
+        printDebug.debug("Setting [None] rating as %s" % ( __settings__.getSetting('contentNone') , ))
         if content_map[__settings__.getSetting('contentNone')] <= content_map[acceptable_level]:
             printDebug ("OK to display")
             return True
@@ -3836,11 +3822,11 @@ def displayContent( acceptable_level, content_level ):
 
 def shelf( server_list=None ):
     #Gather some data and set the window properties
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if (__settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and\
                     __settings__.getSetting('musicShelf') == "false") or __settings__.getSetting('homeshelf') == '3':
-        printDebug("Disabling all shelf items")
+        printDebug.debug("Disabling all shelf items")
         clearShelf()
         return
 
@@ -3909,7 +3895,7 @@ def shelf( server_list=None ):
 
             title_name=media.get('title','Unknown').encode('UTF-8')
 
-            printDebug("Found a recent movie entry: [%s]" % title_name )
+            printDebug.debug("Found a recent movie entry: [%s]" % title_name )
 
             if __settings__.getSetting('movieShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
@@ -3919,7 +3905,7 @@ def shelf( server_list=None ):
                 continue
 
             if media.get('librarySectionID') == library_filter:
-                printDebug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
+                printDebug.debug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue
 
             title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
@@ -3933,7 +3919,7 @@ def shelf( server_list=None ):
 
         elif media.get('type',None) == "season":
 
-            printDebug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
+            printDebug.debug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
@@ -3956,7 +3942,7 @@ def shelf( server_list=None ):
                 WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
                 continue
             
-            printDebug("Found a recent album entry")
+            printDebug.debug("Found a recent album entry")
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_TRACKS, aToken)
@@ -3971,7 +3957,7 @@ def shelf( server_list=None ):
         elif media.get('type',None) == "episode":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
-            printDebug("Found an onDeck episode entry [%s]" % title_name)
+            printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
@@ -3987,14 +3973,14 @@ def shelf( server_list=None ):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb+qToken)
             seasonCount += 1
 
-        printDebug(" Building Recent window title: %s\n        Building Recent window url: %s\n        Building Recent window thumb: %s" % (title_name, title_url, title_thumb), level=DEBUG_DEBUG)
+        printDebug.debug(" Building Recent window title: %s\n        Building Recent window url: %s\n        Building Recent window thumb: %s" % (title_name, title_url, title_thumb))
      
     clearShelf( movieCount, seasonCount, musicCount)
 
 def clearShelf (movieCount=0, seasonCount=0, musicCount=0, photoCount=0):
     #Clear out old data
     WINDOW = xbmcgui.Window( 10000 )
-    printDebug("Clearing unused properties")
+    printDebug.debug("Clearing unused properties")
 
     try:
         for i in range(movieCount, 50+1):
@@ -4005,7 +3991,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0, photoCount=0):
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Duration"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Thumb"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.uuid"  % ( i ) )
-        printDebug("Done clearing movies")
+        printDebug.debug("Done clearing movies")
     except: pass
 
     try:
@@ -4016,7 +4002,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0, photoCount=0):
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.ShowTitle"      % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Thumb"          % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.uuid"  % ( i ) )
-        printDebug("Done clearing tv")
+        printDebug.debug("Done clearing tv")
     except: pass
 
     try:
@@ -4025,7 +4011,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0, photoCount=0):
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Artist" % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Thumb"  % ( i ) )
-        printDebug("Done clearing music")
+        printDebug.debug("Done clearing music")
     except: pass
 
     try:
@@ -4033,7 +4019,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0, photoCount=0):
             WINDOW.clearProperty("Plexbmc.LatestPhoto.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestPhoto.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestPhoto.%s.Thumb"  % ( i ) )
-        printDebug("Done clearing photos")
+        printDebug.debug("Done clearing photos")
     except: pass
 
     return
@@ -4041,7 +4027,7 @@ def clearShelf (movieCount=0, seasonCount=0, musicCount=0, photoCount=0):
 def clearOnDeckShelf (movieCount=0, seasonCount=0):
     #Clear out old data
     WINDOW = xbmcgui.Window( 10000 )
-    printDebug("Clearing unused On Deck properties")
+    printDebug.debug("Clearing unused On Deck properties")
 
     try:
         for i in range(movieCount, 60+1):
@@ -4052,7 +4038,7 @@ def clearOnDeckShelf (movieCount=0, seasonCount=0):
             WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Duration"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.Year"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.OnDeckMovie.%s.uuid"  % ( i ) )
-        printDebug("Done clearing On Deck movies")
+        printDebug.debug("Done clearing On Deck movies")
     except: pass
 
     try:
@@ -4063,7 +4049,7 @@ def clearOnDeckShelf (movieCount=0, seasonCount=0):
             WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle"      % ( i ) )
             WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.Thumb"          % ( i ) )
             WINDOW.clearProperty("Plexbmc.OnDeckEpisode.%s.uuid"  % ( i ) )
-        printDebug("Done clearing On Deck tv")
+        printDebug.debug("Done clearing On Deck tv")
     except: pass
 
 
@@ -4071,10 +4057,10 @@ def clearOnDeckShelf (movieCount=0, seasonCount=0):
 
 def shelfChannel(server_list = None):
     #Gather some data and set the window properties
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     
     if __settings__.getSetting('channelShelf') == "false" or __settings__.getSetting('homeshelf') == '3':
-        printDebug("Disabling channel shelf")
+        printDebug.debug("Disabling channel shelf")
         clearChannelShelf()
         return
         
@@ -4114,7 +4100,7 @@ def shelfChannel(server_list = None):
         #For each of the servers we have identified
         for media in tree:
 
-            printDebug("Found a recent channel entry")
+            printDebug.debug("Found a recent channel entry")
             suffix=media.get('key').split('/')[1]
 
             if suffix == "photos":
@@ -4148,7 +4134,7 @@ def shelfChannel(server_list = None):
 
             channelCount += 1
 
-            printDebug("Building Recent window title: %s\n      Building Recent window url: %s\n      Building Recent window thumb: %s" % (media.get('title', 'Unknown'),c_url,c_thumb), level=DEBUG_DEBUG)
+            printDebug.debug("Building Recent window title: %s\n      Building Recent window url: %s\n      Building Recent window thumb: %s" % (media.get('title', 'Unknown'),c_url,c_thumb))
 
     clearChannelShelf(channelCount)        
     return
@@ -4162,7 +4148,7 @@ def clearChannelShelf (channelCount=0):
             WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Thumb"  % ( i ) )
-        printDebug("Done clearing channels")
+        printDebug.debug("Done clearing channels")
     except: pass
 
     return
@@ -4176,13 +4162,13 @@ def clearQueueShelf (queueCount=0):
             WINDOW.clearProperty("Plexbmc.Queue.%s.Path"   % ( i ) )
             WINDOW.clearProperty("Plexbmc.Queue.%s.Title"  % ( i ) )
             WINDOW.clearProperty("Plexbmc.Queue.%s.Thumb"  % ( i ) )
-        printDebug("Done clearing Queue shelf")
+        printDebug.debug("Done clearing Queue shelf")
     except: pass
 
     return
 
 def myPlexQueue():
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     if __settings__.getSetting('myplex_user') == '':
         xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")
@@ -4195,7 +4181,7 @@ def myPlexQueue():
     return
 
 def libraryRefresh( server_uuid , section_id):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     
     server=plex_network.get_server_from_uuid(server_uuid)
     server.refresh_section(section_id)
@@ -4205,7 +4191,7 @@ def libraryRefresh( server_uuid , section_id):
     return
 
 def watched( server_uuid, metadata_id, watched='watch' ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     server=plex_network.get_server_from_uuid(server_uuid)
 
@@ -4221,9 +4207,9 @@ def watched( server_uuid, metadata_id, watched='watch' ):
     return
 
 def displayServers( url ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     type=url.split('/')[2]
-    printDebug("Displaying entries for " + type)
+    printDebug.debug("Displaying entries for " + type)
     plex_network.discover()
     Servers = plex_network.get_server_list()
     Servers_list=len(Servers)
@@ -4274,26 +4260,26 @@ def displayServers( url ):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
 
 def getTranscodeSettings( override=False ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     global g_transcode
     g_transcode = __settings__.getSetting('transcode')
 
     if override is True:
-            printDebug( "Transcode override.  Will play media with addon transcoding settings")
+            printDebug.debug( "Transcode override.  Will play media with addon transcoding settings")
             g_transcode="true"
 
     if g_transcode == "true":
         #If transcode is set, ignore the stream setting for file and smb:
         settings.stream = "1"
-        printDebug( "We are set to Transcode, overriding stream selection")
+        printDebug.debug( "We are set to Transcode, overriding stream selection")
         global g_transcodefmt
         g_transcodefmt="m3u8"
 
         global g_quality
         g_quality = str(int(__settings__.getSetting('quality'))+3)
-        printDebug( "Transcode format is " + g_transcodefmt)
-        printDebug( "Transcode quality is " + g_quality)
+        printDebug.debug( "Transcode format is " + g_transcodefmt)
+        printDebug.debug( "Transcode quality is " + g_quality)
 
         baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};"
 
@@ -4307,20 +4293,20 @@ def getTranscodeSettings( override=False ):
 
         global capability
         capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+"audioDecoders="+audio)
-        printDebug("Plex Client Capability = " + capability)
+        printDebug.debug("Plex Client Capability = " + capability)
 
         import uuid
         global g_sessionID
         g_sessionID=str(uuid.uuid4())
 
 def deleteMedia( server_uuid, metadata_id ):
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
     printDebug ("Deleting media at: " + url)
 
     return_value = xbmcgui.Dialog().yesno("Confirm file delete?","Delete this item? This action will delete media and associated data files.")
 
     if return_value:
-        printDebug("Deleting....")
+        printDebug.debug("Deleting....")
         server=plex_network.get_server_from_uuid(server_uuid)
         server.delete_metadata(metadata_id)
         xbmc.executebuiltin("Container.Refresh")
@@ -4338,7 +4324,7 @@ def alterSubs ( server_uuid, metadata_id ):
         Display a list of available Subtitle streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     server = plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
@@ -4356,10 +4342,10 @@ def alterSubs ( server_uuid, metadata_id ):
 
                 stream_id=streams.get('id')
                 lang=streams.get('languageCode',"Unknown").encode('utf-8')
-                printDebug("Detected Subtitle stream [%s] [%s]" % ( stream_id, lang ) )
+                printDebug.debug("Detected Subtitle stream [%s] [%s]" % ( stream_id, lang ) )
 
                 if streams.get('format',streams.get('codec')) == "idx":
-                    printDebug("Stream: %s - Ignoring idx file for now" % stream_id)
+                    printDebug.debug("Stream: %s - Ignoring idx file for now" % stream_id)
                     continue
                 else:
                     sub_list.append(stream_id)
@@ -4381,7 +4367,7 @@ def alterSubs ( server_uuid, metadata_id ):
     if result == -1:
         return False
 
-    printDebug("User has selected stream %s" % sub_list[result])
+    printDebug.debug("User has selected stream %s" % sub_list[result])
     server.set_subtitle_stream(part_id,  sub_list[result])
 
     return True
@@ -4391,7 +4377,7 @@ def alterAudio ( server_uuid, metadata_id ):
         Display a list of available audio streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     '''
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     server = plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
@@ -4410,7 +4396,7 @@ def alterAudio ( server_uuid, metadata_id ):
                 audio_list.append(stream_id)
                 lang=streams.get('languageCode', "Unknown")
 
-                printDebug("Detected Audio stream [%s] [%s] " % ( stream_id, lang))
+                printDebug.debug("Detected Audio stream [%s] [%s] " % ( stream_id, lang))
 
                 if streams.get('channels','Unknown') == '6':
                     channels="5.1"
@@ -4441,7 +4427,7 @@ def alterAudio ( server_uuid, metadata_id ):
     if result == -1:
         return False
 
-    printDebug("User has selected stream %s" % audio_list[result])
+    printDebug.debug("User has selected stream %s" % audio_list[result])
 
     server.set_audio_stream(part_id, audio_list[result])
 
@@ -4459,10 +4445,10 @@ def setWindowHeading(tree) :
         WINDOW.clearProperty("heading2")
 
 def setMasterServer () :
-    printDebug("== ENTER ==", level=DEBUG_DEBUG)
+    printDebug.debug("== ENTER ==")
 
     servers=getMasterServer(True)
-    printDebug(str(servers))
+    printDebug.debug(str(servers))
     
     current_master=__settings__.getSetting('masterServer')
     
@@ -4478,12 +4464,12 @@ def setMasterServer () :
     if result == -1:
         return False
 
-    printDebug("Setting master server to: %s" % (servers[result]['name'],))
+    printDebug.debug("Setting master server to: %s" % (servers[result]['name'],))
     __settings__.setSetting('masterServer',servers[result]['name'])
     return
   
 ##So this is where we really start the plugin.
-printDebug( "PleXBMC -> Script argument is " + str(sys.argv))
+printDebug.debug( "PleXBMC -> Script argument is " + str(sys.argv))
 
 try:
     params=get_params(sys.argv[2])
@@ -4543,7 +4529,7 @@ elif sys.argv[1] == "setting":
     __settings__.openSettings()
     WINDOW = xbmcgui.getCurrentWindowId()
     if WINDOW == 10000:
-        printDebug("Currently in home - refreshing to allow new settings to be taken")
+        printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
               
 #nt currently used              
