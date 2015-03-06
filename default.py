@@ -883,7 +883,7 @@ def buildContextMenu( url, itemData,server=None ):
     #Delete media from Library
     #deleteURL="http://"+server+"/library/metadata/"+ID+getAuthDetails(itemData,prefix="?")
     #1removed="RunScript(plugin.video.plexbmc, delete, " + deleteURL + ")"
-    #context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % ( server.get_uuid(), ID) ))
+    context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % ( server.get_uuid(), ID) ))
 
     #Display plugin setting menu
     #settingDisplay=plugin_url+"setting)"
@@ -4344,15 +4344,16 @@ def getTranscodeSettings( override=False ):
         global g_sessionID
         g_sessionID=str(uuid.uuid4())
 
-def deleteMedia( url ):
+def deleteMedia( server_uuid, metadata_id ):
     printDebug("== ENTER ==", level=DEBUG_DEBUG)
-    printDebug ("deleteing media at: " + url)
+    printDebug ("Deleting media at: " + url)
 
     return_value = xbmcgui.Dialog().yesno("Confirm file delete?","Delete this item? This action will delete media and associated data files.")
 
     if return_value:
         printDebug("Deleting....")
-        installed = getURL(url,type="DELETE")
+        server=plex_network.get_server_from_uuid(server_uuid)
+        server.delete_metadata(metadata_id)
         xbmc.executebuiltin("Container.Refresh")
 
     return True
@@ -4586,8 +4587,9 @@ elif sys.argv[1] == "refreshplexbmc":
 
 #delete media from PMS    
 elif sys.argv[1] == "delete":
-    url=sys.argv[2]
-    deleteMedia(url)
+    server_uuid=sys.argv[2]
+    metadata_id=sys.argv[3]
+    deleteMedia(server_uuid, metadata_id)
 
 #Refresh the current XBMC listing    
 elif sys.argv[1] == "refresh":

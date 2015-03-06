@@ -132,6 +132,8 @@ class PlexMediaServer:
                     response = requests.get("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3)
                 elif type == 'put':
                     response = requests.put("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3)                
+                elif type == 'delete':
+                    response = requests.delete("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3)                
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
                 printDebug("Server: %s is offline or uncontactable. error: %s" % (self.address[0], e))
@@ -298,6 +300,9 @@ class PlexMediaServer:
         
     def set_subtitle_stream(self, part_id, stream_id):
         return self.tell("/library/parts/%s?subtitleStreamID=%s" % (part_id, stream_id) )
+
+    def delete_metadata(self, id):
+        return self.talk('/library/metadata/%s' % id, type='delete')
         
 class plex_section:
 
