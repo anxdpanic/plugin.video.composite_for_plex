@@ -863,30 +863,14 @@ def buildContextMenu( url, itemData, server ):
 
     #Mark media unwatched
     context.append(('Mark as Unwatched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % ( server.get_uuid(), ID, 'unwatch' ) ))
-
-    #Mark media watched
     context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % ( server.get_uuid(), ID, 'watch' ) ))
-
-    #Initiate Library refresh
     context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % ( server.get_uuid(), section ) ))
-
-    #Delete media from Library
     context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % ( server.get_uuid(), ID) ))
-
-    #Display plugin setting menu
-    #settingDisplay=plugin_url+"setting)"
-    #context.append(('PleXBMC settings', settingDisplay , ))
-
-    #Reload media section
     context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)' ))
-
-    #alter audio
     context.append(('Select Audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % ( server.get_uuid(), ID) ))
-
-    #alter subs
     context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % ( server.get_uuid(), ID) ))
 
-    printDebug("Using context menus " + str(context))
+    printDebug.debug("Using context menus " + str(context))
 
     return context
 
