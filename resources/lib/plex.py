@@ -316,7 +316,7 @@ class Plex:
         
         if response.status_code == 201:
             try:
-                printDebug.debugplus(response.text.encode('utf-8')
+                printDebug.debugplus(response.text.encode('utf-8'))
                 printDebug.info("Received new plex token")
                 token = etree.fromstring(response.text.encode('utf-8')).findtext('authentication-token')
                 self.settings.update_token(token)
