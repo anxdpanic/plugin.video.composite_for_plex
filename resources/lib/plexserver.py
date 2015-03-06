@@ -123,12 +123,15 @@ class PlexMediaServer:
     def set_master(self, value):
         self.master=value
         
-    def talk(self,url='/',refresh=False):
+    def talk(self,url='/',refresh=False, type='get'):
     
         if not self.offline or refresh:
         
             try:
-                response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=3)
+                if type == 'get':
+                    response = requests.get("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=3)
+                elif type == 'put':
+                    response = requests.put("http://%s:%s%s" % (self.address[0], self.port, url), params=self.plex_identification(), timeout=3)                
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
                 printDebug("Server: %s is offline or uncontactable. error: %s" % (self.address[0], e))
@@ -144,6 +147,9 @@ class PlexMediaServer:
                     
         return '<?xml version="1.0" encoding="UTF-8"?><status>offline</status>'
 
+    def tell(self, url, refresh=False):
+        return self.talk (url, refresh, type='put')
+    
     def refresh(self):
         data=self.talk(refresh=True)
         
@@ -285,6 +291,8 @@ class PlexMediaServer:
         self.talk('/library/section/%s/refresh' % key)
         return
 
+    def get_metadata(self, id):
+        return self.talk('/library/metadata/%s' % id)
         
 class plex_section:
 
