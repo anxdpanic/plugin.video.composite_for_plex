@@ -230,8 +230,8 @@ def getURL(url, suppress=True, type="GET", popup=0):
 
         authHeader=getAuthDetails({'token':_PARAM_TOKEN}, url_format=False)
 
-        printDebug.debug("url = "+url)
-        printDebug.debug("header = "+str(authHeader))
+        printDebug.debug("url = %s " % url)
+        printDebug.debug("header = %s " % authHeader)
         conn = httplib.HTTPConnection(server, timeout=10)
         conn.request(type, urlPath, headers=authHeader)
         data = conn.getresponse()
@@ -368,7 +368,7 @@ def mediaType( partData, server, dvdplayback=False ):
             if settings.nasoverride:
                 if settings.nasoverrideip:
                     server=settings.nasoverrideip
-                    printDebug.debug("Overriding server with: " + server)
+                    printDebug.debug("Overriding server with: %s" % server)
 
                 if settings.nasuserid:
                     loginstring="%s:%s@" % (settings.nasuserid, settings.naspass)
@@ -386,7 +386,7 @@ def mediaType( partData, server, dvdplayback=False ):
 
         if settings.nasoverride and settings.nasroot:
             #Re-root the file path
-            printDebug.debug("Altering path " + filelocation + " so root is: " +  settings.nasroot)
+            printDebug.debug("Altering path %s so root is: %s" % (filelocation, settings.nasroot))
             if '/'+settings.nasroot+'/' in filelocation:
                 components = filelocation.split('/')
                 index = components.index(settings.nasroot)
@@ -397,7 +397,7 @@ def mediaType( partData, server, dvdplayback=False ):
         printDebug.debug( "No option detected, streaming is safest to choose" )
         filelocation="http://"+server+stream
 
-    printDebug.debug("Returning URL: " + filelocation)
+    printDebug.debug("Returning URL: %s " % filelocation)
     return filelocation
 
 def appendURLArgument(url, arguments):
@@ -418,8 +418,8 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         printDebug.debug("== ENTER ==")
         printDebug.debug("Adding Dir for [%s]" % item_title)
-        printDebug.debug("Passed details: " + str(details))
-        printDebug.debug("Passed extraData: " + str(extraData))
+        printDebug.debug("Passed details: %s" % details)
+        printDebug.debug("Passed extraData: %s" % extraData)
 
         #Remove, as this is never going to evaluate as true
         #if item_title == '':
@@ -449,7 +449,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             for argument, value in extraData.get('parameters').items():
                 u = "%s&%s=%s" % (u, argument, urllib.quote(value))
 
-        printDebug.debug("URL to use for listing: " + u)
+        printDebug.debug("URL to use for listing: %s" % u)
 
         thumb = str(extraData.get('thumb', ''))
         if thumb.startswith('http'):
@@ -459,7 +459,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         liz=xbmcgui.ListItem(item_title, thumbnailImage=thumbPath)
 
-        printDebug.debug("Setting thumbnail as " + thumbPath)
+        printDebug.debug("Setting thumbnail as %s" % thumbPath)
 
         #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
@@ -522,7 +522,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         if fanart != 'None':
             liz.setProperty('fanart_image', appendURLArgument(fanart,nToken))
 
-            printDebug.debug("Setting fan art as " + fanart + " with headers: " + aToken)
+            printDebug.debug("Setting fan art as %s with headers %s " % ( fanart, aToken))
 
         else:
             printDebug.debug("Skipping fanart as None found")
@@ -535,7 +535,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 bannerPath = bannerImg
 
             liz.setProperty('banner', bannerPath)
-            printDebug.debug("Setting banner as " + bannerPath)
+            printDebug.debug("Setting banner as %s" % bannerPath)
 
         if extraData.get('season_thumb'):
             seasonImg = str(extraData.get('season_thumb', ''))
@@ -545,7 +545,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 seasonPath = seasonImg
 
             liz.setProperty('seasonThumb', seasonPath)
-            printDebug.debug("Setting season Thumb as " + seasonPath)
+            printDebug.debug("Setting season Thumb as %s" % seasonPath)
 
         if context is not None:
             printDebug.debug("Building Context Menus")
@@ -1085,7 +1085,7 @@ def TVEpisodes( url, tree=None ):
             elif child.tag == "Role"  and not settings.skipmetadata:
                 tempcast.append(child.get('tag'))
 
-        printDebug.debug("Media attributes are " + str(mediaarguments))
+        printDebug.debug("Media attributes are %s" % mediaarguments)
 
         #Gather some data
         view_offset=episode.get('viewOffset',0)
@@ -1299,7 +1299,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                 audioCount += 1
                 audioOffset += 1
                 if stream.get('selected') == "1":
-                    printDebug.debug("Found preferred audio id: " + str(stream['id']) )
+                    printDebug.debug("Found preferred audio id: %s " % stream['id'] )
                     audio=stream
                     selectedAudioOffset=audioOffset
             
@@ -1312,7 +1312,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                     subOffset = int(stream.get('index',-1))
                     
                 if stream.get('selected') == "1":
-                    printDebug.debug( "Found preferred subtitles id : " + str(stream['id']))
+                    printDebug.debug( "Found preferred subtitles id : %s " stream['id'])
                     subCount += 1
                     subtitle=stream
                     if stream.get('key'):
@@ -1434,7 +1434,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
         if result == 1:
            resume=0
 
-    printDebug.debug("Resume has been set to " + str(resume))
+    printDebug.debug("Resume has been set to %s " % resume)
 
     item = xbmcgui.ListItem(path=playurl)
 
@@ -1522,7 +1522,7 @@ def setAudioSubtitles( stream ):
 
         elif audio:
             printDebug ("Attempting to use selected language setting: %s" % audio.get('language',audio.get('languageCode','Unknown')).encode('utf8'))
-            printDebug ("Found preferred language at index " + str(stream['audioOffset']))
+            printDebug ("Found preferred language at index %s" % stream['audioOffset'])
             try:
                 xbmc.Player().setAudioStream(stream['audioOffset'])
                 printDebug ("Audio set")
@@ -1603,7 +1603,7 @@ def selectMedia( data, server ):
 
     newurl=mediaType({'key': options[result][0] , 'file' : options[result][1]},server,dvdplayback)
 
-    printDebug.debug("We have selected media at " + newurl)
+    printDebug.debug("We have selected media at %s" % newurl)
     return newurl
 
 def remove_html_tags( data ):
@@ -1661,7 +1661,7 @@ def monitorPlayback( id, server_ip ):
     server.report_playback_progress(id,playedTime*1000, state='stopped')
 
     if g_sessionID is not None:
-        printDebug.debug("Stopping PMS transcode job with session " + g_sessionID)
+        printDebug.debug("Stopping PMS transcode job with session %s" % g_sessionID)
         server.stop_transcode_session(g_sessionID)
 
     return
@@ -1772,8 +1772,8 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
             session=playlist.split()[-1]
             vids="http://"+server+"/video/:/transcode/segmented/"+session+"?t=1"
             
-    printDebug.debug("URL to Play: " + vids)
-    printDebug.debug("Prefix is: " + str(prefix))
+    printDebug.debug("URL to Play: %s " % vids)
+    printDebug.debug("Prefix is: %s" % prefix)
 
     #If this is an Apple movie trailer, add User Agent to allow access
     if 'trailers.apple.com' in vids:
@@ -1783,7 +1783,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     else:
         url=vids
 
-    printDebug.debug("Final URL is : " + url)
+    printDebug.debug("Final URL is: %s" % url)
 
     item = xbmcgui.ListItem(path=url)
     start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
@@ -1822,7 +1822,7 @@ def pluginTranscodeMonitor( sessionID, server ):
         time.sleep(4)
 
     printDebug.debug("Playback Stopped")
-    printDebug.debug("Stopping PMS transcode job with session: " + sessionID)
+    printDebug.debug("Stopping PMS transcode job with session: %s" % sessionID)
     media_server=plex_network.get_server_from_ip(server)
     media_server.stop_transcode_session(sessionID)
 
@@ -1830,7 +1830,7 @@ def pluginTranscodeMonitor( sessionID, server ):
 
 def get_params( paramstring ):
     printDebug.debug("== ENTER ==")
-    printDebug.debug("Parameter string: " + paramstring)
+    printDebug.debug("Parameter string: %s" % paramstring)
     param={}
     if len(paramstring)>=2:
             params=paramstring
@@ -1872,7 +1872,7 @@ def channelSearch (url, prompt):
     kb.doModal()
     if (kb.isConfirmed()):
         text = kb.getText()
-        printDebug.debug("Search term input: "+ text)
+        printDebug.debug("Search term input: %s" % text)
         url=url+'&query='+urllib.quote(text)
         PlexPlugins( url )
     return
@@ -1889,7 +1889,7 @@ def getContent( url ):
 
     server=getServerFromURL(url)
     lastbit=url.split('/')[-1]
-    printDebug.debug("URL suffix: " + str(lastbit))
+    printDebug.debug("URL suffix: %s" % lastbit)
 
     #Catch search requests, as we need to process input before getting results.
     if lastbit.startswith('search'):
@@ -1899,7 +1899,7 @@ def getContent( url ):
         kb.doModal()
         if (kb.isConfirmed()):
             text = kb.getText()
-            printDebug.debug("Search term input: "+ text)
+            printDebug.debug("Search term input: %s" % text)
             url=url+'&query='+urllib.quote(text)
         else:
             return
@@ -1979,7 +1979,7 @@ def getMasterServer(all=False):
                                     'discovery' : serverData.get_discovery(),
                                     'name'      : serverData.get_name(),
                                     'token'     : serverData.get_token() })
-    printDebug.debug( "Possible master servers are " + str(possibleServers) )
+    printDebug.debug( "Possible master servers are: %s" % possibleServers )
 
     if all:
         return possibleServers
@@ -2011,7 +2011,7 @@ def transcode( id, url, identifier=None ):
     if 'plexapp.com' in url:
         server=getMasterServer()
 
-    printDebug.debug("Using preferred transcoding server: " + server)
+    printDebug.debug("Using preferred transcoding server: %s " % server)
     printDebug ("incoming URL is: %s" % url)
 
     transcode_request="/video/:/transcode/segmented/start.m3u8"
@@ -2046,7 +2046,7 @@ def transcode( id, url, identifier=None ):
     now=str(int(round(time.time(),0)))
 
     msg = transcode_request+"@"+now
-    printDebug.debug("Message to hash is " + msg)
+    printDebug.debug("Message to hash is %s" % msg)
 
     #These are the DEV API keys - may need to change them on release
     publicKey="KQMIY6GATPC63AIMC4R2"
@@ -2056,7 +2056,7 @@ def transcode( id, url, identifier=None ):
     import hashlib
     hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
 
-    printDebug.debug("HMAC after hash is " + hash.hexdigest())
+    printDebug.debug("HMAC after hash is %s" % hash.hexdigest())
 
     #Encode the binary hash in base64 for transmission
     token=base64.b64encode(hash.digest())
@@ -2064,7 +2064,7 @@ def transcode( id, url, identifier=None ):
     #Send as part of URL to avoid the case sensitive header issue.
     fullURL="http://"+server+transcode_request+"&X-Plex-Access-Key="+publicKey+"&X-Plex-Access-Time="+str(now)+"&X-Plex-Access-Code="+urllib.quote_plus(token)+"&"+capability
 
-    printDebug.debug("Transcoded media location URL " + fullURL)
+    printDebug.debug("Transcoded media location URL: %s" % fullURL)
 
     return fullURL
 
@@ -2341,7 +2341,7 @@ def channelSettings ( url, settingID ):
                 kb.doModal()
                 if (kb.isConfirmed()):
                     value = kb.getText()
-                    printDebug.debug("Value input: "+ value)
+                    printDebug.debug("Value input: %s " % value)
                 else:
                     printDebug.debug("User cancelled dialog")
                     return False
@@ -2368,7 +2368,7 @@ def channelSettings ( url, settingID ):
         else:
             setString='%s&%s=%s' % (setString, id, value)
 
-    printDebug ("Settings URL: %s" % setString )
+    printDebug.debug("Settings URL: %s" % setString )
     getURL (setString)
     xbmc.executebuiltin("Container.Refresh")
 
@@ -2448,7 +2448,7 @@ def movieTag(url, server, tree, movie, randomNumber):
         elif child.tag == "Role"  and not settings.skipmetadata:
             tempcast.append(child.get('tag'))
 
-    printDebug.debug("Media attributes are " + str(mediaarguments))
+    printDebug.debug("Media attributes are %s" % mediaarguments)
 
     #Gather some data
     view_offset=movie.get('viewOffset',0)
@@ -2542,7 +2542,7 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
             if babies.tag == "Part":
                 partDetails=(dict(babies.items()))
 
-    printDebug.debug( "Part is " + str(partDetails))
+    printDebug.debug( "Part is %s" % partDetails)
 
     details={'TrackNumber' : int(track.get('index',0)) ,
              'title'       : str(track.get('index',0)).zfill(2)+". "+track.get('title','Unknown').encode('utf-8') ,
@@ -2701,13 +2701,13 @@ def music( url, tree=None ):
                 details['title']=grapes.get('genre','Unknown').encode('utf-8')
 
             else:
-                printDebug.debug("Generic Tag: " + grapes.tag)
+                printDebug.debug("Generic Tag: %s" % grapes.tag)
                 details['title']=grapes.get('title','Unknown').encode('utf-8')
 
             extraData['mode']=_MODE_MUSIC
             addGUIItem(u,details,extraData)
 
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -2819,7 +2819,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
     else:
         path = pathData.get('parentKey', '') + "/children"
         
-    printDebug.debug("Path is " + path)
+    printDebug.debug("Path is %s" % path)
 
     if path == '':
         printDebug.debug("Empty Path")
@@ -2929,7 +2929,7 @@ def install( url, name ):
         printDebug.debug("No option selected, cancelling")
         return
 
-    printDebug.debug("Option " + str(ret) + " selected.  Operation is " + operations[ret])
+    printDebug.debug("Option %s selected.  Operation is %s" % (ret, operations[ret]))
     u=url+"/"+operations[ret].lower()
 
     action = getURL(u)
@@ -3074,8 +3074,8 @@ def skin( server_list=None, type=None ):
         elif section['type'] == "movie":
             WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=http://%s%s%s&mode=%s%s,return)" % (window, section['address'], section['path'], "/search?type=1", mode, aToken) )
         
-        printDebug.debug("Building window properties index [" + str(sectionCount) + "] which is [" + section['title'] + "]")
-        printDebug.debug("PATH in use is: ActivateWindow("+window+",plugin://plugin.video.plexbmc/?url="+s_url+",return)")
+        printDebug.debug("Building window properties index [%s] which is [%s]" % (sectionCount, section['title']))
+        printDebug.debug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s,return)" % (window, s_url))
         sectionCount += 1
 
    
@@ -3145,13 +3145,13 @@ def skin( server_list=None, type=None ):
         WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "http://"+server['server']+":"+server['port']+"/system/plexonline&mode=19"+aToken)
 
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server['serverName'])
-        printDebug ("Name mapping is :" + server['serverName'])
+        printDebug ("Name mapping is: %s" % server['serverName'])
 
         serverCount+=1
 
     #Clear out old data
     try:
-        printDebug.debug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
+        printDebug.debug("Clearing properties from [%s] to [%s]" % (sectionCount, WINDOW.getProperty("plexbmc.sectionCount"))
 
         for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
             WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
@@ -3177,8 +3177,8 @@ def skin( server_list=None, type=None ):
     except:
         pass
 
-    printDebug.debug("Total number of skin sections is [" + str(sectionCount) + "]")
-    printDebug.debug("Total number of servers is ["+str(numOfServers)+"]")
+    printDebug.debug("Total number of skin sections is [%s]" % sectionCount )
+    printDebug.debug("Total number of servers is [%s]" % numOfServers)
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
     if __settings__.getSetting('myplex_user') != '':
@@ -3203,7 +3203,7 @@ def amberskin():
 
     plex_network.discover()
     server_list=plex_network.get_server_list()
-    printDebug.debug("Using list of " + str(len(server_list)) + " servers: " + str(server_list))
+    printDebug.debug("Using list of %s servers: " % (len(server_list), server_list))
 
     for server in server_list:
     
@@ -3289,7 +3289,7 @@ def amberskin():
             elif section.is_movie():
                 WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=1", mode) )
 
-            printDebug.debug("Building window properties index [" + str(sectionCount) + "] which is [" + section.get_title() + "]")
+            printDebug.debug("Building window properties index [%s] which is [%s]" % (sectionCount, section.get_title()))
             printDebug.debug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return)" % ( window, server.get_url_location(), path, mode))
             sectionCount += 1
 
@@ -3362,13 +3362,13 @@ def amberskin():
         WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , return_server_url(server, "/system/plexonline", {'mode':19}))
 
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server.get_name())
-        printDebug ("Name mapping is :" + server.get_name())
+        printDebug ("Name mapping is: %s" % server.get_name())
 
         serverCount+=1
 
     #Clear out old data
     try:
-        printDebug.debug("Clearing properties from [" + str(sectionCount) + "] to [" + WINDOW.getProperty("plexbmc.sectionCount") + "]")
+        printDebug.debug("Clearing properties from [%s] to [%s]" % (sectionCount, WINDOW.getProperty("plexbmc.sectionCount")))
 
         for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
             WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
@@ -3394,8 +3394,8 @@ def amberskin():
     except:
         pass
 
-    printDebug.debug("Total number of skin sections is [" + str(sectionCount) + "]")
-    printDebug.debug("Total number of servers is ["+str(numOfServers)+"]")
+    printDebug.debug("Total number of skin sections is [%s]" % sectionCount )
+    printDebug.debug("Total number of servers is [%s]" % numOfServers)
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
 
@@ -3491,7 +3491,7 @@ def fullShelf(server_list={}):
                 tree = server_details.get_recently_added(section=section.get_key(), size=15)
 
                 if tree is None:
-                    printDebug.debug("PLEXBMC -> RecentlyAdded items not found on: " + server_details.get_url_location())
+                    printDebug.debug("PLEXBMC -> RecentlyAdded items not found on: %s" % server_details.get_url_location())
                     continue
 
                 libraryuuid = tree.get("librarySectionUUID").encode('utf-8')
@@ -3817,7 +3817,7 @@ def displayContent( acceptable_level, content_level ):
         except:
             print "Unknown rating flag [%s] whilst lookuing for [%s] - will filter for now, but needs to be added" % (content_level, acceptable_level)
 
-    printDebug ("NOT OK to display")
+    printDebug.debug("NOT OK to display")
     return False
 
 def shelf( server_list=None ):
@@ -4209,7 +4209,7 @@ def watched( server_uuid, metadata_id, watched='watch' ):
 def displayServers( url ):
     printDebug.debug("== ENTER ==")
     type=url.split('/')[2]
-    printDebug.debug("Displaying entries for " + type)
+    printDebug.debug("Displaying entries for %s" % type)
     plex_network.discover()
     Servers = plex_network.get_server_list()
     Servers_list=len(Servers)
@@ -4278,8 +4278,8 @@ def getTranscodeSettings( override=False ):
 
         global g_quality
         g_quality = str(int(__settings__.getSetting('quality'))+3)
-        printDebug.debug( "Transcode format is " + g_transcodefmt)
-        printDebug.debug( "Transcode quality is " + g_quality)
+        printDebug.debug( "Transcode format is %s" % g_transcodefmt)
+        printDebug.debug( "Transcode quality is %s" % g_quality)
 
         baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};"
 
@@ -4293,7 +4293,7 @@ def getTranscodeSettings( override=False ):
 
         global capability
         capability="X-Plex-Client-Capabilities="+urllib.quote_plus("protocols="+baseCapability+"audioDecoders="+audio)
-        printDebug.debug("Plex Client Capability = " + capability)
+        printDebug.debug("Plex Client Capability = %s" % capability)
 
         import uuid
         global g_sessionID
@@ -4301,7 +4301,7 @@ def getTranscodeSettings( override=False ):
 
 def deleteMedia( server_uuid, metadata_id ):
     printDebug.debug("== ENTER ==")
-    printDebug ("Deleting media at: " + url)
+    printDebug ("Deleting media at: %s" % metadata_id)
 
     return_value = xbmcgui.Dialog().yesno("Confirm file delete?","Delete this item? This action will delete media and associated data files.")
 
@@ -4469,7 +4469,7 @@ def setMasterServer () :
     return
   
 ##So this is where we really start the plugin.
-printDebug.debug( "PleXBMC -> Script argument is " + str(sys.argv))
+printDebug.debug( "PleXBMC -> Script argument is %s" % sys.argv )
 
 try:
     params=get_params(sys.argv[2])
