@@ -421,16 +421,6 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         printDebug.debug("Passed details: %s" % details)
         printDebug.debug("Passed extraData: %s" % extraData)
 
-        #Remove, as this is never going to evaluate as true
-        #if item_title == '':
-        #    return
-
-        if (extraData.get('token',None) is None) and _PARAM_TOKEN:
-            extraData['token']=_PARAM_TOKEN
-
-        aToken=getAuthDetails(extraData)
-        nToken=getAuthDetails(extraData,url_format=False)
-
         if extraData.get('mode',None) is None:
             mode="&mode=0"
         else:
@@ -451,14 +441,10 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         printDebug.debug("URL to use for listing: %s" % u)
 
         thumb = str(extraData.get('thumb', ''))
-        if thumb.startswith('http'):
-            thumbPath = appendURLArgument(thumb,nToken)
-        else:
-            thumbPath = thumb
 
-        liz=xbmcgui.ListItem(item_title, thumbnailImage=thumbPath)
+        liz=xbmcgui.ListItem(item_title, thumbnailImage=thumb)
 
-        printDebug.debug("Setting thumbnail as %s" % thumbPath)
+        printDebug.debug("Setting thumbnail as %s" % thumb)
 
         #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
@@ -519,32 +505,24 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         fanart = str(extraData.get('fanart_image', 'None'))
 
         if fanart != 'None':
-            liz.setProperty('fanart_image', appendURLArgument(fanart,nToken))
+            liz.setProperty('fanart_image', fanart)
 
-            printDebug.debug("Setting fan art as %s with headers %s " % ( fanart, aToken))
+            printDebug.debug("Setting fan art as %s" % fanart)
 
         else:
             printDebug.debug("Skipping fanart as None found")
 
         if extraData.get('banner'):
             bannerImg = str(extraData.get('banner', ''))
-            if bannerImg.startswith('http'):
-                bannerPath = appendURLArgument(bannerImg,nToken)
-            else:
-                bannerPath = bannerImg
 
-            liz.setProperty('banner', bannerPath)
-            printDebug.debug("Setting banner as %s" % bannerPath)
+            liz.setProperty('banner', bannerImg)
+            printDebug.debug("Setting banner as %s" % bannerImg)
 
         if extraData.get('season_thumb'):
             seasonImg = str(extraData.get('season_thumb', ''))
-            if seasonImg.startswith('http'):
-                seasonPath = appendURLArgument(seasonImg,nToken)
-            else:
-                seasonPath = seasonImg
 
-            liz.setProperty('seasonThumb', seasonPath)
-            printDebug.debug("Setting season Thumb as %s" % seasonPath)
+            liz.setProperty('seasonThumb', seasonImg)
+            printDebug.debug("Setting season Thumb as %s" % seasonImg)
 
         if context is not None:
             printDebug.debug("Building Context Menus")
@@ -2786,7 +2764,7 @@ def getFanart(data, server, width=1280, height=720):
 
     elif fanart.startswith('/'):
         if settings.fullres_fanart:
-            return '%s%s' % (server.get_url_location(), fanart)
+            return server.get_formatted_url(fanart)
         else:
             return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
 
