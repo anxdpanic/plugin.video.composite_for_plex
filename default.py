@@ -133,41 +133,6 @@ g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
 global g_sessionID
 g_sessionID=None
         
-
-def getMyplexSections ( ):
-    printDebug.debug("== ENTER ==")
-    
-    cache_file = "myplex.sections.cache"
-    success, temp_list = CACHE.checkCache(cache_file)
-    
-    if not success:
-    
-        html=plex_network.get_myplex_sections()
-
-        if html is False:
-            return {}
-
-        tree = etree.fromstring(html).getiterator("Directory")
-        temp_list=[]
-        for sections in tree:
-
-            temp_list.append( {'title'      : sections.get('title','Unknown').encode('utf-8'),
-                    'address'    : sections.get('host','Unknown')+":"+sections.get('port'),
-                    'serverName' : sections.get('serverName','Unknown').encode('utf-8'),
-                    'uuid'       : sections.get('machineIdentifier','Unknown') ,
-                    'sectionuuid' : sections.get('uuid','').encode('utf-8'),
-                    'path'       : sections.get('path') ,
-                    'token'      : sections.get('accessToken',None) ,
-                    'location'   : "myplex" ,
-                    'art'        : sections.get('art') ,
-                    'local'      : sections.get('local') ,
-                    'type'       : sections.get('type','Unknown'),
-                    'owned'      : sections.get('owned','0') })
-                    
-        CACHE.writeCache(cache_file, temp_list)
-        
-    return temp_list            
-
 def getAllSections( server_list = None ):
     '''
         from server_list, get a list of all the available sections
