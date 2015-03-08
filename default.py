@@ -3349,14 +3349,14 @@ def amberskin():
 
         if settings.channelview:
             WINDOW.setProperty("plexbmc.channel", "1")
-            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s, return" % return_server_url(server, "/system/plugins/all", {'mode' : 21}))
+            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s, return" % (server.get_url_location(), "/system/plugins/all", _MODE_CHANNELVIEW ))
         else:
             WINDOW.clearProperty("plexbmc.channel")
-            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , return_server_url(server, "/video", {'mode': 7}))
-            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , return_server_url(server, "/music", {'mode': 17}))
-            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , return_server_url(server, "/photos", {'mode': 16}))
+            WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "%s%s&mode=%s" % (server.get_url_location(), "/video", _MODE_PLEXPLUGINS ))
+            WINDOW.setProperty("plexbmc.%d.server.music" % (serverCount) , "%s%s&mode=%s" % (server.get_url_location(), "/music", _MODE_MUSIC ))
+            WINDOW.setProperty("plexbmc.%d.server.photo" % (serverCount) , "%s%s&mode=%s" % (server.get_url_location(), "/photos", _MODE_PHOTOS ))
 
-        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , return_server_url(server, "/system/plexonline", {'mode':19}))
+        WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "%s%s&mode=%s" % (server.get_url_location(), "/system/plexonline", _MODE_PLEXONLINE ))
 
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server.get_name())
         printDebug ("Name mapping is: %s" % server.get_name())
@@ -3439,12 +3439,6 @@ def amberskin():
         WINDOW.clearProperty("plexbmc.myplex")
 
     fullShelf (server_list)
-
-def return_server_url(server, path, arguments):
-
-    arguments['X-Plex-Token'] = server.get_token()
-
-    return appendURLArgument("http://%s:%s%s" % (server.get_address()[0], server.get_port(), path), arguments)
     
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
