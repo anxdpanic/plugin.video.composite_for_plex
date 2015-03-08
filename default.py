@@ -4070,7 +4070,7 @@ def shelfChannel(server_list = None):
         plex_network.discover()
         server_list=plex_network.get_server_list()
     
-    if server_list == {}:
+    if not server_list:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
         clearChannelShelf()
         return
@@ -4080,10 +4080,6 @@ def shelfChannel(server_list = None):
         if server_details.is_secondary() or not server_details.is_owned():
             continue
         
-        global _PARAM_TOKEN
-        _PARAM_TOKEN = server_details.get_token()
-        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
-
         if __settings__.getSetting('channelShelf') == "false" or __settings__.getSetting('homeshelf') == '3':
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
             return
@@ -4116,18 +4112,18 @@ def shelfChannel(server_list = None):
                 mode=_MODE_GETCONTENT
                 channel_window="VideoLibrary"
 
-            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( channel_window, getLinkURL(server_details.get_url_location(),media,server_details.get_location()), mode , aToken)
+            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s)" % ( channel_window, getLinkURL(server_details.get_url_location(),media,server_details.get_location()), mode)
             pms_thumb = str(media.get('thumb', ''))
 
             if pms_thumb.startswith('/'):
-                c_thumb = server_details.get_url_location() + pms_thumb
+                c_thumb = server_details.get_formatted_url(pms_thumb)
 
             else:
                 c_thumb = pms_thumb
 
             WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, c_url)
             WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title', 'Unknown'))
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, c_thumb+aToken)
+            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, c_thumb)
 
             channelCount += 1
 
