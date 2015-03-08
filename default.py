@@ -2781,14 +2781,14 @@ def getFanart(data, server, width=1280, height=720):
     if fanart == '':
         return ''
 
-    elif fanart[0:4] == "http" :
+    elif fanart.startswith('http') :
         return fanart
 
-    elif fanart[0] == '/':
+    elif fanart.startswith('/'):
         if settings.fullres_fanart:
-            return 'http://%s%s' % (server, fanart)
+            return '%s%s' % (server.get_url_location(), fanart)
         else:
-            return photoTranscode(server, 'http://localhost:32400' + fanart, width, height)
+            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
 
     else:
         return ''
