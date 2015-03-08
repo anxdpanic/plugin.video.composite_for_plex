@@ -2734,7 +2734,7 @@ def getThumb(data, server, width=720, height=720):
 
     elif thumbnail.startswith('/'):
         if settings.fullres_thumbnails:
-            return server.get_formatted_url(thumbnail))
+            return server.get_formatted_url(thumbnail)
         else:
             return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
     else:
@@ -3402,18 +3402,15 @@ def amberskin():
         #Now let's populate queue shelf items since we have MyPlex login
         if __settings__.getSetting('homeshelf') != '3':
             printDebug.debug("== ENTER ==")
-            try:
-                aToken = plex_network.myplex_token['X-Plex-Token']
-            except: aToken=''
-            myplex_queue = plex_network.get_myplex_queue()
-            root = etree.fromstring(myplex_queue)
+
+            root = plex_network.get_myplex_queue()
             server_address = getMasterServer()['address']
             queue_count = 1
 
             for media in root:
                 printDebug.debug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
-                m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s&t=%s" % (getLinkURL('http://'+server_address, media, server_address), 18, 1, aToken)
-                m_thumb = getShelfThumb(media, server_address, seasonThumb=0)+aToken
+                m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s" % (getLinkURL('http://'+server_address, media, server_address), 18, 1)
+                m_thumb = getShelfThumb(media, server_address, seasonThumb=0)
 
                 try:
                     movie_runtime = str(int(float(media.get('duration'))/1000/60))

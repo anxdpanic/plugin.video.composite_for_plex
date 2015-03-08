@@ -91,7 +91,11 @@ class Plex:
         if response.status_code == requests.codes.ok:
             printDebug.debugplus("===XML===\n%s\n===XML===" % response.text)
             return response.text
-     
+
+    def get_processed_myplex_xml(self, url):
+        data = self.talk_to_myplex (url)
+        return etree.fromsting(data)
+            
     def discover_all_servers(self):
         printDebug.debug("== ENTER ==")
 
@@ -168,17 +172,12 @@ class Plex:
     def get_myplex_queue(self):
         printDebug.debug("== ENTER ==")
 
-        xml = self.getMyPlexURL('/pms/playlists/queue/all')
-
-        if xml is False:
-            return {}
-
-        return xml
+        return self.get_processed_myplex_xml('/pms/playlists/queue/all')
 
     def get_myplex_sections(self):
         printDebug.debug("== ENTER ==")
 
-        xml = self.getMyPlexURL('/pms/system/library/sections')
+        xml = self.talk_to_myplex('/pms/system/library/sections')
 
         if xml is False:
             return {}
@@ -196,7 +195,7 @@ class Plex:
         printDebug.debug("== ENTER ==")
 
         tempServers = {}
-        xml = self.getMyPlexURL("/pms/servers")
+        xml = self.talk_to_myplex("/pms/servers")
 
         if xml is False:
             return {}
@@ -236,7 +235,7 @@ class Plex:
 
         return 
         
-    def getMyPlexURL(self, url_path, renew=False, suppress=True):
+    def talk_to_myplex(self, path, renew=False, suppress=True):
         '''
             Connect to the my.plexapp.com service and get an XML pages
             A seperate function is required as interfacing into myplex
@@ -245,12 +244,12 @@ class Plex:
             @return: an xml page as string or false
         '''
         printDebug.debug("== ENTER ==")
-        printDebug.info("url = "+self.myplex_server+url_path)
+        printDebug.info("url = %s%s" % (self.myplex_server, path))
 
-        response = requests.get("%s%s" % (self.myplex_server, url_path), params=dict(self.plex_identification(), **self.getMyPlexToken(renew)))
+        response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.getMyPlexToken(renew)))
         
         if  response.status_code == 401   and not ( renew ):
-            return self.getMyPlexURL(url_path,True)
+            return self.talk_to_myplex(path,True)
 
         if response.status_code >= 400:
             error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
