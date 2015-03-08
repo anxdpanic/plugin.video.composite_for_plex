@@ -2790,7 +2790,6 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         @ return: Usable http URL
     '''
     printDebug.debug("== ENTER ==")
-    printDebug.debug("Server is %s" % server)
     if not season_shelf:
         path = pathData.get('key', '')
     else:
