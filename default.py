@@ -4263,12 +4263,6 @@ def deleteMedia( server_uuid, metadata_id ):
         xbmc.executebuiltin("Container.Refresh")
 
     return True
-
-def getAuthTokenFromURL( url ):
-    if "X-Plex-Token=" in url:
-        return url.split('X-Plex-Token=')[1]
-    else:
-        return ""
         
 def alterSubs ( server_uuid, metadata_id ):
     '''
