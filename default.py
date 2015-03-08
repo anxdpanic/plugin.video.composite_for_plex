@@ -2729,15 +2729,14 @@ def getThumb(data, server, width=720, height=720):
     if thumbnail == '':
         return g_thumb
 
-    elif thumbnail[0:4] == "http" :
+    elif thumbnail.startswith("http") :
         return thumbnail
 
-    elif thumbnail[0] == '/':
+    elif thumbnail.startswith('/'):
         if settings.fullres_thumbnails:
-            return 'http://'+server+thumbnail
+            return server.get_formatted_url(thumbnail))
         else:
-            return photoTranscode(server, 'http://localhost:32400'+thumbnail, width, height)
-
+            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
     else:
         return g_thumb
 
@@ -3846,12 +3845,7 @@ def shelf( server_list=None ):
 
         if server_details.is_secondary() or not server_details.is_owned():
             continue
-    
-        global _PARAM_TOKEN
-        _PARAM_TOKEN = server_details.get_token()
-        aToken=getAuthDetails({'token': _PARAM_TOKEN} )
-        qToken=getAuthDetails({'token': _PARAM_TOKEN}, prefix='?')
-        
+            
         if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
             tree=server_details.get_server_recentlyadded()
         else:
@@ -3866,21 +3860,16 @@ def shelf( server_list=None ):
         for eachitem in tree:
 
             if direction:
-                added_list[int(eachitem.get('addedAt',0))] = (eachitem, server_details.get_location(), aToken, qToken )
+                added_list[int(eachitem.get('addedAt',0))] = (eachitem, server_details )
             else:
-                added_list[full_count] = (eachitem, server_details.get_location(), aToken, qToken )
+                added_list[full_count] = (eachitem, server_details)
                 full_count += 1
 
     library_filter = __settings__.getSetting('libraryfilter')
     acceptable_level = __settings__.getSetting('contentFilter')
 
     #For each of the servers we have identified
-    for index in sorted(added_list, reverse=direction):
-
-        media=added_list[index][0]
-        server_address=added_list[index][1]
-        aToken=added_list[index][2]
-        qToken=added_list[index][3]
+    for media, server in sorted(added_list, reverse=direction):
 
         if media.get('type',None) == "movie":
 
@@ -3899,12 +3888,12 @@ def shelf( server_list=None ):
                 printDebug.debug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue
 
-            title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s%s" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, randomNumber, aToken)
-            title_thumb=getThumb(media,server_address)
+            title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_PLAYSHELF, randomNumber)
+            title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, title_name)
-            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, title_thumb+qToken)
+            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, title_thumb)
 
             movieCount += 1
 
@@ -3917,14 +3906,14 @@ def shelf( server_list=None ):
                 continue
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_TVEPISODES, aToken)
-            title_thumb=getThumb(media,server_address)
+            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_TVEPISODES)
+            title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, '')
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, title_name)
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb+qToken)
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb)
             seasonCount += 1
 
         elif media.get('type') == "album":
@@ -3936,13 +3925,13 @@ def shelf( server_list=None ):
             printDebug.debug("Found a recent album entry")
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s%s, return)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_TRACKS, aToken)
-            title_thumb=getThumb(media,server_address)
+            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_TRACKS)
+            title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, title_name)
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, title_thumb+qToken)
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, title_thumb)
             musicCount += 1
 
         elif media.get('type',None) == "episode":
@@ -3954,14 +3943,14 @@ def shelf( server_list=None ):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( getLinkURL('http://'+server_address,media,server_address), _MODE_PLAYSHELF, aToken)
-            title_thumb="http://"+server_address+media.get('grandparentThumb','')
+            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_PLAYSHELF)
+            title_thumb=server.get_formatted_url(media.get('grandparentThumb',''))
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('grandparentTitle','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, title_name)
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb+qToken)
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb)
             seasonCount += 1
 
         printDebug.debug(" Building Recent window title: %s\n        Building Recent window url: %s\n        Building Recent window thumb: %s" % (title_name, title_url, title_thumb))
