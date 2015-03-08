@@ -430,7 +430,6 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         aToken=getAuthDetails(extraData)
         nToken=getAuthDetails(extraData,url_format=False)
-        qToken=getAuthDetails(extraData, prefix='?')
 
         if extraData.get('mode',None) is None:
             mode="&mode=0"
@@ -439,11 +438,11 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         #Create the URL to pass to the item
         if ( not folder) and ( extraData['type'] == "image" ):
-             u=url+qToken
+             u=url
         elif url.startswith('http') or url.startswith('file'):
-            u=sys.argv[0]+"?url="+urllib.quote(url)+mode+aToken
+            u=sys.argv[0]+"?url="+urllib.quote(url)+mode
         else:
-            u=sys.argv[0]+"?url="+str(url)+mode+aToken
+            u=sys.argv[0]+"?url="+str(url)+mode
             
         if extraData.get('parameters'):
             for argument, value in extraData.get('parameters').items():
@@ -823,7 +822,7 @@ def Movies( url, tree=None ):
     if tree is None:
         return
 
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
 
     setWindowHeading(tree)
     randomNumber=str(random.randint(1000000000,9999999999))
@@ -2500,7 +2499,7 @@ def movieTag(url, server, tree, movie, randomNumber):
     #Build any specific context menu entries
     if not settings.skipcontext:
         
-        context=buildContextMenu(url, extraData, plex_network.get_server_from_ip(server))
+        context=buildContextMenu(url, extraData, server)
     else:
         context=None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
@@ -2508,7 +2507,7 @@ def movieTag(url, server, tree, movie, randomNumber):
     separator = "?"
     if "?" in extraData['key']:
         separator = "&"
-    u="http://%s%s%st=%s" % (server, extraData['key'], separator, randomNumber)
+    u="%s%s%st=%s" % (server.get_url_location(), extraData['key'], separator, randomNumber)
 
     addGUIItem(u,details,extraData,context,folder=False)
     return
