@@ -1949,7 +1949,7 @@ def processDirectory( url, tree=None ):
     printDebug.debug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, "")
 
-    server = getServerFromURL(url)
+    server = plex_network.get_server_from_url(url)
     setWindowHeading(tree)
     for directory in tree:
         details={'title' : directory.get('title','Unknown').encode('utf-8') }
@@ -2813,6 +2813,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
         @ return: Usable http URL
     '''
     printDebug.debug("== ENTER ==")
+    printDebug.debug("Server is %s" % server)
     if not season_shelf:
         path = pathData.get('key', '')
     else:
@@ -2832,7 +2833,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
     #If key starts with a / then prefix with server address
     elif path.startswith('/'):
         printDebug.debug("Detected base path link")
-        return 'http://%s%s' % (server, path)
+        return '%s%s' % (server.get_url_location(), path)
 
     #If key starts with plex:// then it requires transcoding
     elif path.startswith("plex:") :
@@ -2846,7 +2847,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
             components.append('identifier='+pathData['identifier'])
 
         path='&'.join(components)
-        return 'plex://'+server+'/'+'/'.join(path.split('/')[3:])
+        return 'plex://'+server.get_location()+'/'+'/'.join(path.split('/')[3:])
         
     elif path.startswith("rtmp"):
         printDebug.debug("Detected RTMP link")
@@ -3524,7 +3525,7 @@ def fullShelf(server_list={}):
 
             if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
 
-                title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_PLAYSHELF, randomNumber)
+                title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server), _MODE_PLAYSHELF, randomNumber)
                 title_thumb = getShelfThumb(media,source_server,seasonThumb=0)
 
                 if media.get('duration') > 0:
@@ -3571,7 +3572,7 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_TVEPISODES)
+            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server), _MODE_TVEPISODES)
             title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url )
@@ -3590,7 +3591,7 @@ def fullShelf(server_list={}):
                 continue
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_TRACKS)
+            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server), _MODE_TRACKS)
             title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
             printDebug.debug("Found a recent album entry: [%s]" % title_name)
@@ -3626,7 +3627,7 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(), media, source_server.get_location(), season_shelf=True), _MODE_TVEPISODES)
+            title_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(), media, source_server, season_shelf=True), _MODE_TVEPISODES)
             title_thumb = getShelfThumb(media, source_server, seasonThumb=1)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url)
@@ -3656,7 +3657,7 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.OnDeckMovie.1.Path" )
                 continue
 
-            title_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_PLAYSHELF, randomNumber)
+            title_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server), _MODE_PLAYSHELF, randomNumber)
             title_thumb = getShelfThumb(media,source_server,seasonThumb=0)
 
             if media.get('duration') > 0:
@@ -3689,7 +3690,7 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
                 continue
 
-            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server.get_location()), _MODE_TVEPISODES)
+            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server), _MODE_TVEPISODES)
             title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url )
@@ -3709,7 +3710,7 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
                 continue
 
-            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s)" % (getLinkURL(source_server.get_url_location(), media, source_server.get_location()), _MODE_PLAYSHELF, randomNumber)
+            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s)" % (getLinkURL(source_server.get_url_location(), media, source_server), _MODE_PLAYSHELF, randomNumber)
             title_thumb=getShelfThumb(media, source_server, seasonThumb=1)
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url)
@@ -3885,7 +3886,7 @@ def shelf( server_list=None ):
                 printDebug.debug("SKIPPING: Library Filter match: %s = %s " % (library_filter, media.get('librarySectionID')))
                 continue
 
-            title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_PLAYSHELF, randomNumber)
+            title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(server.get_url_location(),media,server), _MODE_PLAYSHELF, randomNumber)
             title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % movieCount, title_url)
@@ -3903,7 +3904,7 @@ def shelf( server_list=None ):
                 continue
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_TVEPISODES)
+            title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server), _MODE_TVEPISODES)
             title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, title_url )
@@ -3922,7 +3923,7 @@ def shelf( server_list=None ):
             printDebug.debug("Found a recent album entry")
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
-            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_TRACKS)
+            title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server), _MODE_TRACKS)
             title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, title_url )
@@ -3940,7 +3941,7 @@ def shelf( server_list=None ):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( getLinkURL(server.get_url_location(),media,server.get_address()), _MODE_PLAYSHELF)
+            title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( getLinkURL(server.get_url_location(),media,server), _MODE_PLAYSHELF)
             title_thumb=server.get_formatted_url(media.get('grandparentThumb',''))
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, title_url )
@@ -4092,7 +4093,7 @@ def shelfChannel(server_list = None):
                 mode=_MODE_GETCONTENT
                 channel_window="VideoLibrary"
 
-            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s)" % ( channel_window, getLinkURL(server_details.get_url_location(),media,server_details.get_location()), mode)
+            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s)" % ( channel_window, getLinkURL(server_details.get_url_location(),media,server_details), mode)
             pms_thumb = str(media.get('thumb', ''))
 
             if pms_thumb.startswith('/'):
