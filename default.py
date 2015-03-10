@@ -4552,19 +4552,19 @@ else:
         channelSettings ( param_url, params.get('id') )
 
     elif mode == _MODE_SHARED_MOVIES:
-        displaySections(filter="movies", shared=True)
+        displaySections(filter="movies", display_shared=True)
 
     elif mode == _MODE_SHARED_SHOWS:
-        displaySections(filter="tvshows", shared=True)
+        displaySections(filter="tvshows", display_shared=True)
         
     elif mode == _MODE_SHARED_PHOTOS:
-        displaySections(filter="photos", shared=True)
+        displaySections(filter="photos", display_shared=True)
         
     elif mode == _MODE_SHARED_MUSIC:
-        displaySections(filter="music", shared=True)
+        displaySections(filter="music", display_shared=True)
 
     elif mode == _MODE_SHARED_ALL:
-        displaySections(shared=True)
+        displaySections(display_shared=True)
         
     elif mode == _MODE_DELETE_REFRESH:
         CACHE.deleteCache()
