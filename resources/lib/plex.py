@@ -94,7 +94,7 @@ class Plex:
 
     def get_processed_myplex_xml(self, url):
         data = self.talk_to_myplex (url)
-        return etree.fromsting(data)
+        return etree.fromstring(data)
             
     def discover_all_servers(self):
         printDebug.debug("== ENTER ==")
