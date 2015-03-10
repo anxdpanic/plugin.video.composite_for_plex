@@ -884,7 +884,7 @@ def TVSeasons( url ):
     xbmcplugin.setContent(pluginhandle, 'seasons')
 
     #Get URL, XML and parse
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
     tree=getXML(url)
     if tree is None:
         return
@@ -904,7 +904,7 @@ def TVSeasons( url ):
     for season in SeasonTags:
 
         if willFlatten:
-            url='http://'+server+season.get('key')
+            url=server.get_url_location()+season.get('key')
             TVEpisodes(url)
             return
 
@@ -934,7 +934,7 @@ def TVSeasons( url ):
                    'mode'              : _MODE_TVEPISODES }
 
         if banner:
-            extraData['banner']="http://"+server+banner
+            extraData['banner']=server.get_url_location()+banner
                    
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
@@ -947,10 +947,10 @@ def TVSeasons( url ):
         else:
             extraData['partialTV'] = 1
 
-        url='http://%s%s' % ( server , extraData['key'] )
+        url='%s%s' % ( server.get_url_location() , extraData['key'] )
 
         if not settings.skipcontext:
-            context=buildContextMenu(url, season, plex_network.get_server_from_ip(server))
+            context=buildContextMenu(url, season, server)
         else:
             context=None
 
