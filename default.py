@@ -749,11 +749,12 @@ def Movies( url, tree=None ):
     xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
     
     #get the server name from the URL, which was passed via the on screen listing..
-    tree=getXML(url,tree)
-    if tree is None:
-        return
 
     server=plex_network.get_server_from_url(url)
+
+    tree=server.processed_xml(url)
+    if tree is None:
+        return
 
     setWindowHeading(tree)
     randomNumber=str(random.randint(1000000000,9999999999))
@@ -988,7 +989,7 @@ def TVEpisodes( url, tree=None ):
     season_thumb = tree.get('thumb', '')
 
     ShowTags=tree.findall('Video')
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
 
     if not settings.skipimages:
         sectionart=getFanart(tree, server)
@@ -1058,14 +1059,14 @@ def TVEpisodes( url, tree=None ):
             extraData['fanart_image'] = sectionart
 
         if season_thumb:
-            extraData['season_thumb'] = "http://" + server + season_thumb
+            extraData['season_thumb'] = server.get_url_location() + season_thumb
 
         #get ALL SEASONS thumb
         if not season_thumb and episode.get('parentThumb', ""):
-            extraData['season_thumb'] = "http://%s%s" % (server, episode.get('parentThumb', ""))
+            extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('parentThumb', ""))
 
         if banner:
-            extraData['banner'] = "http://%s%s" % (server, banner)
+            extraData['banner'] = "%s%s" % (server.get_url_location(), banner)
             
         #Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount',0)) > 0:
@@ -1086,16 +1087,15 @@ def TVEpisodes( url, tree=None ):
 
         #Build any specific context menu entries
         if not settings.skipcontext:
-            context=buildContextMenu(url, extraData,plex_network.get_server_from_ip(server))
+            context=buildContextMenu(url, extraData,server)
         else:
             context=None
 
         extraData['mode']=_MODE_PLAYLIBRARY
-        # http:// <server> <path> &mode=<mode> &t=<rnd>
         separator = "?"
         if "?" in extraData['key']:
             separator = "&"
-        u="http://%s%s%st=%s" % (server, extraData['key'], separator, randomNumber)
+        u="%s%s%st=%s" % (server.get_url_location(), extraData['key'], separator, randomNumber)
 
         addGUIItem(u,details,extraData, context, folder=False)
 
@@ -1813,7 +1813,7 @@ def getContent( url ):
     '''
     printDebug.debug("== ENTER ==")
 
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
     lastbit=url.split('/')[-1]
     printDebug.debug("URL suffix: %s" % lastbit)
 
@@ -1830,12 +1830,7 @@ def getContent( url ):
         else:
             return
 
-    html=getURL(url, suppress=False, popup=1 )
-
-    if html is False:
-        return
-
-    tree=etree.fromstring(html)
+    tree = server.processed_xml(url)
 
     setWindowHeading(tree)
 
@@ -2122,20 +2117,11 @@ def getXML (url, tree=None):
     printDebug.debug("== ENTER ==")
 
     if tree is None:
-
-        html=getURL(url)
-
-        if html is False:
-            print "PleXBMC -> Server [%s] offline, not responding or no data was received" % getServerFromURL(url)
-            return None
-
-        tree=etree.fromstring(html)
+        tree=plex_network.get_processed_xml(url)
 
     if tree.get('message'):
         xbmcgui.Dialog().ok(tree.get('header','Message'),tree.get('message',''))
         return None
-
-    #setWindowHeading(tree)
 
     return tree
 
