@@ -355,7 +355,7 @@ class Plex:
                 printDebug("Translated %s to server %s" % (ip, server.get_name()))
                 return server
 
-        printDebug.info("Unable to translate %s to server" % ip )
+        printDebug.info("Unable to translate - Returning new plexserver set to %s" % ip )
                 
         return PlexMediaServer(name="Unknown",address=ip, port=port, discovery='local')
         

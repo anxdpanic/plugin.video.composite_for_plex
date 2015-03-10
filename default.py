@@ -2805,9 +2805,9 @@ def plexOnline( url ):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
 
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
 
-    tree=getXML(url)
+    tree=server.processed_xml(url)
     if tree is None:
         return
 
@@ -2837,7 +2837,8 @@ def plexOnline( url ):
 
 def install( url, name ):
     printDebug.debug("== ENTER ==")
-    tree=getXML(url)
+    server=plex_network.get_server_from_url(url)
+    tree=server.processed_xml(url)
     if tree is None:
         return
 
@@ -2853,8 +2854,7 @@ def install( url, name ):
 
             if ret:
                 printDebug.debug("Installing....")
-                installed = getURL(url+"/install")
-                tree = etree.fromstring(installed)
+                tree = server.processed_xml(url+"/install")
 
                 msg=tree.get('message','(blank)')
                 printDebug.debug(msg)
@@ -2872,9 +2872,7 @@ def install( url, name ):
 
     printDebug.debug("Option %s selected.  Operation is %s" % (ret, operations[ret]))
     u=url+"/"+operations[ret].lower()
-
-    action = getURL(u)
-    tree = etree.fromstring(action)
+    tree = server.processed_xml(u)
 
     msg=tree.get('message')
     printDebug.debug(msg)
