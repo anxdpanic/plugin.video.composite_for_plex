@@ -223,6 +223,11 @@ class PlexMediaServer:
         
     def processed_xml(self,url):
     
+        if url.startswith('http'):
+            printDebug.debug("We have been passed a full URL. Parsing out path")
+            url_parts = urlparse.urlparse(url)
+            url=url_parts.path
+            
         data = self.talk(url)
         return etree.fromstring(data)
    
