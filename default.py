@@ -805,7 +805,7 @@ def TVShows( url, tree=None ):
     if tree is None:
         return
 
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
 
     setWindowHeading(tree)
     #For each directory tag we find
@@ -844,7 +844,7 @@ def TVShows( url, tree=None ):
 
         #banner art
         if show.get('banner',None) is not None:
-            extraData['banner'] = 'http://'+server+show.get('banner')
+            extraData['banner'] = server.get_url_location()+show.get('banner')
         else:
             extraData['banner'] = g_thumb
 
@@ -860,13 +860,13 @@ def TVShows( url, tree=None ):
         if settings.flatten == "2":
             printDebug.debug("Flattening all shows")
             extraData['mode']=_MODE_TVEPISODES
-            u='http://%s%s'  % ( server, extraData['key'].replace("children","allLeaves"))
+            u='%s%s'  % ( server.get_url_location(), extraData['key'].replace("children","allLeaves"))
         else:
             extraData['mode']=_MODE_TVSEASONS
-            u='http://%s%s'  % ( server, extraData['key'])
+            u='%s%s'  % ( server.get_url_location(), extraData['key'])
 
         if not settings.skipcontext:
-            context=buildContextMenu(url, extraData, plex_network.get_server_from_ip(server))
+            context=buildContextMenu(url, extraData, server)
         else:
             context=None
 
