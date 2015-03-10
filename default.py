@@ -364,18 +364,6 @@ def mediaType( partData, server, dvdplayback=False ):
 
     printDebug.debug("Returning URL: %s " % filelocation)
     return filelocation
-
-def appendURLArgument(url, arguments):
-    '''add a dict of arguments to a URL safely '''
-    
-    url_parts = urlparse.urlparse(url)
-
-    query_args = urlparse.parse_qsl(url_parts.query)
-    query_args += arguments.items()
-
-    new_query_args = urllib.urlencode(query_args, True)
-
-    return urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
     
 def addGUIItem(url, details, extraData, context=None, folder=True):
 
@@ -1547,10 +1535,6 @@ def selectMedia( data, server ):
 
     printDebug.debug("We have selected media at %s" % newurl)
     return newurl
-
-def remove_html_tags( data ):
-    p = re.compile(r'<.*?>')
-    return p.sub('', data)
 
 def monitorPlayback( id, server_ip ):
     printDebug.debug("== ENTER ==")
@@ -2921,9 +2905,6 @@ def channelView( url ):
         addGUIItem(p_url,details,extraData)
 
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
-
-def photoTranscode( server, url, width=1280, height=720 ):
-        return 'http://%s/photo/:/transcode?url=%s&width=%s&height=%s' % (server, urllib.quote_plus(url), width, height)
 
 def skin( server_list=None, type=None ):
     #Gather some data and set the window properties
