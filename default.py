@@ -466,7 +466,6 @@ def displaySections( filter=None, display_shared=False ):
         printDebug.debug("== ENTER ==")
         xbmcplugin.setContent(pluginhandle, 'files')
 
-        plex_network.discover()
         server_list=plex_network.get_server_list()
         printDebug.debug( "Using list of %s servers: %s" % ( len(server_list), server_list))
         
@@ -2875,7 +2874,6 @@ def skin( server_list=None, type=None ):
     hide_shared = __settings__.getSetting('hide_shared')
 
     if server_list is None:
-        plex_network.discover()
         server_list=plex_network.get_server_list()
 
     for server in server_list:
@@ -3074,7 +3072,6 @@ def amberskin():
     shared_flag={}
     hide_shared = __settings__.getSetting('hide_shared')
 
-    plex_network.discover()
     server_list=plex_network.get_server_list()
     printDebug.debug("Using list of %s servers: %s " % (len(server_list), server_list))
 
@@ -3705,7 +3702,6 @@ def shelf( server_list=None ):
     full_count=0
     
     if server_list is None:
-        plex_network.discover()
         server_list=plex_network.get_server_list()
 
     if server_list == {}:
@@ -3924,7 +3920,6 @@ def shelfChannel(server_list = None):
     channelCount=1
     
     if server_list is None:
-        plex_network.discover()
         server_list=plex_network.get_server_list()
     
     if not server_list:
@@ -4059,7 +4054,6 @@ def displayServers( url ):
     printDebug.debug("== ENTER ==")
     type=url.split('/')[2]
     printDebug.debug("Displaying entries for %s" % type)
-    plex_network.discover()
     Servers = plex_network.get_server_list()
     Servers_list=len(Servers)
 
