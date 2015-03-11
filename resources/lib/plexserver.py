@@ -6,6 +6,7 @@ import os
 import xml.etree.ElementTree as etree
 import urlparse
 import urllib
+import time
 
 from settings import addonSettings
 from common import *
@@ -127,6 +128,8 @@ class PlexMediaServer:
     
         if not self.offline or refresh:
         
+            start_time = time.time()
+        
             try:
                 if type == 'get':
                     response = requests.get("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3)
@@ -145,7 +148,10 @@ class PlexMediaServer:
                 if response.status_code == requests.codes.ok:
                     printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
                     printDebug("===XML===\n%s\n===XML===" % response.text.encode('utf-8'), self.DEBUG_DEBUGPLUS)
-                    return response.text.encode('utf-8')
+                    data = response.text.encode('utf-8')
+                    
+                    printDebug.debug("RETRIEVING: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.address[0]))                   
+                    return data
                     
         return '<?xml version="1.0" encoding="UTF-8"?><status>offline</status>'
 
@@ -227,9 +233,13 @@ class PlexMediaServer:
             printDebug.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
             url=url_parts.path
-            
+         
+        start_time=time.time()
+         
         data = self.talk(url)
-        return etree.fromstring(data)
+        tree = etree.fromstring(data)
+        printDebug.debug("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.address[0]))
+        return tree
    
     def is_owned(self):
         
