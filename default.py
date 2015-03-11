@@ -1472,16 +1472,15 @@ def monitorPlayback( id, server ):
 def PLAY( url ):
         printDebug.debug("== ENTER ==")
 
-        if url[0:4] == "file":
+        if url.startswith('file'):
             printDebug.debug( "We are playing a local file")
             #Split out the path from the URL
             playurl=url.split(':',1)[1]
-        elif url[0:4] == "http":
+        elif url.startswith('http'):
             printDebug.debug( "We are playing a stream")
             if '?' in url:
-                playurl=url+getAuthDetails({'token':_PARAM_TOKEN})
-            else:
-                playurl=url+getAuthDetails({'token':_PARAM_TOKEN},prefix="?")
+                server=plex_network.get_server_from_url(url)
+                playurl=server.get_formatted_url(url)
         else:
             playurl=url
 
