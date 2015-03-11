@@ -153,6 +153,7 @@ class Plex:
                 printDebug.info("MyPlex discovery completed")
                 self.merge_myplex(das_myplex)
 
+        self.cache.writeCache(self.server_list_cache, self.server_list)
         printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
 
         return 
