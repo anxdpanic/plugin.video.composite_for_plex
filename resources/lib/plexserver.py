@@ -129,7 +129,6 @@ class PlexMediaServer:
         if not self.offline or refresh:
         
             start_time=time.time()
-            printDebug.info("Full URL -> %s://%s:%s%s" % (self.protocol, self.address[0], self.port, url))
             try:
                 if type == 'get':
                     response = requests.get("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3, stream=stream)
@@ -143,7 +142,7 @@ class PlexMediaServer:
                 self.offline=True
             else:
 
-                printDebug("URL was: %s" % response.url,self.DEBUG_DEBUG)
+                printDebug.debug("URL was: %s" % response.url)
                 
                 if response.status_code == requests.codes.ok:
                     printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
@@ -151,7 +150,7 @@ class PlexMediaServer:
                     if stream:
                         return response
                     
-                    printDebug("===XML===\n%s\n===XML===" % response.text.encode('utf-8'), self.DEBUG_DEBUGPLUS)
+                    printDebug.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
                     
                     printDebug.debug("RETRIEVING: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.address[0]))                   

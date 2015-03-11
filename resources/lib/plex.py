@@ -259,9 +259,8 @@ class Plex:
             return False
         else:
             link=response.text.encode('utf-8')
-            printDebug.debugplus("====== XML returned =======")
-            printDebug.debugplus(link)
-            printDebug.debugplus("====== XML finished ======")
+            printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
+
     # except socket.gaierror :
         # error = 'Unable to lookup host: ' + MYPLEX_SERVER + "\nCheck host name is correct"
         # if suppress is False:
@@ -344,7 +343,7 @@ class Plex:
             ip, port = ip.split(':')
         
         if not is_ip(ip):
-            printDebug.warn("Not an IP Address")
+            printDebug.info("Not an IP Address")
             return None
             
         for server in self.server_list.values():
