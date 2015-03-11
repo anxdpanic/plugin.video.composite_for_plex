@@ -124,15 +124,14 @@ class PlexMediaServer:
     def set_master(self, value):
         self.master=value
         
-    def talk(self,url='/',refresh=False, type='get'):
+    def talk(self,url='/',refresh=False, type='get', stream=False):
     
         if not self.offline or refresh:
         
-            start_time = time.time()
-        
+            printDebug.info("Full URL -> %s://%s:%s%s" % (self.protocol, self.address[0], self.port, url))
             try:
                 if type == 'get':
-                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3)
+                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3, stream=stream)
                 elif type == 'put':
                     response = requests.put("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=3)                
                 elif type == 'delete':
@@ -147,6 +146,10 @@ class PlexMediaServer:
                 
                 if response.status_code == requests.codes.ok:
                     printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
+                    
+                    if stream:
+                        return response
+                    
                     printDebug("===XML===\n%s\n===XML===" % response.text.encode('utf-8'), self.DEBUG_DEBUGPLUS)
                     data = response.text.encode('utf-8')
                     
@@ -227,7 +230,7 @@ class PlexMediaServer:
             
         return self.processed_xml("/channels/recentlyViewed") 
         
-    def processed_xml(self,url):
+    def processed_xml(self,url,stream=False):
     
         if url.startswith('http'):
             printDebug.debug("We have been passed a full URL. Parsing out path")
@@ -236,9 +239,14 @@ class PlexMediaServer:
          
         start_time=time.time()
          
-        data = self.talk(url)
-        tree = etree.fromstring(data)
-        printDebug.debug("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.address[0]))
+        data = self.talk(url,stream=stream)
+        
+        if stream:
+            printDebug.debug("returned object is: %s" % data)
+            tree = etree.fromstring(data.content)
+        else:
+            tree = etree.fromstring(data)
+        printDebug.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.address[0]))
         return tree
    
     def is_owned(self):
