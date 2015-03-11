@@ -216,8 +216,8 @@ class PlexMediaServer:
             url_parts = urlparse.urlparse(url)
             url=url_parts.path
         
-        if url_parts.query:
-            url="%s?%s" % (url, url_parts.query)
+            if url_parts.query:
+                url="%s?%s" % (url, url_parts.query)
          
         start_time=time.time()
          
@@ -237,8 +237,8 @@ class PlexMediaServer:
             url_parts = urlparse.urlparse(url)
             url=url_parts.path
         
-        if url_parts.query:
-            url="%s?%s" % (url, url_parts.query)
+            if url_parts.query:
+                url="%s?%s" % (url, url_parts.query)
          
         start_time=time.time()
          
