@@ -53,6 +53,7 @@ class addonSettings:
         self.myplex_signedin = self.__translate_bool_settings(self.settings.getSetting('myplex_signedin'))
         self.myplex_token= self.settings.getSetting('myplex_token')
         self.cache=self.__translate_bool_settings(self.settings.getSetting('cache'))
+        self.masterserver=self.settings.getSetting('masterServer')
 
         
     def dumpSettings(self):
@@ -75,7 +76,12 @@ class addonSettings:
         self.settings.setSetting('myplex_token','%s|%s' % (self.myplex_user,value))
         self.myplex_token = '%s|%s' % (self.myplex_user,value)
         print "Updated token %s" % self.myplex_token
-    
+
+    def update_master_server(self, value):
+        print "Updating master server to%s" % value
+        self.settings.setSetting('masterServer','%s' % value)
+        self.masterServer = '%s' % value
+        
     def signout(self):
         self.settings.setSettings('myplex_signedin','false')
         self.myplex_signedin=False

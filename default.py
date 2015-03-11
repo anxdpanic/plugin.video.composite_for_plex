@@ -53,8 +53,6 @@ __cwd__      = GLOBAL_SETUP['__cwd__']
 printDebug=printDebug("PleXBMC")
 
 #Get the setting from the appropriate file.
-DEFAULT_PORT="32400"
-MYPLEX_SERVER="my.plexapp.com"
 _MODE_GETCONTENT=0
 _MODE_TVSHOWS=1
 _MODE_MOVIES=2
@@ -1862,15 +1860,11 @@ def getMasterServer(all=False):
     printDebug.debug("== ENTER ==")
 
     possibleServers=[]
-    current_master=__settings__.getSetting('masterServer')
-    plex_network.discover()
+    current_master=settings.masterserver
     for serverData in plex_network.get_server_list():
         printDebug.debug( str(serverData) )
         if serverData.get_master() == 1:
-            possibleServers.append({'address' : serverData.get_location() ,
-                                    'discovery' : serverData.get_discovery(),
-                                    'name'      : serverData.get_name(),
-                                    'token'     : serverData.get_token() })
+            possibleServers.append(serverData)
     printDebug.debug( "Possible master servers are: %s" % possibleServers )
 
     if all:
@@ -1879,14 +1873,14 @@ def getMasterServer(all=False):
     if len(possibleServers) > 1:
         preferred="local"
         for serverData in possibleServers:
-            if serverData['name'] == current_master:
+            if serverData.get_name == current_master:
                 printDebug.debug("Returning current master")
                 return serverData
             if preferred == "any":
                 printDebug.debug("Returning 'any'")
                 return serverData
             else:
-                if serverData['discovery'] == preferred:
+                if serverData.get_discovery() == preferred:
                     printDebug.debug("Returning local")
                     return serverData
     elif len(possibleServers) == 0:
@@ -4299,22 +4293,22 @@ def setMasterServer () :
     servers=getMasterServer(True)
     printDebug.debug(str(servers))
     
-    current_master=__settings__.getSetting('masterServer')
+    current_master=settings.masterserver
     
     displayList=[]
     for address in servers:
-        found_server = address['name']
+        found_server = address.get_name()
         if found_server == current_master:
             found_server = found_server+"*"
         displayList.append(found_server)
     
     audioScreen = xbmcgui.Dialog()
-    result = audioScreen.select('Select master server',displayList)
+    result = audioScreen.select('Select master server', displayList)
     if result == -1:
         return False
 
-    printDebug.debug("Setting master server to: %s" % (servers[result]['name'],))
-    __settings__.setSetting('masterServer',servers[result]['name'])
+    printDebug.debug("Setting master server to: %s" % servers[result].get_name() )
+    settings.update_master_server(servers[result].get_name() )
     return
   
 ##So this is where we really start the plugin.
