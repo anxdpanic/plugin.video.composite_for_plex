@@ -28,9 +28,11 @@ class CacheControl:
         self.enabled=enabled
 
         if self.enabled:
-        
 
-            if not xbmcvfs.exists(self.cache_location):
+            if self.cache_location[-1] != "/":
+                self.cache_location+="/"
+        
+            if not xbmcvfs.exists(self.cache_location): 
                 printDebug.debug("CACHE [%s]: Location does not exist.  Creating" % self.cache_location)
                 if not xbmcvfs.mkdirs(self.cache_location):
                     printDebug.debug("CACHE [%s]: Location cannot be created" % self.cache_location)
@@ -38,8 +40,6 @@ class CacheControl:
                     return
             printDebug.debug("Running with cache location: %s" % self.cache_location)
 
-            if self.cache_location[-1] != "/":
-                self.cache_location+="/"
 
         else:
             self.cache_location=None
