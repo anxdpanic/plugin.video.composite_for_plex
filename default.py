@@ -128,33 +128,6 @@ g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
 #Set up holding variable for session ID
 global g_sessionID
 g_sessionID=None
-        
-def getAllSections( server_list = None ):
-    '''
-        from server_list, get a list of all the available sections
-        and deduplicate the sections list
-        @input: None
-        @return: None (alters the global value g_sectionList)
-    '''
-    printDebug.debug("== ENTER ==")
-    
-    if server_list is None:
-        plex_network.discover()
-        server_list = plex_network.get_server_list()
-    
-    printDebug.debug("Using servers list: %s" % server_list)
-
-    section_list=[]
-    
-    for server in server_list:
-
-        if server.is_offline():
-            continue
-            
-        server.discover_sections()
-        section_list += server.get_sections()
-            
-    return section_list
 
 def getAuthDetails( details, url_format=True, prefix="&" ):
     '''
