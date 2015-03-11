@@ -111,22 +111,14 @@ class Plex:
                 else:
                     GDM_debug=0
 
-                gdm_cache_file="gdm.server.cache"
-                gdm_cache_ok = False
+                gdm_client = plexgdm.plexgdm(GDM_debug)
+                gdm_client.discover()
+                gdm_server_name = gdm_client.getServerList()
 
-                gdm_cache_ok, gdm_server_name = self.cache.checkCache(gdm_cache_file)
-
-                if not gdm_cache_ok:
-                    gdm_client = plexgdm.plexgdm(GDM_debug)
-                    gdm_client.discover()
-                    gdm_server_name = gdm_client.getServerList()
-
-                    self.cache.writeCache(gdm_cache_file, gdm_server_name)
-
-                if  ( gdm_cache_ok or gdm_client.discovery_complete ) and gdm_server_name :
+                if  gdm_client.discovery_complete and gdm_server_name :
                     printDebug.info("GDM discovery completed")
+                    
                     for device in gdm_server_name:
-
                         server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local')
                         server.refresh()
                         printDebug("Adding server %s %s" % (server.get_name(), server.get_uuid()))
@@ -139,7 +131,6 @@ class Plex:
 
         #Set to Disabled
         else:
-
             if self.settings.das_host:
 
                 if not self.settings.das_port:
@@ -156,18 +147,12 @@ class Plex:
         if self.settings.myplex_user:
             printDebug.info( "PleXBMC -> Adding myplex as a server location")
 
-            myplex_cache_file="myplex.server.cache"
-            success, das_myplex = self.cache.checkCache(myplex_cache_file)
-
-            if not success:
-                das_myplex = self.get_myplex_servers()
-                self.cache.writeCache(myplex_cache_file, das_myplex)
+            das_myplex = self.get_myplex_servers()
 
             if das_myplex:
                 printDebug.info("MyPlex discovery completed")
                 self.merge_myplex(das_myplex)
 
-        self.cache.writeCache(self.server_list_cache, self.server_list)        
         printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
 
         return 
