@@ -128,6 +128,7 @@ class PlexMediaServer:
     
         if not self.offline or refresh:
         
+            start_time=time.time()
             printDebug.info("Full URL -> %s://%s:%s%s" % (self.protocol, self.address[0], self.port, url))
             try:
                 if type == 'get':

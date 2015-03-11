@@ -752,7 +752,7 @@ def Movies( url, tree=None ):
 
     server=plex_network.get_server_from_url(url)
 
-    tree=server.processed_xml(url)
+    tree=getXML(url,tree)
     if tree is None:
         return
 
@@ -2136,7 +2136,7 @@ def PlexPlugins(url, tree=None):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
     server=plex_network.get_server_from_url(url)
-    tree = server.processed_xml(url)
+    tree = getXML(url,tree)
     if tree is None:
         return
 
