@@ -126,26 +126,6 @@ g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
 global g_sessionID
 g_sessionID=None
 
-def getAuthDetails( details, url_format=True, prefix="&" ):
-    '''
-        Takes the token and creates the required arguments to allow
-        authentication.  This is really just a formatting tools
-        @input: token as dict, style of output [opt] and prefix style [opt]
-        @return: header string or header dict
-    '''
-    token = details.get('token', None)
-
-    if url_format:
-        if token:
-            return prefix+"X-Plex-Token="+str(token)
-        else:
-            return ""
-    else:
-        if token:
-            return {'X-Plex-Token' : token }
-        else:
-            return {}
-
 def mediaType( partData, server, dvdplayback=False ):
     printDebug.debug("== ENTER ==")
     stream=partData['key']
@@ -1221,10 +1201,10 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
         printDebug.debug( "We are playing a stream")
         if g_transcode == "true":
             printDebug.debug( "We will be transcoding the stream")
-            playurl=transcode(id,url)+getAuthDetails({'token':_PARAM_TOKEN})
+            playurl=transcode(id,url)
 
         else:
-            playurl=url+getAuthDetails({'token':_PARAM_TOKEN},prefix="?")
+            playurl=server.get_formatted_url(url)
     else:
         playurl=url
 
@@ -1796,13 +1776,13 @@ def getMasterServer(all=False):
 def transcode( id, url, identifier=None ):
     printDebug.debug("== ENTER ==")
 
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
 
     #Check for myplex user, which we need to alter to a master server
     if 'plexapp.com' in url:
         server=getMasterServer()
 
-    printDebug.debug("Using preferred transcoding server: %s " % server)
+    printDebug.debug("Using preferred transcoding server: %s " % server.get_name())
     printDebug ("incoming URL is: %s" % url)
 
     transcode_request="/video/:/transcode/segmented/start.m3u8"
@@ -1823,7 +1803,7 @@ def transcode( id, url, identifier=None ):
         transcode_settings['webkit']=1
     else:
         transcode_settings['identifier']="com.plexapp.plugins.library"
-        transcode_settings['key']=urllib.quote_plus("http://%s/library/metadata/%s" % (server, id))
+        transcode_settings['key']=urllib.quote_plus("%s/library/metadata/%s" % (server.get_url_location(), id))
         transcode_target=urllib.quote_plus("http://127.0.0.1:32400"+"/"+"/".join(url.split('/')[3:]))
         printDebug ("filestream URL is: %s" % transcode_target )
 
@@ -1853,7 +1833,7 @@ def transcode( id, url, identifier=None ):
     token=base64.b64encode(hash.digest())
 
     #Send as part of URL to avoid the case sensitive header issue.
-    fullURL="http://%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (server, transcode_request, publicKey, now, urllib.quote_plus(token), capability)
+    fullURL=server.get_formatted_url("%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (transcode_request, publicKey, now, urllib.quote_plus(token), capability))
 
     printDebug.debug("Transcoded media location URL: %s" % fullURL)
 
