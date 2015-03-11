@@ -2398,6 +2398,10 @@ def movieTag(url, server, tree, movie, randomNumber):
         details['writer']   = " / ".join(tempwriter)
         details['genre']    = " / ".join(tempgenre)
 
+    if movie.get('primaryExtraKey') is not None:
+        details['trailer'] = "plugin://plugin.video.plexbmc/?url=%s%s?t=%s&mode=%s" % (server.get_url_location(), movie.get('primaryExtraKey', ''), randomNumber, _MODE_PLAYLIBRARY)
+        printDebug.debug('Trailer plugin url added: %s' % details['trailer'])
+        
     #Add extra media flag data
     if not settings.skipmediaflags:
         extraData.update(getMediaData(mediaarguments))
