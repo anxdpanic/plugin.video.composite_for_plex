@@ -277,7 +277,7 @@ def mediaType( partData, server, dvdplayback=False ):
 
     if ( file is None ) or ( settings.stream == "1" ):
         printDebug.debug( "Selecting stream")
-        return "http://"+server+stream
+        return server.get_formatted_url(stream)
 
     #First determine what sort of 'file' file is
 
@@ -312,7 +312,7 @@ def mediaType( partData, server, dvdplayback=False ):
             printDebug.debug("Forcing SMB for DVD playback")
             settings.stream="2"
         else:
-            return "http://"+server+stream
+            return server.get_formatted_url(stream)
 
 
     # 2 is use SMB
@@ -327,7 +327,7 @@ def mediaType( partData, server, dvdplayback=False ):
             filelocation="%s:%s" % (protocol, file.replace("\\","/"))
         else:
             #Might be OSX type, in which case, remove Volumes and replace with server
-            server=server.split(':')[0]
+            server=server.get_location().split(':')[0]
             loginstring=""
 
             if settings.nasoverride:
@@ -360,7 +360,7 @@ def mediaType( partData, server, dvdplayback=False ):
                 filelocation='/'.join(components)
     else:
         printDebug.debug( "No option detected, streaming is safest to choose" )
-        filelocation="http://"+server+stream
+        filelocation=server.get_formatted_url(stream)
 
     printDebug.debug("Returning URL: %s " % filelocation)
     return filelocation
@@ -1246,7 +1246,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                     subCount += 1
                     subtitle=stream
                     if stream.get('key'):
-                        subtitle['key'] = 'http://'+server+stream['key']
+                        subtitle['key'] = server.get_formatted_url(stream['key'])
                     else:
                         selectedSubOffset=int( stream.get('index') ) - subOffset
                     
@@ -1277,7 +1277,7 @@ def playPlaylist ( server, data ):
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
     
-    tree = getXML(server+data['extra'].get('album')+"/children")
+    tree = getXML(server.get_url_location()+data['extra'].get('album')+"/children")
     
     if tree is None:
         return
@@ -1311,7 +1311,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     
     getTranscodeSettings(override)
 
-    server=getServerFromURL(vids)
+    server=plex_network.get_server_from_url(vids)
 
     id=vids.split('?')[0].split('&')[0].split('/')[-1]
 
@@ -1401,7 +1401,7 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
     # record the playing file and server in the home window
     # so that plexbmc helper can find out what is playing
     WINDOW = xbmcgui.Window( 10000 )
-    WINDOW.setProperty('plexbmc.nowplaying.server', server)
+    WINDOW.setProperty('plexbmc.nowplaying.server', server.get_location())
     WINDOW.setProperty('plexbmc.nowplaying.id', id)
 
     #Set a loop to wait for positive confirmation of playback
@@ -1536,14 +1536,12 @@ def selectMedia( data, server ):
     printDebug.debug("We have selected media at %s" % newurl)
     return newurl
 
-def monitorPlayback( id, server_ip ):
+def monitorPlayback( id, server ):
     printDebug.debug("== ENTER ==")
 
     if __settings__.getSetting('monitoroff') == "true":
         return
-    
-    server = plex_network.get_server_from_ip(server_ip)
-    
+        
     monitorCount=0
     progress = 0
     complete = 0
@@ -4055,8 +4053,7 @@ def myPlexQueue():
         xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")
         return
 
-    html=plex_network.get_myplex_queue()
-    tree=etree.fromstring(html)
+    tree=plex_network.get_myplex_queue()
 
     PlexPlugins('http://my.plexapp.com/playlists/queue/all', tree)
     return
