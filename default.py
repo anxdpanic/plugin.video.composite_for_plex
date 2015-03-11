@@ -2668,7 +2668,7 @@ def getFanart(data, server, width=1280, height=720):
         if settings.fullres_fanart:
             return server.get_formatted_url(fanart)
         else:
-            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
+            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + fanart), width, height))
 
     else:
         return ''
