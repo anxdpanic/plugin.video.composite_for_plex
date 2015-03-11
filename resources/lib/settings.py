@@ -10,7 +10,14 @@ class addonSettings:
         print "PleXBMC -> Reading configuration"
         self.settings = xbmcaddon.Addon(name)
         
-        self.debug = int(self.settings.getSetting('debug'))
+        if self.settings.getSetting('debug') == 'true':
+            print "PLEXBMC < 3.6 setting detected - settings must be re-saved"
+            self.debug = 2
+        elif self.settings.getSetting('debug') == 'false':
+            print "PLEXBMC < 3.6 setting detected - settings must be re-saved"
+            self.debug = 0
+        else:
+            self.debug = int(self.settings.getSetting('debug'))
         self.stream = self.settings.getSetting('streaming')
         self.secondary = self.__translate_bool_settings(self.settings.getSetting('secondary'))
         self.streamControl = self.settings.getSetting('streamControl')
