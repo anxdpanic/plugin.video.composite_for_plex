@@ -3387,7 +3387,7 @@ def fullShelf(server_list={}):
                     printDebug.debug("PLEXBMC -> RecentlyAdded items not found on: %s" % server_details.get_url_location())
                     continue
 
-                libraryuuid = tree.get("librarySectionUUID").encode('utf-8')
+                libraryuuid = tree.get("librarySectionUUID",'').encode('utf-8')
 
                 ep_helper = {}  # helper season counter
                 for eachitem in tree:
