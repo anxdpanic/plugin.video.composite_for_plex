@@ -3281,12 +3281,12 @@ def amberskin():
             printDebug.debug("== ENTER ==")
 
             root = plex_network.get_myplex_queue()
-            server_address = getMasterServer()['address']
+            server_address = getMasterServer()
             queue_count = 1
 
             for media in root:
                 printDebug.debug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
-                m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s" % (getLinkURL('http://'+server_address, media, server_address), 18, 1)
+                m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s" % (getLinkURL(server_address.get_url_location(), media, server_address), 18, 1)
                 m_thumb = getShelfThumb(media, server_address, seasonThumb=0)
 
                 try:
