@@ -2135,13 +2135,12 @@ def PlexPlugins(url, tree=None):
     '''
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
-
-    tree = getXML(url, tree)
+    server=plex_network.get_server_from_url(url)
+    tree = server.processed_xml(url)
     if tree is None:
         return
 
     myplex_url=False
-    server=getServerFromURL(url)
     if (tree.get('identifier') != "com.plexapp.plugins.myplex") and ( "node.plexapp.com" in url ) :
         myplex_url=True
         printDebug.debug("This is a myplex URL, attempting to locate master server")
@@ -2164,7 +2163,7 @@ def PlexPlugins(url, tree=None):
                    'key'          : plugin.get('key','') }
 
         if myplex_url:
-            extraData['key']=extraData['key'].replace('node.plexapp.com:32400',server)
+            extraData['key']=extraData['key'].replace('node.plexapp.com:32400',server.get_location())
               
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=getFanart(tree, server)
@@ -2854,10 +2853,12 @@ def install( url, name ):
 
 def channelView( url ):
     printDebug.debug("== ENTER ==")
-    tree=getXML(url)
+    server=plex_network.get_server_from_url(url)
+    tree=server.processed_xml(url)
+    
     if tree is None:
         return
-    server=getServerFromURL(url)
+    
     setWindowHeading(tree)
     for channels in tree.getiterator('Directory'):
 
