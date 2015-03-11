@@ -50,7 +50,7 @@ class printDebug:
     def __call__(self, msg, level=1):
         return self.__printDebug(msg, level)
 
-def getPlatform( ):
+def get_platform( ):
     if xbmc.getCondVisibility('system.platform.osx'):
         return "OSX"
     elif xbmc.getCondVisibility('system.platform.atv2'):

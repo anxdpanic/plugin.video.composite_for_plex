@@ -58,16 +58,16 @@ class Plex:
             
     def plex_identification(self):
 
-        return {'X-Plex-Device'            : 'XBMC/KODI' ,
-                'X-Plex-Client-Platform'   : 'XBMC/KODI' ,
+        return {'X-Plex-Device'            : 'KODI' ,
+                'X-Plex-Client-Platform'   : 'KODI' ,
                 'X-Plex-Device-Name'       : 'unknown' ,
                 'X-Plex-Language'          : 'en',
                 'X-Plex-Model'             : 'unknown' ,
-                'X-Plex-Platform'          : 'unknown' ,
+                'X-Plex-Platform'          : 'PleXBMC' ,
                 'X-Plex-Client-Identifier' : 'unknown' ,
-                'X-Plex-Product'           : 'unknown' ,
-                'X-Plex-Platform-Version'  : 'unknown' ,
-                'X-Plex-Version'           : 'unknown'  ,
+                'X-Plex-Product'           : 'PleXBMC' ,
+                'X-Plex-Platform-Version'  : get_platform() ,
+                'X-Plex-Version'           : '4'  ,
                 'X-Plex-Provides'          : "player",
                 'X-Plex-Token'             : self.myplex_token}
 

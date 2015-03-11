@@ -38,23 +38,7 @@ class PlexMediaServer:
         self.class_type=class_type
         self.discovered=False
         self.offline=False
-
-    def plex_identification(self):
-
-        return {'X-Plex-Device'            : 'XBMC/KODI' ,
-                'X-Plex-Client-Platform'   : 'XBMC/KODI' ,
-                'X-Plex-Device-Name'       : 'unknown' ,
-                'X-Plex-Language'          : 'en',
-                'X-Plex-Model'             : 'unknown' ,
-                'X-Plex-Platform'          : 'unknown' ,
-                'X-Plex-Client-Identifier' : 'unknown' ,
-                'X-Plex-Product'           : 'unknown' ,
-                'X-Plex-Platform-Version'  : 'unknown' ,
-                'X-Plex-Version'           : 'unknown'  ,
-                'X-Plex-Provides'          : "player",
-                'X-Plex-Token'             : self.token}
-        
-
+   
     def get_details(self):
                  
         return {'serverName': self.server_name,
@@ -69,16 +53,16 @@ class PlexMediaServer:
 
     def plex_identification(self):
 
-        return {'X-Plex-Device'            : 'XBMC/KODI' ,
-                'X-Plex-Client-Platform'   : 'XBMC/KODI' ,
+        return {'X-Plex-Device'            : 'KODI' ,
+                'X-Plex-Client-Platform'   : 'KODI' ,
                 'X-Plex-Device-Name'       : 'unknown' ,
                 'X-Plex-Language'          : 'en',
                 'X-Plex-Model'             : 'unknown' ,
-                'X-Plex-Platform'          : 'unknown' ,
+                'X-Plex-Platform'          : 'PleXBMC' ,
                 'X-Plex-Client-Identifier' : 'unknown' ,
-                'X-Plex-Product'           : 'unknown' ,
-                'X-Plex-Platform-Version'  : 'unknown' ,
-                'X-Plex-Version'           : 'unknown'  ,
+                'X-Plex-Product'           : 'PleXBMC' ,
+                'X-Plex-Platform-Version'  : get_platform() ,
+                'X-Plex-Version'           : '4'  ,
                 'X-Plex-Provides'          : "player",
                 'X-Plex-Token'             : self.token}
                 
@@ -180,24 +164,16 @@ class PlexMediaServer:
     def is_offline(self):
         return self.offline
 
-    def get_sections(self):
-    
-        #temp_list=[]
-    
-        #for section in self.section_list:        
-        #    temp_list.append(sections.get_details)
-            
+    def get_sections(self):            
         printDebug.debug("Returning sections: %s" % self.section_list)
         return self.section_list
         
     def discover_sections(self):
-        
-            for section in self.processed_xml("/library/sections"):
-            
-                self.section_list.append(plex_section(section))
-
+        for section in self.processed_xml("/library/sections"):
+            self.section_list.append(plex_section(section))
+        return
+                
     def get_recently_added(self,section=-1,start=0,size=0):
-    
         arguments="?unwatched=1"
 
         if section < 0:
@@ -226,12 +202,10 @@ class PlexMediaServer:
     def get_server_ondeck(self):
         return self.get_ondeck(section=-1)
   
-    def get_channel_recentlyviewed(self):
-            
+    def get_channel_recentlyviewed(self):       
         return self.processed_xml("/channels/recentlyViewed") 
         
     def processed_xml(self,url,stream=False):
-    
         if url.startswith('http'):
             printDebug.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
@@ -277,11 +251,6 @@ class PlexMediaServer:
         return urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
 
     def get_fanart(self, section, width=1280, height=720):
-        '''
-            Simply take a URL or path and determine how to format for fanart
-            @ input: elementTree element, server name
-            @ return formatted URL for photo resizing
-        '''
         
         printDebug.debug("Getting fanart for %s" % section.get_title())
         
@@ -346,7 +315,7 @@ class plex_section:
     
         path = data.get('key')
         if not path[0] == "/":
-             path = '/library/sections/%s' % path
+            path = '/library/sections/%s' % path
     
         self.title       = data.get('title', 'Unknown').encode('utf-8')
         self.sectionuuid = data.get('uuid', '')

@@ -101,7 +101,7 @@ CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug, settings.c
 print "PleXBMC -> Running Python: %s" % str(sys.version_info)
 print "PleXBMC -> Running PleXBMC: %s " % __version__
 print "PleXBMC -> CWD is set to: %s" % __cwd__
-print "PleXBMC -> Platform: %s" % getPlatform()
+print "PleXBMC -> Platform: %s" % get_platform()
 
 wake_servers()
 
