@@ -374,8 +374,7 @@ def displaySections( filter=None, display_shared=False ):
 
                 extraData={ 'fanart_image' : server.get_fanart(section),
                             'type'         : "Video",
-                            'thumb'        : g_thumb,
-                            'token'        : server.get_token()}
+                            'thumb'        : g_thumb}
 
                 #Determine what we are going to do process after a link is selected by the user, based on the content we find
 
@@ -445,8 +444,7 @@ def displaySections( filter=None, display_shared=False ):
 
             details={'title' : prefix+"Channels" }
             extraData={'type' : "Video",
-                       'thumb' : g_thumb,
-                       'token' : server.get_token()}
+                       'thumb' : g_thumb}
 
             extraData['mode']=_MODE_CHANNELVIEW
             u="%s/system/plugins/all" % server.get_url_location()
@@ -697,7 +695,6 @@ def TVShows( url, tree=None ):
                    'TotalEpisodes'     : details['episode'],
                    'thumb'             : getThumb(show, server) ,
                    'fanart_image'      : getFanart(show, server) ,
-                   'token'             : _PARAM_TOKEN ,
                    'key'               : show.get('key','') ,
                    'ratingKey'         : str(show.get('ratingKey',0)) }
 
@@ -787,7 +784,6 @@ def TVSeasons( url ):
                    'UnWatchedEpisodes' : details['episode'] - watched ,
                    'thumb'             : getThumb(season, server) ,
                    'fanart_image'      : getFanart(season, server) ,
-                   'token'             : _PARAM_TOKEN ,
                    'key'               : season.get('key','') ,
                    'ratingKey'         : str(season.get('ratingKey',0)) ,
                    'mode'              : _MODE_TVEPISODES }
@@ -908,7 +904,6 @@ def TVEpisodes( url, tree=None ):
         extraData={'type'         : "Video" ,
                    'thumb'        : getThumb(episode, server) ,
                    'fanart_image' : getFanart(episode, server) ,
-                   'token'        : _PARAM_TOKEN ,
                    'key'          : episode.get('key',''),
                    'ratingKey'    : str(episode.get('ratingKey',0)),
                    'duration'     : duration,
@@ -2234,7 +2229,6 @@ def movieTag(url, server, tree, movie, randomNumber):
     extraData={'type'         : "Video" ,
                'thumb'        : getThumb(movie, server) ,
                'fanart_image' : getFanart(movie, server) ,
-               'token'        : _PARAM_TOKEN ,
                'key'          : movie.get('key',''),
                'ratingKey'    : str(movie.get('ratingKey',0)),
                'duration'     : duration,
@@ -4158,7 +4152,6 @@ mode=int(params.get('mode',-1))
 param_transcodeOverride=int(params.get('transcode',0))
 param_identifier=params.get('identifier',None)
 param_indirect=params.get('indirect',None)
-_PARAM_TOKEN=params.get('X-Plex-Token',None)
 force=params.get('force')
 
 plex_network=plex.Plex(load=True)
@@ -4256,7 +4249,6 @@ else:
         print "PleXBMC -> URL: %s" % param_url
         print "PleXBMC -> Name: %s" % param_name
         print "PleXBMC -> identifier: %s" % param_identifier
-        print "PleXBMC -> token: %s"  % _PARAM_TOKEN
 
     #Run a function based on the mode variable that was passed in the URL
     if ( mode == None ) or ( param_url == None ) or ( len(param_url)<1 ):
