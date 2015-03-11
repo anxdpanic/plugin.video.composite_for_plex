@@ -262,6 +262,13 @@ class PlexMediaServer:
     def get_formatted_url(self, url, options={}):
     
         options.update(self.plex_identification())
+        
+        if url.startswith('http'):
+            url_parts = urlparse.urlparse(url)
+            url=url_parts.path
+           
+            if url_parts.query:
+                url=url+'?'+url_parts.query
     
         location = "%s%s" % (self.get_url_location(), url)
         
