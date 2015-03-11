@@ -42,13 +42,11 @@ import datetime
 import xml.etree.ElementTree as etree
 from common import *  #Needed first to setup import locations
 from settings import addonSettings
-import CacheControl
 import plex
 
 print "===== PLEXBMC START ====="
 
 __version__  = GLOBAL_SETUP['__version__']
-__cachedir__ = GLOBAL_SETUP['__cachedir__']
 __settings__ = GLOBAL_SETUP['__settings__']
 __cwd__      = GLOBAL_SETUP['__cwd__']
 
@@ -95,8 +93,6 @@ _SUB_AUDIO_NEVER_SHOW="2"
 
 settings=addonSettings('plugin.video.plexbmc')
 print settings.__dict__
-
-CACHE=CacheControl.CacheControl(__cachedir__+"cache", settings.debug, settings.cache)
 
 print "PleXBMC -> Running Python: %s" % str(sys.version_info)
 print "PleXBMC -> Running PleXBMC: %s " % __version__
@@ -4440,7 +4436,7 @@ elif sys.argv[1] == "master":
 
 #Delete cache and refresh it    
 elif str(sys.argv[1]) == "cacherefresh":
-    CACHE.deleteCache()
+    plex_network.delete_cache()
     xbmc.executebuiltin("ReloadSkin()")
 
 #else move to the main code    
@@ -4551,7 +4547,7 @@ else:
         displaySections(display_shared=True)
         
     elif mode == _MODE_DELETE_REFRESH:
-        CACHE.deleteCache()
+        plex_network.delete_cache()
         xbmc.executebuiltin("Container.Refresh")
 
     elif mode == _MODE_PLAYLISTS:

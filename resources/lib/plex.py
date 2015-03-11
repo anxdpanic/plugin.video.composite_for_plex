@@ -378,3 +378,7 @@ class Plex:
             return server.processed_xml(url_parts.path)
         
         return ''
+        
+    def delete_cache(self):
+        return self.cache.deleteCache()
+    
