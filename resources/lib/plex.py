@@ -26,7 +26,7 @@ class Plex:
         else:
             self.settings = settings
             
-        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", self.settings.debug)
+        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers")
         self.myplex_server='https://plex.tv'
         self.myplex_token=None
         self.logged_into_myplex=False
@@ -44,15 +44,18 @@ class Plex:
         if not data_ok:
             printDebug.info("unsuccessful")
             self.server_list={}
-    
+            if not self.discover():
+                self.server_list={}
         printDebug.debug("Server list is now: %s" % self.server_list)
-    
+
     def discover(self):
         self.discover_all_servers()
         
         if self.server_list:
             self.discovered=True
-
+            
+        return self.discovered    
+         
     def get_server_list(self):
         return self.server_list.values()
             
