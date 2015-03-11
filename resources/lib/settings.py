@@ -13,9 +13,11 @@ class addonSettings:
         if self.settings.getSetting('debug') == 'true':
             print "PLEXBMC < 3.6 setting detected - settings must be re-saved"
             self.debug = 2
+            self.settings.setSetting('debug','2')
         elif self.settings.getSetting('debug') == 'false':
             print "PLEXBMC < 3.6 setting detected - settings must be re-saved"
             self.debug = 0
+            self.settings.setSetting('debug','1')
         else:
             self.debug = int(self.settings.getSetting('debug'))
         self.stream = self.settings.getSetting('streaming')
