@@ -1589,9 +1589,9 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     '''
     printDebug.debug("== ENTER ==")
 
-    server=getServerFromURL(vids)
-    if "node.plexapp.com" in server:
-        server=getMasterServer()['address']
+    server=plex_network.get_server_from_url(vids)
+    if "node.plexapp.com" in vids:
+        server=getMasterServer()
 
     #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
     if '/services/url/lookup' in vids:
@@ -2109,7 +2109,7 @@ def PlexPlugins(url, tree=None):
     if (tree.get('identifier') != "com.plexapp.plugins.myplex") and ( "node.plexapp.com" in url ) :
         myplex_url=True
         printDebug.debug("This is a myplex URL, attempting to locate master server")
-        server=getMasterServer()['address']
+        server=getMasterServer()
 
     for plugin in tree:
 
