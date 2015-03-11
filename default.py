@@ -313,6 +313,10 @@ def mediaType( partData, server, dvdplayback=False ):
 
     # 2 is use SMB
     elif settings.stream == "2" or settings.stream == "3":
+    
+        #first off, lets remove URL encoding
+        file=urllib.unquote(file)
+    
         if settings.stream == "2":
             protocol="smb"
         else:
@@ -340,7 +344,7 @@ def mediaType( partData, server, dvdplayback=False ):
                 filelocation="%s:/%s" % (protocol, file.replace("Volumes",loginstring+server))
             else:
                 if type == "winfile":
-                    filelocation="%s://%s%s/%s" % (protocol, loginstring, server, file[3:])
+                    filelocation=("%s://%s%s/%s" % (protocol, loginstring, server, file[3:].replace("\\","/")))
                 else:
                     #else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
                     filelocation=protocol+"://"+loginstring+server+file
