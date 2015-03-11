@@ -40,7 +40,7 @@ class printDebug:
         return self.__printDebug(message, 3)
         
     def debugplus(self, message):
-        return self.dev(message)
+        return self.__printDebug(message, 3)
   
     def __printDebug( self, msg, level=1 ):
         if self.level >= level :
