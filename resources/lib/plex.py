@@ -85,7 +85,7 @@ class Plex:
             
         return False
                 
-    def talk_to_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
+    def talk_direct_to_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
     
         response = requests.get("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
         
@@ -364,9 +364,21 @@ class Plex:
         server = self.get_server_from_ip(url_parts.netloc)
         
         if server:
-            return server.processed_xml(url_parts.path)
+            return server.processed_xml(url)
         
         return ''
+
+    def talk_to_server(self, url):
+        
+        url_parts = urlparse.urlparse(url)
+        
+        server = self.get_server_from_ip(url_parts.netloc)
+        
+        if server:
+            return server.raw_xml(url)
+        
+        return ''
+
         
     def delete_cache(self):
         return self.cache.deleteCache()

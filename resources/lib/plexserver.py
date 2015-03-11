@@ -115,6 +115,7 @@ class PlexMediaServer:
     def talk(self,url='/',refresh=False, type='get', stream=False):
     
         if not self.offline or refresh:
+            printDebug.debug("URL is: %s" % url)
         
             start_time=time.time()
             try:
@@ -214,6 +215,9 @@ class PlexMediaServer:
             printDebug.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
             url=url_parts.path
+        
+        if url_parts.query:
+            url="%s?%s" % (url, url_parts.query)
          
         start_time=time.time()
          
@@ -226,7 +230,23 @@ class PlexMediaServer:
             tree = etree.fromstring(data)
         printDebug.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.address[0]))
         return tree
-   
+
+    def raw_xml(self,url,stream=False):
+        if url.startswith('http'):
+            printDebug.debug("We have been passed a full URL. Parsing out path")
+            url_parts = urlparse.urlparse(url)
+            url=url_parts.path
+        
+        if url_parts.query:
+            url="%s?%s" % (url, url_parts.query)
+         
+        start_time=time.time()
+         
+        data = self.talk(url,stream=stream)
+        
+        printDebug.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.address[0]))
+        return data
+        
     def is_owned(self):
         
         if self.owned == 1 or self.owned == '1':

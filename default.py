@@ -1595,10 +1595,9 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
     if '/services/url/lookup' in vids:
         printDebug.debug("URL Lookup service")
-        html=getURL(vids, suppress=False)
-        if not html:
+        tree=getXML(vids)
+        if not tree:
             return
-        tree=etree.fromstring(html)
 
         mediaCount=0
         mediaDetails=[]
@@ -1632,10 +1631,9 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     #Check if there is a further level of XML required
     if indirect or '&indirect=1' in vids:
         printDebug.debug("Indirect link")
-        html=getURL(vids, suppress=False)
+        tree=getXML(vids)
         if not html:
             return
-        tree=etree.fromstring(html)
 
         for bits in tree.getiterator('Part'):
             videoPluginPlay(getLinkURL(vids,bits,server))
@@ -1655,7 +1653,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
         if len(vids) > 1000:
             printDebug.debug("XBMC HSL limit detected, will pre-fetch m3u8 playlist")
             
-            playlist = getURL(vids)
+            playlist = getXML(vids)
             
             if not playlist or not "#EXTM3U" in playlist:
             
@@ -2199,9 +2197,9 @@ def channelSettings ( url, settingID ):
             printDebug.debug("Found correct id entry for: %s" % settingID)
             id=settingID
 
-            label=plugin.get('label',"Enter value").encode('utf-8')
-            option=plugin.get('option').encode('utf-8')
-            value=plugin.get('value').encode('utf-8')
+            label=plugin.get('label',"Enter value")
+            option=plugin.get('option')
+            value=plugin.get('value')
 
             if plugin.get('type') == "text":
                 printDebug.debug("Setting up a text entry screen")
@@ -2244,7 +2242,7 @@ def channelSettings ( url, settingID ):
             setString='%s&%s=%s' % (setString, id, value)
 
     printDebug.debug("Settings URL: %s" % setString )
-    getURL (setString)
+    plex_network.talk_to_server(setString)
     xbmc.executebuiltin("Container.Refresh")
 
     return False
