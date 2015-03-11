@@ -1569,9 +1569,9 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
                 printDebug.debug("Unable to get valid m3u8 playlist from transcoder")
                 return
             
-            server=getServerFromURL(vids)
+            server=plex_network.get_server_from_url(vids)
             session=playlist.split()[-1]
-            vids="http://%s/video/:/transcode/segmented/%s?t=1" % (server, session)
+            vids="%s/video/:/transcode/segmented/%s?t=1" % (server.get_url_location(), session)
             
     printDebug.debug("URL to Play: %s " % vids)
     printDebug.debug("Prefix is: %s" % prefix)
@@ -1579,8 +1579,8 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     #If this is an Apple movie trailer, add User Agent to allow access
     if 'trailers.apple.com' in vids:
         url=vids+"|User-Agent=QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
-    elif server in vids:
-        url=vids+getAuthDetails({'token': _PARAM_TOKEN})
+    elif server.get_location() in vids:
+        url=server.get_formatted_url(vids)
     else:
         url=vids
 
