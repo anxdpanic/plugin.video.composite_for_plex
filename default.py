@@ -342,10 +342,8 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
             if (not folder) and extraData.get('type','video').lower() == "video":
                 #Play Transcoded
-                playTranscode="%s&transcode=1" % u
-                plugin_url="XBMC.PlayMedia(%s)" % playTranscode
-                context.insert(0,('Play Transcoded', plugin_url , ))
-                printDebug.debug("Setting transcode options to [%s]" % plugin_url)
+                context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % u , ))
+                printDebug.debug("Setting transcode options to [%s&transcode=1]" % u)
 
             liz.addContextMenuItems( context, settings.contextReplace )
 
@@ -4344,9 +4342,7 @@ else:
 
     elif mode == _MODE_PLAYLISTS:
         processXML(param_url)
-        
 
-        
 print "===== PLEXBMC STOP ====="
 
 #clear done and exit.
