@@ -1513,7 +1513,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     if indirect or '&indirect=1' in vids:
         printDebug.debug("Indirect link")
         tree=getXML(vids)
-        if not html:
+        if not tree:
             return
 
         for bits in tree.getiterator('Part'):

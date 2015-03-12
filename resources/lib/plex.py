@@ -333,7 +333,8 @@ class Plex:
         
         if not is_ip(ip):
             printDebug.info("Not an IP Address")
-            return None
+            return PlexMediaServer(name="dummy",address='127.0.0.1', port=32400, discovery='local')
+
             
         for server in self.server_list.values():
             
