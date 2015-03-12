@@ -1826,7 +1826,7 @@ def transcode( id, url, identifier=None ):
     token=base64.b64encode(hash.digest())
 
     #Send as part of URL to avoid the case sensitive header issue.
-    fullURL=server.get_formatted_url("%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (transcode_request, publicKey, now, urllib.quote_plus(token), capability))
+    fullURL="%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (server.get_url_location(),transcode_request, publicKey, now, urllib.quote_plus(token), capability)
 
     printDebug.debug("Transcoded media location URL: %s" % fullURL)
 
@@ -3950,7 +3950,6 @@ def getTranscodeSettings( override=False ):
         printDebug.debug( "Transcode format is %s" % g_transcodefmt)
         printDebug.debug( "Transcode quality is %s" % g_quality)
 
-        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};"
 
         g_audioOutput=__settings__.getSetting("audiotype")
         if g_audioOutput == "0":
@@ -3960,8 +3959,10 @@ def getTranscodeSettings( override=False ):
         elif g_audioOutput == "2":
             audio="dts{channels:6}"
 
+        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s" % audio
+            
         global capability
-        capability="X-Plex-Client-Capabilities=%sprotocols=%saudioDecoders=%s" % (urllib.quote_plus(baseCapability), urllib.quote_plus(audio))
+        capability="X-Plex-Client-Capabilities=%s" % urllib.quote_plus(baseCapability)
         printDebug.debug("Plex Client Capability = %s" % capability)
 
         import uuid
