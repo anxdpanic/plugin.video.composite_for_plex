@@ -115,7 +115,7 @@ class PlexMediaServer:
     def talk(self,url='/',refresh=False, type='get', stream=False):
     
         if not self.offline or refresh:
-            printDebug.debug("URL is: %s" % url)
+            printDebug.info("URL is: %s" % url)
         
             start_time=time.time()
             try:
@@ -137,12 +137,13 @@ class PlexMediaServer:
                     printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
                     
                     if stream:
+                        printDebug.info("DOWNLOAD: It took %.2f seconds to stream data from %s" % ((time.time() - start_time), self.address[0]))                   
                         return response
                     
                     printDebug.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
                     
-                    printDebug.debug("RETRIEVING: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.address[0]))                   
+                    printDebug.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.address[0]))                   
                     return data
                     
         return '<?xml version="1.0" encoding="UTF-8"?><status>offline</status>'
@@ -219,16 +220,16 @@ class PlexMediaServer:
             if url_parts.query:
                 url="%s?%s" % (url, url_parts.query)
          
-        start_time=time.time()
          
         data = self.talk(url,stream=stream)
+
+        start_time=time.time()
         
         if stream:
-            printDebug.debug("returned object is: %s" % data)
             tree = etree.fromstring(data.content)
         else:
             tree = etree.fromstring(data)
-        printDebug.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.address[0]))
+        printDebug.info("PARSE: it took %.2f seconds to parse data from %s" % ((time.time() - start_time), self.address[0]))
         return tree
 
     def raw_xml(self,url,stream=False):

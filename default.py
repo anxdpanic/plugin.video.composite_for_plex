@@ -616,10 +616,14 @@ def Movies( url, tree=None ):
     #Find all the video tags, as they contain the data we need to link to a file.
     MovieTags=tree.findall('Video')
     fullList=[]
+    start_time=time.time()
+    count=0
     for movie in MovieTags:
 
         movieTag(url, server, tree, movie, randomNumber)
-
+        count+=1
+        
+    printDebug.info("PROCESS: It took %s seconds to process %s items" % (time.time()-start_time, count))
     printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('movie')
     if view_id:
