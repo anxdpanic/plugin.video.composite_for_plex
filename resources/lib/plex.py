@@ -26,7 +26,7 @@ class Plex:
         else:
             self.settings = settings
             
-        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers")
+        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", self.settings.cache)
         self.myplex_server='https://plex.tv'
         self.myplex_token=None
         self.logged_into_myplex=False
@@ -97,8 +97,6 @@ class Plex:
         return etree.fromstring(data)
             
     def discover_all_servers(self):
-        printDebug.debug("== ENTER ==")
-
         if self.settings.discovery == "1":
             printDebug.info("local GDM discovery setting enabled.")
             try:
@@ -160,14 +158,11 @@ class Plex:
 
     def get_myplex_sections(self):
         xml = self.talk_to_myplex('/pms/system/library/sections')
-
         if xml is False:
             return {}
         return xml
         
     def get_myplex_servers(self):
-        printDebug.debug("== ENTER ==")
-
         tempServers = {}
         xml = self.talk_to_myplex("/pms/servers")
 
@@ -195,8 +190,6 @@ class Plex:
         return tempServers
                                            
     def merge_myplex(self, remote):
-        printDebug.debug("== ENTER ==")
-
         printDebug.info("remote is %s" % remote)
         
         for uuid,server in remote.iteritems():
@@ -210,16 +203,15 @@ class Plex:
         return 
         
     def talk_to_myplex(self, path, renew=False, suppress=True):
-        printDebug.debug("== ENTER ==")
         printDebug.info("url = %s%s" % (self.myplex_server, path))
 
-        response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.getMyPlexToken(renew)))
+        response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)))
         
         if  response.status_code == 401   and not ( renew ):
             return self.talk_to_myplex(path,True)
 
         if response.status_code >= 400:
-            error = "HTTP response error: " + str(data.status) + " " + str(data.reason)
+            error = "HTTP response error: %s %s" % ( data.status , data.reason)
             if suppress is False:
                 xbmcgui.Dialog().ok("Error",error)
             print error
@@ -230,7 +222,7 @@ class Plex:
 
         return link        
     
-    def getMyPlexToken(self,renew=False):
+    def get_myplex_token(self,renew=False):
         if self.myplex_token is None:
             try:
                 user, self.myplex_token = self.settings.myplex_token.split('|')
@@ -238,14 +230,12 @@ class Plex:
                 self.myplex_token = None
 
             if (self.myplex_token is None) or (renew) or (user != self.settings.myplex_user):
-                self.myplex_token = self.getNewMyPlexToken()
+                self.myplex_token = self.get_new_myplex_token()
 
-            printDebug.info("Using token: " + str(self.myplex_token) + "[Renew: " + str(renew) + "]")
+            printDebug.info("Using token: %s [Renew: %s]" % ( self.myplex_token, renew) )
         return { 'X-Plex-Token' : self.myplex_token }
 
-    def getNewMyPlexToken(self,suppress=True, title="Error"):
-        printDebug.debug("== ENTER ==")
-
+    def get_new_myplex_token(self,suppress=True, title="Error"):
         printDebug.info("Getting New token")
         if not self.settings.myplex_user:
             printDebug.info("No myplex details in config..")
@@ -265,10 +255,7 @@ class Plex:
                 token = etree.fromstring(response.text.encode('utf-8')).findtext('authentication-token')
                 self.settings.update_token(token)
             except:
-                printDebug.info("No authentication token found")
-                
-            printDebug.debugplus("====== XML finished ======")
-        
+                printDebug.info("No authentication token found")        
         else:
             error = "HTTP response error: %s %s" % (response.status_code, response.reason)
             if suppress is False:

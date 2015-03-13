@@ -129,6 +129,8 @@ class PlexMediaServer:
             except requests.exceptions.ConnectionError, e:
                 printDebug("Server: %s is offline or uncontactable. error: %s" % (self.address[0], e))
                 self.offline=True
+            except requests.exceptions.ReadTimeout, e:
+                printDebug.info("Server: read timeout for %s on %s " % (self.address[0], url))
             else:
 
                 printDebug.debug("URL was: %s" % response.url)
