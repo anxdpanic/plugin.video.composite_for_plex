@@ -4093,7 +4093,6 @@ def setMasterServer () :
     return
   
 ##So this is where we really start the plugin.
-print "===== PLEXBMC START ====="
 
 __version__  = GLOBAL_SETUP['__version__']
 __settings__ = GLOBAL_SETUP['__settings__']
@@ -4354,7 +4353,3 @@ def start_plexbmc():
         elif mode == _MODE_PLAYLISTS:
             processXML(param_url)
 
-    print "===== PLEXBMC STOP ====="
-
-    #clear done and exit.
-    sys.modules.clear()
