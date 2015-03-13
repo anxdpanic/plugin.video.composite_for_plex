@@ -1,5 +1,4 @@
 import xbmcaddon
-import xbmc
 import xbmcgui
 import sys
 import os
@@ -18,7 +17,7 @@ DEFAULT_PORT="32400"
 
 class Plex:
 
-    def __init__(self, settings=None, cache=None, load=False):
+    def __init__(self, settings=None, load=False):
     
         # Provide an interface into Plex 
         if not settings:
