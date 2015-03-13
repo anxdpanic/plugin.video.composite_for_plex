@@ -1809,7 +1809,7 @@ def artist( url, tree=None ):
     if tree is None:
         return
 
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
     setWindowHeading(tree)
     ArtistTag=tree.findall('Directory')
     for artist in ArtistTag:
@@ -1826,7 +1826,7 @@ def artist( url, tree=None ):
                    'mode'         : _MODE_ALBUMS ,
                    'plot'         : artist.get('summary','') }
 
-        url='http://%s%s' % (server, extraData['key'] )
+        url='%s%s' % (server.get_url_location(), extraData['key'] )
 
         addGUIItem(url,details,extraData)
 
@@ -1850,7 +1850,7 @@ def albums( url, tree=None ):
     if tree is None:
         return
 
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
     sectionart=getFanart(tree, server)
     setWindowHeading(tree)
     AlbumTags=tree.findall('Directory')
@@ -1872,7 +1872,7 @@ def albums( url, tree=None ):
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
 
-        url='http://%s%s' % (server, extraData['key'] )
+        url='%s%s' % (server.get_url_location(), extraData['key'] )
 
         addGUIItem(url,details,extraData)
 
@@ -1898,7 +1898,7 @@ def tracks( url,tree=None ):
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
      
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
     sectionart=getFanart(tree, server)
     sectionthumb=getThumb(tree, server)
     setWindowHeading(tree)
@@ -2098,7 +2098,7 @@ def processXML( url, tree=None ):
     '''
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
-    server=getServerFromURL(url)
+    server=plex_network.get_server_from_url(url)
     tree=getXML(url,tree)
     if tree is None:
         return
@@ -2362,8 +2362,8 @@ def photo( url,tree=None ):
 def music( url, tree=None ):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
-
-    server=getServerFromURL(url)
+ 
+    server=plex_network.get_server_from_url(url) 
 
     tree=getXML(url,tree)
     if tree is None:
@@ -2510,18 +2510,7 @@ def getFanart(data, server, width=1280, height=720):
 
     else:
         return ''
-
-def getServerFromURL( url ):
-    '''
-    Simply split the URL up and get the server portion, sans port
-    @ input: url, woth or without protocol
-    @ return: the URL server
-    '''
-    if url[0:4] == "http" or url[0:4] == "plex":
-        return url.split('/')[2]
-    else:
-        return url.split('/')[0]
-
+        
 def getLinkURL(url, pathData, server, season_shelf=False):
     '''
         Investigate the passed URL and determine what is required to
