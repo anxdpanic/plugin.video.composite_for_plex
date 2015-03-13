@@ -146,7 +146,7 @@ class PlexMediaServer:
                     printDebug.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.address[0]))                   
                     return data
                     
-        return '<?xml version="1.0" encoding="UTF-8"?><status>offline</status>'
+        return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
 
     def tell(self, url, refresh=False):
         return self.talk (url, refresh, type='put')
@@ -154,15 +154,15 @@ class PlexMediaServer:
     def refresh(self):
         data=self.talk(refresh=True)
         
-        if data:
-            server=etree.fromstring(data)
-
-            self.server_name = server.attrib['friendlyName'].encode('utf-8')
+        tree=etree.fromstring(data)
+        
+        if tree is not None and not tree.get('status') == 'offline':
+            self.server_name = tree.get('friendlyName').encode('utf-8')
             self.token=None
-            self.uuid=server.attrib['machineIdentifier']
+            self.uuid=tree.get('machineIdentifier')
             self.owned=1
             self.master=1
-            self.class_type=server.get('serverClass','primary')
+            self.class_type=tree.get('serverClass','primary')
             self.discovered=True
         else:
             self.discovered=False

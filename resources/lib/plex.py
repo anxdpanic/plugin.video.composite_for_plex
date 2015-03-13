@@ -41,7 +41,7 @@ class Plex:
         printDebug.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
         
-        if not data_ok:
+        if not data_ok or not len(self.server_list):
             printDebug.info("unsuccessful")
             self.server_list={}
             if not self.discover():
@@ -60,7 +60,6 @@ class Plex:
         return self.server_list.values()
             
     def plex_identification(self):
-
         return {'X-Plex-Device'            : 'KODI' ,
                 'X-Plex-Client-Platform'   : 'KODI' ,
                 'X-Plex-Device-Name'       : 'unknown' ,
@@ -75,7 +74,6 @@ class Plex:
                 'X-Plex-Token'             : self.myplex_token}
 
     def ping_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
-    
         response = requests.head("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
         
         printDebug.debug("URL was: %s" % response.url)
@@ -86,7 +84,6 @@ class Plex:
         return False
                 
     def talk_direct_to_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
-    
         response = requests.get("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
         
         printDebug.debug("URL was: %s" % response.url)
@@ -159,28 +156,16 @@ class Plex:
         return 
 
     def get_myplex_queue(self):
-        printDebug.debug("== ENTER ==")
-
         return self.get_processed_myplex_xml('/pms/playlists/queue/all')
 
     def get_myplex_sections(self):
-        printDebug.debug("== ENTER ==")
-
         xml = self.talk_to_myplex('/pms/system/library/sections')
 
         if xml is False:
             return {}
-
         return xml
         
     def get_myplex_servers(self):
-        '''
-            Connect to the myplex service and get a list of all known
-            servers.
-            @input: nothing
-            @return: a list of servers (as Dict)
-        '''
-
         printDebug.debug("== ENTER ==")
 
         tempServers = {}
@@ -225,13 +210,6 @@ class Plex:
         return 
         
     def talk_to_myplex(self, path, renew=False, suppress=True):
-        '''
-            Connect to the my.plexapp.com service and get an XML pages
-            A seperate function is required as interfacing into myplex
-            is slightly different than getting a standard URL
-            @input: url to get, whether we need a new token, whether to display on screen err
-            @return: an xml page as string or false
-        '''
         printDebug.debug("== ENTER ==")
         printDebug.info("url = %s%s" % (self.myplex_server, path))
 
@@ -250,33 +228,10 @@ class Plex:
             link=response.text.encode('utf-8')
             printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
 
-    # except socket.gaierror :
-        # error = 'Unable to lookup host: ' + MYPLEX_SERVER + "\nCheck host name is correct"
-        # if suppress is False:
-            # xbmcgui.Dialog().ok("Error",error)
-        # print error
-        # return False
-    # except socket.error, msg :
-        # error="Unable to connect to " + MYPLEX_SERVER +"\nReason: " + str(msg)
-        # if suppress is False:
-            # xbmcgui.Dialog().ok("Error",error)
-        # print error
-        # return False
-
         return link        
     
     def getMyPlexToken(self,renew=False):
-        '''
-            Get the myplex token.  If the user ID stored with the token
-            does not match the current userid, then get new token.  This stops old token
-            being used if plex ID is changed. If token is unavailable, then get a new one
-            @input: whether to get new token
-            @return: myplex token
-        '''
-        printDebug.debug("== ENTER ==")
-
         if self.myplex_token is None:
-        
             try:
                 user, self.myplex_token = self.settings.myplex_token.split('|')
             except:
@@ -324,63 +279,51 @@ class Plex:
         return token
 
     def get_server_from_ip(self, ip):
-        
         printDebug.debug("IP to lookup: %s" % ip)
-        
+
         if ':' in ip:
             #We probably have an IP:port being passed
             ip, port = ip.split(':')
-        
+
         if not is_ip(ip):
             printDebug.info("Not an IP Address")
             return PlexMediaServer(name="dummy",address='127.0.0.1', port=32400, discovery='local')
 
-            
         for server in self.server_list.values():
-            
+
             printDebug.debug("checking ip %s against server ip %s" % (ip, server.get_address()))
-            
+
             if ip == server.get_address():
                 printDebug("Translated %s to server %s" % (ip, server.get_name()))
                 return server
 
         printDebug.info("Unable to translate - Returning new plexserver set to %s" % ip )
-                
+
         return PlexMediaServer(name="Unknown",address=ip, port=port, discovery='local')
-        
+
     def get_server_from_url(self, url):
-        
         url_parts = urlparse.urlparse(url)    
-                
         return self.get_server_from_ip(url_parts.netloc)        
 
     def get_server_from_uuid(self, uuid):
-                  
         return self.server_list[uuid]
         
     def get_processed_xml(self, url):
-        
         url_parts = urlparse.urlparse(url)
-        
         server = self.get_server_from_ip(url_parts.netloc)
         
         if server:
             return server.processed_xml(url)
-        
         return ''
 
-    def talk_to_server(self, url):
-        
+    def talk_to_server(self, url):  
         url_parts = urlparse.urlparse(url)
-        
         server = self.get_server_from_ip(url_parts.netloc)
         
         if server:
             return server.raw_xml(url)
-        
         return ''
-
-        
+   
     def delete_cache(self):
         return self.cache.deleteCache()
     
