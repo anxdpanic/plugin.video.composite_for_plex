@@ -636,11 +636,11 @@ def TVShows( url, tree=None ):
         watched = int(show.get('viewedLeafCount',0))
 
         #Create the basic data structures to pass up
-        details={'title'      : show.get('title','Unknown') ,
-                 'sorttitle'  : show.get('titleSort', show.get('title','Unknown')) ,
-                 'tvshowname' : show.get('title','Unknown') ,
-                 'studio'     : show.get('studio','') ,
-                 'plot'       : show.get('summary','') ,
+        details={'title'      : show.get('title','Unknown').encode('utf-8') ,
+                 'sorttitle'  : show.get('titleSort', show.get('title','Unknown')).encode('utf-8') ,
+                 'tvshowname' : show.get('title','Unknown').encode('utf-8') ,
+                 'studio'     : show.get('studio','').encode('utf-8') ,
+                 'plot'       : show.get('summary','').encode('utf-8') ,
                  'season'     : 0 ,
                  'episode'    : int(show.get('leafCount',0)) ,
                  'mpaa'       : show.get('contentRating','') ,
@@ -725,11 +725,11 @@ def TVSeasons( url ):
         watched=int(season.get('viewedLeafCount',0))
 
         #Create the basic data structures to pass up
-        details={'title'      : season.get('title','Unknown') ,
-                 'tvshowname' : season.get('title','Unknown') ,
-                 'sorttitle'  : season.get('titleSort', season.get('title','Unknown')) ,
-                 'studio'     : season.get('studio','') ,
-                 'plot'       : season.get('summary','') ,
+        details={'title'      : season.get('title','Unknown').encode('utf-8') ,
+                 'tvshowname' : season.get('title','Unknown').encode('utf-8') ,
+                 'sorttitle'  : season.get('titleSort', season.get('title','Unknown')).encode('utf-8') ,
+                 'studio'     : season.get('studio','').encode('utf-8') ,
+                 'plot'       : season.get('summary','').encode('utf-8') ,
                  'season'     : 0 ,
                  'episode'    : int(season.get('leafCount',0)) ,
                  'mpaa'       : season.get('contentRating','') ,
@@ -836,21 +836,21 @@ def TVEpisodes( url, tree=None ):
         duration=int(mediaarguments.get('duration',episode.get('duration',0)))/1000
 
         #Required listItem entries for XBMC
-        details={'plot'        : episode.get('summary','') ,
-                 'title'       : episode.get('title','Unknown') ,
-                 'sorttitle'   : episode.get('titleSort', episode.get('title','Unknown'))  ,
+        details={'plot'        : episode.get('summary','').encode('utf-8') ,
+                 'title'       : episode.get('title','Unknown').encode('utf-8') ,
+                 'sorttitle'   : episode.get('titleSort', episode.get('title','Unknown')).encode('utf-8')  ,
                  'rating'      : float(episode.get('rating',0)) ,
-                 'studio'      : episode.get('studio',tree.get('studio','')) ,
+                 'studio'      : episode.get('studio',tree.get('studio','')).encode('utf-8') ,
                  'mpaa'        : episode.get('contentRating', tree.get('grandparentContentRating','')) ,
                  'year'        : int(episode.get('year',0)) ,
-                 'tagline'     : episode.get('tagline','') ,
+                 'tagline'     : episode.get('tagline','').encode('utf-8') ,
                  'episode'     : int(episode.get('index',0)) ,
                  'aired'       : episode.get('originallyAvailableAt','') ,
-                 'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')) ,
+                 'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') ,
                  'season'      : int(episode.get('parentIndex',tree.get('parentIndex',0))) }
 
         if episode.get('sorttitle'):
-            details['sorttitle'] = episode.get('sorttitle')
+            details['sorttitle'] = episode.get('sorttitle').encode('utf-8')
 
         if tree.get('mixedParents','0') == '1':
             details['title'] = "%s - %sx%s %s" % ( details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'] )
@@ -964,12 +964,12 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
 
     if full:
         if media_type == "video":
-            full_data={ 'plot'      : timings.get('summary','') ,
-                        'title'     : timings.get('title','Unknown') ,
-                        'sorttitle' : timings.get('titleSort', timings.get('title','Unknown')) ,
+            full_data={ 'plot'      : timings.get('summary','').encode('utf-8') ,
+                        'title'     : timings.get('title','Unknown').encode('utf-8') ,
+                        'sorttitle' : timings.get('titleSort', timings.get('title','Unknown')).encode('utf-8') ,
                         'rating'    : float(timings.get('rating',0)) ,
-                        'studio'    : timings.get('studio',''),
-                        'mpaa'      : timings.get('contentRating', ''),
+                        'studio'    : timings.get('studio','').encode('utf-8'),
+                        'mpaa'      : timings.get('contentRating', '').encode('utf-8'),
                         'year'      : int(timings.get('year',0)) ,
                         'tagline'   : timings.get('tagline','') ,
                         'thumbnailImage': getThumb(timings,server) }
@@ -977,16 +977,16 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
             if timings.get('type') == "episode":
                 full_data['episode']     = int(timings.get('index',0)) 
                 full_data['aired']       = timings.get('originallyAvailableAt','') 
-                full_data['tvshowtitle'] = timings.get('grandparentTitle',tree.get('grandparentTitle','')) 
+                full_data['tvshowtitle'] = timings.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') 
                 full_data['season']      = int(timings.get('parentIndex',tree.get('parentIndex',0))) 
 
         elif media_type == "music":
                         
             full_data={'TrackNumber' : int(timings.get('index',0)) ,
-                       'title'       : str(timings.get('index',0)).zfill(2)+". "+timings.get('title','Unknown') ,
+                       'title'       : str(timings.get('index',0)).zfill(2)+". "+timings.get('title','Unknown').encode('utf-8') ,
                        'rating'      : float(timings.get('rating',0)) ,
-                       'album'       : timings.get('parentTitle', tree.get('parentTitle','')) ,
-                       'artist'      : timings.get('grandparentTitle', tree.get('grandparentTitle','')) ,
+                       'album'       : timings.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
+                       'artist'      : timings.get('grandparentTitle', tree.get('grandparentTitle','')).encode('utf-8') ,
                        'duration'    : int(timings.get('duration',0))/1000 ,
                        'thumbnailImage': getThumb(timings,server) }
 
@@ -1263,7 +1263,7 @@ def setAudioSubtitles( stream ):
             printDebug ("Only one audio stream present - will leave as default")
 
         elif audio:
-            printDebug ("Attempting to use selected language setting: %s" % audio.get('language',audio.get('languageCode','Unknown')))
+            printDebug ("Attempting to use selected language setting: %s" % audio.get('language',audio.get('languageCode','Unknown')).encode('utf8'))
             printDebug ("Found preferred language at index %s" % stream['audioOffset'])
             try:
                 xbmc.Player().setAudioStream(stream['audioOffset'])
@@ -1680,7 +1680,7 @@ def processDirectory( url, tree=None ):
     server = plex_network.get_server_from_url(url)
     setWindowHeading(tree)
     for directory in tree:
-        details={'title' : directory.get('title','Unknown') }
+        details={'title' : directory.get('title','Unknown').encode('utf-8') }
         extraData={'thumb'        : getThumb(tree, server) ,
                    'fanart_image' : getFanart(tree, server) }
 
@@ -1814,7 +1814,7 @@ def artist( url, tree=None ):
     ArtistTag=tree.findall('Directory')
     for artist in ArtistTag:
 
-        details={'artist'  : artist.get('title','') }
+        details={'artist'  : artist.get('title','').encode('utf-8') }
 
         details['title']=details['artist']
 
@@ -1856,9 +1856,9 @@ def albums( url, tree=None ):
     AlbumTags=tree.findall('Directory')
     for album in AlbumTags:
 
-        details={'album'   : album.get('title','') ,
+        details={'album'   : album.get('title','').encode('utf-8') ,
                  'year'    : int(album.get('year',0)) ,
-                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')) }
+                 'artist'  : tree.get('parentTitle', album.get('parentTitle','')).encode('utf-8') }
 
         details['title']=details['album']
 
@@ -1951,10 +1951,10 @@ def PlexPlugins(url, tree=None):
 
     for plugin in tree:
 
-        details={'title'   : plugin.get('title','Unknown') }
+        details={'title'   : plugin.get('title','Unknown').encode('utf-8') }
 
         if details['title'] == "Unknown":
-            details['title']=plugin.get('name',"Unknown")
+            details['title']=plugin.get('name',"Unknown").encode('utf-8')
             
         if plugin.get('summary'):
             details['plot']=plugin.get('summary')
@@ -1977,7 +1977,7 @@ def PlexPlugins(url, tree=None):
 
             if plugin.get('search') == '1':
                 extraData['mode']=_MODE_CHANNELSEARCH
-                extraData['parameters']={'prompt' : plugin.get('prompt',"Enter Search Term") }
+                extraData['parameters']={'prompt' : plugin.get('prompt',"Enter Search Term").encode('utf-8') }
             else:
                 extraData['mode']=_MODE_PLEXPLUGINS
 
@@ -2003,7 +2003,7 @@ def PlexPlugins(url, tree=None):
             else:
                 value=plugin.get('value')
 
-            details['title']= "%s - [%s]" % (plugin.get('label','Unknown'), value)
+            details['title']= "%s - [%s]" % (plugin.get('label','Unknown').encode('utf-8'), value)
             extraData['mode']=_MODE_CHANNELPREFS
             extraData['parameters']={'id' : plugin.get('id') }
             addGUIItem(url, details, extraData)
@@ -2105,10 +2105,10 @@ def processXML( url, tree=None ):
     setWindowHeading(tree)
     for plugin in tree:
 
-        details={'title'   : plugin.get('title','Unknown') }
+        details={'title'   : plugin.get('title','Unknown').encode('utf-8') }
 
         if details['title'] == "Unknown":
-            details['title']=plugin.get('name',"Unknown")
+            details['title']=plugin.get('name',"Unknown").encode('utf-8')
 
         extraData={'thumb'        : getThumb(plugin, server) ,
                    'fanart_image' : getFanart(plugin, server) ,
@@ -2173,12 +2173,12 @@ def movieTag(url, server, tree, movie, randomNumber):
         release_date = ""
 
     #Required listItem entries for XBMC
-    details={'plot'      : movie.get('summary','') ,
-             'title'     : movie.get('title','Unknown') ,
-             'sorttitle' : movie.get('titleSort', movie.get('title','Unknown')) ,
+    details={'plot'      : movie.get('summary','').encode('utf-8') ,
+             'title'     : movie.get('title','Unknown').encode('utf-8') ,
+             'sorttitle' : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
              'rating'    : float(movie.get('rating',0)) ,
-             'studio'    : movie.get('studio',''),
-             'mpaa'      : movie.get('contentRating', ''),
+             'studio'    : movie.get('studio','').encode('utf-8'),
+             'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
              'year'      : int(movie.get('year',0)),
              'date'      : release_date,
              'tagline'   : movie.get('tagline','')}
@@ -2262,10 +2262,10 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
     printDebug.debug( "Part is %s" % partDetails)
 
     details={'TrackNumber' : int(track.get('index',0)) ,
-             'title'       : str(track.get('index',0)).zfill(2)+". "+track.get('title','Unknown') ,
+             'title'       : str(track.get('index',0)).zfill(2)+". "+track.get('title','Unknown').encode('utf-8') ,
              'rating'      : float(track.get('rating',0)) ,
-             'album'       : track.get('parentTitle', tree.get('parentTitle','')) ,
-             'artist'      : track.get('grandparentTitle', tree.get('grandparentTitle','')) ,
+             'album'       : track.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
+             'artist'      : track.get('grandparentTitle', tree.get('grandparentTitle','')).encode('utf-8') ,
              'duration'    : int(track.get('duration',0))/1000 
              }
 
@@ -2291,7 +2291,7 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
 def playlistTag(url, server, tree, track, sectionart="", sectionthumb="", listing=True ):
     printDebug.debug("== ENTER ==")
 
-    details={'title'       : track.get('title','Unknown') ,
+    details={'title'       : track.get('title','Unknown').encode('utf-8') ,
              'duration'    : int(track.get('duration',0))/1000 
              }
 
@@ -2326,7 +2326,7 @@ def photo( url,tree=None ):
     setWindowHeading(tree)
     for picture in tree:
 
-        details={'title' : picture.get('title',picture.get('name','Unknown')) }
+        details={'title' : picture.get('title',picture.get('name','Unknown')).encode('utf-8') }
 
         if not details['title']:
             details['title'] = "Unknown"
@@ -2375,10 +2375,10 @@ def music( url, tree=None ):
         if grapes.get('key',None) is None:
             continue
 
-        details={'genre'       : grapes.get('genre','') ,
-                 'artist'      : grapes.get('artist','') ,
+        details={'genre'       : grapes.get('genre','').encode('utf-8') ,
+                 'artist'      : grapes.get('artist','').encode('utf-8') ,
                  'year'        : int(grapes.get('year',0)) ,
-                 'album'       : grapes.get('album','') ,
+                 'album'       : grapes.get('album','').encode('utf-8') ,
                  'tracknumber' : int(grapes.get('index',0)) ,
                  'title'       : "Unknown" }
 
@@ -2396,7 +2396,7 @@ def music( url, tree=None ):
             printDebug.debug("Track Tag")
             xbmcplugin.setContent(pluginhandle, 'songs')
 
-            details['title']=grapes.get('track',grapes.get('title','Unknown'))
+            details['title']=grapes.get('track',grapes.get('title','Unknown')).encode('utf-8')
             details['duration']=int(int(grapes.get('totalTime',0))/1000)
 
             extraData['mode']=_MODE_BASICPLAY
@@ -2407,19 +2407,19 @@ def music( url, tree=None ):
             if grapes.tag == "Artist":
                 printDebug.debug("Artist Tag")
                 xbmcplugin.setContent(pluginhandle, 'artists')
-                details['title']=grapes.get('artist','Unknown')
+                details['title']=grapes.get('artist','Unknown').encode('utf-8')
 
             elif grapes.tag == "Album":
                 printDebug.debug("Album Tag")
                 xbmcplugin.setContent(pluginhandle, 'albums')
-                details['title']=grapes.get('album','Unknown')
+                details['title']=grapes.get('album','Unknown').encode('utf-8')
 
             elif grapes.tag == "Genre":
-                details['title']=grapes.get('genre','Unknown')
+                details['title']=grapes.get('genre','Unknown').encode('utf-8')
 
             else:
                 printDebug.debug("Generic Tag: %s" % grapes.tag)
-                details['title']=grapes.get('title','Unknown')
+                details['title']=grapes.get('title','Unknown').encode('utf-8')
 
             extraData['mode']=_MODE_MUSIC
             addGUIItem(u,details,extraData)
@@ -2441,7 +2441,7 @@ def getThumb(data, server, width=720, height=720):
     if settings.skipimages:
         return ''
 
-    thumbnail=data.get('thumb','').split('?t')[0]
+    thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
 
     if thumbnail == '':
         return g_thumb
@@ -2465,10 +2465,10 @@ def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
     '''
 
     if seasonThumb == 1:
-        thumbnail=data.get('grandparentThumb','').split('?t')[0]    
+        thumbnail=data.get('grandparentThumb','').split('?t')[0].encode('utf-8')    
     
     else:
-        thumbnail=data.get('thumb','').split('?t')[0]
+        thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
 
     if thumbnail == '':
         return g_thumb
@@ -2494,7 +2494,7 @@ def getFanart(data, server, width=1280, height=720):
     if settings.skipimages:
         return ''
         
-    fanart=data.get('art','')
+    fanart=data.get('art','').encode('utf-8')
 
     if fanart == '':
         return ''
@@ -2510,7 +2510,7 @@ def getFanart(data, server, width=1280, height=720):
 
     else:
         return ''
-
+        
 def getLinkURL(url, pathData, server, season_shelf=False):
     '''
         Investigate the passed URL and determine what is required to
@@ -2577,7 +2577,7 @@ def plexOnline( url ):
 
     for plugin in tree:
 
-        details={'title' : plugin.get('title',plugin.get('name','Unknown')) }
+        details={'title' : plugin.get('title',plugin.get('name','Unknown')).encode('utf-8') }
         extraData={'type'      : "Video" ,
                    'installed' : int(plugin.get('installed',2)) ,
                    'key'       : plugin.get('key','') ,
@@ -3109,7 +3109,7 @@ def amberskin():
             queue_count = 1
 
             for media in root:
-                printDebug.debug("Found a queue item entry: [%s]" % (media.get('title', '') , ))
+                printDebug.debug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
                 m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s" % (getLinkURL(server_address.get_url_location(), media, server_address), 18, 1)
                 m_thumb = getShelfThumb(media, server_address, seasonThumb=0)
 
@@ -3119,14 +3119,14 @@ def amberskin():
                     movie_runtime = ""
 
                 WINDOW.setProperty("Plexbmc.Queue.%s.Path" % queue_count, m_url)
-                WINDOW.setProperty("Plexbmc.Queue.%s.Title" % queue_count, media.get('title', 'Unknown'))
-                WINDOW.setProperty("Plexbmc.Queue.%s.Year" % queue_count, media.get('originallyAvailableAt', ''))
+                WINDOW.setProperty("Plexbmc.Queue.%s.Title" % queue_count, media.get('title', 'Unknown').encode('UTF-8'))
+                WINDOW.setProperty("Plexbmc.Queue.%s.Year" % queue_count, media.get('originallyAvailableAt', '').encode('UTF-8'))
                 WINDOW.setProperty("Plexbmc.Queue.%s.Duration" % queue_count, movie_runtime)
                 WINDOW.setProperty("Plexbmc.Queue.%s.Thumb" % queue_count, m_thumb)
 
                 queue_count += 1
 
-                printDebug.debug("Building Queue item: %s" % media.get('title', 'Unknown'))
+                printDebug.debug("Building Queue item: %s" % media.get('title', 'Unknown').encode('UTF-8'))
                 printDebug.debug("Building Queue item url: %s" % m_url)
                 printDebug.debug("Building Queue item thumb: %s" % m_thumb)
 
@@ -3182,7 +3182,7 @@ def fullShelf(server_list={}):
                     printDebug.debug("PLEXBMC -> RecentlyAdded items not found on: %s" % server_details.get_url_location())
                     continue
 
-                libraryuuid = tree.get("librarySectionUUID",'')
+                libraryuuid = tree.get("librarySectionUUID",'').encode('utf-8')
 
                 ep_helper = {}  # helper season counter
                 for eachitem in tree:
@@ -3220,7 +3220,7 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
                 continue
 
-            title_name=media.get('title','Unknown')
+            title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found a recent movie entry: [%s]" % title_name)
 
             if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
@@ -3241,12 +3241,12 @@ def fullShelf(server_list={}):
 
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Path" % recentMovieCount, title_url)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % recentMovieCount, title_name)
-                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Year" % recentMovieCount, media.get('year', ''))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Year" % recentMovieCount, media.get('year', '').encode('UTF-8'))
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Rating" % recentMovieCount, movie_rating)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Duration" % recentMovieCount, movie_runtime)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % recentMovieCount, title_thumb)
                 WINDOW.setProperty("Plexbmc.LatestMovie.%s.uuid" % recentMovieCount, libuuid)
-                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Plot" % recentMovieCount, media.get('summary', ''))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Plot" % recentMovieCount, media.get('summary', '').encode('UTF-8'))
 
                 m_genre = []
 
@@ -3256,7 +3256,7 @@ def fullShelf(server_list={}):
                     else:
                         continue
 
-                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Genre" % recentMovieCount, ", ".join(m_genre))
+                WINDOW.setProperty("Plexbmc.LatestMovie.%s.Genre" % recentMovieCount, ", ".join(m_genre).encode('UTF-8'))
 
                 recentMovieCount += 1
 
@@ -3265,7 +3265,7 @@ def fullShelf(server_list={}):
 
         elif media.get('type',None) == "season":
 
-            title_name=media.get('parentTitle','Unknown')
+            title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             printDebug.debug("Found a recent season entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
@@ -3277,10 +3277,10 @@ def fullShelf(server_list={}):
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, '')
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % recentSeasonCount, media.get('title',''))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % recentSeasonCount, media.get('title','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % recentSeasonCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % recentSeasonCount, title_thumb)
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, media.get('librarySectionUUID',''))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, media.get('librarySectionUUID','').encode('UTF-8'))
 
             recentSeasonCount += 1
 
@@ -3290,14 +3290,14 @@ def fullShelf(server_list={}):
                 WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
                 continue
 
-            title_name=media.get('parentTitle','Unknown')
+            title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server), _MODE_TRACKS)
             title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
 
             printDebug.debug("Found a recent album entry: [%s]" % title_name)
             
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % recentMusicCount, title_url )
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % recentMusicCount, media.get('title','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % recentMusicCount, media.get('title','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % recentMusicCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % recentMusicCount, title_thumb)
 
@@ -3306,7 +3306,7 @@ def fullShelf(server_list={}):
         elif media.get('type') == "photo":
 
 
-            title_name=media.get('title','Unknown')
+            title_name=media.get('title','Unknown').encode('UTF-8')
             title_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return" % ( source_server.get_url_location(), "/recentlyAdded", _MODE_PHOTOS)
             title_thumb = getShelfThumb(media, source_server, seasonThumb=0)
 
@@ -3320,7 +3320,7 @@ def fullShelf(server_list={}):
 
         elif media.get('type',None) == "episode":
 
-            title_name=media.get('title','Unknown')
+            title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an Recent episode entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
@@ -3332,10 +3332,10 @@ def fullShelf(server_list={}):
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, title_name)
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeNumber" % recentSeasonCount, media.get('index',''))
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % recentSeasonCount, media.get('parentIndex','')+'.'+media.get('index','Unknown'))
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeasonNumber" % recentSeasonCount, media.get('parentIndex',''))
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % recentSeasonCount, media.get('grandparentTitle',''))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeNumber" % recentSeasonCount, media.get('index','').encode('utf-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % recentSeasonCount, media.get('parentIndex','').encode('UTF-8')+'.'+media.get('index','Unknown').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeasonNumber" % recentSeasonCount, media.get('parentIndex','').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % recentSeasonCount, media.get('grandparentTitle','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % recentSeasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, libuuid)
 
@@ -3350,7 +3350,7 @@ def fullShelf(server_list={}):
 
         if media.get('type',None) == "movie":
 
-            title_name=media.get('title','Unknown')
+            title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found a OnDeck movie entry: [%s]" % title_name)
 
             if __settings__.getSetting('movieShelf') == "false":
@@ -3373,7 +3373,7 @@ def fullShelf(server_list={}):
 
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Path" % ondeckMovieCount, title_url)
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Title" % ondeckMovieCount, title_name)
-            WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Year" % ondeckMovieCount, media.get('year',''))
+            WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Year" % ondeckMovieCount, media.get('year','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Rating" % ondeckMovieCount, title_rating)
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Duration" % ondeckMovieCount, movie_runtime)
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Thumb" % ondeckMovieCount, title_thumb)
@@ -3383,7 +3383,7 @@ def fullShelf(server_list={}):
 
         elif media.get('type',None) == "season":
 
-            title_name=media.get('parentTitle','Unknown')
+            title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             printDebug.debug("Found a OnDeck season entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
@@ -3395,7 +3395,7 @@ def fullShelf(server_list={}):
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, '')
-            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason" % ondeckSeasonCount, media.get('title',''))
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason" % ondeckSeasonCount, media.get('title','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle" % ondeckSeasonCount, title_name)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % ondeckSeasonCount, title_thumb)
 
@@ -3403,7 +3403,7 @@ def fullShelf(server_list={}):
 
         elif media.get('type',None) == "episode":
 
-            title_name=media.get('title','Unknown')
+            title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
@@ -3415,9 +3415,9 @@ def fullShelf(server_list={}):
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, title_name)
-            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeNumber" % ondeckSeasonCount, media.get('index',''))
-            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason" % ondeckSeasonCount, media.get('grandparentTitle','Unknown'))
-            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeasonNumber" % ondeckSeasonCount, media.get('parentIndex',''))
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeNumber" % ondeckSeasonCount, media.get('index','').encode('utf-8'))
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason" % ondeckSeasonCount, media.get('grandparentTitle','Unknown').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeasonNumber" % ondeckSeasonCount, media.get('parentIndex','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle" % ondeckSeasonCount, title_name)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % ondeckSeasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.uuid" % ondeckSeasonCount, libuuid)
@@ -3570,7 +3570,7 @@ def shelf( server_list=None ):
 
         if media.get('type',None) == "movie":
 
-            title_name=media.get('title','Unknown')
+            title_name=media.get('title','Unknown').encode('UTF-8')
 
             printDebug.debug("Found a recent movie entry: [%s]" % title_name )
 
@@ -3596,19 +3596,19 @@ def shelf( server_list=None ):
 
         elif media.get('type',None) == "season":
 
-            printDebug.debug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown') , ))
+            printDebug.debug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
 
             if __settings__.getSetting('tvShelf') == "false":
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
-            title_name=media.get('parentTitle','Unknown')
+            title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server), _MODE_TVEPISODES)
             title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, '')
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title',''))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('title','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb)
             seasonCount += 1
@@ -3621,19 +3621,19 @@ def shelf( server_list=None ):
             
             printDebug.debug("Found a recent album entry")
 
-            title_name=media.get('parentTitle','Unknown')
+            title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(server.get_url_location(),media,server), _MODE_TRACKS)
             title_thumb=getThumb(media,server)
 
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Path" % musicCount, title_url )
-            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Title" % musicCount, media.get('title','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Artist" % musicCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, title_thumb)
             musicCount += 1
 
         elif media.get('type',None) == "episode":
 
-            title_name=media.get('title','Unknown')
+            title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
 
             if __settings__.getSetting('tvShelf') == "false":
@@ -3645,7 +3645,7 @@ def shelf( server_list=None ):
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, title_name)
-            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('grandparentTitle','Unknown'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % seasonCount, media.get('grandparentTitle','Unknown').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb)
             seasonCount += 1
@@ -3954,7 +3954,7 @@ def alterSubs ( server_uuid, metadata_id ):
             if streams.get('streamType','') == "3":
 
                 stream_id=streams.get('id')
-                lang=streams.get('languageCode',"Unknown")
+                lang=streams.get('languageCode',"Unknown").encode('utf-8')
                 printDebug.debug("Detected Subtitle stream [%s] [%s]" % ( stream_id, lang ) )
 
                 if streams.get('format',streams.get('codec')) == "idx":
@@ -4027,7 +4027,7 @@ def alterAudio ( server_uuid, metadata_id ):
                 else:
                     codec=streams.get('codec','Unknown')
 
-                language="%s (%s %s)" % ( streams.get('language','Unknown') , codec, channels )
+                language="%s (%s %s)" % ( streams.get('language','Unknown').encode('utf-8') , codec, channels )
 
                 if streams.get('selected') == '1':
                     language=language+"*"
