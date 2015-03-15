@@ -50,10 +50,10 @@ class addonSettings:
             wakeserver.append(self.settings.getSetting('wol%s' % servers))
         return wakeserver
         
-    def get_steam(self):
-        return self.steam
+    def get_stream(self):
+        return self.stream
         
-    def set_steam(self,value):
+    def set_stream(self,value):
         self.stream = value
     
     def dumpSettings(self):

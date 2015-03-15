@@ -122,7 +122,7 @@ def mediaType( partData, server, dvdplayback=False ):
         printDebug.debug("No local file")
         if dvdplayback:
             printDebug.debug("Forcing SMB for DVD playback")
-            settings.set_steam("2")
+            settings.set_stream("2")
         else:
             return server.get_formatted_url(stream)
 
@@ -4088,7 +4088,7 @@ if settings.get_debug() >= printDebug.DEBUG_INFO:
     print "PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__']
     print "PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform']
     print "PleXBMC -> Setting debug: %s" % printDebug.get_name(settings.get_debug())
-    print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.fullres_thumbnails
+    print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.get_setting('fullres_thumbnails')
     print "PleXBMC -> Settings streaming: %s" % settings.get_stream()
     print "PleXBMC -> Setting filter menus: %s" % settings.get_setting('secondary')
     print "PleXBMC -> Flatten is: %s" % settings.get_setting('flatten')
@@ -4101,7 +4101,7 @@ if settings.get_debug() >= printDebug.DEBUG_INFO:
 
     print "PleXBMC -> Force DVD playback: %s" % settings.get_setting('forcedvd')
     print "PleXBMC -> SMB IP Override: %s" % settings.get_setting('nasoverride')
-    if settings.nasoverride and not settings.get_setting('nasoverrideip'):
+    if settings.get_setting('nasoverride') and not settings.get_setting('nasoverrideip'):
         print "PleXBMC -> No NAS IP Specified.  Ignoring setting"
     else:
         print "PleXBMC -> NAS IP: " + settings.get_setting('nasoverrideip')
