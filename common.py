@@ -89,7 +89,6 @@ def setup_python_locations():
 
     setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
     sys.path.append(setup['__resources__'])
-    print sys.path
     return setup                
  
 def is_ip(address):

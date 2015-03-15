@@ -7,7 +7,7 @@ class addonSettings:
 
     def __init__(self, name):
     
-        print "PleXBMC -> Reading configuration"
+        print "PleXBMC -> Reading settings configuration"
         self.settings = xbmcaddon.Addon(name)
         
         if self.settings.getSetting('debug') == 'true':

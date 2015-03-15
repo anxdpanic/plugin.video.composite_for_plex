@@ -190,14 +190,11 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         printDebug.debug("Passed details: %s" % details)
         printDebug.debug("Passed extraData: %s" % extraData)
 
-        if extraData.get('mode',None) is None:
-            mode="&mode=0"
-        else:
-            mode="&mode=%s" % extraData['mode']
+        mode="&mode=%s" % extraData.get('mode',0)
 
         #Create the URL to pass to the item
-        if ( not folder) and ( extraData['type'] == "image" ):
-             u=url
+        if not folder and extraData['type'] == "image" :
+            u=url
         elif url.startswith('http') or url.startswith('file'):
             u=sys.argv[0]+"?url="+urllib.quote(url)+mode
         else:
@@ -209,11 +206,9 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         printDebug.debug("URL to use for listing: %s" % u)
 
-        thumb = str(extraData.get('thumb', ''))
+        liz=xbmcgui.ListItem(item_title, thumbnailImage=extraData.get('thumb', ''))
 
-        liz=xbmcgui.ListItem(item_title, thumbnailImage=thumb)
-
-        printDebug.debug("Setting thumbnail as %s" % thumb)
+        printDebug.debug("Setting thumbnail as %s" % extraData.get('thumb', ''))
 
         #Set the properties of the item, such as summary, name, season, etc
         liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
@@ -225,7 +220,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('Album_Description', extraData.get('plot',''))
 
         #For all end items    
-        if ( not folder):
+        if not folder:
             liz.setProperty('IsPlayable', 'true')
 
             if extraData.get('type','video').lower() == "video":
@@ -254,7 +249,8 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                     liz.addStreamInfo('video', video_codec )
                     liz.addStreamInfo('audio', audio_codec )
                 
-        try:
+        
+        if extraData.get('source') == 'tvshow' or extraData.get('source') =='tvseasons':
             #Then set the number of watched and unwatched, which will be displayed per season
             liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
             liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
@@ -265,17 +261,11 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 liz.setProperty('TotalTime', '100')
                 liz.setProperty('ResumeTime', '50')
                 
-        except: pass
-
-        #Set the fanart image if it has been enabled
-        fanart = str(extraData.get('fanart_image', 'None'))
-
-        if fanart != 'None':
-            liz.setProperty('fanart_image', fanart)
-
-            printDebug.debug("Setting fan art as %s" % fanart)
-
-        else:
+        #fanart is nearly always available, so exceptions are rare.
+        try:
+            liz.setProperty('fanart_image', extraData.get('fanart_image'))
+            printDebug.debug("Setting fan art as %s" % extraData.get('fanart_image'))
+        except:
             printDebug.debug("Skipping fanart as None found")
 
         if extraData.get('banner'):
@@ -290,16 +280,18 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('seasonThumb', seasonImg)
             printDebug.debug("Setting season Thumb as %s" % seasonImg)
 
-        if context is not None:
-            printDebug.debug("Building Context Menus")
+        #almost always have context menus
+        try:
 
             if (not folder) and extraData.get('type','video').lower() == "video":
                 #Play Transcoded
                 context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % u , ))
                 printDebug.debug("Setting transcode options to [%s&transcode=1]" % u)
-
+            printDebug.debug("Building Context Menus")
             liz.addContextMenuItems( context, settings.contextReplace )
-
+        except: 
+            pass
+            
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
 
 def displaySections( filter=None, display_shared=False ):
@@ -645,6 +637,7 @@ def TVShows( url, tree=None ):
                  'genre'      : " / ".join(tempgenre) }
 
         extraData={'type'              : 'video' ,
+                   'source'            : 'tvshows',
                    'UnWatchedEpisodes' : int(details['episode']) - watched,
                    'WatchedEpisodes'   : watched,
                    'TotalEpisodes'     : details['episode'],
@@ -735,6 +728,8 @@ def TVSeasons( url ):
         if season.get('sorttitle'): details['sorttitle'] = season.get('sorttitle')
 
         extraData={'type'              : 'video' ,
+                   'source'            : 'tvseasons',
+                   'TotalEpisodes'     : details['episode'],
                    'WatchedEpisodes'   : watched ,
                    'UnWatchedEpisodes' : details['episode'] - watched ,
                    'thumb'             : getThumb(season, server) ,
@@ -857,6 +852,7 @@ def TVEpisodes( url, tree=None ):
 
         #Extra data required to manage other properties
         extraData={'type'         : "Video" ,
+                   'source'       : 'tvepisodes',
                    'thumb'        : getThumb(episode, server) ,
                    'fanart_image' : getFanart(episode, server) ,
                    'key'          : episode.get('key',''),
@@ -2183,6 +2179,7 @@ def movieTag(url, server, tree, movie, randomNumber):
 
     #Extra data required to manage other properties
     extraData={'type'         : "Video" ,
+               'source'       : 'movies',
                'thumb'        : getThumb(movie, server) ,
                'fanart_image' : getFanart(movie, server) ,
                'key'          : movie.get('key',''),
@@ -4084,19 +4081,15 @@ __settings__ = GLOBAL_SETUP['__settings__']
 
 printDebug=printDebug("PleXBMC")
 
-printDebug.debug( "PleXBMC -> Script argument is %s" % sys.argv )
-
-settings=addonSettings('plugin.video.plexbmc')
-print settings.__dict__
-
-print "PleXBMC -> Running Python: %s" % str(sys.version_info)
 print "PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__']
-print "PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__']
-print "PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform']
 
 wake_servers()
 
 if settings.debug >= printDebug.DEBUG_INFO:
+    print "PleXBMC -> Script argument is %s" % sys.argv
+    print "PleXBMC -> Running Python: %s" % str(sys.version_info)
+    print "PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__']
+    print "PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform']
     print "PleXBMC -> Setting debug: %s" % printDebug.get_name(settings.debug)
     print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.fullres_thumbnails
     print "PleXBMC -> Settings streaming: %s" % settings.stream
