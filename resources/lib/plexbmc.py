@@ -224,8 +224,8 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('Artist_Description', extraData.get('plot',''))
             liz.setProperty('Album_Description', extraData.get('plot',''))
 
-        if extraData.get('type','').lower() == "video":
-            liz.setInfo( type="Video", infoLabels={ "DateAdded": extraData.get('dateadded','')})
+        #if extraData.get('type','').lower() == "video":
+        #    liz.setInfo( type="Video", infoLabels={ "DateAdded": extraData.get('dateadded','')})
 
         #For all end items    
         if ( not folder):
@@ -2181,7 +2181,8 @@ def movieTag(url, server, tree, movie, randomNumber):
              'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
              'year'      : int(movie.get('year',0)),
              'date'      : release_date,
-             'tagline'   : movie.get('tagline','')}
+             'tagline'   : movie.get('tagline',''), 
+             'DateAdded' : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt',0))))}
 
     #Extra data required to manage other properties
     extraData={'type'         : "Video" ,
@@ -2190,7 +2191,6 @@ def movieTag(url, server, tree, movie, randomNumber):
                'key'          : movie.get('key',''),
                'ratingKey'    : str(movie.get('ratingKey',0)),
                'duration'     : duration,
-               'dateadded'    : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt',0)))),
                'resume'       : int (int(view_offset)/1000) }
 
     #Determine what type of watched flag [overlay] to use
