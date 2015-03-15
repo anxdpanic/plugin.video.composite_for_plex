@@ -103,6 +103,7 @@ def is_ip(address):
     return ip
  
 GLOBAL_SETUP=setup_python_locations()
+GLOBAL_SETUP['platform']=get_platform()
 from settings import addonSettings
 settings=addonSettings('plugin.video.plexbmc')
     

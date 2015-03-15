@@ -4083,9 +4083,7 @@ def setMasterServer () :
   
 ##So this is where we really start the plugin.
 
-__version__  = GLOBAL_SETUP['__version__']
 __settings__ = GLOBAL_SETUP['__settings__']
-__cwd__      = GLOBAL_SETUP['__cwd__']
 
 printDebug=printDebug("PleXBMC")
 
@@ -4095,9 +4093,9 @@ settings=addonSettings('plugin.video.plexbmc')
 print settings.__dict__
 
 print "PleXBMC -> Running Python: %s" % str(sys.version_info)
-print "PleXBMC -> Running PleXBMC: %s " % __version__
-print "PleXBMC -> CWD is set to: %s" % __cwd__
-print "PleXBMC -> Platform: %s" % get_platform()
+print "PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__']
+print "PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__']
+print "PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform']
 
 wake_servers()
 

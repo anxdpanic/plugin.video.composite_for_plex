@@ -61,7 +61,7 @@ class PlexMediaServer:
                    'X-Plex-Platform'          : 'PleXBMC' ,
                    'X-Plex-Client-Identifier' : 'unknown' ,
                    'X-Plex-Product'           : 'PleXBMC' ,
-                   'X-Plex-Platform-Version'  : get_platform() ,
+                   'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'] ,
                    'X-Plex-Version'           : '4'  ,
                    'X-Plex-Provides'          : "player"}
         
