@@ -224,6 +224,9 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('Artist_Description', extraData.get('plot',''))
             liz.setProperty('Album_Description', extraData.get('plot',''))
 
+        #if extraData.get('type','').lower() == "video":
+        #    liz.setInfo( type="Video", infoLabels={ "DateAdded": extraData.get('dateadded','')})
+
         #For all end items    
         if ( not folder):
             liz.setProperty('IsPlayable', 'true')
@@ -566,15 +569,15 @@ def Movies( url, tree=None ):
 
     setWindowHeading(tree)
     randomNumber=str(random.randint(1000000000,9999999999))
-    
     #Find all the video tags, as they contain the data we need to link to a file.
+    MovieTags=tree.findall('Video')
+    fullList=[]
     start_time=time.time()
     count=0
-    for movie in tree:
+    for movie in MovieTags:
 
-        if tree.tag == "Video":
-            movieTag(url, server, tree, movie, randomNumber)
-            count+=1
+        movieTag(url, server, tree, movie, randomNumber)
+        count+=1
         
     printDebug.info("PROCESS: It took %s seconds to process %s items" % (time.time()-start_time, count))
     printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
@@ -2164,20 +2167,20 @@ def movieTag(url, server, tree, movie, randomNumber):
     #Gather some data
     view_offset=movie.get('viewOffset',0)
     duration=int(mediaarguments.get('duration',movie.get('duration',0)))/1000
-    #if movie.get('originallyAvailableAt') is not None:
-    #    release_date = time.strftime('%d.%m.%Y',(time.strptime(movie.get('originallyAvailableAt'), '%Y-%m-%d')))
-    #else:
-    #    release_date = ""
+    if movie.get('originallyAvailableAt') is not None:
+        release_date = time.strftime('%d.%m.%Y',(time.strptime(movie.get('originallyAvailableAt'), '%Y-%m-%d')))
+    else:
+        release_date = ""
 
     #Required listItem entries for XBMC
-    details={'plot'      : movie.get('summary',''),
-             'title'     : movie.get('title','Unknown'),
-             'sorttitle' : movie.get('titleSort', movie.get('title','Unknown')),
+    details={'plot'      : movie.get('summary','').encode('utf-8') ,
+             'title'     : movie.get('title','Unknown').encode('utf-8') ,
+             'sorttitle' : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
              'rating'    : float(movie.get('rating',0)) ,
-             'studio'    : movie.get('studio',''),
-             'mpaa'      : movie.get('contentRating', ''),
+             'studio'    : movie.get('studio','').encode('utf-8'),
+             'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
              'year'      : int(movie.get('year',0)),
-             'date'      : movie.get('originallyAvailableAt','1970-01-01'),
+             'date'      : release_date,
              'tagline'   : movie.get('tagline',''), 
              'DateAdded' : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt',0))))}
 
