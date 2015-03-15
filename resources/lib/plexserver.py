@@ -213,7 +213,7 @@ class PlexMediaServer:
     def get_channel_recentlyviewed(self):       
         return self.processed_xml("/channels/recentlyViewed") 
         
-    def processed_xml(self,url,stream=False):
+    def processed_xml(self,url,stream=True):
         if url.startswith('http'):
             printDebug.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
@@ -288,11 +288,11 @@ class PlexMediaServer:
         
         printDebug.debug("Getting fanart for %s" % section.get_title())
         
-        if settings.skipimages:
+        if settings.get_setting('skipimages'):
             return ''
             
         if section.get_art().startswith('/'):
-            if settings.fullres_fanart:
+            if settings.get_setting('fullres_fanart'):
                 return self.get_formatted_url(section.get_art())
             else:
                 return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus("http://localhost:32400"+section.get_art()), width, height))

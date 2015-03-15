@@ -15,7 +15,7 @@ class printDebug:
         else:
             self.sub=''
             
-        self.level=settings.debug
+        self.level=settings.get_debug()
         
         self.DEBUG_OFF=0
         self.DEBUG_INFO=1
@@ -66,10 +66,10 @@ def get_platform( ):
     return "Unknown"
 
 def wake_servers():
-    if settings.wolon:
+    if settings.get_setting('wolon'):
         from WOL import wake_on_lan
         printDebug("PleXBMC -> Wake On LAN: true")
-        for servers in settings.wakeserver:
+        for servers in settings.get_wakeserver():
             if servers:
                 try:
                     printDebug("PleXBMC -> Waking server with MAC: %s" % servers)
@@ -105,4 +105,3 @@ GLOBAL_SETUP=setup_python_locations()
 GLOBAL_SETUP['platform']=get_platform()
 from settings import addonSettings
 settings=addonSettings('plugin.video.plexbmc')
-    

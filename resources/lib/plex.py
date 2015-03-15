@@ -20,7 +20,7 @@ class Plex:
     def __init__(self, load=False):
     
         # Provide an interface into Plex 
-        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", settings.cache)
+        self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", settings.get_setting('cache'))
         self.myplex_server='https://plex.tv'
         self.myplex_token=None
         self.logged_into_myplex=False
@@ -91,11 +91,11 @@ class Plex:
         return etree.fromstring(data)
             
     def discover_all_servers(self):
-        if settings.discovery == "1":
+        if settings.get_setting('discovery') == "1":
             printDebug.info("local GDM discovery setting enabled.")
             try:
                 printDebug.info("Attempting GDM lookup on multicast")
-                if settings.debug >= printDebug.DEBUG_INFO:
+                if settings.get_debug() >= printDebug.DEBUG_INFO:
                     GDM_debug=3
                 else:
                     GDM_debug=0
@@ -120,20 +120,19 @@ class Plex:
 
         #Set to Disabled
         else:
-            if settings.das_host:
+            if settings.get_setting('das_host'):
 
-                if not settings.das_port:
+                if not settings.get_setting('das_port'):
                     printDebug.info( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
-                    settings.das_port=DEFAULT_PORT
 
-                printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.das_host, settings.das_port))
+                printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('das_host'), settings.get_setting('das_port')))
 
-                local_server=PlexMediaServer(address=settings.das_host, port=settings.das_port, discovery='local')
+                local_server=PlexMediaServer(address=settings.get_setting('das_host'), port=settings.get_setting('das_port'), discovery='local')
                 local_server.refresh()
                 if local_server.discovered:
                     self.server_list[local_server.get_uuid()] = local_server
 
-        if settings.myplex_user:
+        if settings.get_setting('myplex_user'):
             printDebug.info( "PleXBMC -> Adding myplex as a server location")
 
             das_myplex = self.get_myplex_servers()
@@ -219,11 +218,11 @@ class Plex:
     def get_myplex_token(self,renew=False):
         if self.myplex_token is None:
             try:
-                user, self.myplex_token = settings.myplex_token.split('|')
+                user, self.myplex_token = settings.get_setting('myplex_token').split('|')
             except:
                 self.myplex_token = None
 
-            if (self.myplex_token is None) or (renew) or (user != settings.myplex_user):
+            if (self.myplex_token is None) or (renew) or (user != settings.get_setting('myplex_user')):
                 self.myplex_token = self.get_new_myplex_token()
 
             printDebug.info("Using token: %s [Renew: %s]" % ( self.myplex_token, renew) )
@@ -231,11 +230,11 @@ class Plex:
 
     def get_new_myplex_token(self,suppress=True, title="Error"):
         printDebug.info("Getting New token")
-        if not settings.myplex_user:
+        if not settings.get_setting('myplex_user'):
             printDebug.info("No myplex details in config..")
             return None
 
-        base64string = base64.encodestring('%s:%s' % (settings.myplex_user, settings.myplex_pass)).replace('\n', '')
+        base64string = base64.encodestring('%s:%s' % (settings.get_setting('myplex_user'), settings.get_setting('myplex_pass'))).replace('\n', '')
         token = False
 
         myplex_headers={'Authorization': "Basic %s" % base64string}
