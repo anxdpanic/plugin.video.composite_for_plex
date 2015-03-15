@@ -213,7 +213,7 @@ class PlexMediaServer:
     def get_channel_recentlyviewed(self):       
         return self.processed_xml("/channels/recentlyViewed") 
         
-    def processed_xml(self,url,stream=False):
+    def processed_xml(self,url,stream=True):
         if url.startswith('http'):
             printDebug.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
