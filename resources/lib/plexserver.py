@@ -356,8 +356,86 @@ class PlexMediaServer:
         fullURL="%s%s" % (transcode_request, urllib.urlencode(transcode_settings))
         printDebug.debug("Transcoded media location URL: %s" % fullURL)
         return (session, self.get_formatted_url(fullURL, options={'X-Plex-Device' : 'Plex Home Theater'}))
+
+    def get_legacy_transcode( self, id, url, identifier=None ):
+
+        import uuid
+        import hmac
+        import hashlib
+        import base64
+        session=str(uuid.uuid4())
+    
+        #Check for myplex user, which we need to alter to a master server
+        printDebug.debug("Using preferred transcoding server: %s " % self.get_name())
+        printDebug.debug("incoming URL is: %s" % url)
+
+        quality = str(int(settings.get_setting('quality_leg'))+3)
+        printDebug.debug( "Transcode quality is %s" % quality)
+
+        audioOutput=settings.get_setting("audiotype")
+        if audioOutput == "0":
+            audio="mp3,aac{bitrate:160000}"
+        elif audioOutput == "1":
+            audio="ac3{channels:6}"
+        elif audioOutput == "2":
+            audio="dts{channels:6}"
+
+        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s" % audio
+        capability="X-Plex-Client-Capabilities=%s" % urllib.quote_plus(baseCapability)
+
         
- 
+        transcode_request="/video/:/transcode/segmented/start.m3u8"
+        transcode_settings={ '3g' : 0 ,
+                             'offset' : 0 ,
+                             'quality' : quality ,
+                             'session' : session ,
+                             'identifier' : identifier ,
+                             'httpCookie' : "" ,
+                             'userAgent' : "" ,
+                             'ratingKey' : id ,
+                             'subtitleSize' : settings.get_setting('subSize').split('.')[0] ,
+                             'audioBoost' : settings.get_setting('audioSize').split('.')[0] ,
+                             'key' : "" }
+
+        if identifier:
+            transcode_target=url.split('url=')[1]
+            transcode_settings['webkit']=1
+        else:
+            transcode_settings['identifier']="com.plexapp.plugins.library"
+            transcode_settings['key']=urllib.quote_plus("%s/library/metadata/%s" % (self.get_url_location(), id))
+            transcode_target=urllib.quote_plus("http://127.0.0.1:32400"+"/"+"/".join(url.split('/')[3:]))
+            printDebug.debug("filestream URL is: %s" % transcode_target )
+
+        transcode_request="%s?url=%s" % (transcode_request, transcode_target)
+
+        for argument, value in transcode_settings.items():
+                    transcode_request="%s&%s=%s" % ( transcode_request, argument, value )
+
+        printDebug.debug("new transcode request is: %s" % transcode_request )
+
+        now=str(int(round(time.time(),0)))
+
+        msg = transcode_request+"@"+now
+        printDebug.debug("Message to hash is %s" % msg)
+
+        #These are the DEV API keys - may need to change them on release
+        publicKey="KQMIY6GATPC63AIMC4R2"
+        privateKey = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
+
+        hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
+
+        printDebug.debug("HMAC after hash is %s" % hash.hexdigest())
+
+        #Encode the binary hash in base64 for transmission
+        token=base64.b64encode(hash.digest())
+
+        #Send as part of URL to avoid the case sensitive header issue.
+        fullURL="%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (self.get_url_location(),transcode_request, publicKey, now, urllib.quote_plus(token), capability)
+
+        printDebug.debug("Transcoded media location URL: %s" % fullURL)
+
+        return (session, fullURL)
+     
 class plex_section:
 
     def __init__(self, data=None):

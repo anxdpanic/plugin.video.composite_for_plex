@@ -35,7 +35,6 @@ import socket
 import sys
 import os
 import time
-import base64
 import random
 import xbmc
 import datetime
@@ -1148,8 +1147,11 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
         printDebug.debug( "We are playing a stream")
         if override:
             printDebug.debug( "We will be transcoding the stream")
-            session, playurl=server.get_universal_transcode(streams['extra']['path'])
-
+            if settings.get_setting('transcode_type') == "universal":
+                session, playurl=server.get_universal_transcode(streams['extra']['path'])
+            elif settings.get_setting('transcode_type') == "legacy":
+                session, playurl=server.get_legacy_transcode(id,url)
+                
         else:
             playurl=server.get_formatted_url(url)
     else:
@@ -1720,71 +1722,7 @@ def getMasterServer(all=False):
     
     return possibleServers[0]
 
-def transcode( id, url, identifier=None ):
-    printDebug.debug("== ENTER ==")
 
-    server=plex_network.get_server_from_url(url)
-
-    #Check for myplex user, which we need to alter to a master server
-    if 'plexapp.com' in url:
-        server=getMasterServer()
-
-    printDebug.debug("Using preferred transcoding server: %s " % server.get_name())
-    printDebug.debug("incoming URL is: %s" % url)
-
-    transcode_request="/video/:/transcode/segmented/start.m3u8"
-    transcode_settings={ '3g' : 0 ,
-                         'offset' : 0 ,
-                         'quality' : g_quality ,
-                         'session' : g_sessionID ,
-                         'identifier' : identifier ,
-                         'httpCookie' : "" ,
-                         'userAgent' : "" ,
-                         'ratingKey' : id ,
-                         'subtitleSize' : __settings__.getSetting('subSize').split('.')[0] ,
-                         'audioBoost' : __settings__.getSetting('audioSize').split('.')[0] ,
-                         'key' : "" }
-
-    if identifier:
-        transcode_target=url.split('url=')[1]
-        transcode_settings['webkit']=1
-    else:
-        transcode_settings['identifier']="com.plexapp.plugins.library"
-        transcode_settings['key']=urllib.quote_plus("%s/library/metadata/%s" % (server.get_url_location(), id))
-        transcode_target=urllib.quote_plus("http://127.0.0.1:32400"+"/"+"/".join(url.split('/')[3:]))
-        printDebug.debug("filestream URL is: %s" % transcode_target )
-
-    transcode_request="%s?url=%s" % (transcode_request, transcode_target)
-
-    for argument, value in transcode_settings.items():
-                transcode_request="%s&%s=%s" % ( transcode_request, argument, value )
-
-    printDebug.debug("new transcode request is: %s" % transcode_request )
-
-    now=str(int(round(time.time(),0)))
-
-    msg = transcode_request+"@"+now
-    printDebug.debug("Message to hash is %s" % msg)
-
-    #These are the DEV API keys - may need to change them on release
-    publicKey="KQMIY6GATPC63AIMC4R2"
-    privateKey = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
-
-    import hmac
-    import hashlib
-    hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
-
-    printDebug.debug("HMAC after hash is %s" % hash.hexdigest())
-
-    #Encode the binary hash in base64 for transmission
-    token=base64.b64encode(hash.digest())
-
-    #Send as part of URL to avoid the case sensitive header issue.
-    fullURL="%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (server.get_url_location(),transcode_request, publicKey, now, urllib.quote_plus(token), capability)
-
-    printDebug.debug("Transcoded media location URL: %s" % fullURL)
-
-    return fullURL
 
 def artist( url, tree=None ):
     '''
@@ -3861,47 +3799,6 @@ def watched( server_uuid, metadata_id, watched='watch' ):
     xbmc.executebuiltin("Container.Refresh")
 
     return
-
-def getTranscodeSettings( override=False ):
-    printDebug.debug("== ENTER ==")
-
-    global g_transcode
-    g_transcode = __settings__.getSetting('transcode')
-
-    if override is True:
-            printDebug.debug( "Transcode override.  Will play media with addon transcoding settings")
-            g_transcode="true"
-
-    if g_transcode == "true":
-        #If transcode is set, ignore the stream setting for file and smb:
-        settings.set_stream("1")
-        printDebug.debug( "We are set to Transcode, overriding stream selection")
-        global g_transcodefmt
-        g_transcodefmt="m3u8"
-
-        global g_quality
-        g_quality = str(int(__settings__.getSetting('quality'))+3)
-        printDebug.debug( "Transcode format is %s" % g_transcodefmt)
-        printDebug.debug( "Transcode quality is %s" % g_quality)
-
-
-        g_audioOutput=__settings__.getSetting("audiotype")
-        if g_audioOutput == "0":
-            audio="mp3,aac{bitrate:160000}"
-        elif g_audioOutput == "1":
-            audio="ac3{channels:6}"
-        elif g_audioOutput == "2":
-            audio="dts{channels:6}"
-
-        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s" % audio
-            
-        global capability
-        capability="X-Plex-Client-Capabilities=%s" % urllib.quote_plus(baseCapability)
-        printDebug.debug("Plex Client Capability = %s" % capability)
-
-        import uuid
-        global g_sessionID
-        g_sessionID=str(uuid.uuid4())
 
 def deleteMedia( server_uuid, metadata_id ):
     printDebug.debug("== ENTER ==")
