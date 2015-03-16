@@ -2503,13 +2503,6 @@ def getFanart(data, server, width=1280, height=720):
         return ''
         
 def getLinkURL(url, pathData, server, season_shelf=False):
-    '''
-        Investigate the passed URL and determine what is required to
-        turn it into a usable URL
-        @ input: url, XML data and PM server address
-        @ return: Usable http URL
-    '''
-    printDebug.debug("== ENTER ==")
     if not season_shelf:
         path = pathData.get('key', '')
     else:
