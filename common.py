@@ -30,7 +30,7 @@ class printDebug:
     def get_name(self, level):
         return self.DEBUG_MAP[level]
 
-    def error(self):
+    def error(self,message):
         return self.__printDebug(message, 0)        
         
     def info(self, message):
