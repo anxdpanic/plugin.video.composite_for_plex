@@ -251,7 +251,6 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 
         
         if extraData.get('source') == 'tvshows' or extraData.get('source') =='tvseasons':
-            print "Setting show data"
             #Then set the number of watched and unwatched, which will be displayed per season
             liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
             liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
