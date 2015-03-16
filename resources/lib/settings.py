@@ -11,6 +11,9 @@ class addonSettings:
         self.settings = xbmcaddon.Addon(name)
         self.stream = self.settings.getSetting('stream')
 
+    def openSettings(self):
+        return self.settings.openSettings()
+        
     def get_setting(self, name):
     
         value = self.settings.getSetting(name)

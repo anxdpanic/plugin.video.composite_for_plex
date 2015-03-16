@@ -4169,7 +4169,7 @@ def start_plexbmc():
         
     #Open the add-on settings page, then refresh plugin
     elif sys.argv[1] == "setting":
-        __settings__.openSettings()
+        settings.openSettings()
         WINDOW = xbmcgui.getCurrentWindowId()
         if WINDOW == 10000:
             printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
