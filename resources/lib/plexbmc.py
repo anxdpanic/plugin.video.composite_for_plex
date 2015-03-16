@@ -250,7 +250,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                     liz.addStreamInfo('audio', audio_codec )
                 
         
-        if extraData.get('source') == 'tvshow' or extraData.get('source') =='tvseasons':
+        if extraData.get('source') == 'tvshows' or extraData.get('source') =='tvseasons':
             print "Setting show data"
             #Then set the number of watched and unwatched, which will be displayed per season
             liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
