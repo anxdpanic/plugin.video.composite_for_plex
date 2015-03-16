@@ -3982,37 +3982,34 @@ def displayServers( url ):
     
         details={'title' : mediaserver.get_name() }
 
-        if mediaserver.get_token():
-            extraData={'token' : mediaserver.get_token() }
-        else:
-            extraData={}
+        extraData={}
 
         if type == "video":
             extraData['mode']=_MODE_PLEXPLUGINS
             s_url='%s%s' % ( mediaserver.get_url_location(), '/video' )
             if Servers_list == 1:
-                PlexPlugins(s_url+getAuthDetails(extraData,prefix="?"))
+                PlexPlugins(s_url)
                 return
 
         elif type == "online":
             extraData['mode']=_MODE_PLEXONLINE
             s_url='%s%s' % ( mediaserver.get_url_location() , '/system/plexonline')
             if Servers_list == 1:
-                plexOnline(s_url+getAuthDetails(extraData,prefix="?"))
+                plexOnline(s_url)
                 return
 
         elif type == "music":
             extraData['mode']=_MODE_MUSIC
             s_url='%s%s' % ( mediaserver.get_url_location(), '/music' )
             if Servers_list == 1:
-                music(s_url+getAuthDetails(extraData,prefix="?"))
+                music(s_url)
                 return
 
         elif type == "photo":
             extraData['mode']=_MODE_PHOTOS
             s_url='%s%s' % ( mediaserver.get_url_location(), '/photos' )
             if Servers_list == 1:
-                photo(s_url+getAuthDetails(extraData,prefix="?"))
+                photo(s_url)
                 return
 
         addGUIItem(s_url, details, extraData )
@@ -4056,10 +4053,6 @@ else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
 g_thumb = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
-
-#Set up holding variable for session ID
-global g_sessionID
-g_sessionID=None
 
 pluginhandle=0
 plex_network=plex.Plex(load=True)
