@@ -1419,7 +1419,7 @@ def PLAY( url ):
         item = xbmcgui.ListItem(path=playurl)
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-def videoPluginPlay(vids, prefix=None, indirect=None ):
+def videoPluginPlay(vids, prefix=None, indirect=None, transcode=False ):
     '''
         Plays Plugin Videos, which do not require library feedback
         but require further processing
@@ -1432,7 +1432,15 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     if "node.plexapp.com" in vids:
         server=getMasterServer()
 
-    #If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
+    if indirect:
+        #Probably should transcode this
+        if vids.startswith('http'):
+            vids='/'+vids.split('/',3)[3]
+            transcode=True
+            
+        session, vids=server.get_universal_transcode(vids)
+          
+    '''#If we find the url lookup service, then we probably have a standard plugin, but possibly with resolution choices
     if '/services/url/lookup' in vids:
         printDebug.debug("URL Lookup service")
         tree=getXML(vids)
@@ -1467,7 +1475,8 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
 
         videoPluginPlay(getLinkURL('',mediaDetails[result],server))
         return
-
+    
+    
     #Check if there is a further level of XML required
     if indirect or '&indirect=1' in vids:
         printDebug.debug("Indirect link")
@@ -1480,15 +1489,17 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
             break
 
         return
-
+    '''
     #if we have a plex URL, then this is a transcoding URL
     if 'plex://' in vids:
         printDebug.debug("found webkit video, pass to transcoder")
-        getTranscodeSettings(True)
         if not (prefix):
             prefix="system"
-        vids=transcode(0, vids, prefix)
-        
+            if settings.get_setting('transcode_type') == "universal":
+                session, vids=server.get_universal_transcode(vids)
+            elif settings.get_setting('transcode_type') == "legacy":
+                session, vids=server.get_legacy_transcode(0,vids,prefix)
+                
         #Workaround for XBMC HLS request limit of 1024 byts
         if len(vids) > 1000:
             printDebug.debug("XBMC HSL limit detected, will pre-fetch m3u8 playlist")
@@ -1510,8 +1521,6 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     #If this is an Apple movie trailer, add User Agent to allow access
     if 'trailers.apple.com' in vids:
         url=vids+"|User-Agent=QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
-    elif server.get_location() in vids:
-        url=server.get_formatted_url(vids)
     else:
         url=vids
 
@@ -1520,9 +1529,9 @@ def videoPluginPlay(vids, prefix=None, indirect=None ):
     item = xbmcgui.ListItem(path=url)
     start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-    if 'transcode' in url:
+    if transcode:
         try:
-            pluginTranscodeMonitor(g_sessionID,server)
+            pluginTranscodeMonitor(session,server)
         except:
             printDebug.debug("Unable to start transcode monitor")
     else:
@@ -1555,8 +1564,7 @@ def pluginTranscodeMonitor( sessionID, server ):
 
     printDebug.debug("Playback Stopped")
     printDebug.debug("Stopping PMS transcode job with session: %s" % sessionID)
-    media_server=plex_network.get_server_from_ip(server)
-    media_server.stop_transcode_session(sessionID)
+    server.stop_transcode_session(sessionID)
 
     return
 
