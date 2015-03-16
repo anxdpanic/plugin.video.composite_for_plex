@@ -112,7 +112,7 @@ class PlexMediaServer:
     def set_master(self, value):
         self.master=value
         
-    def talk(self,url='/',refresh=False, type='get', stream=False):
+    def talk(self,url='/',refresh=False, type='get'):
     
         if not self.offline or refresh:
             printDebug.info("URL is: %s" % url)
@@ -120,7 +120,7 @@ class PlexMediaServer:
             start_time=time.time()
             try:
                 if type == 'get':
-                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=(2,60), stream=stream)
+                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=(2,60))
                 elif type == 'put':
                     response = requests.put("%s://%s:%s%s" % (self.protocol, self.address[0], self.port, url), params=self.plex_identification(), timeout=(2,60))                
                 elif type == 'delete':
@@ -136,17 +136,14 @@ class PlexMediaServer:
                 printDebug.debug("URL was: %s" % response.url)
                 
                 if response.status_code == requests.codes.ok:
-                    printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
-                    
-                    if stream:
-                        printDebug.info("DOWNLOAD: It took %.2f seconds to stream data from %s" % ((time.time() - start_time), self.address[0]))                   
-                        return response
-                    
+                    printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)                    
                     printDebug.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
                     
                     printDebug.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.address[0]))                   
                     return data
+                else:
+                    printDebug.debug("Unexpected Response: " % response.status_code)
                     
         return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
 
@@ -213,7 +210,7 @@ class PlexMediaServer:
     def get_channel_recentlyviewed(self):       
         return self.processed_xml("/channels/recentlyViewed") 
         
-    def processed_xml(self,url,stream=True):
+    def processed_xml(self,url):
         if url.startswith('http'):
             printDebug.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
@@ -222,19 +219,13 @@ class PlexMediaServer:
             if url_parts.query:
                 url="%s?%s" % (url, url_parts.query)
          
-         
-        data = self.talk(url,stream=stream)
-
+        data = self.talk(url)
         start_time=time.time()
-        
-        if stream:
-            tree = etree.fromstring(data.content)
-        else:
-            tree = etree.fromstring(data)
+        tree = etree.fromstring(data)
         printDebug.info("PARSE: it took %.2f seconds to parse data from %s" % ((time.time() - start_time), self.address[0]))
         return tree
 
-    def raw_xml(self,url,stream=False):
+    def raw_xml(self,url):
         if url.startswith('http'):
             printDebug.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
@@ -245,7 +236,7 @@ class PlexMediaServer:
          
         start_time=time.time()
          
-        data = self.talk(url,stream=stream)
+        data = self.talk(url)
         
         printDebug.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.address[0]))
         return data
