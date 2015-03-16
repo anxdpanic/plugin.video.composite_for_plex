@@ -63,7 +63,7 @@ class Plex:
                 'X-Plex-Client-Identifier' : 'unknown' ,
                 'X-Plex-Product'           : 'PleXBMC' ,
                 'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'],
-                'X-Plex-Version'           : '4'  ,
+                'X-Plex-Version'           : GLOBAL_SETUP['__version__']  ,
                 'X-Plex-Provides'          : "player",
                 'X-Plex-Token'             : self.myplex_token}
 
