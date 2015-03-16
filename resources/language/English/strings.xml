@@ -7,7 +7,7 @@
 	<string id="30004">Server Discovery</string>
 	<string id="30005">PMS Username: </string>
 	<string id="30006">PMS Password: </string>
-    <string id="30007">Force transcoding</string>
+    <string id="30007">Always Transcode</string>
     <string id="30008">Transcode format </string>
 	<string id="30009">Recent &amp; OnDeck items</string>
 	<string id="30010">Debug log</string>
@@ -101,4 +101,5 @@
 	<string id="30098">Info</string>
 	<string id="30099">Debug</string>
 	<string id="30100">Debug+</string>
+	<string id="30101">Transcoder</string>
 </strings>

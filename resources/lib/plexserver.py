@@ -326,12 +326,20 @@ class PlexMediaServer:
         #Check for myplex user, which we need to alter to a master server
         import uuid
         printDebug.debug("incoming URL is: %s" % url)
-
+        resolution, bitrate = settings.get_setting('quality_uni').split(',')
+        
+        if bitrate.endswith('Mbps'):
+            mVB=int(bitrate.strip().split('Mbps')[0])*1000        
+        elif bitrate.endswith('Kbps'):
+            mVB=bitrate.strip().split('Kbps')[0]
+        elif bitrate.endswith('unlimited'):
+            mVB=20000
+        else:
+            mVB=2000  # a catch all amount for missing data
+        
         transcode_request="/video/:/transcode/universal/start.m3u8?"
         session=str(uuid.uuid4())
         quality="100"
-        mVB="4000"
-        resolution="1280x720"
         transcode_settings={ 'protocol' : 'hls' ,
                              'session' : session ,
                              'offset' : 0 ,
