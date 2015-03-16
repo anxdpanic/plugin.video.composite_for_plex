@@ -282,15 +282,14 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         #almost always have context menus
         try:
-
-            if (not folder) and extraData.get('type','video').lower() == "video":
+            if not folder and extraData.get('type','video').lower() == "video":
                 #Play Transcoded
                 context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % u , ))
                 printDebug.debug("Setting transcode options to [%s&transcode=1]" % u)
             printDebug.debug("Building Context Menus")
-            liz.addContextMenuItems( context, settings.get_setting('contextReplace') )
+            liz.addContextMenuItems( context, settings.get_setting('contextreplace') )
         except: 
-            pass
+            printDebug.error("Context Menu Error: %s" % str(sys.exc_info()))
             
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
 
@@ -940,14 +939,17 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
     timings = tree.find('Video')
     if timings is not None:
         media_type="video"
+        extra['path']=timings.get('key')
     else:
         timings = tree.find('Track')
         if timings:
             media_type="music"
+            extra['path']=timings.get('key')
         else:
             timings = tree.find('Photo')
             if timings:
                 media_type="picture"
+                extra['path']=timings.get('key')
             else:
                 printDebug.debug("No Video data found")
                 return {}
@@ -1106,16 +1108,15 @@ def playPlaylist ( server, data ):
     return
     
 def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False ):
-    printDebug.debug("== ENTER ==")
-
+   
+    session=None
+    
     if override == 1:
         override = True
         full_data = True
     else:
         override = False
     
-    getTranscodeSettings(override)
-
     server=plex_network.get_server_from_url(vids)
 
     id=vids.split('?')[0].split('&')[0].split('/')[-1]
@@ -1145,9 +1146,9 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
         playurl=url.split(':',1)[1]
     elif protocol == "http":
         printDebug.debug( "We are playing a stream")
-        if g_transcode == "true":
+        if override:
             printDebug.debug( "We will be transcoding the stream")
-            playurl=transcode(id,url)
+            session, playurl=server.get_universal_transcode(streams['extra']['path'])
 
         else:
             playurl=server.get_formatted_url(url)
@@ -1219,11 +1220,11 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
         else:
             time.sleep(2)
 
-    if not (g_transcode == "true" ):
+    if not override:
         setAudioSubtitles(streams)
 
     if streams['type'] == "video":
-        monitorPlayback(id,server)
+        monitorPlayback(id,server, session)
 
     return
 
@@ -1341,9 +1342,12 @@ def selectMedia( data, server ):
     printDebug.debug("We have selected media at %s" % newurl)
     return newurl
 
-def monitorPlayback( id, server ):
+def monitorPlayback( id, server, session=None ):
     printDebug.debug("== ENTER ==")
 
+    if session:
+        printDebug.debug("We are monitoring a transcode session")
+    
     if __settings__.getSetting('monitoroff') == "true":
         return
         
@@ -1389,9 +1393,9 @@ def monitorPlayback( id, server ):
     # The follwing progress:stopped update is necessary only for plugin trakt to 'cancel watching' on trakt.tv server, otherwise it will keep status 'watching' for about 15min
     server.report_playback_progress(id,playedTime*1000, state='stopped')
 
-    if g_sessionID is not None:
-        printDebug.debug("Stopping PMS transcode job with session %s" % g_sessionID)
-        server.stop_transcode_session(g_sessionID)
+    if session is not None:
+        printDebug.debug("Stopping PMS transcode job with session %s" % session)
+        server.stop_transcode_session(session)
 
     return
 
@@ -2207,7 +2211,6 @@ def movieTag(url, server, tree, movie, randomNumber):
 
     #Build any specific context menu entries
     if not settings.get_setting('skipcontext'):
-        
         context=buildContextMenu(url, extraData, server)
     else:
         context=None

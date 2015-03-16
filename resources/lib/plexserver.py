@@ -55,7 +55,7 @@ class PlexMediaServer:
 
         headers = {'X-Plex-Device'            : 'KODI' ,
                    'X-Plex-Client-Platform'   : 'KODI' ,
-                   'X-Plex-Device-Name'       : 'unknown' ,
+                   'X-Plex-Device-Name'       : 'KODI' ,
                    'X-Plex-Language'          : 'en',
                    'X-Plex-Model'             : 'unknown' ,
                    'X-Plex-Platform'          : 'PleXBMC' ,
@@ -255,7 +255,8 @@ class PlexMediaServer:
 
     def get_formatted_url(self, url, options={}):
     
-        options.update(self.plex_identification())
+        url_options=self.plex_identification()
+        url_options.update(options)
         
         if url.startswith('http'):
             url_parts = urlparse.urlparse(url)
@@ -269,7 +270,7 @@ class PlexMediaServer:
         url_parts = urlparse.urlparse(location)
 
         query_args = urlparse.parse_qsl(url_parts.query)
-        query_args += options.items()
+        query_args += url_options.items()
 
         new_query_args = urllib.urlencode(query_args, True)
 
@@ -320,7 +321,35 @@ class PlexMediaServer:
 
     def delete_metadata(self, id):
         return self.talk('/library/metadata/%s' % id, type='delete')
+ 
+    def get_universal_transcode(self, url):
+        #Check for myplex user, which we need to alter to a master server
+        import uuid
+        printDebug.debug("incoming URL is: %s" % url)
+
+        transcode_request="/video/:/transcode/universal/start.m3u8?"
+        session=str(uuid.uuid4())
+        quality="100"
+        mVB="4000"
+        resolution="1280x720"
+        transcode_settings={ 'protocol' : 'hls' ,
+                             'session' : session ,
+                             'offset' : 0 ,
+                             'videoResolution' : resolution,
+                             'maxVideoBitrate' : mVB ,
+                             'videoQuality' : quality ,
+                             'directStream' : '1',
+                             'directPlay' : '0',
+                             'subtitleSize' : settings.get_setting('subSize').split('.')[0] ,
+                             'audioBoost' : settings.get_setting('audioSize').split('.')[0] ,
+                             'fastSeek' : '1' ,
+                             'path' : "http://127.0.0.1:%s%s" % (self.port, url) }
+
+        fullURL="%s%s" % (transcode_request, urllib.urlencode(transcode_settings))
+        printDebug.debug("Transcoded media location URL: %s" % fullURL)
+        return (session, self.get_formatted_url(fullURL, options={'X-Plex-Device' : 'Plex Home Theater'}))
         
+ 
 class plex_section:
 
     def __init__(self, data=None):
