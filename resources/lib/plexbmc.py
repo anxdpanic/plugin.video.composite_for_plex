@@ -227,7 +227,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 liz.setProperty('TotalTime', str(extraData.get('duration')))
                 liz.setProperty('ResumeTime', str(extraData.get('resume')))
 
-                if not settings.get_setting('skipmediaflags'):
+                if not settings.get_setting('skipflags'):
                     printDebug.debug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
                     liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
                     liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
@@ -251,6 +251,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 
         
         if extraData.get('source') == 'tvshow' or extraData.get('source') =='tvseasons':
+            print "Setting show data"
             #Then set the number of watched and unwatched, which will be displayed per season
             liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
             liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
@@ -288,7 +289,9 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
                 printDebug.debug("Setting transcode options to [%s&transcode=1]" % u)
             printDebug.debug("Building Context Menus")
             liz.addContextMenuItems( context, settings.get_setting('contextreplace') )
-        except: 
+        except AttributeError: 
+            pass
+        except:
             printDebug.error("Context Menu Error: %s" % str(sys.exc_info()))
             
         return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
@@ -353,7 +356,7 @@ def displaySections( filter=None, display_shared=False ):
                 extraData['mode']=mode
                 section_url='%s%s' % ( server.get_url_location(), path)
 
-                if not settings.get_setting('skipcontext'):
+                if not settings.get_setting('skipcontextmenus'):
                     context=[]
                     context.append(('Refresh library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section.get_key()) ))
                 else:
@@ -668,7 +671,7 @@ def TVShows( url, tree=None ):
             extraData['mode']=_MODE_TVSEASONS
             u='%s%s'  % ( server.get_url_location(), extraData['key'])
 
-        if not settings.get_setting('skipcontext'):
+        if not settings.get_setting('skipcontextmenus'):
             context=buildContextMenu(url, extraData, server)
         else:
             context=None
@@ -753,7 +756,7 @@ def TVSeasons( url ):
 
         url='%s%s' % ( server.get_url_location() , extraData['key'] )
 
-        if not settings.get_setting('skipcontext'):
+        if not settings.get_setting('skipcontextmenus'):
             context=buildContextMenu(url, season, server)
         else:
             context=None
@@ -886,11 +889,11 @@ def TVEpisodes( url, tree=None ):
             details['genre']    = " / ".join(tempgenre)
 
         #Add extra media flag data
-        if not settings.get_setting('skipmediaflags'):
+        if not settings.get_setting('skipflags'):
             extraData.update(getMediaData(mediaarguments))
 
         #Build any specific context menu entries
-        if not settings.get_setting('skipcontext'):
+        if not settings.get_setting('skipcontextmenus'):
             context=buildContextMenu(url, extraData,server)
         else:
             context=None
@@ -2144,11 +2147,11 @@ def movieTag(url, server, tree, movie, randomNumber):
         printDebug.debug('Trailer plugin url added: %s' % details['trailer'])
         
     #Add extra media flag data
-    if not settings.get_setting('skipmediaflags'):
+    if not settings.get_setting('skipflags'):
         extraData.update(getMediaData(mediaarguments))
 
     #Build any specific context menu entries
-    if not settings.get_setting('skipcontext'):
+    if not settings.get_setting('skipcontextmenus'):
         context=buildContextMenu(url, extraData, server)
     else:
         context=None
@@ -2382,7 +2385,7 @@ def getThumb(data, server, width=720, height=720):
         return thumbnail
 
     elif thumbnail.startswith('/'):
-        if settings.get_setting('fullres_thumbnails'):
+        if settings.get_setting('fullres_thumbs'):
             return server.get_formatted_url(thumbnail)
         else:
             return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
@@ -2409,7 +2412,7 @@ def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
         return thumbnail
 
     elif thumbnail.startswith('/'):
-        if settings.get_setting('fullres_thumbnails'):
+        if settings.get_setting('fullres_thumbs'):
             return server.get_formatted_url(thumbnail)
         else:
             return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
@@ -4031,7 +4034,7 @@ if settings.get_debug() >= printDebug.DEBUG_INFO:
     print "PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__']
     print "PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform']
     print "PleXBMC -> Setting debug: %s" % printDebug.get_name(settings.get_debug())
-    print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.get_setting('fullres_thumbnails')
+    print "PleXBMC -> FullRes Thumbs are set to: %s" % settings.get_setting('fullres_thumbs')
     print "PleXBMC -> Settings streaming: %s" % settings.get_stream()
     print "PleXBMC -> Setting filter menus: %s" % settings.get_setting('secondary')
     print "PleXBMC -> Flatten is: %s" % settings.get_setting('flatten')
