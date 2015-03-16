@@ -383,7 +383,6 @@ class PlexMediaServer:
         baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s" % audio
         capability="X-Plex-Client-Capabilities=%s" % urllib.quote_plus(baseCapability)
 
-        
         transcode_request="/video/:/transcode/segmented/start.m3u8"
         transcode_settings={ '3g' : 0 ,
                              'offset' : 0 ,

@@ -1420,14 +1420,6 @@ def PLAY( url ):
         return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
 def videoPluginPlay(vids, prefix=None, indirect=None, transcode=False ):
-    '''
-        Plays Plugin Videos, which do not require library feedback
-        but require further processing
-        @input: url of video, plugin identifier
-        @return: nothing. End of Script
-    '''
-    printDebug.debug("== ENTER ==")
-
     server=plex_network.get_server_from_url(vids)
     if "node.plexapp.com" in vids:
         server=getMasterServer()
