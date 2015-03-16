@@ -18,6 +18,9 @@ class addonSettings:
     
         value = self.settings.getSetting(name)
         
+        if value is None or value == '':
+            print "setting: %s is : %s" % (name, value)
+        
         if value == "true":
             return True
         elif value == "false":
