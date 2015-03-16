@@ -3125,7 +3125,9 @@ def fullShelf(server_list={}):
             if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
                 
                 tree = server_details.get_ondeck(section=section.get_key(),size=15)
-                
+       
+                libraryuuid = tree.get("librarySectionUUID",'').encode('utf-8')
+       
                 if tree is None:
                     print ("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location(), False)
                     continue
