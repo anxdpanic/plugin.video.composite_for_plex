@@ -1107,15 +1107,14 @@ def playPlaylist ( server, data ):
     
     return
     
-def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False ):
+def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=False ):
    
     session=None
+    if settings.get_setting('transcode'):
+        override=True
     
-    if override == 1:
-        override = True
+    if override:
         full_data = True
-    else:
-        override = False
     
     server=plex_network.get_server_from_url(vids)
 
@@ -4075,7 +4074,7 @@ def start_plexbmc():
 
     param_name=urllib.unquote_plus(params.get('name',""))
     mode=int(params.get('mode',-1))
-    param_transcodeOverride=int(params.get('transcode',0))
+    play_transcode=True if int(params.get('transcode',0)) == 1 else False
     param_identifier=params.get('identifier',None)
     param_indirect=params.get('indirect',None)
     force=params.get('force')
@@ -4196,7 +4195,7 @@ def start_plexbmc():
             TVSeasons(param_url)
 
         elif mode == _MODE_PLAYLIBRARY:
-            playLibraryMedia(param_url,force=force, override=param_transcodeOverride)
+            playLibraryMedia(param_url,force=force, override=play_transcode)
 
         elif mode == _MODE_PLAYSHELF:
             playLibraryMedia(param_url,full_data=True, shelf=True)
