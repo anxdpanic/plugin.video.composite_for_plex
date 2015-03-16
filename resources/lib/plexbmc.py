@@ -68,6 +68,7 @@ _MODE_PLEXONLINE=19
 _MODE_CHANNELINSTALL=20
 _MODE_CHANNELVIEW=21
 _MODE_PLAYLIBRARY_TRANSCODE=23
+_MODE_DISPLAYSERVERS=22
 _MODE_MYPLEXQUEUE=24
 _MODE_SHARED_SHOWS=25
 _MODE_SHARED_MUSIC=26
@@ -3962,7 +3963,59 @@ def setMasterServer () :
     printDebug.debug("Setting master server to: %s" % servers[result].get_name() )
     settings.update_master_server(servers[result].get_name() )
     return
-  
+
+def displayServers( url ):
+    printDebug.debug("== ENTER ==")
+    type=url.split('/')[2]
+    printDebug.debug("Displaying entries for %s" % type)
+    Servers = plex_network.get_server_list()
+    Servers_list=len(Servers)
+
+    #For each of the servers we have identified
+    for mediaserver in Servers:
+
+        if mediaserver.is_secondary():
+            continue
+    
+        details={'title' : mediaserver.get_name() }
+
+        if mediaserver.get_token():
+            extraData={'token' : mediaserver.get_token() }
+        else:
+            extraData={}
+
+        if type == "video":
+            extraData['mode']=_MODE_PLEXPLUGINS
+            s_url='%s%s' % ( mediaserver.get_url_location(), '/video' )
+            if Servers_list == 1:
+                PlexPlugins(s_url+getAuthDetails(extraData,prefix="?"))
+                return
+
+        elif type == "online":
+            extraData['mode']=_MODE_PLEXONLINE
+            s_url='%s%s' % ( mediaserver.get_url_location() , '/system/plexonline')
+            if Servers_list == 1:
+                plexOnline(s_url+getAuthDetails(extraData,prefix="?"))
+                return
+
+        elif type == "music":
+            extraData['mode']=_MODE_MUSIC
+            s_url='%s%s' % ( mediaserver.get_url_location(), '/music' )
+            if Servers_list == 1:
+                music(s_url+getAuthDetails(extraData,prefix="?"))
+                return
+
+        elif type == "photo":
+            extraData['mode']=_MODE_PHOTOS
+            s_url='%s%s' % ( mediaserver.get_url_location(), '/photos' )
+            if Servers_list == 1:
+                photo(s_url+getAuthDetails(extraData,prefix="?"))
+                return
+
+        addGUIItem(s_url, details, extraData )
+
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    
 ##So this is where we really start the plugin.
 
 __settings__ = GLOBAL_SETUP['__settings__']
@@ -4217,4 +4270,7 @@ def start_plexbmc():
 
         elif mode == _MODE_PLAYLISTS:
             processXML(param_url)
+        
+        elif mode == _MODE_DISPLAYSERVERS:
+            displayServers(param_url)
 
