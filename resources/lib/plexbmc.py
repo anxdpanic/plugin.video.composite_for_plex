@@ -569,7 +569,7 @@ def Movies( url, tree=None ):
             count+=1
         
     printDebug.info("PROCESS: It took %s seconds to process %s items" % (time.time()-start_time, count))
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('movie')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -762,7 +762,7 @@ def TVSeasons( url ):
         #Build the screen directory listing
         addGUIItem(url,details,extraData, context)
 
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('season')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -904,7 +904,7 @@ def TVEpisodes( url, tree=None ):
 
         addGUIItem(u,details,extraData, context, folder=False)
 
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('episode')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -1073,7 +1073,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
                 'type'       : media_type ,              #Type of metadata
                 'extra'      : extra }                   #Extra data
             
-    printDebug ( str(streamData) )
+    printDebug.debug( streamData )
     return streamData
 
 def playPlaylist ( server, data ):    
@@ -1187,9 +1187,9 @@ def playLibraryMedia( vids, override=0, force=None, full_data=False, shelf=False
         
     if force or shelf:    
         if resume:
-            printDebug ("Playback from resume point")
             item.setProperty('ResumeTime', str(resume) )
             item.setProperty('TotalTime', str(duration) )
+            printDebug.info("Playback from resume point: %s" % resume)
 
             
     if streams['type'] == "picture":
@@ -1237,7 +1237,7 @@ def setAudioSubtitles( stream ):
 
     #If we have decided not to collect any sub data then do not set subs
     if stream['contents'] == "type":
-        printDebug ("No audio or subtitle streams to process.")
+        printDebug.info("No audio or subtitle streams to process.")
 
         #If we have decided to force off all subs, then turn them off now and return
         if settings.get_setting('streamControl') == _SUB_AUDIO_NEVER_SHOW :
@@ -1253,38 +1253,38 @@ def setAudioSubtitles( stream ):
         audio = stream['audio']
         
         if stream['audioCount'] == 1:
-            printDebug ("Only one audio stream present - will leave as default")
+            printDebug.info("Only one audio stream present - will leave as default")
 
         elif audio:
-            printDebug ("Attempting to use selected language setting: %s" % audio.get('language',audio.get('languageCode','Unknown')).encode('utf8'))
-            printDebug ("Found preferred language at index %s" % stream['audioOffset'])
+            printDebug.debug("Attempting to use selected language setting: %s" % audio.get('language',audio.get('languageCode','Unknown')).encode('utf8'))
+            printDebug.info("Found preferred language at index %s" % stream['audioOffset'])
             try:
                 xbmc.Player().setAudioStream(stream['audioOffset'])
-                printDebug ("Audio set")
+                printDebug.debug("Audio set")
             except:
-                printDebug ("Error setting audio, will use embedded default stream")
+                printDebug.info("Error setting audio, will use embedded default stream")
 
     #Set the SUBTITLE component
     if settings.get_setting('streamControl') == _SUB_AUDIO_PLEX_CONTROL:
         printDebug.debug("Attempting to set preferred subtitle Stream")
         subtitle=stream['subtitle']
         if subtitle:
-            printDebug ("Found preferred subtitle stream" )
+            printDebug.debug("Found preferred subtitle stream" )
             try:
                 xbmc.Player().showSubtitles(False)
                 if subtitle.get('key'):
                     xbmc.Player().setSubtitles(subtitle['key'])                
                 else:
-                    printDebug ("Enabling embedded subtitles at index %s" % stream['subOffset'])
+                    printDebug.info("Enabling embedded subtitles at index %s" % stream['subOffset'])
                     xbmc.Player().setSubtitleStream(int(stream['subOffset']))
 
                 xbmc.Player().showSubtitles(True)      
                 return True
             except:
-                printDebug ("Error setting subtitle")
+                printDebug.info("Error setting subtitle")
 
         else:
-            printDebug ("No preferred subtitles to set")
+            printDebug.info("No preferred subtitles to set")
             xbmc.Player().showSubtitles(False)
 
     return False
@@ -1726,7 +1726,7 @@ def transcode( id, url, identifier=None ):
         server=getMasterServer()
 
     printDebug.debug("Using preferred transcoding server: %s " % server.get_name())
-    printDebug ("incoming URL is: %s" % url)
+    printDebug.debug("incoming URL is: %s" % url)
 
     transcode_request="/video/:/transcode/segmented/start.m3u8"
     transcode_settings={ '3g' : 0 ,
@@ -1748,7 +1748,7 @@ def transcode( id, url, identifier=None ):
         transcode_settings['identifier']="com.plexapp.plugins.library"
         transcode_settings['key']=urllib.quote_plus("%s/library/metadata/%s" % (server.get_url_location(), id))
         transcode_target=urllib.quote_plus("http://127.0.0.1:32400"+"/"+"/".join(url.split('/')[3:]))
-        printDebug ("filestream URL is: %s" % transcode_target )
+        printDebug.debug("filestream URL is: %s" % transcode_target )
 
     transcode_request="%s?url=%s" % (transcode_request, transcode_target)
 
@@ -1820,7 +1820,7 @@ def artist( url, tree=None ):
 
         addGUIItem(url,details,extraData)
 
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -1866,7 +1866,7 @@ def albums( url, tree=None ):
 
         addGUIItem(url,details,extraData)
 
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -1899,7 +1899,7 @@ def tracks( url,tree=None ):
 
         trackTag(server, tree, track, sectionart, sectionthumb)
 
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -2834,7 +2834,6 @@ def skin( server_list=None, type=None ):
         WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "%s/system/plexonline&mode=19" % server.get_url_location() )
 
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server.get_name())
-        printDebug ("Name mapping is: %s" % server.get_name() )
 
         serverCount+=1
 
@@ -3050,7 +3049,6 @@ def amberskin():
         WINDOW.setProperty("plexbmc.%d.server.online" % (serverCount) , "%s%s&mode=%s" % (server.get_url_location(), "/system/plexonline", _MODE_PLEXONLINE ))
 
         WINDOW.setProperty("plexbmc.%d.server" % (serverCount) , server.get_name())
-        printDebug ("Name mapping is: %s" % server.get_name())
 
         serverCount+=1
 
@@ -3435,10 +3433,10 @@ def displayContent( acceptable_level, content_level ):
         @output: boolean
     '''
 
-    printDebug ("Checking rating flag [%s] against [%s]" % (content_level, acceptable_level))
+    printDebug.info("Checking rating flag [%s] against [%s]" % (content_level, acceptable_level))
 
     if acceptable_level == "Adults":
-        printDebug ("OK to display")
+        printDebug.debug("OK to display")
         return True
 
     content_map = { 'Kids' : 0 ,
@@ -3486,12 +3484,12 @@ def displayContent( acceptable_level, content_level ):
     if content_level is None or content_level == "None":
         printDebug.debug("Setting [None] rating as %s" % ( __settings__.getSetting('contentNone') , ))
         if content_map[__settings__.getSetting('contentNone')] <= content_map[acceptable_level]:
-            printDebug ("OK to display")
+            printDebug.debug("OK to display")
             return True
     else:
         try:
             if rating_map[content_level] <= content_map[acceptable_level]:
-                printDebug ("OK to display")
+                printDebug.debug("OK to display")
                 return True
         except:
             print "Unknown rating flag [%s] whilst lookuing for [%s] - will filter for now, but needs to be added" % (content_level, acceptable_level)
@@ -3848,7 +3846,7 @@ def libraryRefresh( server_uuid , section_id):
     server=plex_network.get_server_from_uuid(server_uuid)
     server.refresh_section(section_id)
     
-    printDebug ("Library refresh requested")
+    printDebug.info("Library refresh requested")
     xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",Library Refresh started,100)")
     return
 
@@ -3858,10 +3856,10 @@ def watched( server_uuid, metadata_id, watched='watch' ):
     server=plex_network.get_server_from_uuid(server_uuid)
 
     if watched == 'watch':
-        printDebug ("Marking %s as watched" % metadata_id)
+        printDebug.info("Marking %s as watched" % metadata_id)
         server.mark_item_watched(metadata_id)
     else:
-        printDebug ("Marking %s as unwatched" % metadata_id)
+        printDebug.info("Marking %s as unwatched" % metadata_id)
         server.mark_item_unwatched(metadata_id)
 
     xbmc.executebuiltin("Container.Refresh")
@@ -3911,7 +3909,7 @@ def getTranscodeSettings( override=False ):
 
 def deleteMedia( server_uuid, metadata_id ):
     printDebug.debug("== ENTER ==")
-    printDebug ("Deleting media at: %s" % metadata_id)
+    printDebug.info("Deleting media at: %s" % metadata_id)
 
     return_value = xbmcgui.Dialog().yesno("Confirm file delete?","Delete this item? This action will delete media and associated data files.")
 
