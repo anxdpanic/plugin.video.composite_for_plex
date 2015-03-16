@@ -9,7 +9,7 @@ class addonSettings:
     
         print "PleXBMC -> Reading settings configuration"
         self.settings = xbmcaddon.Addon(name)
-        self.stream = self.settings.getSetting('stream')
+        self.stream = self.settings.getSetting('streaming')
 
     def openSettings(self):
         return self.settings.openSettings()
