@@ -93,16 +93,16 @@ def mediaType( partData, server, dvdplayback=False ):
     #First determine what sort of 'file' file is
 
     if file[0:2] == "\\\\":
-        printDebug.debug("Looks like a UNC")
+        printDebug.debug("Detected UNC source file")
         type="UNC"
     elif file[0:1] == "/" or file[0:1] == "\\":
-        printDebug.debug("looks like a unix file")
+        printDebug.debug("Detected unix source file")
         type="nixfile"
     elif file[1:3] == ":\\" or file[1:2] == ":/":
-        printDebug.debug("looks like a windows file")
+        printDebug.debug("Detected windows source file")
         type="winfile"
     else:
-        printDebug.debug("unknown file type: %s" % file)
+        printDebug.debug("Unknown file type source: %s" % file)
         type=None
 
     # 0 is auto select.  basically check for local file first, then stream if not found
@@ -177,10 +177,7 @@ def mediaType( partData, server, dvdplayback=False ):
     
 def addGUIItem(url, details, extraData, context=None, folder=True):
 
-        item_title = details.get('title', 'Unknown')
-
-        printDebug.debug("== ENTER ==")
-        printDebug.debug("Adding Dir for [%s]" % item_title)
+        printDebug.debug("Adding Dir for [%s]" % details.get('title', 'Unknown'))
         printDebug.debug("Passed details: %s" % details)
         printDebug.debug("Passed extraData: %s" % extraData)
 
@@ -188,19 +185,19 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
 
         #Create the URL to pass to the item
         if not folder and extraData['type'] == "image" :
-            u=url
+            link_url=url
         elif url.startswith('http') or url.startswith('file'):
-            u=sys.argv[0]+"?url="+urllib.quote(url)+mode
+            link_url="%s?url=%s%s" % ( sys.argv[0], urllib.quote(url), mode)
         else:
-            u=sys.argv[0]+"?url="+str(url)+mode
+            link_url="%s?url=%s%s" % ( sys.argv[0], url, mode)
             
         if extraData.get('parameters'):
             for argument, value in extraData.get('parameters').items():
-                u = "%s&%s=%s" % (u, argument, urllib.quote(value))
+                link_url = "%s&%s=%s" % (link_url, argument, urllib.quote(value))
 
-        printDebug.debug("URL to use for listing: %s" % u)
+        printDebug.debug("URL to use for listing: %s" % link_url)
 
-        liz=xbmcgui.ListItem(item_title, thumbnailImage=extraData.get('thumb', ''))
+        liz=xbmcgui.ListItem(details.get('title', 'Unknown'), thumbnailImage=extraData.get('thumb', ''))
 
         printDebug.debug("Setting thumbnail as %s" % extraData.get('thumb', ''))
 
@@ -263,23 +260,21 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             printDebug.debug("Skipping fanart as None found")
 
         if extraData.get('banner'):
-            bannerImg = str(extraData.get('banner', ''))
-
-            liz.setProperty('banner', bannerImg)
-            printDebug.debug("Setting banner as %s" % bannerImg)
+            liz.setProperty('banner', '%s' % extraData.get('banner', ''))
+            printDebug.debug("Setting banner as %s" % extraData.get('banner', ''))
 
         if extraData.get('season_thumb'):
-            seasonImg = str(extraData.get('season_thumb', ''))
+            seasonImg = str()
 
-            liz.setProperty('seasonThumb', seasonImg)
-            printDebug.debug("Setting season Thumb as %s" % seasonImg)
+            liz.setProperty('seasonThumb', '%s' % extraData.get('season_thumb', ''))
+            printDebug.debug("Setting season Thumb as %s" % extraData.get('season_thumb', ''))
 
         #almost always have context menus
         try:
             if not folder and extraData.get('type','video').lower() == "video":
                 #Play Transcoded
-                context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % u , ))
-                printDebug.debug("Setting transcode options to [%s&transcode=1]" % u)
+                context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % link_url , ))
+                printDebug.debug("Setting transcode options to [%s&transcode=1]" % link_url)
             printDebug.debug("Building Context Menus")
             liz.addContextMenuItems( context, settings.get_setting('contextreplace') )
         except AttributeError: 
@@ -287,7 +282,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         except:
             printDebug.error("Context Menu Error: %s" % str(sys.exc_info()))
             
-        return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=folder)
+        return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=link_url,listitem=liz,isFolder=folder)
 
 def displaySections( filter=None, display_shared=False ):
         printDebug.debug("== ENTER ==")
