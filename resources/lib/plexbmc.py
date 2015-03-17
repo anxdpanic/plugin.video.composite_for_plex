@@ -177,244 +177,244 @@ def mediaType( partData, server, dvdplayback=False ):
     
 def addGUIItem(url, details, extraData, context=None, folder=True):
 
-        printDebug.debug("Adding Dir for [%s]" % details.get('title', 'Unknown'))
-        printDebug.debug("Passed details: %s" % details)
-        printDebug.debug("Passed extraData: %s" % extraData)
+    printDebug.debug("Adding Dir for [%s]" % details.get('title', 'Unknown'))
+    printDebug.debug("Passed details: %s" % details)
+    printDebug.debug("Passed extraData: %s" % extraData)
 
-        mode="&mode=%s" % extraData.get('mode',0)
+    mode="&mode=%s" % extraData.get('mode',0)
 
-        #Create the URL to pass to the item
-        if not folder and extraData['type'] == "image" :
-            link_url=url
-        elif url.startswith('http') or url.startswith('file'):
-            link_url="%s?url=%s%s" % ( sys.argv[0], urllib.quote(url), mode)
-        else:
-            link_url="%s?url=%s%s" % ( sys.argv[0], url, mode)
-            
-        if extraData.get('parameters'):
-            for argument, value in extraData.get('parameters').items():
-                link_url = "%s&%s=%s" % (link_url, argument, urllib.quote(value))
-
-        printDebug.debug("URL to use for listing: %s" % link_url)
-
-        liz=xbmcgui.ListItem(details.get('title', 'Unknown'), thumbnailImage=extraData.get('thumb', ''))
-
-        printDebug.debug("Setting thumbnail as %s" % extraData.get('thumb', ''))
-
-        #Set the properties of the item, such as summary, name, season, etc
-        liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
-
-        #Music related tags
-        if extraData.get('type','').lower() == "music":
-            liz.setProperty('Artist_Genre', details.get('genre',''))
-            liz.setProperty('Artist_Description', extraData.get('plot',''))
-            liz.setProperty('Album_Description', extraData.get('plot',''))
-
-        #For all end items    
-        if not folder:
-            liz.setProperty('IsPlayable', 'true')
-
-            if extraData.get('type','video').lower() == "video":
-                liz.setProperty('TotalTime', str(extraData.get('duration')))
-                liz.setProperty('ResumeTime', str(extraData.get('resume')))
-
-                if not settings.get_setting('skipflags'):
-                    printDebug.debug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
-                    liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
-                    liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
-                    liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
-                    liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
-                    liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
-
-                    video_codec={}
-                    if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
-                    if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
-                    if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
-                    if extraData.get('xbmc_width') : video_codec['width'] = int(extraData.get('xbmc_width'))
-                    if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
-
-                    audio_codec={}
-                    if extraData.get('xbmc_AudioCodec') : audio_codec['codec'] = extraData.get('xbmc_AudioCodec')
-                    if extraData.get('xbmc_AudioChannels') : audio_codec['channels'] = int(extraData.get('xbmc_AudioChannels'))
-
-                    liz.addStreamInfo('video', video_codec )
-                    liz.addStreamInfo('audio', audio_codec )
-                
+    #Create the URL to pass to the item
+    if not folder and extraData['type'] == "image" :
+        link_url=url
+    elif url.startswith('http') or url.startswith('file'):
+        link_url="%s?url=%s%s" % ( sys.argv[0], urllib.quote(url), mode)
+    else:
+        link_url="%s?url=%s%s" % ( sys.argv[0], url, mode)
         
-        if extraData.get('source') == 'tvshows' or extraData.get('source') =='tvseasons':
-            #Then set the number of watched and unwatched, which will be displayed per season
-            liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
-            liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
-            liz.setProperty('UnWatchedEpisodes', str(extraData['UnWatchedEpisodes']))
+    if extraData.get('parameters'):
+        for argument, value in extraData.get('parameters').items():
+            link_url = "%s&%s=%s" % (link_url, argument, urllib.quote(value))
+
+    printDebug.debug("URL to use for listing: %s" % link_url)
+
+    liz=xbmcgui.ListItem(details.get('title', 'Unknown'), thumbnailImage=extraData.get('thumb', ''))
+
+    printDebug.debug("Setting thumbnail as %s" % extraData.get('thumb', ''))
+
+    #Set the properties of the item, such as summary, name, season, etc
+    liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
+
+    #Music related tags
+    if extraData.get('type','').lower() == "music":
+        liz.setProperty('Artist_Genre', details.get('genre',''))
+        liz.setProperty('Artist_Description', extraData.get('plot',''))
+        liz.setProperty('Album_Description', extraData.get('plot',''))
+
+    #For all end items    
+    if not folder:
+        liz.setProperty('IsPlayable', 'true')
+
+        if extraData.get('type','video').lower() == "video":
+            liz.setProperty('TotalTime', str(extraData.get('duration')))
+            liz.setProperty('ResumeTime', str(extraData.get('resume')))
+
+            if not settings.get_setting('skipflags'):
+                printDebug.debug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
+                liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
+                liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
+                liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
+                liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
+                liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
+
+                video_codec={}
+                if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
+                if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
+                if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
+                if extraData.get('xbmc_width') : video_codec['width'] = int(extraData.get('xbmc_width'))
+                if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
+
+                audio_codec={}
+                if extraData.get('xbmc_AudioCodec') : audio_codec['codec'] = extraData.get('xbmc_AudioCodec')
+                if extraData.get('xbmc_AudioChannels') : audio_codec['channels'] = int(extraData.get('xbmc_AudioChannels'))
+
+                liz.addStreamInfo('video', video_codec )
+                liz.addStreamInfo('audio', audio_codec )
             
-            #Hack to show partial flag for TV shows and seasons
-            if extraData.get('partialTV') == 1:            
-                liz.setProperty('TotalTime', '100')
-                liz.setProperty('ResumeTime', '50')
-                
-        #fanart is nearly always available, so exceptions are rare.
-        try:
-            liz.setProperty('fanart_image', extraData.get('fanart_image'))
-            printDebug.debug("Setting fan art as %s" % extraData.get('fanart_image'))
-        except:
-            printDebug.debug("Skipping fanart as None found")
-
-        if extraData.get('banner'):
-            liz.setProperty('banner', '%s' % extraData.get('banner', ''))
-            printDebug.debug("Setting banner as %s" % extraData.get('banner', ''))
-
-        if extraData.get('season_thumb'):
-            seasonImg = str()
-
-            liz.setProperty('seasonThumb', '%s' % extraData.get('season_thumb', ''))
-            printDebug.debug("Setting season Thumb as %s" % extraData.get('season_thumb', ''))
-
-        #almost always have context menus
-        try:
-            if not folder and extraData.get('type','video').lower() == "video":
-                #Play Transcoded
-                context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % link_url , ))
-                printDebug.debug("Setting transcode options to [%s&transcode=1]" % link_url)
-            printDebug.debug("Building Context Menus")
-            liz.addContextMenuItems( context, settings.get_setting('contextreplace') )
-        except AttributeError: 
-            pass
-        except:
-            printDebug.error("Context Menu Error: %s" % str(sys.exc_info()))
+    
+    if extraData.get('source') == 'tvshows' or extraData.get('source') =='tvseasons':
+        #Then set the number of watched and unwatched, which will be displayed per season
+        liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
+        liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
+        liz.setProperty('UnWatchedEpisodes', str(extraData['UnWatchedEpisodes']))
+        
+        #Hack to show partial flag for TV shows and seasons
+        if extraData.get('partialTV') == 1:            
+            liz.setProperty('TotalTime', '100')
+            liz.setProperty('ResumeTime', '50')
             
-        return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=link_url,listitem=liz,isFolder=folder)
+    #fanart is nearly always available, so exceptions are rare.
+    try:
+        liz.setProperty('fanart_image', extraData.get('fanart_image'))
+        printDebug.debug("Setting fan art as %s" % extraData.get('fanart_image'))
+    except:
+        printDebug.debug("Skipping fanart as None found")
+
+    if extraData.get('banner'):
+        liz.setProperty('banner', '%s' % extraData.get('banner', ''))
+        printDebug.debug("Setting banner as %s" % extraData.get('banner', ''))
+
+    if extraData.get('season_thumb'):
+        seasonImg = str()
+
+        liz.setProperty('seasonThumb', '%s' % extraData.get('season_thumb', ''))
+        printDebug.debug("Setting season Thumb as %s" % extraData.get('season_thumb', ''))
+
+    #almost always have context menus
+    try:
+        if not folder and extraData.get('type','video').lower() == "video":
+            #Play Transcoded
+            context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % link_url , ))
+            printDebug.debug("Setting transcode options to [%s&transcode=1]" % link_url)
+        printDebug.debug("Building Context Menus")
+        liz.addContextMenuItems( context, settings.get_setting('contextreplace') )
+    except AttributeError: 
+        pass
+    except:
+        printDebug.error("Context Menu Error: %s" % str(sys.exc_info()))
+        
+    return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=link_url,listitem=liz,isFolder=folder)
 
 def displaySections( filter=None, display_shared=False ):
-        printDebug.debug("== ENTER ==")
-        xbmcplugin.setContent(pluginhandle, 'files')
+    printDebug.debug("== ENTER ==")
+    xbmcplugin.setContent(pluginhandle, 'files')
 
-        server_list=plex_network.get_server_list()
-        printDebug.debug( "Using list of %s servers: %s" % ( len(server_list), server_list))
-        
-        for server in server_list:
-        
-            server.discover_sections()
-        
-            for section in server.get_sections():
+    server_list=plex_network.get_server_list()
+    printDebug.debug( "Using list of %s servers: %s" % ( len(server_list), server_list))
+    
+    for server in server_list:
+    
+        server.discover_sections()
+    
+        for section in server.get_sections():
 
-                if display_shared and server.is_owned():
-                    continue
-
-                details={'title' : section.get_title() }
-
-                if len(server_list) > 1:
-                    details['title']="%s: %s" % (server.get_name(), details['title'])
-
-                extraData={ 'fanart_image' : server.get_fanart(section),
-                            'type'         : "Video",
-                            'thumb'        : g_thumb}
-
-                #Determine what we are going to do process after a link is selected by the user, based on the content we find
-
-                path=section.get_path()
-
-                if section.is_show():
-                    mode=_MODE_TVSHOWS
-                    if (filter is not None) and (filter != "tvshows"):
-                        continue
-
-                elif section.is_movie():
-                    mode=_MODE_MOVIES
-                    if (filter is not None) and (filter != "movies"):
-                        continue
-
-                elif section.is_artist():
-                    mode=_MODE_ARTISTS
-                    if (filter is not None) and (filter != "music"):
-                        continue
-
-                elif section.is_photo():
-                    mode=_MODE_PHOTOS
-                    if (filter is not None) and (filter != "photos"):
-                        continue
-                else:
-                    printDebug.debug("Ignoring section %s of type %s as unable to process" % ( details['title'], section.get_type() ) )
-                    continue
-
-                if settings.get_setting('secondary'):
-                    mode=_MODE_GETCONTENT
-                else:
-                    path=path+'/all'
-
-                extraData['mode']=mode
-                section_url='%s%s' % ( server.get_url_location(), path)
-
-                if not settings.get_setting('skipcontextmenus'):
-                    context=[]
-                    context.append(('Refresh library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section.get_key()) ))
-                else:
-                    context=None
-
-                #Build that listing..
-                addGUIItem(section_url, details,extraData, context)
-
-        if display_shared:
-            xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
-            return
-                    
-        #For each of the servers we have identified            
-        if __settings__.getSetting('myplex_user') != '':
-            addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'thumb': g_thumb, 'type': 'Video', 'mode': _MODE_MYPLEXQUEUE})
-
-        for server in server_list:
-        
-            if server.is_offline() or server.is_secondary():
+            if display_shared and server.is_owned():
                 continue
-        
-            #Plex plugin handling
-            if (filter is not None) and (filter != "plugins"):
-                continue
+
+            details={'title' : section.get_title() }
 
             if len(server_list) > 1:
-                prefix=server.get_name()+": "
+                details['title']="%s: %s" % (server.get_name(), details['title'])
+
+            extraData={ 'fanart_image' : server.get_fanart(section),
+                        'type'         : "Video",
+                        'thumb'        : g_thumb}
+
+            #Determine what we are going to do process after a link is selected by the user, based on the content we find
+
+            path=section.get_path()
+
+            if section.is_show():
+                mode=_MODE_TVSHOWS
+                if (filter is not None) and (filter != "tvshows"):
+                    continue
+
+            elif section.is_movie():
+                mode=_MODE_MOVIES
+                if (filter is not None) and (filter != "movies"):
+                    continue
+
+            elif section.is_artist():
+                mode=_MODE_ARTISTS
+                if (filter is not None) and (filter != "music"):
+                    continue
+
+            elif section.is_photo():
+                mode=_MODE_PHOTOS
+                if (filter is not None) and (filter != "photos"):
+                    continue
             else:
-                prefix=""
+                printDebug.debug("Ignoring section %s of type %s as unable to process" % ( details['title'], section.get_type() ) )
+                continue
 
-            details={'title' : prefix+"Channels" }
-            extraData={'type' : "Video",
-                       'thumb' : g_thumb}
+            if settings.get_setting('secondary'):
+                mode=_MODE_GETCONTENT
+            else:
+                path=path+'/all'
 
-            extraData['mode']=_MODE_CHANNELVIEW
-            u="%s/system/plugins/all" % server.get_url_location()
-            addGUIItem(u,details,extraData)
+            extraData['mode']=mode
+            section_url='%s%s' % ( server.get_url_location(), path)
 
-            #Create plexonline link
-            details['title']=prefix+"Plex Online"
-            extraData['type'] = "file"
-            extraData['thumb'] = g_thumb
-            extraData['mode'] = _MODE_PLEXONLINE
+            if not settings.get_setting('skipcontextmenus'):
+                context=[]
+                context.append(('Refresh library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section.get_key()) ))
+            else:
+                context=None
 
-            u="%s/system/plexonline" % server.get_url_location()            
-            addGUIItem(u,details,extraData)
-            
-            #create playlist link
-            details['title']=prefix+"Playlists"
-            extraData['type'] = "file"
-            extraData['thumb'] = g_thumb
-            extraData['mode'] = _MODE_PLAYLISTS
+            #Build that listing..
+            addGUIItem(section_url, details,extraData, context)
 
-            u="%s/system/playlists" % server.get_url_location()            
-            addGUIItem(u,details,extraData)
-            
-            
-        if __settings__.getSetting("cache") == "true":
-            details = {'title' : "Refresh Data"}
-            extraData = {}
-            extraData['type']="file"
+    if display_shared:
+        xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
+        return
+                
+    #For each of the servers we have identified            
+    if __settings__.getSetting('myplex_user') != '':
+        addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'thumb': g_thumb, 'type': 'Video', 'mode': _MODE_MYPLEXQUEUE})
 
-            extraData['mode']= _MODE_DELETE_REFRESH
+    for server in server_list:
+    
+        if server.is_offline() or server.is_secondary():
+            continue
+    
+        #Plex plugin handling
+        if (filter is not None) and (filter != "plugins"):
+            continue
 
-            u="http://nothing"
-            addGUIItem(u,details,extraData)
+        if len(server_list) > 1:
+            prefix=server.get_name()+": "
+        else:
+            prefix=""
+
+        details={'title' : prefix+"Channels" }
+        extraData={'type' : "Video",
+                   'thumb' : g_thumb}
+
+        extraData['mode']=_MODE_CHANNELVIEW
+        u="%s/system/plugins/all" % server.get_url_location()
+        addGUIItem(u,details,extraData)
+
+        #Create plexonline link
+        details['title']=prefix+"Plex Online"
+        extraData['type'] = "file"
+        extraData['thumb'] = g_thumb
+        extraData['mode'] = _MODE_PLEXONLINE
+
+        u="%s/system/plexonline" % server.get_url_location()            
+        addGUIItem(u,details,extraData)
+        
+        #create playlist link
+        details['title']=prefix+"Playlists"
+        extraData['type'] = "file"
+        extraData['thumb'] = g_thumb
+        extraData['mode'] = _MODE_PLAYLISTS
+
+        u="%s/system/playlists" % server.get_url_location()            
+        addGUIItem(u,details,extraData)
+        
+        
+    if __settings__.getSetting("cache") == "true":
+        details = {'title' : "Refresh Data"}
+        extraData = {}
+        extraData['type']="file"
+
+        extraData['mode']= _MODE_DELETE_REFRESH
+
+        u="http://nothing"
+        addGUIItem(u,details,extraData)
 
 
-        #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
-        xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=False)
+    #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=False)
 
 def enforceSkinView(mode):
 
