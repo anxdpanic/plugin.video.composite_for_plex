@@ -2248,7 +2248,7 @@ def playlistTag(url, server, tree, track, sectionart="", sectionthumb="", listin
 
 def photo( url,tree=None ):
     printDebug.debug("== ENTER ==")
-    server=url.split('/')[2]
+    server=plex_network.get_server_from_url(url)
 
     xbmcplugin.setContent(pluginhandle, 'photo')
 
@@ -2285,7 +2285,7 @@ def photo( url,tree=None ):
                     if photo.tag == "Media":
                         for images in photo:
                             if images.tag == "Part":
-                                extraData['key']="http://"+server+images.get('key','')
+                                extraData['key']=server.get_url_location()+images.get('key','')
                                 details['size']=int(images.get('size',0))
                                 u=extraData['key']
 
