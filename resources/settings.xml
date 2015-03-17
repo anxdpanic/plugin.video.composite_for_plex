@@ -46,7 +46,7 @@
     <setting id="flatten" type="enum" label="30043" lvalues="30053|30058|30059" default="0"/>
     <setting id="hide_shared" type="bool" label="30092" default="true"/>
     <setting id="skinoverride" type="bool" label="30075" default="false" />
-    <setting id="skinname" type="enum" label="30076" values="Quartz|Quartz V3|Confluence|Amber" default="Confluence"  visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true" />
+    <setting id="skinname" type="enum" label="30076" values="Quartz|Quartz V3|Confluence|Amber|Aeon Nox 5" default="Confluence"  visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true" />
     <!--Quartz Skin-->
     <setting id="mo_view_0" type="labelenum" label="30077" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
     <setting id="tv_view_0" type="labelenum" label="30078" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-2,0)" enable="eq(-3,true)+eq(-2,0)"/>
@@ -71,6 +71,12 @@
     <setting id="se_view_3" type="labelenum" label="30079" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-19,true)+eq(-18,3)" enable="eq(-19,true)+eq(-18,3)"/>
     <setting id="ep_view_3" type="labelenum" label="30080" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-20,true)+eq(-19,3)" enable="eq(-20,true)+eq(-19,3)"/>
     <setting id="mu_view_3" type="labelenum" label="30081" values="None|List|Big List|Panel|Low List|Icons|Fanart" default="None" subsetting="true"  visible="eq(-21,true)+eq(-20,3)" enable="eq(-21,true)+eq(-20,3)"/>
+    <!--Aeon Nox 5 Skin-->
+    <setting id="mo_view_4" type="labelenum" label="30077" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-22,true)+eq(-21,4)" enable="eq(-22,true)+eq(-21,4)"/>
+    <setting id="tv_view_4" type="labelenum" label="30078" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-23,true)+eq(-22,4)" enable="eq(-23,true)+eq(-22,4)"/>
+    <setting id="se_view_4" type="labelenum" label="30079" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-24,true)+eq(-23,4)" enable="eq(-24,true)+eq(-23,4)"/>
+    <setting id="ep_view_4" type="labelenum" label="30080" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-25,true)+eq(-24,4)" enable="eq(-25,true)+eq(-24,4)"/>
+    <setting id="mu_view_4" type="labelenum" label="30081" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-26,true)+eq(-25,4)" enable="eq(-26,true)+eq(-25,4)"/>
   </category>
   <category label="30021" > <!-- Shelf -->
     <setting id="homeshelf" type="enum" label="30072" lvalues="30073|30074|30009|30053" default="2" />

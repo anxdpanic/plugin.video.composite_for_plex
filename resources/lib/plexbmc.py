@@ -394,7 +394,8 @@ def enforceSkinView(mode):
     skin_map = { '2' : 'skin.confluence' ,
                  '0' : 'skin.quartz' ,
                  '1' : 'skin.quartz3' ,
-                 '3' : 'skin.amber' }
+                 '3' : 'skin.amber',
+                 '4' : 'skin.aeon.nox.5' }
     
     if skin_map[skinname] not in current_skin_name:
         printDebug.debug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
@@ -469,10 +470,27 @@ def enforceSkinView(mode):
                        'Big Panel' : 55,
                        'Fanart' : 59 }
 
+    aeon_nox_views = { 'List'       : 50  ,
+                       'InfoWall'   : 51  ,
+                       'Landscape'  : 52  ,
+                       'ShowCase1'  : 53  ,
+                       'ShowCase2'  : 54  ,
+                       'TriPanel'   : 55  ,
+                       'Posters'    : 56  ,
+                       'Shift'      : 57  ,
+                       'BannerWall' : 58  ,
+                       'Logo'       : 59  ,
+                       'Wall'       : 500 ,
+                       'LowList'    : 501 ,
+                       'Episode'    : 502 ,
+                       'Wall'       : 503 ,
+                       'BigList'    : 510 }
+
     skin_list={"0" : Quartz_views ,
                "1" : QuartzV3_views,
                "2" : Confluence_views,
-               "3" : Amber_views }
+               "3" : Amber_views,
+               "4" : aeon_nox_views }
 
     printDebug.debug("Using skin view: %s" % skin_list[skinname][viewname])
 
