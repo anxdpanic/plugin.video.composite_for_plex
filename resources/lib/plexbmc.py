@@ -665,6 +665,7 @@ def TVSeasons( url ):
     setWindowHeading(tree)
     #For all the directory tags
     SeasonTags=tree.findall('Directory')
+    plot=tree.get('summary','').encode('utf-8')
     for season in SeasonTags:
 
         if willFlatten:
@@ -679,7 +680,7 @@ def TVSeasons( url ):
                  'tvshowname' : season.get('title','Unknown').encode('utf-8') ,
                  'sorttitle'  : season.get('titleSort', season.get('title','Unknown')).encode('utf-8') ,
                  'studio'     : season.get('studio','').encode('utf-8') ,
-                 'plot'       : season.get('summary','').encode('utf-8') ,
+                 'plot'       : plot ,
                  'season'     : 0 ,
                  'episode'    : int(season.get('leafCount',0)) ,
                  'mpaa'       : season.get('contentRating','') ,
