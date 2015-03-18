@@ -38,7 +38,6 @@ import time
 import random
 import xbmc
 import datetime
-import xml.etree.ElementTree as etree
 from common import *  #Needed first to setup import locations
 from settings import addonSettings
 import plex
@@ -1656,7 +1655,7 @@ def getMasterServer(all=False):
     printDebug.debug("== ENTER ==")
 
     possibleServers=[]
-    current_master=settings.get_setting('masterserver')
+    current_master=settings.get_setting('masterServer')
     for serverData in plex_network.get_server_list():
         printDebug.debug( str(serverData) )
         if serverData.get_master() == 1:
@@ -3908,7 +3907,7 @@ def setMasterServer () :
     servers=getMasterServer(True)
     printDebug.debug(str(servers))
     
-    current_master=settings.get_setting('masterserver')
+    current_master=settings.get_setting('masterServer')
     
     displayList=[]
     for address in servers:
