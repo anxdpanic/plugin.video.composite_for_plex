@@ -39,8 +39,8 @@
     <string id="30035">Auswahl des Untertitel Streams</string>
     <string id="30036">Kodi</string>
     <string id="30037">Extern</string>
-    <string id="30038">Quelle der Vorauswahl für Audio- und Untertitelstreams</string>
-    <string id="30039">Untertitel nie anzeigen</string>
+    <string id="30038">Quelle für Audio- und Untertitel-Auswahl</string>
+    <string id="30039">Keine Untertitel</string>
     <string id="30040">Qualität</string>
     <string id="30041">Proxy Port</string>
     <string id="30042">Ansicht für Plex Känele</string>
@@ -97,7 +97,7 @@
     <string id="30094">Manuell</string>
 	<string id="30095">Benutze Vorschaubilder in voller Auflösung</string>
 	<string id="30096">Benutze Hintergrundbilder in voller Auflösung</string>
-	<string id="30097">Verstecke bereits gesehen kürzlich hinzugefügte Elemente</string>
+	<string id="30097">Gesehene Elemente in "Kürzlich hinzugefügt" verstecken</string>
 	<string id="30098">Info</string>
 	<string id="30099">Debug</string>
 	<string id="30100">Debug+</string>
