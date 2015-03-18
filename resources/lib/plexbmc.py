@@ -1318,6 +1318,7 @@ def monitorPlayback( id, server, session=None ):
     progress = 0
     complete = 0
     playedTime = 0
+    totalTime = 0
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
         #Get the current playback time
@@ -1329,32 +1330,32 @@ def monitorPlayback( id, server, session=None ):
         except:
             progress = 0
 
-        if currentTime < 30:
-            printDebug.debug("Less that 30 seconds, will not set resume")
-
-        #If we are less than 95% completem, store resume time
-        elif progress < 95:
+        if playedTime == currentTime:
+            printDebug.debug( "Movies paused at: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
+            server.report_playback_progress(id,currentTime*1000, state="paused", duration=totalTime*1000)
+        else:
+            
             printDebug.debug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
-            server.report_playback_progress(id,currentTime*1000, totalTime*1000)
+            server.report_playback_progress(id,currentTime*1000, state="playing", duration=totalTime*1000)
             complete=0
             playedTime = currentTime
 
         #Otherwise, mark as watched
-        else:
-            if complete == 0:
-                printDebug.debug( "Movie marked as watched. Over 95% complete")
-                server.mark_item_watched(id)
-                complete=1
-                # playedTime = 0 in order to avoid a bug of tract plex plugin (check on completed tv episode when time==duration)
-                playedTime = 0
+        #else:
+        #    if complete == 0:
+        #        printDebug.debug( "Movie marked as watched. Over 95% complete")
+        #        server.mark_item_watched(id)
+        #        complete=1
+        #        # playedTime = 0 in order to avoid a bug of tract plex plugin (check on completed tv episode when time==duration)
+        #        playedTime = 0
 
         xbmc.sleep(5000)
 
     #If we get this far, playback has stopped
     printDebug.debug("Playback Stopped")
 
-    # The follwing progress:stopped update is necessary only for plugin trakt to 'cancel watching' on trakt.tv server, otherwise it will keep status 'watching' for about 15min
-    server.report_playback_progress(id,playedTime*1000, state='stopped')
+    # set stopped for timeline
+    server.report_playback_progress(id,playedTime*1000, state='stopped', duration=totalTime*1000)
 
     if session is not None:
         printDebug.debug("Stopping PMS transcode job with session %s" % session)

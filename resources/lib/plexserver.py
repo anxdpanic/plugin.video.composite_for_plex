@@ -56,7 +56,7 @@ class PlexMediaServer:
 
     def plex_identification(self):
 
-        headers = {'X-Plex-Device'            : 'KODI' ,
+        headers = {'X-Plex-Device'            : 'PleXBMC' ,
                    'X-Plex-Client-Platform'   : 'KODI' ,
                    'X-Plex-Device-Name'       : self.get_device_name() ,
                    'X-Plex-Language'          : 'en',
@@ -170,7 +170,7 @@ class PlexMediaServer:
                     printDebug.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.address[0]))                   
                     return data
                 else:
-                    printDebug.debug("Unexpected Response: " % response.status_code)
+                    printDebug.debug("Unexpected Response: %s " % response.status_code)
                     
         return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
 
@@ -322,8 +322,8 @@ class PlexMediaServer:
         self.talk ('/video/:/transcode/segmented/stop?session=%s' % session)
         return
    
-    def report_playback_progress(self, id, time, state='playing'):
-        self.talk('/:/progress?key=%s&identifier=com.plexapp.plugins.library&time=%s&state=%s' % (id, time, state))
+    def report_playback_progress(self, id, time, state='playing', duration=0):      
+        self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % ( duration, id, id, state, time))
         return
 
     def mark_item_watched(self, id):

@@ -56,7 +56,7 @@ class Plex:
         return self.server_list.values()
             
     def plex_identification(self):
-        return {'X-Plex-Device'            : 'KODI' ,
+        return {'X-Plex-Device'            : 'PleXBMC' ,
                 'X-Plex-Client-Platform'   : 'KODI' ,
                 'X-Plex-Device-Name'       : settings.get_setting('devicename') ,
                 'X-Plex-Language'          : 'en',
