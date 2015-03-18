@@ -213,15 +213,15 @@ class Plex:
 
         response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)))
         
-        if  response.status_code == 401   and not ( renew ):
+        if response.status_code == 401  and not ( renew ):
             return self.talk_to_myplex(path,True)
 
         if response.status_code >= 400:
-            error = "HTTP response error: %s %s" % ( data.status , data.reason)
+            error = "HTTP response error: %s" % ( response.status_code )
             if suppress is False:
                 xbmcgui.Dialog().ok("Error",error)
             print error
-            return False
+            return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
         else:
             link=response.text.encode('utf-8')
             printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
@@ -235,10 +235,10 @@ class Plex:
             except:
                 self.myplex_token = None
 
-            if (self.myplex_token is None) or (renew) or (user != settings.get_setting('myplex_user')):
-                self.myplex_token = self.get_new_myplex_token()
+        if (self.myplex_token is None) or (renew) or (user != settings.get_setting('myplex_user')):
+            self.myplex_token = self.get_new_myplex_token()
 
-            printDebug.info("Using token: %s [Renew: %s]" % ( self.myplex_token, renew) )
+        printDebug.info("Using token: %s [Renew: %s]" % ( self.myplex_token, renew) )
         return { 'X-Plex-Token' : self.myplex_token }
 
     def get_new_myplex_token(self,suppress=True, title="Error"):
