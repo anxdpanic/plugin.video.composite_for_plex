@@ -230,18 +230,13 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         liz.setProperty('seasonThumb', '%s' % extraData.get('season_thumb', ''))
         printDebug.debug("Setting season Thumb as %s" % extraData.get('season_thumb', ''))
 
-    #almost always have context menus
-    try:
+    if context is not None:
         if not folder and extraData.get('type','video').lower() == "video":
             #Play Transcoded
             context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % link_url , ))
             printDebug.debug("Setting transcode options to [%s&transcode=1]" % link_url)
         printDebug.debug("Building Context Menus")
         liz.addContextMenuItems( context, settings.get_setting('contextreplace') )
-    except AttributeError: 
-        pass
-    except:
-        printDebug.error("Context Menu Error: %s" % str(sys.exc_info()))
         
     return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=link_url,listitem=liz,isFolder=folder)
 
