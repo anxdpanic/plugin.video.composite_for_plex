@@ -349,7 +349,7 @@ def displaySections( filter=None, display_shared=False ):
         extraData['type'] = "file"
         extraData['mode'] = MODE_PLAYLISTS
 
-        u="%s/system/playlists" % server.get_url_location()            
+        u="%s/playlists" % server.get_url_location()            
         addGUIItem(u,details,extraData)
         
         
