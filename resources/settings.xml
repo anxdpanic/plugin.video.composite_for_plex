@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
   <category label="30016"> <!-- Media Sources -->
+    <setting id="devicename" type="text" label="30102" default="My PleXBMC Client"/>
     <setting id="discovery" type="enum" label="30004" lvalues="30094|30070" default="1"/>
     <setting id="ipaddress" type="text" label="30000" default="localhost" visible="eq(-1,0)" enable="eq(-1,0)"/>
     <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)" enable="eq(-2,0)"/>

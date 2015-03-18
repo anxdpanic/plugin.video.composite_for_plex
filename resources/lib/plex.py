@@ -58,7 +58,7 @@ class Plex:
     def plex_identification(self):
         return {'X-Plex-Device'            : 'KODI' ,
                 'X-Plex-Client-Platform'   : 'KODI' ,
-                'X-Plex-Device-Name'       : 'unknown' ,
+                'X-Plex-Device-Name'       : settings.get_setting('devicename') ,
                 'X-Plex-Language'          : 'en',
                 'X-Plex-Model'             : 'unknown' ,
                 'X-Plex-Platform'          : 'PleXBMC' ,
@@ -79,7 +79,7 @@ class Plex:
                 settings.set_setting('client_id', self.client_id)
 
         return self.client_id
-               
+        
     def ping_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
         response = requests.head("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
         

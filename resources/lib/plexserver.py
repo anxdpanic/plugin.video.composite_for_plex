@@ -40,6 +40,7 @@ class PlexMediaServer:
         self.offline=False
         self.user=None
         self.client_id=None
+        self.device_name=None
    
     def get_details(self):
                  
@@ -57,10 +58,10 @@ class PlexMediaServer:
 
         headers = {'X-Plex-Device'            : 'KODI' ,
                    'X-Plex-Client-Platform'   : 'KODI' ,
-                   'X-Plex-Device-Name'       : 'KODI' ,
+                   'X-Plex-Device-Name'       : self.get_device_name() ,
                    'X-Plex-Language'          : 'en',
                    'X-Plex-Model'             : 'unknown' ,
-                   'X-Plex-Platform'          : 'PleXBMC' ,
+                   'X-Plex-Platform'          : 'KODI' ,
                    'X-Plex-Client-Identifier' : self.get_client_identifier() ,
                    'X-Plex-Product'           : 'PleXBMC' ,
                    'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'] ,
@@ -85,6 +86,11 @@ class PlexMediaServer:
 
         return self.client_id
 
+    def get_device_name(self):
+        if self.device_name is None:
+            self.device_name = settings.get_setting('devicename')
+        return self.device_name
+        
     def get_uuid(self):
         return self.uuid
         
