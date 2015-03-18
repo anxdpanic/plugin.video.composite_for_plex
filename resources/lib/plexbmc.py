@@ -984,7 +984,7 @@ def getAudioSubtitlesMedia( server, tree, full=False ):
             except: pass
 
     #if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == "video" and settings.get_setting('streamControl') == _SUB_AUDIO_PLEX_CONTROL:
+    if media_type == "video" and settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
 
         contents="all"
         tags=tree.getiterator('Stream')
@@ -1204,14 +1204,14 @@ def setAudioSubtitles( stream ):
         printDebug.info("No audio or subtitle streams to process.")
 
         #If we have decided to force off all subs, then turn them off now and return
-        if settings.get_setting('streamControl') == _SUB_AUDIO_NEVER_SHOW :
+        if settings.get_setting('streamControl') == SUB_AUDIO_NEVER_SHOW :
             xbmc.Player().showSubtitles(False)
             printDebug ("All subs disabled")
 
         return True
 
     #Set the AUDIO component
-    if settings.get_setting('streamControl') == _SUB_AUDIO_PLEX_CONTROL:
+    if settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
         printDebug.debug("Attempting to set Audio Stream")
 
         audio = stream['audio']
@@ -1229,7 +1229,7 @@ def setAudioSubtitles( stream ):
                 printDebug.info("Error setting audio, will use embedded default stream")
 
     #Set the SUBTITLE component
-    if settings.get_setting('streamControl') == _SUB_AUDIO_PLEX_CONTROL:
+    if settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
         printDebug.debug("Attempting to set preferred subtitle Stream")
         subtitle=stream['subtitle']
         if subtitle:
@@ -1335,7 +1335,7 @@ def monitorPlayback( id, server, session=None ):
         #If we are less than 95% completem, store resume time
         elif progress < 95:
             printDebug.debug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
-            server.report_playback_progress(id,currentTime*1000)
+            server.report_playback_progress(id,currentTime*1000, totalTime*1000)
             complete=0
             playedTime = currentTime
 
