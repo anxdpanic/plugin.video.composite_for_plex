@@ -229,11 +229,13 @@ class Plex:
         return link        
     
     def get_myplex_token(self,renew=False):
+        user=settings.get_setting('myplex_user')
         if self.myplex_token is None:
             try:
                 user, self.myplex_token = settings.get_setting('myplex_token').split('|')
             except:
                 self.myplex_token = None
+                user=None
 
         if (self.myplex_token is None) or (renew) or (user != settings.get_setting('myplex_user')):
             self.myplex_token = self.get_new_myplex_token()
