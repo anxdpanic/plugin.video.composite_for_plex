@@ -672,6 +672,9 @@ def TVSeasons( url ):
             TVEpisodes(url)
             return
 
+        if settings.get_setting('disable_all_season') and season.get('index') is None:
+            continue
+            
         watched=int(season.get('viewedLeafCount',0))
 
         #Create the basic data structures to pass up
