@@ -9,7 +9,7 @@
 	<string id="30006">PMS Passwort: </string>
     <string id="30007">Transcoding immer aktiv</string>
     <string id="30008">Transcoding Format </string>
-	<string id="30009">\"Kürzlich hinzugefügt\" &amp; \"Aktuell\" </string>
+	<string id="30009">"Kürzlich hinzugefügt" &amp; "Aktuell" </string>
 	<string id="30010">Debug log</string>
     <string id="30011">Auto</string>
     <string id="30012">http</string>
@@ -46,7 +46,7 @@
     <string id="30042">Ansicht für Plex Känele</string>
     <string id="30043">Serien Staffel reduzieren</string>
     <string id="30044">Server MAC Addresse</string>
-    <string id="30045">\"Gesehen\" Markierung im Plex Style anzeigen</string>
+    <string id="30045">"Gesehen"-Markierung im Plex-Stil anzeigen</string>
     <string id="30046">Windows Media Server?</string>
     <string id="30047">Benutze Wake on LAN?</string>
     <string id="30048">Kontext Menü säubern</string>
@@ -73,8 +73,8 @@
 	<string id="30070">Automatisch (GDM)</string>
 	<string id="30071">Aktueller Hauptserver</string>
 	<string id="30072">Shelf Menüpunkte</string>
-	<string id="30073">\"Kürzlich hinzugefügt\"</string>
-	<string id="30074">\"Aktuell\"</string>
+	<string id="30073">"Kürzlich hinzugefügt"</string>
+	<string id="30074">"Aktuell"</string>
 	<string id="30075">Erzwinge Ansicht im Skin</string>
 	<string id="30076">Skin Name</string>
 	<string id="30077">Ansicht für Filme</string>
@@ -82,7 +82,7 @@
 	<string id="30079">Ansicht für Staffel</string>
 	<string id="30080">Ansicht für Episoden</string>
 	<string id="30081">Ansicht für Musik</string>
-	<string id="30082">Aktioviere Shelf für Filme</string>
+	<string id="30082">Aktiviere Shelf für Filme</string>
 	<string id="30083">Aktiviere Shelf für Serien</string>
 	<string id="30084">Aktiviere Shelf für Musik</string>
 	<string id="30085">Aktivire Shelf für Kanäle</string>
