@@ -38,6 +38,8 @@ class PlexMediaServer:
         self.class_type=class_type
         self.discovered=False
         self.offline=False
+        self.user=None
+        self.client_id=None
    
     def get_details(self):
                  
@@ -59,17 +61,30 @@ class PlexMediaServer:
                    'X-Plex-Language'          : 'en',
                    'X-Plex-Model'             : 'unknown' ,
                    'X-Plex-Platform'          : 'PleXBMC' ,
-                   'X-Plex-Client-Identifier' : 'unknown' ,
+                   'X-Plex-Client-Identifier' : self.get_client_identifier() ,
                    'X-Plex-Product'           : 'PleXBMC' ,
                    'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'] ,
                    'X-Plex-Version'           : GLOBAL_SETUP['__version__']  ,
                    'X-Plex-Provides'          : "player"}
         
         if self.token is not None:
-                   headers['X-Plex-Token']=self.token
+            headers['X-Plex-Token']=self.token
+
+        if self.user is not None:
+            headers['X-Plex-User']=self.user
                    
         return headers
-                
+
+    def get_client_identifier(self):
+        if self.client_id is None:
+            self.client_id = settings.get_setting('client_id')
+
+            if not self.client_id:
+                self.client_id = str(uuid.uuid4())
+                settings.set_setting('client_id', self.client_id)
+
+        return self.client_id
+
     def get_uuid(self):
         return self.uuid
         
@@ -94,6 +109,9 @@ class PlexMediaServer:
     def get_discovery(self):
         return self.discovery
 
+    def set_user(self):
+        return self.user
+
     def get_owned(self):
         return self.owned
 
@@ -105,6 +123,9 @@ class PlexMediaServer:
 
     def set_owned(self, value):
         self.owned=value
+
+    def set_user(self, value):
+        self.user=value
 
     def set_class(self, value):
         self.class_type=value

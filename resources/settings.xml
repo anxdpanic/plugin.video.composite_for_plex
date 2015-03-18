@@ -10,6 +10,7 @@
     <setting id="myplex_user" type="text" label="30024" />
     <setting id="myplex_pass" type="text" option="hidden" label="30025" />
     <setting id="myplex_token" type="text" visible="false" option="hidden" />
+    <setting id="client_id" type="text" visible="false" option="hidden" />
 	<setting id="wolon" type="bool" label="30023" default="false" />
     <setting id="wol1" type="text" label="MAC Address 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />
     <setting id="wol2" type="text" label="MAC Address 2" visible="eq(-2,true)" enable="eq(-2,true)" default="" />

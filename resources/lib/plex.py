@@ -11,6 +11,7 @@ import CacheControl
 import requests
 from plexserver import PlexMediaServer
 import urlparse
+import uuid
 
 printDebug=printDebug("PleXBMC", "plex")
 DEFAULT_PORT="32400"
@@ -27,6 +28,7 @@ class Plex:
         self.server_list={}
         self.discovered=False
         self.server_list_cache="discovered_plex_servers.cache"
+        self.client_id=None
         
         if load:
             self.load()
@@ -60,13 +62,24 @@ class Plex:
                 'X-Plex-Language'          : 'en',
                 'X-Plex-Model'             : 'unknown' ,
                 'X-Plex-Platform'          : 'PleXBMC' ,
-                'X-Plex-Client-Identifier' : 'unknown' ,
+                'X-Plex-Client-Identifier' : self.get_client_identifier() ,
                 'X-Plex-Product'           : 'PleXBMC' ,
                 'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'],
                 'X-Plex-Version'           : GLOBAL_SETUP['__version__']  ,
                 'X-Plex-Provides'          : "player",
                 'X-Plex-Token'             : self.myplex_token}
 
+    def get_client_identifier(self):
+    
+        if self.client_id is None:
+            self.client_id = settings.get_setting('client_id')
+
+            if not self.client_id:
+                self.client_id = str(uuid.uuid4())
+                settings.set_setting('client_id', self.client_id)
+
+        return self.client_id
+               
     def ping_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
         response = requests.head("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
         
