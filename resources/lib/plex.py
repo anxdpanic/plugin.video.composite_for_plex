@@ -106,18 +106,20 @@ class Plex:
     def discover_all_servers(self):
         if settings.get_setting('discovery') == "1":
             printDebug.info("local GDM discovery setting enabled.")
-            try:
-                printDebug.info("Attempting GDM lookup on multicast")
-                if settings.get_debug() >= printDebug.DEBUG_INFO:
-                    GDM_debug=3
-                else:
-                    GDM_debug=0
+            printDebug.info("Attempting GDM lookup on multicast")
+            if settings.get_debug() >= printDebug.DEBUG_INFO:
+                GDM_debug=3
+            else:
+                GDM_debug=0
 
+            try:
                 gdm_client = plexgdm.plexgdm(GDM_debug)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
-
-                if  gdm_client.discovery_complete and gdm_server_name :
+            except Exception, e:
+                print "PleXBMC -> GDM Issue [%s]" % e
+            else:   
+                if gdm_client.discovery_complete and gdm_server_name :
                     printDebug.info("GDM discovery completed")
                     
                     for device in gdm_server_name:
@@ -127,10 +129,7 @@ class Plex:
                         self.server_list[server.get_uuid()] = server
                 else:
                     printDebug.info("GDM was not able to discover any servers")
-
-            except Exception, e:
-                print "PleXBMC -> GDM Issue [%s]" % e
-
+                    
         #Set to Disabled
         else:
             if settings.get_setting('das_host'):

@@ -7,6 +7,7 @@ import xml.etree.ElementTree as etree
 import urlparse
 import urllib
 import time
+import uuid
 
 from settings import addonSettings
 from common import *

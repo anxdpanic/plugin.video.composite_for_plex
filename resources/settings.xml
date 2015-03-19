@@ -46,6 +46,7 @@
     <setting id="secondary" type="bool" label="30003" default="true"/>
     <setting id="channelview" type="bool" label="30042" default="false"/>
     <setting id="flatten" type="enum" label="30043" lvalues="30053|30058|30059" default="0"/>
+    <setting id="disable_all_season" type="bool" label="30103" default="false"/>
     <setting id="hide_shared" type="bool" label="30092" default="true"/>
     <setting id="skinoverride" type="bool" label="30075" default="false" />
     <setting id="skinname" type="enum" label="30076" values="Quartz|Quartz V3|Confluence|Amber|Aeon Nox 5" default="Confluence"  visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true" />
