@@ -132,14 +132,14 @@ class Plex:
                     
         #Set to Disabled
         else:
-            if settings.get_setting('das_host'):
+            if settings.get_setting('ipaddress'):
 
-                if not settings.get_setting('das_port'):
+                if not settings.get_setting('port'):
                     printDebug.info( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
 
-                printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('das_host'), settings.get_setting('das_port')))
+                printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('ipaddress'), settings.get_setting('port')))
 
-                local_server=PlexMediaServer(address=settings.get_setting('das_host'), port=settings.get_setting('das_port'), discovery='local')
+                local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local')
                 local_server.refresh()
                 if local_server.discovered:
                     self.server_list[local_server.get_uuid()] = local_server
