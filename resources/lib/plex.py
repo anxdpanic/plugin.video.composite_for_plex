@@ -37,13 +37,30 @@ class Plex:
         printDebug.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
         
+        if data_ok:
+            if not self.check_server_version():
+                printDebug.info("Refreshing for new versions")
+                data_ok=False
+                
         if not data_ok or not len(self.server_list):
             printDebug.info("unsuccessful")
             self.server_list={}
             if not self.discover():
                 self.server_list={}
+        
         printDebug.debug("Server list is now: %s" % self.server_list)
 
+    def check_server_version(self):
+        for uuid, servers in self.server_list.iteritems():
+            try:
+                if not servers.get_revision() == REQUIRED_REVISION:
+                    printDebug.debug("Old object revision found")
+                    return False
+            except:
+                    printDebug.debug("No revision found")
+                    return False
+        return True
+    
     def discover(self):
         self.discover_all_servers()
         

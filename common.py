@@ -112,7 +112,7 @@ def is_ip(address):
 GLOBAL_SETUP=setup_python_locations()
 GLOBAL_SETUP['platform']=get_platform()
 GENERIC_THUMBNAIL = "special://home/addons/plugin.video.plexbmc/resources/thumb.png"
-
+REQUIRED_REVISION="1.0.2"
 from settings import addonSettings
 settings=addonSettings('plugin.video.plexbmc')
 

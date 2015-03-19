@@ -19,10 +19,10 @@ DEFAULT_PORT="32400"
 
 class PlexMediaServer:
 
-    __revision = "1.0.0"
 
     def __init__(self, uuid=None, name=None, address=None, port=None, token=None, discovery=None, class_type='primary' ):
 
+        self.__revision = REQUIRED_REVISION
         self.protocol="http"
         self.uuid=uuid
         self.server_name=name
@@ -41,7 +41,7 @@ class PlexMediaServer:
         self.device_name=None
    
     def get_revision(self):
-        return __revision
+        return self.__revision
    
     def get_details(self):
                  
