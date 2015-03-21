@@ -74,18 +74,19 @@ def get_platform( ):
     return "Unknown"
 
 def wake_servers():
+    print "Waking Servers with WOL"
     if settings.get_setting('wolon'):
         from WOL import wake_on_lan
-        printDebug("PleXBMC -> Wake On LAN: true")
-        for servers in settings.get_wakeserver():
+        print "PleXBMC -> Wake On LAN: true"
+        for servers in settings.get_wakeservers():
             if servers:
                 try:
-                    printDebug("PleXBMC -> Waking server with MAC: %s" % servers)
+                    print "PleXBMC -> Waking server with MAC: %s" % servers
                     wake_on_lan(servers)
                 except ValueError:
-                    printDebug("PleXBMC -> Incorrect MAC address format for server %s" % servers)
+                    print "PleXBMC -> Incorrect MAC address format for server %s" % servers
                 except:
-                    printDebug("PleXBMC -> Unknown wake on lan error")
+                    print "PleXBMC -> Unknown wake on lan error"
 
 def setup_python_locations():
     setup={}
