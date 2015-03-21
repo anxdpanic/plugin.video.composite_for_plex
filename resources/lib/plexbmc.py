@@ -557,6 +557,7 @@ def buildContextMenu( url, itemData, server ):
 def TVShows( url, tree=None ):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'tvshows')
+    xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
     xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
     xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
@@ -735,6 +736,7 @@ def TVSeasons( url ):
 def TVEpisodes( url, tree=None ):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'episodes')
+    xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE )  #episode
     xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
     xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
@@ -1697,6 +1699,7 @@ def artist( url, tree=None ):
     '''
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
+    xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
     xbmcplugin.addSortMethod(pluginhandle, 12 ) #artist title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
     xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
@@ -1737,6 +1740,7 @@ def artist( url, tree=None ):
 def albums( url, tree=None ):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'albums')
+    xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
     xbmcplugin.addSortMethod(pluginhandle, 24 ) #album title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 12 )  #artist ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 34 ) #last played
@@ -1783,6 +1787,7 @@ def albums( url, tree=None ):
 def tracks( url,tree=None ):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
+    xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
     xbmcplugin.addSortMethod(pluginhandle, 10 ) #title title ignore THE
     xbmcplugin.addSortMethod(pluginhandle, 8 ) #duration
     xbmcplugin.addSortMethod(pluginhandle, 27 ) #song rating
