@@ -17,6 +17,8 @@ printDebug=printDebug("PleXBMC", "plexserver")
 
 DEFAULT_PORT="32400"
 
+printDebug.debug("Using Requests version for HTTP: %s" % requests.__version__)
+
 class PlexMediaServer:
 
 

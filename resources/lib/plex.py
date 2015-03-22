@@ -227,7 +227,7 @@ class Plex:
     def talk_to_myplex(self, path, renew=False, suppress=True):
         printDebug.info("url = %s%s" % (self.myplex_server, path))
 
-        response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)))
+        response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True)
         
         if response.status_code == 401  and not ( renew ):
             return self.talk_to_myplex(path,True)
