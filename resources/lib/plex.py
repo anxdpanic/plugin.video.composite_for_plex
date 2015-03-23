@@ -302,10 +302,10 @@ class Plex:
 
         for server in self.server_list.values():
 
-            printDebug.debug("checking ip %s against server ip %s" % (ip, server.get_address()))
+            printDebug.debug("checking ip:%s %s against server ip %s:%s" % (ip, port, server.get_address(), server.get_port()))
 
-            if ip == server.get_address():
-                printDebug("Translated %s to server %s" % (ip, server.get_name()))
+            if (ip,port) == (server.get_address(),server.get_port()):
+                printDebug("Translated %s:%s to server %s" % (ip, port, server.get_name()))
                 return server
 
         printDebug.info("Unable to translate - Returning new plexserver set to %s" % ip )
