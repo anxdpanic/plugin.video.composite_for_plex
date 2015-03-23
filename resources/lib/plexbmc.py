@@ -4047,41 +4047,45 @@ def start_plexbmc():
     param_indirect=params.get('indirect',None)
     force=params.get('force')
 
-
+    try:
+        command=sys.argv[1]
+    except:
+        command=None
+        
     #Populate Skin variables
-    if str(sys.argv[1]) == "skin":
+    if command == "skin":
         try:
             type=sys.argv[2]
         except:
             type=None
         skin(type=type)
 
-    elif str(sys.argv[1]) == "amberskin":
+    elif command == "amberskin":
         amberskin()
      
     #Populate recently/on deck shelf items 
-    elif str(sys.argv[1]) == "shelf":
+    elif command == "shelf":
         shelf()
 
     #Populate channel recently viewed items    
-    elif str(sys.argv[1]) == "channelShelf":
+    elif command == "channelShelf":
         shelfChannel()
         
     #Send a library update to Plex    
-    elif sys.argv[1] == "update":
+    elif command == "update":
         server_uuid=sys.argv[2]
         section_id=sys.argv[3]
         libraryRefresh(server_uuid, section_id)
         
     #Mark an item as watched/unwatched in plex    
-    elif sys.argv[1] == "watch":
+    elif command == "watch":
         server_uuid=sys.argv[2]
         metadata_id=sys.argv[3]
         watch_status=sys.argv[4]
         watched(server_uuid, metadata_id, watch_status )
         
     #Open the add-on settings page, then refresh plugin
-    elif sys.argv[1] == "setting":
+    elif command == "setting":
         settings.openSettings()
         WINDOW = xbmcgui.getCurrentWindowId()
         if WINDOW == 10000:
@@ -4089,7 +4093,7 @@ def start_plexbmc():
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
                   
     #nt currently used              
-    elif sys.argv[1] == "refreshplexbmc":
+    elif command == "refreshplexbmc":
         plex_network.discover()
         server_list = plex_network.get_server_list()
         skin(server_list)
@@ -4097,33 +4101,33 @@ def start_plexbmc():
         shelfChannel(server_list)
 
     #delete media from PMS    
-    elif sys.argv[1] == "delete":
+    elif command == "delete":
         server_uuid=sys.argv[2]
         metadata_id=sys.argv[3]
         deleteMedia(server_uuid, metadata_id)
 
     #Refresh the current XBMC listing    
-    elif sys.argv[1] == "refresh":
+    elif command == "refresh":
         xbmc.executebuiltin("Container.Refresh")
         
     #Display subtitle selection screen    
-    elif sys.argv[1] == "subs":
+    elif command == "subs":
         server_uuid=sys.argv[2]
         metadata_id=sys.argv[3]
         alterSubs(server_uuid, metadata_id)
         
     #Display audio streanm selection screen    
-    elif sys.argv[1] == "audio":
+    elif command == "audio":
         server_uuid=sys.argv[2]
         metadata_id=sys.argv[3]
         alterAudio(server_uuid, metadata_id)
         
     #Allow a mastre server to be selected (for myplex queue)    
-    elif sys.argv[1] == "master":
+    elif command == "master":
         setMasterServer()
 
     #Delete cache and refresh it    
-    elif str(sys.argv[1]) == "cacherefresh":
+    elif command == "cacherefresh":
         plex_network.delete_cache()
         xbmc.executebuiltin("ReloadSkin()")
 
@@ -4131,8 +4135,11 @@ def start_plexbmc():
     else:
 
         global pluginhandle
-        pluginhandle = int(sys.argv[1])
-
+        try:
+            pluginhandle = int(command)
+        except:
+            pass
+            
         WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
         WINDOW.clearProperty("heading")
         WINDOW.clearProperty("heading2")
