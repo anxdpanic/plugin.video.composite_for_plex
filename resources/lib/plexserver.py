@@ -381,7 +381,7 @@ class PlexMediaServer:
                              'subtitleSize' : settings.get_setting('subSize').split('.')[0] ,
                              'audioBoost' : settings.get_setting('audioSize').split('.')[0] ,
                              'fastSeek' : '1' ,
-                             'path' : "http://127.0.0.1:%s%s" % (self.port, url) }
+                             'path' : "http://127.0.0.1:32400%s" % url }
 
         fullURL="%s%s" % (transcode_request, urllib.urlencode(transcode_settings))
         printDebug.debug("Transcoded media location URL: %s" % fullURL)
