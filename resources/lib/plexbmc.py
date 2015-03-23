@@ -736,15 +736,6 @@ def TVSeasons( url ):
 def TVEpisodes( url, tree=None ):
     printDebug.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'episodes')
-    xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE )  #episode
-    xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
-    xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
-    xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
-    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
-    xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
-    xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA
 
     tree=getXML(url,tree)
     if tree is None:
@@ -766,6 +757,21 @@ def TVEpisodes( url, tree=None ):
 
     randomNumber=str(random.randint(1000000000,9999999999))
 
+    if tree.get('mixedParents') == '1':
+        printDebug.info('Setting plex sort')
+        xbmcplugin.addSortMethod(pluginhandle, 37 ) #maintain original plex sorted
+    else:
+        printDebug.info('Setting KODI sort')
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE )  #episode
+
+    xbmcplugin.addSortMethod(pluginhandle, 3 )  #date
+    xbmcplugin.addSortMethod(pluginhandle, 25 ) #video title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 19 )  #date added
+    xbmcplugin.addSortMethod(pluginhandle, 18 ) #rating
+    xbmcplugin.addSortMethod(pluginhandle, 17 ) #year
+    xbmcplugin.addSortMethod(pluginhandle, 29 ) #runtime
+    xbmcplugin.addSortMethod(pluginhandle, 28 ) #by MPAA    
+    
     for episode in ShowTags:
 
         printDebug.debug("---New Item---")
@@ -809,11 +815,11 @@ def TVEpisodes( url, tree=None ):
         if episode.get('sorttitle'):
             details['sorttitle'] = episode.get('sorttitle').encode('utf-8')
 
-        if tree.get('mixedParents','0') == '1':
-            details['title'] = "%s - %sx%s %s" % ( details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'] )
-        #else:
-        #    details['title'] = str(details['episode']).zfill(2) + ". " + details['title']
-
+        if tree.get('mixedParents') == '1':
+            if tree.get('parentIndex') == '1':
+                details['title'] = "%sx%s %s" % ( details['season'], str(details['episode']).zfill(2), details['title'] )
+            else:
+                details['title'] = "%s - %sx%s %s" % ( details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'] )
 
         #Extra data required to manage other properties
         extraData={'type'         : "Video" ,
