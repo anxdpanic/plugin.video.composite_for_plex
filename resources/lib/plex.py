@@ -227,20 +227,26 @@ class Plex:
     def talk_to_myplex(self, path, renew=False, suppress=True):
         printDebug.info("url = %s%s" % (self.myplex_server, path))
 
-        response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True)
-        
-        if response.status_code == 401  and not ( renew ):
-            return self.talk_to_myplex(path,True)
-
-        if response.status_code >= 400:
-            error = "HTTP response error: %s" % ( response.status_code )
-            if suppress is False:
-                xbmcgui.Dialog().ok("Error",error)
-            print error
-            return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
+        try:
+            response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(3,10))
+        except requests.exceptions.ConnectionError, e:
+            printDebug.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
+        except requests.exceptions.ReadTimeout, e:
+            printDebug.info("myplex: read timeout for %s on %s " % (self.myplex_server, path))
         else:
-            link=response.text.encode('utf-8')
-            printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
+            
+            if response.status_code == 401  and not ( renew ):
+                return self.talk_to_myplex(path,True)
+
+            if response.status_code >= 400:
+                error = "HTTP response error: %s" % ( response.status_code )
+                if suppress is False:
+                    xbmcgui.Dialog().ok("Error",error)
+                print error
+                return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
+            else:
+                link=response.text.encode('utf-8')
+                printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
 
         return link        
     
