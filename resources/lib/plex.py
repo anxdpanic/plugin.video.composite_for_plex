@@ -121,6 +121,15 @@ class Plex:
         return etree.fromstring(data)
             
     def discover_all_servers(self):
+        if settings.get_setting('myplex_user'):
+            printDebug.info( "PleXBMC -> Adding myplex as a server location")
+
+            self.server_list = self.get_myplex_servers()
+
+            if self.server_list:
+                printDebug.info("MyPlex discovery completed")
+
+                
         if settings.get_setting('discovery') == "1":
             printDebug.info("local GDM discovery setting enabled.")
             printDebug.info("Attempting GDM lookup on multicast")
@@ -140,10 +149,8 @@ class Plex:
                     printDebug.info("GDM discovery completed")
                     
                     for device in gdm_server_name:
-                        server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local')
-                        server.refresh()
-                        printDebug("Adding server %s %s" % (server.get_name(), server.get_uuid()))
-                        self.server_list[server.get_uuid()] = server
+                        new_server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local', token=self.myplex_token, uuid=device['uuid'])
+                        self.merge_servers(new_server)
                 else:
                     printDebug.info("GDM was not able to discover any servers")
                     
@@ -156,20 +163,10 @@ class Plex:
 
                 printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('ipaddress'), settings.get_setting('port')))
 
-                local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local')
-                local_server.refresh()
-                if local_server.discovered:
-                    self.server_list[local_server.get_uuid()] = local_server
+                local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local',token=self.myplex_token)
+                self.merge_servers(local_server)
 
-        if settings.get_setting('myplex_user'):
-            printDebug.info( "PleXBMC -> Adding myplex as a server location")
-
-            das_myplex = self.get_myplex_servers()
-
-            if das_myplex:
-                printDebug.info("MyPlex discovery completed")
-                self.merge_myplex(das_myplex)
-
+                
         self.cache.writeCache(self.server_list_cache, self.server_list)
         printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
 
@@ -203,14 +200,35 @@ class Plex:
                                            token = server.get('accessToken'),
                                            uuid = server.get('machineIdentifier'))
 
-            if server.get('owned', None) == "0":
+            if server.get('owned') == "0":
                 myplex_server.set_owned(0)
 
+            if server.get('localAddresses') is not None:
+                myplex_server.add_local_address(server.get('localAddresses'))
+                
             tempServers[myplex_server.get_uuid()]=myplex_server
             printDebug.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
             
         return tempServers
                                            
+    def merge_servers(self, server):
+        printDebug.info("merging server with uuid %s" % server.get_uuid())
+        
+        try:
+            existing=self.get_server_from_uuid(server.get_uuid())
+        except:
+            printDebug.debug("Adding new server %s %s" % (server.get_name(), server.get_uuid()))
+            server.refresh()
+            if server.discovered:
+                self.server_list[server.get_uuid()]=server
+        else:
+            printDebug.info("Found existing server %s %s" % (existing.get_name(), existing.get_uuid()))
+            existing.set_best_address(server.get_address())
+            existing.refresh()
+            self.server_list[existing.get_uuid()]=existing
+            
+        return 
+
     def merge_myplex(self, remote):
         printDebug.info("remote is %s" % remote)
         
@@ -308,10 +326,9 @@ class Plex:
 
         for server in self.server_list.values():
 
-            printDebug.debug("checking ip:%s %s against server ip %s:%s" % (ip, port, server.get_address(), server.get_port()))
+            printDebug.debug("checking ip:%s against server ip %s" % (ip, server.get_address()))
 
-            if (ip,port) == (server.get_address(),server.get_port()):
-                printDebug("Translated %s:%s to server %s" % (ip, port, server.get_name()))
+            if server.find_address_match(ip,port):
                 return server
 
         printDebug.info("Unable to translate - Returning new plexserver set to %s" % ip )
