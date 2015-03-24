@@ -1,6 +1,4 @@
 import os
-import xbmcplugin
-import xbmcgui
 import xbmcaddon
 
 class addonSettings:

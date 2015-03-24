@@ -1,5 +1,3 @@
-import xbmcaddon
-import xbmcgui
 import sys
 import os
 import xml.etree.ElementTree as etree
@@ -258,8 +256,6 @@ class Plex:
 
             if response.status_code >= 400:
                 error = "HTTP response error: %s" % ( response.status_code )
-                if suppress is False:
-                    xbmcgui.Dialog().ok("Error",error)
                 print error
                 return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
             else:
@@ -306,8 +302,6 @@ class Plex:
                 printDebug.info("No authentication token found")        
         else:
             error = "HTTP response error: %s %s" % (response.status_code, response.reason)
-            if suppress is False:
-                xbmcgui.Dialog().ok(title, error)
             print error
             return None
 

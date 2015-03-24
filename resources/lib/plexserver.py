@@ -1,6 +1,3 @@
-import xbmcaddon
-import xbmc
-import xbmcgui
 import sys
 import os
 import xml.etree.ElementTree as etree
