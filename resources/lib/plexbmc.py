@@ -4026,7 +4026,7 @@ else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
 pluginhandle=0
-plex_network=plex.Plex(load=True)
+plex_network=plex.Plex(load=False)
 
 def start_plexbmc():
     try:
@@ -4051,7 +4051,24 @@ def start_plexbmc():
         command=sys.argv[1]
     except:
         command=None
-        
+
+
+    if command == "cacherefresh":
+        plex_network.delete_cache()
+        xbmc.executebuiltin("ReloadSkin()")
+    #Open the add-on settings page, then refresh plugin
+    elif command == "setting":
+        settings.openSettings()
+        WINDOW = xbmcgui.getCurrentWindowId()
+        if WINDOW == 10000:
+            printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
+            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+    #Refresh the current XBMC listing    
+    elif command == "refresh":
+        xbmc.executebuiltin("Container.Refresh")
+
+    plex_network.load()
+    
     #Populate Skin variables
     if command == "skin":
         try:
@@ -4083,15 +4100,7 @@ def start_plexbmc():
         metadata_id=sys.argv[3]
         watch_status=sys.argv[4]
         watched(server_uuid, metadata_id, watch_status )
-        
-    #Open the add-on settings page, then refresh plugin
-    elif command == "setting":
-        settings.openSettings()
-        WINDOW = xbmcgui.getCurrentWindowId()
-        if WINDOW == 10000:
-            printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-                  
+                          
     #nt currently used              
     elif command == "refreshplexbmc":
         plex_network.discover()
@@ -4106,10 +4115,6 @@ def start_plexbmc():
         metadata_id=sys.argv[3]
         deleteMedia(server_uuid, metadata_id)
 
-    #Refresh the current XBMC listing    
-    elif command == "refresh":
-        xbmc.executebuiltin("Container.Refresh")
-        
     #Display subtitle selection screen    
     elif command == "subs":
         server_uuid=sys.argv[2]
@@ -4125,11 +4130,6 @@ def start_plexbmc():
     #Allow a mastre server to be selected (for myplex queue)    
     elif command == "master":
         setMasterServer()
-
-    #Delete cache and refresh it    
-    elif command == "cacherefresh":
-        plex_network.delete_cache()
-        xbmc.executebuiltin("ReloadSkin()")
 
     #else move to the main code    
     else:
