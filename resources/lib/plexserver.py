@@ -244,7 +244,7 @@ class PlexMediaServer:
         
         tree=etree.fromstring(data)
         
-        if tree is not None and not tree.get('status') == 'offline':
+        if tree is not None and not (tree.get('status') == 'offline' or tree.get('status') == 'unauthorized')  :
             self.server_name = tree.get('friendlyName').encode('utf-8')
             self.uuid=tree.get('machineIdentifier')
             self.owned=1
