@@ -97,7 +97,7 @@ def setup_python_locations():
     setup['__settings__'] = xbmcaddon.Addon(id='plugin.video.plexbmc')
 
     setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
-    sys.path.append(setup['__resources__'])
+    sys.path.insert(1, setup['__resources__'])
     return setup                
  
 def is_ip(address):

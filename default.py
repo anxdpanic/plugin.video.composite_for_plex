@@ -7,7 +7,12 @@ plexbmc_start = time.time()
 #import StringIO
 #import cProfile
 #import pstats
+print "before PATH: %s" % sys.path
+
 from common import *  #Needed first to setup import locations
+
+print "after PATH: %s" % sys.path
+
 import plexbmc
 
 plexbmc.start_plexbmc()
