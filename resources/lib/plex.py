@@ -27,7 +27,7 @@ class Plex:
         self.discovered=False
         self.server_list_cache="discovered_plex_servers.cache"
         self.client_id=None
-        
+        self.user_list=dict()
         if load:
             self.load()
 
@@ -148,6 +148,9 @@ class Plex:
                     
                     for device in gdm_server_name:
                         new_server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local', token=self.myplex_token, uuid=device['uuid'])
+                        if settings.get_setting('myplex_user'):
+                            new_server.set_user(settings.get_setting('myplex_user'))
+
                         self.merge_servers(new_server)
                 else:
                     printDebug.info("GDM was not able to discover any servers")
@@ -162,6 +165,9 @@ class Plex:
                 printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('ipaddress'), settings.get_setting('port')))
 
                 local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local',token=self.myplex_token)
+                if settings.get_setting('myplex_user'):
+                    local_server.set_user(settings.get_setting('myplex_user'))
+                
                 self.merge_servers(local_server)
 
                 
@@ -204,6 +210,8 @@ class Plex:
             if server.get('localAddresses') is not None:
                 myplex_server.add_local_address(server.get('localAddresses'))
                 
+            if settings.get_setting('myplex_user'):
+                myplex_server.set_user(settings.get_setting('myplex_user'))
             tempServers[myplex_server.get_uuid()]=myplex_server
             printDebug.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
             
@@ -354,4 +362,3 @@ class Plex:
    
     def delete_cache(self):
         return self.cache.deleteCache()
-    
