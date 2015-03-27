@@ -74,6 +74,14 @@ class addonSettings:
         self.settings.setSetting('myplex_token','%s|%s' % (self.settings.getSetting('myplex_user'),value))
         print "token updated"
 
+    def update_plexhome_token(self, user, value):
+        print "Updating token %s" % value
+        self.settings.setSetting('plexhome_token','%s|%s' % (user,value))
+        print "token updated"
+
+    def get_plexhome_user(self):
+        return self.settings.getSetting('plexhome_token').split('|')[0]
+        
     def update_master_server(self, value):
         print "Updating master server to%s" % value
         self.settings.setSetting('masterServer','%s' % value)

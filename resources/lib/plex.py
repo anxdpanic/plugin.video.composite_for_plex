@@ -23,6 +23,7 @@ class Plex:
         self.myplex_server='https://plex.tv'
         self.myplex_token=None
         self.logged_into_myplex=False
+        self.plexhome_enabled, self.plexhome_user = self.get_plexhome_status()
         self.server_list={}
         self.discovered=False
         self.server_list_cache="discovered_plex_servers.cache"
@@ -31,6 +32,18 @@ class Plex:
         if load:
             self.load()
 
+    def get_plexhome_status(self):
+        enabled = settings.get_setting('plexhome_enabled')
+        user = settings.get_plexhome_user()
+        
+        if enabled:
+            printDebug.debug("Plexhome enabled.  User is %s" % user)
+            return (True, user)
+
+        printDebug.debug("Plexhome not enabled.")            
+        return (False,None)
+    
+    
     def load(self):
         printDebug.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
@@ -39,7 +52,11 @@ class Plex:
             if not self.check_server_version():
                 printDebug.info("Refreshing for new versions")
                 data_ok=False
-                
+
+            if not self.check_user():
+                printDebug.info("User Switch, refreshing for new authorisation settings")
+                data_ok=False
+
         if not data_ok or not len(self.server_list):
             printDebug.info("unsuccessful")
             self.server_list={}
@@ -57,6 +74,21 @@ class Plex:
             except:
                     printDebug.debug("No revision found")
                     return False
+        return True
+
+    def check_user(self):
+
+        username=settings.get_plexhome_user()
+        if username is None:
+            return True
+    
+        for uuid, servers in self.server_list.iteritems():
+            try:
+                if not servers.get_user() == username:
+                    printDebug.debug("authorized user mismatch")
+                    return False
+            except:
+                    pass
         return True
     
     def discover(self):
@@ -248,11 +280,14 @@ class Plex:
 
         return 
         
-    def talk_to_myplex(self, path, renew=False, suppress=True):
+    def talk_to_myplex(self, path, renew=False, type='get'):
         printDebug.info("url = %s%s" % (self.myplex_server, path))
 
         try:
-            response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(3,10))
+            if type == 'get':
+                response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(3,10))
+            elif type == 'post':
+                response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(3,10))
         except requests.exceptions.ConnectionError, e:
             printDebug.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
         except requests.exceptions.ReadTimeout, e:
@@ -265,7 +300,10 @@ class Plex:
             if response.status_code >= 400:
                 error = "HTTP response error: %s" % ( response.status_code )
                 print error
-                return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
+                if response.status_code == 404:
+                    return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
+                else:
+                    return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
             else:
                 link=response.text.encode('utf-8')
                 printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
@@ -304,8 +342,19 @@ class Plex:
             try:
                 printDebug.debugplus(response.text.encode('utf-8'))
                 printDebug.info("Received new plex token")
-                token = etree.fromstring(response.text.encode('utf-8')).findtext('authentication-token')
+                xml=etree.fromstring(response.text.encode('utf-8'))
+                home=xml.findtext('home')
+                
+                if home == '1':
+                    settings.set_setting('plexhome_enabled', True)
+                    printDebug.debug("Setting PlexHome enabled.")
+                else:
+                    settings.set_setting('plexhome_enabled', False)
+                    printDebug.debug("Setting PlexHome disabled.")
+
+                token = xml.findtext('authentication-token')
                 settings.update_token(token)
+                
             except:
                 printDebug.info("No authentication token found")        
         else:
@@ -362,3 +411,64 @@ class Plex:
    
     def delete_cache(self):
         return self.cache.deleteCache()
+
+    def set_plex_home_users(self):
+
+        #<User id="X" admin="1" restricted="0" protected="1" title="" username="" email="X" thumb="http://www.gravatar.com/avatar/918266bcdee2b60c447c6bbe2e2460ca?d=https%3A%2F%2Fplex.tv%2Fusers%2Fid%2Favatar"/>
+        #<User id="X" admin="0" restricted="1" protected="0" title="Kids" username="" email="" thumb="https://plex.tv/users/id/avatar"/>
+    
+        data=etree.fromstring(self.talk_to_myplex('/api/home/users'))
+        self.user_list=dict()
+        for users in data:
+            add={ 'id'         : users.get('id') ,
+                  'admin'      : users.get('admin') ,
+                  'restricted' : users.get('restricted') ,
+                  'protected'  : users.get('protected') ,
+                  'title'      : users.get('title') ,
+                  'username'   : users.get('username') ,
+                  'email'      : users.get('email') ,
+                  'thumb'      : users.get('thumb') }
+            self.user_list[users.get('id')]=add
+
+    def get_plex_home_users(self):
+        data=etree.fromstring(self.talk_to_myplex('/api/home/users'))
+        self.user_list=dict()
+        for users in data:
+            add={ 'id'         : users.get('id') ,
+                  'admin'      : users.get('admin') ,
+                  'restricted' : users.get('restricted') ,
+                  'protected'  : users.get('protected') ,
+                  'title'      : users.get('title') ,
+                  'username'   : users.get('username') ,
+                  'email'      : users.get('email') ,
+                  'thumb'      : users.get('thumb') }
+            self.user_list[users.get('title')]=add
+
+        return self.user_list        
+            
+    def switch_plex_home_user(self,id,pin):
+        self.get_myplex_token()
+        if pin is None:
+            pin_arg="?X-Plex-Token=%s" % self.myplex_token
+        else:
+            pin_arg="?pin=%s&X-Plex-Token=%s" % (pin,self.myplex_token)
+            
+        data = self.talk_to_myplex('/api/home/users/%s/switch%s' % (id, pin_arg), type='post')
+        tree=etree.fromstring(data)
+        
+        if tree.get('status') == "unauthorized":
+            return (False, "Unauthorised")
+        elif tree.get('status') == "error":
+            return (False, "Unknown error")
+        else:
+            username=None
+            for users in self.user_list.values():
+                if id == users['id']:
+                    username=users['title']
+                    break
+                
+            token=tree.get('authentication-token')
+            settings.update_plexhome_token(username,token)
+            return (True,)
+        
+        return (False, "Error")
