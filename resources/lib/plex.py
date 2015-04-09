@@ -467,8 +467,8 @@ class Plex:
                     username=users['title']
                     break
                 
-            token=tree.get('authentication-token')
+            token=tree.findtext('authentication-token')
             settings.update_plexhome_token(username,token)
-            return (True,)
+            return (True,None)
         
         return (False, "Error")

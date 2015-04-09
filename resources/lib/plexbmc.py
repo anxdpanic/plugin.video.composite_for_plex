@@ -4011,7 +4011,7 @@ def switch_user():
     pin=None
     if user['protected'] == '1':
         printDebug("Protected user [%s], requesting password" % user['title'])
-        pin = select_screen.input("Enter PIN", type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+        pin = select_screen.input("Enter PIN", type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
     success,msg = plex_network.switch_plex_home_user(user['id'], pin)
 
