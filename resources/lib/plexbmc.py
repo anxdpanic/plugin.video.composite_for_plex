@@ -333,7 +333,7 @@ def displaySections( filter=None, display_shared=False ):
         extraData={'type' : "Video"}
 
         extraData['mode']=MODE_CHANNELVIEW
-        u="%s/system/plugins/all" % server.get_url_location()
+        u="%s/channels/all" % server.get_url_location()
         addGUIItem(u,details,extraData)
 
         #Create plexonline link
@@ -352,6 +352,13 @@ def displaySections( filter=None, display_shared=False ):
         u="%s/playlists" % server.get_url_location()            
         addGUIItem(u,details,extraData)
         
+    if settings.get_setting("plexhome_enabled"):
+        details = {'title' : "Switch User"}
+        extraData = {}
+        extraData['type']="file"
+
+        u="cmd:switchuser"
+        addGUIItem(u,details,extraData)
         
     if __settings__.getSetting("cache") == "true":
         details = {'title' : "Refresh Data"}
@@ -2568,13 +2575,13 @@ def channelView( url ):
 
         details={'title' : channels.get('title','Unknown') }
 
-        suffix=channels.get('path').split('/')[1]
+        suffix=channels.get('key').split('/')[1]
 
         if channels.get('unique','')=='0':
             details['title']="%s (%s)" % ( details['title'], suffix )
 
         #Alter data sent into getlinkurl, as channels use path rather than key
-        p_url=getLinkURL(url, {'key': channels.get('path',None), 'identifier' : channels.get('path',None)} , server)
+        p_url=getLinkURL(url, {'key': channels.get('key',None), 'identifier' : channels.get('key',None)} , server)
 
         if suffix == "photos":
             extraData['mode']=MODE_PHOTOS
@@ -2734,7 +2741,7 @@ def skin( server_list=None, type=None ):
             
         if settings.channelview:
             WINDOW.setProperty("plexbmc.channel", "1")
-            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s/system/plugins/all&mode=21,return)" % server.get_url_location())
+            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s/channels/all&mode=21,return)" % server.get_url_location())
         else:
             WINDOW.clearProperty("plexbmc.channel")
             WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "%s/video&mode=7" % server.get_url_location() )
@@ -2948,7 +2955,7 @@ def amberskin():
 
         if settings.get_setting('channelview'):
             WINDOW.setProperty("plexbmc.channel", "1")
-            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s, return" % (server.get_url_location(), "/system/plugins/all", MODE_CHANNELVIEW ))
+            WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s, return" % (server.get_url_location(), "/channels/all", MODE_CHANNELVIEW ))
         else:
             WINDOW.clearProperty("plexbmc.channel")
             WINDOW.setProperty("plexbmc.%d.server.video" % (serverCount) , "%s%s&mode=%s" % (server.get_url_location(), "/video", MODE_PLEXPLUGINS ))
@@ -4068,9 +4075,14 @@ def start_plexbmc():
 
     #Now try and assign some data to them
     param_url=params.get('url',None)
-
-    if param_url and ( param_url.startswith('http') or param_url.startswith('file') ):
+    command=None
+    
+    if param_url:
+        if ( param_url.startswith('http') or param_url.startswith('file') ):
             param_url = urllib.unquote(param_url)
+        elif param_url.startswith('cmd:'):
+            command=param_url.split(':')[1]
+            
 
     param_name=urllib.unquote_plus(params.get('name',""))
     mode=int(params.get('mode',-1))
@@ -4079,11 +4091,11 @@ def start_plexbmc():
     param_indirect=params.get('indirect',None)
     force=params.get('force')
 
-    try:
-        command=sys.argv[1]
-    except:
-        command=None
-
+    if command is None:
+        try:
+            command=sys.argv[1]
+        except:
+            pass
 
     if command == "cacherefresh":
         plex_network.delete_cache()
