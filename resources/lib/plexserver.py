@@ -41,7 +41,15 @@ class PlexMediaServer:
         self.device_name=None
         self.plex_home_enabled=False
         self.best_address='address'
+        self.plex_identification_header=None
+        self.plex_identification_string=None
+        self.update_identification()
+        
    
+    def update_identification(self):
+        self.plex_identification_header=self.create_plex_identification()
+        self.plex_identification_string=self.create_plex_identification_string()
+
     def get_revision(self):
         return self.__revision
    
@@ -57,7 +65,7 @@ class PlexMediaServer:
                 'master'    : self.master,
                 'class'     : self.class_type}
 
-    def plex_identification(self):
+    def create_plex_identification(self):
 
         headers = {'X-Plex-Device'            : 'PleXBMC' ,
                    'X-Plex-Client-Platform'   : 'KODI' ,
@@ -79,12 +87,12 @@ class PlexMediaServer:
                    
         return headers
 
-    def plex_identification_header(self):
+    def create_plex_identification_string(self):
         header=[]
-        for key, value in self.plex_identification().items():
+        for key, value in self.create_plex_identification().items():
             header.append("%s=%s" % (key, urllib.quote(value)))
 
-        return header
+        return "&".join(header)
         
     def get_client_identifier(self):
         if self.client_id is None:
@@ -194,10 +202,12 @@ class PlexMediaServer:
 
     def set_token(self, value):
         self.token=value
+        self.update_identification()
 
     def set_user(self, value):
         self.user=value
-
+        self.update_identification()
+        
     def set_class(self, value):
         self.class_type=value
 
@@ -212,11 +222,11 @@ class PlexMediaServer:
             start_time=time.time()
             try:
                 if type == 'get':
-                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification(), timeout=(2,60))
+                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification_header, timeout=(2,60))
                 elif type == 'put':
-                    response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification(), timeout=(2,60))                
+                    response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification_header, timeout=(2,60))                
                 elif type == 'delete':
-                    response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification(), timeout=(2,60))              
+                    response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification_header, timeout=(2,60))              
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
                 printDebug.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
@@ -350,7 +360,7 @@ class PlexMediaServer:
 
     def get_formatted_url(self, url, options={}):
     
-        url_options=self.plex_identification()
+        url_options=self.plex_identification_header
         url_options.update(options)
         
         if url.startswith('http'):
@@ -389,7 +399,7 @@ class PlexMediaServer:
         
         new_query_args = urllib.urlencode(query_args, True)
 
-        return "%s | %s" % (urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), "&".join(self.plex_identification_header()))
+        return "%s | %s" % (urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
         
