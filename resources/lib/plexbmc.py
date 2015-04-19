@@ -4002,7 +4002,7 @@ def switch_user():
     #zero means we are not plexHome'd up
     if user_list is None or len(user_list) == 1:
         printDebug("No users listed or only one user, plexHome not enabled")
-        return
+        return False
 
     printDebug("found %s users: %s" % (len(user_list), user_list.keys()))  
 
@@ -4010,7 +4010,7 @@ def switch_user():
     result = select_screen.select('Switch User',user_list.keys())
     if result == -1:
         printDebug("Dialog cancelled")
-        return
+        return False
 
     printDebug("user [%s] selected" % user_list.keys()[result])
     user = user_list[user_list.keys()[result]]
@@ -4024,9 +4024,9 @@ def switch_user():
 
     if not success:
         xbmcgui.Dialog().ok("Switch Failed",msg)
-        return
+        return False
 
-        
+    return True 
 
 ##So this is where we really start the plugin.
 
@@ -4105,17 +4105,19 @@ def start_plexbmc():
         settings.openSettings()
         if xbmcgui.getCurrentWindowId() == 10000:
             printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+            xbmc.executebuiltin("ReloadSkin()")
     #Refresh the current XBMC listing    
     elif command == "refresh":
         xbmc.executebuiltin("Container.Refresh")
     elif command == "switchuser":
-        switch_user()
-        if xbmcgui.getCurrentWindowId() == 10000:
-            printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+        if switch_user():
+            if xbmcgui.getCurrentWindowId() == 10000:
+                printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
+                xbmc.executebuiltin("ReloadSkin()")
+            else:
+                xbmc.executebuiltin("Container.Refresh")
         else:
-            xbmc.executebuiltin("Container.Refresh")
+            printDebug.info("Switch User Failed")
             
     else:
 
