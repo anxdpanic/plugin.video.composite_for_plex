@@ -79,6 +79,13 @@ class PlexMediaServer:
                    
         return headers
 
+    def plex_identification_header(self):
+        header=[]
+        for key, value in self.plex_identification().items():
+            header.append("%s=%s" % (key, urllib.quote(value)))
+
+        return header
+        
     def get_client_identifier(self):
         if self.client_id is None:
             self.client_id = settings.get_setting('client_id')
@@ -143,11 +150,10 @@ class PlexMediaServer:
         else:
             printDebug.debug("new [%s] != existing [%s]" % (ipaddress, self.address['local']))
         
-        printDebug.debu("new [%s] is unknown.  Possible uuid clash" % ipaddress)
+        printDebug.debug("new [%s] is unknown.  Possible uuid clash" % ipaddress)
         self.set_best_address_external()
         return
-        
-        
+         
     def set_best_address_local(self):
         self.best_address='local'
 
@@ -364,6 +370,26 @@ class PlexMediaServer:
         new_query_args = urllib.urlencode(query_args, True)
 
         return urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
+
+    def get_kodi_header_formatted_url(self, url, options={}):
+            
+        if url.startswith('http'):
+            url_parts = urlparse.urlparse(url)
+            url=url_parts.path
+           
+            if url_parts.query:
+                url=url+'?'+url_parts.query
+    
+        location = "%s%s" % (self.get_url_location(), url)
+        
+        url_parts = urlparse.urlparse(location)
+
+        query_args = urlparse.parse_qsl(url_parts.query)
+        query_args += options.items()
+        
+        new_query_args = urllib.urlencode(query_args, True)
+
+        return "%s | %s" % (urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), "&".join(self.plex_identification_header()))
 
     def get_fanart(self, section, width=1280, height=720):
         

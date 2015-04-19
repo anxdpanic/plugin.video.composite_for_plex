@@ -2366,9 +2366,9 @@ def getThumb(data, server, width=720, height=720):
 
     elif thumbnail.startswith('/'):
         if settings.get_setting('fullres_thumbs'):
-            return server.get_formatted_url(thumbnail)
+            return server.get_kodi_header_formatted_url(thumbnail)
         else:
-            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
     else:
         return GENERIC_THUMBNAIL
 
@@ -2393,9 +2393,9 @@ def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
 
     elif thumbnail.startswith('/'):
         if settings.get_setting('fullres_thumbs'):
-            return server.get_formatted_url(thumbnail)
+            return server.get_kodi_header_formatted_url(thumbnail)
         else:
-            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
 
     else:
         return GENERIC_THUMBNAIL
@@ -2419,9 +2419,9 @@ def getFanart(data, server, width=1280, height=720):
 
     elif fanart.startswith('/'):
         if settings.get_setting('fullres_fanart'):
-            return server.get_formatted_url(fanart)
+            return server.get_kodi_header_formatted_url(fanart)
         else:
-            return server.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + fanart), width, height))
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + fanart), width, height))
 
     else:
         return ''
@@ -3548,7 +3548,7 @@ def shelf( server_list=None ):
                 continue
 
             title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s%s)" % ( getLinkURL(server.get_url_location(),media,server), MODE_PLAYSHELF)
-            title_thumb=server.get_formatted_url(media.get('grandparentThumb',''))
+            title_thumb=server.get_kodi_header_formatted_url(media.get('grandparentThumb',''))
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % seasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % seasonCount, title_name)
@@ -3702,7 +3702,7 @@ def shelfChannel(server_list = None):
             pms_thumb = str(media.get('thumb', ''))
 
             if pms_thumb.startswith('/'):
-                c_thumb = server_details.get_formatted_url(pms_thumb)
+                c_thumb = server_details.get_kodi_header_formatted_url(pms_thumb)
 
             else:
                 c_thumb = pms_thumb
