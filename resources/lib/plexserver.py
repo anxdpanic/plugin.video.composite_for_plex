@@ -162,7 +162,7 @@ class PlexMediaServer:
                 return True
         return False
         
-    def set_user(self):
+    def get_user(self):
         return self.user
 
     def set_plex_home_enabled(self):
@@ -185,6 +185,9 @@ class PlexMediaServer:
     
     def set_owned(self, value):
         self.owned=value
+
+    def set_token(self, value):
+        self.token=value
 
     def set_user(self, value):
         self.user=value

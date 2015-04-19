@@ -352,7 +352,7 @@ def displaySections( filter=None, display_shared=False ):
         u="%s/playlists" % server.get_url_location()            
         addGUIItem(u,details,extraData)
         
-    if settings.get_setting("plexhome_enabled"):
+    if plex_network.is_plexhome_enabled():
         details = {'title' : "Switch User"}
         extraData = {}
         extraData['type']="file"
@@ -4026,7 +4026,7 @@ def switch_user():
         xbmcgui.Dialog().ok("Switch Failed",msg)
         return
 
-    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+        
 
 ##So this is where we really start the plugin.
 
@@ -4080,8 +4080,8 @@ def start_plexbmc():
     if param_url:
         if ( param_url.startswith('http') or param_url.startswith('file') ):
             param_url = urllib.unquote(param_url)
-        elif param_url.startswith('cmd:'):
-            command=param_url.split(':')[1]
+        elif param_url.startswith('cmd'):
+            command=urllib.unquote(param_url).split(':')[1]
             
 
     param_name=urllib.unquote_plus(params.get('name',""))
@@ -4103,8 +4103,7 @@ def start_plexbmc():
     #Open the add-on settings page, then refresh plugin
     elif command == "setting":
         settings.openSettings()
-        WINDOW = xbmcgui.getCurrentWindowId()
-        if WINDOW == 10000:
+        if xbmcgui.getCurrentWindowId() == 10000:
             printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
     #Refresh the current XBMC listing    
@@ -4112,6 +4111,12 @@ def start_plexbmc():
         xbmc.executebuiltin("Container.Refresh")
     elif command == "switchuser":
         switch_user()
+        if xbmcgui.getCurrentWindowId() == 10000:
+            printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
+            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+        else:
+            xbmc.executebuiltin("Container.Refresh")
+            
     else:
 
         plex_network.load()

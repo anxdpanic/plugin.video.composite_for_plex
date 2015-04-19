@@ -109,21 +109,24 @@ class CacheControl:
 
         return (False, None)
         
-    def deleteCache(self):
+    def deleteCache(self, force=False):
         printDebug.debug("== ENTER: deleteCache ==")
-        cache_suffix = "cache"
-        dirs, files = xbmcvfs.listdir(self.cache_location)
+        cache_suffix = ".cache"
+        persistant_cache_suffix = ".pcache"
+        dirs, file_list = xbmcvfs.listdir(self.cache_location)
 
-        printDebug.debug("List of file: [%s]" % files)
+        printDebug.debug("List of file: [%s]" % file_list)
         printDebug.debug("List of dirs: [%s]" % dirs)
         
-        for i in files:
+        for file in file_list:
 
-            if cache_suffix not in i:
+            if force and persistant_cache_suffix in file:
+                printDebug("Force deletion of persistent cache file")
+            elif cache_suffix not in file:
                 continue
 
-            if xbmcvfs.delete(self.cache_location+i):
-                printDebug.debug("SUCCESSFUL: removed %s" % i)
+            if xbmcvfs.delete(self.cache_location+file):
+                printDebug.debug("SUCCESSFUL: removed %s" % file)
             else:
-                printDebug.debug("UNSUCESSFUL: did not remove %s" % i )
+                printDebug.debug("UNSUCESSFUL: did not remove %s" % file )
         

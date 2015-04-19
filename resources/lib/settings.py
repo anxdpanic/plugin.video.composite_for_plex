@@ -69,7 +69,7 @@ class addonSettings:
     def disable_transcode(self):
         self.transcode=False
                 
-    def update_token(self, value):
+    def update_token(self, value=''):
         print "Updating token %s" % value
         self.settings.setSetting('myplex_token','%s|%s' % (self.settings.getSetting('myplex_user'),value))
         print "token updated"
