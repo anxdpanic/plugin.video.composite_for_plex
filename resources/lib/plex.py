@@ -314,16 +314,19 @@ class Plex:
 
     def talk_to_myplex(self, path, renew=False, type='get'):
         printDebug.info("url = %s%s" % (self.myplex_server, path))
-
+        link=False
         try:
             if type == 'get':
-                response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(3,10))
+                response = requests.get("%s%s" % (self.myplex_server, path), params=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(5,10))
             elif type == 'post':
-                response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(3,10))
+                response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=dict(self.plex_identification(), **self.get_myplex_token(renew)), verify=True, timeout=(5,10))
         except requests.exceptions.ConnectionError, e:
             printDebug.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
+            return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
         except requests.exceptions.ReadTimeout, e:
             printDebug.info("myplex: read timeout for %s on %s " % (self.myplex_server, path))
+            return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
+        
         else:
             
             if response.status_code == 401  and not ( renew ):
