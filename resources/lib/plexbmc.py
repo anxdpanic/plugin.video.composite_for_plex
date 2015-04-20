@@ -2886,6 +2886,9 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.released" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/newest", mode) )
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "false")
 
+            WINDOW.setProperty("plexbmc.%d.ondeck.content" % (sectionCount) , "plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s" % (server.get_url_location(), section.get_path(), "/onDeck", mode) )
+            WINDOW.setProperty("plexbmc.%d.recent.content" % (sectionCount) , "plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s" % (server.get_url_location(), section.get_path(), "/recentlyAdded", mode) )
+
             if section.is_artist():
                 WINDOW.setProperty("plexbmc.%d.album" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/albums", mode) )
                 WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=10", mode) )
@@ -2996,6 +2999,8 @@ def amberskin():
             WINDOW.clearProperty("plexbmc.%d.shared"     % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.album"     % ( i ) )
             WINDOW.clearProperty("plexbmc.%d.year"     % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.recent.content"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.ondeck.content"    % ( i ) )
 
     except:
         pass
