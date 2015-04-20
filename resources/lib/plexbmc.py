@@ -2807,6 +2807,10 @@ def amberskin():
     hide_shared = __settings__.getSetting('hide_shared')
 
     server_list=plex_network.get_server_list()
+
+    WINDOW.setProperty("plexbmc.myplex_signedin" , str(plex_network.is_myplex_signedin()))
+    WINDOW.setProperty("plexbmc.plexhome_enabled" , str(plex_network.is_plexhome_enabled()))
+
     printDebug.debug("Using list of %s servers: %s " % (len(server_list), server_list))
 
     for server in server_list:

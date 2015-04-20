@@ -43,6 +43,9 @@ class Plex:
     def is_plexhome_enabled(self):
         return self.plexhome_settings['plexhome_enabled']
 
+    def is_myplex_signedin(self):
+        return self.plexhome_settings['myplex_signedin']
+        
     def load(self):
         printDebug.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
