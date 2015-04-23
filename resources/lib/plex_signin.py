@@ -1,6 +1,7 @@
 import pyxbmct.addonwindow as pyxbmct
 import plex
 from common import printDebug
+import xbmc
 
 printDebug=printDebug("PleXBMC", "plex_signin")
 
@@ -20,6 +21,9 @@ class plex_signin(pyxbmct.AddonFullWindow):
 
     def set_authentication_target(self, plex_network):
         self.plex_network = plex_network
+
+    def set_location(self, location):
+        self.GLOBAL_SETUP = location
         
     def set_controls(self):
         """Set up UI controls"""
@@ -66,6 +70,7 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.connect(self.manual_button, lambda: self.display_manual())
         self.connect(self.pin_button, lambda: self.display_pin())
 
+        
         self.display_pin()
 
     def display_pin(self):
@@ -98,6 +103,21 @@ class plex_signin(pyxbmct.AddonFullWindow):
         token = self.plex_network.sign_into_myplex(self.name_field.getText(), self.password_field.getText())
         
         if token is not None:
+            self.name_label.setVisible(False)
+            self.password_label.setVisible(False)
+            self.name_field.setVisible(False)
+            self.password_field.setVisible(False)
+            self.manual_button.setVisible(False)
+            self.cancel_button.setVisible(False)
+            self.submit_button.setVisible(False)
+            self.pin_button.setVisible(False)
+            #tick mark
+            self.tick = pyxbmct.Image("%s/resources/media/tick.png" % self.GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+            self.placeControl(self.tick, 2 , 2 , columnspan=2, rowspan=2)
+
+            self.description.setText('Successfully Signed In')
+            xbmc.sleep(2000)
+            
             printDebug("Successfully signed in")
             
             self.close()

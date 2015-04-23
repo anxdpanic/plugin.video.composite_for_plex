@@ -4135,6 +4135,7 @@ def start_plexbmc():
         import plex_signin
         myaddon = plex_signin.plex_signin('Myplex Login')
         myaddon.set_authentication_target(plex_network)
+        myaddon.set_location(GLOBAL_SETUP)
         myaddon.doModal()
         del myaddon
         
