@@ -46,6 +46,20 @@ class Plex:
     def is_myplex_signedin(self):
         return self.plexhome_settings['myplex_signedin']
         
+    def signout(self):
+        self.plexhome_settings={'myplex_signedin'     : False,
+                                'plexhome_enabled'    : False,
+                                'myplex_user_cache'   : '',
+                                'plexhome_user_cache' : '' }
+        settings.set_setting('myplex_user','')
+        settings.set_setting('myplex_pass','')
+        self.delete_cache(True)
+        printDebug.info("Signed out from myPlex")
+
+    def signin(self):
+        xml = self.talk_to_myplex('/pins.xml', type="post")
+        return 
+        
     def load(self):
         printDebug.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
@@ -356,13 +370,17 @@ class Plex:
         printDebug.debug("Myplex not in use")
         return {}
     
-    def sign_into_myplex(self,suppress=True, title="Error"):
+    def sign_into_myplex(self, username=None, password=None):
         printDebug.info("Getting New token")
-        if not settings.get_setting('myplex_user'):
-            printDebug.info("No myplex details in config..")
-            return None
+        
+        if username is None:
+            username=settings.get_setting('myplex_user')
+            password=settings.get_setting('myplex_pass')
+            if not settings.get_setting('myplex_user'):
+                printDebug.info("No myplex details in config..")
+                return None
 
-        base64string = base64.encodestring('%s:%s' % (settings.get_setting('myplex_user'), settings.get_setting('myplex_pass'))).replace('\n', '')
+        base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
         token = False
 
         myplex_headers={'Authorization': "Basic %s" % base64string}
@@ -385,9 +403,10 @@ class Plex:
 
                 token = xml.findtext('authentication-token')
                 settings.update_token(token)
-                self.plexhome_settings['myplex_user_cache']="%s|%s" % ( settings.get_setting('myplex_user') , token)
+                settings.set_setting('myplex_user', username)
+                self.plexhome_settings['myplex_user_cache']="%s|%s" % ( username , token)
                 self.plexhome_settings['myplex_signedin']=True
-                
+                self.save_tokencache()
             except:
                 printDebug.info("No authentication token found")        
         else:
@@ -442,8 +461,8 @@ class Plex:
             return server.raw_xml(url)
         return ''
    
-    def delete_cache(self):
-        return self.cache.deleteCache()
+    def delete_cache(self, force=False):
+        return self.cache.deleteCache(force)
 
     def set_plex_home_users(self):
 

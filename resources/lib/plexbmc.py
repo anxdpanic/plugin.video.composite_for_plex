@@ -4127,9 +4127,18 @@ def start_plexbmc():
                 xbmc.executebuiltin("Container.Refresh")
         else:
             printDebug.info("Switch User Failed")
-            
-    else:
+    elif command == "signout":
+        plex_network.signout()
+        xbmc.executebuiltin("ReloadSkin()")
 
+    elif command == "signin":
+        import plex_signin
+        myaddon = plex_signin.plex_signin('Myplex Login')
+        myaddon.set_authentication_target(plex_network)
+        myaddon.doModal()
+        del myaddon
+        
+    else:
         plex_network.load()
         
         #Populate Skin variables
@@ -4310,4 +4319,5 @@ def start_plexbmc():
             
             elif mode == MODE_DISPLAYSERVERS:
                 displayServers(param_url)
+
 
