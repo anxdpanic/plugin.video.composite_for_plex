@@ -56,10 +56,65 @@ class Plex:
         self.delete_cache(True)
         printDebug.info("Signed out from myPlex")
 
-    def signin(self):
-        xml = self.talk_to_myplex('/pins.xml', type="post")
-        return 
+    def get_signin_pin(self):
+        data = self.talk_to_myplex('/pins.xml', type="post")
+        try:
+            xml = etree.fromstring(data)
+            code=xml.find('code').text
+            identifier=xml.find('id').text
+        except:
+            code = None
         
+        if code is None:
+            printDebug("Error, no code provided")
+            code = "----"
+            identifier="error"
+            
+        printDebug.debug("code is: %s" % code)
+        printDebug.debug("id   is: %s" % identifier)
+        
+        return { 'id'   : identifier ,
+                 'code' : list(code) }
+
+    def check_signin_status(self,identifier):
+        data = self.talk_to_myplex('/pins/%s.xml' % identifier, type="get2")
+        xml = etree.fromstring(data)
+        temp_token=xml.find('auth_token').text
+
+        printDebug.debugplus("Temp token is: %s" % temp_token)
+
+        if temp_token:
+            response = requests.get("%s/users/account?X-Plex-Token=%s" % ( self.myplex_server, temp_token), headers=self.plex_identification())
+            
+            printDebug.debug("Status Code: %s" % response.status_code)
+            
+            if response.status_code == 200:
+                try:
+                    printDebug.debugplus(response.text.encode('utf-8'))
+                    printDebug.info("Received new plex token")
+                    xml=etree.fromstring(response.text.encode('utf-8'))
+                    home=xml.get('home','0')
+                    username=xml.get('username','')
+                    
+                    if home == '1':
+                        self.plexhome_settings['plexhome_enabled']=True
+                        printDebug.debug("Setting PlexHome enabled.")
+                    else:
+                        self.plexhome_settings['plexhome_enabled']=False
+                        printDebug.debug("Setting PlexHome disabled.")
+
+                    token = xml.findtext('authentication-token')
+                    settings.update_token(token)
+                    settings.set_setting('myplex_user', username)
+                    self.plexhome_settings['myplex_user_cache']="%s|%s" % ( username , token)
+                    self.plexhome_settings['myplex_signedin']=True
+                    self.save_tokencache()
+                    return True
+                except:
+                    printDebug.info("No authentication token found")        
+
+        return False
+
     def load(self):
         printDebug.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
@@ -175,18 +230,21 @@ class Plex:
         return self.server_list.values()
             
     def plex_identification(self):
-        return {'X-Plex-Device'            : 'PleXBMC' ,
-                'X-Plex-Client-Platform'   : 'KODI' ,
-                'X-Plex-Device-Name'       : settings.get_setting('devicename') ,
-                'X-Plex-Language'          : 'en',
-                'X-Plex-Model'             : 'unknown' ,
-                'X-Plex-Platform'          : 'PleXBMC' ,
-                'X-Plex-Client-Identifier' : self.get_client_identifier() ,
-                'X-Plex-Product'           : 'PleXBMC' ,
-                'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'],
-                'X-Plex-Version'           : GLOBAL_SETUP['__version__']  ,
-                'X-Plex-Provides'          : "player",
-                'X-Plex-Token'             : self.effective_token}
+        header = {'X-Plex-Device'            : 'PleXBMC' ,
+                  'X-Plex-Client-Platform'   : 'KODI' ,
+                  'X-Plex-Device-Name'       : settings.get_setting('devicename') ,
+                  'X-Plex-Language'          : 'en',
+                  'X-Plex-Model'             : 'unknown' ,
+                  'X-Plex-Platform'          : 'PleXBMC' ,
+                  'X-Plex-Client-Identifier' : self.get_client_identifier() ,
+                  'X-Plex-Product'           : 'PleXBMC' ,
+                  'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'],
+                  'X-Plex-Version'           : GLOBAL_SETUP['__version__']  ,
+                  'X-Plex-Provides'          : "player"}
+        if self.effective_token is not None:
+            header['X-Plex-Token'] = self.effective_token
+            
+        return header
 
     def get_client_identifier(self):
     
@@ -335,6 +393,8 @@ class Plex:
         try:
             if type == 'get':
                 response = requests.get("%s%s" % (self.myplex_server, path), params=self.plex_identification(), verify=True, timeout=(3,10))
+            elif type == 'get2':
+                response = requests.get("%s%s" % (self.myplex_server, path), headers=self.plex_identification(), verify=True, timeout=(3,10))
             elif type == 'post':
                 response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=self.plex_identification(), verify=True, timeout=(3,10))
         except requests.exceptions.ConnectionError, e:
@@ -345,6 +405,10 @@ class Plex:
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
         
         else:
+            
+            printDebug.debugplus("Full URL was: %s" % response.url)
+            printDebug.debugplus("Full header sent was: %s" % response.request.headers)
+            printDebug.debugplus("Full header recieved was: %s" % response.headers)
             
             if response.status_code == 401  and not ( renew ):
                 return self.talk_to_myplex(path,True)

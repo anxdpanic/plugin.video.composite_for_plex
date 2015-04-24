@@ -1702,8 +1702,6 @@ def getMasterServer(all=False):
     
     return possibleServers[0]
 
-
-
 def artist( url, tree=None ):
     '''
         Process artist XML and display data
@@ -4135,8 +4133,7 @@ def start_plexbmc():
         import plex_signin
         myaddon = plex_signin.plex_signin('Myplex Login')
         myaddon.set_authentication_target(plex_network)
-        myaddon.set_location(GLOBAL_SETUP)
-        myaddon.doModal()
+        myaddon.start()
         del myaddon
         
     else:

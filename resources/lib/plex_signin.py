@@ -1,6 +1,6 @@
 import pyxbmct.addonwindow as pyxbmct
 import plex
-from common import printDebug
+from common import printDebug, GLOBAL_SETUP
 import xbmc
 
 printDebug=printDebug("PleXBMC", "plex_signin")
@@ -18,12 +18,15 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.set_navigation()
         # Connect Backspace button to close our addon.
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
+        self.plex_network=None
+        self.identifier=None
 
+    def start(self):
+        self.display_pin()
+        self.doModal()
+        
     def set_authentication_target(self, plex_network):
         self.plex_network = plex_network
-
-    def set_location(self, location):
-        self.GLOBAL_SETUP = location
         
     def set_controls(self):
         """Set up UI controls"""
@@ -41,7 +44,6 @@ class plex_signin(pyxbmct.AddonFullWindow):
         #Password Label
         self.password_label = pyxbmct.Label('Password:')
         self.placeControl(self.password_label, 3, 1)
-        
         #Password entry box
         self.password_field = pyxbmct.Edit('', isPassword=True)
         self.placeControl(self.password_field, 3, 2, columnspan=2)
@@ -65,16 +67,49 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.pin_button = pyxbmct.Button('Use PIN')
         self.placeControl(self.pin_button, 5, 2, columnspan=2)
 
+        # PIN button
+        self.submit_pin_button = pyxbmct.Button('Done')
+        self.placeControl(self.submit_pin_button, 5, 2, columnspan=2)
+
         # Submit button to get token
         self.connect(self.submit_button, lambda: self.submit())
         self.connect(self.manual_button, lambda: self.display_manual())
         self.connect(self.pin_button, lambda: self.display_pin())
-
+        self.connect(self.submit_pin_button, lambda: self.submit_pin())
         
-        self.display_pin()
+        # set up failure message
+        self.error_cross = pyxbmct.Image("%s/resources/media/error.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+        self.placeControl(self.error_cross, 4 , 2 )
+        self.error_message = pyxbmct.Label("Unable to Login")
+        self.placeControl(self.error_message, 4 , 3 , columnspan=2, rowspan=2)
+        self.error_cross.setVisible(False)
+        self.error_message.setVisible(False)
+ 
+        self.digit_one = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+        self.digit_two = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+        self.digit_three = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+        self.digit_four = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+        
+        self.placeControl(self.digit_one, 3, 1)
+        self.placeControl(self.digit_two, 3, 2)
+        self.placeControl(self.digit_three, 3, 3)
+        self.placeControl(self.digit_four, 3, 4)
+ 
+    def display_failure(self,state=True):
+        if state:
+            self.error_cross.setVisible(True)
+            self.error_message.setVisible(True)
+        else:
+            self.error_cross.setVisible(False)
+            self.error_message.setVisible(False)
+        
+    def display_pin(self, failure=False):
+        if failure:
+            self.display_failure()
+        else:
+            self.display_failure(False)
 
-    def display_pin(self):
-        self.description.setText('From your computer, go to http://plex.tv/pin and enter the code below')
+        self.description.setText('From your computer, go to http://plex.tv/pin and enter the code below.  Then click done')
         self.name_label.setVisible(False)
         self.password_label.setVisible(False)
         self.name_field.setVisible(False)
@@ -82,10 +117,28 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.manual_button.setVisible(True)
         self.submit_button.setVisible(False)
         self.pin_button.setVisible(False)
-        self.cancel_button.setNavigation(self.manual_button, self.manual_button, self.manual_button,self.manual_button)
-        self.setFocus(self.manual_button)
+        self.submit_pin_button.setVisible(True)
+        self.cancel_button.setNavigation(self.submit_pin_button, self.manual_button, self.manual_button, self.submit_pin_button )
+        self.submit_pin_button.setNavigation(self.manual_button, self.cancel_button, self.cancel_button, self.manual_button)
+        self.manual_button.setNavigation(self.cancel_button, self.submit_pin_button, self.submit_pin_button, self.cancel_button)
         
-    def display_manual(self):
+        self.data = self.plex_network.get_signin_pin()
+        
+        digits = self.data['code']
+        self.identifier= self.data['id']
+        self.digit_one.setVisible(True)
+        self.digit_two.setVisible(True)
+        self.digit_three.setVisible(True)
+        self.digit_four.setVisible(True)
+
+        self.digit_one.setImage("%s/resources/media/%s.png" % (GLOBAL_SETUP['__cwd__'], digits[0].lower()))
+        self.digit_two.setImage("%s/resources/media/%s.png" % (GLOBAL_SETUP['__cwd__'], digits[1].lower()))
+        self.digit_three.setImage("%s/resources/media/%s.png" % (GLOBAL_SETUP['__cwd__'], digits[2].lower()))
+        self.digit_four.setImage("%s/resources/media/%s.png" % (GLOBAL_SETUP['__cwd__'], digits[3].lower()))
+        
+        self.setFocus(self.submit_pin_button)
+        
+    def display_manual(self, failure=False):
         self.description.setText('Please enter your myplex details below')
         self.name_label.setVisible(True)
         self.password_label.setVisible(True)
@@ -97,8 +150,18 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.cancel_button.setNavigation(self.password_field, self.name_field, self.submit_button,self.pin_button)
         self.pin_button.setNavigation(self.password_field, self.name_field, self.cancel_button,self.submit_button)
         self.submit_button.setNavigation(self.password_field, self.name_field, self.pin_button,self.cancel_button)
+        self.digit_one.setVisible(False)
+        self.digit_two.setVisible(False)
+        self.digit_three.setVisible(False)
+        self.digit_four.setVisible(False)
+        self.submit_pin_button.setVisible(False)        
         self.setFocus(self.name_field)
 
+        if failure:
+            self.display_failure()
+        else:
+            self.display_failure(False)
+            
     def submit(self):
         token = self.plex_network.sign_into_myplex(self.name_field.getText(), self.password_field.getText())
         
@@ -112,7 +175,7 @@ class plex_signin(pyxbmct.AddonFullWindow):
             self.submit_button.setVisible(False)
             self.pin_button.setVisible(False)
             #tick mark
-            self.tick = pyxbmct.Image("%s/resources/media/tick.png" % self.GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+            self.tick = pyxbmct.Image("%s/resources/media/tick.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
             self.placeControl(self.tick, 2 , 2 , columnspan=2, rowspan=2)
 
             self.description.setText('Successfully Signed In')
@@ -123,14 +186,39 @@ class plex_signin(pyxbmct.AddonFullWindow):
             self.close()
         else:
             printDebug("Not Successful signed in")
-            self.close()
+            self.display_manual(True)
+
+    def submit_pin(self):
+        result = self.plex_network.check_signin_status(self.identifier)
         
+        if result:
+            self.digit_one.setVisible(False)
+            self.digit_two.setVisible(False)
+            self.digit_three.setVisible(False)
+            self.digit_four.setVisible(False)
+            self.manual_button.setVisible(False)
+            self.cancel_button.setVisible(False)
+            self.submit_button.setVisible(False)
+            self.pin_button.setVisible(False)
+            self.submit_pin_button.setVisible(False)
+            #tick mark
+            self.tick = pyxbmct.Image("%s/resources/media/tick.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
+            self.placeControl(self.tick, 2 , 2 , columnspan=2, rowspan=2)
+
+            self.description.setText('Successfully Signed In')
+            xbmc.sleep(2000)
+            
+            printDebug("Successfully signed in")
+            
+            self.close()
+        else:
+            printDebug("Not Successful signed in")
+            self.display_pin(True)
+            
     def set_navigation(self):
         """Set up keyboard/remote navigation between controls."""
         self.name_field.controlUp(self.submit_button)
         self.name_field.controlDown(self.password_field)
         self.password_field.controlUp(self.name_field)
         self.password_field.controlDown(self.submit_button)
-        self.manual_button.controlLeft(self.cancel_button)
-        self.manual_button.controlRight(self.cancel_button)
         # Set initial focus.
