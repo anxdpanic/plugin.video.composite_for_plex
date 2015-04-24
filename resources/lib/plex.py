@@ -141,16 +141,12 @@ class Plex:
 
     def setup_user_token(self):
 
-        if not settings.get_setting('myplex_user'):
-            settings.update_token()
-            return
-
         self.load_tokencache()
 
         if self.plexhome_settings['myplex_signedin']:
             printDebug.debug("Myplex is logged in")
         else:
-            self.sign_into_myplex()
+            return
 
         self.myplex_user, self.myplex_token = self.plexhome_settings['myplex_user_cache'].split('|')
 
@@ -172,9 +168,6 @@ class Plex:
         self.save_tokencache()
         
     def load_tokencache(self):
-        if not settings.get_setting('myplex_user'):
-            printDebug("Myplex not in use")
-            return
 
         data_ok, token_cache = self.cache.readCache(self.plexhome_cache)
 
@@ -274,7 +267,7 @@ class Plex:
         return etree.fromstring(data)
             
     def discover_all_servers(self):
-        if settings.get_setting('myplex_user'):
+        if self.is_myplex_signedin():
             printDebug.info( "PleXBMC -> Adding myplex as a server location")
 
             self.server_list = self.get_myplex_servers()
@@ -441,11 +434,8 @@ class Plex:
         printDebug.info("Getting New token")
         
         if username is None:
-            username=settings.get_setting('myplex_user')
-            password=settings.get_setting('myplex_pass')
-            if not settings.get_setting('myplex_user'):
-                printDebug.info("No myplex details in config..")
-                return None
+            printDebug.info("No myplex details in provided..")
+            return None
 
         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
         token = False
