@@ -45,7 +45,10 @@ class Plex:
 
     def is_myplex_signedin(self):
         return self.plexhome_settings['myplex_signedin']
-        
+
+    def get_myplex_user(self):
+        return self.effective_user
+            
     def signout(self):
         self.plexhome_settings={'myplex_signedin'     : False,
                                 'plexhome_enabled'    : False,

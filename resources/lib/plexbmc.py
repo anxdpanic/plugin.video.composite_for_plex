@@ -4126,8 +4126,10 @@ def start_plexbmc():
         else:
             printDebug.info("Switch User Failed")
     elif command == "signout":
-        plex_network.signout()
-        xbmc.executebuiltin("ReloadSkin()")
+        ret = xbmcgui.Dialog().yesno("myplex","You are currently signed into myPlex. Are you sure you want to sign out?")
+        if ret:
+            plex_network.signout()
+            xbmc.executebuiltin("ReloadSkin()")
 
     elif command == "signin":
         import plex_signin
@@ -4135,7 +4137,7 @@ def start_plexbmc():
         myaddon.set_authentication_target(plex_network)
         myaddon.start()
         del myaddon
-        
+
     else:
         plex_network.load()
         
