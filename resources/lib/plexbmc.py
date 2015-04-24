@@ -312,7 +312,7 @@ def displaySections( filter=None, display_shared=False ):
         return
                 
     #For each of the servers we have identified            
-    if __settings__.getSetting('myplex_user') != '':
+    if plex_network.is_myplex_signedin():
         addGUIItem('http://myplexqueue', {'title': 'myplex Queue'}, {'type': 'Video', 'mode': MODE_MYPLEXQUEUE})
 
     for server in server_list:
@@ -2784,7 +2784,7 @@ def skin( server_list=None, type=None ):
     printDebug.debug("Total number of servers is [%s]" % numOfServers)
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
-    if __settings__.getSetting('myplex_user') != '':
+    if plex_network.is_myplex_signedin():
         WINDOW.setProperty("plexbmc.queue" , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://myplexqueue&mode=24,return)")
         WINDOW.setProperty("plexbmc.myplex",  "1" )
     else:
@@ -2902,7 +2902,7 @@ def amberskin():
             sectionCount += 1
 
 
-    if __settings__.getSetting('myplex_user') != '' and hide_shared == 'true' and sharedCount != 0:
+    if plex_network.is_myplex_signedin() and hide_shared == 'true' and sharedCount != 0:
         WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared Content")
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
         WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % MODE_SHARED_ALL)
@@ -3008,7 +3008,7 @@ def amberskin():
     WINDOW.setProperty("plexbmc.sectionCount", str(sectionCount))
     WINDOW.setProperty("plexbmc.numServers", str(numOfServers))
 
-    if __settings__.getSetting('myplex_user') != '':
+    if plex_network.is_myplex_signedin():
         WINDOW.setProperty("plexbmc.queue" , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=http://myplexqueue&mode=24,return)")
         WINDOW.setProperty("plexbmc.myplex",  "1" )
 
@@ -3756,7 +3756,7 @@ def clearQueueShelf (queueCount=0):
 def myPlexQueue():
     printDebug.debug("== ENTER ==")
 
-    if __settings__.getSetting('myplex_user') == '':
+    if not plex_network.is_myplex_signedin():
         xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")
         return
 
