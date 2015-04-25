@@ -104,4 +104,5 @@
 	<string id="30101">Transcoder</string>
 	<string id="30102">Name</string>
 	<string id="30103">Disable "All Episodes"</string>
+	<string id="30104">Enable KODI view cache</string>
 </strings>

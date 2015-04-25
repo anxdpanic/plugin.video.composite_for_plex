@@ -308,7 +308,7 @@ def displaySections( filter=None, display_shared=False ):
             addGUIItem(section_url, details,extraData, context)
 
     if display_shared:
-        xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
+        xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
         return
                 
     #For each of the servers we have identified            
@@ -373,7 +373,7 @@ def displaySections( filter=None, display_shared=False ):
         u="cmd:signintemp"
         addGUIItem(u,details,extraData)
 
-    if __settings__.getSetting("cache") == "true":
+    if settings.get_setting('cache'):
         details = {'title' : "Refresh Data"}
         extraData = {}
         extraData['type']="file"
@@ -385,7 +385,7 @@ def displaySections( filter=None, display_shared=False ):
 
 
     #All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=False)
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 def enforceSkinView(mode):
 
@@ -661,7 +661,7 @@ def TVShows( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 def TVSeasons( url ):
     printDebug.debug("== ENTER ==")
@@ -751,7 +751,7 @@ def TVSeasons( url ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def TVEpisodes( url, tree=None ):
     printDebug.debug("== ENTER ==")
@@ -900,7 +900,7 @@ def TVEpisodes( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def getAudioSubtitlesMedia( server, tree, full=False ):
     '''
@@ -1681,7 +1681,7 @@ def processDirectory( url, tree=None ):
 
         addGUIItem(u, details, extraData)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 def getMasterServer(all=False):
     printDebug.debug("== ENTER ==")
@@ -1759,7 +1759,7 @@ def artist( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def albums( url, tree=None ):
     printDebug.debug("== ENTER ==")
@@ -1806,7 +1806,7 @@ def albums( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def tracks( url,tree=None ):
     printDebug.debug("== ENTER ==")
@@ -1840,7 +1840,7 @@ def tracks( url,tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def getXML (url, tree=None):
     printDebug.debug("== ENTER ==")
@@ -1935,7 +1935,7 @@ def PlexPlugins(url, tree=None):
             addGUIItem(url, details, extraData)
 
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def channelSettings ( url, settingID ):
     '''
@@ -2064,7 +2064,7 @@ def processXML( url, tree=None ):
             TVEpisodes(url, tree)
             return
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def movieTag(url, server, tree, movie, randomNumber):
 
@@ -2283,7 +2283,7 @@ def photo( url,tree=None ):
 
             addGUIItem(u,details,extraData,folder=False)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def music( url, tree=None ):
     printDebug.debug("== ENTER ==")
@@ -2355,7 +2355,7 @@ def music( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def getThumb(data, server, width=720, height=720):
     '''
@@ -2516,7 +2516,7 @@ def plexOnline( url ):
         
         addGUIItem(u, details, extraData)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def install( url, name ):
     printDebug.debug("== ENTER ==")
@@ -2605,7 +2605,7 @@ def channelView( url ):
 
         addGUIItem(p_url,details,extraData)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def skin( server_list=None, type=None ):
     #Gather some data and set the window properties
@@ -4014,7 +4014,7 @@ def displayServers( url ):
 
         addGUIItem(s_url, details, extraData )
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=True)
+    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 def switch_user():
     #Get listof users
