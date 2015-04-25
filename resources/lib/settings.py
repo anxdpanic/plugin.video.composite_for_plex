@@ -72,11 +72,3 @@ class addonSettings:
     def update_master_server(self, value):
         print "Updating master server to%s" % value
         self.settings.setSetting('masterServer','%s' % value)
-        
-    def signout(self):
-        self.settings.setSettings('myplex_signedin','false')
-    def signin(self):
-        self.settings.setSettings('myplex_signedin','true')
-    
-    def is_signedin(self):
-        return self.myplex_signedin
