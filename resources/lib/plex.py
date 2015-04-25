@@ -54,8 +54,6 @@ class Plex:
                                 'plexhome_enabled'    : False,
                                 'myplex_user_cache'   : '',
                                 'plexhome_user_cache' : '' }
-        settings.set_setting('myplex_user','')
-        settings.set_setting('myplex_pass','')
         self.delete_cache(True)
         printDebug.info("Signed out from myPlex")
 
@@ -107,8 +105,6 @@ class Plex:
                         printDebug.debug("Setting PlexHome disabled.")
 
                     token = xml.findtext('authentication-token')
-                    settings.update_token(token)
-                    settings.set_setting('myplex_user', username)
                     self.plexhome_settings['myplex_user_cache']="%s|%s" % ( username , token)
                     self.plexhome_settings['myplex_signedin']=True
                     self.save_tokencache()
@@ -459,8 +455,6 @@ class Plex:
                     printDebug.debug("Setting PlexHome disabled.")
 
                 token = xml.findtext('authentication-token')
-                settings.update_token(token)
-                settings.set_setting('myplex_user', username)
                 self.plexhome_settings['myplex_user_cache']="%s|%s" % ( username , token)
                 self.plexhome_settings['myplex_signedin']=True
                 self.save_tokencache()
