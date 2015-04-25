@@ -351,15 +351,28 @@ def displaySections( filter=None, display_shared=False ):
 
         u="%s/playlists" % server.get_url_location()            
         addGUIItem(u,details,extraData)
-        
-    if plex_network.is_plexhome_enabled():
-        details = {'title' : "Switch User"}
-        extraData = {}
-        extraData['type']="file"
+    
+    if plex_network.is_myplex_signedin():
+    
+        if plex_network.is_plexhome_enabled():
+            details = {'title' : "Switch User"}
+            extraData = {'type' : 'file'}
 
-        u="cmd:switchuser"
-        addGUIItem(u,details,extraData)
+            u="cmd:switchuser"
+            addGUIItem(u,details,extraData)
         
+        details = {'title' : "Sign Out"}
+        extraData = {'type' : 'file'}
+
+        u="cmd:signout"
+        addGUIItem(u,details,extraData)
+    else:
+        details = {'title' : "Sign In"}
+        extraData = {'type' : 'file'}
+
+        u="cmd:signintemp"
+        addGUIItem(u,details,extraData)
+
     if __settings__.getSetting("cache") == "true":
         details = {'title' : "Refresh Data"}
         extraData = {}
@@ -4125,6 +4138,7 @@ def start_plexbmc():
                 xbmc.executebuiltin("Container.Refresh")
         else:
             printDebug.info("Switch User Failed")
+            
     elif command == "signout":
         ret = xbmcgui.Dialog().yesno("myplex","You are currently signed into myPlex. Are you sure you want to sign out?")
         if ret:
@@ -4133,11 +4147,15 @@ def start_plexbmc():
 
     elif command == "signin":
         import plex_signin
-        myaddon = plex_signin.plex_signin('Myplex Login')
-        myaddon.set_authentication_target(plex_network)
-        myaddon.start()
-        del myaddon
+        signin_window = plex_signin.plex_signin('Myplex Login')
+        signin_window.set_authentication_target(plex_network)
+        signin_window.start()
+        del signin_window
 
+    elif command == "signintemp":
+        #Awful hack to get around running a script from a listitem..
+        xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signin)')       
+        
     else:
         plex_network.load()
         
