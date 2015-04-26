@@ -9,22 +9,22 @@ import re
 class printDebug:
 
     def __init__(self, main, sub=None):
-    
+
         self.main=main
         if sub:
             self.sub="."+sub
         else:
             self.sub=''
-            
+
         self.level=settings.get_debug()
-        
+
         self.DEBUG_OFF=0
         self.DEBUG_INFO=1
         self.DEBUG_DEBUG=2
         self.DEBUG_DEBUGPLUS=3
         self.token_regex=re.compile('-Token=[a-z|0-9].*[&|$]')
         self.ip_regex=re.compile('\.\d{1,3}\.\d{1,3}\.')        
-        
+
         self.DEBUG_MAP={ self.DEBUG_OFF       : "off",
                          self.DEBUG_INFO      : "info",
                          self.DEBUG_DEBUG     : "debug",
@@ -35,26 +35,26 @@ class printDebug:
 
     def error(self,message):
         return self.__printDebug(message, 0)        
-        
+
     def info(self, message):
         return self.__printDebug(message, 1)
-    
+
     def debug(self, message):
         return self.__printDebug(message, 2)
-    
+
     def dev(self, message):
         return self.__printDebug(message, 3)
-        
+
     def debugplus(self, message):
         return self.__printDebug(message, 3)
-  
+
     def __printDebug( self, msg, level=1 ):
         if self.level >= level :
             #msg=self.token_regex.sub("-Token=XXXXXXXXXX&", str(msg))
             #msg=self.ip_regex.sub(".X.X.", msg)
             print "%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg)
         return
-            
+
     def __call__(self, msg, level=1):
         return self.__printDebug(msg, level)
 
@@ -99,7 +99,7 @@ def setup_python_locations():
     setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
     sys.path.append(setup['__resources__'])
     return setup                
- 
+
 def is_ip(address):
     '''from http://www.seanelavelle.com/2012/04/16/checking-for-a-valid-ip-in-python/'''
     try:
@@ -109,7 +109,7 @@ def is_ip(address):
         ip = False
 
     return ip
- 
+
 GLOBAL_SETUP=setup_python_locations()
 GLOBAL_SETUP['platform']=get_platform()
 GENERIC_THUMBNAIL = "%s/resource/thumb.png" % GLOBAL_SETUP['__cwd__']
@@ -153,4 +153,3 @@ MODE_PLAYLISTS=30
 SUB_AUDIO_XBMC_CONTROL="0"
 SUB_AUDIO_PLEX_CONTROL="1"
 SUB_AUDIO_NEVER_SHOW="2"
-

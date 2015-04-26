@@ -15,15 +15,15 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
-    
+
 from common import *
-    
+
 printDebug=printDebug("PleXBMC", "cachecontrol")    
-    
+
 class CacheControl:
 
     def __init__(self, cache_location, enabled=True):
-    
+
         self.cache_location=cache_location        
         self.enabled=enabled
 
@@ -31,7 +31,7 @@ class CacheControl:
 
             if self.cache_location[-1] != "/":
                 self.cache_location+="/"
-        
+
             if not xbmcvfs.exists(self.cache_location): 
                 printDebug.debug("CACHE [%s]: Location does not exist.  Creating" % self.cache_location)
                 if not xbmcvfs.mkdirs(self.cache_location):
@@ -40,11 +40,10 @@ class CacheControl:
                     return
             printDebug.debug("Running with cache location: %s" % self.cache_location)
 
-
         else:
             self.cache_location=None
             printDebug.debug("Cache is disabled")
-                
+
     def readCache(self, cache_name):
         if self.cache_location is None:
             return (False, None)
@@ -56,7 +55,7 @@ class CacheControl:
             cache.close()
         except Exception, e:
             printDebug.debug("CACHE [%s]: read error [%s]" % ( cache_name, e))
-        
+
         if cachedata:
             printDebug.debug("CACHE [%s]: read" % cache_name)
             printDebug.debugplus("CACHE [%s]: data: [%s]" % ( cache_name, cachedata))
@@ -78,8 +77,7 @@ class CacheControl:
             cache.close()
         except Exception, e:
             printDebug.debug("CACHE [%s]: Writing error [%s]" % (self.cache_location+cache_name, e))
-            
-            
+
         return True
 
     def checkCache(self,cache_name, life=3600):
@@ -95,7 +93,7 @@ class CacheControl:
 
             if ( modified < 0) or ( now - modified ) > life:
                 printDebug.debug("CACHE [%s]: too old, delete" % cache_name)
-                
+
                 if xbmcvfs.delete(self.cache_location+cache_name):
                     printDebug.debug("CACHE [%s]: deleted" % cache_name)
                 else:
@@ -108,7 +106,7 @@ class CacheControl:
             printDebug.debug("CACHE [%s]: does not exist" % cache_name)
 
         return (False, None)
-        
+
     def deleteCache(self, force=False):
         printDebug.debug("== ENTER: deleteCache ==")
         cache_suffix = ".cache"
@@ -117,7 +115,7 @@ class CacheControl:
 
         printDebug.debug("List of file: [%s]" % file_list)
         printDebug.debug("List of dirs: [%s]" % dirs)
-        
+
         for file in file_list:
 
             if force and persistant_cache_suffix in file:
@@ -129,4 +127,3 @@ class CacheControl:
                 printDebug.debug("SUCCESSFUL: removed %s" % file)
             else:
                 printDebug.debug("UNSUCESSFUL: did not remove %s" % file )
-        

@@ -24,16 +24,16 @@ class plex_signin(pyxbmct.AddonFullWindow):
     def start(self):
         self.display_pin()
         self.doModal()
-        
+
     def set_authentication_target(self, plex_network):
         self.plex_network = plex_network
-        
+
     def set_controls(self):
         """Set up UI controls"""
         # Description Text
         self.description = pyxbmct.TextBox()
         self.placeControl(self.description, 1 , 1 , columnspan=4)
-        
+
         #Username label
         self.name_label = pyxbmct.Label('Username:')
         self.placeControl(self.name_label, 2, 1)
@@ -53,7 +53,7 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.placeControl(self.cancel_button,5, 1)
         # Cancel button closes window
         self.connect(self.cancel_button, self.close)
-        
+
         # Submit button
         self.submit_button = pyxbmct.Button('Submit')
         self.placeControl(self.submit_button, 5, 4)
@@ -76,7 +76,7 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.connect(self.manual_button, lambda: self.display_manual())
         self.connect(self.pin_button, lambda: self.display_pin())
         self.connect(self.submit_pin_button, lambda: self.submit_pin())
-        
+
         # set up failure message
         self.error_cross = pyxbmct.Image("%s/resources/media/error.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
         self.placeControl(self.error_cross, 4 , 2 )
@@ -84,17 +84,17 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.placeControl(self.error_message, 4 , 3 , columnspan=2, rowspan=2)
         self.error_cross.setVisible(False)
         self.error_message.setVisible(False)
- 
+
         self.digit_one = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
         self.digit_two = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
         self.digit_three = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
         self.digit_four = pyxbmct.Image("%s/resources/media/-.png" % GLOBAL_SETUP['__cwd__'], aspectRatio=2)
-        
+
         self.placeControl(self.digit_one, 3, 1)
         self.placeControl(self.digit_two, 3, 2)
         self.placeControl(self.digit_three, 3, 3)
         self.placeControl(self.digit_four, 3, 4)
- 
+
     def display_failure(self,state=True):
         if state:
             self.error_cross.setVisible(True)
@@ -102,7 +102,7 @@ class plex_signin(pyxbmct.AddonFullWindow):
         else:
             self.error_cross.setVisible(False)
             self.error_message.setVisible(False)
-        
+
     def display_pin(self, failure=False):
         if failure:
             self.display_failure()
@@ -121,9 +121,9 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.cancel_button.setNavigation(self.submit_pin_button, self.manual_button, self.manual_button, self.submit_pin_button )
         self.submit_pin_button.setNavigation(self.manual_button, self.cancel_button, self.cancel_button, self.manual_button)
         self.manual_button.setNavigation(self.cancel_button, self.submit_pin_button, self.submit_pin_button, self.cancel_button)
-        
+
         self.data = self.plex_network.get_signin_pin()
-        
+
         digits = self.data['code']
         self.identifier= self.data['id']
         self.digit_one.setVisible(True)
@@ -135,9 +135,9 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.digit_two.setImage("%s/resources/media/%s.png" % (GLOBAL_SETUP['__cwd__'], digits[1].lower()))
         self.digit_three.setImage("%s/resources/media/%s.png" % (GLOBAL_SETUP['__cwd__'], digits[2].lower()))
         self.digit_four.setImage("%s/resources/media/%s.png" % (GLOBAL_SETUP['__cwd__'], digits[3].lower()))
-        
+
         self.setFocus(self.submit_pin_button)
-        
+
     def display_manual(self, failure=False):
         self.description.setText('Please enter your myplex details below')
         self.name_label.setVisible(True)
@@ -161,10 +161,10 @@ class plex_signin(pyxbmct.AddonFullWindow):
             self.display_failure()
         else:
             self.display_failure(False)
-            
+
     def submit(self):
         token = self.plex_network.sign_into_myplex(self.name_field.getText(), self.password_field.getText())
-        
+
         if token is not None:
             self.name_label.setVisible(False)
             self.password_label.setVisible(False)
@@ -180,9 +180,9 @@ class plex_signin(pyxbmct.AddonFullWindow):
 
             self.description.setText('Successfully Signed In')
             xbmc.sleep(2000)
-            
+
             printDebug("Successfully signed in")
-            
+
             self.close()
         else:
             printDebug("Not Successful signed in")
@@ -190,7 +190,7 @@ class plex_signin(pyxbmct.AddonFullWindow):
 
     def submit_pin(self):
         result = self.plex_network.check_signin_status(self.identifier)
-        
+
         if result:
             self.digit_one.setVisible(False)
             self.digit_two.setVisible(False)
@@ -207,14 +207,14 @@ class plex_signin(pyxbmct.AddonFullWindow):
 
             self.description.setText('Successfully Signed In')
             xbmc.sleep(2000)
-            
+
             printDebug("Successfully signed in")
-            
+
             self.close()
         else:
             printDebug("Not Successful signed in")
             self.display_pin(True)
-            
+
     def set_navigation(self):
         """Set up keyboard/remote navigation between controls."""
         self.name_field.controlUp(self.submit_button)
@@ -245,26 +245,26 @@ class plex_manage(pyxbmct.AddonFullWindow):
 
     def gather_plex_information(self):
         user = self.plex_network.get_myplex_information()
-        
+
         self.name_field.setText(user['username'])
         self.email_field.setText(user['email'])
         self.plexpass_field.setText(user['plexpass'])
         self.membersince_field.setText(user['membersince'])
         self.thumb.setImage(user['thumb'])
-        
+
     def set_authentication_target(self, plex_network):
         self.plex_network = plex_network
-        
+
     def set_controls(self):
         """Set up UI controls"""
         # Description Text
         self.description = pyxbmct.TextBox()
         self.placeControl(self.description, 2 , 0 , columnspan=4)
-        
+
         #Username label
         self.name_label = pyxbmct.Label('Username:')
         self.placeControl(self.name_label, 1, 1)
-        
+
         #username text box
         self.name_field = pyxbmct.TextBox()
         self.placeControl(self.name_field, 1, 2, columnspan=2)
@@ -293,12 +293,12 @@ class plex_manage(pyxbmct.AddonFullWindow):
         #Membersince text box
         self.membersince_field = pyxbmct.TextBox()
         self.placeControl(self.membersince_field, 4, 2, columnspan=2)
-        
+
         # Cancel button
         self.cancel_button = pyxbmct.Button('Exit')
         self.placeControl(self.cancel_button,5, 1)
         # Cancel button closes window
-        
+
         # Switch button
         self.switch_button = pyxbmct.Button('Switch User')
         self.placeControl(self.switch_button, 5, 2, columnspan=2)
@@ -311,19 +311,18 @@ class plex_manage(pyxbmct.AddonFullWindow):
         self.connect(self.cancel_button, self.close)
         self.connect(self.switch_button, lambda: self.switch())
         self.connect(self.signout_button, lambda: self.signout())
-                        
+
     def switch(self):
         xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, switchuser)')
         self.close()
-        
+
     def signout(self):
         xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signout)')
         if not self.plex_network.is_myplex_signedin():
             self.close()
-        
+
     def set_navigation(self):
         """Set up keyboard/remote navigation between controls."""
         self.cancel_button.setNavigation(self.switch_button, self.signout_button, self.signout_button, self.switch_button)
         self.switch_button.setNavigation(self.signout_button, self.cancel_button, self.cancel_button, self.signout_button)
         self.signout_button.setNavigation(self.cancel_button, self.switch_button, self.switch_button, self.cancel_button)
-        

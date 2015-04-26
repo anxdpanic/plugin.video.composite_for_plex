@@ -17,7 +17,7 @@ DEFAULT_PORT="32400"
 class Plex:
 
     def __init__(self, load=False):
-    
+
         # Provide an interface into Plex 
         self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", settings.get_setting('cache'))
         self.myplex_server='https://plex.tv'
@@ -39,7 +39,7 @@ class Plex:
         self.setup_user_token()
         if load:
             self.load()    
-            
+
     def is_plexhome_enabled(self):
         return self.plexhome_settings['plexhome_enabled']
 
@@ -48,7 +48,7 @@ class Plex:
 
     def get_myplex_user(self):
         return self.effective_user
-            
+
     def signout(self):
         self.plexhome_settings={'myplex_signedin'     : False,
                                 'plexhome_enabled'    : False,
@@ -65,15 +65,15 @@ class Plex:
             identifier=xml.find('id').text
         except:
             code = None
-        
+
         if code is None:
             printDebug("Error, no code provided")
             code = "----"
             identifier="error"
-            
+
         printDebug.debug("code is: %s" % code)
         printDebug.debug("id   is: %s" % identifier)
-        
+
         return { 'id'   : identifier ,
                  'code' : list(code) }
 
@@ -86,9 +86,9 @@ class Plex:
 
         if temp_token:
             response = requests.get("%s/users/account?X-Plex-Token=%s" % ( self.myplex_server, temp_token), headers=self.plex_identification())
-            
+
             printDebug.debug("Status Code: %s" % response.status_code)
-            
+
             if response.status_code == 200:
                 try:
                     printDebug.debugplus(response.text.encode('utf-8'))
@@ -96,7 +96,7 @@ class Plex:
                     xml=etree.fromstring(response.text.encode('utf-8'))
                     home=xml.get('home','0')
                     username=xml.get('username','')
-                    
+
                     if home == '1':
                         self.plexhome_settings['plexhome_enabled']=True
                         printDebug.debug("Setting PlexHome enabled.")
@@ -117,7 +117,7 @@ class Plex:
     def load(self):
         printDebug.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
-        
+
         if data_ok:
             if not self.check_server_version():
                 printDebug.info("Refreshing for new versions")
@@ -132,7 +132,7 @@ class Plex:
             self.server_list={}
             if not self.discover():
                 self.server_list={}
-        
+
         printDebug.debug("Server list is now: %s" % self.server_list)
 
     def setup_user_token(self):
@@ -162,7 +162,7 @@ class Plex:
         printDebug.info("effective userid: %s" % self.effective_user)
 
         self.save_tokencache()
-        
+
     def load_tokencache(self):
 
         data_ok, token_cache = self.cache.readCache(self.plexhome_cache)
@@ -177,7 +177,7 @@ class Plex:
                     raise
                 if not isinstance(token_cache['plexhome_user_cache'], basestring):
                     raise
-                
+
                 self.plexhome_settings = token_cache
                 printDebug("plexhome_cache data loaded successfully")
             except:
@@ -187,7 +187,7 @@ class Plex:
 
     def save_tokencache(self):
         self.cache.writeCache(self.plexhome_cache,self.plexhome_settings)
-            
+
     def check_server_version(self):
         for uuid, servers in self.server_list.iteritems():
             try:
@@ -203,24 +203,24 @@ class Plex:
 
         if self.effective_user is None:
             return True
-    
+
         for uuid, servers in self.server_list.iteritems():
             if not servers.get_user() == self.effective_user:
                 printDebug.debug("authorized user mismatch")
                 return False
         return True
-    
+
     def discover(self):
         self.discover_all_servers()
-        
+
         if self.server_list:
             self.discovered=True
-            
+
         return self.discovered    
-         
+
     def get_server_list(self):
         return self.server_list.values()
-            
+
     def plex_identification(self):
         header = {'X-Plex-Device'            : 'PleXBMC' ,
                   'X-Plex-Client-Platform'   : 'KODI' ,
@@ -235,11 +235,11 @@ class Plex:
                   'X-Plex-Provides'          : "player"}
         if self.effective_token is not None:
             header['X-Plex-Token'] = self.effective_token
-            
+
         return header
 
     def get_client_identifier(self):
-    
+
         if self.client_id is None:
             self.client_id = settings.get_setting('client_id')
 
@@ -248,12 +248,12 @@ class Plex:
                 settings.set_setting('client_id', self.client_id)
 
         return self.client_id
-                
+
     def talk_direct_to_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
         response = requests.get("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
-        
+
         printDebug.debug("URL was: %s" % response.url)
-        
+
         if response.status_code == requests.codes.ok:
             printDebug.debugplus("===XML===\n%s\n===XML===" % response.text)
             return response.text
@@ -261,7 +261,7 @@ class Plex:
     def get_processed_myplex_xml(self, url):
         data = self.talk_to_myplex (url)
         return etree.fromstring(data)
-            
+
     def discover_all_servers(self):
         if self.is_myplex_signedin():
             printDebug.info( "PleXBMC -> Adding myplex as a server location")
@@ -271,7 +271,6 @@ class Plex:
             if self.server_list:
                 printDebug.info("MyPlex discovery completed")
 
-                
         if settings.get_setting('discovery') == "1":
             printDebug.info("local GDM discovery setting enabled.")
             printDebug.info("Attempting GDM lookup on multicast")
@@ -289,7 +288,7 @@ class Plex:
             else:   
                 if gdm_client.discovery_complete and gdm_server_name :
                     printDebug.info("GDM discovery completed")
-                    
+
                     for device in gdm_server_name:
                         new_server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='local', uuid=device['uuid'])
                         new_server.set_user(self.effective_user)
@@ -298,7 +297,7 @@ class Plex:
                         self.merge_servers(new_server)
                 else:
                     printDebug.info("GDM was not able to discover any servers")
-                    
+
         #Set to Disabled
         else:
             if settings.get_setting('ipaddress'):
@@ -311,10 +310,9 @@ class Plex:
                 local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local')
                 local_server.set_user(self.effective_user)
                 local_server.set_token(self.effective_token)
-                
+
                 self.merge_servers(local_server)
 
-                
         self.cache.writeCache(self.server_list_cache, self.server_list)
         printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
 
@@ -328,7 +326,7 @@ class Plex:
         if xml is False:
             return {}
         return xml
-        
+
     def get_myplex_servers(self):
         tempServers = {}
         xml = self.talk_to_myplex("/pms/servers")
@@ -340,7 +338,7 @@ class Plex:
 
         count = 0
         for server in server_list:
-        
+
             myplex_server=PlexMediaServer( name = server.get('name').encode('utf-8'),
                                            address = server.get('address') ,
                                            port = server.get('port'),
@@ -353,17 +351,17 @@ class Plex:
 
             if server.get('localAddresses') is not None:
                 myplex_server.add_local_address(server.get('localAddresses'))
-                
+
             myplex_server.set_user(self.effective_user)
-                
+
             tempServers[myplex_server.get_uuid()]=myplex_server
             printDebug.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
-            
+
         return tempServers
-                                           
+
     def merge_servers(self, server):
         printDebug.info("merging server with uuid %s" % server.get_uuid())
-        
+
         try:
             existing=self.get_server_from_uuid(server.get_uuid())
         except:
@@ -376,7 +374,7 @@ class Plex:
             existing.set_best_address(server.get_address())
             existing.refresh()
             self.server_list[existing.get_uuid()]=existing
-            
+
         return 
 
     def talk_to_myplex(self, path, renew=False, type='get'):
@@ -395,13 +393,13 @@ class Plex:
         except requests.exceptions.ReadTimeout, e:
             printDebug.info("myplex: read timeout for %s on %s " % (self.myplex_server, path))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
-        
+
         else:
-            
+
             printDebug.debugplus("Full URL was: %s" % response.url)
             printDebug.debugplus("Full header sent was: %s" % response.request.headers)
             printDebug.debugplus("Full header recieved was: %s" % response.headers)
-            
+
             if response.status_code == 401  and not ( renew ):
                 return self.talk_to_myplex(path,True)
 
@@ -417,18 +415,18 @@ class Plex:
                 printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
 
         return link        
-    
+
     def get_myplex_token(self,renew=False):
-    
+
         if self.plexhome_settings['myplex_signedin']:
             return { 'X-Plex-Token' : self.effective_token }
 
         printDebug.debug("Myplex not in use")
         return {}
-    
+
     def sign_into_myplex(self, username=None, password=None):
         printDebug.info("Getting New token")
-        
+
         if username is None:
             printDebug.info("No myplex details in provided..")
             return None
@@ -439,14 +437,14 @@ class Plex:
         myplex_headers={'Authorization': "Basic %s" % base64string}
 
         response = requests.post("%s/users/sign_in.xml" % self.myplex_server, headers=dict(self.plex_identification(), **myplex_headers))
-        
+
         if response.status_code == 201:
             try:
                 printDebug.debugplus(response.text.encode('utf-8'))
                 printDebug.info("Received new plex token")
                 xml=etree.fromstring(response.text.encode('utf-8'))
                 home=xml.get('home','0')
-                
+
                 if home == '1':
                     self.plexhome_settings['plexhome_enabled']=True
                     printDebug.debug("Setting PlexHome enabled.")
@@ -495,11 +493,11 @@ class Plex:
 
     def get_server_from_uuid(self, uuid):
         return self.server_list[uuid]
-        
+
     def get_processed_xml(self, url):
         url_parts = urlparse.urlparse(url)
         server = self.get_server_from_ip(url_parts.netloc)
-        
+
         if server:
             return server.processed_xml(url)
         return ''
@@ -507,11 +505,11 @@ class Plex:
     def talk_to_server(self, url):  
         url_parts = urlparse.urlparse(url)
         server = self.get_server_from_ip(url_parts.netloc)
-        
+
         if server:
             return server.raw_xml(url)
         return ''
-   
+
     def delete_cache(self, force=False):
         return self.cache.deleteCache(force)
 
@@ -519,7 +517,7 @@ class Plex:
 
         #<User id="X" admin="1" restricted="0" protected="1" title="" username="" email="X" thumb="http://www.gravatar.com/avatar/918266bcdee2b60c447c6bbe2e2460ca?d=https%3A%2F%2Fplex.tv%2Fusers%2Fid%2Favatar"/>
         #<User id="X" admin="0" restricted="1" protected="0" title="Kids" username="" email="" thumb="https://plex.tv/users/id/avatar"/>
-    
+
         data=etree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list=dict()
         for users in data:
@@ -548,17 +546,17 @@ class Plex:
             self.user_list[users.get('title')]=add
 
         return self.user_list        
-            
+
     def switch_plex_home_user(self,id,pin):
         #self.get_myplex_token()
         if pin is None:
             pin_arg="?X-Plex-Token=%s" % self.effective_token
         else:
             pin_arg="?pin=%s&X-Plex-Token=%s" % (pin,self.effective_token)
-            
+
         data = self.talk_to_myplex('/api/home/users/%s/switch%s' % (id, pin_arg), type='post')
         tree=etree.fromstring(data)
-        
+
         if tree.get('status') == "unauthorized":
             return (False, "Unauthorised")
         elif tree.get('status') == "error":
@@ -569,19 +567,19 @@ class Plex:
                 if id == users['id']:
                     username=users['title']
                     break
-                
+
             token=tree.findtext('authentication-token')
             self.plexhome_settings['plexhome_user_cache']="%s|%s" % (username,token)
             self.save_tokencache()
             return (True,None)
-        
+
         return (False, "Error")
-        
+
     def is_admin(self):
         if self.effective_user == self.myplex_user:
             return True
         return False
-        
+
     def get_myplex_information(self):
         data = self.talk_to_myplex('/users/account')
         xml = etree.fromstring(data)
@@ -590,15 +588,12 @@ class Plex:
         result['username'] = xml.get('username','unknown')
         result['email'] = xml.get('email','unknown')
         result['thumb'] = xml.get('thumb')
-        
+
         subscription = xml.find('subscription')
         result['plexpass'] = subscription.get('plan')
-        
+
         result['membersince'] = xml.find('joined-at').text
-        
+
         printDebug("Gathered information: %s" % result)
-        
+
         return result
-        
-        
-        
