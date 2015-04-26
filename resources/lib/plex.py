@@ -592,7 +592,8 @@ class Plex:
         subscription = xml.find('subscription')
         result['plexpass'] = subscription.get('plan')
 
-        result['membersince'] = xml.find('joined-at').text
+        date= xml.find('joined-at').text
+        result['membersince'] = date.split(' ')[0]
 
         printDebug("Gathered information: %s" % result)
 
