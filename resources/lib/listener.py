@@ -121,7 +121,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 printDebug("playMedia command -> fullurl: %s" % fullurl)
                 jsonrpc("playmedia", [fullurl, resume])
                 subMgr.lastkey = params['key']
-                subMgr.server = server
+                subMgr.server = server.get('server', 'localhost')
                 subMgr.port = port
                 subMgr.protocol = protocol
                 subMgr.notify()

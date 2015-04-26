@@ -11,6 +11,7 @@ class SubscriptionManager:
         self.subscribers = {}
         self.info = {}
         self.lastkey = ""
+        self.lastratingkey = ""
         self.volume = 0
         self.guid = ""
         self.server = ""
@@ -45,7 +46,7 @@ class SubscriptionManager:
         return msg
         
     def getTimelineXML(self, playerid, ptype):
-        if playerid > 0:
+        if playerid is not None:
             info = self.getPlayerProperties(playerid)
             # save this info off so the server update can use it too
             self.playerprops[playerid] = info;
@@ -55,12 +56,13 @@ class SubscriptionManager:
             state = "stopped"
             time = 0
         ret = "\r\n"+'<Timeline location="%s" state="%s" time="%s" type="%s"' % (self.mainlocation, state, time, ptype)
-        if playerid > 0:
+        if playerid is not None:
             WINDOW = xbmcgui.Window(10000)
             pbmc_server = str(WINDOW.getProperty('plexbmc.nowplaying.server'))
             keyid = str(WINDOW.getProperty('plexbmc.nowplaying.id'))
             if keyid:
                 self.lastkey = "/library/metadata/%s"%keyid
+                self.lastratingkey = keyid
                 if pbmc_server:
                     (self.server, self.port) = pbmc_server.split(':')
             serv = getServerByHost(self.server)
@@ -74,9 +76,7 @@ class SubscriptionManager:
             ret += ' guid="%s"' % info['guid']
             ret += ' containerKey="%s"' % (self.lastkey or "/library/metadata/900000")
             ret += ' key="%s"' % (self.lastkey or "/library/metadata/900000")
-            m = re.search(r'(\d+)$', self.lastkey)
-            if m:
-                ret += ' ratingKey="%s"' % m.group()
+            ret += ' ratingKey="%s"' % (self.lastratingkey or "900000")
             ret += ' volume="%s"' % info['volume']
             ret += ' shuffle="%s"' % info['shuffle']
         
@@ -108,14 +108,12 @@ class SubscriptionManager:
             params = {}
             params['containerKey'] = (self.lastkey or "/library/metadata/900000")
             params['key'] = (self.lastkey or "/library/metadata/900000")
-            m = re.search(r'(\d+)$', self.lastkey)
-            if m:
-                params['ratingKey'] = m.group()
+            params['ratingKey'] = (self.lastratingkey or "900000")
             params['state'] = info['state']
             params['time'] = info['time']
             params['duration'] = info['duration']
         serv = getServerByHost(self.server)
-        requests.getwithparams(self.server, self.port, "/:/timeline", params, getPlexHeaders(), serv.get('protocol', 'http'))
+        requests.getwithparams(serv.get('server', 'localhost'), serv.get('port', 32400), "/:/timeline", params, getPlexHeaders(), serv.get('protocol', 'http'))
         printDebug("sent server notification with state = %s" % params['state'])
         WINDOW = xbmcgui.Window(10000)
         WINDOW.setProperty('plexbmc.nowplaying.sent', '1')

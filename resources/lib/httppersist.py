@@ -13,6 +13,7 @@ class RequestMgr:
                 conn = httplib.HTTPSConnection(host, port)
             else:
                 conn = httplib.HTTPConnection(host, port)
+            self.conns[protocol+host+str(port)] = conn
         return conn
         
     def closeConnection(self, protocol, host, port):

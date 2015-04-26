@@ -57,13 +57,9 @@ print "PleXBMC Helper -> running Version: " + __version__
 print "PleXBMC Helper -> Platform: " + getPlatform()
 print "PleXBMC Helper -> UUID: " + settings['uuid']
 
-# this doesn't seem to work on the login screen, so I'm just going to skip it for now
-#settings['plexbmc_version'] = jsonrpc("Addons.GetAddonDetails", {"addonid" : "plugin.video.plexbmc", "properties" : ["version"]}).get('addon',{}).get('version', False)
-#if not settings['plexbmc_version']:
-#    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
-#else:
-if 1:
-
+if not settings.get('plexbmc_version', False):
+    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
+else:
     # Start GDM for server/client discovery
     client=plexgdm.plexgdm(debug=settings['gdm_debug'])
     client.clientDetails(settings['uuid'], settings['client_name'], settings['myport'], "PleXBMC" , settings.get('plexbmc_version', '1.0'))
@@ -117,9 +113,8 @@ if 1:
                     subMgr.notify()
                 settings['serverList'] = client.getServerList()
             except:
-                printDebug("Error in loop")
+                printDebug("Error in loop, continuing anyway")
                 print traceback.print_exc()
-                break
         
         try:
             httpd.socket.shutdown(socket.SHUT_RDWR)

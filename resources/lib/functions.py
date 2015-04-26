@@ -1,9 +1,11 @@
+import base64
 import inspect
 import json
 import string
 import traceback
 import xbmc
 from settings import settings
+from httppersist import requests
 
 def xbmc_photo():
     return "photo"
@@ -83,21 +85,34 @@ def jsonrpc(action, arguments = {}):
                              "jsonrpc" : "2.0",
                              "method"  : action})
     
-    printDebug("Sending request to XBMC: %s" % request)
-    jsonraw = xbmc.executeJSONRPC(request)
-                
-    """ parse the request """
+    printDebug("Sending request to XBMC without network stack: %s" % request)
+    result = parseJSONRPC(xbmc.executeJSONRPC(request))
+
+    if not result and settings['webserver_enabled']:
+        # xbmc.executeJSONRPC appears to fail on the login screen, but going
+        # through the network stack works, so let's try the request again
+        result = parseJSONRPC(requests.post(
+            "127.0.0.1",
+            settings['port'],
+            "/jsonrpc",
+            request,
+            { 'Content-Type' : 'application/json',
+              'Authorization' : 'Basic ' + string.strip(base64.encodestring(settings['user'] + ':' + settings['passwd'])) }))
+
+    return result
+
+
+
+def parseJSONRPC(jsonraw):
     if not jsonraw:
         printDebug("Empty response from XBMC")
-        return False
+        return {}
     else:
         printDebug("Response from XBMC: %s" % jsonraw)
         parsed=json.loads(jsonraw)
-        
     if parsed.get('error', False):
-        print "XBMC returned an error: %s" % parsed.get('error')                
-
-    return parsed.get('result', False)
+        print "XBMC returned an error: %s" % parsed.get('error')
+    return parsed.get('result', {})
 
 def getXMLHeader():
     return '<?xml version="1.0" encoding="utf-8"?>'+"\r\n"
@@ -148,17 +163,17 @@ def getPlayerIds():
 def getVideoPlayerId(players = False):
     if players is None:
         players = getPlayers()
-    return players.get(xbmc_video(), {}).get('playerid', 0)
+    return players.get(xbmc_video(), {}).get('playerid', None)
 
 def getAudioPlayerId(players = False):
     if players is None:
         players = getPlayers()
-    return players.get(xbmc_audio(), {}).get('playerid', 0)
+    return players.get(xbmc_audio(), {}).get('playerid', None)
 
 def getPhotoPlayerId(players = False):
     if players is None:
         players = getPlayers()
-    return players.get(xbmc_photo(), {}).get('playerid', 0)
+    return players.get(xbmc_photo(), {}).get('playerid', None)
     
 def getVolume():
     return str(jsonrpc('Application.GetProperties', { "properties": [ "volume" ] }).get('volume', 100))
