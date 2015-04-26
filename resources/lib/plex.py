@@ -571,9 +571,34 @@ class Plex:
                     break
                 
             token=tree.findtext('authentication-token')
-            settings.update_plexhome_token(username,token)
             self.plexhome_settings['plexhome_user_cache']="%s|%s" % (username,token)
             self.save_tokencache()
             return (True,None)
         
         return (False, "Error")
+        
+    def is_admin(self):
+        if self.effective_user == self.myplex_user:
+            return True
+        return False
+        
+    def get_myplex_information(self):
+        data = self.talk_to_myplex('/users/account')
+        xml = etree.fromstring(data)
+
+        result=dict()
+        result['username'] = xml.get('username','unknown')
+        result['email'] = xml.get('email','unknown')
+        result['thumb'] = xml.get('thumb')
+        
+        subscription = xml.find('subscription')
+        result['plexpass'] = subscription.get('plan')
+        
+        result['membersince'] = xml.find('joined-at').text
+        
+        printDebug("Gathered information: %s" % result)
+        
+        return result
+        
+        
+        

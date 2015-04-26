@@ -4155,7 +4155,25 @@ def start_plexbmc():
     elif command == "signintemp":
         #Awful hack to get around running a script from a listitem..
         xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signin)')       
-        
+
+    elif command == "managemyplex":
+    
+        if not plex_network.is_myplex_signedin():
+            ret = xbmcgui.Dialog().yesno("Manage myplex","You are not currently logged into myplex.  Please continue to sign in, or cancel to return")
+            if ret:
+                xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signin)')       
+            else:
+                return
+            
+        elif not plex_network.is_admin():
+            return xbmcgui.Dialog().ok("Manage myplex","To access these screens you must be logged in as an admin user.  Please switch user and try again")
+            
+        import plex_signin
+        manage_window = plex_signin.plex_manage('Manage myplex')
+        manage_window.set_authentication_target(plex_network)
+        manage_window.start()
+        del manage_window
+    
     else:
         plex_network.load()
         

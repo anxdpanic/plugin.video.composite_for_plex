@@ -222,3 +222,108 @@ class plex_signin(pyxbmct.AddonFullWindow):
         self.password_field.controlUp(self.name_field)
         self.password_field.controlDown(self.submit_button)
         # Set initial focus.
+
+class plex_manage(pyxbmct.AddonFullWindow):
+    def __init__(self, title=''):
+        """Class constructor"""
+        # Call the base class' constructor.
+        super(plex_manage, self).__init__(title)
+        # Set width, height and the grid parameters
+        self.setGeometry(600, 400, 6, 6)
+        # Call set controls method
+        self.set_controls()
+        # Call set navigation method.
+        self.set_navigation()
+        # Connect Backspace button to close our addon.
+        self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
+        self.plex_network=None
+
+    def start(self):
+        self.gather_plex_information()
+        self.setFocus(self.cancel_button)
+        self.doModal()
+
+    def gather_plex_information(self):
+        user = self.plex_network.get_myplex_information()
+        
+        self.name_field.setText(user['username'])
+        self.email_field.setText(user['email'])
+        self.plexpass_field.setText(user['plexpass'])
+        self.membersince_field.setText(user['membersince'])
+        self.thumb.setImage(user['thumb'])
+        
+    def set_authentication_target(self, plex_network):
+        self.plex_network = plex_network
+        
+    def set_controls(self):
+        """Set up UI controls"""
+        # Description Text
+        self.description = pyxbmct.TextBox()
+        self.placeControl(self.description, 2 , 0 , columnspan=4)
+        
+        #Username label
+        self.name_label = pyxbmct.Label('Username:')
+        self.placeControl(self.name_label, 1, 1)
+        
+        #username text box
+        self.name_field = pyxbmct.TextBox()
+        self.placeControl(self.name_field, 1, 2, columnspan=2)
+
+        #thumb label
+        self.thumb = pyxbmct.Image('', aspectRatio=2)
+        self.placeControl(self.thumb, 1, 4)
+
+        #Email Label
+        self.email_label = pyxbmct.Label('Email:')
+        self.placeControl(self.email_label, 2, 1)
+        #Email text box
+        self.email_field = pyxbmct.TextBox()
+        self.placeControl(self.email_field, 2, 2, columnspan=2)
+
+        #plexpass Label
+        self.plexpass_label = pyxbmct.Label('Plexpass:')
+        self.placeControl(self.plexpass_label, 3, 1)
+        #Password entry box
+        self.plexpass_field = pyxbmct.TextBox()
+        self.placeControl(self.plexpass_field, 3, 2, columnspan=2)
+
+        #membersince Label
+        self.membersince_label = pyxbmct.Label('Joined:')
+        self.placeControl(self.membersince_label, 4, 1)
+        #Membersince text box
+        self.membersince_field = pyxbmct.TextBox()
+        self.placeControl(self.membersince_field, 4, 2, columnspan=2)
+        
+        # Cancel button
+        self.cancel_button = pyxbmct.Button('Exit')
+        self.placeControl(self.cancel_button,5, 1)
+        # Cancel button closes window
+        
+        # Switch button
+        self.switch_button = pyxbmct.Button('Switch User')
+        self.placeControl(self.switch_button, 5, 2, columnspan=2)
+
+        # Signout button
+        self.signout_button = pyxbmct.Button('Sign out')
+        self.placeControl(self.signout_button, 5, 4)
+
+        # Submit button to get token
+        self.connect(self.cancel_button, self.close)
+        self.connect(self.switch_button, lambda: self.switch())
+        self.connect(self.signout_button, lambda: self.signout())
+                        
+    def switch(self):
+        xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, switchuser)')
+        self.close()
+        
+    def signout(self):
+        xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signout)')
+        if not self.plex_network.is_myplex_signedin():
+            self.close()
+        
+    def set_navigation(self):
+        """Set up keyboard/remote navigation between controls."""
+        self.cancel_button.setNavigation(self.switch_button, self.signout_button, self.signout_button, self.switch_button)
+        self.switch_button.setNavigation(self.signout_button, self.cancel_button, self.cancel_button, self.signout_button)
+        self.signout_button.setNavigation(self.cancel_button, self.switch_button, self.switch_button, self.cancel_button)
+        
