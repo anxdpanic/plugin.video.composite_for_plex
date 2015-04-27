@@ -137,19 +137,15 @@ def mediaType( partData, server, dvdplayback=False ):
 
 def addGUIItem(url, details, extraData, context=None, folder=True):
 
-    printDebug.debug("Adding Dir for [%s]" % details.get('title', 'Unknown'))
-    printDebug.debug("Passed details: %s" % details)
-    printDebug.debug("Passed extraData: %s" % extraData)
-
-    mode="&mode=%s" % extraData.get('mode',0)
+    printDebug.debug("Adding Dir for [%s]\n      Passed details: %s\n      Passed extraData: %s" % ( details.get('title', 'Unknown'), details, extraData))
 
     #Create the URL to pass to the item
     if not folder and extraData['type'] == "image" :
         link_url=url
     elif url.startswith('http') or url.startswith('file'):
-        link_url="%s?url=%s%s" % ( sys.argv[0], urllib.quote(url), mode)
+        link_url="%s?url=%s&mode=%s" % ( sys.argv[0], urllib.quote(url), extraData.get('mode',0))
     else:
-        link_url="%s?url=%s%s" % ( sys.argv[0], url, mode)
+        link_url="%s?url=%s&mode=%s" % ( sys.argv[0], url, extraData.get('mode',0))
 
     if extraData.get('parameters'):
         for argument, value in extraData.get('parameters').items():
@@ -223,8 +219,6 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         printDebug.debug("Setting banner as %s" % extraData.get('banner', ''))
 
     if extraData.get('season_thumb'):
-        seasonImg = str()
-
         liz.setProperty('seasonThumb', '%s' % extraData.get('season_thumb', ''))
         printDebug.debug("Setting season Thumb as %s" % extraData.get('season_thumb', ''))
 
