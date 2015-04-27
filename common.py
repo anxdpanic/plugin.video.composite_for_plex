@@ -94,7 +94,6 @@ def setup_python_locations():
     setup['__cachedir__'] = setup['__addon__'].getAddonInfo('profile')
     setup['__cwd__']     = xbmc.translatePath(setup['__addon__'].getAddonInfo('path')).decode('utf-8')
     setup['__version__'] = setup['__addon__'].getAddonInfo('version')
-    setup['__settings__'] = xbmcaddon.Addon(id='plugin.video.plexbmc')
 
     setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
     sys.path.append(setup['__resources__'])
