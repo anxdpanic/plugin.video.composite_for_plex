@@ -2,8 +2,8 @@
 import xbmcaddon
 import os
 import time
-print "===== PLEXBMC START ====="
 plexbmc_start = time.time()
+print "===== PLEXBMC START [id: %s] =====" % plexbmc_start
 #import StringIO
 #import cProfile
 #import pstats
@@ -21,6 +21,6 @@ plexbmc.start_plexbmc()
 # Can be accessed with stream.getvalue()
 
 #print stream.getvalue()
-print "===== PLEXBMC STOP: %s seconds =====" % ( time.time() - plexbmc_start )
+print "===== PLEXBMC STOP [id: %s]: %s seconds =====" % (plexbmc_start , ( time.time() - plexbmc_start ))
 
 sys.modules.clear()
