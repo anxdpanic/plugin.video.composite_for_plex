@@ -1,7 +1,7 @@
-PleXBMC - Use XBMC to play media from Plex Media Server
+PleXBMC - Use KODI (aka XBMC) to play media from Plex Media Server
 
-This is an XBMC addon that allows media and metadata stored in the Plex Media 
-Server (PMS) to be viewed and played using XBMC.
+This is a KODI (previously known as XBMC) addon that allows media and metadata stored in the Plex Media 
+Server (PMS) to be viewed and played using the KODI interface.
 
 INSTALLATION
 ------------
@@ -20,39 +20,35 @@ Go to Video -> Addon and you should be able to browse the PMS data structure
 and select the media you want to play
 
 USING PLEXBMC
----------------
+-------------
 PleXBMC should work "out of the box" in most cases, as the default allows for automatic server discovery.
 If this doesn't work, then discovery can be switched off, and a manually entered hostname or IP address can be used.
 
-In addition, plexBMC can utilise myPlex to find remote and local servers.  To use myplex, simply type in your username and password.
+If you are watching remotely, or on a bandwidth limited network, switch on Transcoding to reduce the media quality
+to one that works best for you.
 
-PLAYING OPTIONS
----------------
+MYPLEX ACCESS
+-------------
+In addition, PleXBMC can use your myplex account to access local and remote servers, and provide user content controls when
+configured via the Plex/Web interface.  Create an admin account to manage the process and then assigned managed users
+to give specific access to libraries to other users.
 
-PleXBMC will attempt to select the best play options for you:
+Sign into myplex using the "Sign in" menu or through the PleXBMC settings page.
 
-1. PMS will first check if the file patch can be found locally.  This will use
-   the same location as found on the PMS server.  So if the file is:
-       /Volumes/media/path/to/file.mkv
-   then the addon will use this path to find the file.
-   
-2. If the file cannot be found, then the addon will default to streaming via the
-   PMS web server.  This does not transcode any file, and it will be played as
-   normal.
-   
-You can override these by choosing either "http", "smb" or "AFP" in the "Stream from PMS"
-setting.  "auto" is the default and will choose the best option.
+SKINS
+-----
+To make KODI integrate more tightly with the PLEX sourced data - you can load up a PleXBMC modified skin, which gives
+access to your libraries, media and channels from the home screen, plus a view of all "recently added" or "onDeck" (in play) media.
+Currently "Amber" is the most compatible and you can find this on the KODI forums.
 
-PLAYING MEDIA LOCALLY
----------------------
-If you want XBMC to make use of a local copy of the media (usually shared via SMB
-or samba from a NAS) then you need to do *one* of the following:
+OPTIONS
+-------
 
-1. Mount the PMS server filesystem on the client, so that they are available at all 
-   times.  This is done outside of XBMC.
+PleXBMC has a number of options to help fit in with your preferred media setup.  PleXBMC is designed to work out of the box, without 
+any modifications, but sometimes you might want to tweak something. Such options include the ability to switch off Home Menu
+Items, change the way media is accessed, perform media source redirect to a NAS sever, Transcode media.
 
-   or
-
-2. Within XBMC, add the network filesystems as sources.  You do not need to set a
-   content or scan these locations into the library - they simply need to be sources
-
+FINALLY
+-------
+If you have questions then head over to the Plex Forums (https://forums.plex.tv/index.php/forum/87-other/). If you have feature requests
+or bugs, then whilst you are free to post them on the Plex Forum, you can also log them on Github (https://github.com/hippojay/plugin.video.plexbmc/issues)

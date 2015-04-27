@@ -1,9 +1,21 @@
+Selected History Items
+----------------------
+
 Current Release:
+[b] Version 4.0.0~beta1 - First beta release of new plexhome full user code.
+[b] Version 3.6.1 - First version to support plexhome interaction
+
+Previous Gotham (XBMC 13.X) Release:
+[b] Version 3.6.0 [/b] - Fixed plexHome, so that server will not fail if enabled.  Only supports admin user.
 [b] Version 3.4.4 [/b] - Fixed plexbmc if cloudsync enabled
+
+Final Frodo (XBMC 12.X) Release:
 [b] Version 3.0.7 [/b] - Fix resume / add plex GDM   
 [b] Version 3.0.6 [/b] - Fix watched flags / skin views / resume / tidy 
 
-Selected Release Highlights..
+Last Eden (XBMC 11.X) Release:
 [b] Version 2.1 [/b] Most recent Eden release
+
+Last Dharma (XBMC 10.X) Release:
 [b] Version 1.9.9.6 [/b] Last release for Dharma
 
