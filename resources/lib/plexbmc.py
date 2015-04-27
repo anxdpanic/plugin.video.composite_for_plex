@@ -2803,34 +2803,34 @@ def amberskin():
             path = section.get_path()
 
             if section.is_show():
-                if hide_shared == "true" and not server.is_owned():
+                if hide_shared and not server.is_owned():
                     shared_flag['show']=True
                     sharedCount += 1
                     continue
                 window="VideoLibrary"
                 mode=MODE_TVSHOWS
             elif section.is_movie():
-                if hide_shared == "true" and not server.is_owned():
+                if hide_shared and not server.is_owned():
                     shared_flag['movie']=True
                     sharedCount += 1
                     continue
                 window="VideoLibrary"
                 mode=MODE_MOVIES
             elif section.is_artist():
-                if hide_shared == "true" and not server.is_owned():
+                if hide_shared and not server.is_owned():
                     shared_flag['artist']=True
                     sharedCount += 1
                     continue
                 window="MusicFiles"
                 mode=MODE_ARTISTS
             elif  section.is_photo():
-                if hide_shared == "true" and not server.is_owned():
+                if hide_shared and not server.is_owned():
                     shared_flag['photo']=True
                     sharedCount += 1
                     continue
                 window="Pictures"
             else:
-                if hide_shared == "true" and not server.is_owned():
+                if hide_shared and not server.is_owned():
                     shared_flag['movie']=True
                     sharedCount += 1
                     continue
@@ -2877,7 +2877,7 @@ def amberskin():
             printDebug.debug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return)" % ( window, server.get_url_location(), path, mode))
             sectionCount += 1
 
-    if plex_network.is_myplex_signedin() and hide_shared == 'true' and sharedCount != 0:
+    if plex_network.is_myplex_signedin() and hide_shared and sharedCount != 0:
         WINDOW.setProperty("plexbmc.%d.title"    % (sectionCount) , "Shared Content")
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
         WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % MODE_SHARED_ALL)
@@ -2918,9 +2918,6 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
             sectionCount += 1
-
-    else:
-        pass
 
     #For each of the servers we have identified
     numOfServers=len(server_list)
