@@ -2367,23 +2367,19 @@ def getThumb(data, server, width=720, height=720):
     else:
         return GENERIC_THUMBNAIL
 
-def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
+def getShelfThumb(data, server, seasonThumb=False, width=400, height=400):
     '''
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
         @ return formatted URL
     '''
 
-    if seasonThumb == 1:
-        thumbnail=data.get('grandparentThumb','').split('?t')[0].encode('utf-8')    
-
+    if seasonThumb:
+        thumbnail=data.get('grandparentThumb','').split('?t')[0].encode('utf-8')
     else:
         thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
 
-    if thumbnail == '':
-        return GENERIC_THUMBNAIL
-
-    elif thumbnail.startswith("http"):
+    if thumbnail.startswith("http"):
         return thumbnail
 
     elif thumbnail.startswith('/'):
@@ -2392,8 +2388,7 @@ def getShelfThumb(data, server, seasonThumb=0, width=400, height=400):
         else:
             return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
 
-    else:
-        return GENERIC_THUMBNAIL
+    return GENERIC_THUMBNAIL
 
 def getFanart(data, server, width=1280, height=720):
     '''
@@ -3016,7 +3011,7 @@ def amberskin():
             for media in root:
                 printDebug.debug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
                 m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s" % (getLinkURL(server_address.get_url_location(), media, server_address), 18, 1)
-                m_thumb = getShelfThumb(media, server_address, seasonThumb=0)
+                m_thumb = getShelfThumb(media, server_address)
 
                 try:
                     movie_runtime = str(int(float(media.get('duration'))/1000/60))
@@ -3133,7 +3128,7 @@ def fullShelf(server_list={}):
             if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
 
                 title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server), MODE_PLAYSHELF, randomNumber)
-                title_thumb = getShelfThumb(media,source_server,seasonThumb=0)
+                title_thumb = getShelfThumb(media,source_server)
 
                 if media.get('duration') > 0:
                     #movie_runtime = media.get('duration', '0')
@@ -3180,7 +3175,7 @@ def fullShelf(server_list={}):
                 continue
 
             title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server), MODE_TVEPISODES)
-            title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
+            title_thumb=getShelfThumb(media,source_server)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, '')
@@ -3199,7 +3194,7 @@ def fullShelf(server_list={}):
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             title_url="ActivateWindow(MusicFiles, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server), MODE_TRACKS)
-            title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
+            title_thumb=getShelfThumb(media,source_server)
 
             printDebug.debug("Found a recent album entry: [%s]" % title_name)
 
@@ -3214,7 +3209,7 @@ def fullShelf(server_list={}):
 
             title_name=media.get('title','Unknown').encode('UTF-8')
             title_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return" % ( source_server.get_url_location(), "/recentlyAdded", MODE_PHOTOS)
-            title_thumb = getShelfThumb(media, source_server, seasonThumb=0)
+            title_thumb = getShelfThumb(media, source_server)
 
             printDebug.debug("Found a recent photo entry: [%s]" % title_name)
 
@@ -3234,7 +3229,7 @@ def fullShelf(server_list={}):
                 continue
 
             title_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(), media, source_server, season_shelf=True), MODE_TVEPISODES)
-            title_thumb = getShelfThumb(media, source_server, seasonThumb=1)
+            title_thumb = getShelfThumb(media, source_server, seasonThumb=True)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, title_name)
@@ -3264,7 +3259,7 @@ def fullShelf(server_list={}):
                 continue
 
             title_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server), MODE_PLAYSHELF, randomNumber)
-            title_thumb = getShelfThumb(media,source_server,seasonThumb=0)
+            title_thumb = getShelfThumb(media,source_server)
 
             if media.get('duration') > 0:
                 #movie_runtime = media.get('duration', '0')
@@ -3297,7 +3292,7 @@ def fullShelf(server_list={}):
                 continue
 
             title_url="ActivateWindow(VideoLibrary, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( getLinkURL(source_server.get_url_location(),media,source_server), MODE_TVEPISODES)
-            title_thumb=getShelfThumb(media,source_server,seasonThumb=0)
+            title_thumb=getShelfThumb(media,source_server)
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, '')
@@ -3317,7 +3312,7 @@ def fullShelf(server_list={}):
                 continue
 
             title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s)" % (getLinkURL(source_server.get_url_location(), media, source_server), MODE_PLAYSHELF, randomNumber)
-            title_thumb=getShelfThumb(media, source_server, seasonThumb=1)
+            title_thumb=getShelfThumb(media, source_server, seasonThumb=True)
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, title_name)
