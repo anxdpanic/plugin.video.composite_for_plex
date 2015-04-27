@@ -3982,6 +3982,9 @@ def switch_user():
 
     printDebug("found %s users: %s" % (len(user_list), user_list.keys()))  
 
+    #Get rid of currently logged in user.
+    user_list.pop(plex_network.get_myplex_user(), None)
+    
     select_screen = xbmcgui.Dialog()
     result = select_screen.select('Switch User',user_list.keys())
     if result == -1:
