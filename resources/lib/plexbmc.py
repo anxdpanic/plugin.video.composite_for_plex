@@ -4095,6 +4095,9 @@ def start_plexbmc():
             printDebug.info("Switch User Failed")
 
     elif command == "signout":
+        if not plex_network.is_admin():
+            return xbmcgui.Dialog().ok("Sign Out","To sign out you must be logged in as an admin user.  Please switch user and try again")
+            
         ret = xbmcgui.Dialog().yesno("myplex","You are currently signed into myPlex. Are you sure you want to sign out?")
         if ret:
             plex_network.signout()
