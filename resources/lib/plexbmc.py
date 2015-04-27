@@ -390,10 +390,10 @@ def enforceSkinView(mode):
 
     printDebug.debug("== ENTER ==")
 
-    if __settings__.getSetting('skinoverride') == "false":
+    if not settings.get_setting('skinoverride'):
         return None
 
-    skinname = __settings__.getSetting('skinname')
+    skinname = settings.get_setting('skinname')
 
     current_skin_name = xbmc.getSkinDir()
 
@@ -409,23 +409,23 @@ def enforceSkinView(mode):
 
     if mode == "movie":
         printDebug.debug("Looking for movie skin settings")
-        viewname = __settings__.getSetting('mo_view_%s' % skinname)
+        viewname = settings.get_setting('mo_view_%s' % skinname)
 
     elif mode == "tv":
         printDebug.debug("Looking for tv skin settings")
-        viewname = __settings__.getSetting('tv_view_%s' % skinname)
+        viewname = settings.get_setting('tv_view_%s' % skinname)
 
     elif mode == "music":
         printDebug.debug("Looking for music skin settings")
-        viewname = __settings__.getSetting('mu_view_%s' % skinname)
+        viewname = settings.get_setting('mu_view_%s' % skinname)
 
     elif mode == "episode":
         printDebug.debug("Looking for music skin settings")
-        viewname = __settings__.getSetting('ep_view_%s' % skinname)
+        viewname = settings.get_setting('ep_view_%s' % skinname)
 
     elif mode == "season":
         printDebug.debug("Looking for music skin settings")
-        viewname = __settings__.getSetting('se_view_%s' % skinname)
+        viewname = settings.get_setting('se_view_%s' % skinname)
 
     else:
         viewname = "None"
@@ -540,7 +540,7 @@ def Movies( url, tree=None ):
             count+=1
 
     printDebug.info("PROCESS: It took %s seconds to process %s items" % (time.time()-start_time, count))
-    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('movie')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -648,7 +648,7 @@ def TVShows( url, tree=None ):
 
         addGUIItem(u,details,extraData, context)
 
-    printDebug ("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug ("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('tv')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -738,7 +738,7 @@ def TVSeasons( url ):
         #Build the screen directory listing
         addGUIItem(url,details,extraData, context)
 
-    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('season')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -887,7 +887,7 @@ def TVEpisodes( url, tree=None ):
 
         addGUIItem(u,details,extraData, context, folder=False)
 
-    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('episode')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -1333,7 +1333,7 @@ def monitorPlayback( id, server, session=None ):
     if session:
         printDebug.debug("We are monitoring a transcode session")
 
-    if __settings__.getSetting('monitoroff') == "true":
+    if settings.get_setting('monitoroff') == "true":
         return
 
     monitorCount=0
@@ -1511,7 +1511,7 @@ def pluginTranscodeMonitor( sessionID, server ):
     #Logic may appear backward, but this does allow for a failed start to be detected
     #First while loop waiting for start
 
-    if __settings__.getSetting('monitoroff') == "true":
+    if settings.get_setting('monitoroff') == "true":
         return
 
     count=0
@@ -1735,7 +1735,7 @@ def artist( url, tree=None ):
 
         addGUIItem(url,details,extraData)
 
-    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -1782,7 +1782,7 @@ def albums( url, tree=None ):
 
         addGUIItem(url,details,extraData)
 
-    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -1816,7 +1816,7 @@ def tracks( url,tree=None ):
 
         trackTag(server, tree, track, sectionart, sectionthumb)
 
-    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -2328,7 +2328,7 @@ def music( url, tree=None ):
             extraData['mode']=MODE_MUSIC
             addGUIItem(u,details,extraData)
 
-    printDebug.debug("Skin override is: %s" % __settings__.getSetting('skinoverride'))
+    printDebug.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforceSkinView('music')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -2582,7 +2582,7 @@ def skin( server_list=None, type=None ):
     serverCount=0
     sharedCount=0
     shared_flag={}
-    hide_shared = __settings__.getSetting('hide_shared')
+    hide_shared = settings.get_setting('hide_shared')
 
     if server_list is None:
         server_list=plex_network.get_server_list()
@@ -2778,7 +2778,7 @@ def amberskin():
     serverCount=0
     sharedCount=0
     shared_flag={}
-    hide_shared = __settings__.getSetting('hide_shared')
+    hide_shared = settings.get_setting('hide_shared')
 
     server_list=plex_network.get_server_list()
 
@@ -2988,7 +2988,7 @@ def amberskin():
         WINDOW.setProperty("plexbmc.myplex",  "1" )
 
         #Now let's populate queue shelf items since we have MyPlex login
-        if __settings__.getSetting('homeshelf') != '3':
+        if settings.get_setting('homeshelf') != '3':
             printDebug.debug("== ENTER ==")
 
             root = plex_network.get_myplex_queue()
@@ -3028,7 +3028,7 @@ def fullShelf(server_list={}):
     #Gather some data and set the window properties
     printDebug.debug("== ENTER ==")
 
-    if __settings__.getSetting('homeshelf') == '3' or ((__settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and __settings__.getSetting('musicShelf') == "false")):
+    if settings.get_setting('homeshelf') == '3' or ( not settings.get_setting('movieShelf') and not settings.get_setting('tvShelf') and not settings.get_setting('musicShelf')):
         printDebug.debug("Disabling all shelf items")
         clearShelf()
         clearOnDeckShelf()
@@ -3061,7 +3061,7 @@ def fullShelf(server_list={}):
 
         for section in server_details.get_sections():
 
-            if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
+            if settings.get_setting('homeshelf') == '0' or settings.get_setting('homeshelf') == '2':
 
                 tree = server_details.get_recently_added(section=section.get_key(), size=15)
 
@@ -3077,14 +3077,14 @@ def fullShelf(server_list={}):
                     if eachitem.get("type", "") == "episode":
                         key = int(eachitem.get("parentRatingKey"))  # season identifier
 
-                        if key in ep_helper or ((__settings__.getSetting('hide_watched_recent_items') == 'true' and int(eachitem.get("viewCount", 0)) > 0)):
+                        if key in ep_helper or (settings.get_setting('hide_watched_recent_items') and int(eachitem.get("viewCount", 0)) > 0):
                             continue
 
                         ep_helper[key] = key  # use seasons as dict key so we can check
 
                     recent_list.append((eachitem, server_details, libraryuuid))
 
-            if __settings__.getSetting('homeshelf') == '1' or __settings__.getSetting('homeshelf') == '2':
+            if settings.get_setting('homeshelf') == '1' or settings.get_setting('homeshelf') == '2':
 
                 tree = server_details.get_ondeck(section=section.get_key(),size=15)
 
@@ -3105,14 +3105,14 @@ def fullShelf(server_list={}):
 
         if media.get('type',None) == "movie":
 
-            if __settings__.getSetting('movieShelf') == "false":
+            if not settings.get_setting('movieShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
                 continue
 
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found a recent movie entry: [%s]" % title_name)
 
-            if __settings__.getSetting('hide_watched_recent_items') == 'false' or media.get("viewCount", 0) == 0:
+            if not settings.get_setting('hide_watched_recent_items') or media.get("viewCount", 0) == 0:
 
                 title_url="plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s" % ( getLinkURL(source_server.get_url_location(),media,source_server), MODE_PLAYSHELF, randomNumber)
                 title_thumb = getShelfThumb(media,source_server)
@@ -3157,7 +3157,7 @@ def fullShelf(server_list={}):
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             printDebug.debug("Found a recent season entry [%s]" % title_name)
 
-            if __settings__.getSetting('tvShelf') == "false":
+            if not settings.get_setting('tvShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
@@ -3175,7 +3175,7 @@ def fullShelf(server_list={}):
 
         elif media.get('type') == "album":
 
-            if __settings__.getSetting('musicShelf') == "false":
+            if not settings.get_setting('musicShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
                 continue
 
@@ -3211,7 +3211,7 @@ def fullShelf(server_list={}):
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an Recent episode entry [%s]" % title_name)
 
-            if __settings__.getSetting('tvShelf') == "false":
+            if not settings.get_setting('tvShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
@@ -3241,7 +3241,7 @@ def fullShelf(server_list={}):
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found a OnDeck movie entry: [%s]" % title_name)
 
-            if __settings__.getSetting('movieShelf') == "false":
+            if not settings.get_setting('movieShelf'):
                 WINDOW.clearProperty("Plexbmc.OnDeckMovie.1.Path" )
                 continue
 
@@ -3274,7 +3274,7 @@ def fullShelf(server_list={}):
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             printDebug.debug("Found a OnDeck season entry [%s]" % title_name)
 
-            if __settings__.getSetting('tvShelf') == "false":
+            if not settings.get_setting('tvShelf'):
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
                 continue
 
@@ -3294,7 +3294,7 @@ def fullShelf(server_list={}):
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
 
-            if __settings__.getSetting('tvShelf') == "false":
+            if not settings.get_setting('tvShelf'):
                 WINDOW.clearProperty("Plexbmc.OnDeckEpisode.1.Path" )
                 continue
 
@@ -3316,7 +3316,7 @@ def fullShelf(server_list={}):
 
     clearOnDeckShelf(ondeckMovieCount, ondeckSeasonCount)
 
-    if __settings__.getSetting('channelShelf') == "true" or __settings__.getSetting('homeshelf') != '3':
+    if settings.get_setting('channelShelf') or settings.get_setting('homeshelf') != '3':
         shelfChannel(server_list)
 
     else:
@@ -3381,8 +3381,8 @@ def displayContent( acceptable_level, content_level ):
                   'A' : 2 }       # CAN - Adults
 
     if content_level is None or content_level == "None":
-        printDebug.debug("Setting [None] rating as %s" % ( __settings__.getSetting('contentNone') , ))
-        if content_map[__settings__.getSetting('contentNone')] <= content_map[acceptable_level]:
+        printDebug.debug("Setting [None] rating as %s" % ( settings.get_setting('contentNone') , ))
+        if content_map[settings.get_setting('contentNone')] <= content_map[acceptable_level]:
             printDebug.debug("OK to display")
             return True
     else:
@@ -3400,8 +3400,7 @@ def shelf( server_list=None ):
     #Gather some data and set the window properties
     printDebug.debug("== ENTER ==")
 
-    if (__settings__.getSetting('movieShelf') == "false" and __settings__.getSetting('tvShelf') == "false" and\
-                    __settings__.getSetting('musicShelf') == "false") or __settings__.getSetting('homeshelf') == '3':
+    if not (settings.get_setting('movieShelf') and settings.get_setting('tvShelf') and settings.get_setting('musicShelf')) or settings.get_setting('homeshelf') == '3':
         printDebug.debug("Disabling all shelf items")
         clearShelf()
         return
@@ -3431,7 +3430,7 @@ def shelf( server_list=None ):
         if server_details.is_secondary() or not server_details.is_owned():
             continue
 
-        if __settings__.getSetting('homeshelf') == '0' or __settings__.getSetting('homeshelf') == '2':
+        if settings.get_setting('homeshelf') == '0' or settings.get_setting('homeshelf') == '2':
             tree=server_details.get_server_recentlyadded()
         else:
             direction=False
@@ -3450,8 +3449,8 @@ def shelf( server_list=None ):
                 added_list[full_count] = (eachitem, server_details)
                 full_count += 1
 
-    library_filter = __settings__.getSetting('libraryfilter')
-    acceptable_level = __settings__.getSetting('contentFilter')
+    library_filter = settings.get_setting('libraryfilter')
+    acceptable_level = settings.get_setting('contentFilter')
 
     #For each of the servers we have identified
     for media, server in sorted(added_list, reverse=direction):
@@ -3462,7 +3461,7 @@ def shelf( server_list=None ):
 
             printDebug.debug("Found a recent movie entry: [%s]" % title_name )
 
-            if __settings__.getSetting('movieShelf') == "false":
+            if not settings.get_setting('movieShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
                 continue
 
@@ -3486,7 +3485,7 @@ def shelf( server_list=None ):
 
             printDebug.debug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
 
-            if __settings__.getSetting('tvShelf') == "false":
+            if not settings.get_setting('tvShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
@@ -3503,7 +3502,7 @@ def shelf( server_list=None ):
 
         elif media.get('type') == "album":
 
-            if __settings__.getSetting('musicShelf') == "false":
+            if not settings.get_setting('musicShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
                 continue
 
@@ -3524,7 +3523,7 @@ def shelf( server_list=None ):
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
 
-            if __settings__.getSetting('tvShelf') == "false":
+            if not settings.get_setting('tvShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestEpisode.1.Path" )
                 continue
 
@@ -3623,7 +3622,7 @@ def shelfChannel(server_list = None):
     #Gather some data and set the window properties
     printDebug.debug("== ENTER ==")
 
-    if __settings__.getSetting('channelShelf') == "false" or __settings__.getSetting('homeshelf') == '3':
+    if not settings.get_setting('channelShelf') or settings.get_setting('homeshelf') == '3':
         printDebug.debug("Disabling channel shelf")
         clearChannelShelf()
         return
@@ -3646,7 +3645,7 @@ def shelfChannel(server_list = None):
         if server_details.is_secondary() or not server_details.is_owned():
             continue
 
-        if __settings__.getSetting('channelShelf') == "false" or __settings__.getSetting('homeshelf') == '3':
+        if not settings.get_setting('channelShelf') or settings.get_setting('homeshelf') == '3':
             WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
             return
 
@@ -4008,10 +4007,7 @@ def switch_user():
 
     return True 
 
-##So this is where we really start the plugin.
-
-__settings__ = GLOBAL_SETUP['__settings__']
-
+##So this is where we really start the addon 
 printDebug=printDebug("PleXBMC")
 
 print "PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__']
