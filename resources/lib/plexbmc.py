@@ -2353,10 +2353,7 @@ def getThumb(data, server, width=720, height=720):
 
     thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
 
-    if thumbnail == '':
-        return GENERIC_THUMBNAIL
-
-    elif thumbnail.startswith("http") :
+    if thumbnail.startswith("http") :
         return thumbnail
 
     elif thumbnail.startswith('/'):
@@ -2364,8 +2361,8 @@ def getThumb(data, server, width=720, height=720):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
             return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
-    else:
-        return GENERIC_THUMBNAIL
+
+    return GENERIC_THUMBNAIL
 
 def getShelfThumb(data, server, seasonThumb=False, width=400, height=400):
     '''
@@ -2401,10 +2398,7 @@ def getFanart(data, server, width=1280, height=720):
 
     fanart=data.get('art','').encode('utf-8')
 
-    if fanart == '':
-        return ''
-
-    elif fanart.startswith('http') :
+    if fanart.startswith('http') :
         return fanart
 
     elif fanart.startswith('/'):
@@ -2413,8 +2407,7 @@ def getFanart(data, server, width=1280, height=720):
         else:
             return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + fanart), width, height))
 
-    else:
-        return ''
+    return ''
 
 def getLinkURL(url, pathData, server, season_shelf=False):
     if not season_shelf:
