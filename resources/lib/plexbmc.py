@@ -3295,13 +3295,6 @@ def fullShelf(server_list={}):
 
     clearOnDeckShelf(ondeckMovieCount, ondeckSeasonCount)
 
-    if settings.get_setting('channelShelf') or settings.get_setting('homeshelf') != '3':
-        shelfChannel(server_list)
-
-    else:
-        printDebug.debug("Disabling channel shelf items")
-        clearChannelShelf()
-
 def displayContent( acceptable_level, content_level ):
 
     '''
