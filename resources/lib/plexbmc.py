@@ -2606,23 +2606,28 @@ def skin( server_list=None, type=None ):
                     continue
                 window="VideoLibrary"
                 mode=MODE_TVSHOWS
+                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=4", mode) )
             if  section.is_movie():
                 if hide_shared == "true" and not server.is_owned():
                     shared_flag['movie']=True
                     continue
                 window="VideoLibrary"
                 mode=MODE_MOVIES
+                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=1", mode) )
             if  section.is_artist():
                 if hide_shared == "true" and not server.is_owned():
                     shared_flag['artist']=True
                     continue
                 window="MusicFiles"
                 mode=MODE_ARTISTS
+                WINDOW.setProperty("plexbmc.%d.album" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/albums", mode) )
+                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=10", mode) )
             if  section.is_photo():
                 if hide_shared == "true" and not server.is_owned():
                     shared_flag['photo']=True
                     continue
                 window="Pictures"
+                WINDOW.setProperty("plexbmc.%d.year" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/year", mode) )
                 mode=MODE_PHOTOS
 
             if settings.get_setting('secondary'):
@@ -2648,16 +2653,6 @@ def skin( server_list=None, type=None ):
             WINDOW.setProperty("plexbmc.%d.ondeck" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/onDeck", mode) )
             WINDOW.setProperty("plexbmc.%d.released" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/newest", mode) )
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "false")
-
-            if section['type'] == "artist":
-                WINDOW.setProperty("plexbmc.%d.album" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/albums", mode) )
-                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=10", mode) )
-            elif section['type'] == "photo":
-                WINDOW.setProperty("plexbmc.%d.year" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/year", mode) )
-            elif section['type'] == "show":
-                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=4", mode) )
-            elif section['type'] == "movie":
-                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=1", mode) )
 
             printDebug.debug("Building window properties index [%s] which is [%s]" % (sectionCount, section.get_title()))
             printDebug.debug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s,return)" % (window, s_url))
@@ -2809,6 +2804,8 @@ def amberskin():
                     continue
                 window="VideoLibrary"
                 mode=MODE_TVSHOWS
+                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=4", mode) )
+
             elif section.is_movie():
                 if hide_shared and not server.is_owned():
                     shared_flag['movie']=True
@@ -2816,6 +2813,8 @@ def amberskin():
                     continue
                 window="VideoLibrary"
                 mode=MODE_MOVIES
+                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=1", mode) )  
+                
             elif section.is_artist():
                 if hide_shared and not server.is_owned():
                     shared_flag['artist']=True
@@ -2823,12 +2822,16 @@ def amberskin():
                     continue
                 window="MusicFiles"
                 mode=MODE_ARTISTS
+                WINDOW.setProperty("plexbmc.%d.album" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/albums", mode) )
+                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=10", mode) )
             elif  section.is_photo():
                 if hide_shared and not server.is_owned():
                     shared_flag['photo']=True
                     sharedCount += 1
                     continue
                 window="Pictures"
+                WINDOW.setProperty("plexbmc.%d.year" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/year", mode) )
+                
             else:
                 if hide_shared and not server.is_owned():
                     shared_flag['movie']=True
@@ -2859,19 +2862,8 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.ondeck" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/onDeck", mode) )
             WINDOW.setProperty("plexbmc.%d.released" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/newest", mode) )
             WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "false")
-
             WINDOW.setProperty("plexbmc.%d.ondeck.content" % (sectionCount) , "plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s" % (server.get_url_location(), section.get_path(), "/onDeck", mode) )
             WINDOW.setProperty("plexbmc.%d.recent.content" % (sectionCount) , "plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s" % (server.get_url_location(), section.get_path(), "/recentlyAdded", mode) )
-
-            if section.is_artist():
-                WINDOW.setProperty("plexbmc.%d.album" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/albums", mode) )
-                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=10", mode) )
-            elif section.is_photo():
-                WINDOW.setProperty("plexbmc.%d.year" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/year", mode) )
-            elif section.is_show():
-                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=4", mode) )
-            elif section.is_movie():
-                WINDOW.setProperty("plexbmc.%d.search" % (sectionCount) , "ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s%s&mode=%s,return)" % (window, server.get_url_location(), section.get_path(), "/search?type=1", mode) )
 
             printDebug.debug("Building window properties index [%s] which is [%s]" % (sectionCount, section.get_title()))
             printDebug.debug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return)" % ( window, server.get_url_location(), path, mode))
@@ -2882,7 +2874,7 @@ def amberskin():
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
         WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % MODE_SHARED_ALL)
         WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
-        WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+        WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
         sectionCount += 1
 
     elif sharedCount != 0:
@@ -2892,7 +2884,7 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
             WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % MODE_SHARED_MOVIES)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
-            WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+            WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
             sectionCount += 1
 
         if shared_flag.get('show'):
@@ -2900,7 +2892,7 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
             WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % MODE_SHARED_SHOWS)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
-            WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+            WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
             sectionCount += 1
 
         if shared_flag.get('artist'):
@@ -2908,7 +2900,7 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
             WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(MusicFiles,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)"% MODE_SHARED_MUSIC)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
-            WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+            WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
             sectionCount += 1
 
         if shared_flag.get('photo'):
@@ -2916,7 +2908,7 @@ def amberskin():
             WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount) , "Shared")
             WINDOW.setProperty("plexbmc.%d.path"     % (sectionCount) , "ActivateWindow(Pictures,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % MODE_SHARED_PHOTOS)
             WINDOW.setProperty("plexbmc.%d.type"     % (sectionCount) , "shared")
-            WINDOW.setProperty("plexbmc.%d.shared"     % (sectionCount) , "true")
+            WINDOW.setProperty("plexbmc.%d.shared"   % (sectionCount) , "true")
             sectionCount += 1
 
     #For each of the servers we have identified
