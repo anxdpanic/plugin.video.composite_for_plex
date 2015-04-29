@@ -619,7 +619,7 @@ def TVShows( url, tree=None ):
                    'ratingKey'         : str(show.get('ratingKey',0)) }
 
         #banner art
-        if show.get('banner',None) is not None:
+        if show.get('banner') is not None:
             extraData['banner'] = server.get_url_location()+show.get('banner')
         else:
             extraData['banner'] = GENERIC_THUMBNAIL
@@ -1618,7 +1618,7 @@ def getContent( url ):
         processXML(url,tree)
         return
 
-    view_group=tree.get('viewGroup',None)
+    view_group=tree.get('viewGroup')
 
     if view_group == "movie":
         printDebug.debug( "This is movie XML, passing to Movies")
@@ -2277,7 +2277,7 @@ def music( url, tree=None ):
     setWindowHeading(tree)
     for grapes in tree:
 
-        if grapes.get('key',None) is None:
+        if grapes.get('key') is None:
             continue
 
         details={'genre'       : grapes.get('genre','').encode('utf-8') ,
@@ -2433,7 +2433,7 @@ def getLinkURL(url, pathData, server, season_shelf=False):
             if 'prefix=' in i:
                 del components[components.index(i)]
                 break
-        if pathData.get('identifier',None):
+        if pathData.get('identifier') is not None:
             components.append('identifier='+pathData['identifier'])
 
         path='&'.join(components)
@@ -2557,7 +2557,7 @@ def channelView( url ):
             details['title']="%s (%s)" % ( details['title'], suffix )
 
         #Alter data sent into getlinkurl, as channels use path rather than key
-        p_url=getLinkURL(url, {'key': channels.get('key',None), 'identifier' : channels.get('key',None)} , server)
+        p_url=getLinkURL(url, {'key': channels.get('key'), 'identifier' : channels.get('key')} , server)
 
         if suffix == "photos":
             extraData['mode']=MODE_PHOTOS
@@ -3092,7 +3092,7 @@ def fullShelf(server_list={}):
     #For each of the servers we have identified
     for media, source_server, libuuid in recent_list:
 
-        if media.get('type',None) == "movie":
+        if media.get('type') == "movie":
 
             if not settings.get_setting('movieShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestMovie.1.Path" )
@@ -3141,7 +3141,7 @@ def fullShelf(server_list={}):
             else:
                 continue
 
-        elif media.get('type',None) == "season":
+        elif media.get('type') == "season":
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             printDebug.debug("Found a recent season entry [%s]" % title_name)
@@ -3195,7 +3195,7 @@ def fullShelf(server_list={}):
 
             recentPhotoCount += 1
 
-        elif media.get('type',None) == "episode":
+        elif media.get('type') == "episode":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an Recent episode entry [%s]" % title_name)
@@ -3225,7 +3225,7 @@ def fullShelf(server_list={}):
     #For each of the servers we have identified
     for media, source_server, libuuid in ondeck_list:
 
-        if media.get('type',None) == "movie":
+        if media.get('type') == "movie":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found a OnDeck movie entry: [%s]" % title_name)
@@ -3258,7 +3258,7 @@ def fullShelf(server_list={}):
 
             ondeckMovieCount += 1
 
-        elif media.get('type',None) == "season":
+        elif media.get('type') == "season":
 
             title_name=media.get('parentTitle','Unknown').encode('UTF-8')
             printDebug.debug("Found a OnDeck season entry [%s]" % title_name)
@@ -3278,7 +3278,7 @@ def fullShelf(server_list={}):
 
             ondeckSeasonCount += 1
 
-        elif media.get('type',None) == "episode":
+        elif media.get('type') == "episode":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
@@ -3444,7 +3444,7 @@ def shelf( server_list=None ):
     #For each of the servers we have identified
     for media, server in sorted(added_list, reverse=direction):
 
-        if media.get('type',None) == "movie":
+        if media.get('type') == "movie":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
 
@@ -3470,7 +3470,7 @@ def shelf( server_list=None ):
 
             movieCount += 1
 
-        elif media.get('type',None) == "season":
+        elif media.get('type') == "season":
 
             printDebug.debug("Found a recent season entry [%s]" % ( media.get('parentTitle','Unknown').encode('UTF-8') , ))
 
@@ -3507,7 +3507,7 @@ def shelf( server_list=None ):
             WINDOW.setProperty("Plexbmc.LatestAlbum.%s.Thumb" % musicCount, title_thumb)
             musicCount += 1
 
-        elif media.get('type',None) == "episode":
+        elif media.get('type') == "episode":
 
             title_name=media.get('title','Unknown').encode('UTF-8')
             printDebug.debug("Found an onDeck episode entry [%s]" % title_name)
@@ -3797,7 +3797,7 @@ def alterSubs ( server_uuid, metadata_id ):
                 else:
                     sub_list.append(stream_id)
 
-                    if streams.get('selected',None) == '1':
+                    if streams.get('selected') == '1':
                         fl_select=True
                         language=streams.get('language','Unknown')+"*"
                     else:
@@ -4042,7 +4042,7 @@ def start_plexbmc():
         params={}
 
     #Now try and assign some data to them
-    param_url=params.get('url',None)
+    param_url=params.get('url')
     command=None
 
     if param_url:
@@ -4054,8 +4054,8 @@ def start_plexbmc():
     param_name=urllib.unquote_plus(params.get('name',""))
     mode=int(params.get('mode',-1))
     play_transcode=True if int(params.get('transcode',0)) == 1 else False
-    param_identifier=params.get('identifier',None)
-    param_indirect=params.get('indirect',None)
+    param_identifier=params.get('identifier')
+    param_indirect=params.get('indirect')
     force=params.get('force')
 
     if command is None:
