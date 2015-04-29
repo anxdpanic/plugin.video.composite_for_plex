@@ -2902,7 +2902,7 @@ def amberskin():
 
     #For each of the servers we have identified
     numOfServers=len(server_list)
-    shelfChannel (server_list)
+    #shelfChannel (server_list)
 
     for server in server_list:
 
@@ -2927,34 +2927,7 @@ def amberskin():
         serverCount+=1
 
     #Clear out old data
-    try:
-        printDebug.debug("Clearing properties from [%s] to [%s]" % (sectionCount, WINDOW.getProperty("plexbmc.sectionCount")))
-
-        for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
-            WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.title"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.subtitle" % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.url"      % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.path"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.window"   % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.art"      % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.type"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.icon"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.thumb"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.recent"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.all"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.search"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.viewed"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.ondeck" % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.released" % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.shared"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.album"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.year"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.recent.content"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.ondeck.content"    % ( i ) )
-
-    except:
-        pass
+    clear_skin_sections(WINDOW, sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount")))
 
     printDebug.debug("Total number of skin sections is [%s]" % sectionCount )
     printDebug.debug("Total number of servers is [%s]" % numOfServers)
@@ -3002,6 +2975,40 @@ def amberskin():
 
     fullShelf (server_list)
 
+def clear_skin_sections(WINDOW=None, start=0, finish=50):
+    printDebug.debug("Clearing properties from [%s] to [%s]" % (start, finish))
+
+    if WINDOW is None:
+        WINDOW = xbmcgui.Window( 10000 )
+    
+    try:
+        for i in range(start, finish+1):
+
+            WINDOW.clearProperty("plexbmc.%d.uuid"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.title"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.subtitle" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.url"      % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.path"     % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.window"   % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.art"      % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.type"     % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.icon"     % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.thumb"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.recent"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.all"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.search"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.viewed"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.ondeck" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.released" % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.shared"     % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.album"     % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.year"     % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.recent.content"    % ( i ) )
+            WINDOW.clearProperty("plexbmc.%d.ondeck.content"    % ( i ) )    
+    except: 
+        printDebug.debug("Clearing stopped")
+    printDebug.debug("Finished clearing properties")
+ 
 def fullShelf(server_list={}):
     #Gather some data and set the window properties
     printDebug.debug("== ENTER ==")
@@ -4060,6 +4067,8 @@ def start_plexbmc():
         xbmc.executebuiltin("Container.Refresh")
     elif command == "switchuser":
         if switch_user():
+            clear_skin_sections()
+
             if xbmcgui.getCurrentWindowId() == 10000:
                 printDebug.debug("Currently in home - refreshing to allow new settings to be taken")
                 xbmc.executebuiltin("ReloadSkin()")
@@ -4071,10 +4080,11 @@ def start_plexbmc():
     elif command == "signout":
         if not plex_network.is_admin():
             return xbmcgui.Dialog().ok("Sign Out","To sign out you must be logged in as an admin user.  Please switch user and try again")
-            
+
         ret = xbmcgui.Dialog().yesno("myplex","You are currently signed into myPlex. Are you sure you want to sign out?")
         if ret:
             plex_network.signout()
+            clear_skin_sections()
             xbmc.executebuiltin("ReloadSkin()")
 
     elif command == "signin":
