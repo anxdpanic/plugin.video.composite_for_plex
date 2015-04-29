@@ -39,7 +39,6 @@ import random
 import xbmc
 import datetime
 from common import *  #Needed first to setup import locations
-from settings import addonSettings
 import plex
 
 def mediaType( partData, server, dvdplayback=False ):
