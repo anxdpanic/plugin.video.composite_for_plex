@@ -148,20 +148,18 @@ class Plex:
 
         if self.plexhome_settings['plexhome_enabled']:
             printDebug.debug("Plexhome is enabled")
-            try:
-                self.effective_user, self.effective_token = self.plexhome_settings['plexhome_user_cache'].split('|')
-            except:
-                printDebug.info("No user set.  Will default to admin user")
-                self.effective_user = self.myplex_user
-                self.effective_token = self.myplex_token
-        else:
+
+        try:
+            self.effective_user, self.effective_token = self.plexhome_settings['plexhome_user_cache'].split('|')
+        except:
+            printDebug.info("No user set.  Will default to admin user")
             self.effective_user = self.myplex_user
             self.effective_token = self.myplex_token
+            self.save_tokencache()
 
         printDebug.info("myplex userid: %s" % self.myplex_user)  
         printDebug.info("effective userid: %s" % self.effective_user)
 
-        self.save_tokencache()
 
     def load_tokencache(self):
 
