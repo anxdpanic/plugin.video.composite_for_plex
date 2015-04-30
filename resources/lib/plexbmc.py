@@ -2723,32 +2723,7 @@ def skin( server_list=None, type=None ):
         serverCount+=1
 
     #Clear out old data
-    try:
-        printDebug.debug("Clearing properties from [%s] to [%s]" % (sectionCount, WINDOW.getProperty("plexbmc.sectionCount")))
-
-        for i in range(sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount"))+1):
-            WINDOW.clearProperty("plexbmc.%d.uuid"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.title"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.subtitle" % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.url"      % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.path"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.window"   % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.art"      % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.type"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.icon"     % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.thumb"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.recent"   % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.all"      % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.search"   % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.viewed"   % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.ondeck"   % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.released" % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.shared"   % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.album"    % ( i ) )
-            WINDOW.clearProperty("plexbmc.%d.year"     % ( i ) )
-
-    except:
-        pass
+    clear_skin_sections(WINDOW, sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount") if '' else 50))
 
     printDebug.debug("Total number of skin sections is [%s]" % sectionCount )
     printDebug.debug("Total number of servers is [%s]" % numOfServers)
