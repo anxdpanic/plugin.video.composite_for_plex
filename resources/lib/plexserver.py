@@ -18,18 +18,32 @@ printDebug.debug("Using Requests version for HTTP: %s" % requests.__version__)
 
 class PlexMediaServer:
 
-    def __init__(self, uuid=None, name=None, address=None, port=None, token=None, discovery=None, class_type='primary' ):
+    def __init__(self, uuid=None, name=None, address=None, port=32400, token=None, discovery=None, class_type='primary' ):
 
         self.__revision = REQUIRED_REVISION
         self.protocol="http"
         self.uuid=uuid
         self.server_name=name
+        self.discovery=discovery
+        self.local_address=[]
+        self.local_port=None
+        self.external_address=None
+        self.external_port=None
+        self.access_address=None
+        self.access_port=None
 
-        self.address={'address' : address, 'local' : None}
-        self.port={'address' : port, 'local' : 32400}
+        if self.discovery == "myplex":
+            self.external_address=address
+            self.external_port=port
+        elif self.discovery == "discovery":
+            self.local_address=[address]
+            self.local_port=port
+        
+        self.access_address=address
+        self.access_port=port
+
         self.section_list=[]
         self.token=token
-        self.discovery=discovery
         self.owned=1
         self.master=1
         self.class_type=class_type
@@ -55,7 +69,7 @@ class PlexMediaServer:
 
         return {'serverName': self.server_name,
                 'server'    : self.get_address(),
-                'port'      : self.port[self.best_address],
+                'port'      : self.get_port(),
                 'discovery' : self.discovery,
                 'token'     : self.token ,
                 'uuid'      : self.uuid,
@@ -114,22 +128,16 @@ class PlexMediaServer:
         return self.server_name
 
     def get_address(self):
-        return self.address[self.best_address]
-
-    def get_local_address(self):
-        return self.address['local']
-
-    def get_default_address(self):
-        return self.address['address']
+        return self.access_address
 
     def get_port(self):
-        return self.port[self.best_address]
+        return self.access_port
 
     def get_url_location(self):
-        return '%s://%s:%s' % ( self.protocol, self.get_address(), self.port[self.best_address])
+        return '%s://%s:%s' % ( self.protocol, self.get_address(), self.get_port())
 
     def get_location(self):
-        return '%s:%s' % ( self.get_address(), self.port[self.best_address])
+        return '%s:%s' % ( self.get_address(), self.get_port())
 
     def get_token(self):
         return self.token
@@ -138,40 +146,47 @@ class PlexMediaServer:
         return self.discovery
 
     def add_local_address(self, address):
-        self.address['local']=address
+        self.local_address=address.split(',')
 
     def set_best_address(self, ipaddress):
-
-        if self.address['address'] == ipaddress:
-            printDebug.debug("new [%s] == existing [%s]" % (ipaddress, self.address['address']))
-            self.set_best_address_external()
+        if self.external_address == ipaddress:
+            printDebug.debug("new [%s] == existing [%s]" % (ipaddress, self.external_address))
+            self.access_address=self.external_address
+            self.access_port=self.external_port
             return
         else:
-            printDebug("new [%s] != existing [%s]" % (ipaddress, self.address['address']))
+            printDebug("new [%s] != existing [%s]" % (ipaddress, self.external_address))
 
-        if self.address['local'] == ipaddress:
-            printDebug.debug("new [%s] == existing [%s]" % (ipaddress, self.address['local']))
-            self.set_best_address_local()
-            return
-        else:
-            printDebug.debug("new [%s] != existing [%s]" % (ipaddress, self.address['local']))
+        for test_address in self.local_address:
+            if test_address == ipaddress:
+                printDebug.debug("new [%s] == existing [%s]" % (ipaddress, test_address))
+                self.access_address = test_address
+                self.access_port=32400
+                return
+            else:
+                printDebug.debug("new [%s] != existing [%s]" % (ipaddress, test_address))
 
-        printDebug.debug("new [%s] is unknown.  Possible uuid clash" % ipaddress)
-        self.set_best_address_external()
+        printDebug.debug("new [%s] is unknown.  Possible uuid clash?" % ipaddress)
+        printDebug.debug("Will use this address for this object, as a last resort")
+        self.access_address = ipaddress
+        self.access_port = 32400
+        
         return
 
-    def set_best_address_local(self):
-        self.best_address='local'
-
-    def set_best_address_external(self):
-        self.best_address='address'
-
     def find_address_match(self, ipaddress,port):
+        printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.access_address, self.access_port))
+        if (ipaddress, int(port)) == (self.access_address, self.access_port):
+            return True
 
-        for address in ['address','local']:
-            printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress,port, self.address[address], self.port[address]))
-            if "%s:%s" % (ipaddress,port) == "%s:%s" %(self.address[address], self.port[address]):
+        printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.external_address, self.external_port))
+        if (ipaddress, int(port)) == (self.external_address, self.external_port):
+            return True
+
+        for test_address in self.local_address:
+            printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, ipaddress, 32400 ))
+            if (ipaddress, int(port)) == (test_address, 32400):
                 return True
+
         return False
 
     def get_user(self):
@@ -191,9 +206,6 @@ class PlexMediaServer:
 
     def get_master(self):
         return self.master
-
-    def add_address(self, address):
-        self.address.append(address)
 
     def set_owned(self, value):
         self.owned=value
@@ -220,11 +232,11 @@ class PlexMediaServer:
             start_time=time.time()
             try:
                 if type == 'get':
-                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification_header, timeout=(2,60))
+                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, timeout=(2,60))
                 elif type == 'put':
-                    response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification_header, timeout=(2,60))                
+                    response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, timeout=(2,60))                
                 elif type == 'delete':
-                    response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.port[self.best_address], url), params=self.plex_identification_header, timeout=(2,60))              
+                    response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, timeout=(2,60))              
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
                 printDebug.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
