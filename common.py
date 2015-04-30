@@ -74,7 +74,6 @@ def get_platform( ):
     return "Unknown"
 
 def wake_servers():
-    print "Waking Servers with WOL"
     if settings.get_setting('wolon'):
         from WOL import wake_on_lan
         print "PleXBMC -> Wake On LAN: true"
