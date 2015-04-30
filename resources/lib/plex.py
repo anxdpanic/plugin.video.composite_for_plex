@@ -588,7 +588,10 @@ class Plex:
         result['thumb'] = xml.get('thumb')
 
         subscription = xml.find('subscription')
-        result['plexpass'] = subscription.get('plan')
+        if subscription is not None:
+            result['plexpass'] = subscription.get('plan')
+        else:
+            result['plexpass'] = "No Subscription"
 
         date= xml.find('joined-at').text
         result['membersince'] = date.split(' ')[0]
