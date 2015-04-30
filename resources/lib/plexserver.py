@@ -175,16 +175,16 @@ class PlexMediaServer:
 
     def find_address_match(self, ipaddress,port):
         printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.access_address, self.access_port))
-        if (ipaddress, int(port)) == (self.access_address, self.access_port):
+        if "%s:%s" % (ipaddress, port) == "%s:%s" % (self.access_address, self.access_port):
             return True
 
         printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.external_address, self.external_port))
-        if (ipaddress, int(port)) == (self.external_address, self.external_port):
+        if "%s:%s" % (ipaddress, port) == "%s:%s" %(self.external_address, self.external_port):
             return True
 
         for test_address in self.local_address:
             printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, ipaddress, 32400 ))
-            if (ipaddress, int(port)) == (test_address, 32400):
+            if "%s:%s" % (ipaddress, int(port)) == "%s:%s" % (test_address, 32400):
                 return True
 
         return False
