@@ -184,7 +184,7 @@ class PlexMediaServer:
 
         for test_address in self.local_address:
             printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, ipaddress, 32400 ))
-            if "%s:%s" % (ipaddress, int(port)) == "%s:%s" % (test_address, 32400):
+            if "%s:%s" % (ipaddress, port) == "%s:%s" % (test_address, 32400):
                 return True
 
         return False
