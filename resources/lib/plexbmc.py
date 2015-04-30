@@ -2927,7 +2927,7 @@ def amberskin():
         serverCount+=1
 
     #Clear out old data
-    clear_skin_sections(WINDOW, sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount")))
+    clear_skin_sections(WINDOW, sectionCount, int(WINDOW.getProperty("plexbmc.sectionCount") if '' else 50))
 
     printDebug.debug("Total number of skin sections is [%s]" % sectionCount )
     printDebug.debug("Total number of servers is [%s]" % numOfServers)
