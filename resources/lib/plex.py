@@ -31,10 +31,11 @@ class Plex:
         self.plexhome_cache="plexhome_user.pcache"
         self.client_id=None
         self.user_list=dict()
-        self.plexhome_settings={'myplex_signedin'     : False,
-                                'plexhome_enabled'    : False,
-                                'myplex_user_cache'   : '',
-                                'plexhome_user_cache' : '' }
+        self.plexhome_settings={'myplex_signedin'      : False,
+                                'plexhome_enabled'     : False,
+                                'myplex_user_cache'    : '',
+                                'plexhome_user_cache'  : '',
+                                'plexhome_user_avatar' : '' }
 
         self.setup_user_token()
         if load:
@@ -49,11 +50,16 @@ class Plex:
     def get_myplex_user(self):
         return self.effective_user
 
+    def get_myplex_avatar(self):
+        return self.plexhome_settings['plexhome_user_avatar']
+
     def signout(self):
-        self.plexhome_settings={'myplex_signedin'     : False,
-                                'plexhome_enabled'    : False,
-                                'myplex_user_cache'   : '',
-                                'plexhome_user_cache' : '' }
+        self.plexhome_settings={'myplex_signedin'      : False,
+                                'plexhome_enabled'     : False,
+                                'myplex_user_cache'    : '',
+                                'plexhome_user_cache'  : '',
+                                'plexhome_user_avatar' : '' }
+
         self.delete_cache(True)
         printDebug.info("Signed out from myPlex")
 
@@ -96,6 +102,8 @@ class Plex:
                     xml=etree.fromstring(response.text.encode('utf-8'))
                     home=xml.get('home','0')
                     username=xml.get('username','')
+                    avatar = xml.get('thumb')
+                    self.plexhome_settings['plexhome_user_avatar']=avatar
 
                     if home == '1':
                         self.plexhome_settings['plexhome_enabled']=True
@@ -160,7 +168,6 @@ class Plex:
         printDebug.info("myplex userid: %s" % self.myplex_user)  
         printDebug.info("effective userid: %s" % self.effective_user)
 
-
     def load_tokencache(self):
 
         data_ok, token_cache = self.cache.readCache(self.plexhome_cache)
@@ -174,6 +181,8 @@ class Plex:
                 if not isinstance(token_cache['myplex_user_cache'], basestring):
                     raise
                 if not isinstance(token_cache['plexhome_user_cache'], basestring):
+                    raise
+                if not isinstance(token_cache['plexhome_user_avatar'], basestring):
                     raise
 
                 self.plexhome_settings = token_cache
@@ -442,7 +451,8 @@ class Plex:
                 printDebug.info("Received new plex token")
                 xml=etree.fromstring(response.text.encode('utf-8'))
                 home=xml.get('home','0')
-
+                avatar = xml.get('thumb')
+                self.plexhome_settings['plexhome_user_avatar']=avatar
                 if home == '1':
                     self.plexhome_settings['plexhome_enabled']=True
                     printDebug.debug("Setting PlexHome enabled.")
@@ -565,6 +575,9 @@ class Plex:
                 if id == users['id']:
                     username=users['title']
                     break
+
+            avatar = tree.get('thumb')
+            self.plexhome_settings['plexhome_user_avatar']=avatar
 
             token=tree.findtext('authentication-token')
             self.plexhome_settings['plexhome_user_cache']="%s|%s" % (username,token)

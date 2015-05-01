@@ -2754,6 +2754,10 @@ def amberskin():
     WINDOW.setProperty("plexbmc.myplex_signedin" , str(plex_network.is_myplex_signedin()))
     WINDOW.setProperty("plexbmc.plexhome_enabled" , str(plex_network.is_plexhome_enabled()))
 
+    if plex_network.is_plexhome_enabled():
+        WINDOW.setProperty("plexbmc.plexhome_user" , str(plex_network.get_myplex_user()))
+        WINDOW.setProperty("plexbmc.plexhome_avatar" , str(plex_network.get_myplex_avatar()))
+
     printDebug.debug("Using list of %s servers: %s " % (len(server_list), server_list))
 
     for server in server_list:
