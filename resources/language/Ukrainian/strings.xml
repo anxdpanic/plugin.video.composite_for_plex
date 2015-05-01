@@ -22,7 +22,7 @@
     <string id="30018">Транскодування</string>
     <string id="30019">Wake On LAN</string>
     <string id="30020">Вигляд</string>
-    <string id="30021">Домашня Поличка Обкладинки</string>
+    <string id="30021">Поличка</string>
     <string id="30022">Розширені</string>
     <string id="30023">Використовувати Wake On LAN</string>
     <string id="30024">myPlex користувач</string>
@@ -73,7 +73,7 @@
     <string id="30070">Авто (GDM)</string>
     <string id="30071">Поточний Майстер Сервер</string>
     <string id="30072">Елементи на полиці</string>
-    <string id="30073">Нові</string>
+    <string id="30073">Недавно додані</string>
     <string id="30074">На головній</string>
     <string id="30075">Примусовий вигляд обкладинки</string>
     <string id="30076">Назва обкладинки</string>
@@ -89,9 +89,9 @@
     <string id="30086">Фільтр контенту</string>
     <string id="30087">Відмічати невідомий контент як</string>
     <string id="30088">RA-Фільтр бібліотеки</string>
-    <string id="30089">Діти</string>
-    <string id="30090">Підлітки</string>
-    <string id="30091">Дорослі</string>
+    <string id="30089">Kids</string>
+    <string id="30090">Teens</string>
+    <string id="30091">Adults</string>
     <string id="30092">Використовувати меню для загальних секцій</string>
     <string id="30093">Кешувати дані</string>
     <string id="30094">Вручну</string>

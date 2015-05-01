@@ -9,7 +9,7 @@
     <string id="30006">PMS Пароль:</string>
     <string id="30007">Всегда транскодировать</string>
     <string id="30008">Формат транскодирования</string>
-    <string id="30009">Недавние &amp; На главной</string>
+    <string id="30009">Недавно добавленные &amp; На главной</string>
     <string id="30010">Отладочный лог</string>
     <string id="30011">Авто</string>
     <string id="30012">http</string>
@@ -22,7 +22,7 @@
     <string id="30018">Транскодирование</string>
     <string id="30019">Wake On LAN</string>
     <string id="30020">Внешний вид</string>
-    <string id="30021">Домашя Полка Скина</string>
+    <string id="30021">Полка</string>
     <string id="30022">Расширенные</string>
     <string id="30023">Использовать Wake On LAN</string>
     <string id="30024">myPlex пользователь</string>
@@ -73,7 +73,7 @@
     <string id="30070">Авто (GDM)</string>
     <string id="30071">Текущий Мастер Сервер</string>
     <string id="30072">Элементы на полке</string>
-    <string id="30073">Новые</string>
+    <string id="30073">Недавно добавленные</string>
     <string id="30074">На главной</string>
     <string id="30075">Принудительный Вид Обложки</string>
     <string id="30076">Имя обложки</string>
@@ -89,9 +89,9 @@
     <string id="30086">Фильтр содержимого</string>
     <string id="30087">Связывать неизвестное содержимое как:</string>
     <string id="30088">RA-Фильтр библиотеки</string>
-    <string id="30089">Дети</string>
-    <string id="30090">Подростки</string>
-    <string id="30091">Взрослые</string>
+    <string id="30089">Kids</string>
+    <string id="30090">Teens</string>
+    <string id="30091">Adults</string>
     <string id="30092">Использовать меню для общих секций</string>
     <string id="30093">Кешировать данные</string>
     <string id="30094">Вручную</string>
