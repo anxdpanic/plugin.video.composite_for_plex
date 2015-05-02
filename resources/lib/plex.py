@@ -567,7 +567,6 @@ class Plex:
         return self.user_list        
 
     def switch_plex_home_user(self,id,pin):
-        #self.get_myplex_token()
         if pin is None:
             pin_arg="?X-Plex-Token=%s" % self.effective_token
         else:
@@ -596,6 +595,7 @@ class Plex:
 
             token=tree.findtext('authentication-token')
             self.plexhome_settings['plexhome_user_cache']="%s|%s" % (username,token)
+            self.effective_user = username
             self.save_tokencache()
             return (True,None)
 
