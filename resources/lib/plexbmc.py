@@ -1,9 +1,9 @@
 '''
-    @document   : default.py
+    @document   : plexbmc.py
     @package    : PleXBMC add-on
     @author     : Hippojay (aka Dave Hawes-Johnson)
-    @copyright  : 2011-2012, Hippojay
-    @version    : 3.0 (frodo)
+    @copyright  : 2011-2015, Hippojay
+    @version    : 4.0 (Helix)
 
     @license    : Gnu General Public License - see LICENSE.TXT
     @description: pleXBMC XBMC add-on
