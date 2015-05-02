@@ -2707,7 +2707,7 @@ def skin( server_list=None, type=None ):
         if server.is_secondary():
             continue
 
-        if settings.channelview:
+        if settings.get_setting('channelview'):
             WINDOW.setProperty("plexbmc.channel", "1")
             WINDOW.setProperty("plexbmc.%d.server.channel" % (serverCount) , "ActivateWindow(VideoLibrary,plugin://plugin.video.plexbmc/?url=%s/channels/all&mode=21,return)" % server.get_url_location())
         else:
