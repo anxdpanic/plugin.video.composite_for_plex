@@ -4067,6 +4067,7 @@ def start_plexbmc():
         ret = xbmcgui.Dialog().yesno("myplex","You are currently signed into myPlex. Are you sure you want to sign out?")
         if ret:
             plex_network.signout()
+            WINDOW = xbmcgui.Window(10000)
             WINDOW.clearProperty("plexbmc.plexhome_user" )
             WINDOW.clearProperty("plexbmc.plexhome_avatar" )            
             clear_skin_sections()
