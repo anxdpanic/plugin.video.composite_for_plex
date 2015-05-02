@@ -4,7 +4,6 @@ import xbmcaddon
 class addonSettings:
 
     def __init__(self, name):
-
         print "PleXBMC -> Reading settings configuration"
         self.settings = xbmcaddon.Addon(name)
         self.stream = self.settings.getSetting('streaming')
@@ -13,7 +12,6 @@ class addonSettings:
         return self.settings.openSettings()
 
     def get_setting(self, name):
-
         value = self.settings.getSetting(name)
 
         if value is None or value == '':
@@ -27,7 +25,6 @@ class addonSettings:
             return value
 
     def get_debug(self):
-
         if self.settings.getSetting('debug') == 'true':
             print "PLEXBMC < 3.6 debug setting detected - settings must be re-saved"
             self.settings.setSetting('debug','2')
@@ -40,7 +37,6 @@ class addonSettings:
         return int(self.settings.getSetting('debug'))
 
     def set_setting(self, name, value):
-
         if value == True:
             value = "true"
         elif value == False:
@@ -62,12 +58,6 @@ class addonSettings:
 
     def dumpSettings(self):
         return self.__dict__
-
-    def enable_transcode(self):
-        self.transcode=True
-
-    def disable_transcode(self):
-        self.transcode=False
 
     def update_master_server(self, value):
         print "Updating master server to%s" % value
