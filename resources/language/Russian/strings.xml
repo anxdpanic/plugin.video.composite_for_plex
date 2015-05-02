@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
     <string id="30000">Основной адрес сервера</string>
-    <string id="30001">Поток из PMS</string>
+    <string id="30001">Формат ссылки из PMS</string>
     <string id="30002">Получать расширенные метаданные из PMS</string>
     <string id="30003">Включить меню экстра-фильтров</string>
-    <string id="30004">Обнаружение сервера</string>
+    <string id="30004">Расположение сервера</string>
     <string id="30005">PMS Пользователь:</string>
     <string id="30006">PMS Пароль:</string>
     <string id="30007">Всегда транскодировать</string>
     <string id="30008">Формат транскодирования</string>
-    <string id="30009">Недавние &amp; На главной</string>
+    <string id="30009">Недавно добавленные &amp; На главной</string>
     <string id="30010">Отладочный лог</string>
     <string id="30011">Авто</string>
     <string id="30012">http</string>
     <string id="30013">smb</string>
-    <string id="30014">Выводить отладочную информацию PleXBMC в лог XBMC</string>
+    <string id="30014">Выводить в лог XBMC</string>
     <string id="30015">Использовать прокси для транскодирования</string>
 
     <string id="30016">Сервер</string>
@@ -22,7 +22,7 @@
     <string id="30018">Транскодирование</string>
     <string id="30019">Wake On LAN</string>
     <string id="30020">Внешний вид</string>
-    <string id="30021">Домашя Полка Скина</string>
+    <string id="30021">Полка</string>
     <string id="30022">Расширенные</string>
     <string id="30023">Использовать Wake On LAN</string>
     <string id="30024">myPlex пользователь</string>
@@ -37,10 +37,10 @@
     <string id="30033">Всегда</string>
     <string id="30034">Выбор потока аудио</string>
     <string id="30035">Выбор потока субтитров</string>
-    <string id="30036">Управление XBMC</string>
+    <string id="30036">Управляется XBMC</string>
     <string id="30037">Внешний</string>
     <string id="30038">Выбор аудио и субтитров</string>
-    <string id="30039">Никогда не показывать субтитры</string>
+    <string id="30039">Не показывать субтитры</string>
     <string id="30040">Качество</string>
     <string id="30041">Порт Прокси</string>
     <string id="30042">Вид Каналов Plex</string>
@@ -57,8 +57,8 @@
     <string id="30053">Выкл</string>
     <string id="30054">Bonjour</string>
     <string id="30056">Play TV Theme Music</string>
-    <string id="30057">Выбрать аудио выход</string>
-    <string id="30058">Если только один сезон</string>
+    <string id="30057">Выбрать формат звука</string>
+    <string id="30058">Если один сезон</string>
     <string id="30059">Все сезоны</string>
     <string id="30060">Принудительное проигрывание DVD</string>
     <string id="30061">Переопределить расположение SMB</string>
@@ -67,14 +67,14 @@
     <string id="30064">NAS Пользователь</string>
     <string id="30065">NAS Пароль</string>
     <string id="30066">NAS Корневая папка</string>
-    <string id="30067">Управление Plex</string>
+    <string id="30067">Управляется Plex</string>
     <string id="30068">Размер субтитров</string>
-    <string id="30069">Усиление аудио</string>
+    <string id="30069">Усиление звука</string>
     <string id="30070">Авто (GDM)</string>
     <string id="30071">Текущий Мастер Сервер</string>
     <string id="30072">Элементы на полке</string>
-    <string id="30073">Новые</string>
-    <string id="30074">Начатые</string>
+    <string id="30073">Недавно добавленные</string>
+    <string id="30074">На главной</string>
     <string id="30075">Принудительный Вид Обложки</string>
     <string id="30076">Имя обложки</string>
     <string id="30077">Фильмы</string>
@@ -89,9 +89,9 @@
     <string id="30086">Фильтр содержимого</string>
     <string id="30087">Связывать неизвестное содержимое как:</string>
     <string id="30088">RA-Фильтр библиотеки</string>
-    <string id="30089">Дети</string>
-    <string id="30090">Подростки</string>
-    <string id="30091">Взрослые</string>
+    <string id="30089">Kids</string>
+    <string id="30090">Teens</string>
+    <string id="30091">Adults</string>
     <string id="30092">Использовать меню для общих секций</string>
     <string id="30093">Кешировать данные</string>
     <string id="30094">Вручную</string>
@@ -103,7 +103,7 @@
     <string id="30100">Отладка+</string>
     <string id="30101">Транскодер</string>
     <string id="30102">Имя</string>
-    <string id="30103">Отключить &quot;Все эпизоды&quot;</string>
+    <string id="30103">Скрыть &quot;Все эпизоды&quot;</string>
     <string id="30104">Включить кеш KODI</string>
     <string id="30105">Управлять myPlex</string>
 </strings>
