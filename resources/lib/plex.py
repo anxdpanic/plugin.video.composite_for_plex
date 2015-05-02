@@ -497,7 +497,7 @@ class Plex:
 
         for server in self.server_list.values():
 
-            printDebug.debug("checking ip:%s against server ip %s" % (ip, server.get_address()))
+            printDebug.debug("[%s] - checking ip:%s against server ip %s" % (server.get_name(), ip, server.get_address()))
 
             if server.find_address_match(ip,port):
                 return server
