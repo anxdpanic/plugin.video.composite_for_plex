@@ -102,7 +102,12 @@ class Plex:
                     xml=etree.fromstring(response.text.encode('utf-8'))
                     home=xml.get('home','0')
                     username=xml.get('username','')
+
                     avatar = xml.get('thumb')
+                    #Required because plex.tv doesn;t return content-length and KODI requires it for cache
+                    #Ifixed in KODI 15 (isengard)
+                    if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
+                        avatar = avatar.replace('//','//i2.wp.com/',1)
                     self.plexhome_settings['plexhome_user_avatar']=avatar
 
                     if home == '1':
@@ -451,8 +456,14 @@ class Plex:
                 printDebug.info("Received new plex token")
                 xml=etree.fromstring(response.text.encode('utf-8'))
                 home=xml.get('home','0')
+
                 avatar = xml.get('thumb')
+                #Required because plex.tv doesn;t return content-length and KODI requires it for cache
+                #Ifixed in KODI 15 (isengard)
+                if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
+                    avatar = avatar.replace('//','//i2.wp.com/',1)
                 self.plexhome_settings['plexhome_user_avatar']=avatar
+
                 if home == '1':
                     self.plexhome_settings['plexhome_enabled']=True
                     printDebug.debug("Setting PlexHome enabled.")
@@ -577,6 +588,10 @@ class Plex:
                     break
 
             avatar = tree.get('thumb')
+            #Required because plex.tv doesn;t return content-length and KODI requires it for cache
+            #Ifixed in KODI 15 (isengard)
+            if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
+                avatar = avatar.replace('//','//i2.wp.com/',1)
             self.plexhome_settings['plexhome_user_avatar']=avatar
 
             token=tree.findtext('authentication-token')
