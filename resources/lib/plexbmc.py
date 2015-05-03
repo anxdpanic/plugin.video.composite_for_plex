@@ -544,7 +544,7 @@ def Movies( url, tree=None ):
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
-    xbmcplugin.endOfDirectory(pluginhandle)
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 def buildContextMenu( url, itemData, server ):
     context=[]
