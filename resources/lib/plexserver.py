@@ -293,9 +293,13 @@ class PlexMediaServer:
             self.section_list.append(plex_section(section))
         return
 
-    def get_recently_added(self,section=-1,start=0,size=0):
-        arguments="?unwatched=1"
-
+    def get_recently_added(self,section=-1,start=0,size=0, hide_watched=True):
+        
+        if hide_watched:
+            arguments="?unwatched=1"
+        else:
+            arguments='?unwatched=0'
+            
         if section < 0:
             return self.processed_xml("/library/recentlyAdded%s" % arguments)    
 
