@@ -7,7 +7,7 @@ print "===== PLEXBMC START [id: %s] =====" % plexbmc_start
 #import StringIO
 #import cProfile
 #import pstats
-from common import *  #Needed first to setup import locations
+from common import GLOBAL_SETUP  #Needed first to setup import locations
 import plexbmc
 
 plexbmc.start_plexbmc()
