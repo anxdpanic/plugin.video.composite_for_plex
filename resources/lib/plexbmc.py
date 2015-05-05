@@ -1334,7 +1334,7 @@ def monitorPlayback( id, server, playurl, session=None ):
     if session:
         printDebug.debug("We are monitoring a transcode session")
 
-    if settings.get_setting('monitoroff') == "true":
+    if settings.get_setting('monitoroff'):
         return
 
     playedTime = 0
@@ -1513,7 +1513,7 @@ def pluginTranscodeMonitor( sessionID, server ):
     #Logic may appear backward, but this does allow for a failed start to be detected
     #First while loop waiting for start
 
-    if settings.get_setting('monitoroff') == "true":
+    if settings.get_setting('monitoroff'):
         return
 
     count=0
