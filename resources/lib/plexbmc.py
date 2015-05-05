@@ -1524,11 +1524,11 @@ def pluginTranscodeMonitor( sessionID, server ):
             #Waited 20 seconds and still no movie playing - assume it isn't going to..
             return
         else:
-            time.sleep(2)
+            xbmc.sleep(2000)
 
     while xbmc.Player().isPlaying():
         printDebug.debug("Waiting for playback to finish")
-        time.sleep(4)
+        xbmc.sleep(4000)
 
     printDebug.debug("Playback Stopped")
     printDebug.debug("Stopping PMS transcode job with session: %s" % sessionID)
