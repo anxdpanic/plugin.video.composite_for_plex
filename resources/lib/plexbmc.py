@@ -3058,13 +3058,11 @@ def fullShelf(server_list={}):
             if settings.get_setting('homeshelf') == '1' or settings.get_setting('homeshelf') == '2':
 
                 tree = server_details.get_ondeck(section=section.get_key(),size=15)
-
-                libraryuuid = tree.get("librarySectionUUID",'').encode('utf-8')
-
                 if tree is None:
                     print ("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location(), False)
                     continue
 
+                libraryuuid = tree.get("librarySectionUUID",'').encode('utf-8')
                 for eachitem in tree:
                     ondeck_list.append((eachitem, server_details, libraryuuid))
 
