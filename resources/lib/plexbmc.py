@@ -3342,7 +3342,7 @@ def displayContent( acceptable_level, content_level ):
                   'A' : 2 }       # CAN - Adults
 
     if content_level is None or content_level == "None":
-        printDebug.debug("Setting [None] rating as %s" % ( settings.get_setting('contentNone') , ))
+        printDebug.debug("Setting [None] rating as %s" % settings.get_setting('contentNone') )
         if content_map[settings.get_setting('contentNone')] <= content_map[acceptable_level]:
             printDebug.debug("OK to display")
             return True
