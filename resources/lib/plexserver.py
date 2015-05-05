@@ -435,6 +435,12 @@ class PlexMediaServer:
         return
 
     def report_playback_progress(self, id, time, state='playing', duration=0):      
+        
+        try:
+            if state == 'stopped' and int( ( float(time) / float(duration) ) * 100) > 98:
+                time = duration
+        except: pass
+
         self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % ( duration, id, id, state, time))
         return
 

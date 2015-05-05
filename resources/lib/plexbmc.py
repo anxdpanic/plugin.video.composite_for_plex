@@ -1210,7 +1210,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
         setAudioSubtitles(streams)
 
     if streams['type'] == "video" or streams['type'] == "music":
-        monitorPlayback(id,server, session)
+        monitorPlayback(id,server, playurl, session)
 
     return
 
@@ -1328,7 +1328,7 @@ def selectMedia( data, server ):
     printDebug.debug("We have selected media at %s" % newurl)
     return newurl
 
-def monitorPlayback( id, server, session=None ):
+def monitorPlayback( id, server, playurl, session=None ):
     printDebug.debug("== ENTER ==")
 
     if session:
@@ -1337,17 +1337,21 @@ def monitorPlayback( id, server, session=None ):
     if settings.get_setting('monitoroff') == "true":
         return
 
-    monitorCount=0
-    progress = 0
-    complete = 0
     playedTime = 0
     totalTime = 0
+    currentTime = 0
     #Whilst the file is playing back
     while xbmc.Player().isPlaying():
-        #Get the current playback time
+
+        try:
+            if not ( playurl == xbmc.Player().getPlayingFile() ):
+                printDebug.info("File stopped being played")
+                break
+        except: pass
 
         currentTime = int(xbmc.Player().getTime())
         totalTime = int(xbmc.Player().getTotalTime())
+
         try:
             progress = int(( float(currentTime) / float(totalTime) ) * 100)
         except:
@@ -1360,15 +1364,12 @@ def monitorPlayback( id, server, session=None ):
 
             printDebug.debug( "Movies played time: %s secs of %s @ %s%%" % ( currentTime, totalTime, progress) )
             server.report_playback_progress(id,currentTime*1000, state="playing", duration=totalTime*1000)
-            complete=0
             playedTime = currentTime
 
-        xbmc.sleep(5000)
+        xbmc.sleep(2000)
 
     #If we get this far, playback has stopped
-    printDebug.debug("Playback Stopped")
-
-    # set stopped for timeline
+    printDebug.debug("Playback Stopped")        
     server.report_playback_progress(id,playedTime*1000, state='stopped', duration=totalTime*1000)
 
     if session is not None:
