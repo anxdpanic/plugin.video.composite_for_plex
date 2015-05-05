@@ -1761,14 +1761,18 @@ def albums( url, tree=None ):
     sectionart=getFanart(tree, server)
     setWindowHeading(tree)
     AlbumTags=tree.findall('Directory')
+    recent = True if 'recentlyAdded' in url else False
     for album in AlbumTags:
 
         details={'album'   : album.get('title','').encode('utf-8') ,
                  'year'    : int(album.get('year',0)) ,
                  'artist'  : tree.get('parentTitle', album.get('parentTitle','')).encode('utf-8') }
 
-        details['title']=details['album']
-
+        if recent:
+            details['title']="%s - %s" % ( details['artist'], details['album'])
+        else:
+            details['title']=details['album']         
+            
         extraData={'type'         : "Music" ,
                    'thumb'        : getThumb(album, server) ,
                    'fanart_image' : getFanart(album, server) ,
