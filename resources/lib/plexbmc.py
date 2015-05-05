@@ -4048,6 +4048,8 @@ def start_plexbmc():
     elif command == "switchuser":
         if switch_user():
             clear_skin_sections()
+            clearOnDeckShelf()
+            clearShelf()
             WINDOW = xbmcgui.Window(10000)
             WINDOW.setProperty("plexbmc.plexhome_user" , str(plex_network.get_myplex_user()))
             WINDOW.setProperty("plexbmc.plexhome_avatar" , str(plex_network.get_myplex_avatar()))
@@ -4068,8 +4070,10 @@ def start_plexbmc():
             plex_network.signout()
             WINDOW = xbmcgui.Window(10000)
             WINDOW.clearProperty("plexbmc.plexhome_user" )
-            WINDOW.clearProperty("plexbmc.plexhome_avatar" )            
+            WINDOW.clearProperty("plexbmc.plexhome_avatar" )
             clear_skin_sections()
+            clearOnDeckShelf()
+            clearShelf()            
             xbmc.executebuiltin("ReloadSkin()")
 
     elif command == "signin":
