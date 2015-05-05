@@ -3086,7 +3086,6 @@ def fullShelf(server_list={}):
             title_thumb = getShelfThumb(media,source_server)
 
             if media.get('duration') > 0:
-                #movie_runtime = media.get('duration', '0')
                 movie_runtime = str(int(float(media.get('duration'))/1000/60))
             else:
                 movie_runtime = ""
