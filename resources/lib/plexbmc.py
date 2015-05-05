@@ -1088,6 +1088,8 @@ def playPlaylist ( server, data ):
     printDebug.debug("Playlist complete.  Starting playback from track %s [playlist index %s] " % (data['extra'].get('index',0), index ))
     xbmc.Player().playselected( index )   
 
+    
+    
     return
 
 def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=False ):
@@ -1207,7 +1209,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
     if not override:
         setAudioSubtitles(streams)
 
-    if streams['type'] == "video":
+    if streams['type'] == "video" or streams['type'] == "music":
         monitorPlayback(id,server, session)
 
     return
@@ -2171,21 +2173,16 @@ def trackTag( server, tree, track, sectionart="", sectionthumb="", listing=True 
              'rating'      : float(track.get('rating',0)) ,
              'album'       : track.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
              'artist'      : track.get('grandparentTitle', tree.get('grandparentTitle','')).encode('utf-8') ,
-             'duration'    : int(track.get('duration',0))/1000 
-             }
+             'duration'    : int(track.get('duration',0))/1000 }
 
-    extraData={'type'         : "Music" ,
-               #'fanart_image' : getFanart(track, server) ,
-               #'thumb'        : getThumb(track, server) ,
-               'fanart_image' : sectionart ,
-               'thumb'      : sectionthumb ,
-               'ratingKey'    : track.get('key','') }
+    extraData={'type'          : "music" ,
+               'fanart_image'  : sectionart ,
+               'thumb'         : sectionthumb ,
+               'key'           : track.get('key','') }
 
     #If we are streaming, then get the virtual location
-    url=mediaType(partDetails,server)
-
-    extraData['mode']=MODE_BASICPLAY
-    u="%s" % (url)
+    extraData['mode']=MODE_PLAYLIBRARY
+    u="%s%s" % (server.get_url_location(), extraData['key'])
 
     if listing:
         addGUIItem(u,details,extraData,folder=False)
