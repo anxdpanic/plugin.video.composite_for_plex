@@ -1173,7 +1173,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
         else:
             resume=force
 
-    if force or shelf:    
+    if force or shelf or session is not None:
         if resume:
             item.setProperty('ResumeTime', str(resume) )
             item.setProperty('TotalTime', str(duration) )
