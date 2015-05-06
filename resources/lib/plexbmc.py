@@ -4125,7 +4125,7 @@ def start_plexbmc():
 
         #Populate channel recently viewed items    
         elif command == "channelShelf":
-            #shelfChannel()
+            shelfChannel()
             pass
             
         #Send a library update to Plex    
