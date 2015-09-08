@@ -474,7 +474,7 @@ class PlexMediaServer:
         resolution, bitrate = settings.get_setting('quality_uni').split(',')
 
         if bitrate.endswith('Mbps'):
-            mVB=int(bitrate.strip().split('Mbps')[0])*1000        
+            mVB=float(bitrate.strip().split('Mbps')[0])*1000        
         elif bitrate.endswith('Kbps'):
             mVB=bitrate.strip().split('Kbps')[0]
         elif bitrate.endswith('unlimited'):
@@ -514,7 +514,7 @@ class PlexMediaServer:
         printDebug.debug("Using preferred transcoding server: %s " % self.get_name())
         printDebug.debug("incoming URL is: %s" % url)
 
-        quality = str(int(settings.get_setting('quality_leg'))+3)
+        quality = str(float(settings.get_setting('quality_leg'))+3)
         printDebug.debug( "Transcode quality is %s" % quality)
 
         audioOutput=settings.get_setting("audiotype")
@@ -557,7 +557,7 @@ class PlexMediaServer:
 
         printDebug.debug("new transcode request is: %s" % transcode_request )
 
-        now=str(int(round(time.time(),0)))
+        now=str(float(round(time.time(),0)))
 
         msg = transcode_request+"@"+now
         printDebug.debug("Message to hash is %s" % msg)
