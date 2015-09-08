@@ -1488,7 +1488,7 @@ def videoPluginPlay(vids, prefix=None, indirect=None, transcode=False ):
 
     #If this is an Apple movie trailer, add User Agent to allow access
     if 'trailers.apple.com' in vids:
-        url=vids+"|User-Agent=QuickTime/7.6.5 (qtver=7.6.5;os=Windows NT 5.1Service Pack 3)"
+        url=vids+"|User-Agent=QuickTime/7.6.9 (qtver=7.6.9;os=Windows NT 6.1Service Pack 1)"
     else:
         url=vids
 
