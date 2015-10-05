@@ -1097,7 +1097,12 @@ def playPlaylist ( server, data ):
     return
 
 def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=False ):
-
+    
+    #assume widget if playback initiated from home
+    if xbmc.getCondVisibility("Window.IsActive(home)"): 
+        shelf = True
+        full_data = True
+    
     session=None
     if settings.get_setting('transcode'):
         override=True
@@ -1116,7 +1121,9 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
     if force:
         full_data = True
 
-    streams=getAudioSubtitlesMedia(server,tree, full_data)  
+    streams=getAudioSubtitlesMedia(server,tree, full_data)
+    
+    print tree
 
     if force and streams['type'] == "music":
         playPlaylist(server, streams)
@@ -1181,6 +1188,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
         if resume:
             item.setProperty('ResumeTime', str(resume) )
             item.setProperty('TotalTime', str(duration) )
+            item.setProperty('StartOffset', str(resume))
             printDebug.info("Playback from resume point: %s" % resume)
 
     if streams['type'] == "picture":
@@ -1192,7 +1200,12 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
         html=xbmc.executeJSONRPC(request)
         return
     else:
-        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        if shelf:
+            # if launched from widget, use player.play for playback so artwork and resume works correctly
+            xbmcplugin.setResolvedUrl(pluginhandle, False, item)
+            start = xbmc.Player().play(playurl,item)
+        else:
+            start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
     # record the playing file and server in the home window
     # so that plexbmc helper can find out what is playing
