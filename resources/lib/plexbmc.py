@@ -214,15 +214,15 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
     if season_thumb: poster = season_thumb
     
     if fanart:
-        liz.setProperty('fanart_image', extraData.get('fanart_image',None))
-        printDebug.debug("Setting fan art as %s" % extraData.get('fanart_image',None))
+        printDebug.debug("Setting fan art as %s" % fanart)
+        liz.setProperty('fanart_image', fanart)
     if banner:
-        liz.setProperty('banner', '%s' % extraData.get('banner', ''))
-        printDebug.debug("Setting banner as %s" % extraData.get('banner', ''))
+        printDebug.debug("Setting banner as %s" % banner)
+        liz.setProperty('banner', '%s' % banner)
     if season_thumb:
-        liz.setProperty('seasonThumb', '%s' % extraData.get('season_thumb', ''))
-        printDebug.debug("Setting season Thumb as %s" % extraData.get('season_thumb', ''))
-    
+        printDebug.debug("Setting season Thumb as %s" % season_thumb)
+        liz.setProperty('seasonThumb', '%s' % season_thumb)
+        
     liz.setArt({"fanart":fanart, "poster":poster, "banner":banner})
     
     if context is not None:
