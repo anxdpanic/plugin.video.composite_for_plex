@@ -1122,8 +1122,6 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
         full_data = True
 
     streams=getAudioSubtitlesMedia(server,tree, full_data)
-    
-    print tree
 
     if force and streams['type'] == "music":
         playPlaylist(server, streams)
