@@ -18,7 +18,7 @@ class Plex:
 
     def __init__(self, load=False):
 
-        # Provide an interface into Plex 
+        # Provide an interface into Plex
         self.cache=CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", settings.get_setting('cache'))
         self.myplex_server='https://plex.tv'
         self.myplex_user=None
@@ -39,7 +39,7 @@ class Plex:
 
         self.setup_user_token()
         if load:
-            self.load()    
+            self.load()
 
     def is_plexhome_enabled(self):
         return self.plexhome_settings['plexhome_enabled']
@@ -71,9 +71,10 @@ class Plex:
             identifier=xml.find('id').text
         except:
             code = None
+            identifier = None
 
         if code is None:
-            printDebug("Error, no code provided")
+            printDebug.debug("Error, no code provided")
             code = "----"
             identifier="error"
 
@@ -123,7 +124,7 @@ class Plex:
                     self.save_tokencache()
                     return True
                 except:
-                    printDebug.info("No authentication token found")        
+                    printDebug.info("No authentication token found")
 
         return False
 
@@ -170,14 +171,14 @@ class Plex:
             self.effective_token = self.myplex_token
             self.save_tokencache()
 
-        printDebug.info("myplex userid: %s" % self.myplex_user)  
+        printDebug.info("myplex userid: %s" % self.myplex_user)
         printDebug.info("effective userid: %s" % self.effective_user)
 
     def load_tokencache(self):
 
         data_ok, token_cache = self.cache.readCache(self.plexhome_cache)
 
-        if data_ok: 
+        if data_ok:
             try:
                 if not isinstance(token_cache['myplex_signedin'], int):
                     raise
@@ -228,7 +229,7 @@ class Plex:
         if self.server_list:
             self.discovered=True
 
-        return self.discovered    
+        return self.discovered
 
     def get_server_list(self):
         return self.server_list.values()
@@ -292,7 +293,7 @@ class Plex:
                 gdm_server_name = gdm_client.getServerList()
             except Exception, e:
                 print "PleXBMC -> GDM Issue [%s]" % e
-            else:   
+            else:
                 if gdm_client.discovery_complete and gdm_server_name :
                     printDebug.info("GDM discovery completed")
 
@@ -344,7 +345,7 @@ class Plex:
         self.cache.writeCache(self.server_list_cache, self.server_list)
         printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
 
-        return 
+        return
 
     def get_myplex_queue(self):
         return self.get_processed_myplex_xml('/pms/playlists/queue/all')
@@ -418,10 +419,10 @@ class Plex:
                 response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=self.plex_identification(), verify=True, timeout=(3,10))
         except requests.exceptions.ConnectionError, e:
             printDebug.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
-            return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
+            return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
         except requests.exceptions.ReadTimeout, e:
             printDebug.info("myplex: read timeout for %s on %s " % (self.myplex_server, path))
-            return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
+            return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
 
         else:
 
@@ -438,12 +439,12 @@ class Plex:
                 if response.status_code == 404:
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
                 else:
-                    return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'                
+                    return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
             else:
                 link=response.text.encode('utf-8')
                 printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
 
-        return link        
+        return link
 
     def get_myplex_token(self,renew=False):
 
@@ -493,7 +494,7 @@ class Plex:
                 self.plexhome_settings['myplex_signedin']=True
                 self.save_tokencache()
             except:
-                printDebug.info("No authentication token found")        
+                printDebug.info("No authentication token found")
         else:
             error = "HTTP response error: %s %s" % (response.status_code, response.reason)
             print error
@@ -524,8 +525,8 @@ class Plex:
         return PlexMediaServer(name="Unknown",address=ip, port=port, discovery='local')
 
     def get_server_from_url(self, url):
-        url_parts = urlparse.urlparse(url)    
-        return self.get_server_from_ip(url_parts.netloc)        
+        url_parts = urlparse.urlparse(url)
+        return self.get_server_from_ip(url_parts.netloc)
 
     def get_server_from_uuid(self, uuid):
         return self.server_list[uuid]
@@ -538,7 +539,7 @@ class Plex:
             return server.processed_xml(url)
         return ''
 
-    def talk_to_server(self, url):  
+    def talk_to_server(self, url):
         url_parts = urlparse.urlparse(url)
         server = self.get_server_from_ip(url_parts.netloc)
 
@@ -581,7 +582,7 @@ class Plex:
                   'thumb'      : users.get('thumb') }
             self.user_list[users.get('title')]=add
 
-        return self.user_list        
+        return self.user_list
 
     def switch_plex_home_user(self,id,pin):
         if pin is None:
@@ -593,9 +594,9 @@ class Plex:
         tree=etree.fromstring(data)
 
         if tree.get('status') == "unauthorized":
-            return (False, "Unauthorised")
+            return False, "Unauthorised"
         elif tree.get('status') == "error":
-            return (False, "Unknown error")
+            return False, "Unknown error"
         else:
             username=None
             for users in self.user_list.values():
@@ -614,9 +615,7 @@ class Plex:
             self.plexhome_settings['plexhome_user_cache']="%s|%s" % (username,token)
             self.effective_user = username
             self.save_tokencache()
-            return (True,None)
-
-        return (False, "Error")
+            return True,None
 
     def is_admin(self):
         if self.effective_user == self.myplex_user:

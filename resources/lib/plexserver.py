@@ -38,7 +38,7 @@ class PlexMediaServer:
         elif self.discovery == "discovery":
             self.local_address=[address]
             self.local_port=port
-        
+
         self.access_address=address
         self.access_port=port
 
@@ -175,7 +175,7 @@ class PlexMediaServer:
         printDebug.debug("Will use this address for this object, as a last resort")
         self.access_address = ipaddress
         self.access_port = 32400
-        
+
         return
 
     def find_address_match(self, ipaddress,port):
@@ -264,10 +264,10 @@ class PlexMediaServer:
                     printDebug.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
 
-                    printDebug.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.get_address()))                   
+                    printDebug.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.get_address()))
                     return data
                 elif response.status_code == requests.codes.unauthorized:
-                    printDebug.debug("Response: 401 Unauthorized - Please log into myplex or check your myplex password")                                        
+                    printDebug.debug("Response: 401 Unauthorized - Please log into myplex or check your myplex password")
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
                 else:
                     printDebug.debug("Unexpected Response: %s " % response.status_code)
@@ -296,7 +296,7 @@ class PlexMediaServer:
     def is_offline(self):
         return self.offline
 
-    def get_sections(self):            
+    def get_sections(self):
         printDebug.debug("Returning sections: %s" % self.section_list)
         return self.section_list
 
@@ -306,14 +306,14 @@ class PlexMediaServer:
         return
 
     def get_recently_added(self,section=-1,start=0,size=0, hide_watched=True):
-        
+
         if hide_watched:
             arguments="?unwatched=1"
         else:
             arguments='?unwatched=0'
-            
+
         if section < 0:
-            return self.processed_xml("/library/recentlyAdded%s" % arguments)    
+            return self.processed_xml("/library/recentlyAdded%s" % arguments)
 
         if size > 0:
             arguments="%s&X-Plex-Container-Start=%s&X-Plex-Container-Size=%s" % (arguments, start, size)
@@ -325,7 +325,7 @@ class PlexMediaServer:
         arguments=""
 
         if section < 0:
-            return self.processed_xml("/library/onDeck%s" % arguments)    
+            return self.processed_xml("/library/onDeck%s" % arguments)
 
         if size > 0:
             arguments="%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s" % (arguments, start, size)
@@ -338,8 +338,8 @@ class PlexMediaServer:
     def get_server_ondeck(self):
         return self.get_ondeck(section=-1)
 
-    def get_channel_recentlyviewed(self):       
-        return self.processed_xml("/channels/recentlyViewed") 
+    def get_channel_recentlyviewed(self):
+        return self.processed_xml("/channels/recentlyViewed")
 
     def processed_xml(self,url):
         if url.startswith('http'):
@@ -440,14 +440,14 @@ class PlexMediaServer:
             else:
                 return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus("http://localhost:32400"+section.get_art()), width, height))
 
-        return section.get_art()     
+        return section.get_art()
 
     def stop_transcode_session(self, session):
         self.talk ('/video/:/transcode/segmented/stop?session=%s' % session)
         return
 
-    def report_playback_progress(self, id, time, state='playing', duration=0):      
-        
+    def report_playback_progress(self, id, time, state='playing', duration=0):
+
         try:
             if state == 'stopped' and int( ( float(time) / float(duration) ) * 100) > 98:
                 time = duration
@@ -486,7 +486,7 @@ class PlexMediaServer:
         resolution, bitrate = settings.get_setting('quality_uni').split(',')
 
         if bitrate.endswith('Mbps'):
-            mVB=int(bitrate.strip().split('Mbps')[0])*1000        
+            mVB=int(bitrate.strip().split('Mbps')[0])*1000
         elif bitrate.endswith('Kbps'):
             mVB=bitrate.strip().split('Kbps')[0]
         elif bitrate.endswith('unlimited'):
