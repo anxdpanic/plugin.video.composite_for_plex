@@ -21,7 +21,7 @@ class PlexMediaServer:
     def __init__(self, uuid=None, name=None, address=None, port=32400, token=None, discovery=None, class_type='primary' ):
 
         self.__revision = REQUIRED_REVISION
-        self.protocol="http"
+        self.protocol="https"
         self.uuid=uuid
         self.server_name=name
         self.discovery=discovery
@@ -145,6 +145,11 @@ class PlexMediaServer:
     def get_discovery(self):
         return self.discovery
 
+    def is_secure(self):
+        if self.protocol == 'https':
+            return True
+        return False
+        
     def add_local_address(self, address):
         self.local_address=address.split(',')
 
@@ -227,20 +232,27 @@ class PlexMediaServer:
     def talk(self,url='/',refresh=False, type='get'):
 
         if not self.offline or refresh:
-            printDebug.info("URL is: %s" % url)
+            printDebug.info("URL is: %s using %s" % (url, self.protocol))
 
             start_time=time.time()
             try:
                 if type == 'get':
-                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, timeout=(2,60))
+                    response = requests.get("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2,60))
                 elif type == 'put':
-                    response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, timeout=(2,60))                
+                    response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2,60))
                 elif type == 'delete':
-                    response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, timeout=(2,60))              
+                    response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2,60))
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
                 printDebug.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
-                self.offline=True
+            
+                if self.protocol == "https" and refresh:
+                    printDebug.info("Server: %s - switching to http" % self.get_address())
+                    self.protocol="http"
+                    return self.talk(url, refresh, type)
+                else:
+                    self.offline=True
+            
             except requests.exceptions.ReadTimeout, e:
                 printDebug.info("Server: read timeout for %s on %s " % (self.get_address(), url))
             else:
@@ -248,7 +260,7 @@ class PlexMediaServer:
                 printDebug.debug("URL was: %s" % response.url)
 
                 if response.status_code == requests.codes.ok:
-                    printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)                    
+                    printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
                     printDebug.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
 

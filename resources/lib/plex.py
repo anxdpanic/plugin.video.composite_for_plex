@@ -275,13 +275,8 @@ class Plex:
         return etree.fromstring(data)
 
     def discover_all_servers(self):
-        if self.is_myplex_signedin():
-            printDebug.info( "PleXBMC -> Adding myplex as a server location")
 
-            self.server_list = self.get_myplex_servers()
-
-            if self.server_list:
-                printDebug.info("MyPlex discovery completed")
+        self.server_list = {}
 
         if settings.get_setting('discovery') == "1":
             printDebug.info("local GDM discovery setting enabled.")
@@ -306,7 +301,8 @@ class Plex:
                         new_server.set_user(self.effective_user)
                         new_server.set_token(self.effective_token)
 
-                        self.merge_servers(new_server)
+                        self.server_list[new_server.get_uuid()] = new_server
+
                 else:
                     printDebug.info("GDM was not able to discover any servers")
 
@@ -322,8 +318,28 @@ class Plex:
                 local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local')
                 local_server.set_user(self.effective_user)
                 local_server.set_token(self.effective_token)
+                local_server.refresh()
+                if local_server.discovered:
+                    self.server_list[local_server.get_uuid()] = local_server
+                else:
+                    printDebug.warn("Error: Unable to discovery server %s" % settings.get_setting('ipaddress'))
 
-                self.merge_servers(local_server)
+        if self.is_myplex_signedin():
+                printDebug.info( "PleXBMC -> Adding myplex as a server location")
+
+                for remote_server in self.get_myplex_servers():
+                    self.merge_server(remote_server)
+
+                if self.server_list:
+                    printDebug.info("MyPlex discovery completed")
+
+
+        for refresh_server in self.server_list.values():
+            if not refresh_server.discovered:
+                refresh_server.refresh()
+
+                if refresh_server.discovered:
+                    self.server_list[refresh_server.get_uuid()]=refresh_server
 
         self.cache.writeCache(self.server_list_cache, self.server_list)
         printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
@@ -340,7 +356,7 @@ class Plex:
         return xml
 
     def get_myplex_servers(self):
-        tempServers = {}
+        tempServers = []
         xml = self.talk_to_myplex("/pms/servers")
 
         if xml is False:
@@ -366,12 +382,12 @@ class Plex:
 
             myplex_server.set_user(self.effective_user)
 
-            tempServers[myplex_server.get_uuid()]=myplex_server
+            tempServers.append(myplex_server)
             printDebug.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
 
         return tempServers
 
-    def merge_servers(self, server):
+    def merge_server(self, server):
         printDebug.info("merging server with uuid %s" % server.get_uuid())
 
         try:
@@ -383,11 +399,12 @@ class Plex:
                 self.server_list[server.get_uuid()]=server
         else:
             printDebug.info("Found existing server %s %s" % (existing.get_name(), existing.get_uuid()))
-            existing.set_best_address(server.get_address())
-            existing.refresh()
-            self.server_list[existing.get_uuid()]=existing
 
-        return 
+            #existing.set_best_address(server.get_address())
+            #existing.refresh()
+            #self.server_list[existing.get_uuid()]=existing
+
+        return
 
     def talk_to_myplex(self, path, renew=False, type='get'):
         printDebug.info("url = %s%s" % (self.myplex_server, path))
