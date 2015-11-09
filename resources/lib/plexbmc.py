@@ -39,7 +39,7 @@ import random
 import xbmc
 import datetime
 from common import *  #Needed first to setup import locations
-import plex
+from resources.lib.plex import plex
 
 def mediaType( partData, server, dvdplayback=False ):
     stream=partData['key']
@@ -4002,7 +4002,7 @@ else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
 pluginhandle=0
-plex_network=plex.Plex(load=False)
+plex_network= plex.Plex(load=False)
 
 def start_plexbmc():
     try:
@@ -4077,7 +4077,7 @@ def start_plexbmc():
             xbmc.executebuiltin("ReloadSkin()")
 
     elif command == "signin":
-        import plex_signin
+        from resources.lib.plex import plex_signin
         signin_window = plex_signin.plex_signin('Myplex Login')
         signin_window.set_authentication_target(plex_network)
         signin_window.start()
@@ -4099,7 +4099,7 @@ def start_plexbmc():
         elif not plex_network.is_admin():
             return xbmcgui.Dialog().ok("Manage myplex","To access these screens you must be logged in as an admin user.  Please switch user and try again")
 
-        import plex_signin
+        from resources.lib.plex import plex_signin
         manage_window = plex_signin.plex_manage('Manage myplex')
         manage_window.set_authentication_target(plex_network)
         manage_window.start()

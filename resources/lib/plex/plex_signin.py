@@ -1,5 +1,5 @@
 import pyxbmct.addonwindow as pyxbmct
-import plex
+import resources.lib.plex
 from common import printDebug, GLOBAL_SETUP
 import xbmc
 
