@@ -36,6 +36,9 @@ class printDebug:
     def error(self,message):
         return self.__printDebug(message, 0)        
 
+    def warn(self,message):
+        return self.__printDebug(message, 0)
+
     def info(self, message):
         return self.__printDebug(message, 1)
 
