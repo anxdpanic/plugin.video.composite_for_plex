@@ -207,11 +207,17 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('ResumeTime', '50')
 
     #assign artwork
-    fanart = extraData.get('fanart_image','')
-    poster = extraData.get('thumb', '')
+    fanart = extraData.get('fanart_image','')   
+    thumb = extraData.get('thumb', '')
     banner = extraData.get('banner', '')
+    
+    #tvshow poster
     season_thumb = extraData.get('season_thumb', '')
-    if season_thumb: poster = season_thumb
+    
+    if season_thumb:
+        poster = season_thumb
+    else:
+        poster = thumb
     
     if fanart:
         printDebug.debug("Setting fan art as %s" % fanart)
@@ -223,7 +229,7 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
         printDebug.debug("Setting season Thumb as %s" % season_thumb)
         liz.setProperty('seasonThumb', '%s' % season_thumb)
         
-    liz.setArt({"fanart":fanart, "poster":poster, "banner":banner})
+    liz.setArt({"fanart":fanart, "poster":poster, "banner":banner, "thumb":thumb})
     
     if context is not None:
         if not folder and extraData.get('type','video').lower() == "video":
@@ -719,10 +725,10 @@ def TVSeasons( url ):
 
         if banner:
             extraData['banner']=server.get_url_location()+banner
-
+        
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
-
+            
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
             details['playcount'] = 0
@@ -763,6 +769,9 @@ def TVEpisodes( url, tree=None ):
 
     #get season thumb for SEASON NODE
     season_thumb = tree.get('thumb', '')
+    print season_thumb
+    if season_thumb == "/:/resources/show.png": 
+        season_thumb = ""
 
     ShowTags=tree.findall('Video')
     server=plex_network.get_server_from_url(url)
@@ -852,10 +861,12 @@ def TVEpisodes( url, tree=None ):
         if season_thumb:
             extraData['season_thumb'] = server.get_url_location() + season_thumb
 
-        #get ALL SEASONS thumb
+        #get ALL SEASONS or TVSHOW thumb
         if not season_thumb and episode.get('parentThumb', ""):
             extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('parentThumb', ""))
-
+        elif not season_thumb and episode.get('grandparentThumb', ""):
+            extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('grandparentThumb', ""))
+        
         if banner:
             extraData['banner'] = "%s%s" % (server.get_url_location(), banner)
 
