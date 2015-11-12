@@ -1,4 +1,4 @@
-class plex_section:
+class PlexSection:
 
     def __init__(self, data=None):
 

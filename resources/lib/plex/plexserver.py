@@ -7,7 +7,7 @@ import time
 import uuid
 
 from resources.lib.settings import addonSettings
-import plex_section
+import plexsection
 from resources.lib.common import *
 import requests
 
@@ -303,7 +303,7 @@ class PlexMediaServer:
 
     def discover_sections(self):
         for section in self.processed_xml("/library/sections"):
-            self.section_list.append(plex_section.plex_section(section))
+            self.section_list.append(plexsection.PlexSection(section))
         return
 
     def get_recently_added(self,section=-1,start=0,size=0, hide_watched=True):
