@@ -5,11 +5,11 @@ import xbmc
 
 log_print=PrintDebug("PleXBMC", "plex_signin")
 
-class plex_signin(pyxbmct.AddonFullWindow):
+class PlexSignin(pyxbmct.AddonFullWindow):
     def __init__(self, title=''):
         """Class constructor"""
         # Call the base class' constructor.
-        super(plex_signin, self).__init__(title)
+        super(PlexSignin, self).__init__(title)
         # Set width, height and the grid parameters
         self.setGeometry(600, 400, 6, 6)
         # Call set controls method

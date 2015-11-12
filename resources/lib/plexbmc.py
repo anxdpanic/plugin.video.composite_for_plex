@@ -4077,8 +4077,8 @@ def start_plexbmc():
             xbmc.executebuiltin("ReloadSkin()")
 
     elif command == "signin":
-        from resources.lib.plex import plex_signin
-        signin_window = plex_signin.plex_signin('Myplex Login')
+        from resources.lib.plex import plexsignin
+        signin_window = plexsignin.PlexSignin('Myplex Login')
         signin_window.set_authentication_target(plex_network)
         signin_window.start()
         del signin_window
@@ -4099,8 +4099,8 @@ def start_plexbmc():
         elif not plex_network.is_admin():
             return xbmcgui.Dialog().ok("Manage myplex","To access these screens you must be logged in as an admin user.  Please switch user and try again")
 
-        from resources.lib.plex import plex_signin
-        manage_window = plex_signin.plex_manage('Manage myplex')
+        from resources.lib.plex import plexsignin
+        manage_window = plexsignin.plex_manage('Manage myplex')
         manage_window.set_authentication_target(plex_network)
         manage_window.start()
         del manage_window
