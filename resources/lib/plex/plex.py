@@ -11,7 +11,7 @@ from resources.lib.plex.plexserver import PlexMediaServer
 import urlparse
 import uuid
 
-printDebug=PrintDebug("PleXBMC", "plex")
+log_print=PrintDebug("PleXBMC", "plex")
 DEFAULT_PORT="32400"
 
 class Plex:
@@ -61,7 +61,7 @@ class Plex:
                                 'plexhome_user_avatar' : '' }
 
         self.delete_cache(True)
-        printDebug.info("Signed out from myPlex")
+        log_print.info("Signed out from myPlex")
 
     def get_signin_pin(self):
         data = self.talk_to_myplex('/pins.xml', type="post")
@@ -74,12 +74,12 @@ class Plex:
             identifier = None
 
         if code is None:
-            printDebug.debug("Error, no code provided")
+            log_print.debug("Error, no code provided")
             code = "----"
             identifier="error"
 
-        printDebug.debug("code is: %s" % code)
-        printDebug.debug("id   is: %s" % identifier)
+        log_print.debug("code is: %s" % code)
+        log_print.debug("id   is: %s" % identifier)
 
         return { 'id'   : identifier ,
                  'code' : list(code) }
@@ -89,17 +89,17 @@ class Plex:
         xml = etree.fromstring(data)
         temp_token=xml.find('auth_token').text
 
-        printDebug.debugplus("Temp token is: %s" % temp_token)
+        log_print.debugplus("Temp token is: %s" % temp_token)
 
         if temp_token:
             response = requests.get("%s/users/account?X-Plex-Token=%s" % ( self.myplex_server, temp_token), headers=self.plex_identification())
 
-            printDebug.debug("Status Code: %s" % response.status_code)
+            log_print.debug("Status Code: %s" % response.status_code)
 
             if response.status_code == 200:
                 try:
-                    printDebug.debugplus(response.text.encode('utf-8'))
-                    printDebug.info("Received new plex token")
+                    log_print.debugplus(response.text.encode('utf-8'))
+                    log_print.info("Received new plex token")
                     xml=etree.fromstring(response.text.encode('utf-8'))
                     home=xml.get('home','0')
                     username=xml.get('username','')
@@ -113,10 +113,10 @@ class Plex:
 
                     if home == '1':
                         self.plexhome_settings['plexhome_enabled']=True
-                        printDebug.debug("Setting PlexHome enabled.")
+                        log_print.debug("Setting PlexHome enabled.")
                     else:
                         self.plexhome_settings['plexhome_enabled']=False
-                        printDebug.debug("Setting PlexHome disabled.")
+                        log_print.debug("Setting PlexHome disabled.")
 
                     token = xml.findtext('authentication-token')
                     self.plexhome_settings['myplex_user_cache']="%s|%s" % ( username , token)
@@ -124,55 +124,55 @@ class Plex:
                     self.save_tokencache()
                     return True
                 except:
-                    printDebug.info("No authentication token found")
+                    log_print.info("No authentication token found")
 
         return False
 
     def load(self):
-        printDebug.info("Loading cached server list")
+        log_print.info("Loading cached server list")
         data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
 
         if data_ok:
             if not self.check_server_version():
-                printDebug.info("Refreshing for new versions")
+                log_print.info("Refreshing for new versions")
                 data_ok=False
 
             if not self.check_user():
-                printDebug.info("User Switch, refreshing for new authorisation settings")
+                log_print.info("User Switch, refreshing for new authorisation settings")
                 data_ok=False
 
         if not data_ok or not len(self.server_list):
-            printDebug.info("unsuccessful")
+            log_print.info("unsuccessful")
             self.server_list={}
             if not self.discover():
                 self.server_list={}
 
-        printDebug.debug("Server list is now: %s" % self.server_list)
+        log_print.debug("Server list is now: %s" % self.server_list)
 
     def setup_user_token(self):
 
         self.load_tokencache()
 
         if self.plexhome_settings['myplex_signedin']:
-            printDebug.debug("Myplex is logged in")
+            log_print.debug("Myplex is logged in")
         else:
             return
 
         self.myplex_user, self.myplex_token = self.plexhome_settings['myplex_user_cache'].split('|')
 
         if self.plexhome_settings['plexhome_enabled']:
-            printDebug.debug("Plexhome is enabled")
+            log_print.debug("Plexhome is enabled")
 
         try:
             self.effective_user, self.effective_token = self.plexhome_settings['plexhome_user_cache'].split('|')
         except:
-            printDebug.info("No user set.  Will default to admin user")
+            log_print.info("No user set.  Will default to admin user")
             self.effective_user = self.myplex_user
             self.effective_token = self.myplex_token
             self.save_tokencache()
 
-        printDebug.info("myplex userid: %s" % self.myplex_user)
-        printDebug.info("effective userid: %s" % self.effective_user)
+        log_print.info("myplex userid: %s" % self.myplex_user)
+        log_print.info("effective userid: %s" % self.effective_user)
 
     def load_tokencache(self):
 
@@ -192,11 +192,11 @@ class Plex:
                     raise
 
                 self.plexhome_settings = token_cache
-                printDebug("plexhome_cache data loaded successfully")
+                log_print("plexhome_cache data loaded successfully")
             except:
-                printDebug("plexhome_cache data is corrupt. Will not use.")
+                log_print("plexhome_cache data is corrupt. Will not use.")
         else:
-            printDebug.debug("plexhome cache data not loaded")
+            log_print.debug("plexhome cache data not loaded")
 
     def save_tokencache(self):
         self.cache.writeCache(self.plexhome_cache,self.plexhome_settings)
@@ -205,10 +205,10 @@ class Plex:
         for uuid, servers in self.server_list.iteritems():
             try:
                 if not servers.get_revision() == REQUIRED_REVISION:
-                    printDebug.debug("Old object revision found")
+                    log_print.debug("Old object revision found")
                     return False
             except:
-                    printDebug.debug("No revision found")
+                    log_print.debug("No revision found")
                     return False
         return True
 
@@ -219,7 +219,7 @@ class Plex:
 
         for uuid, servers in self.server_list.iteritems():
             if not servers.get_user() == self.effective_user:
-                printDebug.debug("authorized user mismatch")
+                log_print.debug("authorized user mismatch")
                 return False
         return True
 
@@ -265,10 +265,10 @@ class Plex:
     def talk_direct_to_server(self, ip="localhost", port=DEFAULT_PORT, url=None):
         response = requests.get("http://%s:%s%s" % (ip, port, url), params=self.plex_identification(), timeout=2)
 
-        printDebug.debug("URL was: %s" % response.url)
+        log_print.debug("URL was: %s" % response.url)
 
         if response.status_code == requests.codes.ok:
-            printDebug.debugplus("===XML===\n%s\n===XML===" % response.text)
+            log_print.debugplus("===XML===\n%s\n===XML===" % response.text)
             return response.text
 
     def get_processed_myplex_xml(self, url):
@@ -280,9 +280,9 @@ class Plex:
         self.server_list = {}
 
         if settings.get_setting('discovery') == "1":
-            printDebug.info("local GDM discovery setting enabled.")
-            printDebug.info("Attempting GDM lookup on multicast")
-            if settings.get_debug() >= printDebug.DEBUG_INFO:
+            log_print.info("local GDM discovery setting enabled.")
+            log_print.info("Attempting GDM lookup on multicast")
+            if settings.get_debug() >= log_print.DEBUG_INFO:
                 GDM_debug=3
             else:
                 GDM_debug=0
@@ -295,7 +295,7 @@ class Plex:
                 print "PleXBMC -> GDM Issue [%s]" % e
             else:
                 if gdm_client.discovery_complete and gdm_server_name :
-                    printDebug.info("GDM discovery completed")
+                    log_print.info("GDM discovery completed")
 
                     for device in gdm_server_name:
                         new_server=PlexMediaServer(name=device['serverName'],address=device['server'], port=device['port'], discovery='discovery', uuid=device['uuid'])
@@ -305,16 +305,16 @@ class Plex:
                         self.server_list[new_server.get_uuid()] = new_server
 
                 else:
-                    printDebug.info("GDM was not able to discover any servers")
+                    log_print.info("GDM was not able to discover any servers")
 
         #Set to Disabled
         else:
             if settings.get_setting('ipaddress'):
 
                 if not settings.get_setting('port'):
-                    printDebug.info( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
+                    log_print.info( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
 
-                printDebug.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('ipaddress'), settings.get_setting('port')))
+                log_print.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('ipaddress'), settings.get_setting('port')))
 
                 local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local')
                 local_server.set_user(self.effective_user)
@@ -323,16 +323,16 @@ class Plex:
                 if local_server.discovered:
                     self.server_list[local_server.get_uuid()] = local_server
                 else:
-                    printDebug.warn("Error: Unable to discovery server %s" % settings.get_setting('ipaddress'))
+                    log_print.warn("Error: Unable to discovery server %s" % settings.get_setting('ipaddress'))
 
         if self.is_myplex_signedin():
-                printDebug.info( "PleXBMC -> Adding myplex as a server location")
+                log_print.info( "PleXBMC -> Adding myplex as a server location")
 
                 for remote_server in self.get_myplex_servers():
                     self.merge_server(remote_server)
 
                 if self.server_list:
-                    printDebug.info("MyPlex discovery completed")
+                    log_print.info("MyPlex discovery completed")
 
 
         for refresh_server in self.server_list.values():
@@ -343,7 +343,7 @@ class Plex:
                     self.server_list[refresh_server.get_uuid()]=refresh_server
 
         self.cache.writeCache(self.server_list_cache, self.server_list)
-        printDebug.info("PleXBMC -> serverList is: %s " % self.server_list)
+        log_print.info("PleXBMC -> serverList is: %s " % self.server_list)
 
         return
 
@@ -384,22 +384,22 @@ class Plex:
             myplex_server.set_user(self.effective_user)
 
             tempServers.append(myplex_server)
-            printDebug.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
+            log_print.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
 
         return tempServers
 
     def merge_server(self, server):
-        printDebug.info("merging server with uuid %s" % server.get_uuid())
+        log_print.info("merging server with uuid %s" % server.get_uuid())
 
         try:
             existing=self.get_server_from_uuid(server.get_uuid())
         except:
-            printDebug.debug("Adding new server %s %s" % (server.get_name(), server.get_uuid()))
+            log_print.debug("Adding new server %s %s" % (server.get_name(), server.get_uuid()))
             server.refresh()
             if server.discovered:
                 self.server_list[server.get_uuid()]=server
         else:
-            printDebug.info("Found existing server %s %s" % (existing.get_name(), existing.get_uuid()))
+            log_print.info("Found existing server %s %s" % (existing.get_name(), existing.get_uuid()))
 
             #existing.set_best_address(server.get_address())
             #existing.refresh()
@@ -408,7 +408,7 @@ class Plex:
         return
 
     def talk_to_myplex(self, path, renew=False, type='get'):
-        printDebug.info("url = %s%s" % (self.myplex_server, path))
+        log_print.info("url = %s%s" % (self.myplex_server, path))
         link=False
         try:
             if type == 'get':
@@ -418,17 +418,17 @@ class Plex:
             elif type == 'post':
                 response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=self.plex_identification(), verify=True, timeout=(3,10))
         except requests.exceptions.ConnectionError, e:
-            printDebug.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
+            log_print.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
         except requests.exceptions.ReadTimeout, e:
-            printDebug.info("myplex: read timeout for %s on %s " % (self.myplex_server, path))
+            log_print.info("myplex: read timeout for %s on %s " % (self.myplex_server, path))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
 
         else:
 
-            printDebug.debugplus("Full URL was: %s" % response.url)
-            printDebug.debugplus("Full header sent was: %s" % response.request.headers)
-            printDebug.debugplus("Full header recieved was: %s" % response.headers)
+            log_print.debugplus("Full URL was: %s" % response.url)
+            log_print.debugplus("Full header sent was: %s" % response.request.headers)
+            log_print.debugplus("Full header recieved was: %s" % response.headers)
 
             if response.status_code == 401  and not ( renew ):
                 return self.talk_to_myplex(path,True)
@@ -442,7 +442,7 @@ class Plex:
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
             else:
                 link=response.text.encode('utf-8')
-                printDebug.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
+                log_print.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
 
         return link
 
@@ -451,14 +451,14 @@ class Plex:
         if self.plexhome_settings['myplex_signedin']:
             return { 'X-Plex-Token' : self.effective_token }
 
-        printDebug.debug("Myplex not in use")
+        log_print.debug("Myplex not in use")
         return {}
 
     def sign_into_myplex(self, username=None, password=None):
-        printDebug.info("Getting New token")
+        log_print.info("Getting New token")
 
         if username is None:
-            printDebug.info("No myplex details in provided..")
+            log_print.info("No myplex details in provided..")
             return None
 
         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
@@ -470,8 +470,8 @@ class Plex:
 
         if response.status_code == 201:
             try:
-                printDebug.debugplus(response.text.encode('utf-8'))
-                printDebug.info("Received new plex token")
+                log_print.debugplus(response.text.encode('utf-8'))
+                log_print.info("Received new plex token")
                 xml=etree.fromstring(response.text.encode('utf-8'))
                 home=xml.get('home','0')
 
@@ -484,17 +484,17 @@ class Plex:
 
                 if home == '1':
                     self.plexhome_settings['plexhome_enabled']=True
-                    printDebug.debug("Setting PlexHome enabled.")
+                    log_print.debug("Setting PlexHome enabled.")
                 else:
                     self.plexhome_settings['plexhome_enabled']=False
-                    printDebug.debug("Setting PlexHome disabled.")
+                    log_print.debug("Setting PlexHome disabled.")
 
                 token = xml.findtext('authentication-token')
                 self.plexhome_settings['myplex_user_cache']="%s|%s" % ( username , token)
                 self.plexhome_settings['myplex_signedin']=True
                 self.save_tokencache()
             except:
-                printDebug.info("No authentication token found")
+                log_print.info("No authentication token found")
         else:
             error = "HTTP response error: %s %s" % (response.status_code, response.reason)
             print error
@@ -503,7 +503,7 @@ class Plex:
         return token
 
     def get_server_from_ip(self, ip):
-        printDebug.debug("IP to lookup: %s" % ip)
+        log_print.debug("IP to lookup: %s" % ip)
 
         if ':' in ip:
             #We probably have an IP:port being passed
@@ -514,17 +514,17 @@ class Plex:
                 import socket
                 ip = socket.gethostbyname(ip)
             except:
-                printDebug.info("Unable to lookup hostname: %s and not an IP Address" % ip)
+                log_print.info("Unable to lookup hostname: %s and not an IP Address" % ip)
                 return PlexMediaServer(name="dummy",address='127.0.0.1', port=32400, discovery='local')
 
         for server in self.server_list.values():
 
-            printDebug.debug("[%s] - checking ip:%s against server ip %s" % (server.get_name(), ip, server.get_address()))
+            log_print.debug("[%s] - checking ip:%s against server ip %s" % (server.get_name(), ip, server.get_address()))
 
             if server.find_address_match(ip,port):
                 return server
 
-        printDebug.info("Unable to translate - Returning new plexserver set to %s" % ip )
+        log_print.info("Unable to translate - Returning new plexserver set to %s" % ip )
 
         return PlexMediaServer(name="Unknown",address=ip, port=port, discovery='local')
 
@@ -644,6 +644,6 @@ class Plex:
         date= xml.find('joined-at').text
         result['membersince'] = date.split(' ')[0]
 
-        printDebug("Gathered information: %s" % result)
+        log_print("Gathered information: %s" % result)
 
         return result

@@ -1,9 +1,9 @@
 import pyxbmct.addonwindow as pyxbmct
 import resources.lib.plex
-from resources.lib.common import printDebug, GLOBAL_SETUP
+from resources.lib.common import log_print, GLOBAL_SETUP
 import xbmc
 
-printDebug=PrintDebug("PleXBMC", "plex_signin")
+log_print=PrintDebug("PleXBMC", "plex_signin")
 
 class plex_signin(pyxbmct.AddonFullWindow):
     def __init__(self, title=''):
@@ -181,11 +181,11 @@ class plex_signin(pyxbmct.AddonFullWindow):
             self.description.setText('Successfully Signed In')
             xbmc.sleep(2000)
 
-            printDebug("Successfully signed in")
+            log_print("Successfully signed in")
 
             self.close()
         else:
-            printDebug("Not Successful signed in")
+            log_print("Not Successful signed in")
             self.display_manual(True)
 
     def submit_pin(self):
@@ -208,11 +208,11 @@ class plex_signin(pyxbmct.AddonFullWindow):
             self.description.setText('Successfully Signed In')
             xbmc.sleep(2000)
 
-            printDebug("Successfully signed in")
+            log_print("Successfully signed in")
 
             self.close()
         else:
-            printDebug("Not Successful signed in")
+            log_print("Not Successful signed in")
             self.display_pin(True)
 
     def set_navigation(self):

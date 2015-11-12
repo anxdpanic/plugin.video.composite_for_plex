@@ -11,11 +11,11 @@ import plex_section
 from resources.lib.common import *
 import requests
 
-printDebug=PrintDebug("PleXBMC", "plexserver")
+log_print=PrintDebug("PleXBMC", "plexserver")
 
 DEFAULT_PORT="32400"
 
-printDebug.debug("Using Requests version for HTTP: %s" % requests.__version__)
+log_print.debug("Using Requests version for HTTP: %s" % requests.__version__)
 
 class PlexMediaServer:
 
@@ -156,40 +156,40 @@ class PlexMediaServer:
 
     def set_best_address(self, ipaddress):
         if self.external_address == ipaddress:
-            printDebug.debug("new [%s] == existing [%s]" % (ipaddress, self.external_address))
+            log_print.debug("new [%s] == existing [%s]" % (ipaddress, self.external_address))
             self.access_address=self.external_address
             self.access_port=self.external_port
             return
         else:
-            printDebug("new [%s] != existing [%s]" % (ipaddress, self.external_address))
+            log_print("new [%s] != existing [%s]" % (ipaddress, self.external_address))
 
         for test_address in self.local_address:
             if test_address == ipaddress:
-                printDebug.debug("new [%s] == existing [%s]" % (ipaddress, test_address))
+                log_print.debug("new [%s] == existing [%s]" % (ipaddress, test_address))
                 self.access_address = test_address
                 self.access_port=32400
                 return
             else:
-                printDebug.debug("new [%s] != existing [%s]" % (ipaddress, test_address))
+                log_print.debug("new [%s] != existing [%s]" % (ipaddress, test_address))
 
-        printDebug.debug("new [%s] is unknown.  Possible uuid clash?" % ipaddress)
-        printDebug.debug("Will use this address for this object, as a last resort")
+        log_print.debug("new [%s] is unknown.  Possible uuid clash?" % ipaddress)
+        log_print.debug("Will use this address for this object, as a last resort")
         self.access_address = ipaddress
         self.access_port = 32400
 
         return
 
     def find_address_match(self, ipaddress,port):
-        printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.access_address, self.access_port))
+        log_print.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.access_address, self.access_port))
         if "%s:%s" % (ipaddress, port) == "%s:%s" % (self.access_address, self.access_port):
             return True
 
-        printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.external_address, self.external_port))
+        log_print.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.external_address, self.external_port))
         if "%s:%s" % (ipaddress, port) == "%s:%s" %(self.external_address, self.external_port):
             return True
 
         for test_address in self.local_address:
-            printDebug.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, ipaddress, 32400 ))
+            log_print.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, ipaddress, 32400 ))
             if "%s:%s" % (ipaddress, port) == "%s:%s" % (test_address, 32400):
                 return True
 
@@ -233,7 +233,7 @@ class PlexMediaServer:
     def talk(self,url='/',refresh=False, type='get'):
 
         if not self.offline or refresh:
-            printDebug.info("URL is: %s using %s" % (url, self.protocol))
+            log_print.info("URL is: %s using %s" % (url, self.protocol))
 
             start_time=time.time()
             try:
@@ -245,33 +245,33 @@ class PlexMediaServer:
                     response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2,60))
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
-                printDebug.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
+                log_print.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
             
                 if self.protocol == "https" and refresh:
-                    printDebug.info("Server: %s - switching to http" % self.get_address())
+                    log_print.info("Server: %s - switching to http" % self.get_address())
                     self.protocol="http"
                     return self.talk(url, refresh, type)
                 else:
                     self.offline=True
             
             except requests.exceptions.ReadTimeout, e:
-                printDebug.info("Server: read timeout for %s on %s " % (self.get_address(), url))
+                log_print.info("Server: read timeout for %s on %s " % (self.get_address(), url))
             else:
 
-                printDebug.debug("URL was: %s" % response.url)
+                log_print.debug("URL was: %s" % response.url)
 
                 if response.status_code == requests.codes.ok:
-                    printDebug.debug("Response: 200 OK - Encoding: %s" % response.encoding)
-                    printDebug.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
+                    log_print.debug("Response: 200 OK - Encoding: %s" % response.encoding)
+                    log_print.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
 
-                    printDebug.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.get_address()))
+                    log_print.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.get_address()))
                     return data
                 elif response.status_code == requests.codes.unauthorized:
-                    printDebug.debug("Response: 401 Unauthorized - Please log into myplex or check your myplex password")
+                    log_print.debug("Response: 401 Unauthorized - Please log into myplex or check your myplex password")
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
                 else:
-                    printDebug.debug("Unexpected Response: %s " % response.status_code)
+                    log_print.debug("Unexpected Response: %s " % response.status_code)
 
         return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
 
@@ -298,7 +298,7 @@ class PlexMediaServer:
         return self.offline
 
     def get_sections(self):
-        printDebug.debug("Returning sections: %s" % self.section_list)
+        log_print.debug("Returning sections: %s" % self.section_list)
         return self.section_list
 
     def discover_sections(self):
@@ -344,7 +344,7 @@ class PlexMediaServer:
 
     def processed_xml(self,url):
         if url.startswith('http'):
-            printDebug.debug("We have been passed a full URL. Parsing out path")
+            log_print.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
             url=url_parts.path
 
@@ -354,12 +354,12 @@ class PlexMediaServer:
         data = self.talk(url)
         start_time=time.time()
         tree = etree.fromstring(data)
-        printDebug.info("PARSE: it took %.2f seconds to parse data from %s" % ((time.time() - start_time), self.get_address()))
+        log_print.info("PARSE: it took %.2f seconds to parse data from %s" % ((time.time() - start_time), self.get_address()))
         return tree
 
     def raw_xml(self,url):
         if url.startswith('http'):
-            printDebug.debug("We have been passed a full URL. Parsing out path")
+            log_print.debug("We have been passed a full URL. Parsing out path")
             url_parts = urlparse.urlparse(url)
             url=url_parts.path
 
@@ -370,7 +370,7 @@ class PlexMediaServer:
 
         data = self.talk(url)
 
-        printDebug.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.get_address()))
+        log_print.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.get_address()))
         return data
 
     def is_owned(self):
@@ -430,7 +430,7 @@ class PlexMediaServer:
 
     def get_fanart(self, section, width=1280, height=720):
 
-        printDebug.debug("Getting fanart for %s" % section.get_title())
+        log_print.debug("Getting fanart for %s" % section.get_title())
 
         if settings.get_setting('skipimages'):
             return ''
@@ -483,7 +483,7 @@ class PlexMediaServer:
     def get_universal_transcode(self, url):
         #Check for myplex user, which we need to alter to a master server
         import uuid
-        printDebug.debug("incoming URL is: %s" % url)
+        log_print.debug("incoming URL is: %s" % url)
         resolution, bitrate = settings.get_setting('quality_uni').split(',')
 
         if bitrate.endswith('Mbps'):
@@ -512,7 +512,7 @@ class PlexMediaServer:
                              'path' : "http://127.0.0.1:32400%s" % url }
 
         fullURL="%s%s" % (transcode_request, urllib.urlencode(transcode_settings))
-        printDebug.debug("Transcoded media location URL: %s" % fullURL)
+        log_print.debug("Transcoded media location URL: %s" % fullURL)
         return (session, self.get_formatted_url(fullURL, options={'X-Plex-Device' : 'Plex Home Theater'}))
 
     def get_legacy_transcode( self, id, url, identifier=None ):
@@ -524,11 +524,11 @@ class PlexMediaServer:
         session=str(uuid.uuid4())
 
         #Check for myplex user, which we need to alter to a master server
-        printDebug.debug("Using preferred transcoding server: %s " % self.get_name())
-        printDebug.debug("incoming URL is: %s" % url)
+        log_print.debug("Using preferred transcoding server: %s " % self.get_name())
+        log_print.debug("incoming URL is: %s" % url)
 
         quality = str(float(settings.get_setting('quality_leg'))+3)
-        printDebug.debug( "Transcode quality is %s" % quality)
+        log_print.debug( "Transcode quality is %s" % quality)
 
         audioOutput=settings.get_setting("audiotype")
         if audioOutput == "0":
@@ -561,19 +561,19 @@ class PlexMediaServer:
             transcode_settings['identifier']="com.plexapp.plugins.library"
             transcode_settings['key']=urllib.quote_plus("%s/library/metadata/%s" % (self.get_url_location(), id))
             transcode_target=urllib.quote_plus("http://127.0.0.1:32400"+"/"+"/".join(url.split('/')[3:]))
-            printDebug.debug("filestream URL is: %s" % transcode_target )
+            log_print.debug("filestream URL is: %s" % transcode_target )
 
         transcode_request="%s?url=%s" % (transcode_request, transcode_target)
 
         for argument, value in transcode_settings.items():
                     transcode_request="%s&%s=%s" % ( transcode_request, argument, value )
 
-        printDebug.debug("new transcode request is: %s" % transcode_request )
+        log_print.debug("new transcode request is: %s" % transcode_request )
 
         now=str(float(round(time.time(),0)))
 
         msg = transcode_request+"@"+now
-        printDebug.debug("Message to hash is %s" % msg)
+        log_print.debug("Message to hash is %s" % msg)
 
         #These are the DEV API keys - may need to change them on release
         publicKey="KQMIY6GATPC63AIMC4R2"
@@ -581,7 +581,7 @@ class PlexMediaServer:
 
         hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
 
-        printDebug.debug("HMAC after hash is %s" % hash.hexdigest())
+        log_print.debug("HMAC after hash is %s" % hash.hexdigest())
 
         #Encode the binary hash in base64 for transmission
         token=base64.b64encode(hash.digest())
@@ -589,6 +589,6 @@ class PlexMediaServer:
         #Send as part of URL to avoid the case sensitive header issue.
         fullURL="%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (self.get_url_location(),transcode_request, publicKey, now, urllib.quote_plus(token), capability)
 
-        printDebug.debug("Transcoded media location URL: %s" % fullURL)
+        log_print.debug("Transcoded media location URL: %s" % fullURL)
 
         return (session, fullURL)
