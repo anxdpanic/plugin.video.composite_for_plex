@@ -3969,7 +3969,7 @@ def switch_user():
     return True 
 
 ##So this is where we really start the addon 
-printDebug=printDebug("PleXBMC")
+printDebug=PrintDebug("PleXBMC")
 
 print "PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__']
 

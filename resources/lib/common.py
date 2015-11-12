@@ -6,7 +6,7 @@ import sys
 import socket
 import re
 
-class printDebug:
+class PrintDebug:
 
     def __init__(self, main, sub=None):
 
@@ -34,24 +34,24 @@ class printDebug:
         return self.DEBUG_MAP[level]
 
     def error(self,message):
-        return self.__printDebug(message, 0)        
+        return self.__print_message(message, 0)
 
     def warn(self,message):
-        return self.__printDebug(message, 0)
+        return self.__print_message(message, 0)
 
     def info(self, message):
-        return self.__printDebug(message, 1)
+        return self.__print_message(message, 1)
 
     def debug(self, message):
-        return self.__printDebug(message, 2)
+        return self.__print_message(message, 2)
 
     def dev(self, message):
-        return self.__printDebug(message, 3)
+        return self.__print_message(message, 3)
 
     def debugplus(self, message):
-        return self.__printDebug(message, 3)
+        return self.__print_message(message, 3)
 
-    def __printDebug( self, msg, level=1 ):
+    def __print_message( self, msg, level=1 ):
         if self.level >= level :
             #msg=self.token_regex.sub("-Token=XXXXXXXXXX&", str(msg))
             #msg=self.ip_regex.sub(".X.X.", msg)
@@ -59,7 +59,7 @@ class printDebug:
         return
 
     def __call__(self, msg, level=1):
-        return self.__printDebug(msg, level)
+        return self.__print_message(msg, level)
 
 def get_platform( ):
     if xbmc.getCondVisibility('system.platform.osx'):

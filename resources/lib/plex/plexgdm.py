@@ -55,7 +55,7 @@ class plexgdm:
         self.discovery_complete = False
         self.client_registered = False
         self.debug = debug
-        self.__printDebug=printDebug("PleXBMC", "PlexGDM")
+        self.__printDebug=PrintDebug("PleXBMC", "PlexGDM")
 
     def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
         self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % ( c_id, c_name, c_post, c_product, c_version )

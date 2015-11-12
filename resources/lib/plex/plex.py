@@ -11,7 +11,7 @@ from resources.lib.plex.plexserver import PlexMediaServer
 import urlparse
 import uuid
 
-printDebug=printDebug("PleXBMC", "plex")
+printDebug=PrintDebug("PleXBMC", "plex")
 DEFAULT_PORT="32400"
 
 class Plex:

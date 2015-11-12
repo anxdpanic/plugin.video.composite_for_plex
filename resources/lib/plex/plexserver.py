@@ -11,7 +11,7 @@ import plex_section
 from resources.lib.common import *
 import requests
 
-printDebug=printDebug("PleXBMC", "plexserver")
+printDebug=PrintDebug("PleXBMC", "plexserver")
 
 DEFAULT_PORT="32400"
 

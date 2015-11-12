@@ -3,7 +3,7 @@ import resources.lib.plex
 from resources.lib.common import printDebug, GLOBAL_SETUP
 import xbmc
 
-printDebug=printDebug("PleXBMC", "plex_signin")
+printDebug=PrintDebug("PleXBMC", "plex_signin")
 
 class plex_signin(pyxbmct.AddonFullWindow):
     def __init__(self, title=''):
