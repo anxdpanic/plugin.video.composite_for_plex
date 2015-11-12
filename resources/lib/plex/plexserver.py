@@ -8,7 +8,7 @@ import uuid
 
 from resources.lib.settings import addonSettings
 import plex_section
-from common import *
+from resources.lib.common import *
 import requests
 
 printDebug=printDebug("PleXBMC", "plexserver")

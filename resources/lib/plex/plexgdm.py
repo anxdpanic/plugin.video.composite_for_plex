@@ -30,7 +30,7 @@ import re
 import threading
 import time
 import urllib2
-from common import *
+from resources.lib.common import *
 
 class plexgdm:
 

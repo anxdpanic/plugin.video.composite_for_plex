@@ -16,7 +16,7 @@ try:
 except ImportError:
     import pickle
 
-from common import printDebug
+from resources.lib.common import printDebug
 
 printDebug=printDebug("PleXBMC", "cachecontrol")    
 

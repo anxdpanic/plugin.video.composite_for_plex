@@ -4,7 +4,7 @@ import xml.etree.ElementTree as etree
 import base64
 import resources.lib.plex.plexgdm
 from resources.lib.settings import addonSettings
-from common import *
+from resources.lib.common import *
 import resources.lib.CacheControl
 import requests
 from resources.lib.plex.plexserver import PlexMediaServer
