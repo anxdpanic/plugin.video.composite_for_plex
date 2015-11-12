@@ -510,11 +510,13 @@ class Plex:
         if ':' in ip:
             #We probably have an IP:port being passed
             ip, port = ip.split(':')
+        else:
+            port = 32400
 
         if not is_ip(ip):
             try:
                 import socket
-                ip = socket.gethostbyname(ip)
+                socket.gethostbyname(ip)
             except:
                 log_print.info("Unable to lookup hostname: %s and not an IP Address" % ip)
                 return PlexMediaServer(name="dummy",address='127.0.0.1', port=32400, discovery='local')
