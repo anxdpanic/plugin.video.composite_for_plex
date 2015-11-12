@@ -1,6 +1,6 @@
 import sys
 import os
-import xml.etree.ElementTree as etree
+import xml.etree.ElementTree as ETree
 import base64
 import resources.lib.plex.plexgdm
 from resources.lib.settings import addonSettings
@@ -66,7 +66,7 @@ class Plex:
     def get_signin_pin(self):
         data = self.talk_to_myplex('/pins.xml', type="post")
         try:
-            xml = etree.fromstring(data)
+            xml = ETree.fromstring(data)
             code=xml.find('code').text
             identifier=xml.find('id').text
         except:
@@ -86,7 +86,7 @@ class Plex:
 
     def check_signin_status(self,identifier):
         data = self.talk_to_myplex('/pins/%s.xml' % identifier, type="get2")
-        xml = etree.fromstring(data)
+        xml = ETree.fromstring(data)
         temp_token=xml.find('auth_token').text
 
         log_print.debugplus("Temp token is: %s" % temp_token)
@@ -100,7 +100,7 @@ class Plex:
                 try:
                     log_print.debugplus(response.text.encode('utf-8'))
                     log_print.info("Received new plex token")
-                    xml=etree.fromstring(response.text.encode('utf-8'))
+                    xml=ETree.fromstring(response.text.encode('utf-8'))
                     home=xml.get('home','0')
                     username=xml.get('username','')
 
@@ -273,7 +273,7 @@ class Plex:
 
     def get_processed_myplex_xml(self, url):
         data = self.talk_to_myplex (url)
-        return etree.fromstring(data)
+        return ETree.fromstring(data)
 
     def discover_all_servers(self):
 
@@ -283,12 +283,12 @@ class Plex:
             log_print.info("local GDM discovery setting enabled.")
             log_print.info("Attempting GDM lookup on multicast")
             if settings.get_debug() >= log_print.DEBUG_INFO:
-                GDM_debug=3
+                gdm_debug=3
             else:
-                GDM_debug=0
+                gdm_debug=0
 
             try:
-                gdm_client = resources.lib.plex.plexgdm.PlexGDM(GDM_debug)
+                gdm_client = resources.lib.plex.plexgdm.PlexGDM(gdm_debug)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
             except Exception, e:
@@ -357,15 +357,14 @@ class Plex:
         return xml
 
     def get_myplex_servers(self):
-        tempServers = []
+        temp_servers = []
         xml = self.talk_to_myplex("/pms/servers")
 
         if xml is False:
             return {}
 
-        server_list = etree.fromstring(xml)
+        server_list = ETree.fromstring(xml)
 
-        count = 0
         for server in server_list:
 
             myplex_server=PlexMediaServer( name = server.get('name').encode('utf-8'),
@@ -383,10 +382,10 @@ class Plex:
 
             myplex_server.set_user(self.effective_user)
 
-            tempServers.append(myplex_server)
+            temp_servers.append(myplex_server)
             log_print.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
 
-        return tempServers
+        return temp_servers
 
     def merge_server(self, server):
         log_print.info("merging server with uuid %s" % server.get_uuid())
@@ -409,7 +408,7 @@ class Plex:
 
     def talk_to_myplex(self, path, renew=False, type='get'):
         log_print.info("url = %s%s" % (self.myplex_server, path))
-        link=False
+
         try:
             if type == 'get':
                 response = requests.get("%s%s" % (self.myplex_server, path), params=self.plex_identification(), verify=True, timeout=(3,10))
@@ -417,10 +416,13 @@ class Plex:
                 response = requests.get("%s%s" % (self.myplex_server, path), headers=self.plex_identification(), verify=True, timeout=(3,10))
             elif type == 'post':
                 response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=self.plex_identification(), verify=True, timeout=(3,10))
+            else:
+                log_print.error("Unknown HTTP type requested: %s" % type)
+                response = None
         except requests.exceptions.ConnectionError, e:
             log_print.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
-        except requests.exceptions.ReadTimeout, e:
+        except requests.exceptions.ReadTimeout:
             log_print.info("myplex: read timeout for %s on %s " % (self.myplex_server, path))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
 
@@ -430,7 +432,7 @@ class Plex:
             log_print.debugplus("Full header sent was: %s" % response.request.headers)
             log_print.debugplus("Full header recieved was: %s" % response.headers)
 
-            if response.status_code == 401  and not ( renew ):
+            if response.status_code == 401 and not renew:
                 return self.talk_to_myplex(path,True)
 
             if response.status_code >= 400:
@@ -472,7 +474,7 @@ class Plex:
             try:
                 log_print.debugplus(response.text.encode('utf-8'))
                 log_print.info("Received new plex token")
-                xml=etree.fromstring(response.text.encode('utf-8'))
+                xml=ETree.fromstring(response.text.encode('utf-8'))
                 home=xml.get('home','0')
 
                 avatar = xml.get('thumb')
@@ -559,7 +561,7 @@ class Plex:
         #<User id="X" admin="1" restricted="0" protected="1" title="" username="" email="X" thumb="http://www.gravatar.com/avatar/918266bcdee2b60c447c6bbe2e2460ca?d=https%3A%2F%2Fplex.tv%2Fusers%2Fid%2Favatar"/>
         #<User id="X" admin="0" restricted="1" protected="0" title="Kids" username="" email="" thumb="https://plex.tv/users/id/avatar"/>
 
-        data=etree.fromstring(self.talk_to_myplex('/api/home/users'))
+        data=ETree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list=dict()
         for users in data:
             add={ 'id'         : users.get('id') ,
@@ -573,7 +575,7 @@ class Plex:
             self.user_list[users.get('id')]=add
 
     def get_plex_home_users(self):
-        data=etree.fromstring(self.talk_to_myplex('/api/home/users'))
+        data=ETree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list=dict()
         for users in data:
             add={ 'id'         : users.get('id') ,
@@ -595,7 +597,7 @@ class Plex:
             pin_arg="?pin=%s&X-Plex-Token=%s" % (pin,self.effective_token)
 
         data = self.talk_to_myplex('/api/home/users/%s/switch%s' % (id, pin_arg), type='post')
-        tree=etree.fromstring(data)
+        tree=ETree.fromstring(data)
 
         if tree.get('status') == "unauthorized":
             return False, "Unauthorised"
@@ -628,7 +630,7 @@ class Plex:
 
     def get_myplex_information(self):
         data = self.talk_to_myplex('/users/account')
-        xml = etree.fromstring(data)
+        xml = ETree.fromstring(data)
 
         result=dict()
         result['username'] = xml.get('username','unknown')
