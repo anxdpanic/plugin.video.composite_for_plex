@@ -288,7 +288,7 @@ class Plex:
                 GDM_debug=0
 
             try:
-                gdm_client = resources.lib.plex.plexgdm.plexgdm(GDM_debug)
+                gdm_client = resources.lib.plex.plexgdm.PlexGDM(GDM_debug)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
             except Exception, e:
