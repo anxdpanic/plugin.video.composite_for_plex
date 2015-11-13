@@ -288,7 +288,14 @@ class Plex:
                 gdm_debug=0
 
             try:
-                gdm_client = PlexGDM(gdm_debug)
+                interface_address = get_platform_ip()
+                log_print.debug("Using interface: %s for GDM discovery" % interface_address)
+            except:
+                interface_address = None
+                log_print.debug("Using systems default interface for GDM discovery")
+
+            try:
+                gdm_client = PlexGDM(gdm_debug, interface = interface_address)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
             except Exception, e:
