@@ -223,11 +223,11 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.password_field.controlDown(self.submit_button)
         # Set initial focus.
 
-class plex_manage(pyxbmct.AddonFullWindow):
+class PlexManage(pyxbmct.AddonFullWindow):
     def __init__(self, title=''):
         """Class constructor"""
         # Call the base class' constructor.
-        super(plex_manage, self).__init__(title)
+        super(PlexManage, self).__init__(title)
         # Set width, height and the grid parameters
         self.setGeometry(600, 400, 6, 6)
         # Call set controls method

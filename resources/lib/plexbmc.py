@@ -4100,7 +4100,7 @@ def start_plexbmc():
             return xbmcgui.Dialog().ok("Manage myplex","To access these screens you must be logged in as an admin user.  Please switch user and try again")
 
         from resources.lib.plex import plexsignin
-        manage_window = plexsignin.plex_manage('Manage myplex')
+        manage_window = plexsignin.PlexManage('Manage myplex')
         manage_window.set_authentication_target(plex_network)
         manage_window.start()
         del manage_window
