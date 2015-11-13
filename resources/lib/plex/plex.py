@@ -652,8 +652,11 @@ class Plex:
         else:
             result['plexpass'] = "No Subscription"
 
-        date= xml.find('joined-at').text
-        result['membersince'] = date.split(' ')[0]
+        try:
+            date= xml.find('joined-at').text
+            result['membersince'] = date.split(' ')[0]
+        except:
+            result['membersince'] = "Unknown"
 
         log_print("Gathered information: %s" % result)
 
