@@ -2,7 +2,7 @@ import sys
 import os
 import xml.etree.ElementTree as ETree
 import base64
-import resources.lib.plex.plexgdm
+from resources.lib.plex.plexgdm import PlexGDM
 from resources.lib.settings import addonSettings
 from resources.lib.common import *
 import resources.lib.CacheControl
@@ -288,7 +288,7 @@ class Plex:
                 gdm_debug=0
 
             try:
-                gdm_client = resources.lib.plex.plexgdm.PlexGDM(gdm_debug)
+                gdm_client = PlexGDM(gdm_debug)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
             except Exception, e:
