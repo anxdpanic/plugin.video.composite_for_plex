@@ -55,7 +55,11 @@ class PrintDebug:
         if self.level >= level :
             #msg=self.token_regex.sub("-Token=XXXXXXXXXX&", str(msg))
             #msg=self.ip_regex.sub(".X.X.", msg)
-            print "%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg)
+            try:
+                print "%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8'))
+            except:
+                print "%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg)
+
         return
 
     def __call__(self, msg, level=1):
