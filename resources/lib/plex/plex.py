@@ -278,7 +278,18 @@ class Plex:
     def discover_all_servers(self):
 
         self.server_list = {}
+        #First discover the servers we shold know about from myplex
+        if self.is_myplex_signedin():
+                log_print.info( "PleXBMC -> Adding myplex as a server location")
 
+                self.server_list = self.get_myplex_servers()
+
+                if self.server_list:
+                    log_print.info("MyPlex discovery completed sucecssfully")
+                else:
+                    log_print.info("MyPlex discovery found no servers")
+
+        #Now grab any local devices we can find
         if settings.get_setting('discovery') == "1":
             log_print.info("local GDM discovery setting enabled.")
             log_print.info("Attempting GDM lookup on multicast")
@@ -309,45 +320,29 @@ class Plex:
                         new_server.set_user(self.effective_user)
                         new_server.set_token(self.effective_token)
 
-                        self.server_list[new_server.get_uuid()] = new_server
-
+                        self.merge_server(new_server)
                 else:
                     log_print.info("GDM was not able to discover any servers")
 
-        #Set to Disabled
+        #Get any manually configured servers
         else:
             if settings.get_setting('ipaddress'):
 
-                if not settings.get_setting('port'):
+                port = settings.get_setting('port')
+                if not port:
                     log_print.info( "PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
+                    port = DEFAULT_PORT
 
-                log_print.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('ipaddress'), settings.get_setting('port')))
+                log_print.info( "PleXBMC -> Settings hostname and port: %s : %s" % ( settings.get_setting('ipaddress'), port ))
 
-                local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=settings.get_setting('port'), discovery='local')
+                local_server=PlexMediaServer(address=settings.get_setting('ipaddress'), port=port, discovery='local')
                 local_server.set_user(self.effective_user)
                 local_server.set_token(self.effective_token)
                 local_server.refresh()
                 if local_server.discovered:
-                    self.server_list[local_server.get_uuid()] = local_server
+                    self.merge_server(local_server)
                 else:
-                    log_print.warn("Error: Unable to discovery server %s" % settings.get_setting('ipaddress'))
-
-        if self.is_myplex_signedin():
-                log_print.info( "PleXBMC -> Adding myplex as a server location")
-
-                for remote_server in self.get_myplex_servers():
-                    self.merge_server(remote_server)
-
-                if self.server_list:
-                    log_print.info("MyPlex discovery completed")
-
-
-        for refresh_server in self.server_list.values():
-            if not refresh_server.discovered:
-                refresh_server.refresh()
-
-                if refresh_server.discovered:
-                    self.server_list[refresh_server.get_uuid()]=refresh_server
+                    log_print.warn("Error: Unable to discover server %s" % settings.get_setting('ipaddress'))
 
         self.cache.writeCache(self.server_list_cache, self.server_list)
         log_print.info("PleXBMC -> serverList is: %s " % self.server_list)
@@ -364,33 +359,41 @@ class Plex:
         return xml
 
     def get_myplex_servers(self):
-        temp_servers = []
-        xml = self.talk_to_myplex("/pms/servers")
+        temp_servers = dict()
+        xml = self.talk_to_myplex("/api/resources?includeHttps=1")
 
         if xml is False:
             return {}
 
         server_list = ETree.fromstring(xml)
 
-        for server in server_list:
+        for device in server_list.findall('Device'):
 
-            myplex_server=PlexMediaServer( name = server.get('name').encode('utf-8'),
-                                           address = server.get('address') ,
-                                           port = server.get('port'),
-                                           discovery = "myplex" ,
-                                           token = server.get('accessToken'),
-                                           uuid = server.get('machineIdentifier'))
+            log_print.debug("[%s] Found server" % device.get('clientIdentifier'))
 
-            if server.get('owned') == "0":
-                myplex_server.set_owned(0)
+            discovered_server = PlexMediaServer(name = device.get('name').encode('utf-8'), discovery = "myplex")
+            discovered_server.set_uuid(device.get('clientIdentifier'))
+            discovered_server.set_owned(device.get('owned'))
+            discovered_server.set_token(device.get('accessToken'))
+            discovered_server.set_user(self.effective_user)
 
-            if server.get('localAddresses') is not None:
-                myplex_server.add_local_address(server.get('localAddresses'))
+            for connection in device.findall('Connection'):
+                    log_print.debug("[%s] Found server connection" % device.get('clientIdentifier'))
 
-            myplex_server.set_user(self.effective_user)
+                    if connection.get('local') == '0':
+                        discovered_server.add_external_connection(connection.get('address'), connection.get('port'))
 
-            temp_servers.append(myplex_server)
-            log_print.info("Discovered myplex server %s %s" % (myplex_server.get_name(), myplex_server.get_uuid()))
+                    else:
+                        discovered_server.add_internal_connection(connection.get('address'), connection.get('port'))
+
+                    if connection.get('protocol') == "http":
+                        log_print.debug("[%s] Dropping back to http" % device.get('clientIdentifier'))
+                        discovered_server.set_protocol('http')
+
+            discovered_server.set_best_address()  #Default to external address
+
+            temp_servers[discovered_server.get_uuid()] = discovered_server
+            log_print.info("[%s] Discovered server via myplex: %s" % (discovered_server.get_uuid(), discovered_server.get_name()))
 
         return temp_servers
 
@@ -407,9 +410,9 @@ class Plex:
         else:
             log_print.info("Found existing server %s %s" % (existing.get_name(), existing.get_uuid()))
 
-            #existing.set_best_address(server.get_address())
-            #existing.refresh()
-            #self.server_list[existing.get_uuid()]=existing
+            existing.set_best_address(server.get_access_address())
+            existing.refresh()
+            self.server_list[existing.get_uuid()]=existing
 
         return
 

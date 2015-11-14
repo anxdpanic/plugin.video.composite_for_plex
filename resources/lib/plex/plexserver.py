@@ -27,21 +27,14 @@ class PlexMediaServer:
         self.server_name=name
         self.discovery=discovery
         self.local_address=[]
-        self.local_port=None
         self.external_address=None
-        self.external_port=None
-        self.access_address=None
-        self.access_port=None
 
         if self.discovery == "myplex":
-            self.external_address=address
-            self.external_port=port
+            self.external_address='%s:%s' % (address, port)
         elif self.discovery == "discovery":
-            self.local_address=[address]
-            self.local_port=port
+            self.local_address=['%s:%s' % (address, port) ]
 
-        self.access_address=address
-        self.access_port=port
+        self.access_address='%s:%s' % ( address, port )
 
         self.section_list=[]
         self.token=token
@@ -129,10 +122,13 @@ class PlexMediaServer:
         return self.server_name
 
     def get_address(self):
-        return self.access_address
+        return self.access_address.split(':')[0]
 
     def get_port(self):
-        return self.access_port
+        return self.access_address.split(':')[1]
+
+    def get_access_address(self):
+        return self.access_address
 
     def get_url_location(self):
         return '%s://%s:%s' % ( self.protocol, self.get_address(), self.get_port())
@@ -150,42 +146,14 @@ class PlexMediaServer:
         if self.protocol == 'https':
             return True
         return False
-        
-    def add_local_address(self, address):
-        self.local_address=address.split(',')
-
-    def set_best_address(self, ipaddress):
-        if self.external_address == ipaddress:
-            log_print.debug("new [%s] == existing [%s]" % (ipaddress, self.external_address))
-            self.access_address=self.external_address
-            self.access_port=self.external_port
-            return
-        else:
-            log_print("new [%s] != existing [%s]" % (ipaddress, self.external_address))
-
-        for test_address in self.local_address:
-            if test_address == ipaddress:
-                log_print.debug("new [%s] == existing [%s]" % (ipaddress, test_address))
-                self.access_address = test_address
-                self.access_port=32400
-                return
-            else:
-                log_print.debug("new [%s] != existing [%s]" % (ipaddress, test_address))
-
-        log_print.debug("new [%s] is unknown.  Possible uuid clash?" % ipaddress)
-        log_print.debug("Will use this address for this object, as a last resort")
-        self.access_address = ipaddress
-        self.access_port = 32400
-
-        return
 
     def find_address_match(self, ipaddress,port):
         log_print.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.access_address, self.access_port))
         if "%s:%s" % (ipaddress, port) == "%s:%s" % (self.access_address, self.access_port):
             return True
 
-        log_print.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.external_address, self.external_port))
-        if "%s:%s" % (ipaddress, port) == "%s:%s" %(self.external_address, self.external_port):
+        log_print.debug("Checking [%s:%s] against [%s]" % ( ipaddress, port, self.external_address))
+        if "%s:%s" % (ipaddress, port) == self.external_address :
             return True
 
         for test_address in self.local_address:
@@ -198,12 +166,6 @@ class PlexMediaServer:
     def get_user(self):
         return self.user
 
-    def set_plex_home_enabled(self):
-        self.plex_home_enabled=True
-
-    def set_plex_home_disabled(self):
-        self.plex_home_enabled=False
-
     def get_owned(self):
         return self.owned
 
@@ -213,22 +175,68 @@ class PlexMediaServer:
     def get_master(self):
         return self.master
 
+    # Set and add functions:
+
+    def set_uuid(self, uuid):
+        self.uuid = uuid
+
     def set_owned(self, value):
-        self.owned=value
+        self.owned = int(value)
 
     def set_token(self, value):
-        self.token=value
+        self.token = value
         self.update_identification()
 
     def set_user(self, value):
-        self.user=value
+        self.user = value
         self.update_identification()
 
     def set_class(self, value):
-        self.class_type=value
+        self.class_type = value
 
     def set_master(self, value):
-        self.master=value
+        self.master = value
+
+    def set_protocol(self, value):
+        self.protocol = value
+
+    def set_plex_home_enabled(self):
+        self.plex_home_enabled = True
+
+    def set_plex_home_disabled(self):
+        self.plex_home_enabled = False
+
+    def add_external_connection(self, address, port):
+        self.external_address = '%s:%s' % (address, port)
+
+    def add_internal_connection(self, address, port):
+        if '%s:%s' % (address, port) not in self.local_address:
+            self.local_address.append('%s:%s' % (address, port))
+
+    def add_local_address(self, address):
+        self.local_address=address.split(',')
+
+    def set_best_address(self, ipaddress = None):
+
+        if ipaddress is None:
+            log_print.debug("[%s] No address given - setting to external" % self.uuid)
+            self.access_address = self.external_address
+        else:
+
+            #Ensure that ipaddress comes in an ip:port format
+            if ':' not in ipaddress:
+                ipaddress = '%s:%s' % (ipaddress, DEFAULT_PORT)
+
+            if ipaddress in self.local_address:
+                log_print.debug("[%s] IP address [%s] found on existing internal list.  Selecting as default" % (self.uuid, ipaddress ))
+                self.access_address = ipaddress
+            elif ipaddress == self.external_address:
+                log_print.debug("[%s] IP address [%s] found in existing external list.  selecting as default" % (self.uuid, ipaddress ))
+                self.access_address = self.external_address
+            else:
+                log_print.debug("[%s] Address [%s] is not currently on list.  Possible uuid clash?" % (self.uuid, ipaddress))
+
+        return
 
     def talk(self,url='/',refresh=False, type='get'):
 
