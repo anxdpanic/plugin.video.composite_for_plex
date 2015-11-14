@@ -127,14 +127,14 @@ class PlexMediaServer:
     def get_port(self):
         return self.access_address.split(':')[1]
 
+    def get_location(self):
+        return get_access_address()
+
     def get_access_address(self):
         return self.access_address
 
     def get_url_location(self):
-        return '%s://%s:%s' % ( self.protocol, self.get_address(), self.get_port())
-
-    def get_location(self):
-        return '%s:%s' % ( self.get_address(), self.get_port())
+        return '%s://%s' % ( self.protocol, self.access_address)
 
     def get_token(self):
         return self.token
@@ -148,8 +148,8 @@ class PlexMediaServer:
         return False
 
     def find_address_match(self, ipaddress,port):
-        log_print.debug("Checking [%s:%s] against [%s:%s]" % ( ipaddress, port, self.access_address, self.access_port))
-        if "%s:%s" % (ipaddress, port) == "%s:%s" % (self.access_address, self.access_port):
+        log_print.debug("Checking [%s:%s] against [%s]" % ( ipaddress, port, self.access_address))
+        if "%s:%s" % (ipaddress, port) == self.access_address:
             return True
 
         log_print.debug("Checking [%s:%s] against [%s]" % ( ipaddress, port, self.external_address))
