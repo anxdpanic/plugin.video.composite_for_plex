@@ -17,13 +17,16 @@ class PrintDebug:
             self.sub=''
 
         self.level=settings.get_debug()
+        self.privacy = settings.get_setting('privacy')
 
         self.DEBUG_OFF=0
         self.DEBUG_INFO=1
         self.DEBUG_DEBUG=2
         self.DEBUG_DEBUGPLUS=3
-        self.token_regex=re.compile('-Token=[a-z|0-9].*[&|$]')
-        self.ip_regex=re.compile('\.\d{1,3}\.\d{1,3}\.')        
+        self.token_regex=re.compile('-Token=[a-z|0-9].*?[&|$]')
+        self.ip_regex=re.compile('\.\d{1,3}\.\d{1,3}\.')
+        self.user_regex=re.compile('-User=[a-z|0-9].*?[&|$]')
+
 
         self.DEBUG_MAP={ self.DEBUG_OFF       : "off",
                          self.DEBUG_INFO      : "info",
@@ -53,8 +56,11 @@ class PrintDebug:
 
     def __print_message( self, msg, level=1 ):
         if self.level >= level :
-            #msg=self.token_regex.sub("-Token=XXXXXXXXXX&", str(msg))
-            #msg=self.ip_regex.sub(".X.X.", msg)
+            if self.privacy:
+                msg=self.token_regex.sub("X-Plex-Token=XXXXXXXXXX&", str(msg))
+                msg=self.ip_regex.sub(".X.X.", msg)
+                msg=self.user_regex.sub("X-Plex-User=XXXXXXX&", msg)
+
             try:
                 print "%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8'))
             except:
