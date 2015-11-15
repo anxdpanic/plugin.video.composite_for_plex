@@ -246,12 +246,12 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=link_url, listitem=liz, isFolder=folder)
 
 
-def display_sections( filter=None, display_shared=False):
+def display_sections(filter=None, display_shared=False):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'files')
 
-    server_list=plex_network.get_server_list()
-    log_print.debug( "Using list of %s servers: %s" % ( len(server_list), server_list))
+    server_list = plex_network.get_server_list()
+    log_print.debug("Using list of %s servers: %s" % (len(server_list), server_list))
 
     for server in server_list:
 
@@ -262,57 +262,58 @@ def display_sections( filter=None, display_shared=False):
             if display_shared and server.is_owned():
                 continue
 
-            details={'title' : section.get_title() }
+            details = {'title': section.get_title()}
 
             if len(server_list) > 1:
-                details['title']="%s: %s" % (server.get_name(), details['title'])
+                details['title'] = "%s: %s" % (server.get_name(), details['title'])
 
-            extraData={ 'fanart_image' : server.get_fanart(section),
-                        'type'         : "Video"}
+            extra_data = {'fanart_image': server.get_fanart(section),
+                          'type'        : "Video"}
 
-            # Determine what we are going to do process after a link is selected by the user, based on the content we find
+            # Determine what we are going to do process after a link selected by the user, based on the content we find
 
-            path=section.get_path()
+            path = section.get_path()
 
             if section.is_show():
-                mode=MODE_TVSHOWS
+                mode = MODE_TVSHOWS
                 if (filter is not None) and (filter != "tvshows"):
                     continue
 
             elif section.is_movie():
-                mode=MODE_MOVIES
+                mode = MODE_MOVIES
                 if (filter is not None) and (filter != "movies"):
                     continue
 
             elif section.is_artist():
-                mode=MODE_ARTISTS
+                mode = MODE_ARTISTS
                 if (filter is not None) and (filter != "music"):
                     continue
 
             elif section.is_photo():
-                mode=MODE_PHOTOS
+                mode = MODE_PHOTOS
                 if (filter is not None) and (filter != "photos"):
                     continue
             else:
-                log_print.debug("Ignoring section %s of type %s as unable to process" % ( details['title'], section.get_type() ) )
+                log_print.debug("Ignoring section %s of type %s as unable to process"
+                                % (details['title'], section.get_type()))
                 continue
 
             if settings.get_setting('secondary'):
-                mode=MODE_GETCONTENT
+                mode = MODE_GETCONTENT
             else:
-                path=path+'/all'
+                path = path+'/all'
 
-            extraData['mode']=mode
-            section_url='%s%s' % ( server.get_url_location(), path)
+            extra_data['mode'] = mode
+            section_url = '%s%s' % ( server.get_url_location(), path)
 
             if not settings.get_setting('skipcontextmenus'):
-                context=[]
-                context.append(('Refresh library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section.get_key()) ))
+                context = [('Refresh library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)'
+                            % (server.get_uuid(), section.get_key()))]
             else:
-                context=None
+                context = None
 
             # Build that listing..
-            add_item_to_gui(section_url, details,extraData, context)
+            add_item_to_gui(section_url, details, extra_data, context)
 
     if display_shared:
         xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
@@ -332,63 +333,61 @@ def display_sections( filter=None, display_shared=False):
             continue
 
         if len(server_list) > 1:
-            prefix=server.get_name()+": "
+            prefix = server.get_name()+": "
         else:
-            prefix=""
+            prefix = ""
 
-        details={'title' : prefix+"Channels" }
-        extraData={'type' : "Video"}
+        details = {'title': prefix+"Channels"}
+        extra_data = {'type': "Video"}
 
-        extraData['mode']=MODE_CHANNELVIEW
-        u="%s/channels/all" % server.get_url_location()
-        add_item_to_gui(u,details,extraData)
+        extra_data['mode'] = MODE_CHANNELVIEW
+        u = "%s/channels/all" % server.get_url_location()
+        add_item_to_gui(u, details, extra_data)
 
         # Create plexonline link
-        details['title']=prefix+"Plex Online"
-        extraData['type'] = "file"
-        extraData['mode'] = MODE_PLEXONLINE
+        details['title'] = prefix+"Plex Online"
+        extra_data['type'] = "file"
+        extra_data['mode'] = MODE_PLEXONLINE
 
-        u="%s/system/plexonline" % server.get_url_location()            
-        add_item_to_gui(u,details,extraData)
+        u = "%s/system/plexonline" % server.get_url_location()
+        add_item_to_gui(u, details, extra_data)
 
         # create playlist link
-        details['title']=prefix+"Playlists"
-        extraData['type'] = "file"
-        extraData['mode'] = MODE_PLAYLISTS
+        details['title'] = prefix+"Playlists"
+        extra_data['type'] = "file"
+        extra_data['mode'] = MODE_PLAYLISTS
 
-        u="%s/playlists" % server.get_url_location()            
-        add_item_to_gui(u,details,extraData)
+        u = "%s/playlists" % server.get_url_location()
+        add_item_to_gui(u, details, extra_data)
 
     if plex_network.is_myplex_signedin():
 
         if plex_network.is_plexhome_enabled():
-            details = {'title' : "Switch User"}
-            extraData = {'type' : 'file'}
+            details = {'title': "Switch User"}
+            extra_data = {'type': 'file'}
 
-            u="cmd:switchuser"
-            add_item_to_gui(u,details,extraData)
+            u = "cmd:switchuser"
+            add_item_to_gui(u, details, extra_data)
 
-        details = {'title' : "Sign Out"}
-        extraData = {'type' : 'file'}
+        details = {'title': "Sign Out"}
+        extra_data = {'type': 'file'}
 
-        u="cmd:signout"
-        add_item_to_gui(u,details,extraData)
+        u = "cmd:signout"
+        add_item_to_gui(u, details, extra_data)
     else:
-        details = {'title' : "Sign In"}
-        extraData = {'type' : 'file'}
+        details = {'title': "Sign In"}
+        extra_data = {'type': 'file'}
 
-        u="cmd:signintemp"
-        add_item_to_gui(u,details,extraData)
+        u = "cmd:signintemp"
+        add_item_to_gui(u, details, extra_data)
 
     if settings.get_setting('cache'):
-        details = {'title' : "Refresh Data"}
-        extraData = {}
-        extraData['type']="file"
+        details = {'title': "Refresh Data"}
+        extra_data = {'type': "file",
+                      'mode': MODE_DELETE_REFRESH}
 
-        extraData['mode']= MODE_DELETE_REFRESH
-
-        u="http://nothing"
-        add_item_to_gui(u,details,extraData)
+        u = "http://nothing"
+        add_item_to_gui(u, details, extra_data)
 
     # All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
