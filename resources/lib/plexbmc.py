@@ -381,6 +381,11 @@ def display_sections(filter=None, display_shared=False):
         u = "cmd:signintemp"
         add_item_to_gui(u, details, extra_data)
 
+    details = {'title': "Display servers"}
+    extra_data = {'type': 'file'}
+    data_url = "cmd:displayservers"
+    add_item_to_gui(data_url, details, extra_data)
+
     if settings.get_setting('cache'):
         details = {'title': "Refresh Data"}
         extra_data = {'type': "file",
@@ -1705,39 +1710,6 @@ def process_directory(url, tree=None):
         add_item_to_gui(u, details, extraData)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
-
-
-def get_master_server(all=False):
-    log_print.debug("== ENTER ==")
-
-    possibleServers=[]
-    current_master=settings.get_setting('masterServer')
-    for serverData in plex_network.get_server_list():
-        log_print.debug( str(serverData) )
-        if serverData.get_master() == 1:
-            possibleServers.append(serverData)
-    log_print.debug( "Possible master servers are: %s" % possibleServers )
-
-    if all:
-        return possibleServers
-
-    if len(possibleServers) > 1:
-        preferred="local"
-        for serverData in possibleServers:
-            if serverData.get_name == current_master:
-                log_print.debug("Returning current master")
-                return serverData
-            if preferred == "any":
-                log_print.debug("Returning 'any'")
-                return serverData
-            else:
-                if serverData.get_discovery() == preferred:
-                    log_print.debug("Returning local")
-                    return serverData
-    elif len(possibleServers) == 0:
-        return 
-
-    return possibleServers[0]
 
 
 def artist(url, tree=None):
@@ -3974,6 +3946,39 @@ def set_window_heading(tree):
         gui_window.clearProperty("heading2")
 
 
+def get_master_server(all=False):
+    log_print.debug("== ENTER ==")
+
+    possible_servers = []
+    current_master = settings.get_setting('masterServer')
+    for serverData in plex_network.get_server_list():
+        log_print.debug(str(serverData))
+        if serverData.get_master() == 1:
+            possible_servers.append(serverData)
+    log_print.debug("Possible master servers are: %s" % possible_servers)
+
+    if all:
+        return possible_servers
+
+    if len(possible_servers) > 1:
+        preferred = "local"
+        for serverData in possible_servers:
+            if serverData.get_name == current_master:
+                log_print.debug("Returning current master")
+                return serverData
+            if preferred == "any":
+                log_print.debug("Returning 'any'")
+                return serverData
+            else:
+                if serverData.get_discovery() == preferred:
+                    log_print.debug("Returning local")
+                    return serverData
+    elif len(possible_servers) == 0:
+        return
+
+    return possible_servers[0]
+
+
 def set_master_server():
     log_print.debug("== ENTER ==")
 
@@ -3996,6 +4001,27 @@ def set_master_server():
 
     log_print.debug("Setting master server to: %s" % servers[result].get_name())
     settings.update_master_server(servers[result].get_name())
+    return
+
+
+def display_known_servers():
+    known_servers = plex_network.get_server_list()
+    display_list = []
+
+    for device in known_servers:
+        name = device.get_name()
+        status = device.get_status()
+        if device.is_secure():
+            secure = "SSL"
+        else:
+            secure = "Not Secure"
+
+        log_print.debug("Device: %s [%s] [%s]" % (name, status, secure))
+        log_print.debugplus("Full device dump [%s]" % device.__dict__)
+        display_list.append("%s [%s] [%s]" % (name, status, secure))
+
+    server_display_screen = xbmcgui.Dialog()
+    server_display_screen.select('Known server list', display_list)
     return
 
 
@@ -4223,6 +4249,9 @@ def start_plexbmc():
         manage_window.set_authentication_target(plex_network)
         manage_window.start()
         del manage_window
+    elif command == "displayservers":
+        plex_network.load()
+        display_known_servers()
 
     else:
         plex_network.load()

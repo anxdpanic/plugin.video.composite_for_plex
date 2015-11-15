@@ -59,6 +59,16 @@ class PlexMediaServer:
     def get_revision(self):
         return self.__revision
 
+    def get_status(self):
+        if self.offline:
+            return "Offline"
+        elif self.access_address == self.external_address:
+            return "Remote"
+        elif self.access_address in self.local_address:
+            return "Nearby"
+        else:
+            return "Unknown"
+
     def get_details(self):
 
         return {'serverName': self.server_name,
