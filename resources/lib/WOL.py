@@ -1,10 +1,11 @@
 import socket
 import struct
 
+
 def wake_on_lan(macaddress):
     """ Switches on remote computers using WOL. """
 
-    macaddress=macaddress.strip()
+    macaddress = macaddress.strip()
     
     # Check macaddress format and try to compensate.
     if len(macaddress) == 12:
