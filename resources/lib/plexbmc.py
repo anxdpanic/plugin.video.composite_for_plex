@@ -4038,7 +4038,7 @@ def start_plexbmc():
         xbmc.executebuiltin("ReloadSkin()")
     #Open the add-on settings page, then refresh plugin
     elif command == "setting":
-        settings.openSettings()
+        settings.open_settings()
         if xbmcgui.getCurrentWindowId() == 10000:
             log_print.debug("Currently in home - refreshing to allow new settings to be taken")
             xbmc.executebuiltin("ReloadSkin()")
