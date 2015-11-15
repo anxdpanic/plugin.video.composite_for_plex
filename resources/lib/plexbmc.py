@@ -525,34 +525,34 @@ def process_movies(url, tree=None):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
 
-    xbmcplugin.addSortMethod(pluginhandle, 37 ) # maintain original plex sorted
-    xbmcplugin.addSortMethod(pluginhandle, 25 ) # video title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 19 )  # date added
-    xbmcplugin.addSortMethod(pluginhandle, 3 )  # date
-    xbmcplugin.addSortMethod(pluginhandle, 18 ) # rating
-    xbmcplugin.addSortMethod(pluginhandle, 17 ) # year
-    xbmcplugin.addSortMethod(pluginhandle, 29 ) # runtime
-    xbmcplugin.addSortMethod(pluginhandle, 28 ) # by MPAA
+    xbmcplugin.addSortMethod(pluginhandle, 37)  # maintain original plex sorted
+    xbmcplugin.addSortMethod(pluginhandle, 25)  # video title ignore THE
+    xbmcplugin.addSortMethod(pluginhandle, 19)  # date added
+    xbmcplugin.addSortMethod(pluginhandle, 3)   # date
+    xbmcplugin.addSortMethod(pluginhandle, 18)  # rating
+    xbmcplugin.addSortMethod(pluginhandle, 17)  # year
+    xbmcplugin.addSortMethod(pluginhandle, 29)  # runtime
+    xbmcplugin.addSortMethod(pluginhandle, 28)  # by MPAA
 
     # get the server name from the URL, which was passed via the on screen listing..
 
-    server=plex_network.get_server_from_url(url)
+    server = plex_network.get_server_from_url(url)
 
-    tree=get_xml(url,tree)
+    tree = get_xml(url,tree)
     if tree is None:
         return
 
     set_window_heading(tree)
-    randomNumber=str(random.randint(1000000000,9999999999))
+    random_number = str(random.randint(1000000000, 9999999999))
 
     # Find all the video tags, as they contain the data we need to link to a file.
-    start_time=time.time()
-    count=0
+    start_time = time.time()
+    count = 0
     for movie in tree:
 
         if movie.tag == "Video":
-            movie_tag(url, server, tree, movie, randomNumber)
-            count+=1
+            movie_tag(url, server, tree, movie, random_number)
+            count += 1
 
     log_print.info("PROCESS: It took %s seconds to process %s items" % (time.time()-start_time, count))
     log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
@@ -2101,13 +2101,13 @@ def process_xml(url, tree=None):
     xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
 
 
-def movie_tag(url, server, tree, movie, randomNumber):
+def movie_tag(url, server, tree, movie, random_number):
 
     log_print.debug("---New Item---")
-    tempgenre=[]
-    tempcast=[]
-    tempdir=[]
-    tempwriter=[]
+    tempgenre = []
+    tempcast = []
+    tempdir = []
+    tempwriter = []
 
     # Lets grab all the info we can quickly through either a dictionary, or assignment to a list
     # We'll process it later
@@ -2126,39 +2126,35 @@ def movie_tag(url, server, tree, movie, randomNumber):
     log_print.debug("Media attributes are %s" % mediaarguments)
 
     # Gather some data
-    view_offset=movie.get('viewOffset',0)
-    duration=int(mediaarguments.get('duration',movie.get('duration',0)))/1000
-    # if movie.get('originallyAvailableAt') is not None:
-    #    release_date = time.strftime('%d.%m.%Y',(time.strptime(movie.get('originallyAvailableAt'), '%Y-%m-%d')))
-    # else:
-    #    release_date = ""
+    view_offset = movie.get('viewOffset', 0)
+    duration = int(mediaarguments.get('duration', movie.get('duration', 0)))/1000
 
     # Required listItem entries for XBMC
-    details={'plot'      : movie.get('summary','').encode('utf-8') ,
-             'title'     : movie.get('title','Unknown').encode('utf-8') ,
-             'sorttitle' : movie.get('titleSort', movie.get('title','Unknown')).encode('utf-8') ,
-             'rating'    : float(movie.get('rating',0)) ,
-             'studio'    : movie.get('studio','').encode('utf-8'),
-             'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
-             'year'      : int(movie.get('year',0)),
-             'date'      : movie.get('originallyAvailableAt','1970-01-01'),
-             'tagline'   : movie.get('tagline',''), 
-             'DateAdded' : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt',0))))}
+    details = {'plot'     : movie.get('summary', '').encode('utf-8'),
+              'title'     : movie.get('title', 'Unknown').encode('utf-8'),
+              'sorttitle' : movie.get('titleSort', movie.get('title', 'Unknown')).encode('utf-8'),
+              'rating'    : float(movie.get('rating', 0)),
+              'studio'    : movie.get('studio', '').encode('utf-8'),
+              'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
+              'year'      : int(movie.get('year', 0)),
+              'date'      : movie.get('originallyAvailableAt', '1970-01-01'),
+              'tagline'   : movie.get('tagline', ''),
+              'DateAdded' : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0))))}
 
     # Extra data required to manage other properties
-    extraData={'type'         : "Video" ,
+    extraData={'type'         : "Video",
                'source'       : 'movies',
-               'thumb'        : get_thumb_image(movie, server) ,
-               'fanart_image' : get_fanart_image(movie, server) ,
-               'key'          : movie.get('key',''),
-               'ratingKey'    : str(movie.get('ratingKey',0)),
+               'thumb'        : get_thumb_image(movie, server),
+               'fanart_image' : get_fanart_image(movie, server),
+               'key'          : movie.get('key', ''),
+               'ratingKey'    : str(movie.get('ratingKey', 0)),
                'duration'     : duration,
-               'resume'       : int (int(view_offset)/1000) }
+               'resume'       : int(int(view_offset)/1000)}
 
     # Determine what type of watched flag [overlay] to use
-    if int(movie.get('viewCount',0)) > 0:
+    if int(movie.get('viewCount', 0)) > 0:
         details['playcount'] = 1
-    elif int(movie.get('viewCount',0)) == 0:
+    elif int(movie.get('viewCount', 0)) == 0:
         details['playcount'] = 0
 
     # Extended Metadata
@@ -2169,7 +2165,7 @@ def movie_tag(url, server, tree, movie, randomNumber):
         details['genre']    = " / ".join(tempgenre)
 
     if movie.get('primaryExtraKey') is not None:
-        details['trailer'] = "plugin://plugin.video.plexbmc/?url=%s%s?t=%s&mode=%s" % (server.get_url_location(), movie.get('primaryExtraKey', ''), randomNumber, MODE_PLAYLIBRARY)
+        details['trailer'] = "plugin://plugin.video.plexbmc/?url=%s%s?t=%s&mode=%s" % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODE_PLAYLIBRARY)
         log_print.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
@@ -2178,17 +2174,17 @@ def movie_tag(url, server, tree, movie, randomNumber):
 
     # Build any specific context menu entries
     if not settings.get_setting('skipcontextmenus'):
-        context=build_context_menu(url, extraData, server)
+        context = build_context_menu(url, extraData, server)
     else:
-        context=None
+        context = None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
-    extraData['mode']=MODE_PLAYLIBRARY
+    extraData['mode'] = MODE_PLAYLIBRARY
     separator = "?"
     if "?" in extraData['key']:
         separator = "&"
-    u="%s%s%st=%s" % (server.get_url_location(), extraData['key'], separator, randomNumber)
+    final_url = "%s%s%st=%s" % (server.get_url_location(), extraData['key'], separator, random_number)
 
-    add_item_to_gui(u,details,extraData,context,folder=False)
+    add_item_to_gui(final_url, details, extraData, context, folder=False)
     return
 
 
@@ -2401,16 +2397,18 @@ def get_thumb_image(data, server, width=720, height=720):
     if settings.get_setting('skipimages'):
         return ''
 
-    thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
+    thumbnail = data.get('thumb', '').split('?t')[0].encode('utf-8')
 
-    if thumbnail.startswith("http") :
+    if thumbnail.startswith("http"):
         return thumbnail
 
     elif thumbnail.startswith('/'):
         if settings.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
-            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s'
+                                                        % (urllib.quote_plus('http://localhost:32400' + thumbnail),
+                                                           width, height))
 
     return GENERIC_THUMBNAIL
 
@@ -2441,20 +2439,20 @@ def get_banner_image(data, server, width=720, height=720):
     return GENERIC_THUMBNAIL
 
 
-def get_shelfthumb_image(data, server, seasonThumb=False, prefer_season=False, width=400, height=400):
+def get_shelfthumb_image(data, server, season_thumb=False, prefer_season=False, width=400, height=400):
     '''
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
         @ return formatted URL
     '''
 
-    if seasonThumb:
+    if season_thumb:
         if prefer_season:
-            thumbnail=data.get('parentThumb',data.get('grandparentThumb','')).split('?t')[0].encode('utf-8')
+            thumbnail = data.get('parentThumb', data.get('grandparentThumb', '')).split('?t')[0].encode('utf-8')
         else:
-            thumbnail=data.get('grandparentThumb','').split('?t')[0].encode('utf-8') 
+            thumbnail = data.get('grandparentThumb', '').split('?t')[0].encode('utf-8')
     else:
-        thumbnail=data.get('thumb','').split('?t')[0].encode('utf-8')
+        thumbnail = data.get('thumb', '').split('?t')[0].encode('utf-8')
 
     if thumbnail.startswith("http"):
         return thumbnail
@@ -2463,7 +2461,9 @@ def get_shelfthumb_image(data, server, seasonThumb=False, prefer_season=False, w
         if settings.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
-            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s'
+                                                        % (urllib.quote_plus('http://localhost:32400' + thumbnail),
+                                                           width, height))
 
     return GENERIC_THUMBNAIL
 
@@ -2477,9 +2477,9 @@ def get_fanart_image(data, server, width=1280, height=720):
     if settings.get_setting('skipimages'):
         return ''
 
-    fanart=data.get('art','').encode('utf-8')
+    fanart = data.get('art', '').encode('utf-8')
 
-    if fanart.startswith('http') :
+    if fanart.startswith('http'):
         return fanart
 
     elif fanart.startswith('/'):
