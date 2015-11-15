@@ -624,14 +624,9 @@ def TVShows( url, tree=None ):
                    'TotalEpisodes'     : details['episode'],
                    'thumb'             : getThumb(show, server) ,
                    'fanart_image'      : getFanart(show, server) ,
+                   'banner'            : get_banner_image(show, server),
                    'key'               : show.get('key','') ,
                    'ratingKey'         : str(show.get('ratingKey',0)) }
-
-        #banner art
-        if show.get('banner') is not None:
-            extraData['banner'] = server.get_url_location()+show.get('banner')
-        else:
-            extraData['banner'] = GENERIC_THUMBNAIL
 
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
@@ -2382,6 +2377,32 @@ def getThumb(data, server, width=720, height=720):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
             return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
+
+    return GENERIC_THUMBNAIL
+
+
+def get_banner_image(data, server, width=720, height=720):
+    """
+        Simply take a URL or path and determine how to format for images
+        @ input: elementTree element, server name
+        @ return formatted URL
+    """
+
+    if settings.get_setting('skipimages'):
+        return ''
+
+    thumbnail = data.get('banner', '').split('?t')[0].encode('utf-8')
+
+    if thumbnail.startswith("http"):
+        return thumbnail
+
+    elif thumbnail.startswith('/'):
+        if settings.get_setting('fullres_thumbs'):
+            return server.get_kodi_header_formatted_url(thumbnail)
+        else:
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s'
+                                                        % (urllib.quote_plus('http://localhost:32400' + thumbnail),
+                                                           width, height))
 
     return GENERIC_THUMBNAIL
 
