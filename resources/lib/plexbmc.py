@@ -3752,32 +3752,34 @@ def set_shelf_channel(server_list=None):
     return
 
 
-def clear_shelf_channel(channelCount=0):
+def clear_shelf_channel(channel_count=0):
 
-    WINDOW = xbmcgui.Window( 10000 )
+    gui_window = xbmcgui.Window(10000)
 
     try:
-        for i in range(channelCount, 30+1):
-            WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Path"   % ( i ) )
-            WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Title"  % ( i ) )
-            WINDOW.clearProperty("Plexbmc.LatestChannel.%s.Thumb"  % ( i ) )
+        for i in range(channel_count, 30+1):
+            gui_window.clearProperty("Plexbmc.LatestChannel.%s.Path" % i)
+            gui_window.clearProperty("Plexbmc.LatestChannel.%s.Title" % i)
+            gui_window.clearProperty("Plexbmc.LatestChannel.%s.Thumb" % i)
         log_print.debug("Done clearing channels")
-    except: pass
+    except:
+        pass
 
     return
 
 
-def clear_shelf_queue(queueCount=0):
+def clear_shelf_queue(queue_count=0):
 
-    WINDOW = xbmcgui.Window( 10000 )
+    gui_window = xbmcgui.Window(10000)
 
     try:
-        for i in range(queueCount, 15+1):
-            WINDOW.clearProperty("Plexbmc.Queue.%s.Path"   % ( i ) )
-            WINDOW.clearProperty("Plexbmc.Queue.%s.Title"  % ( i ) )
-            WINDOW.clearProperty("Plexbmc.Queue.%s.Thumb"  % ( i ) )
+        for queue_number in range(queue_count, 15+1):
+            gui_window.clearProperty("Plexbmc.Queue.%s.Path" % queue_number)
+            gui_window.clearProperty("Plexbmc.Queue.%s.Title" % queue_number)
+            gui_window.clearProperty("Plexbmc.Queue.%s.Thumb" % queue_number)
         log_print.debug("Done clearing Queue shelf")
-    except: pass
+    except:
+        pass
 
     return
 
@@ -3789,7 +3791,7 @@ def myplex_queue():
         xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")
         return
 
-    tree=plex_network.get_myplex_queue()
+    tree = plex_network.get_myplex_queue()
 
     plex_plugins('http://my.plexapp.com/playlists/queue/all', tree)
     return
@@ -3798,7 +3800,7 @@ def myplex_queue():
 def refresh_plex_library(server_uuid, section_id):
     log_print.debug("== ENTER ==")
 
-    server=plex_network.get_server_from_uuid(server_uuid)
+    server = plex_network.get_server_from_uuid(server_uuid)
     server.refresh_section(section_id)
 
     log_print.info("Library refresh requested")
@@ -3806,12 +3808,12 @@ def refresh_plex_library(server_uuid, section_id):
     return
 
 
-def watched(server_uuid, metadata_id, watched='watch' ):
+def watched(server_uuid, metadata_id, watched_status='watch'):
     log_print.debug("== ENTER ==")
 
-    server=plex_network.get_server_from_uuid(server_uuid)
+    server = plex_network.get_server_from_uuid(server_uuid)
 
-    if watched == 'watch':
+    if watched_status == 'watch':
         log_print.info("Marking %s as watched" % metadata_id)
         server.mark_item_watched(metadata_id)
     else:
@@ -3827,11 +3829,11 @@ def delete_library_media(server_uuid, metadata_id):
     log_print.debug("== ENTER ==")
     log_print.info("Deleting media at: %s" % metadata_id)
 
-    return_value = xbmcgui.Dialog().yesno("Confirm file delete?","Delete this item? This action will delete media and associated data files.")
+    return_value = xbmcgui.Dialog().yesno("Confirm file delete?", "Delete this item? This action will delete media and associated data files.")
 
     if return_value:
         log_print.debug("Deleting....")
-        server=plex_network.get_server_from_uuid(server_uuid)
+        server = plex_network.get_server_from_uuid(server_uuid)
         server.delete_metadata(metadata_id)
         xbmc.executebuiltin("Container.Refresh")
 
@@ -3839,50 +3841,50 @@ def delete_library_media(server_uuid, metadata_id):
 
 
 def set_library_subtitiles(server_uuid, metadata_id):
-    '''
+    """
         Display a list of available Subtitle streams and allow a user to select one.
         The currently selected stream will be annotated with a *
-    '''
+    """
     log_print.debug("== ENTER ==")
 
     server = plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
 
-    sub_list=['']
-    display_list=["None"]
-    fl_select=False
+    sub_list = ['']
+    display_list = ["None"]
+    fl_select = False
     for parts in tree.getiterator('Part'):
 
-        part_id=parts.get('id')
+        part_id = parts.get('id')
 
         for streams in parts:
 
-            if streams.get('streamType','') == "3":
+            if streams.get('streamType', '') == "3":
 
-                stream_id=streams.get('id')
-                lang=streams.get('languageCode',"Unknown").encode('utf-8')
-                log_print.debug("Detected Subtitle stream [%s] [%s]" % ( stream_id, lang ) )
+                stream_id = streams.get('id')
+                lang = streams.get('languageCode', "Unknown").encode('utf-8')
+                log_print.debug("Detected Subtitle stream [%s] [%s]" % (stream_id, lang))
 
-                if streams.get('format',streams.get('codec')) == "idx":
+                if streams.get('format', streams.get('codec')) == "idx":
                     log_print.debug("Stream: %s - Ignoring idx file for now" % stream_id)
                     continue
                 else:
                     sub_list.append(stream_id)
 
                     if streams.get('selected') == '1':
-                        fl_select=True
-                        language=streams.get('language','Unknown')+"*"
+                        fl_select = True
+                        language = streams.get('language', 'Unknown')+"*"
                     else:
-                        language=streams.get('language','Unknown')
+                        language = streams.get('language', 'Unknown')
 
                     display_list.append(language)
         break
 
     if not fl_select:
-        display_list[0]=display_list[0]+"*"
+        display_list[0] = display_list[0]+"*"
 
-    subScreen = xbmcgui.Dialog()
-    result = subScreen.select('Select subtitle',display_list)
+    subtitle_screen = xbmcgui.Dialog()
+    result = subtitle_screen.select('Select subtitle', display_list)
     if result == -1:
         return False
 
@@ -3893,57 +3895,57 @@ def set_library_subtitiles(server_uuid, metadata_id):
 
 
 def set_library_audio(server_uuid, metadata_id):
-    '''
+    """
         Display a list of available audio streams and allow a user to select one.
         The currently selected stream will be annotated with a *
-    '''
+    """
     log_print.debug("== ENTER ==")
 
     server = plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
 
-    audio_list=[]
-    display_list=[]
+    audio_list = []
+    display_list = []
     for parts in tree.getiterator('Part'):
 
-        part_id=parts.get('id')
+        part_id = parts.get('id')
 
         for streams in parts:
 
-            if streams.get('streamType','') == "2":
+            if streams.get('streamType', '') == "2":
 
-                stream_id=streams.get('id')
+                stream_id = streams.get('id')
                 audio_list.append(stream_id)
-                lang=streams.get('languageCode', "Unknown")
+                lang = streams.get('languageCode', "Unknown")
 
-                log_print.debug("Detected Audio stream [%s] [%s] " % ( stream_id, lang))
+                log_print.debug("Detected Audio stream [%s] [%s] " % (stream_id, lang))
 
-                if streams.get('channels','Unknown') == '6':
-                    channels="5.1"
-                elif streams.get('channels','Unknown') == '7':
-                    channels="6.1"
-                elif streams.get('channels','Unknown') == '2':
-                    channels="Stereo"
+                if streams.get('channels', 'Unknown') == '6':
+                    channels = "5.1"
+                elif streams.get('channels', 'Unknown') == '7':
+                    channels = "6.1"
+                elif streams.get('channels', 'Unknown') == '2':
+                    channels = "Stereo"
                 else:
-                    channels=streams.get('channels','Unknown')
+                    channels = streams.get('channels', 'Unknown')
 
-                if streams.get('codec','Unknown') == "ac3":
-                    codec="AC3"
-                elif streams.get('codec','Unknown') == "dca":
-                    codec="DTS"
+                if streams.get('codec', 'Unknown') == "ac3":
+                    codec = "AC3"
+                elif streams.get('codec', 'Unknown') == "dca":
+                    codec = "DTS"
                 else:
-                    codec=streams.get('codec','Unknown')
+                    codec = streams.get('codec', 'Unknown')
 
-                language="%s (%s %s)" % ( streams.get('language','Unknown').encode('utf-8') , codec, channels )
+                language = "%s (%s %s)" % (streams.get('language', 'Unknown').encode('utf-8'), codec, channels)
 
                 if streams.get('selected') == '1':
-                    language=language+"*"
+                    language = language+"*"
 
                 display_list.append(language)
         break
 
-    audioScreen = xbmcgui.Dialog()
-    result = audioScreen.select('Select audio',display_list)
+    audio_screen = xbmcgui.Dialog()
+    result = audio_screen.select('Select audio', display_list)
     if result == -1:
         return False
 
@@ -3955,39 +3957,39 @@ def set_library_audio(server_uuid, metadata_id):
 
 
 def set_window_heading(tree):
-    WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
+    gui_window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
     try:
-        WINDOW.setProperty("heading", tree.get('title1'))
+        gui_window.setProperty("heading", tree.get('title1'))
     except:
-        WINDOW.clearProperty("heading")
+        gui_window.clearProperty("heading")
     try:
-        WINDOW.setProperty("heading2", tree.get('title2'))
+        gui_window.setProperty("heading2", tree.get('title2'))
     except:
-        WINDOW.clearProperty("heading2")
+        gui_window.clearProperty("heading2")
 
 
 def set_master_server():
     log_print.debug("== ENTER ==")
 
-    servers=get_master_server(True)
+    servers = get_master_server(True)
     log_print.debug(str(servers))
 
-    current_master=settings.get_setting('masterServer')
+    current_master = settings.get_setting('masterServer')
 
-    displayList=[]
+    display_option_list = []
     for address in servers:
         found_server = address.get_name()
         if found_server == current_master:
             found_server = found_server+"*"
-        displayList.append(found_server)
+        display_option_list.append(found_server)
 
-    audioScreen = xbmcgui.Dialog()
-    result = audioScreen.select('Select master server', displayList)
+    audio_select_screen = xbmcgui.Dialog()
+    result = audio_select_screen.select('Select master server', display_option_list)
     if result == -1:
         return False
 
-    log_print.debug("Setting master server to: %s" % servers[result].get_name() )
-    settings.update_master_server(servers[result].get_name() )
+    log_print.debug("Setting master server to: %s" % servers[result].get_name())
+    settings.update_master_server(servers[result].get_name())
     return
 
 
