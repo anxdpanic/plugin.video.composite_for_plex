@@ -677,7 +677,7 @@ def TVSeasons( url ):
             willFlatten=True
 
     sectionart=getFanart(tree, server)
-    banner=tree.get('banner')
+    banner = get_banner_image(tree, server)
     setWindowHeading(tree)
     #For all the directory tags
     SeasonTags=tree.findall('Directory')
@@ -714,13 +714,11 @@ def TVSeasons( url ):
                    'UnWatchedEpisodes' : details['episode'] - watched ,
                    'thumb'             : getThumb(season, server) ,
                    'fanart_image'      : getFanart(season, server) ,
+                   'banner'            : banner,
                    'key'               : season.get('key','') ,
                    'ratingKey'         : str(season.get('ratingKey',0)) ,
                    'mode'              : MODE_TVEPISODES }
 
-        if banner:
-            extraData['banner']=server.get_url_location()+banner
-        
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
             
@@ -759,8 +757,6 @@ def TVEpisodes( url, tree=None ):
 
     setWindowHeading(tree)
 
-    #get banner thumb
-    banner = tree.get('banner')
 
     #get season thumb for SEASON NODE
     season_thumb = tree.get('thumb', '')
@@ -773,6 +769,8 @@ def TVEpisodes( url, tree=None ):
 
     if not settings.get_setting('skipimages'):
         sectionart=getFanart(tree, server)
+
+    banner = get_banner_image(tree, server)
 
     randomNumber=str(random.randint(1000000000,9999999999))
 
@@ -845,6 +843,7 @@ def TVEpisodes( url, tree=None ):
                    'source'       : 'tvepisodes',
                    'thumb'        : getThumb(episode, server) ,
                    'fanart_image' : getFanart(episode, server) ,
+                   'banner'       : banner,
                    'key'          : episode.get('key',''),
                    'ratingKey'    : str(episode.get('ratingKey',0)),
                    'duration'     : duration,
@@ -861,9 +860,6 @@ def TVEpisodes( url, tree=None ):
             extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('parentThumb', ""))
         elif not season_thumb and episode.get('grandparentThumb', ""):
             extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('grandparentThumb', ""))
-        
-        if banner:
-            extraData['banner'] = "%s%s" % (server.get_url_location(), banner)
 
         #Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount',0)) > 0:
