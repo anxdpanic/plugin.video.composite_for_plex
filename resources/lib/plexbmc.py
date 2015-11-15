@@ -1152,7 +1152,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, shelf=
     if protocol == "file":
         log_print.debug( "We are playing a local file")
         playurl=url.split(':',1)[1]
-    elif protocol == "http":
+    elif protocol.startswith("http"):
         log_print.debug( "We are playing a stream")
         if override:
             log_print.debug( "We will be transcoding the stream")
@@ -2505,7 +2505,7 @@ def get_link_url(url, pathData, server, season_shelf=False):
 
     # If key starts with http, then return it
     if path.startswith('http'):
-        log_print.debug("Detected http link")
+        log_print.debug("Detected http(s) link")
         return path
 
     # If key starts with a / then prefix with server address
@@ -3799,7 +3799,7 @@ def myplex_queue():
 
     tree = plex_network.get_myplex_queue()
 
-    plex_plugins('http://my.plexapp.com/playlists/queue/all', tree)
+    plex_plugins('https://plex.tv/playlists/queue/all', tree)
     return
 
 
