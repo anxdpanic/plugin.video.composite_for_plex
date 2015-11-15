@@ -3244,7 +3244,7 @@ def full_shelf(server_list={}):
                 continue
 
             title_url="ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s&mode=%s, return)" % ( get_link_url(source_server.get_url_location(), media, source_server, season_shelf=True), MODE_TVEPISODES)
-            title_thumb = get_shelfthumb_image(media, source_server, seasonThumb=True, prefer_season=prefer_season)
+            title_thumb = get_shelfthumb_image(media, source_server, season_thumb=True, prefer_season=prefer_season)
 
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, title_name)
@@ -3327,7 +3327,7 @@ def full_shelf(server_list={}):
                 continue
 
             title_url="PlayMedia(plugin://plugin.video.plexbmc?url=%s&mode=%s&t=%s)" % (get_link_url(source_server.get_url_location(), media, source_server), MODE_PLAYSHELF, randomNumber)
-            title_thumb=get_shelfthumb_image(media, source_server, seasonThumb=True, prefer_season=prefer_season)
+            title_thumb=get_shelfthumb_image(media, source_server, season_thumb=True, prefer_season=prefer_season)
 
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, title_name)
