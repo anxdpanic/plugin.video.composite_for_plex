@@ -41,28 +41,28 @@ from resources.lib.common import *  # Needed first to setup import locations
 from resources.lib.plex import plex
 
 
-def select_media_type(partData, server, dvdplayback=False):
-    stream=partData['key']
-    file=partData['file']
+def select_media_type(part_data, server, dvdplayback=False):
+    stream = part_data['key']
+    file = part_data['file']
 
-    if ( file is None ) or ( settings.get_stream() == "1" ):
-        log_print.debug( "Selecting stream")
+    if (file is None) or (settings.get_stream() == "1"):
+        log_print.debug("Selecting stream")
         return server.get_formatted_url(stream)
 
     # First determine what sort of 'file' file is
 
     if file[0:2] == "\\\\":
         log_print.debug("Detected UNC source file")
-        type="UNC"
+        type = "UNC"
     elif file[0:1] == "/" or file[0:1] == "\\":
         log_print.debug("Detected unix source file")
-        type="nixfile"
+        type = "nixfile"
     elif file[1:3] == ":\\" or file[1:2] == ":/":
         log_print.debug("Detected windows source file")
-        type="winfile"
+        type = "winfile"
     else:
         log_print.debug("Unknown file type source: %s" % file)
-        type=None
+        type = None
 
     # 0 is auto select.  basically check for local file first, then stream if not found
     if settings.get_stream() == "0":
@@ -74,7 +74,8 @@ def select_media_type(partData, server, dvdplayback=False):
                 log_print.debug("Local file found, will use this")
                 exists.close()
                 return "file:%s" % file
-            except: pass
+            except:
+                pass
 
         log_print.debug("No local file")
         if dvdplayback:
@@ -86,37 +87,37 @@ def select_media_type(partData, server, dvdplayback=False):
     # 2 is use SMB
     elif settings.get_stream() == "2" or settings.get_stream() == "3":
 
-        file=urllib.unquote(file)    
+        file = urllib.unquote(file)
         if settings.get_stream() == "2":
-            protocol="smb"
+            protocol = "smb"
         else:
-            protocol="afp"
+            protocol = "afp"
 
-        log_print.debug( "Selecting smb/unc")
+        log_print.debug("Selecting smb/unc")
         if type == "UNC":
-            filelocation="%s:%s" % (protocol, file.replace("\\","/"))
+            filelocation = "%s:%s" % (protocol, file.replace("\\", "/"))
         else:
             # Might be OSX type, in which case, remove Volumes and replace with server
-            server=server.get_location().split(':')[0]
-            loginstring=""
+            server = server.get_location().split(':')[0]
+            loginstring = ""
 
             if settings.get_setting('nasoverride'):
                 if settings.get_setting('nasoverrideip'):
-                    server=settings.get_setting('nasoverrideip')
+                    server = settings.get_setting('nasoverrideip')
                     log_print.debug("Overriding server with: %s" % server)
 
                 if settings.get_setting('nasuserid'):
-                    loginstring="%s:%s@" % (settings.get_setting('nasuserid'), settings.get_setting('naspass'))
+                    loginstring = "%s:%s@" % (settings.get_setting('nasuserid'), settings.get_setting('naspass'))
                     log_print.debug("Adding AFP/SMB login info for user: %s" % settings.get_setting('nasuserid'))
 
             if file.find('Volumes') > 0:
-                filelocation="%s:/%s" % (protocol, file.replace("Volumes",loginstring+server))
+                filelocation = "%s:/%s" % (protocol, file.replace("Volumes", loginstring+server))
             else:
                 if type == "winfile":
-                    filelocation=("%s://%s%s/%s" % (protocol, loginstring, server, file[3:].replace("\\","/")))
+                    filelocation = ("%s://%s%s/%s" % (protocol, loginstring, server, file[3:].replace("\\","/")))
                 else:
-                    # else assume its a file local to server available over smb/samba (now we have linux PMS).  Add server name to file path.
-                    filelocation="%s://%s%s%s" % (protocol,loginstring, server, file)
+                    # else assume its a file local to server available over smb/samba.  Add server name to file path.
+                    filelocation = "%s://%s%s%s" % (protocol,loginstring, server, file)
 
         if settings.get_setting('nasoverride') and settings.get_setting('nasroot'):
             # Re-root the file path
@@ -126,10 +127,10 @@ def select_media_type(partData, server, dvdplayback=False):
                 index = components.index(settings.get_setting('nasroot'))
                 for i in range(3,index):
                     components.pop(3)
-                filelocation='/'.join(components)
+                filelocation = '/'.join(components)
     else:
         log_print.debug( "No option detected, streaming is safest to choose" )
-        filelocation=server.get_formatted_url(stream)
+        filelocation = server.get_formatted_url(stream)
 
     log_print.debug("Returning URL: %s " % filelocation)
     return filelocation
