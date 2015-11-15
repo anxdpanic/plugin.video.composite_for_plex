@@ -3993,52 +3993,54 @@ def set_master_server():
 
 def display_plex_servers(url):
     log_print.debug("== ENTER ==")
-    type=url.split('/')[2]
+    type = url.split('/')[2]
     log_print.debug("Displaying entries for %s" % type)
-    Servers = plex_network.get_server_list()
-    Servers_list=len(Servers)
+    servers = plex_network.get_server_list()
+    servers_list = len(servers)
 
     # For each of the servers we have identified
-    for mediaserver in Servers:
+    for mediaserver in servers:
 
         if mediaserver.is_secondary():
             continue
 
-        details={'title' : mediaserver.get_name() }
+        details = {'title': mediaserver.get_name()}
 
-        extraData={}
+        extra_data = {}
 
         if type == "video":
-            extraData['mode']=MODE_PLEXPLUGINS
-            s_url='%s%s' % ( mediaserver.get_url_location(), '/video' )
-            if Servers_list == 1:
+            extra_data['mode'] = MODE_PLEXPLUGINS
+            s_url = '%s%s' % (mediaserver.get_url_location(), '/video')
+            if servers_list == 1:
                 plex_plugins(s_url)
                 return
 
         elif type == "online":
-            extraData['mode']=MODE_PLEXONLINE
-            s_url='%s%s' % ( mediaserver.get_url_location() , '/system/plexonline')
-            if Servers_list == 1:
+            extra_data['mode'] = MODE_PLEXONLINE
+            s_url = '%s%s' % (mediaserver.get_url_location(), '/system/plexonline')
+            if servers_list == 1:
                 plex_online(s_url)
                 return
 
         elif type == "music":
-            extraData['mode']=MODE_MUSIC
-            s_url='%s%s' % ( mediaserver.get_url_location(), '/music' )
-            if Servers_list == 1:
+            extra_data['mode'] = MODE_MUSIC
+            s_url = '%s%s' % (mediaserver.get_url_location(), '/music')
+            if servers_list == 1:
                 music(s_url)
                 return
 
         elif type == "photo":
-            extraData['mode']=MODE_PHOTOS
-            s_url='%s%s' % ( mediaserver.get_url_location(), '/photos' )
-            if Servers_list == 1:
+            extra_data['mode'] = MODE_PHOTOS
+            s_url = '%s%s' % (mediaserver.get_url_location(), '/photos')
+            if servers_list == 1:
                 photo(s_url)
                 return
+        else:
+            s_url = None
 
-        add_item_to_gui(s_url, details, extraData )
+        add_item_to_gui(s_url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle,cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
 def switch_user():
@@ -4055,7 +4057,7 @@ def switch_user():
     user_list.pop(plex_network.get_myplex_user(), None)
     
     select_screen = xbmcgui.Dialog()
-    result = select_screen.select('Switch User',user_list.keys())
+    result = select_screen.select('Switch User', user_list.keys())
     if result == -1:
         log_print("Dialog cancelled")
         return False
@@ -4063,21 +4065,21 @@ def switch_user():
     log_print("user [%s] selected" % user_list.keys()[result])
     user = user_list[user_list.keys()[result]]
 
-    pin=None
+    pin = None
     if user['protected'] == '1':
         log_print("Protected user [%s], requesting password" % user['title'])
         pin = select_screen.input("Enter PIN", type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
-    success,msg = plex_network.switch_plex_home_user(user['id'], pin)
+    success, msg = plex_network.switch_plex_home_user(user['id'], pin)
 
     if not success:
-        xbmcgui.Dialog().ok("Switch Failed",msg)
+        xbmcgui.Dialog().ok("Switch Failed", msg)
         return False
 
     return True 
 
 # #So this is where we really start the addon 
-log_print=PrintDebug("PleXBMC")
+log_print = PrintDebug("PleXBMC")
 
 print "PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__']
 
