@@ -136,85 +136,87 @@ def select_media_type(part_data, server, dvdplayback=False):
     return filelocation
 
 
-def add_item_to_gui(url, details, extraData, context=None, folder=True):
+def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
-    log_print.debug("Adding Dir for [%s]\n      Passed details: %s\n      Passed extraData: %s" % ( details.get('title', 'Unknown'), details, extraData))
+    log_print.debug("Adding Dir for [%s]\n"
+                    "      Passed details: %s\n"
+                    "      Passed extraData: %s" % (details.get('title', 'Unknown'), details, extra_data))
 
     # Create the URL to pass to the item
-    if not folder and extraData['type'] == "image" :
-        link_url=url
+    if not folder and extra_data['type'] == "image":
+        link_url = url
     elif url.startswith('http') or url.startswith('file'):
-        link_url="%s?url=%s&mode=%s" % ( sys.argv[0], urllib.quote(url), extraData.get('mode',0))
+        link_url = "%s?url=%s&mode=%s" % (sys.argv[0], urllib.quote(url), extra_data.get('mode', 0))
     else:
-        link_url="%s?url=%s&mode=%s" % ( sys.argv[0], url, extraData.get('mode',0))
+        link_url = "%s?url=%s&mode=%s" % (sys.argv[0], url, extra_data.get('mode', 0))
 
-    if extraData.get('parameters'):
-        for argument, value in extraData.get('parameters').items():
+    if extra_data.get('parameters'):
+        for argument, value in extra_data.get('parameters').items():
             link_url = "%s&%s=%s" % (link_url, argument, urllib.quote(value))
 
     log_print.debug("URL to use for listing: %s" % link_url)
 
-    liz=xbmcgui.ListItem(details.get('title', 'Unknown'), thumbnailImage=extraData.get('thumb', GENERIC_THUMBNAIL))
+    liz = xbmcgui.ListItem(details.get('title', 'Unknown'), thumbnailImage=extra_data.get('thumb', GENERIC_THUMBNAIL))
 
-    log_print.debug("Setting thumbnail as %s" % extraData.get('thumb', GENERIC_THUMBNAIL))
+    log_print.debug("Setting thumbnail as %s" % extra_data.get('thumb', GENERIC_THUMBNAIL))
 
     # Set the properties of the item, such as summary, name, season, etc
-    liz.setInfo(type=extraData.get('type','Video'), infoLabels=details )
+    liz.setInfo(type=extra_data.get('type', 'Video'), infoLabels=details)
 
     # Music related tags
-    if extraData.get('type','').lower() == "music":
-        liz.setProperty('Artist_Genre', details.get('genre',''))
-        liz.setProperty('Artist_Description', extraData.get('plot',''))
-        liz.setProperty('Album_Description', extraData.get('plot',''))
+    if extra_data.get('type', '').lower() == "music":
+        liz.setProperty('Artist_Genre', details.get('genre', ''))
+        liz.setProperty('Artist_Description', extra_data.get('plot', ''))
+        liz.setProperty('Album_Description', extra_data.get('plot', ''))
 
     # For all end items    
     if not folder:
         liz.setProperty('IsPlayable', 'true')
 
-        if extraData.get('type','video').lower() == "video":
-            liz.setProperty('TotalTime', str(extraData.get('duration')))
-            liz.setProperty('ResumeTime', str(extraData.get('resume')))
+        if extra_data.get('type', 'video').lower() == "video":
+            liz.setProperty('TotalTime', str(extra_data.get('duration')))
+            liz.setProperty('ResumeTime', str(extra_data.get('resume')))
 
             if not settings.get_setting('skipflags'):
-                log_print.debug("Setting VrR as : %s" % extraData.get('VideoResolution',''))
-                liz.setProperty('VideoResolution', extraData.get('VideoResolution',''))
-                liz.setProperty('VideoCodec', extraData.get('VideoCodec',''))
-                liz.setProperty('AudioCodec', extraData.get('AudioCodec',''))
-                liz.setProperty('AudioChannels', extraData.get('AudioChannels',''))
-                liz.setProperty('VideoAspect', extraData.get('VideoAspect',''))
+                log_print.debug("Setting VrR as : %s" % extra_data.get('VideoResolution', ''))
+                liz.setProperty('VideoResolution', extra_data.get('VideoResolution', ''))
+                liz.setProperty('VideoCodec', extra_data.get('VideoCodec', ''))
+                liz.setProperty('AudioCodec', extra_data.get('AudioCodec', ''))
+                liz.setProperty('AudioChannels', extra_data.get('AudioChannels', ''))
+                liz.setProperty('VideoAspect', extra_data.get('VideoAspect', ''))
 
-                video_codec={}
-                if extraData.get('xbmc_VideoCodec'): video_codec['codec'] = extraData.get('xbmc_VideoCodec')
-                if extraData.get('xbmc_VideoAspect') : video_codec['aspect'] = float(extraData.get('xbmc_VideoAspect'))
-                if extraData.get('xbmc_height') : video_codec['height'] = int(extraData.get('xbmc_height'))
-                if extraData.get('xbmc_width') : video_codec['width'] = int(extraData.get('xbmc_width'))
-                if extraData.get('duration') : video_codec['duration'] = int(extraData.get('duration'))
+                video_codec = {}
+                if extra_data.get('xbmc_VideoCodec'): video_codec['codec'] = extra_data.get('xbmc_VideoCodec')
+                if extra_data.get('xbmc_VideoAspect'): video_codec['aspect'] = float(extra_data.get('xbmc_VideoAspect'))
+                if extra_data.get('xbmc_height'): video_codec['height'] = int(extra_data.get('xbmc_height'))
+                if extra_data.get('xbmc_width'): video_codec['width'] = int(extra_data.get('xbmc_width'))
+                if extra_data.get('duration'): video_codec['duration'] = int(extra_data.get('duration'))
 
-                audio_codec={}
-                if extraData.get('xbmc_AudioCodec') : audio_codec['codec'] = extraData.get('xbmc_AudioCodec')
-                if extraData.get('xbmc_AudioChannels') : audio_codec['channels'] = int(extraData.get('xbmc_AudioChannels'))
+                audio_codec = {}
+                if extra_data.get('xbmc_AudioCodec'): audio_codec['codec'] = extra_data.get('xbmc_AudioCodec')
+                if extra_data.get('xbmc_AudioChannels'): audio_codec['channels'] = int(extra_data.get('xbmc_AudioChannels'))
 
-                liz.addStreamInfo('video', video_codec )
-                liz.addStreamInfo('audio', audio_codec )
+                liz.addStreamInfo('video', video_codec)
+                liz.addStreamInfo('audio', audio_codec)
 
-    if extraData.get('source') == 'tvshows' or extraData.get('source') =='tvseasons':
+    if extra_data.get('source') == 'tvshows' or extra_data.get('source') == 'tvseasons':
         # Then set the number of watched and unwatched, which will be displayed per season
-        liz.setProperty('TotalEpisodes', str(extraData['TotalEpisodes']))
-        liz.setProperty('WatchedEpisodes', str(extraData['WatchedEpisodes']))
-        liz.setProperty('UnWatchedEpisodes', str(extraData['UnWatchedEpisodes']))
+        liz.setProperty('TotalEpisodes', str(extra_data['TotalEpisodes']))
+        liz.setProperty('WatchedEpisodes', str(extra_data['WatchedEpisodes']))
+        liz.setProperty('UnWatchedEpisodes', str(extra_data['UnWatchedEpisodes']))
 
         # Hack to show partial flag for TV shows and seasons
-        if extraData.get('partialTV') == 1:            
+        if extra_data.get('partialTV') == 1:
             liz.setProperty('TotalTime', '100')
             liz.setProperty('ResumeTime', '50')
 
     # assign artwork
-    fanart = extraData.get('fanart_image','')   
-    thumb = extraData.get('thumb', '')
-    banner = extraData.get('banner', '')
+    fanart = extra_data.get('fanart_image', '')
+    thumb = extra_data.get('thumb', '')
+    banner = extra_data.get('banner', '')
     
     # tvshow poster
-    season_thumb = extraData.get('season_thumb', '')
+    season_thumb = extra_data.get('season_thumb', '')
     
     if season_thumb:
         poster = season_thumb
@@ -231,17 +233,17 @@ def add_item_to_gui(url, details, extraData, context=None, folder=True):
         log_print.debug("Setting season Thumb as %s" % season_thumb)
         liz.setProperty('seasonThumb', '%s' % season_thumb)
         
-    liz.setArt({"fanart":fanart, "poster":poster, "banner":banner, "thumb":thumb})
+    liz.setArt({"fanart": fanart, "poster": poster, "banner": banner, "thumb": thumb})
     
     if context is not None:
-        if not folder and extraData.get('type','video').lower() == "video":
+        if not folder and extra_data.get('type', 'video').lower() == "video":
             # Play Transcoded
-            context.insert(0,('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % link_url , ))
+            context.insert(0, ('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % link_url, ))
             log_print.debug("Setting transcode options to [%s&transcode=1]" % link_url)
         log_print.debug("Building Context Menus")
-        liz.addContextMenuItems( context, settings.get_setting('contextreplace') )
+        liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
 
-    return xbmcplugin.addDirectoryItem(handle=pluginhandle,url=link_url,listitem=liz,isFolder=folder)
+    return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=link_url, listitem=liz, isFolder=folder)
 
 
 def display_sections( filter=None, display_shared=False):
