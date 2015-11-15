@@ -130,7 +130,7 @@ class Plex:
 
     def load(self):
         log_print.info("Loading cached server list")
-        data_ok, self.server_list = self.cache.checkCache(self.server_list_cache)
+        data_ok, self.server_list = self.cache.check_cache(self.server_list_cache)
 
         if data_ok:
             if not self.check_server_version():
@@ -176,7 +176,7 @@ class Plex:
 
     def load_tokencache(self):
 
-        data_ok, token_cache = self.cache.readCache(self.plexhome_cache)
+        data_ok, token_cache = self.cache.read_cache(self.plexhome_cache)
 
         if data_ok:
             try:
@@ -199,7 +199,7 @@ class Plex:
             log_print.debug("plexhome cache data not loaded")
 
     def save_tokencache(self):
-        self.cache.writeCache(self.plexhome_cache,self.plexhome_settings)
+        self.cache.write_cache(self.plexhome_cache,self.plexhome_settings)
 
     def check_server_version(self):
         for uuid, servers in self.server_list.iteritems():
@@ -344,7 +344,7 @@ class Plex:
                 else:
                     log_print.warn("Error: Unable to discover server %s" % settings.get_setting('ipaddress'))
 
-        self.cache.writeCache(self.server_list_cache, self.server_list)
+        self.cache.write_cache(self.server_list_cache, self.server_list)
         log_print.info("PleXBMC -> serverList is: %s " % self.server_list)
 
         return
@@ -566,7 +566,7 @@ class Plex:
         return ''
 
     def delete_cache(self, force=False):
-        return self.cache.deleteCache(force)
+        return self.cache.delete_cache(force)
 
     def set_plex_home_users(self):
 
