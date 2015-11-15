@@ -1,6 +1,6 @@
 import sys
 import os
-import xml.etree.ElementTree as etree
+import xml.etree.ElementTree as ETree
 import urlparse
 import urllib
 import time
@@ -128,7 +128,7 @@ class PlexMediaServer:
         return self.access_address.split(':')[1]
 
     def get_location(self):
-        return get_access_address()
+        return self.get_access_address()
 
     def get_access_address(self):
         return self.access_address
@@ -251,6 +251,8 @@ class PlexMediaServer:
                     response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2,60))
                 elif type == 'delete':
                     response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2,60))
+                else:
+                    response=None
                 self.offline=False
             except requests.exceptions.ConnectionError, e:
                 log_print.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
@@ -262,7 +264,7 @@ class PlexMediaServer:
                 else:
                     self.offline=True
             
-            except requests.exceptions.ReadTimeout, e:
+            except requests.exceptions.ReadTimeout:
                 log_print.info("Server: read timeout for %s on %s " % (self.get_address(), url))
             else:
 
@@ -289,7 +291,7 @@ class PlexMediaServer:
     def refresh(self):
         data=self.talk(refresh=True)
 
-        tree=etree.fromstring(data)
+        tree=ETree.fromstring(data)
 
         if tree is not None and not (tree.get('status') == 'offline' or tree.get('status') == 'unauthorized')  :
             self.server_name = tree.get('friendlyName').encode('utf-8')
@@ -361,7 +363,7 @@ class PlexMediaServer:
 
         data = self.talk(url)
         start_time=time.time()
-        tree = etree.fromstring(data)
+        tree = ETree.fromstring(data)
         log_print.info("PARSE: it took %.2f seconds to parse data from %s" % ((time.time() - start_time), self.get_address()))
         return tree
 
@@ -393,7 +395,10 @@ class PlexMediaServer:
             return True
         return False
 
-    def get_formatted_url(self, url, options={}):
+    def get_formatted_url(self, url, options=None):
+
+        if options is None:
+            options = {}
 
         url_options=self.plex_identification_header
         url_options.update(options)
@@ -416,7 +421,10 @@ class PlexMediaServer:
 
         return urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
 
-    def get_kodi_header_formatted_url(self, url, options={}):
+    def get_kodi_header_formatted_url(self, url, options=None):
+
+        if options is None:
+            options = {}
 
         if url.startswith('http'):
             url_parts = urlparse.urlparse(url)
@@ -495,13 +503,13 @@ class PlexMediaServer:
         resolution, bitrate = settings.get_setting('quality_uni').split(',')
 
         if bitrate.endswith('Mbps'):
-            mVB=float(bitrate.strip().split('Mbps')[0])*1000
+            max_video_bitrate=float(bitrate.strip().split('Mbps')[0])*1000
         elif bitrate.endswith('Kbps'):
-            mVB=bitrate.strip().split('Kbps')[0]
+            max_video_bitrate=bitrate.strip().split('Kbps')[0]
         elif bitrate.endswith('unlimited'):
-            mVB=20000
+            max_video_bitrate=20000
         else:
-            mVB=2000  # a catch all amount for missing data
+            max_video_bitrate=2000  # a catch all amount for missing data
 
         transcode_request="/video/:/transcode/universal/start.m3u8?"
         session=str(uuid.uuid4())
@@ -510,7 +518,7 @@ class PlexMediaServer:
                              'session' : session ,
                              'offset' : 0 ,
                              'videoResolution' : resolution,
-                             'maxVideoBitrate' : mVB ,
+                             'maxVideoBitrate' : max_video_bitrate ,
                              'videoQuality' : quality ,
                              'directStream' : '1',
                              'directPlay' : '0',
@@ -519,9 +527,9 @@ class PlexMediaServer:
                              'fastSeek' : '1' ,
                              'path' : "http://127.0.0.1:32400%s" % url }
 
-        fullURL="%s%s" % (transcode_request, urllib.urlencode(transcode_settings))
-        log_print.debug("Transcoded media location URL: %s" % fullURL)
-        return (session, self.get_formatted_url(fullURL, options={'X-Plex-Device' : 'Plex Home Theater'}))
+        full_url="%s%s" % (transcode_request, urllib.urlencode(transcode_settings))
+        log_print.debug("Transcoded media location URL: %s" % full_url)
+        return session, self.get_formatted_url(full_url, options={'X-Plex-Device' : 'Plex Home Theater'})
 
     def get_legacy_transcode( self, id, url, identifier=None ):
 
@@ -538,16 +546,18 @@ class PlexMediaServer:
         quality = str(float(settings.get_setting('quality_leg'))+3)
         log_print.debug( "Transcode quality is %s" % quality)
 
-        audioOutput=settings.get_setting("audiotype")
-        if audioOutput == "0":
+        audio_output=settings.get_setting("audiotype")
+        if audio_output == "0":
             audio="mp3,aac{bitrate:160000}"
-        elif audioOutput == "1":
+        elif audio_output == "1":
             audio="ac3{channels:6}"
-        elif audioOutput == "2":
+        elif audio_output == "2":
             audio="dts{channels:6}"
+        else:
+            audio = "mp3"
 
-        baseCapability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s" % audio
-        capability="X-Plex-Client-Capabilities=%s" % urllib.quote_plus(baseCapability)
+        base_capability="http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s" % audio
+        capability="X-Plex-Client-Capabilities=%s" % urllib.quote_plus(base_capability)
 
         transcode_request="/video/:/transcode/segmented/start.m3u8"
         transcode_settings={ '3g' : 0 ,
@@ -584,10 +594,10 @@ class PlexMediaServer:
         log_print.debug("Message to hash is %s" % msg)
 
         #These are the DEV API keys - may need to change them on release
-        publicKey="KQMIY6GATPC63AIMC4R2"
-        privateKey = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
+        public_key="KQMIY6GATPC63AIMC4R2"
+        private_key = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
 
-        hash=hmac.new(privateKey,msg,digestmod=hashlib.sha256)
+        hash=hmac.new(private_key,msg,digestmod=hashlib.sha256)
 
         log_print.debug("HMAC after hash is %s" % hash.hexdigest())
 
@@ -595,8 +605,8 @@ class PlexMediaServer:
         token=base64.b64encode(hash.digest())
 
         #Send as part of URL to avoid the case sensitive header issue.
-        fullURL="%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (self.get_url_location(),transcode_request, publicKey, now, urllib.quote_plus(token), capability)
+        full_url="%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (self.get_url_location(),transcode_request, public_key, now, urllib.quote_plus(token), capability)
 
-        log_print.debug("Transcoded media location URL: %s" % fullURL)
+        log_print.debug("Transcoded media location URL: %s" % full_url)
 
-        return (session, fullURL)
+        return session, full_url
