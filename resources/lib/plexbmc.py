@@ -114,10 +114,10 @@ def select_media_type(part_data, server, dvdplayback=False):
                 filelocation = "%s:/%s" % (protocol, file.replace("Volumes", loginstring+server))
             else:
                 if type == "winfile":
-                    filelocation = ("%s://%s%s/%s" % (protocol, loginstring, server, file[3:].replace("\\","/")))
+                    filelocation = ("%s://%s%s/%s" % (protocol, loginstring, server, file[3:].replace("\\", "/")))
                 else:
                     # else assume its a file local to server available over smb/samba.  Add server name to file path.
-                    filelocation = "%s://%s%s%s" % (protocol,loginstring, server, file)
+                    filelocation = "%s://%s%s%s" % (protocol, loginstring, server, file)
 
         if settings.get_setting('nasoverride') and settings.get_setting('nasroot'):
             # Re-root the file path
@@ -125,11 +125,11 @@ def select_media_type(part_data, server, dvdplayback=False):
             if '/'+settings.get_setting('nasroot')+'/' in filelocation:
                 components = filelocation.split('/')
                 index = components.index(settings.get_setting('nasroot'))
-                for i in range(3,index):
+                for i in range(3, index):
                     components.pop(3)
                 filelocation = '/'.join(components)
     else:
-        log_print.debug( "No option detected, streaming is safest to choose" )
+        log_print.debug("No option detected, streaming is safest to choose")
         filelocation = server.get_formatted_url(stream)
 
     log_print.debug("Returning URL: %s " % filelocation)
@@ -304,7 +304,7 @@ def display_sections(filter=None, display_shared=False):
                 path = path+'/all'
 
             extra_data['mode'] = mode
-            section_url = '%s%s' % ( server.get_url_location(), path)
+            section_url = '%s%s' % (server.get_url_location(), path)
 
             if not settings.get_setting('skipcontextmenus'):
                 context = [('Refresh library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)'
@@ -4109,36 +4109,36 @@ if settings.get_debug() >= log_print.DEBUG_INFO:
 else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
-pluginhandle=0
-plex_network= plex.Plex(load=False)
+pluginhandle = 0
+plex_network = plex.Plex(load=False)
 
 
 def start_plexbmc():
     try:
-        params=get_params(sys.argv[2])
+        params = get_params(sys.argv[2])
     except:
-        params={}
+        params = {}
 
     # Now try and assign some data to them
-    param_url=params.get('url')
-    command=None
+    param_url = params.get('url')
+    command = None
 
     if param_url:
-        if ( param_url.startswith('http') or param_url.startswith('file') ):
+        if param_url.startswith('http') or param_url.startswith('file'):
             param_url = urllib.unquote(param_url)
         elif param_url.startswith('cmd'):
-            command=urllib.unquote(param_url).split(':')[1]
+            command = urllib.unquote(param_url).split(':')[1]
 
-    param_name=urllib.unquote_plus(params.get('name',""))
-    mode=int(params.get('mode',-1))
-    play_transcode=True if int(params.get('transcode',0)) == 1 else False
-    param_identifier=params.get('identifier')
-    param_indirect=params.get('indirect')
-    force=params.get('force')
+    param_name = urllib.unquote_plus(params.get('name', ""))
+    mode = int(params.get('mode', -1))
+    play_transcode = True if int(params.get('transcode', 0)) == 1 else False
+    param_identifier = params.get('identifier')
+    param_indirect = params.get('indirect')
+    force = params.get('force')
 
     if command is None:
         try:
-            command=sys.argv[1]
+            command = sys.argv[1]
         except:
             pass
 
@@ -4159,9 +4159,9 @@ def start_plexbmc():
             clear_skin_sections()
             clear_ondeck_shelf()
             clear_shelf()
-            WINDOW = xbmcgui.Window(10000)
-            WINDOW.setProperty("plexbmc.plexhome_user" , str(plex_network.get_myplex_user()))
-            WINDOW.setProperty("plexbmc.plexhome_avatar" , str(plex_network.get_myplex_avatar()))
+            gui_window = xbmcgui.Window(10000)
+            gui_window.setProperty("plexbmc.plexhome_user", str(plex_network.get_myplex_user()))
+            gui_window.setProperty("plexbmc.plexhome_avatar", str(plex_network.get_myplex_avatar()))
             if xbmcgui.getCurrentWindowId() == 10000:
                 log_print.debug("Currently in home - refreshing to allow new settings to be taken")
                 xbmc.executebuiltin("ReloadSkin()")
@@ -4172,14 +4172,14 @@ def start_plexbmc():
 
     elif command == "signout":
         if not plex_network.is_admin():
-            return xbmcgui.Dialog().ok("Sign Out","To sign out you must be logged in as an admin user.  Please switch user and try again")
+            return xbmcgui.Dialog().ok("Sign Out", "To sign out you must be logged in as an admin user. Please switch user and try again")
 
-        ret = xbmcgui.Dialog().yesno("myplex","You are currently signed into myPlex. Are you sure you want to sign out?")
+        ret = xbmcgui.Dialog().yesno("myplex", "You are currently signed into myPlex. Are you sure you want to sign out?")
         if ret:
             plex_network.signout()
-            WINDOW = xbmcgui.Window(10000)
-            WINDOW.clearProperty("plexbmc.plexhome_user" )
-            WINDOW.clearProperty("plexbmc.plexhome_avatar" )
+            gui_window = xbmcgui.Window(10000)
+            gui_window.clearProperty("plexbmc.plexhome_user")
+            gui_window.clearProperty("plexbmc.plexhome_avatar")
             clear_skin_sections()
             clear_ondeck_shelf()
             clear_shelf()
@@ -4199,14 +4199,14 @@ def start_plexbmc():
     elif command == "managemyplex":
 
         if not plex_network.is_myplex_signedin():
-            ret = xbmcgui.Dialog().yesno("Manage myplex","You are not currently logged into myplex.  Please continue to sign in, or cancel to return")
+            ret = xbmcgui.Dialog().yesno("Manage myplex", "You are not currently logged into myplex.  Please continue to sign in, or cancel to return")
             if ret:
                 xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signin)')       
             else:
                 return
 
         elif not plex_network.is_admin():
-            return xbmcgui.Dialog().ok("Manage myplex","To access these screens you must be logged in as an admin user.  Please switch user and try again")
+            return xbmcgui.Dialog().ok("Manage myplex", "To access these screens you must be logged in as an admin user.  Please switch user and try again")
 
         from resources.lib.plex import plexsignin
         manage_window = plexsignin.PlexManage('Manage myplex')
@@ -4220,9 +4220,9 @@ def start_plexbmc():
         # Populate Skin variables
         if command == "skin":
             try:
-                type=sys.argv[2]
+                type = sys.argv[2]
             except:
-                type=None
+                type = None
             skin(type=type)
 
         elif command == "amberskin":
@@ -4239,16 +4239,16 @@ def start_plexbmc():
             
         # Send a library update to Plex    
         elif command == "update":
-            server_uuid=sys.argv[2]
-            section_id=sys.argv[3]
+            server_uuid = sys.argv[2]
+            section_id = sys.argv[3]
             refresh_plex_library(server_uuid, section_id)
 
         # Mark an item as watched/unwatched in plex    
         elif command == "watch":
-            server_uuid=sys.argv[2]
-            metadata_id=sys.argv[3]
-            watch_status=sys.argv[4]
-            watched(server_uuid, metadata_id, watch_status )
+            server_uuid = sys.argv[2]
+            metadata_id = sys.argv[3]
+            watch_status = sys.argv[4]
+            watched(server_uuid, metadata_id, watch_status)
 
         # nt currently used              
         elif command == "refreshplexbmc":
@@ -4260,20 +4260,20 @@ def start_plexbmc():
 
         # delete media from PMS    
         elif command == "delete":
-            server_uuid=sys.argv[2]
-            metadata_id=sys.argv[3]
+            server_uuid = sys.argv[2]
+            metadata_id = sys.argv[3]
             delete_library_media(server_uuid, metadata_id)
 
         # Display subtitle selection screen    
         elif command == "subs":
-            server_uuid=sys.argv[2]
-            metadata_id=sys.argv[3]
+            server_uuid = sys.argv[2]
+            metadata_id = sys.argv[3]
             set_library_subtitiles(server_uuid, metadata_id)
 
         # Display audio streanm selection screen    
         elif command == "audio":
-            server_uuid=sys.argv[2]
-            metadata_id=sys.argv[3]
+            server_uuid = sys.argv[2]
+            metadata_id = sys.argv[3]
             set_library_audio(server_uuid, metadata_id)
 
         # Allow a mastre server to be selected (for myplex queue)    
@@ -4289,9 +4289,9 @@ def start_plexbmc():
             except:
                 pass
 
-            WINDOW = xbmcgui.Window( xbmcgui.getCurrentWindowId() )
-            WINDOW.clearProperty("heading")
-            WINDOW.clearProperty("heading2")
+            gui_window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+            gui_window.clearProperty("heading")
+            gui_window.clearProperty("heading2")
 
             if settings.get_debug() >= log_print.DEBUG_INFO:
                 print "PleXBMC -> Mode: %s " % mode
@@ -4300,7 +4300,7 @@ def start_plexbmc():
                 print "PleXBMC -> identifier: %s" % param_identifier
 
             # Run a function based on the mode variable that was passed in the URL
-            if ( mode == None ) or ( param_url == None ) or ( len(param_url)<1 ):
+            if (mode is None) or (param_url is None) or (len(param_url) < 1):
                 display_sections()
 
             elif mode == MODE_GETCONTENT:
@@ -4319,10 +4319,10 @@ def start_plexbmc():
                 process_tvseasons(param_url)
 
             elif mode == MODE_PLAYLIBRARY:
-                play_library_media(param_url,force=force, override=play_transcode)
+                play_library_media(param_url, force=force, override=play_transcode)
 
             elif mode == MODE_PLAYSHELF:
-                play_library_media(param_url,full_data=True, shelf=True)
+                play_library_media(param_url, full_data=True, shelf=True)
 
             elif mode == MODE_TVEPISODES:
                 process_tvepisodes(param_url)
@@ -4349,28 +4349,28 @@ def start_plexbmc():
                 music(param_url)
 
             elif mode == MODE_VIDEOPLUGINPLAY:
-                play_video_channel(param_url,param_identifier,param_indirect)
+                play_video_channel(param_url, param_identifier, param_indirect)
 
             elif mode == MODE_PLEXONLINE:
                 plex_online(param_url)
 
             elif mode == MODE_CHANNELINSTALL:
-                install(param_url,param_name)
+                install(param_url, param_name)
 
             elif mode == MODE_CHANNELVIEW:
                 channel_view(param_url)
 
             elif mode == MODE_PLAYLIBRARY_TRANSCODE:
-                play_library_media(param_url,override=True)
+                play_library_media(param_url, override=True)
 
             elif mode == MODE_MYPLEXQUEUE:
                 myplex_queue()
 
             elif mode == MODE_CHANNELSEARCH:
-                channel_search( param_url, params.get('prompt') )
+                channel_search(param_url, params.get('prompt'))
 
             elif mode == MODE_CHANNELPREFS:
-                channel_settings ( param_url, params.get('id') )
+                channel_settings(param_url, params.get('id'))
 
             elif mode == MODE_SHARED_MOVIES:
                 display_sections(filter="movies", display_shared=True)
