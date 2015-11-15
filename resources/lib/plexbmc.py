@@ -206,21 +206,31 @@ def addGUIItem(url, details, extraData, context=None, folder=True):
             liz.setProperty('TotalTime', '100')
             liz.setProperty('ResumeTime', '50')
 
-    #fanart is nearly always available, so exceptions are rare.
-    try:
-        liz.setProperty('fanart_image', extraData.get('fanart_image'))
-        log_print.debug("Setting fan art as %s" % extraData.get('fanart_image'))
-    except:
-        log_print.debug("Skipping fanart as None found")
-
-    if extraData.get('banner'):
-        liz.setProperty('banner', '%s' % extraData.get('banner', ''))
-        log_print.debug("Setting banner as %s" % extraData.get('banner', ''))
-
-    if extraData.get('season_thumb'):
-        liz.setProperty('seasonThumb', '%s' % extraData.get('season_thumb', ''))
-        log_print.debug("Setting season Thumb as %s" % extraData.get('season_thumb', ''))
-
+    #assign artwork
+    fanart = extraData.get('fanart_image','')   
+    thumb = extraData.get('thumb', '')
+    banner = extraData.get('banner', '')
+    
+    #tvshow poster
+    season_thumb = extraData.get('season_thumb', '')
+    
+    if season_thumb:
+        poster = season_thumb
+    else:
+        poster = thumb
+    
+    if fanart:
+        log_print.debug("Setting fan art as %s" % fanart)
+        liz.setProperty('fanart_image', fanart)
+    if banner:
+        log_print.debug("Setting banner as %s" % banner)
+        liz.setProperty('banner', '%s' % banner)
+    if season_thumb:
+        log_print.debug("Setting season Thumb as %s" % season_thumb)
+        liz.setProperty('seasonThumb', '%s' % season_thumb)
+        
+    liz.setArt({"fanart":fanart, "poster":poster, "banner":banner, "thumb":thumb})
+    
     if context is not None:
         if not folder and extraData.get('type','video').lower() == "video":
             #Play Transcoded
@@ -614,14 +624,9 @@ def TVShows( url, tree=None ):
                    'TotalEpisodes'     : details['episode'],
                    'thumb'             : getThumb(show, server) ,
                    'fanart_image'      : getFanart(show, server) ,
+                   'banner'            : get_banner_image(show, server),
                    'key'               : show.get('key','') ,
                    'ratingKey'         : str(show.get('ratingKey',0)) }
-
-        #banner art
-        if show.get('banner') is not None:
-            extraData['banner'] = server.get_url_location()+show.get('banner')
-        else:
-            extraData['banner'] = GENERIC_THUMBNAIL
 
         #Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
@@ -672,7 +677,7 @@ def TVSeasons( url ):
             willFlatten=True
 
     sectionart=getFanart(tree, server)
-    banner=tree.get('banner')
+    banner = get_banner_image(tree, server)
     setWindowHeading(tree)
     #For all the directory tags
     SeasonTags=tree.findall('Directory')
@@ -709,12 +714,10 @@ def TVSeasons( url ):
                    'UnWatchedEpisodes' : details['episode'] - watched ,
                    'thumb'             : getThumb(season, server) ,
                    'fanart_image'      : getFanart(season, server) ,
+                   'banner'            : banner,
                    'key'               : season.get('key','') ,
                    'ratingKey'         : str(season.get('ratingKey',0)) ,
                    'mode'              : MODE_TVEPISODES }
-
-        if banner:
-            extraData['banner']=server.get_url_location()+banner
 
         if extraData['fanart_image'] == "":
             extraData['fanart_image']=sectionart
@@ -754,17 +757,20 @@ def TVEpisodes( url, tree=None ):
 
     setWindowHeading(tree)
 
-    #get banner thumb
-    banner = tree.get('banner')
 
     #get season thumb for SEASON NODE
     season_thumb = tree.get('thumb', '')
+    print season_thumb
+    if season_thumb == "/:/resources/show.png": 
+        season_thumb = ""
 
     ShowTags=tree.findall('Video')
     server=plex_network.get_server_from_url(url)
 
     if not settings.get_setting('skipimages'):
         sectionart=getFanart(tree, server)
+
+    banner = get_banner_image(tree, server)
 
     randomNumber=str(random.randint(1000000000,9999999999))
 
@@ -837,6 +843,7 @@ def TVEpisodes( url, tree=None ):
                    'source'       : 'tvepisodes',
                    'thumb'        : getThumb(episode, server) ,
                    'fanart_image' : getFanart(episode, server) ,
+                   'banner'       : banner,
                    'key'          : episode.get('key',''),
                    'ratingKey'    : str(episode.get('ratingKey',0)),
                    'duration'     : duration,
@@ -848,12 +855,11 @@ def TVEpisodes( url, tree=None ):
         if season_thumb:
             extraData['season_thumb'] = server.get_url_location() + season_thumb
 
-        #get ALL SEASONS thumb
+        #get ALL SEASONS or TVSHOW thumb
         if not season_thumb and episode.get('parentThumb', ""):
             extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('parentThumb', ""))
-
-        if banner:
-            extraData['banner'] = "%s%s" % (server.get_url_location(), banner)
+        elif not season_thumb and episode.get('grandparentThumb', ""):
+            extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('grandparentThumb', ""))
 
         #Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount',0)) > 0:
@@ -1093,7 +1099,12 @@ def playPlaylist ( server, data ):
     return
 
 def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=False ):
-
+    
+    #assume widget if playback initiated from home
+    if xbmc.getCondVisibility("Window.IsActive(home)"): 
+        shelf = True
+        full_data = True
+    
     session=None
     if settings.get_setting('transcode'):
         override=True
@@ -1112,7 +1123,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
     if force:
         full_data = True
 
-    streams=getAudioSubtitlesMedia(server,tree, full_data)  
+    streams=getAudioSubtitlesMedia(server,tree, full_data)
 
     if force and streams['type'] == "music":
         playPlaylist(server, streams)
@@ -1177,6 +1188,7 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
         if resume:
             item.setProperty('ResumeTime', str(resume) )
             item.setProperty('TotalTime', str(duration) )
+            item.setProperty('StartOffset', str(resume))
             log_print.info("Playback from resume point: %s" % resume)
 
     if streams['type'] == "picture":
@@ -1188,7 +1200,12 @@ def playLibraryMedia( vids, override=False, force=None, full_data=False, shelf=F
         html=xbmc.executeJSONRPC(request)
         return
     else:
-        start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        if shelf:
+            # if launched from widget, use player.play for playback so artwork and resume works correctly
+            xbmcplugin.setResolvedUrl(pluginhandle, False, item)
+            start = xbmc.Player().play(playurl,item)
+        else:
+            start = xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
     # record the playing file and server in the home window
     # so that plexbmc helper can find out what is playing
@@ -2356,6 +2373,32 @@ def getThumb(data, server, width=720, height=720):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
             return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + thumbnail), width, height))
+
+    return GENERIC_THUMBNAIL
+
+
+def get_banner_image(data, server, width=720, height=720):
+    """
+        Simply take a URL or path and determine how to format for images
+        @ input: elementTree element, server name
+        @ return formatted URL
+    """
+
+    if settings.get_setting('skipimages'):
+        return ''
+
+    thumbnail = data.get('banner', '').split('?t')[0].encode('utf-8')
+
+    if thumbnail.startswith("http"):
+        return thumbnail
+
+    elif thumbnail.startswith('/'):
+        if settings.get_setting('fullres_thumbs'):
+            return server.get_kodi_header_formatted_url(thumbnail)
+        else:
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s'
+                                                        % (urllib.quote_plus('http://localhost:32400' + thumbnail),
+                                                           width, height))
 
     return GENERIC_THUMBNAIL
 
