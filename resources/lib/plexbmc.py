@@ -3682,12 +3682,12 @@ def set_shelf_channel(server_list=None):
         return
 
     # Get the global host variable set in settings
-    WINDOW = xbmcgui.Window( 10000 )
+    gui_window = xbmcgui.Window(10000)
 
-    channelCount=1
+    channel_count = 1
 
     if server_list is None:
-        server_list=plex_network.get_server_list()
+        server_list = plex_network.get_server_list()
 
     if not server_list:
         xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
@@ -3700,10 +3700,10 @@ def set_shelf_channel(server_list=None):
             continue
 
         if not settings.get_setting('channelShelf') or settings.get_setting('homeshelf') == '3':
-            WINDOW.clearProperty("Plexbmc.LatestChannel.1.Path" )
+            gui_window.clearProperty("Plexbmc.LatestChannel.1.Path")
             return
 
-        tree=server_details.get_channel_recentlyviewed()
+        tree = server_details.get_channel_recentlyviewed()
         if tree is None:
             xbmc.executebuiltin("XBMC.Notification(Unable to contact server: %s, )" % server_details.get_name())
             clear_shelf_channel(0)
@@ -3713,25 +3713,25 @@ def set_shelf_channel(server_list=None):
         for media in tree:
 
             log_print.debug("Found a recent channel entry")
-            suffix=media.get('key').split('/')[1]
+            suffix = media.get('key').split('/')[1]
 
             if suffix == "photos":
-                mode=MODE_PHOTOS
+                mode = MODE_PHOTOS
                 channel_window = "Pictures"
 
             elif suffix == "video":
-                mode=MODE_PLEXPLUGINS
-                channel_window="VideoLibrary"
+                mode = MODE_PLEXPLUGINS
+                channel_window = "VideoLibrary"
 
             elif suffix == "music":
-                mode=MODE_MUSIC
-                channel_window="MusicFiles"
+                mode = MODE_MUSIC
+                channel_window = "MusicFiles"
 
             else:
-                mode=MODE_GETCONTENT
-                channel_window="VideoLibrary"
+                mode = MODE_GETCONTENT
+                channel_window = "VideoLibrary"
 
-            c_url="ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s)" % ( channel_window, get_link_url(server_details.get_url_location(),media,server_details), mode)
+            c_url = "ActivateWindow(%s, plugin://plugin.video.plexbmc?url=%s&mode=%s)" % (channel_window, get_link_url(server_details.get_url_location(), media, server_details), mode)
             pms_thumb = str(media.get('thumb', ''))
 
             if pms_thumb.startswith('/'):
@@ -3740,15 +3740,15 @@ def set_shelf_channel(server_list=None):
             else:
                 c_thumb = pms_thumb
 
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Path" % channelCount, c_url)
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Title" % channelCount, media.get('title', 'Unknown'))
-            WINDOW.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channelCount, c_thumb)
+            gui_window.setProperty("Plexbmc.LatestChannel.%s.Path" % channel_count, c_url)
+            gui_window.setProperty("Plexbmc.LatestChannel.%s.Title" % channel_count, media.get('title', 'Unknown'))
+            gui_window.setProperty("Plexbmc.LatestChannel.%s.Thumb" % channel_count, c_thumb)
 
-            channelCount += 1
+            channel_count += 1
 
-            log_print.debug("Building Recent window title: %s\n      Building Recent window url: %s\n      Building Recent window thumb: %s" % (media.get('title', 'Unknown'),c_url,c_thumb))
+            log_print.debug("Building Recent window title: %s\n      Building Recent window url: %s\n      Building Recent window thumb: %s" % (media.get('title', 'Unknown'), c_url, c_thumb))
 
-    clear_shelf_channel(channelCount)
+    clear_shelf_channel(channel_count)
     return
 
 
