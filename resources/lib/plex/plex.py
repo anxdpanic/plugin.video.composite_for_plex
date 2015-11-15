@@ -369,7 +369,12 @@ class Plex:
 
         for device in server_list.findall('Device'):
 
-            log_print.debug("[%s] Found server" % device.get('clientIdentifier'))
+            log_print.debug("[%s] Found device" % device.get('name'))
+
+            if 'server' not in device.get('provides'):
+                log_print.debug("[%s] Skipping as not a server [%s]" % (device.get('name'), device.get('provides')))
+                continue
+
 
             discovered_server = PlexMediaServer(name = device.get('name').encode('utf-8'), discovery = "myplex")
             discovered_server.set_uuid(device.get('clientIdentifier'))
@@ -378,7 +383,7 @@ class Plex:
             discovered_server.set_user(self.effective_user)
 
             for connection in device.findall('Connection'):
-                    log_print.debug("[%s] Found server connection" % device.get('clientIdentifier'))
+                    log_print.debug("[%s] Found server connection" % device.get('name'))
 
                     if connection.get('local') == '0':
                         discovered_server.add_external_connection(connection.get('address'), connection.get('port'))
@@ -387,13 +392,13 @@ class Plex:
                         discovered_server.add_internal_connection(connection.get('address'), connection.get('port'))
 
                     if connection.get('protocol') == "http":
-                        log_print.debug("[%s] Dropping back to http" % device.get('clientIdentifier'))
+                        log_print.debug("[%s] Dropping back to http" % device.get('name'))
                         discovered_server.set_protocol('http')
 
             discovered_server.set_best_address()  #Default to external address
 
             temp_servers[discovered_server.get_uuid()] = discovered_server
-            log_print.info("[%s] Discovered server via myplex: %s" % (discovered_server.get_uuid(), discovered_server.get_name()))
+            log_print.info("[%s] Discovered server via myplex: %s" % (discovered_server.get_name(), discovered_server.get_uuid()))
 
         return temp_servers
 
