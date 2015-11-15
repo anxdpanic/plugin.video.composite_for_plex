@@ -3,7 +3,7 @@ import os
 import xml.etree.ElementTree as ETree
 import base64
 from resources.lib.plex.plexgdm import PlexGDM
-from resources.lib.settings import addonSettings
+from resources.lib.settings import AddonSettings
 from resources.lib.common import *
 import resources.lib.CacheControl
 import requests

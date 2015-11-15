@@ -6,7 +6,7 @@ import urllib
 import time
 import uuid
 
-from resources.lib.settings import addonSettings
+from resources.lib.settings import AddonSettings
 import plexsection
 from resources.lib.common import *
 import requests

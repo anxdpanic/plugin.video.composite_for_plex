@@ -1,7 +1,7 @@
 import os
 import xbmcaddon
 
-class addonSettings:
+class AddonSettings:
 
     def __init__(self, name):
         print "PleXBMC -> Reading settings configuration"
@@ -37,9 +37,9 @@ class addonSettings:
         return int(self.settings.getSetting('debug'))
 
     def set_setting(self, name, value):
-        if value == True:
+        if value:
             value = "true"
-        elif value == False:
+        else:
             value = "false"
 
         self.settings.setSetting(name,value)

@@ -128,8 +128,8 @@ GLOBAL_SETUP=setup_python_locations()
 GLOBAL_SETUP['platform']=get_platform()
 GENERIC_THUMBNAIL = "%s/resource/thumb.png" % GLOBAL_SETUP['__cwd__']
 REQUIRED_REVISION="1.0.7"
-from settings import addonSettings
-settings=addonSettings('plugin.video.plexbmc')
+from settings import AddonSettings
+settings=AddonSettings('plugin.video.plexbmc')
 
 #Get the setting from the appropriate file.
 MODE_GETCONTENT=0
