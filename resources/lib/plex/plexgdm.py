@@ -30,16 +30,18 @@ import re
 import threading
 import time
 import urllib2
-from common import *
+from resources.lib.common import *
 
-class plexgdm:
+class PlexGDM:
 
-    def __init__(self, debug=0):
+    def __init__(self, debug = 0, interface = None):
 
         self.discover_message = 'M-SEARCH * HTTP/1.0'
         self.client_header = '* HTTP/1.0'
         self.client_data = None
         self.client_id = None
+
+        self.interface = interface
 
         self._multicast_address = '239.0.0.250'
         self.discover_group = (self._multicast_address, 32414)
@@ -55,7 +57,7 @@ class plexgdm:
         self.discovery_complete = False
         self.client_registered = False
         self.debug = debug
-        self.__printDebug=printDebug("PleXBMC", "PlexGDM")
+        self.__printDebug=PrintDebug("PleXBMC", "PlexGDM")
 
     def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
         self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % ( c_id, c_name, c_post, c_product, c_version )
@@ -165,6 +167,9 @@ class plexgdm:
         # Set the time-to-live for messages to 1 for local network
         ttl = struct.pack('b', 1)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+
+        if self.interface:
+            sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF, socket.inet_aton(self.interface))
 
         returnData = []
         try:
@@ -294,7 +299,7 @@ class plexgdm:
 
 #Example usage
 if __name__ == '__main__':
-    client = plexgdm(debug=3)
+    client = PlexGDM(debug=3)
     client.clientDetails("Test-Name", "Test Client", "3003", "Test-App", "1.2.3")
     client.start_all()
     while not client.discovery_complete:

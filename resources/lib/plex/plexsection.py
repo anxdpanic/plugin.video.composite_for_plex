@@ -1,4 +1,4 @@
-class plex_section:
+class PlexSection:
 
     def __init__(self, data=None):
 
@@ -13,23 +13,23 @@ class plex_section:
         if data is not None:
             self.populate(data)
 
-    def populate(self,data):
+    def populate(self, data):
 
         path = data.get('key')
         if not path[0] == "/":
             path = '/library/sections/%s' % path
 
-        self.title       = data.get('title', 'Unknown').encode('utf-8')
+        self.title = data.get('title', 'Unknown').encode('utf-8')
         self.sectionuuid = data.get('uuid', '')
-        self.path        = path.encode('utf-8')
-        self.key         = data.get('key')
-        self.art         = data.get('art', '').encode('utf-8')
-        self.type        = data.get('type', '')
+        self.path = path.encode('utf-8')
+        self.key = data.get('key')
+        self.art = data.get('art', '').encode('utf-8')
+        self.type = data.get('type', '')
 
     def get_details(self):
 
-        return {'title'       : self.title,
-                'sectionuuid' : self.sectionuuid,
+        return {'title'      : self.title,
+                'sectionuuid': self.sectionuuid,
                 'path'       : self.path,
                 'key'        : self.key,
                 'location'   : self.local,
