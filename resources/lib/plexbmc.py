@@ -2103,26 +2103,26 @@ def movie_tag(url, server, tree, movie, random_number):
 
     # Required listItem entries for XBMC
     details = {'plot'     : movie.get('summary', '').encode('utf-8'),
-               'title'     : movie.get('title', 'Unknown').encode('utf-8'),
-               'sorttitle' : movie.get('titleSort', movie.get('title', 'Unknown')).encode('utf-8'),
-               'rating'    : float(movie.get('rating', 0)),
-               'studio'    : movie.get('studio', '').encode('utf-8'),
-               'mpaa'      : movie.get('contentRating', '').encode('utf-8'),
-               'year'      : int(movie.get('year', 0)),
-               'date'      : movie.get('originallyAvailableAt', '1970-01-01'),
-               'premiered' : movie.get('originallyAvailableAt', '1970-01-01'),
-               'tagline'   : movie.get('tagline', ''),
-               'dateAdded' : str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0))))}
+               'title'    : movie.get('title', 'Unknown').encode('utf-8'),
+               'sorttitle': movie.get('titleSort', movie.get('title', 'Unknown')).encode('utf-8'),
+               'rating'   : float(movie.get('rating', 0)),
+               'studio'   : movie.get('studio', '').encode('utf-8'),
+               'mpaa'     : movie.get('contentRating', '').encode('utf-8'),
+               'year'     : int(movie.get('year', 0)),
+               'date'     : movie.get('originallyAvailableAt', '1970-01-01'),
+               'premiered': movie.get('originallyAvailableAt', '1970-01-01'),
+               'tagline'  : movie.get('tagline', ''),
+               'dateAdded': str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0))))}
 
     # Extra data required to manage other properties
-    extraData={'type'         : "Video",
-               'source'       : 'movies',
-               'thumb'        : get_thumb_image(movie, server),
-               'fanart_image' : get_fanart_image(movie, server),
-               'key'          : movie.get('key', ''),
-               'ratingKey'    : str(movie.get('ratingKey', 0)),
-               'duration'     : duration,
-               'resume'       : int(int(view_offset)/1000)}
+    extraData={'type'        : "Video",
+               'source'      : 'movies',
+               'thumb'       : get_thumb_image(movie, server),
+               'fanart_image': get_fanart_image(movie, server),
+               'key'         : movie.get('key', ''),
+               'ratingKey'   : str(movie.get('ratingKey', 0)),
+               'duration'    : duration,
+               'resume'      : int(int(view_offset)/1000)}
 
     # Determine what type of watched flag [overlay] to use
     if int(movie.get('viewCount', 0)) > 0:
