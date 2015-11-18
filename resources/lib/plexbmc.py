@@ -416,11 +416,11 @@ def enforce_skin_view(mode):
 
     current_skin_name = xbmc.getSkinDir()
 
-    skin_map = { '2' : 'skin.confluence' ,
-                 '0' : 'skin.quartz' ,
-                 '1' : 'skin.quartz3' ,
-                 '3' : 'skin.amber',
-                 '4' : 'skin.aeon.nox.5' }
+    skin_map = {'2': 'skin.confluence',
+                '0': 'skin.quartz',
+                '1': 'skin.quartz3',
+                '3': 'skin.amber',
+                '4': 'skin.aeon.nox.5'}
 
     if skin_map[skinname] not in current_skin_name:
         log_print.debug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
@@ -454,68 +454,68 @@ def enforce_skin_view(mode):
     if viewname == "None":
         return None
 
-    QuartzV3_views={ 'List' : 50,
-                     'Big List' : 51,
-                     'MediaInfo' : 52,
-                     'MediaInfo 2' : 54,
-                     'Big Icons' : 501,
-                     'Icons': 53,
-                     'Panel' : 502,
-                     'Wide' : 55,
-                     'Fanart 1' : 57,
-                     'Fanart 2' : 59,
-                     'Fanart 3' : 500 }
+    QuartzV3_views={'List': 50,
+                    'Big List': 51,
+                    'MediaInfo': 52,
+                    'MediaInfo 2': 54,
+                    'Big Icons': 501,
+                    'Icons': 53,
+                    'Panel': 502,
+                    'Wide': 55,
+                    'Fanart 1': 57,
+                    'Fanart 2': 59,
+                    'Fanart 3': 500}
 
-    Quartz_views={ 'List' : 50,
-                   'MediaInfo' : 51,
-                   'MediaInfo 2' : 52,
+    Quartz_views={'List': 50,
+                  'MediaInfo': 51,
+                  'MediaInfo 2': 52,
+                  'Icons': 53,
+                  'Wide': 54,
+                  'Big Icons': 55,
+                  'Icons 2': 56,
+                  'Panel': 57,
+                  'Fanart': 58,
+                  'Fanart 2': 59}
+
+    Confluence_views={'List': 50,
+                      'Big List': 51,
+                      'Thumbnail': 500,
+                      'Poster Wrap': 501,
+                      'Fanart': 508,
+                      'Media Info': 504,
+                      'Media Info 2': 503,
+                      'Media Info 3': 515,
+                      'Wide Icons': 505}
+
+    Amber_views = {'List': 50,
+                   'Big List': 52,
+                   'Panel': 51,
+                   'Low List': 54,
                    'Icons': 53,
-                   'Wide' : 54,
-                   'Big Icons' : 55,
-                   'Icons 2' : 56 ,
-                   'Panel' : 57,
-                   'Fanart' : 58,
-                   'Fanart 2' : 59 }
+                   'Big Panel': 55,
+                   'Fanart': 59}
 
-    Confluence_views={ 'List' : 50,
-                       'Big List' : 51,
-                       'Thumbnail' : 500,
-                       'Poster Wrap': 501,
-                       'Fanart' : 508,
-                       'Media Info' : 504,
-                       'Media Info 2' : 503,
-                       'Media Info 3' : 515,
-                       'Wide Icons' : 505 }
+    aeon_nox_views = {'List'      : 50,
+                      'InfoWall'  : 51,
+                      'Landscape' : 52,
+                      'ShowCase1' : 53,
+                      'ShowCase2' : 54,
+                      'TriPanel'  : 55,
+                      'Posters'   : 56,
+                      'Shift'     : 57,
+                      'BannerWall': 58,
+                      'Logo'      : 59,
+                      'Wall'      : 500,
+                      'LowList'   : 501,
+                      'Episode'   : 502,
+                      'Wall'      : 503,
+                      'BigList'   : 510}
 
-    Amber_views = {  'List' : 50,
-                       'Big List' : 52,
-                       'Panel': 51,
-                       'Low List' : 54,
-                       'Icons' : 53,
-                       'Big Panel' : 55,
-                       'Fanart' : 59 }
-
-    aeon_nox_views = { 'List'       : 50  ,
-                       'InfoWall'   : 51  ,
-                       'Landscape'  : 52  ,
-                       'ShowCase1'  : 53  ,
-                       'ShowCase2'  : 54  ,
-                       'TriPanel'   : 55  ,
-                       'Posters'    : 56  ,
-                       'Shift'      : 57  ,
-                       'BannerWall' : 58  ,
-                       'Logo'       : 59  ,
-                       'Wall'       : 500 ,
-                       'LowList'    : 501 ,
-                       'Episode'    : 502 ,
-                       'Wall'       : 503 ,
-                       'BigList'    : 510 }
-
-    skin_list={"0" : Quartz_views ,
-               "1" : QuartzV3_views,
-               "2" : Confluence_views,
-               "3" : Amber_views,
-               "4" : aeon_nox_views }
+    skin_list = {"0": Quartz_views,
+                 "1": QuartzV3_views,
+                 "2": Confluence_views,
+                 "3": Amber_views,
+                 "4": aeon_nox_views}
 
     log_print.debug("Using skin view: %s" % skin_list[skinname][viewname])
 
@@ -599,47 +599,47 @@ def process_tvshows(url, tree=None):
     xbmcplugin.addSortMethod(pluginhandle, 28 ) # by MPAA
 
     # Get the URL and server name.  Get the XML and parse
-    tree=get_xml(url,tree)
+    tree = get_xml(url,tree)
     if tree is None:
         return
 
-    server=plex_network.get_server_from_url(url)
+    server = plex_network.get_server_from_url(url)
 
     set_window_heading(tree)
     # For each directory tag we find
-    ShowTags=tree.findall('Directory')
+    ShowTags = tree.findall('Directory')
     for show in ShowTags:
 
-        tempgenre=[]
+        tempgenre = []
 
         for child in show:
             if child.tag == "Genre":
-                        tempgenre.append(child.get('tag',''))
+                        tempgenre.append(child.get('tag', ''))
 
-        watched = int(show.get('viewedLeafCount',0))
+        watched = int(show.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details={'title'      : show.get('title','Unknown').encode('utf-8') ,
-                 'sorttitle'  : show.get('titleSort', show.get('title','Unknown')).encode('utf-8') ,
-                 'tvshowname' : show.get('title','Unknown').encode('utf-8') ,
-                 'studio'     : show.get('studio','').encode('utf-8') ,
-                 'plot'       : show.get('summary','').encode('utf-8') ,
-                 'season'     : 0 ,
-                 'episode'    : int(show.get('leafCount',0)) ,
-                 'mpaa'       : show.get('contentRating','') ,
-                 'aired'      : show.get('originallyAvailableAt','') ,
-                 'genre'      : " / ".join(tempgenre) }
+        details = {'title'     : show.get('title', 'Unknown').encode('utf-8'),
+                   'sorttitle' : show.get('titleSort', show.get('title', 'Unknown')).encode('utf-8'),
+                   'tvshowname': show.get('title', 'Unknown').encode('utf-8'),
+                   'studio'    : show.get('studio', '').encode('utf-8'),
+                   'plot'      : show.get('summary', '').encode('utf-8'),
+                   'season'    : 0,
+                   'episode'   : int(show.get('leafCount', 0)),
+                   'mpaa'      : show.get('contentRating', ''),
+                   'aired'     : show.get('originallyAvailableAt', ''),
+                   'genre'     : " / ".join(tempgenre)}
 
-        extraData={'type'              : 'video' ,
-                   'source'            : 'tvshows',
-                   'UnWatchedEpisodes' : int(details['episode']) - watched,
-                   'WatchedEpisodes'   : watched,
-                   'TotalEpisodes'     : details['episode'],
-                   'thumb'             : get_thumb_image(show, server) ,
-                   'fanart_image'      : get_fanart_image(show, server) ,
-                   'banner'            : get_banner_image(show, server),
-                   'key'               : show.get('key','') ,
-                   'ratingKey'         : str(show.get('ratingKey',0)) }
+        extraData = {'type'             : 'video',
+                     'source'           : 'tvshows',
+                     'UnWatchedEpisodes': int(details['episode']) - watched,
+                     'WatchedEpisodes'  : watched,
+                     'TotalEpisodes'    : details['episode'],
+                     'thumb'            : get_thumb_image(show, server),
+                     'fanart_image'     : get_fanart_image(show, server),
+                     'banner'           : get_banner_image(show, server),
+                     'key'              : show.get('key', ''),
+                     'ratingKey'        : str(show.get('ratingKey', 0))}
 
         # Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
@@ -652,20 +652,20 @@ def process_tvshows(url, tree=None):
         # Create URL based on whether we are going to flatten the season view
         if settings.get_setting('flatten') == "2":
             log_print.debug("Flattening all shows")
-            extraData['mode']=MODE_TVEPISODES
-            u='%s%s'  % ( server.get_url_location(), extraData['key'].replace("children","allLeaves"))
+            extraData['mode'] = MODE_TVEPISODES
+            u = '%s%s' % (server.get_url_location(), extraData['key'].replace("children", "allLeaves"))
         else:
-            extraData['mode']=MODE_TVSEASONS
-            u='%s%s'  % ( server.get_url_location(), extraData['key'])
+            extraData['mode'] = MODE_TVSEASONS
+            u = '%s%s' % (server.get_url_location(), extraData['key'])
 
         if not settings.get_setting('skipcontextmenus'):
-            context=build_context_menu(url, extraData, server)
+            context = build_context_menu(url, extraData, server)
         else:
-            context=None
+            context = None
 
-        add_item_to_gui(u,details,extraData, context)
+        add_item_to_gui(u, details, extraData, context)
 
-    log_print ("Skin override is: %s" % settings.get_setting('skinoverride'))
+    log_print("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforce_skin_view('tv')
     if view_id:
         xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
@@ -678,8 +678,8 @@ def process_tvseasons(url):
     xbmcplugin.setContent(pluginhandle, 'seasons')
 
     # Get URL, XML and parse
-    server=plex_network.get_server_from_url(url)
-    tree=get_xml(url)
+    server = plex_network.get_server_from_url(url)
+    tree = get_xml(url)
     if tree is None:
         return
 
@@ -690,51 +690,51 @@ def process_tvseasons(url):
             log_print.debug("Flattening single season show")
             willFlatten=True
 
-    sectionart=get_fanart_image(tree, server)
+    sectionart = get_fanart_image(tree, server)
     banner = get_banner_image(tree, server)
     set_window_heading(tree)
     # For all the directory tags
-    SeasonTags=tree.findall('Directory')
-    plot=tree.get('summary','').encode('utf-8')
+    SeasonTags = tree.findall('Directory')
+    plot = tree.get('summary','').encode('utf-8')
     for season in SeasonTags:
 
         if willFlatten:
-            url=server.get_url_location()+season.get('key')
+            url = server.get_url_location()+season.get('key')
             process_tvepisodes(url)
             return
 
         if settings.get_setting('disable_all_season') and season.get('index') is None:
             continue
 
-        watched=int(season.get('viewedLeafCount',0))
+        watched=int(season.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details={'title'      : season.get('title','Unknown').encode('utf-8') ,
-                 'tvshowname' : season.get('title','Unknown').encode('utf-8') ,
-                 'sorttitle'  : season.get('titleSort', season.get('title','Unknown')).encode('utf-8') ,
-                 'studio'     : season.get('studio','').encode('utf-8') ,
-                 'plot'       : plot ,
-                 'season'     : 0 ,
-                 'episode'    : int(season.get('leafCount',0)) ,
-                 'mpaa'       : season.get('contentRating','') ,
-                 'aired'      : season.get('originallyAvailableAt','') }
+        details = {'title'     : season.get('title', 'Unknown').encode('utf-8'),
+                   'tvshowname': season.get('title', 'Unknown').encode('utf-8'),
+                   'sorttitle' : season.get('titleSort', season.get('title', 'Unknown')).encode('utf-8'),
+                   'studio'    : season.get('studio', '').encode('utf-8'),
+                   'plot'      : plot,
+                   'season'    : 0,
+                   'episode'   : int(season.get('leafCount', 0)),
+                   'mpaa'      : season.get('contentRating', ''),
+                   'aired'     : season.get('originallyAvailableAt', '')}
 
         if season.get('sorttitle'): details['sorttitle'] = season.get('sorttitle')
 
-        extraData={'type'              : 'video' ,
-                   'source'            : 'tvseasons',
-                   'TotalEpisodes'     : details['episode'],
-                   'WatchedEpisodes'   : watched ,
-                   'UnWatchedEpisodes' : details['episode'] - watched ,
-                   'thumb'             : get_thumb_image(season, server) ,
-                   'fanart_image'      : get_fanart_image(season, server) ,
-                   'banner'            : banner,
-                   'key'               : season.get('key','') ,
-                   'ratingKey'         : str(season.get('ratingKey',0)) ,
-                   'mode'              : MODE_TVEPISODES }
+        extraData = {'type'             : 'video',
+                     'source'           : 'tvseasons',
+                     'TotalEpisodes'    : details['episode'],
+                     'WatchedEpisodes'  : watched,
+                     'UnWatchedEpisodes': details['episode'] - watched,
+                     'thumb'            : get_thumb_image(season, server),
+                     'fanart_image'     : get_fanart_image(season, server),
+                     'banner'           : banner,
+                     'key'              : season.get('key', ''),
+                     'ratingKey'        : str(season.get('ratingKey', 0)),
+                     'mode'             : MODE_TVEPISODES}
 
         if extraData['fanart_image'] == "":
-            extraData['fanart_image']=sectionart
+            extraData['fanart_image'] = sectionart
 
         # Set up overlays for watched and unwatched episodes
         if extraData['WatchedEpisodes'] == 0:
@@ -744,15 +744,15 @@ def process_tvseasons(url):
         else:
             extraData['partialTV'] = 1
 
-        url='%s%s' % ( server.get_url_location() , extraData['key'] )
+        url = '%s%s' % ( server.get_url_location() , extraData['key'] )
 
         if not settings.get_setting('skipcontextmenus'):
-            context=build_context_menu(url, season, server)
+            context = build_context_menu(url, season, server)
         else:
-            context=None
+            context = None
 
         # Build the screen directory listing
-        add_item_to_gui(url,details,extraData, context)
+        add_item_to_gui(url, details, extraData, context)
 
     log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
     view_id = enforce_skin_view('season')
@@ -766,7 +766,7 @@ def process_tvepisodes(url, tree=None):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'episodes')
 
-    tree=get_xml(url,tree)
+    tree = get_xml(url,tree)
     if tree is None:
         return
 
@@ -779,8 +779,8 @@ def process_tvepisodes(url, tree=None):
     if season_thumb == "/:/resources/show.png": 
         season_thumb = ""
 
-    ShowTags=tree.findall('Video')
-    server=plex_network.get_server_from_url(url)
+    ShowTags = tree.findall('Video')
+    server = plex_network.get_server_from_url(url)
 
     if not settings.get_setting('skipimages'):
         sectionart=get_fanart_image(tree, server)
