@@ -11,7 +11,7 @@ profile = False
 if not profile:
     plexbmc.start_plexbmc()
 else:
-    #Enable extra profile information
+    # Enable extra profile information
     import StringIO
     import cProfile
     import pstats
