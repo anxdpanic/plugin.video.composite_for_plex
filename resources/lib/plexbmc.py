@@ -568,20 +568,20 @@ def process_movies(url, tree=None):
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
-def build_context_menu(url, itemData, server):
-    context=[]
+def build_context_menu(url, item_data, server):
+    context = []
     url_parts = urlparse.urlparse(url)
-    section=url_parts.path.split('/')[3]  
-    ID=itemData.get('ratingKey','0')
+    section = url_parts.path.split('/')[3]
+    item_id = item_data.get('ratingKey', '0')
 
     # Mark media unwatched
-    context.append(('Mark as Unwatched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % ( server.get_uuid(), ID, 'unwatch' ) ))
-    context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % ( server.get_uuid(), ID, 'watch' ) ))
-    context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % ( server.get_uuid(), section ) ))
-    context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % ( server.get_uuid(), ID) ))
-    context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)' ))
-    context.append(('Select Audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % ( server.get_uuid(), ID) ))
-    context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % ( server.get_uuid(), ID) ))
+    context.append(('Mark as Unwatched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+    context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch' )))
+    context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section )))
+    context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)'))
+    context.append(('Select Audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % (server.get_uuid(), item_id)))
 
     log_print.debug("Using context menus: %s" % context)
 
