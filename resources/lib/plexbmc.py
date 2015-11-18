@@ -576,7 +576,7 @@ def build_context_menu(url, item_data, server):
 
     # Mark media unwatched
     context.append(('Mark as Unwatched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch' )))
+    context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
     context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section )))
     context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % (server.get_uuid(), item_id)))
     context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)'))
