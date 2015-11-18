@@ -6,7 +6,7 @@ import time
 plexbmc_start = time.time()
 print "===== PLEXBMC START [id: %s] =====" % plexbmc_start
 from resources.lib import plexbmc
-profile=False
+profile = False
 
 if not profile:
     plexbmc.start_plexbmc()
@@ -27,6 +27,4 @@ else:
 
     print stream.getvalue()
 
-print "===== PLEXBMC STOP [id: %s]: %s seconds =====" % (plexbmc_start , ( time.time() - plexbmc_start ))
-
-sys.modules.clear()
+print "===== PLEXBMC STOP [id: %s]: %s seconds =====" % (plexbmc_start, (time.time() - plexbmc_start))
