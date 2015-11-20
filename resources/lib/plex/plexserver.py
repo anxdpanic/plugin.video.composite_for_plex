@@ -83,28 +83,28 @@ class PlexMediaServer:
 
     def create_plex_identification(self):
 
-        headers = {'X-Plex-Device'            : 'PleXBMC' ,
-                   'X-Plex-Client-Platform'   : 'KODI' ,
-                   'X-Plex-Device-Name'       : self.get_device_name() ,
-                   'X-Plex-Language'          : 'en',
-                   'X-Plex-Model'             : 'unknown' ,
-                   'X-Plex-Platform'          : 'KODI' ,
-                   'X-Plex-Client-Identifier' : self.get_client_identifier() ,
-                   'X-Plex-Product'           : 'PleXBMC' ,
-                   'X-Plex-Platform-Version'  : GLOBAL_SETUP['platform'] ,
-                   'X-Plex-Version'           : GLOBAL_SETUP['__version__']  ,
-                   'X-Plex-Provides'          : "player"}
+        headers = {'X-Plex-Device'           : 'PleXBMC',
+                   'X-Plex-Client-Platform'  : 'KODI',
+                   'X-Plex-Device-Name'      : self.get_device_name(),
+                   'X-Plex-Language'         : 'en',
+                   'X-Plex-Model'            : 'unknown',
+                   'X-Plex-Platform'         : 'KODI',
+                   'X-Plex-Client-Identifier': self.get_client_identifier(),
+                   'X-Plex-Product'          : 'PleXBMC',
+                   'X-Plex-Platform-Version' : GLOBAL_SETUP['platform'],
+                   'X-Plex-Version'          : GLOBAL_SETUP['__version__'],
+                   'X-Plex-Provides'         : "player"}
 
         if self.token is not None:
-            headers['X-Plex-Token']=self.token
+            headers['X-Plex-Token'] = self.token
 
         if self.user is not None:
-            headers['X-Plex-User']=self.user
+            headers['X-Plex-User'] = self.user
 
         return headers
 
     def create_plex_identification_string(self):
-        header=[]
+        header = []
         for key, value in self.create_plex_identification().items():
             header.append("%s=%s" % (key, urllib.quote(value)))
 

@@ -38,9 +38,9 @@ class AddonSettings:
         return int(self.settings.getSetting('debug'))
 
     def set_setting(self, name, value):
-        if value:
+        if value == True:
             value = "true"
-        else:
+        elif value == False:
             value = "false"
 
         self.settings.setSetting(name, value)
