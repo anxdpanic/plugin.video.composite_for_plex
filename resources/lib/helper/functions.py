@@ -124,7 +124,9 @@ def getPlexHeaders():
     return h
 
 def getServerByHost(host):
-    list = helper_cache.check_cache(helper_cache_name)
+    validate, list = helper_cache.check_cache(helper_cache_name)
+    log_print.debug("Helper has loaded p server list:")
+    print list
     if len(list) == 1:
         return list[0]
     for server in list:

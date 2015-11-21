@@ -40,7 +40,7 @@ from resources.lib.helper.httppersist import requests
 from resources.lib.helper.functions import *
 from resources.lib.helper.subscribers import subMgr
 from resources.lib.helper.listener import *
-import resources.lib.helper.plexgdm as plexgdm
+from resources.lib.plex.plexgdm import PlexGDM
 import resources.lib.CacheControl as CacheControl
 log_print = PrintDebug("PleXBMC Helper")
 
@@ -55,7 +55,7 @@ if settings.get_debug() >= log_print.DEBUG_INFO:
 else:
     gdm_debug = 0
 
-client = plexgdm.plexgdm(debug=gdm_debug)
+client = PlexGDM(debug=gdm_debug)
 client.clientDetails(settings.get_setting('client_id'), settings.get_setting('client_name'), 3005, "PleXBMC", GLOBAL_SETUP['__version__'])
 log_print.debug("PleXBMC Helper -> registration string is: %s " % client.getClientDetails())
 
