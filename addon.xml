@@ -14,6 +14,9 @@
                library="default.py">
         <provides>executable</provides>
   </extension>
+  <extension point="xbmc.service"
+             library="helper.py" start="startup">
+  </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <minversion>1</minversion>
