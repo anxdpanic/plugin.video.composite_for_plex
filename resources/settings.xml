@@ -23,7 +23,6 @@
     <setting id="wol10" type="text" label="MAC Address 10" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
     <setting id="wol11" type="text" label="MAC Address 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
     <setting id="use_xbmc_name" type="bool" label="Use XBMC client name?" default="true" />
-    <setting id="c_name" type="text" label="Client Name" default="PleXBMC Client" visible="eq(-1,false)" />
  </category>
   <category label="30017"> <!-- Playback -->
     <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="0"/>
@@ -111,7 +110,6 @@
     <setting id="privacy" type="bool" label="30107" default="true" />
     <setting id="debug_helper" type="bool" label="30014" default="false" />
     <setting id="gdm_debug" type="bool" label="Enable discovery debug" default="false" />
-    <setting id="uuid" type="text" label="Client ID" visible="false" default="" />
     <setting id="replacement" type="bool" label="Replacement" visible="false" default="false" />
   </category>
 </settings>
