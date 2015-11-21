@@ -2,6 +2,7 @@ import httplib
 import traceback
 import string
 
+
 class RequestMgr:
     def __init__(self):
         self.conns = {}

@@ -1,4 +1,5 @@
 import re
+import traceback
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from urlparse import urlparse, parse_qs
@@ -6,7 +7,9 @@ from urlparse import urlparse, parse_qs
 import xbmc
 from resources.lib.helper.functions import *
 from resources.lib.helper.subscribers import subMgr
+from resources.lib.common import GLOBAL_SETUP, get_platform, PrintDebug, settings
 
+log_print = PrintDebug("PleXBMC Helper", "listener")
 
 class MyHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
@@ -15,17 +18,17 @@ class MyHandler(BaseHTTPRequestHandler):
         #printDebug(format % args)
         return True
     def do_HEAD(s):
-        printDebug( "Serving HEAD request..." )
+        log_print.debug("Serving HEAD request...")
         s.answer_request(0)
 
     def do_GET(s):
-        printDebug( "Serving GET request..." )
+        log_print.debug("Serving GET request...")
         s.answer_request(1)
 
     def do_OPTIONS(s):
         s.send_response(200)
         s.send_header('Content-Length', '0')
-        s.send_header('X-Plex-Client-Identifier', settings['uuid'])
+        s.send_header('X-Plex-Client-Identifier', settings.get_setting('client_id'))
         s.send_header('Content-Type', 'text/plain')
         s.send_header('Connection', 'close')
         s.send_header('Access-Control-Max-Age', '1209600')
@@ -57,11 +60,11 @@ class MyHandler(BaseHTTPRequestHandler):
             params = {}
             for key in paramarrays:
                 params[key] = paramarrays[key][0]
-            printDebug ( "request path is: [%s]" % ( request_path,) )
-            printDebug ( "params are: %s" % params )
+            log_print ( "request path is: [%s]" % ( request_path,) )
+            log_print ( "params are: %s" % params )
             subMgr.updateCommandID(s.headers.get('X-Plex-Client-Identifier', s.client_address[0]), params.get('commandID', False))
             if request_path=="version":
-                s.response("PleXBMC Helper Remote Redirector: Running\r\nVersion: %s" % settings['version'])
+                s.response("PleXBMC Helper Remote Redirector: Running\r\nVersion: %s" % GLOBAL_SETUP['__version__'])
             elif request_path=="verify":
                 result=jsonrpc("ping")
                 s.response("XBMC JSON connection test:\r\n"+result)
@@ -69,18 +72,18 @@ class MyHandler(BaseHTTPRequestHandler):
                 resp = getXMLHeader()
                 resp += "<MediaContainer>"
                 resp += "<Player"
-                resp += ' title="%s"' % settings['client_name']
+                resp += ' title="%s"' % settings.get_setting('devicename')
                 resp += ' protocol="plex"'
                 resp += ' protocolVersion="1"'
                 resp += ' protocolCapabilities="navigation,playback,timeline"'
-                resp += ' machineIdentifier="%s"' % settings['uuid']
+                resp += ' machineIdentifier="%s"' % settings.get_setting('client_id')
                 resp += ' product="PleXBMC"'
-                resp += ' platform="%s"' % getPlatform()
-                resp += ' platformVersion="%s"' % settings['plexbmc_version']
+                resp += ' platform="%s"' % get_platform()
+                resp += ' platformVersion="%s"' % GLOBAL_SETUP['__version__']
                 resp += ' deviceClass="pc"'
                 resp += "/>"
                 resp += "</MediaContainer>"
-                printDebug("crafted resources response: %s" % resp)
+                log_print("crafted resources response: %s" % resp)
                 s.response(resp, getPlexHeaders())
             elif "/subscribe" in request_path:
                 s.response(getOKMsg(), getPlexHeaders())
@@ -95,7 +98,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     xbmc.sleep(950)
                 commandID = params.get('commandID', 0)
                 s.response(re.sub(r"INSERTCOMMANDID", str(commandID), subMgr.msg(getPlayers())), {
-                  'X-Plex-Client-Identifier': settings['uuid'],
+                  'X-Plex-Client-Identifier': settings.get_setting('client_id'),
                   'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
                   'Access-Control-Allow-Origin': '*',
                   'Content-Type': 'text/xml'
@@ -108,7 +111,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 s.response(getOKMsg(), getPlexHeaders())
                 if 'volume' in params:
                     volume = int(params['volume'])
-                    printDebug("adjusting the volume to %s%%" % volume)
+                    log_print("adjusting the volume to %s%%" % volume)
                     jsonrpc("Application.SetVolume", {"volume": volume})
             elif "/playMedia" in request_path:
                 s.response(getOKMsg(), getPlexHeaders())
@@ -118,7 +121,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 server = getServerByHost(address)
                 port = params.get('port', server.get('port', '32400'))
                 fullurl = protocol+"://"+address+":"+port+params['key']
-                printDebug("playMedia command -> fullurl: %s" % fullurl)
+                log_print("playMedia command -> fullurl: %s" % fullurl)
                 jsonrpc("playmedia", [fullurl, resume])
                 subMgr.lastkey = params['key']
                 subMgr.server = server.get('server', 'localhost')

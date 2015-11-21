@@ -1,5 +1,6 @@
 import os
 import xbmcaddon
+import xbmc
 
 
 class AddonSettings:
@@ -8,6 +9,12 @@ class AddonSettings:
         print "PleXBMC -> Reading settings configuration"
         self.settings = xbmcaddon.Addon(name)
         self.stream = self.settings.getSetting('streaming')
+
+        self.kodi_settings = None
+        try:
+            self.kodi_settings = parse(xbmc.translatePath('special://userdata/guisettings.xml'))
+        except:
+            print "Unable to read KODI's guisettings.xml"
 
     def open_settings(self):
         return self.settings.openSettings()
@@ -63,3 +70,12 @@ class AddonSettings:
     def update_master_server(self, value):
         print "Updating master server to%s" % value
         self.settings.setSetting('masterServer', '%s' % value)
+
+    def get_kodi_setting(self, name):
+
+        if self.kodi_settings is None:
+            return False
+        try:
+            return self.kodi_settings.getElementsByTagName(name)[0].firstChild.nodeValue
+        except:
+            return ""

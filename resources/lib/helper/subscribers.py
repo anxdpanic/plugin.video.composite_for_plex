@@ -1,10 +1,11 @@
 import re
 import threading
-
 import xbmcgui
+from resources.lib.common import PrintDebug
 from resources.lib.helper.functions import *
 from resources.lib.helper.httppersist import requests
 
+log_print = PrintDebug("PleXBMC Helper", "subscribers")
 
 class SubscriptionManager:
     def __init__(self):
@@ -114,7 +115,7 @@ class SubscriptionManager:
             params['duration'] = info['duration']
         serv = getServerByHost(self.server)
         requests.getwithparams(serv.get('server', 'localhost'), serv.get('port', 32400), "/:/timeline", params, getPlexHeaders(), serv.get('protocol', 'http'))
-        printDebug("sent server notification with state = %s" % params['state'])
+        log_print.debug("sent server notification with state = %s" % params['state'])
         WINDOW = xbmcgui.Window(10000)
         WINDOW.setProperty('plexbmc.nowplaying.sent', '1')
         if players:
@@ -150,7 +151,7 @@ class SubscriptionManager:
         try:
             # get info from the player
             props = jsonrpc("Player.GetProperties", {"playerid": playerid, "properties": ["time", "totaltime", "speed", "shuffled"]})
-            printDebug(jsonrpc("Player.GetItem", {"playerid": playerid, "properties": ["file", "showlink", "episode", "season"]}))
+            log_print.debug(jsonrpc("Player.GetItem", {"playerid": playerid, "properties": ["file", "showlink", "episode", "season"]}))
             info['time'] = timeToMillis(props['time'])
             info['duration'] = timeToMillis(props['totaltime'])
             info['state'] = ("paused", "playing")[int(props['speed'])]
@@ -190,7 +191,7 @@ class Subscriber:
         else:
             self.navlocationsent = True
         msg = re.sub(r"INSERTCOMMANDID", str(self.commandID), msg)
-        printDebug("sending xml to subscriber %s: %s" % (self.tostr(), msg))
+        log_print.debug("sending xml to subscriber %s: %s" % (self.tostr(), msg))
         if not requests.post(self.host, self.port, "/:/timeline", msg, getPlexHeaders(), self.protocol):
             subMgr.removeSubscriber(self.uuid)
 

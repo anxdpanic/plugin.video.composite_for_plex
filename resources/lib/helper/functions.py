@@ -5,8 +5,15 @@ import string
 
 import xbmc
 from resources.lib.helper.settings import settings
+import resources.lib.CacheControl as CacheControl
 from resources.lib.helper.httppersist import requests
+from resources.lib.common import *
+from resources.lib.plex.plex import Plex
 
+log_print = PrintDebug("PleXBMC Helper", "functions")
+
+helper_cache = CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", settings.get_setting('cache'))
+helper_cache_name = "helper_server_list"
 
 def xbmc_photo():
     return "photo"
@@ -38,30 +45,7 @@ def plex_type(xbmc_type):
     elif xbmc_type == xbmc_audio():
         return plex_audio()
 
-def getPlatform():
-    if xbmc.getCondVisibility('system.platform.osx'):
-        return "MacOSX"
-    elif xbmc.getCondVisibility('system.platform.atv2'):
-        return "AppleTV2"
-    elif xbmc.getCondVisibility('system.platform.ios'):
-        return "iOS"
-    elif xbmc.getCondVisibility('system.platform.windows'):
-        return "Windows"
-    elif xbmc.getCondVisibility('system.platform.raspberrypi'):
-        return "RaspberryPi"
-    elif xbmc.getCondVisibility('system.platform.linux'):
-        return "Linux"
-    elif xbmc.getCondVisibility('system.platform.android'): 
-        return "Android"
-    return "Unknown"
-    
-def printDebug( msg, functionname=True ):
-    if settings['debug']:
-        if functionname is False:
-            print str(msg)
-        else:
-            print "PleXBMC Helper -> " + inspect.stack()[1][3] + ": " + str(msg)
-            
+
 """ communicate with XBMC """
 def jsonrpc(action, arguments = {}):
     """ put some JSON together for the JSON-RPC APIv6 """
@@ -86,19 +70,19 @@ def jsonrpc(action, arguments = {}):
                              "jsonrpc" : "2.0",
                              "method"  : action})
     
-    printDebug("Sending request to XBMC without network stack: %s" % request)
+    log_print.debug("Sending request to XBMC without network stack: %s" % request)
     result = parseJSONRPC(xbmc.executeJSONRPC(request))
 
-    if not result and settings['webserver_enabled']:
+    if not result and settings.get_kodi_setting('webserver_enabled'):
         # xbmc.executeJSONRPC appears to fail on the login screen, but going
         # through the network stack works, so let's try the request again
         result = parseJSONRPC(requests.post(
             "127.0.0.1",
-            settings['port'],
+            settings.get_kodi_setting('port'),
             "/jsonrpc",
             request,
             { 'Content-Type' : 'application/json',
-              'Authorization' : 'Basic ' + string.strip(base64.encodestring(settings['user'] + ':' + settings['passwd'])) }))
+              'Authorization' : 'Basic ' + string.strip(base64.encodestring(settings.get_kodi_setting('user') + ':' + settings.get_kodi_setting('passwd')))}))
 
     return result
 
@@ -106,10 +90,10 @@ def jsonrpc(action, arguments = {}):
 
 def parseJSONRPC(jsonraw):
     if not jsonraw:
-        printDebug("Empty response from XBMC")
+        log_print.debug("Empty response from XBMC")
         return {}
     else:
-        printDebug("Response from XBMC: %s" % jsonraw)
+        log_print.debug("Response from XBMC: %s" % jsonraw)
         parsed=json.loads(jsonraw)
     if parsed.get('error', False):
         print "XBMC returned an error: %s" % parsed.get('error')
@@ -122,24 +106,25 @@ def getOKMsg():
     return getXMLHeader() + '<Response code="200" status="OK" />'
 
 def getPlexHeaders():
+    plex_network = Plex(load=False)
     h = {
       "Content-type": "application/x-www-form-urlencoded",
       "Access-Control-Allow-Origin": "*",
-      "X-Plex-Version": settings['version'],
-      "X-Plex-Client-Identifier": settings['uuid'],
+      "X-Plex-Version": GLOBAL_SETUP['__version__'],
+      "X-Plex-Client-Identifier": settings.get_setting('client_id'),
       "X-Plex-Provides": "player",
       "X-Plex-Product": "PleXBMC",
-      "X-Plex-Device-Name": settings['client_name'],
+      "X-Plex-Device-Name": settings.get_setting('client_name'),
       "X-Plex-Platform": "XBMC",
-      "X-Plex-Model": getPlatform(),
+      "X-Plex-Model": get_platform(),
       "X-Plex-Device": "PC",
     }
-    if settings['myplex_user']:
-        h["X-Plex-Username"] = settings['myplex_user']
+    if plex_network.get_myplex_user():
+        h["X-Plex-Username"] = plex_network.get_myplex_user()
     return h
 
 def getServerByHost(host):
-    list = settings['serverList']
+    list = helper_cache.check_cache(helper_cache_name)
     if len(list) == 1:
         return list[0]
     for server in list:

@@ -35,94 +35,86 @@ import os
 import xbmc
 import xbmcaddon
 
-
-# vitals
-__addon__      = xbmcaddon.Addon()
-__cwd__        = __addon__.getAddonInfo('path')
-__version__    = __addon__.getAddonInfo('version')
-__profile__    = xbmc.translatePath( __addon__.getAddonInfo('profile') )
-__resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) )
-
-# local includes
-sys.path.append (__resource__)
-
-from resources.lib.helper import settings
+from resources.lib.common import *
 from resources.lib.helper.httppersist import requests
 from resources.lib.helper.functions import *
 from resources.lib.helper.subscribers import subMgr
 from resources.lib.helper.listener import *
 import resources.lib.helper.plexgdm as plexgdm
+import resources.lib.CacheControl as CacheControl
+log_print = PrintDebug("PleXBMC Helper")
+
+helper_cache = CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", settings.get_setting('cache'))
+helper_cache_name = "helper_server_list"
 
 print "===== PLEXBMC HELPER START ====="
-print "PleXBMC Helper -> running Python: " + str(sys.version_info)
-print "PleXBMC Helper -> running Version: " + __version__
-print "PleXBMC Helper -> Platform: " + getPlatform()
-print "PleXBMC Helper -> UUID: " + settings['uuid']
 
-if not settings.get('plexbmc_version', False):
-    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper: PleXBMC not installed,)")
+# Start GDM for server/client discovery
+if settings.get_debug() >= log_print.DEBUG_INFO:
+    gdm_debug = 3
 else:
-    # Start GDM for server/client discovery
-    client=plexgdm.plexgdm(debug=settings['gdm_debug'])
-    client.clientDetails(settings['uuid'], settings['client_name'], settings['myport'], "PleXBMC" , settings.get('plexbmc_version', '1.0'))
-    printDebug("PleXBMC Helper -> registration string is: %s " % client.getClientDetails() )
-    
-    start_count=0
-    while True:
+    gdm_debug = 0
+
+client = plexgdm.plexgdm(debug=gdm_debug)
+client.clientDetails(settings.get_setting('client_id'), settings.get_setting('client_name'), 3005, "PleXBMC", GLOBAL_SETUP['__version__'])
+log_print.debug("PleXBMC Helper -> registration string is: %s " % client.getClientDetails())
+
+start_count = 0
+while True:
+    try:
+        httpd = ThreadedHTTPServer(('', 3005), MyHandler)
+        httpd.timeout = 0.95
+        break
+    except:
+        log_print.warn("PleXBMC Helper -> Unable to start web helper.  Sleep and Retry...")
+        settings.set_setting("webserver_restart", True)
+
+    xbmc.sleep(3000)
+
+    if start_count == 3:
+        print "PleXBMC Helper -> Unable to start web helper. Giving up."
+        xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - Helper Web unable to start due to port clash,)")
+        httpd = False
+        break
+
+    start_count += 1
+
+if httpd:
+    client.start_all()
+    settings.set_setting("webserver_restart", False)
+    message_count = 0
+    is_running = False
+    while not xbmc.abortRequested and not settings.get_setting("webserver_restart"):
         try:
-            httpd = ThreadedHTTPServer(('', settings['myport']), MyHandler)
-            httpd.timeout = 0.95
-            break
+
+            httpd.handle_request()
+            message_count += 1
+
+            if message_count > 30:
+                if client.check_client_registration():
+                    log_print.debug("Client is still registered")
+                else:
+                    log_print.debug("Client is no longer registered")
+                log_print.debug("PlexBMC Helper still running on port %s" % 3005)
+                message_count = 0
+
+            if not is_running:
+                log_print.info("PleXBMC Helper -> PleXBMC Helper has started")
+                xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has started,)")
+
+            is_running = True
+            if message_count % 1 == 0:
+                subMgr.notify()
+            helper_cache.write_cache(helper_cache_name, client.getServerList())
         except:
-            print "PleXBMC Helper -> Unable to start web helper.  Sleep and Retry..."
-            __addon__.setSetting("replacement", "true")
-        
-        xbmc.sleep(3000)
-    
-        if start_count == 3:
-            print "PleXBMC Helper -> Unable to start web helper. Giving up."
-            xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper - Helper Web unable to start due to port clash,)")
-            httpd = False
-            break
-        
-        start_count += 1
-    
-    if httpd:
-        client.start_all()
-        __addon__.setSetting("replacement", "false")
-        message_count=0
-        is_running=False
-        while (not xbmc.abortRequested and __addon__.getSetting("replacement") != "true"):
-            try:
-                
-                httpd.handle_request()
-                message_count+=1
-                
-                if message_count > 30:
-                    if client.check_client_registration():
-                        printDebug("Client is still registered")
-                    else:
-                        printDebug("Client is no longer registered")
-                    printDebug( "PlexBMC Helper still running on port %s" % settings['myport'])
-                    message_count=0
-                
-                if not is_running:
-                    print "PleXBMC Helper -> PleXBMC Helper has started"
-                    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has started,)")
-                    
-                is_running=True
-                if message_count % 1 == 0:
-                    subMgr.notify()
-                settings['serverList'] = client.getServerList()
-            except:
-                printDebug("Error in loop, continuing anyway")
-                print traceback.print_exc()
-        
-        try:
-            httpd.socket.shutdown(socket.SHUT_RDWR)
-        finally:
-            httpd.socket.close()
-        requests.dumpConnections()
-        client.stop_all()
-        print "PleXBMC Helper -> PleXBMC Helper has been stopped"
-        xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been stopped,)")
+            log_print.debug("Error in loop, continuing anyway")
+            print traceback.print_exc()
+
+    try:
+        httpd.socket.shutdown(socket.SHUT_RDWR)
+    finally:
+        httpd.socket.close()
+    requests.dumpConnections()
+    client.stop_all()
+    log_print.info("PleXBMC Helper -> PleXBMC Helper has been stopped")
+    xbmc.executebuiltin("XBMC.Notification(PleXBMC Helper has been stopped,)")
