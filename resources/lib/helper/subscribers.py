@@ -1,10 +1,10 @@
 import re
 import threading
+
 import xbmcgui
-from xml.dom.minidom import parseString
-from functions import *
-from settings import settings
-from httppersist import requests
+from resources.lib.helper.functions import *
+from resources.lib.helper.httppersist import requests
+
 
 class SubscriptionManager:
     def __init__(self):

@@ -1,5 +1,5 @@
 '''
-    @document   : default.py
+    @document   : helper.py
     @package    : PleXBMC Helper add-on
     @author     : wickning1 (aka Nick Wing)
     @author     : hippojay (aka Dave Hawes-Johnson)
@@ -30,9 +30,11 @@
 import sys
 import socket
 import traceback
+import os
+
 import xbmc
 import xbmcaddon
-import os
+
 
 # vitals
 __addon__      = xbmcaddon.Addon()
@@ -44,12 +46,12 @@ __resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' )
 # local includes
 sys.path.append (__resource__)
 
-from settings import settings
-from httppersist import requests
-from functions import *
-from subscribers import subMgr
-from listener import *
-import plexgdm
+from resources.lib.helper import settings
+from resources.lib.helper.httppersist import requests
+from resources.lib.helper.functions import *
+from resources.lib.helper.subscribers import subMgr
+from resources.lib.helper.listener import *
+import resources.lib.helper.plexgdm as plexgdm
 
 print "===== PLEXBMC HELPER START ====="
 print "PleXBMC Helper -> running Python: " + str(sys.version_info)

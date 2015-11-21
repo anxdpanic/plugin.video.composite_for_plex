@@ -7,7 +7,7 @@
     <import addon="xbmc.python" version="2.1.0"/>
   </requires>
   <extension point="xbmc.service"
-             library="default.py" start="startup">
+             library="helper.py" start="startup">
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>

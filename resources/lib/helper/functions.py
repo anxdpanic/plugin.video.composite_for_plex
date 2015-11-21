@@ -2,10 +2,11 @@ import base64
 import inspect
 import json
 import string
-import traceback
+
 import xbmc
-from settings import settings
-from httppersist import requests
+from resources.lib.helper.settings import settings
+from resources.lib.helper.httppersist import requests
+
 
 def xbmc_photo():
     return "photo"

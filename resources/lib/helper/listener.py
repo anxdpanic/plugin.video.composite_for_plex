@@ -1,12 +1,12 @@
 import re
-import traceback
-import xbmc
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from urlparse import urlparse, parse_qs
-from settings import settings
-from functions import *
-from subscribers import subMgr
+
+import xbmc
+from resources.lib.helper.functions import *
+from resources.lib.helper.subscribers import subMgr
+
 
 class MyHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
