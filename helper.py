@@ -31,10 +31,6 @@ import sys
 import socket
 import traceback
 import os
-
-import xbmc
-import xbmcaddon
-
 from resources.lib.common import *
 from resources.lib.helper.httppersist import requests
 from resources.lib.helper.functions import *
@@ -50,13 +46,15 @@ helper_cache_name = "helper_server_list"
 print "===== PLEXBMC HELPER START ====="
 
 # Start GDM for server/client discovery
-if settings.get_debug() >= log_print.DEBUG_INFO:
-    gdm_debug = 3
-else:
-    gdm_debug = 0
+try:
+    interface_address = get_platform_ip()
+    log_print.debug("Using interface: %s for GDM discovery" % interface_address)
+except:
+    interface_address = None
+    log_print.debug("Using systems default interface for GDM discovery")
 
-client = PlexGDM(debug=gdm_debug)
-client.clientDetails(settings.get_setting('client_id'), settings.get_setting('client_name'), 3005, "PleXBMC", GLOBAL_SETUP['__version__'])
+client = PlexGDM()
+client.clientDetails(settings.get_setting('client_id'), settings.get_setting('devicename'), 3005, "PleXBMC", GLOBAL_SETUP['__version__'])
 log_print.debug("PleXBMC Helper -> registration string is: %s " % client.getClientDetails())
 
 start_count = 0

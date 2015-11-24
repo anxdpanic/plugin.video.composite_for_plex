@@ -295,10 +295,6 @@ class Plex:
         if settings.get_setting('discovery') == "1":
             log_print.info("local GDM discovery setting enabled.")
             log_print.info("Attempting GDM lookup on multicast")
-            if settings.get_debug() >= log_print.DEBUG_INFO:
-                gdm_debug = 3
-            else:
-                gdm_debug = 0
 
             try:
                 interface_address = get_platform_ip()
@@ -308,7 +304,7 @@ class Plex:
                 log_print.debug("Using systems default interface for GDM discovery")
 
             try:
-                gdm_client = PlexGDM(gdm_debug, interface=interface_address)
+                gdm_client = PlexGDM(interface=interface_address)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
             except Exception, e:

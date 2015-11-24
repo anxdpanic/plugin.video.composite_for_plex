@@ -25,6 +25,7 @@ class PrintDebug:
         self.DEBUG_INFO = 1
         self.DEBUG_DEBUG = 2
         self.DEBUG_DEBUGPLUS = 3
+        self.DEBUG_HELPER = 4
         self.token_regex = re.compile('-Token=[a-z|0-9].*?[&|$]')
         self.ip_regex = re.compile('\.\d{1,3}\.\d{1,3}\.')
         self.user_regex = re.compile('-User=[a-z|0-9].*?[&|$]')
@@ -32,7 +33,8 @@ class PrintDebug:
         self.DEBUG_MAP = {self.DEBUG_OFF      : "off",
                           self.DEBUG_INFO     : "info",
                           self.DEBUG_DEBUG    : "debug",
-                          self.DEBUG_DEBUGPLUS: "debug+"}
+                          self.DEBUG_DEBUGPLUS: "debug+",
+                          self.DEBUG_HELPER   : "debug+h"}
 
     def get_name(self, level):
         return self.DEBUG_MAP[level]
@@ -54,6 +56,9 @@ class PrintDebug:
 
     def debugplus(self, message):
         return self.__print_message(message, 3)
+
+    def debug_helper(self, message):
+        return self.__print_message(message, 4)
 
     def __print_message(self, msg, level=1):
         if self.level >= level:

@@ -103,7 +103,7 @@
     <setting id="skipflags" type="bool"  label="30051" default="false" />
   </category>
   <category label="30010" > <!-- debug -->
-  	<setting id="debug" type="enum" label="30014" lvalues="30053|30098|30099|30100" default="0" />
+  	<setting id="debug" type="enum" label="30014" lvalues="30053|30098|30099|30100|30108" default="0" />
 	<setting id="cache" type="bool" label="30093" default="true" />
 	<setting id="kodicache" type="bool" label="30104" default="false" />
     <setting type="sep"/>

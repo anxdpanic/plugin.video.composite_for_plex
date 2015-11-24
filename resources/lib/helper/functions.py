@@ -70,7 +70,7 @@ def jsonrpc(action, arguments = {}):
                              "jsonrpc" : "2.0",
                              "method"  : action})
     
-    log_print.debug("Sending request to XBMC without network stack: %s" % request)
+    # log_print.debug_helper("Sending request to XBMC without network stack: %s" % request)
     result = parseJSONRPC(xbmc.executeJSONRPC(request))
 
     if not result and settings.get_kodi_setting('webserver_enabled'):
@@ -90,10 +90,10 @@ def jsonrpc(action, arguments = {}):
 
 def parseJSONRPC(jsonraw):
     if not jsonraw:
-        log_print.debug("Empty response from XBMC")
+        # log_print.debug_helper("Empty response from XBMC")
         return {}
     else:
-        log_print.debug("Response from XBMC: %s" % jsonraw)
+        # log_print.debug_helper("Response from XBMC: %s" % jsonraw)
         parsed=json.loads(jsonraw)
     if parsed.get('error', False):
         print "XBMC returned an error: %s" % parsed.get('error')
@@ -114,7 +114,7 @@ def getPlexHeaders():
       "X-Plex-Client-Identifier": settings.get_setting('client_id'),
       "X-Plex-Provides": "player",
       "X-Plex-Product": "PleXBMC",
-      "X-Plex-Device-Name": settings.get_setting('client_name'),
+      "X-Plex-Device-Name": settings.get_setting('devicename'),
       "X-Plex-Platform": "XBMC",
       "X-Plex-Model": get_platform(),
       "X-Plex-Device": "PC",
@@ -125,8 +125,7 @@ def getPlexHeaders():
 
 def getServerByHost(host):
     validate, list = helper_cache.check_cache(helper_cache_name)
-    log_print.debug("Helper has loaded p server list:")
-    print list
+    log_print.debug_helper("Helper has loaded a server list:")
     if len(list) == 1:
         return list[0]
     for server in list:

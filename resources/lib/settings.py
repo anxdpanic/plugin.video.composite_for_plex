@@ -6,7 +6,7 @@ import xbmc
 class AddonSettings:
 
     def __init__(self, name):
-        print "PleXBMC -> Reading settings configuration"
+        print "PleXBMC.setting -> Reading settings configuration"
         self.settings = xbmcaddon.Addon(name)
         self.stream = self.settings.getSetting('streaming')
 
@@ -14,7 +14,7 @@ class AddonSettings:
         try:
             self.kodi_settings = parse(xbmc.translatePath('special://userdata/guisettings.xml'))
         except:
-            print "Unable to read KODI's guisettings.xml"
+            print "PleXBMC.setting -> Unable to read KODI's guisettings.xml"
 
     def open_settings(self):
         return self.settings.openSettings()
@@ -23,7 +23,7 @@ class AddonSettings:
         value = self.settings.getSetting(name)
 
         if value is None or value == '':
-            print "setting: %s is : %s" % (name, value)
+            print "PleXBMC.setting -> setting: %s is : %s" % (name, value)
 
         if value == "true":
             return True

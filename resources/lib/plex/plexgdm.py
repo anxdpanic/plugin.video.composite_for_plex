@@ -35,7 +35,7 @@ __author__ = 'DHJ (hippojay) <plex@h-jay.com>'
 
 class PlexGDM:
 
-    def __init__(self, debug=0, interface = None):
+    def __init__(self, interface=None):
 
         self.discover_message = 'M-SEARCH * HTTP/1.0'
         self.client_header = '* HTTP/1.0'
@@ -57,7 +57,6 @@ class PlexGDM:
 
         self.discovery_complete = False
         self.client_registered = False
-        self.debug = debug
         self.__log_print = PrintDebug("PleXBMC", "PlexGDM")
 
     def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
@@ -87,7 +86,7 @@ class PlexGDM:
             return    
 
         update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
-        status = update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(self._multicast_address) + socket.inet_aton('0.0.0.0'))
+        update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(self._multicast_address) + socket.inet_aton('0.0.0.0'))
         update_sock.setblocking(0)
         self.__log_print.debugplus("Sending registration data: HELLO %s\n%s" % (self.client_header, self.client_data))
 
@@ -95,31 +94,31 @@ class PlexGDM:
         try:
             update_sock.sendto("HELLO %s\n%s" % (self.client_header, self.client_data), self.client_register_group)
         except:
-            self.__log_print.debug("Error: Unable to send registration message")
+            self.__log_print.debug_helper("Error: Unable to send registration message")
 
         # Now, listen for client discovery requests and respond.
         while self._registration_is_running:
             try:
                 data, addr = update_sock.recvfrom(1024)
-                self.__log_print.debugplus("Received UDP packet from [%s] containing [%s]" % (addr, data.strip()))
+                self.__log_print.debug_helper("Received UDP packet from [%s] containing [%s]" % (addr, data.strip()))
             except socket.error, e:
                 pass
             else:
                 if "M-SEARCH * HTTP/1." in data:
-                    self.__log_print.debugplus("Detected client discovery request from %s.  Replying" % addr)
+                    self.__log_print.debug_helper("Detected client discovery request from %s.  Replying" % str(addr))
                     try:
                         update_sock.sendto("HTTP/1.0 200 OK\n%s" % self.client_data, addr)
                     except:
-                        self.__log_print.debug("Error: Unable to send client update message")
+                        self.__log_print.debug_helper("Error: Unable to send client update message")
 
-                    self.__log_print.debug("Sending registration data: HTTP/1.0 200 OK\n%s" % self.client_data)
+                    self.__log_print.debug_helper("Sending registration data: HTTP/1.0 200 OK\n%s" % self.client_data)
                     self.client_registered = True
             time.sleep(0.5)        
 
-        self.__log_print.debug("Client Update loop stopped")
+        self.__log_print.debug_helper("Client Update loop stopped")
 
         # When we are finished, then send a final goodbye message to de-register cleanly.
-        self.__log_print.debug("Sending registration data: BYE %s\n%s" % (self.client_header, self.client_data))
+        self.__log_print.debug_helper("Sending registration data: BYE %s\n%s" % (self.client_header, self.client_data))
         try:
             update_sock.sendto("BYE %s\n%s" % (self.client_header, self.client_data), self.client_register_group)
         except:
@@ -132,26 +131,26 @@ class PlexGDM:
         if self.client_registered and self.discovery_complete:
 
             if not self.server_list:
-                self.__log_print.warn("Server list is empty. Unable to check")
+                self.__log_print.debug_helper("Server list is empty. Unable to check")
                 return False
 
             try:
                 media_server = self.server_list[0]['server']
                 media_port = self.server_list[0]['port']
 
-                self.__log_print.debug("Checking server [%s] on port [%s]" % (media_server, media_port))
+                self.__log_print.debug_helper("Checking server [%s] on port [%s]" % (media_server, media_port))
                 f = urllib2.urlopen('http://%s:%s/clients' % (media_server, media_port))
                 client_result = f.read()
                 if self.client_id in client_result:
-                    self.__log_print.debug("Client registration successful")
-                    self.__log_print.debugplus("Client data is: %s" % client_result)
+                    self.__log_print.debug_helper("Client registration successful")
+                    self.__log_print.debug_helper("Client data is: %s" % client_result)
                     return True
                 else:
-                    self.__log_print.debug("Client registration not found")
-                    self.__log_print.debugplus("Client data is: %s" % client_result)
+                    self.__log_print.debug_helper("Client registration not found")
+                    self.__log_print.debug_helper("Client data is: %s" % client_result)
 
             except:
-                self.__log_print.debug("Unable to check status")
+                self.__log_print.debug_helper("Unable to check status")
                 pass
 
         return False
@@ -175,15 +174,15 @@ class PlexGDM:
         return_data = []
         try:
             # Send data to the multicast group
-            self.__log_print.debug("Sending discovery messages: %s" % self.discover_message)
+            self.__log_print.debug_helper("Sending discovery messages: %s" % self.discover_message)
             sent = sock.sendto(self.discover_message, self.discover_group)
 
             # Look for responses from all recipients
             while True:
                 try:
                     data, server = sock.recvfrom(1024)
-                    self.__log_print.debug("Received data from %s, %s" % server)
-                    self.__log_print.debugplus("Data received is:\n %s" % data)
+                    self.__log_print.debug_helper("Received data from %s, %s" % server)
+                    self.__log_print.debug_helper("Data received is:\n %s" % data)
                     return_data.append({'from': server,
                                         'data': data})
                 except socket.timeout:
@@ -233,11 +232,11 @@ class PlexGDM:
         self.server_list = discovered_servers
 
         if not self.server_list:
-            self.__log_print.debug("No servers have been discovered")
+            self.__log_print.debug_helper("No servers have been discovered")
         else:
-            self.__log_print.debug("Number of servers Discovered: %s" % len(self.server_list))
+            self.__log_print.debug_helper("Number of servers Discovered: %s" % len(self.server_list))
             for items in self.server_list:
-                self.__log_print.debug("Server Discovered: %s" % items['serverName'])
+                self.__log_print.debug_helper("Server Discovered: %s" % items['serverName'])
 
     def setInterval(self, interval):
         self.discovery_interval = interval
