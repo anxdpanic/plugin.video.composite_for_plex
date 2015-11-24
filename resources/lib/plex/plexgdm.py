@@ -182,7 +182,7 @@ class PlexGDM:
             while True:
                 try:
                     data, server = sock.recvfrom(1024)
-                    self.__log_print.debug("Received data from %s" % server)
+                    self.__log_print.debug("Received data from %s, %s" % server)
                     self.__log_print.debugplus("Data received is:\n %s" % data)
                     return_data.append({'from': server,
                                         'data': data})
@@ -225,8 +225,10 @@ class PlexGDM:
                             update['version'] = each.split(':')[1].strip()
                         elif "Server-Class:" in each:
                             update['class'] = each.split(':')[1].strip()
+                        elif "Host:" in each:
+                            update['host'] = each.split(':')[1].strip()
 
-                discovered_servers.append(update)                    
+                discovered_servers.append(update)
 
         self.server_list = discovered_servers
 

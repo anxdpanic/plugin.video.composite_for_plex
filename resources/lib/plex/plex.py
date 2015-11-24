@@ -10,6 +10,7 @@ import requests
 from resources.lib.plex.plexserver import PlexMediaServer
 import urlparse
 import uuid
+import traceback
 
 log_print = PrintDebug("PleXBMC", "plex")
 DEFAULT_PORT = "32400"
@@ -312,6 +313,7 @@ class Plex:
                 gdm_server_name = gdm_client.getServerList()
             except Exception, e:
                 print "PleXBMC -> GDM Issue [%s]" % e
+                traceback.print_exc()
             else:
                 if gdm_client.discovery_complete and gdm_server_name:
                     log_print.info("GDM discovery completed")
@@ -519,33 +521,46 @@ class Plex:
 
         return token
 
-    def get_server_from_ip(self, ip):
-        log_print.debug("IP to lookup: %s" % ip)
+    def get_server_from_ip(self, uri):
+        log_print.debug("IP to lookup: %s" % uri)
 
-        if ':' in ip:
-            # We probably have an IP:port being passed
-            ip, port = ip.split(':')
+        if ':' in uri:
+            # We probably have an address:port being passed
+            uri, port = uri.split(':')
         else:
             port = 32400
 
-        if not is_ip(ip):
+        if is_ip(uri):
+            log_print.debug("IP address detected - passing through")
+        elif "plex.direct" in uri:
+            log_print.debug("Plex.direct name detected - attempting look up")
+
+            address = uri.split('.')[0]
+            clean_address = address.replace('-', '.')
+
+            if is_ip(clean_address):
+                uri = clean_address
+            else:
+                log_print.debug("Unable to clean plex.direct name")
+
+        else:
             try:
                 import socket
-                socket.gethostbyname(ip)
+                socket.gethostbyname(uri)
             except:
-                log_print.info("Unable to lookup hostname: %s and not an IP Address" % ip)
+                log_print.info("Unable to lookup hostname: %s" % uri)
                 return PlexMediaServer(name="dummy", address='127.0.0.1', port=32400, discovery='local')
 
         for server in self.server_list.values():
 
-            log_print.debug("[%s] - checking ip:%s against server ip %s" % (server.get_name(), ip, server.get_address()))
+            log_print.debug("[%s] - checking ip:%s against server ip %s" % (server.get_name(), uri, server.get_address()))
 
-            if server.find_address_match(ip, port):
+            if server.find_address_match(uri, port):
                 return server
 
-        log_print.info("Unable to translate - Returning new plexserver set to %s" % ip)
+        log_print.info("Unable to translate - Returning new plex server set to %s" % uri)
 
-        return PlexMediaServer(name="Unknown", address=ip, port=port, discovery='local')
+        return PlexMediaServer(name="Unknown", address=uri, port=port, discovery='local')
 
     def get_server_from_url(self, url):
         url_parts = urlparse.urlparse(url)
