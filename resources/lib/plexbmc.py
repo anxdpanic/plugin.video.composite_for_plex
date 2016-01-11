@@ -1116,10 +1116,10 @@ def play_playlist(server, data):
     return
 
 
-def play_library_media(vids, override=False, force=None, full_data=False, shelf=False):
+def play_library_media(vids, override=False, force=None, full_data=False, shelf=False, helper=False):
     
-    # assume widget if playback initiated from home
-    if xbmc.getCondVisibility("Window.IsActive(home)"): 
+    # assume widget if playback initiated from home and not launched by the helper
+    if not helper and xbmc.getCondVisibility("Window.IsActive(home)"): 
         shelf = True
         full_data = True
     
@@ -4172,6 +4172,7 @@ def start_plexbmc():
     param_identifier = params.get('identifier')
     param_indirect = params.get('indirect')
     force = params.get('force')
+    helper = True if int(params.get('helper', 0)) == 1 else False
 
     if command is None:
         try:
@@ -4359,7 +4360,7 @@ def start_plexbmc():
                 process_tvseasons(param_url)
 
             elif mode == MODE_PLAYLIBRARY:
-                play_library_media(param_url, force=force, override=play_transcode)
+                play_library_media(param_url, force=force, override=play_transcode, helper=helper)
 
             elif mode == MODE_PLAYSHELF:
                 play_library_media(param_url, full_data=True, shelf=True)

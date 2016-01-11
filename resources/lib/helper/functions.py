@@ -58,7 +58,7 @@ def jsonrpc(action, arguments = {}):
     elif action.lower() == "playmedia":
         fullurl=arguments[0]
         resume=arguments[1]
-        xbmc.Player().play("plugin://plugin.video.plexbmc/?mode=5&force="+resume+"&url="+fullurl)
+        xbmc.Player().play("plugin://plugin.video.plexbmc/?mode=5&force="+resume+"&url="+fullurl+"&helper=1")
         return True
     elif arguments:
         request=json.dumps({ "id" : 1,
