@@ -530,14 +530,14 @@ def process_movies(url, tree=None):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
 
-    xbmcplugin.addSortMethod(pluginhandle, 37)  # maintain original plex sorted
-    xbmcplugin.addSortMethod(pluginhandle, 25)  # video title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 19)  # date added
-    xbmcplugin.addSortMethod(pluginhandle, 3)   # date
-    xbmcplugin.addSortMethod(pluginhandle, 18)  # rating
-    xbmcplugin.addSortMethod(pluginhandle, 17)  # year
-    xbmcplugin.addSortMethod(pluginhandle, 29)  # runtime
-    xbmcplugin.addSortMethod(pluginhandle, 28)  # by MPAA
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATEADDED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RATING)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     # get the server name from the URL, which was passed via the on screen listing..
 
@@ -591,12 +591,12 @@ def build_context_menu(url, item_data, server):
 def process_tvshows(url, tree=None):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'tvshows')
-    xbmcplugin.addSortMethod(pluginhandle, 37 ) # maintain original plex sorted
-    xbmcplugin.addSortMethod(pluginhandle, 25 ) # video title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 3 )  # date
-    xbmcplugin.addSortMethod(pluginhandle, 18 ) # rating
-    xbmcplugin.addSortMethod(pluginhandle, 17 ) # year
-    xbmcplugin.addSortMethod(pluginhandle, 28 ) # by MPAA
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RATING)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     # Get the URL and server name.  Get the XML and parse
     tree = get_xml(url,tree)
@@ -791,18 +791,18 @@ def process_tvepisodes(url, tree=None):
 
     if tree.get('mixedParents') == '1':
         log_print.info('Setting plex sort')
-        xbmcplugin.addSortMethod(pluginhandle, 37 ) # maintain original plex sorted
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED ) # maintain original plex sorted
     else:
         log_print.info('Setting KODI sort')
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE )  # episode
 
-    xbmcplugin.addSortMethod(pluginhandle, 3 )  # date
-    xbmcplugin.addSortMethod(pluginhandle, 25 ) # video title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 19 )  # date added
-    xbmcplugin.addSortMethod(pluginhandle, 18 ) # rating
-    xbmcplugin.addSortMethod(pluginhandle, 17 ) # year
-    xbmcplugin.addSortMethod(pluginhandle, 29 ) # runtime
-    xbmcplugin.addSortMethod(pluginhandle, 28 ) # by MPAA    
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATEADDED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RATING)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     for episode in ShowTags:
 
@@ -1720,10 +1720,10 @@ def artist(url, tree=None):
     '''
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
-    xbmcplugin.addSortMethod(pluginhandle, 37 ) # maintain original plex sorted
-    xbmcplugin.addSortMethod(pluginhandle, 12 ) # artist title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 34 ) # last played
-    xbmcplugin.addSortMethod(pluginhandle, 17 ) # year
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LASTPLAYED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
 
     # Get the URL and server name.  Get the XML and parse
     tree=get_xml(url,tree)
@@ -1762,11 +1762,11 @@ def artist(url, tree=None):
 def albums(url, tree=None):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'albums')
-    xbmcplugin.addSortMethod(pluginhandle, 37 ) # maintain original plex sorted
-    xbmcplugin.addSortMethod(pluginhandle, 24 ) # album title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 12 )  # artist ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 34 ) # last played
-    xbmcplugin.addSortMethod(pluginhandle, 17 ) # year
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ALBUM_IGNORE_THE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LASTPLAYED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
 
     # Get the URL and server name.  Get the XML and parse
     tree=get_xml(url,tree)
@@ -1814,11 +1814,11 @@ def albums(url, tree=None):
 def tracks(url, tree=None):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
-    xbmcplugin.addSortMethod(pluginhandle, 37 ) # maintain original plex sorted
-    xbmcplugin.addSortMethod(pluginhandle, 10 ) # title title ignore THE
-    xbmcplugin.addSortMethod(pluginhandle, 8 ) # duration
-    xbmcplugin.addSortMethod(pluginhandle, 27 ) # song rating
-    xbmcplugin.addSortMethod(pluginhandle, 7 ) # track number
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DURATION)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_SONG_RATING)
+    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
 
     tree=get_xml(url,tree)
     if tree is None:
