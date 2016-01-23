@@ -628,7 +628,8 @@ def process_tvshows(url, tree=None):
                    'episode'   : int(show.get('leafCount', 0)),
                    'mpaa'      : show.get('contentRating', ''),
                    'aired'     : show.get('originallyAvailableAt', ''),
-                   'genre'     : " / ".join(tempgenre)}
+                   'genre'     : " / ".join(tempgenre),
+                   'mediatype' : "tvshow"}
 
         extraData = {'type'             : 'video',
                      'source'           : 'tvshows',
@@ -717,7 +718,9 @@ def process_tvseasons(url):
                    'season'    : 0,
                    'episode'   : int(season.get('leafCount', 0)),
                    'mpaa'      : season.get('contentRating', ''),
-                   'aired'     : season.get('originallyAvailableAt', '')}
+                   'aired'     : season.get('originallyAvailableAt', ''),
+                   'mediatype' : "season"
+               }
 
         if season.get('sorttitle'): details['sorttitle'] = season.get('sorttitle')
 
@@ -842,7 +845,8 @@ def process_tvepisodes(url, tree=None):
                  'episode'     : int(episode.get('index',0)) ,
                  'aired'       : episode.get('originallyAvailableAt','') ,
                  'tvshowtitle' : episode.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') ,
-                 'season'      : int(episode.get('parentIndex',tree.get('parentIndex',0))) }
+                 'season'      : int(episode.get('parentIndex',tree.get('parentIndex',0))) ,
+                 'mediatype'   : "episode"}
 
         if episode.get('sorttitle'):
             details['sorttitle'] = episode.get('sorttitle').encode('utf-8')
@@ -972,13 +976,15 @@ def get_audio_subtitles_from_media(server, tree, full=False):
                         'mpaa'      : timings.get('contentRating', '').encode('utf-8'),
                         'year'      : int(timings.get('year',0)) ,
                         'tagline'   : timings.get('tagline','') ,
-                        'thumbnailImage': get_thumb_image(timings,server) }
+                        'thumbnailImage': get_thumb_image(timings,server),
+                        'mediatype' : "video"}
 
             if timings.get('type') == "episode":
                 full_data['episode']     = int(timings.get('index',0)) 
                 full_data['aired']       = timings.get('originallyAvailableAt','') 
                 full_data['tvshowtitle'] = timings.get('grandparentTitle',tree.get('grandparentTitle','')).encode('utf-8') 
                 full_data['season']      = int(timings.get('parentIndex',tree.get('parentIndex',0))) 
+                full_data['mediatype']   = "episode"
 
         elif media_type == "music":
 
@@ -2112,7 +2118,8 @@ def movie_tag(url, server, tree, movie, random_number):
                'date'     : movie.get('originallyAvailableAt', '1970-01-01'),
                'premiered': movie.get('originallyAvailableAt', '1970-01-01'),
                'tagline'  : movie.get('tagline', ''),
-               'dateAdded': str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0))))}
+               'dateAdded': str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0)))),
+               'mediatype' : "movie"}
 
     # Extra data required to manage other properties
     extraData={'type'        : "Video",
