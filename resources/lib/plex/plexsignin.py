@@ -252,7 +252,8 @@ class PlexManage(pyxbmct.AddonFullWindow):
         self.email_field.setText(user['email'])
         self.plexpass_field.setText(user['plexpass'])
         self.membersince_field.setText(user['membersince'])
-        self.thumb.setImage(user['thumb'])
+        if user['thumb']:
+            self.thumb.setImage(user['thumb'])
 
     def set_authentication_target(self, plex_network):
         self.plex_network = plex_network
