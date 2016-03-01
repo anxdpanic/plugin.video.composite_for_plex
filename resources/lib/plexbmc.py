@@ -2878,6 +2878,7 @@ def amberskin():
                     sharedCount += 1
                     continue
                 window="Pictures"
+                mode=MODE_PHOTOS
                 WINDOW.setProperty("plexbmc.%d.year" % (sectionCount) , "ActivateWindow(%s,%s%s%s&mode=%s,return)" % (window, base_url, path, "/year", mode) )
                 
             else:
