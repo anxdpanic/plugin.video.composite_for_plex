@@ -86,7 +86,7 @@
 	<setting id="prefer_season_thumbs" type="bool" label="30106" visible="eq(-2,0) | eq(-2,2)" default="false" />
 	<setting id="movieShelf" type="bool" label="30082" visible="!eq(-2,3)" default="true" />
     <setting id="tvShelf" type="bool" label="30083" visible="!eq(-3,3)" default="true" />
-    <setting id="musicShelf" type="bool" label="30084" visible="!eq(-4,3)" default="true" />
+    <setting id="musichelf" type="bool" label="30084" visible="!eq(-4,3)" default="true" />
     <setting id="channelShelf" type="bool" label="30085" visible="!eq(-5,3)" default="true" />
     <setting id="contentFilter" type="labelenum" label="30086" visible="!eq(-6,3)" values="Kids|Teens|Adults" default="Adults" />
     <setting id="contentNone" type="labelenum" label="30087" visible="!eq(-7,3)" values="Kids|Teens|Adults" default="Adults" />
