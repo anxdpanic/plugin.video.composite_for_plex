@@ -3075,7 +3075,7 @@ def full_shelf(server_list={}):
     # Gather some data and set the window properties
     log_print.debug("== ENTER ==")
 
-    if settings.get_setting('homeshelf') == '3' or ( not settings.get_setting('movieShelf') and not settings.get_setting('tvShelf') and not settings.get_setting('musichelf')):
+    if settings.get_setting('homeshelf') == '3' or ( not settings.get_setting('movieShelf') and not settings.get_setting('tvShelf') and not settings.get_setting('musicShelf')):
         log_print.debug("Disabling all shelf items")
         clear_shelf()
         clear_ondeck_shelf()
@@ -3216,7 +3216,7 @@ def full_shelf(server_list={}):
 
         elif media.get('type') == "album":
 
-            if not settings.get_setting('musichelf'):
+            if not settings.get_setting('musicShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
                 continue
 
@@ -3436,7 +3436,7 @@ def shelf(server_list=None):
     # Gather some data and set the window properties
     log_print.debug("== ENTER ==")
 
-    if not (settings.get_setting('movieShelf') and settings.get_setting('tvShelf') and settings.get_setting('musichelf')) or settings.get_setting('homeshelf') == '3':
+    if not (settings.get_setting('movieShelf') and settings.get_setting('tvShelf') and settings.get_setting('musicShelf')) or settings.get_setting('homeshelf') == '3':
         log_print.debug("Disabling all shelf items")
         clear_shelf()
         return
@@ -3538,7 +3538,7 @@ def shelf(server_list=None):
 
         elif media.get('type') == "album":
 
-            if not settings.get_setting('musichelf'):
+            if not settings.get_setting('musicShelf'):
                 WINDOW.clearProperty("Plexbmc.LatestAlbum.1.Path" )
                 continue
 
