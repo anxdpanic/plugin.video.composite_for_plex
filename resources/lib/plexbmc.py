@@ -990,6 +990,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
         elif media_type == "music":
 
             full_data={'TrackNumber' : int(timings.get('index',0)) ,
+                       'discnumber'  : int(timings.get('parentIndex',0)) ,
                        'title'       : str(timings.get('index',0)).zfill(2)+". "+timings.get('title','Unknown').encode('utf-8') ,
                        'rating'      : float(timings.get('rating',0)) ,
                        'album'       : timings.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
@@ -2203,6 +2204,7 @@ def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True)
     log_print.debug( "Part is %s" % partDetails)
 
     details={'TrackNumber' : int(track.get('index',0)) ,
+             'discnumber'  : int(track.get('parentIndex',0)) ,
              'title'       : str(track.get('index',0)).zfill(2)+". "+track.get('title','Unknown').encode('utf-8') ,
              'rating'      : float(track.get('rating',0)) ,
              'album'       : track.get('parentTitle', tree.get('parentTitle','')).encode('utf-8') ,
