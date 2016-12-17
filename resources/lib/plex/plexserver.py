@@ -450,6 +450,9 @@ class PlexMediaServer:
         query_args = urlparse.parse_qsl(url_parts.query)
         query_args += options.items()
 
+        if self.token is not None:
+            query_args += { 'X-Plex-Token' : self.token }.items()
+
         new_query_args = urllib.urlencode(query_args, True)
 
         return "%s | %s" % (urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
