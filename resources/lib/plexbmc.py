@@ -238,7 +238,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if context is not None:
         if not folder and extra_data.get('type', 'video').lower() == "video":
             # Play Transcoded
-            context.insert(0, ('Play Transcoded', "XBMC.PlayMedia(%s&transcode=1)" % link_url, ))
+            context.insert(0, ('Riproduci con transcodifica', "XBMC.PlayMedia(%s&transcode=1)" % link_url, ))
             log_print.debug("Setting transcode options to [%s&transcode=1]" % link_url)
         log_print.debug("Building Context Menus")
         liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
@@ -576,13 +576,13 @@ def build_context_menu(url, item_data, server):
     item_id = item_data.get('ratingKey', '0')
 
     # Mark media unwatched
-    context.append(('Mark as Unwatched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append(('Mark as Watched', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
-    context.append(('Rescan library section', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section )))
-    context.append(('Delete media', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append(('Reload Section', 'RunScript(plugin.video.plexbmc, refresh)'))
-    context.append(('Select Audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append(('Select Subtitle', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append(('Cancella', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append(('Segna come non visto', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+    context.append(('Segna come visto', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
+    context.append(('Seleziona audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append(('Selezione sottotitolo', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append(('Riscansiona sezione libreria', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section )))
+    context.append(('Ricarica sezione', 'RunScript(plugin.video.plexbmc, refresh)'))
 
     log_print.debug("Using context menus: %s" % context)
 
@@ -1707,8 +1707,10 @@ def process_directory(url, tree=None):
 
     server = plex_network.get_server_from_url(url)
     set_window_heading(tree)
+    section=tree.get('title1')
     for directory in tree:
-        details={'title' : directory.get('title','Unknown').encode('utf-8') }
+        details={'title' : directory_item_translate(directory.get('title','Unknown').encode('utf-8'),section) }
+        #details={'title' : directory.get('title','Unknown').encode('utf-8') }
         extraData={'thumb'        : get_thumb_image(tree, server) ,
                    'fanart_image' : get_fanart_image(tree, server) }
 
@@ -1718,6 +1720,118 @@ def process_directory(url, tree=None):
         add_item_to_gui(u, details, extraData)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+
+
+def directory_item_translate(title,section):
+
+    translated_title = ""
+
+    if section == 'Serie TV':
+        if title == "All Shows":
+            translated_title = "Tutti gli spettacoli"
+        elif title == "Unwatched":
+            translated_title = "Da vedere"
+        elif title == "Recently Aired":
+            translated_title = "Trasmessi di recente"
+        elif title == 'Recently Added':
+            translated_title = "Aggiunti di recente"
+        elif title== 'Recently Viewed Episodes':
+            translated_title = "Episodi visti di recente"
+        elif title == 'Recently Viewed Shows':
+            translated_title = "Spettacoli visti di recente"
+        elif title =="On Deck":
+            translated_title = "In primo piano"
+        elif title =="By Collection":
+            translated_title = "Per collezione"
+        elif title =="By First Letter":
+            translated_title = "Per prima lettera"
+        elif title =="By Genre":
+            translated_title = "Per genere"
+        elif title =="By Year":
+            translated_title = "Per anno"
+        elif title =="By Content Rating":
+            translated_title = "Per classificazione"
+        elif title =="By Folder":
+            translated_title = "Per cartella"
+        elif title =="Search Shows...":
+            translated_title = "Cerca spettacoli..."
+        elif title =="Search Episodes...":
+            translated_title = "Cerca episodi..."
+        else:
+            translated_title = ""
+
+    if section == 'Musica':
+        if title == "All Artists":
+            translated_title = "Tutti gli artisti"
+        elif title == "By Album":
+            translated_title = "Per album vedere"
+        elif title == "By Genre":
+            translated_title = "Per genere"
+        elif title =="By Year":
+            translated_title = "Per anno"
+        elif title =="By Collection":
+            translated_title = "Per collezione"
+        elif title == 'Recently Added':
+            translated_title = "Aggiunti di recente"
+        elif title =="By Folder":
+            translated_title = "Per cartella"
+        elif title =="Search Artists...":
+            translated_title = "Cerca artisti..."
+        elif title =="Search Albums...":
+            translated_title = "Cerca album..."
+        elif title =="Search Tracks...":
+            translated_title = "Cerca tracce..."
+        else:
+            translated_title = ""
+
+    if section == 'Film' or section == 'Video' or section == 'Registrazioni':
+        if title == "All Film":
+            translated_title = "Tutti i film"
+        elif title == "All Registrazioni":
+            translated_title = "Tutti le registrazioni"
+        elif title == "All Video":
+            translated_title = "Tutti i video"
+        elif title == "Unwatched":
+            translated_title = "Da vedere"
+        elif title == "Recently Released":
+            translated_title = "Usciti di recente"
+        elif title == 'Recently Added':
+            translated_title = "Aggiunti di recente"
+        elif title== 'Recently Viewed':
+            translated_title = "Visti di recente"
+        elif title =="On Deck":
+            translated_title = "In primo piano"
+        elif title =="By Collection":
+            translated_title = "Per collezione"
+        elif title =="By Genre":
+            translated_title = "Per genere"
+        elif title =="By Year":
+            translated_title = "Per anno"
+        elif title =="By Decade":
+            translated_title = "Per decade"
+        elif title =="By Director":
+            translated_title = "Per regista"
+        elif title =="By Starring Actor":
+            translated_title = "Per attore principale"
+        elif title =="By Country":
+            translated_title = "Per paese"
+        elif title =="By Content Rating":
+            translated_title = "Per classificazione"
+        elif title =="By Rating":
+            translated_title = "Per votazione"
+        elif title =="By Resolution":
+            translated_title = "Per risoluzione"
+        elif title =="By First Letter":
+            translated_title = "Per prima lettera"
+        elif title =="By Folder":
+            translated_title = "Per cartella"
+        elif title =="Search...":
+            translated_title = "Cerca..."
+        else:
+            translated_title = ""
+
+    return translated_title
+
 
 
 def artist(url, tree=None):
