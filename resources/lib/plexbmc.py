@@ -1728,7 +1728,7 @@ def directory_item_translate(title,section):
 
     if section == 'Serie TV':
         if title == "All Shows":
-            translated_title = "Tutti le Serie TV"
+            translated_title = "Tutte le Serie TV"
         elif title == "Unwatched":
             translated_title = "Da vedere"
         elif title == "Recently Aired":
