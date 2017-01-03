@@ -1728,17 +1728,17 @@ def directory_item_translate(title,section):
 
     if section == 'Serie TV':
         if title == "All Shows":
-            translated_title = "Tutti gli spettacoli"
+            translated_title = "Tutti le Serie TV"
         elif title == "Unwatched":
             translated_title = "Da vedere"
         elif title == "Recently Aired":
-            translated_title = "Trasmessi di recente"
+            translated_title = "Trasmesse di recente"
         elif title == 'Recently Added':
-            translated_title = "Aggiunti di recente"
+            translated_title = "Aggiunte di recente"
         elif title== 'Recently Viewed Episodes':
             translated_title = "Episodi visti di recente"
         elif title == 'Recently Viewed Shows':
-            translated_title = "Spettacoli visti di recente"
+            translated_title = "Serie TV viste di recente"
         elif title =="On Deck":
             translated_title = "In primo piano"
         elif title =="By Collection":
@@ -1762,9 +1762,9 @@ def directory_item_translate(title,section):
 
     if section == 'Musica':
         if title == "All Artists":
-            translated_title = "Tutti gli artisti"
+            translated_title = "Tutti gli Artisti"
         elif title == "By Album":
-            translated_title = "Per album vedere"
+            translated_title = "Per album"
         elif title == "By Genre":
             translated_title = "Per genere"
         elif title =="By Year":
@@ -1786,11 +1786,11 @@ def directory_item_translate(title,section):
 
     if section == 'Film' or section == 'Video' or section == 'Registrazioni':
         if title == "All Film":
-            translated_title = "Tutti i film"
+            translated_title = "Tutti i Film"
         elif title == "All Registrazioni":
-            translated_title = "Tutti le registrazioni"
+            translated_title = "Tutti le Registrazioni"
         elif title == "All Video":
-            translated_title = "Tutti i video"
+            translated_title = "Tutti i Video"
         elif title == "Unwatched":
             translated_title = "Da vedere"
         elif title == "Recently Released":
