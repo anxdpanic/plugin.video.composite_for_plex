@@ -3124,6 +3124,7 @@ def amberskin():
                 log_print.debug("Found a queue item entry: [%s]" % (media.get('title', '').encode('UTF-8') , ))
                 m_url = "plugin://plugin.video.plexbmc?url=%s&mode=%s&indirect=%s" % (get_link_url(server_address.get_url_location(), media, server_address), 18, 1)
                 m_thumb = get_shelfthumb_image(media, server_address)
+                m_art = get_fanart_image(media, server_address)
 
                 try:
                     movie_runtime = str(int(float(media.get('duration'))/1000/60))
@@ -3135,6 +3136,7 @@ def amberskin():
                 WINDOW.setProperty("Plexbmc.Queue.%s.Year" % queue_count, media.get('originallyAvailableAt', '').encode('UTF-8'))
                 WINDOW.setProperty("Plexbmc.Queue.%s.Duration" % queue_count, movie_runtime)
                 WINDOW.setProperty("Plexbmc.Queue.%s.Thumb" % queue_count, m_thumb)
+                WINDOW.setProperty("Plexbmc.Queue.%s.Art" % queue_count, m_art)
 
                 queue_count += 1
 
@@ -3726,6 +3728,7 @@ def clear_shelf(movie_count=0, season_count=0, music_count=0, photo_count=0):
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Rating" % i)
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Duration" % i)
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Thumb" % i)
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Art" % i)
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.uuid" % i)
         log_print.debug("Done clearing movies")
     except:
@@ -3738,6 +3741,7 @@ def clear_shelf(movie_count=0, season_count=0, music_count=0, photo_count=0):
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % i)
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % i)
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Thumb" % i)
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Art" % i)
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.uuid" % i)
         log_print.debug("Done clearing tv")
     except:
@@ -3749,6 +3753,7 @@ def clear_shelf(movie_count=0, season_count=0, music_count=0, photo_count=0):
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Title" % i)
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Artist" % i)
             WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Thumb" % i)
+            WINDOW.clearProperty("Plexbmc.LatestAlbum.%s.Art" % i)
         log_print.debug("Done clearing music")
     except:
         pass
@@ -3775,6 +3780,7 @@ def clear_ondeck_shelf(movie_count=0, season_count=0):
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Path" % i)
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Title" % i)
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Thumb" % i)
+            gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Art" % i)
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Rating" % i)
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Duration" % i)
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Year" % i)
@@ -3790,6 +3796,7 @@ def clear_ondeck_shelf(movie_count=0, season_count=0):
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason" % i)
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle" % i)
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % i)
+            gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.Art" % i)
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.uuid" % i)
         log_print.debug("Done clearing On Deck tv")
     except:
@@ -3903,6 +3910,7 @@ def clear_shelf_queue(queue_count=0):
             gui_window.clearProperty("Plexbmc.Queue.%s.Path" % queue_number)
             gui_window.clearProperty("Plexbmc.Queue.%s.Title" % queue_number)
             gui_window.clearProperty("Plexbmc.Queue.%s.Thumb" % queue_number)
+            gui_window.clearProperty("Plexbmc.Queue.%s.Art" % queue_number)
         log_print.debug("Done clearing Queue shelf")
     except:
         pass
