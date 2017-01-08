@@ -430,7 +430,10 @@ def enforce_skin_view(mode):
                 '0': 'skin.quartz',
                 '1': 'skin.quartz3',
                 '3': 'skin.amber',
-                '4': 'skin.aeon.nox.5'}
+                '4': 'skin.aeon.nox.5',
+                '5': 'skin.blackglassnova',
+                '6': 'skin.chroma',
+                '7': 'skin.nebula'}
 
     if skin_map[skinname] not in current_skin_name:
         log_print.debug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
@@ -521,11 +524,41 @@ def enforce_skin_view(mode):
                       'Wall'      : 503,
                       'BigList'   : 510}
 
+    blackglassnova_views = {'List': 50,
+                      'Panel': 51,
+                      'Big List': 52,
+                      'Icons': 53,
+                      'Low List': 54,
+                      'Big Panel': 55,
+                      'Banner List': 56,
+                      'ShowCase': 59,
+                      'Card List': 5050}
+
+    chroma_views = {'List': 50,
+                      'Panel': 51,
+                      'Icons': 53,
+                      'Fanart': 54,
+                      'Banner List': 56,
+                      'ShowCase': 59,
+                      'Card List': 5050}
+
+    nebula_views = {'Big List': 50,
+                      'Slim List': 51,
+                      'List': 52,
+                      'Icons': 53,
+                      'Fanart': 54,
+                      'Banner List': 56,
+                      'ShowCase': 59,
+                      'Card List': 5050}
+
     skin_list = {"0": Quartz_views,
                  "1": QuartzV3_views,
                  "2": Confluence_views,
                  "3": Amber_views,
-                 "4": aeon_nox_views}
+                 "4": aeon_nox_views,
+                 "5": blackglassnova_views,
+                 "6": chroma_views,
+                 "7": nebula_views}
 
     log_print.debug("Using skin view: %s" % skin_list[skinname][viewname])
 
