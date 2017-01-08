@@ -3378,12 +3378,14 @@ def full_shelf(server_list={}):
             title_name=media.get('title','Unknown').encode('UTF-8')
             title_url="ActivateWindow(Pictures, plugin://plugin.video.plexbmc/?url=%s%s&mode=%s,return" % ( source_server.get_url_location(), "/recentlyAdded", MODE_PHOTOS)
             title_thumb = get_shelfthumb_image(media, source_server)
+            title_art = get_fanart_image(media,source_server)
 
             log_print.debug("Found a recent photo entry: [%s]" % title_name)
 
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Path" % recentPhotoCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Title" % recentPhotoCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Thumb" % recentPhotoCount, title_thumb)
+            WINDOW.setProperty("Plexbmc.LatestPhoto.%s.Art" % recentPhotoCount, title_art)
 
             recentPhotoCount += 1
 
