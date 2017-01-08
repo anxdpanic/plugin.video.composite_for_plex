@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-  <category label="30016"> <!-- Media Sources -->
-    <setting id="devicename" type="text" label="30102" default="My PleXBMC Client"/>
-    <setting id="discovery" type="enum" label="30004" lvalues="30094|30070" default="1"/>
-    <setting id="ipaddress" type="text" label="30000" default="localhost" visible="eq(-1,0)" enable="eq(-1,0)"/>
-    <setting id="port" type="text" label="30030" default="32400" visible="eq(-2,0)" enable="eq(-2,0)"/>
+  <category label="32516"> <!-- Media Sources -->
+    <setting id="devicename" type="text" label="32602" default="My PleXBMC Client"/>
+    <setting id="discovery" type="enum" label="32504" lvalues="32594|32570" default="1"/>
+    <setting id="ipaddress" type="text" label="32500" default="localhost" visible="eq(-1,0)" enable="eq(-1,0)"/>
+    <setting id="port" type="text" label="32530" default="32400" visible="eq(-2,0)" enable="eq(-2,0)"/>
     <!--<setting type="sep" />-->
-    <setting id="managemyplex" label="30105" type="action" action="RunScript(plugin.video.plexbmc, managemyplex)" option="close" />
-    <setting id="selectMaster" label="30026" type="action" action="RunScript(plugin.video.plexbmc, master)" />
-    <setting id="masterServer" label="30071" type="text" default="" />
+    <setting id="managemyplex" label="32605" type="action" action="RunScript(plugin.video.plexbmc, managemyplex)" option="close" />
+    <setting id="selectMaster" label="32526" type="action" action="RunScript(plugin.video.plexbmc, master)" />
+    <setting id="masterServer" label="32571" type="text" default="" />
     <setting id="client_id" type="text" visible="false" option="hidden" />
-	<setting id="wolon" type="bool" label="30023" default="false" />
+	<setting id="wolon" type="bool" label="32523" default="false" />
     <setting id="wol1" type="text" label="MAC Address 1" visible="eq(-1,true)" enable="eq(-1,true)" default="" />
     <setting id="wol2" type="text" label="MAC Address 2" visible="eq(-2,true)" enable="eq(-2,true)" default="" />
     <setting id="wol3" type="text" label="MAC Address 3" visible="eq(-3,true)" enable="eq(-3,true)" default="" />
@@ -22,92 +22,92 @@
     <setting id="wol9" type="text" label="MAC Address 9" visible="eq(-9,true)" enable="eq(-9,true)" default="" />
     <setting id="wol10" type="text" label="MAC Address 10" visible="eq(-10,true)" enable="eq(-10,true)" default="" />
     <setting id="wol11" type="text" label="MAC Address 11" visible="eq(-11,true)" enable="eq(-11,true)" default="" />
-    <setting id="use_xbmc_name" type="bool" label="Use XBMC client name?" default="true" />
+    <setting id="use_xbmc_name" type="bool" label="32608" default="true" />
  </category>
-  <category label="30017"> <!-- Playback -->
-    <setting id="streaming" type="enum" label="30001" lvalues="30011|30012|30013|30063" default="0"/>
-    <setting id="streamControl" type="enum" label="30038" lvalues="30036|30067|30039" default="1" />
-    <setting id="forcedvd" type="bool" label="30060" default="false"/>
-    <setting id="nasoverride" type="bool" label="30061" default="false"/>
-    <setting id="nasoverrideip" type="text" label="30062" default="" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)" />
-    <setting id="nasuserid" type="text" label="30064" default="" subsetting="true" visible="eq(-2,true)" enable="eq(-2,true)" />
-    <setting id="naspass" type="text" label="30065" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
-    <setting id="nasroot" type="text" label="30066" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)" />
-    <setting id="transcode" type="bool" label="30007" default="false"/>
-    <setting id="transcode_type" label="30101" type="labelenum" values="universal|legacy" default="0" />
-	<setting id="quality_uni" visible="eq(-1,0)" type="labelenum" label="30040" values="420x420, 320Kbps|576x320, 720Kbps|720x480, 1.5Mbps|1024x768, 2Mbps|1280x720, 3Mbps|1280x720, 4Mbps|1920x1080, 8Mbps|1920x1080, 10Mbps|1920x1080, 12Mbps|1920x1080, 20Mbps|1920x1080, 40Mbps|1920x1080, unlimited" />	
-	<setting id="quality_leg" visible="eq(-2,1)" type="enum" label="30040" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p" />
-    <setting id="subSize"  label="30068" type="slider" option="int" range="0,300" default="100" />
-    <setting id="audioSize"  label="30069" type="slider" option="int" range="0,300" default="0" />
-    <setting id="audiotype" visible="eq(-5,1)" type="enum" label="30057" values="Stereo|AC3|DTS" default="0" />
+  <category label="32517"> <!-- Playback -->
+    <setting id="streaming" type="enum" label="32501" lvalues="32511|32512|32513|32563" default="0"/>
+    <setting id="streamControl" type="enum" label="32538" lvalues="32536|32567|32539" default="1" />
+    <setting id="forcedvd" type="bool" label="32560" default="false"/>
+    <setting id="nasoverride" type="bool" label="32561" default="false"/>
+    <setting id="nasoverrideip" type="text" label="32562" default="" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)" />
+    <setting id="nasuserid" type="text" label="32564" default="" subsetting="true" visible="eq(-2,true)" enable="eq(-2,true)" />
+    <setting id="naspass" type="text" label="32565" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)" />
+    <setting id="nasroot" type="text" label="32566" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)" />
+    <setting id="transcode" type="bool" label="32507" default="false"/>
+    <setting id="transcode_type" label="32601" type="labelenum" values="universal|legacy" default="0" />
+	<setting id="quality_uni" visible="eq(-1,0)" type="labelenum" label="32540" values="420x420, 320Kbps|576x320, 720Kbps|720x480, 1.5Mbps|1024x768, 2Mbps|1280x720, 3Mbps|1280x720, 4Mbps|1920x1080, 8Mbps|1920x1080, 10Mbps|1920x1080, 12Mbps|1920x1080, 20Mbps|1920x1080, 40Mbps|1920x1080, unlimited" />	
+	<setting id="quality_leg" visible="eq(-2,1)" type="enum" label="32540" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p" />
+    <setting id="subSize"  label="32568" type="slider" option="int" range="0,325" default="100" />
+    <setting id="audioSize"  label="32569" type="slider" option="int" range="0,325" default="0" />
+    <setting id="audiotype" visible="eq(-5,1)" type="enum" label="32557" values="Stereo|AC3|DTS" default="0" />
   </category>
-  <category label="30020" > <!-- Look and feel -->
-    <setting id="secondary" type="bool" label="30003" default="true"/>
-    <setting id="channelview" type="bool" label="30042" default="false"/>
-    <setting id="flatten" type="enum" label="30043" lvalues="30053|30058|30059" default="0"/>
-    <setting id="disable_all_season" type="bool" label="30103" default="false"/>
-    <setting id="hide_shared" type="bool" label="30092" default="true"/>
-    <setting id="skinoverride" type="bool" label="30075" default="false" />
-    <setting id="skinname" type="enum" label="30076" values="Quartz|Quartz V3|Confluence|Amber|Aeon Nox 5" default="Confluence"  visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true" />
+  <category label="32520" > <!-- Look and feel -->
+    <setting id="secondary" type="bool" label="32503" default="true"/>
+    <setting id="channelview" type="bool" label="32542" default="false"/>
+    <setting id="flatten" type="enum" label="32543" lvalues="32553|32558|32559" default="0"/>
+    <setting id="disable_all_season" type="bool" label="32603" default="false"/>
+    <setting id="hide_shared" type="bool" label="32592" default="true"/>
+    <setting id="skinoverride" type="bool" label="32575" default="false" />
+    <setting id="skinname" type="enum" label="32576" values="Quartz|Quartz V3|Confluence|Amber|Aeon Nox 5" default="Confluence"  visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true" />
     <!--Quartz Skin-->
-    <setting id="mo_view_0" type="labelenum" label="30077" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
-    <setting id="tv_view_0" type="labelenum" label="30078" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-2,0)" enable="eq(-3,true)+eq(-2,0)"/>
-    <setting id="se_view_0" type="labelenum" label="30079" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-3,0)" enable="eq(-4,true)+eq(-3,0)"/>
-    <setting id="ep_view_0" type="labelenum" label="30080" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-4,0)" enable="eq(-5,true)+eq(-4,0)"/>
-    <setting id="mu_view_0" type="labelenum" label="30081" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-5,0)" enable="eq(-6,true)+eq(-5,0)"/>
+    <setting id="mo_view_0" type="labelenum" label="32577" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
+    <setting id="tv_view_0" type="labelenum" label="32578" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-2,0)" enable="eq(-3,true)+eq(-2,0)"/>
+    <setting id="se_view_0" type="labelenum" label="32579" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-3,0)" enable="eq(-4,true)+eq(-3,0)"/>
+    <setting id="ep_view_0" type="labelenum" label="32580" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-4,0)" enable="eq(-5,true)+eq(-4,0)"/>
+    <setting id="mu_view_0" type="labelenum" label="32581" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true"  visible="eq(-5,0)" enable="eq(-6,true)+eq(-5,0)"/>
     <!--Quartz V3 Skin-->
-    <setting id="mo_view_1" type="labelenum" label="30077" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true"  visible="eq(-7,true)+eq(-6,1)" enable="eq(-7,true)+eq(-6,1)"/>
-    <setting id="tv_view_1" type="labelenum" label="30078" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true"  visible="eq(-8,true)+eq(-7,1)" enable="eq(-8,true)+eq(-7,1)"/>
-    <setting id="se_view_1" type="labelenum" label="30079" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart 1|Fanart 2" default="None" subsetting="true"  visible="eq(-9,true)+eq(-8,1)" enable="eq(-9,true)+eq(-8,1)"/>
-    <setting id="ep_view_1" type="labelenum" label="30080" values="None|List|Big List|MediaInfo|MediaInfo 2|Icons|Panel|Wide|Fanart 3" default="None" subsetting="true"  visible="eq(-10,true)+eq(-9,1)" enable="eq(-10,true)+eq(-9,1)"/>
-    <setting id="mu_view_1" type="labelenum" label="30081" values="None|List|Icons|Fanart 3" default="None" subsetting="true"  visible="eq(-11,true)+eq(-10,1)" enable="eq(-11,true)+eq(-10,1)"/>
+    <setting id="mo_view_1" type="labelenum" label="32577" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true"  visible="eq(-7,true)+eq(-6,1)" enable="eq(-7,true)+eq(-6,1)"/>
+    <setting id="tv_view_1" type="labelenum" label="32578" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true"  visible="eq(-8,true)+eq(-7,1)" enable="eq(-8,true)+eq(-7,1)"/>
+    <setting id="se_view_1" type="labelenum" label="32579" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart 1|Fanart 2" default="None" subsetting="true"  visible="eq(-9,true)+eq(-8,1)" enable="eq(-9,true)+eq(-8,1)"/>
+    <setting id="ep_view_1" type="labelenum" label="32580" values="None|List|Big List|MediaInfo|MediaInfo 2|Icons|Panel|Wide|Fanart 3" default="None" subsetting="true"  visible="eq(-10,true)+eq(-9,1)" enable="eq(-10,true)+eq(-9,1)"/>
+    <setting id="mu_view_1" type="labelenum" label="32581" values="None|List|Icons|Fanart 3" default="None" subsetting="true"  visible="eq(-11,true)+eq(-10,1)" enable="eq(-11,true)+eq(-10,1)"/>
     <!--Confluence Skin-->
-    <setting id="mo_view_2" type="labelenum" label="30077" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-12,true)+eq(-11,2)" enable="eq(-12,true)+eq(-11,2)"/>
-    <setting id="tv_view_2" type="labelenum" label="30078" values="None|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3|Wide Icons" default="None" subsetting="true"  visible="eq(-13,true)+eq(-12,2)" enable="eq(-13,true)+eq(-12,2)"/>
-    <setting id="se_view_2" type="labelenum" label="30079" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-14,true)+eq(-13,2)" enable="eq(-14,true)+eq(-13,2)"/>
-    <setting id="ep_view_2" type="labelenum" label="30080" values="None|List|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-15,true)+eq(-14,2)" enable="eq(-15,true)+eq(-14,2)"/>
-    <setting id="mu_view_2" type="labelenum" label="30081" values="None|List|Big List|Thumbnail|Media Info" default="None" subsetting="true"  visible="eq(-16,true)+eq(-15,2)" enable="eq(-16,true)+eq(-15,2)"/>
+    <setting id="mo_view_2" type="labelenum" label="32577" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-12,true)+eq(-11,2)" enable="eq(-12,true)+eq(-11,2)"/>
+    <setting id="tv_view_2" type="labelenum" label="32578" values="None|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3|Wide Icons" default="None" subsetting="true"  visible="eq(-13,true)+eq(-12,2)" enable="eq(-13,true)+eq(-12,2)"/>
+    <setting id="se_view_2" type="labelenum" label="32579" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-14,true)+eq(-13,2)" enable="eq(-14,true)+eq(-13,2)"/>
+    <setting id="ep_view_2" type="labelenum" label="32580" values="None|List|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true"  visible="eq(-15,true)+eq(-14,2)" enable="eq(-15,true)+eq(-14,2)"/>
+    <setting id="mu_view_2" type="labelenum" label="32581" values="None|List|Big List|Thumbnail|Media Info" default="None" subsetting="true"  visible="eq(-16,true)+eq(-15,2)" enable="eq(-16,true)+eq(-15,2)"/>
     <!--Amber Skin-->
-    <setting id="mo_view_3" type="labelenum" label="30077" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-17,true)+eq(-16,3)" enable="eq(-17,true)+eq(-16,3)"/>
-    <setting id="tv_view_3" type="labelenum" label="30078" values="None|List|Banner List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-18,true)+eq(-17,3)" enable="eq(-18,true)+eq(-17,3)"/>
-    <setting id="se_view_3" type="labelenum" label="30079" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-19,true)+eq(-18,3)" enable="eq(-19,true)+eq(-18,3)"/>
-    <setting id="ep_view_3" type="labelenum" label="30080" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-20,true)+eq(-19,3)" enable="eq(-20,true)+eq(-19,3)"/>
-    <setting id="mu_view_3" type="labelenum" label="30081" values="None|List|Big List|Panel|Low List|Icons|Fanart" default="None" subsetting="true"  visible="eq(-21,true)+eq(-20,3)" enable="eq(-21,true)+eq(-20,3)"/>
+    <setting id="mo_view_3" type="labelenum" label="32577" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-17,true)+eq(-16,3)" enable="eq(-17,true)+eq(-16,3)"/>
+    <setting id="tv_view_3" type="labelenum" label="32578" values="None|List|Banner List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-18,true)+eq(-17,3)" enable="eq(-18,true)+eq(-17,3)"/>
+    <setting id="se_view_3" type="labelenum" label="32579" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-19,true)+eq(-18,3)" enable="eq(-19,true)+eq(-18,3)"/>
+    <setting id="ep_view_3" type="labelenum" label="32580" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true"  visible="eq(-20,true)+eq(-19,3)" enable="eq(-20,true)+eq(-19,3)"/>
+    <setting id="mu_view_3" type="labelenum" label="32581" values="None|List|Big List|Panel|Low List|Icons|Fanart" default="None" subsetting="true"  visible="eq(-21,true)+eq(-20,3)" enable="eq(-21,true)+eq(-20,3)"/>
     <!--Aeon Nox 5 Skin-->
-    <setting id="mo_view_4" type="labelenum" label="30077" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-22,true)+eq(-21,4)" enable="eq(-22,true)+eq(-21,4)"/>
-    <setting id="tv_view_4" type="labelenum" label="30078" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-23,true)+eq(-22,4)" enable="eq(-23,true)+eq(-22,4)"/>
-    <setting id="se_view_4" type="labelenum" label="30079" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-24,true)+eq(-23,4)" enable="eq(-24,true)+eq(-23,4)"/>
-    <setting id="ep_view_4" type="labelenum" label="30080" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-25,true)+eq(-24,4)" enable="eq(-25,true)+eq(-24,4)"/>
-    <setting id="mu_view_4" type="labelenum" label="30081" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-26,true)+eq(-25,4)" enable="eq(-26,true)+eq(-25,4)"/>
+    <setting id="mo_view_4" type="labelenum" label="32577" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-22,true)+eq(-21,4)" enable="eq(-22,true)+eq(-21,4)"/>
+    <setting id="tv_view_4" type="labelenum" label="32578" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-23,true)+eq(-22,4)" enable="eq(-23,true)+eq(-22,4)"/>
+    <setting id="se_view_4" type="labelenum" label="32579" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-24,true)+eq(-23,4)" enable="eq(-24,true)+eq(-23,4)"/>
+    <setting id="ep_view_4" type="labelenum" label="32580" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-25,true)+eq(-24,4)" enable="eq(-25,true)+eq(-24,4)"/>
+    <setting id="mu_view_4" type="labelenum" label="32581" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true"  visible="eq(-26,true)+eq(-25,4)" enable="eq(-26,true)+eq(-25,4)"/>
   </category>
-  <category label="30021" > <!-- Shelf -->
-    <setting id="homeshelf" type="enum" label="30072" lvalues="30073|30074|30009|30053" default="2" />
-	<setting id="hide_watched_recent_items" type="bool" label="30097" visible="eq(-1,0) | eq(-1,2)" default="false" />
-	<setting id="prefer_season_thumbs" type="bool" label="30106" visible="eq(-2,0) | eq(-2,2)" default="false" />
-	<setting id="movieShelf" type="bool" label="30082" visible="!eq(-2,3)" default="true" />
-    <setting id="tvShelf" type="bool" label="30083" visible="!eq(-3,3)" default="true" />
-    <setting id="musicShelf" type="bool" label="30084" visible="!eq(-4,3)" default="true" />
-    <setting id="channelShelf" type="bool" label="30085" visible="!eq(-5,3)" default="true" />
-    <setting id="contentFilter" type="labelenum" label="30086" visible="!eq(-6,3)" values="Kids|Teens|Adults" default="Adults" />
-    <setting id="contentNone" type="labelenum" label="30087" visible="!eq(-7,3)" values="Kids|Teens|Adults" default="Adults" />
+  <category label="32521" > <!-- Shelf -->
+    <setting id="homeshelf" type="enum" label="32572" lvalues="32573|32574|32509|32553" default="2" />
+	<setting id="hide_watched_recent_items" type="bool" label="32597" visible="eq(-1,0) | eq(-1,2)" default="false" />
+	<setting id="prefer_season_thumbs" type="bool" label="32606" visible="eq(-2,0) | eq(-2,2)" default="false" />
+	<setting id="movieShelf" type="bool" label="32582" visible="!eq(-2,3)" default="true" />
+    <setting id="tvShelf" type="bool" label="32583" visible="!eq(-3,3)" default="true" />
+    <setting id="musicShelf" type="bool" label="32584" visible="!eq(-4,3)" default="true" />
+    <setting id="channelShelf" type="bool" label="32585" visible="!eq(-5,3)" default="true" />
+    <setting id="contentFilter" type="enum" label="32586" visible="!eq(-6,3)" lvalues="32589|32590|32591" default="2" />
+    <setting id="contentNone" type="enum" label="32587" visible="!eq(-7,3)" lvalues="32589|32590|32591" default="2" />
   </category>
-  <category label="30022" > <!-- advanced -->
-    <setting id="libraryfilter" type="text" label="30088" default="" />
-    <setting id="monitoroff" type="bool" label="Switch off playback monitor" default="false" />
-	<setting id="fullres_thumbs" type="bool" label="30095" default="false" />
-	<setting id="fullres_fanart" type="bool" label="30096" default="true" />
-	<setting id="contextreplace" type="bool" label="30048" default="false"/>
-    <setting id="skipcontextmenus" type="bool" label="30052" default="false" />
-    <setting id="skipmetadata" type="bool" label="30049" default="false" />
-    <setting id="skipimages" type="bool"  label="30050" default="false" />
-    <setting id="skipflags" type="bool"  label="30051" default="false" />
+  <category label="32522" > <!-- advanced -->
+    <setting id="libraryfilter" type="bool" label="32588" default="false" />
+    <setting id="monitoroff" type="bool" label="32609" default="false" />
+	<setting id="fullres_thumbs" type="bool" label="32595" default="false" />
+	<setting id="fullres_fanart" type="bool" label="32596" default="true" />
+	<setting id="contextreplace" type="bool" label="32548" default="false"/>
+    <setting id="skipcontextmenus" type="bool" label="32552" default="false" />
+    <setting id="skipmetadata" type="bool" label="32549" default="false" />
+    <setting id="skipimages" type="bool"  label="32550" default="false" />
+    <setting id="skipflags" type="bool"  label="32551" default="false" />
   </category>
-  <category label="30010" > <!-- debug -->
-  	<setting id="debug" type="enum" label="30014" lvalues="30053|30098|30099|30100|30108" default="0" />
-	<setting id="cache" type="bool" label="30093" default="true" />
-	<setting id="kodicache" type="bool" label="30104" default="false" />
+  <category label="32510" > <!-- debug -->
+  	<setting id="debug" type="enum" label="32514" lvalues="32553|32598|32599|32600|32608" default="0" />
+	<setting id="cache" type="bool" label="32593" default="true" />
+	<setting id="kodicache" type="bool" label="32604" default="false" />
     <setting type="sep"/>
-    <setting id="privacy" type="bool" label="30107" default="true" />
+    <setting id="privacy" type="bool" label="32607" default="true" />
     <setting id="restart_webserver" type="bool" label="Replacement" visible="false" default="false" />
   </category>
 </settings>

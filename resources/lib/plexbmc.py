@@ -27,19 +27,29 @@
 import urllib
 import urlparse
 import re
-import xbmcplugin
-import xbmcgui
+import xbmcplugin, xbmcgui, xbmc, xbmcaddon, xbmcvfs
 import httplib
 import socket
 import sys
 import os
 import time
 import random
-import xbmc
 import datetime
 from resources.lib.common import *  # Needed first to setup import locations
 from resources.lib.plex import plex
 
+ADDON = xbmcaddon.Addon()
+ADDON_ID = ADDON.getAddonInfo('id').decode("utf-8")
+ADDON_ICON = ADDON.getAddonInfo('icon').decode("utf-8")
+ADDON_NAME = ADDON.getAddonInfo('name').decode("utf-8")
+ADDON_PATH = ADDON.getAddonInfo('path').decode("utf-8")
+ADDON_VERSION = ADDON.getAddonInfo('version').decode("utf-8")
+ADDON_DATA_PATH = xbmc.translatePath("special://profile/addon_data/%s" % ADDON_ID).decode("utf-8")
+KODI_VERSION  = int(xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0])
+WINDOW = xbmcgui.Window(10000)
+SETTING = ADDON.getSetting
+KODILANGUAGE = xbmc.getLanguage(xbmc.ISO_639_1)
+sys.path.append(xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'lib')).decode('utf-8'))
 
 def select_media_type(part_data, server, dvdplayback=False):
     stream = part_data['key']
@@ -321,7 +331,7 @@ def display_sections(filter=None, display_shared=False):
 
     # For each of the servers we have identified            
     if plex_network.is_myplex_signedin():
-        add_item_to_gui('http://myplexqueue', {'title': 'myplex Queue'}, {'type': 'Video', 'mode': MODE_MYPLEXQUEUE})
+        add_item_to_gui('http://myplexqueue', {'title': ADDON.getLocalizedString(32080)}, {'type': 'Video', 'mode': MODE_MYPLEXQUEUE})
 
     for server in server_list:
 
@@ -337,7 +347,7 @@ def display_sections(filter=None, display_shared=False):
         else:
             prefix = ""
 
-        details = {'title': prefix+"Channels"}
+        details = {'title': prefix + ADDON.getLocalizedString(32084)}
         extra_data = {'type': "Video"}
 
         extra_data['mode'] = MODE_CHANNELVIEW
@@ -353,7 +363,7 @@ def display_sections(filter=None, display_shared=False):
         add_item_to_gui(u, details, extra_data)
 
         # create playlist link
-        details['title'] = prefix+"Playlists"
+        details['title'] = prefix + ADDON.getLocalizedString(32085)
         extra_data['type'] = "file"
         extra_data['mode'] = MODE_PLAYLISTS
 
@@ -363,31 +373,31 @@ def display_sections(filter=None, display_shared=False):
     if plex_network.is_myplex_signedin():
 
         if plex_network.is_plexhome_enabled():
-            details = {'title': "Switch User"}
+            details = {'title': ADDON.getLocalizedString(32076)}
             extra_data = {'type': 'file'}
 
             u = "cmd:switchuser"
             add_item_to_gui(u, details, extra_data)
 
-        details = {'title': "Sign Out"}
+        details = {'title': ADDON.getLocalizedString(32006)}
         extra_data = {'type': 'file'}
 
         u = "cmd:signout"
         add_item_to_gui(u, details, extra_data)
     else:
-        details = {'title': "Sign In"}
+        details = {'title': ADDON.getLocalizedString(32081)}
         extra_data = {'type': 'file'}
 
         u = "cmd:signintemp"
         add_item_to_gui(u, details, extra_data)
 
-    details = {'title': "Display servers"}
+    details = {'title': ADDON.getLocalizedString(32082)}
     extra_data = {'type': 'file'}
     data_url = "cmd:displayservers"
     add_item_to_gui(data_url, details, extra_data)
 
     if settings.get_setting('cache'):
-        details = {'title': "Refresh Data"}
+        details = {'title': ADDON.getLocalizedString(32083)}
         extra_data = {'type': "file",
                       'mode': MODE_DELETE_REFRESH}
 
@@ -1185,9 +1195,9 @@ def play_library_media(vids, override=False, force=None, full_data=False, shelf=
     if not resume == 0 and shelf:
         log_print.debug("Shelf playback: display resume dialog")
         displayTime = str(datetime.timedelta(seconds=resume))
-        display_list = [ "Resume from %s" % displayTime , "Start from beginning"]
+        display_list = [ ADDON.getLocalizedString(32078) + " %s" % displayTime , ADDON.getLocalizedString(32079)]
         resumeScreen = xbmcgui.Dialog()
-        result = resumeScreen.select('Resume',display_list)
+        result = resumeScreen.select(ADDON.getLocalizedString(32070),display_list)
         if result == -1:
             return False
 
@@ -1355,7 +1365,7 @@ def select_media_to_play(data, server):
 
         log_print.debug("Create selection dialog box - we have a decision to make!")
         startTime = xbmcgui.Dialog()
-        result = startTime.select('Select media to play',dialogOptions)
+        result = startTime.select(ADDON.getLocalizedString(32071),dialogOptions)
         if result == -1:
             return None
 
@@ -1704,13 +1714,12 @@ def process_directory(url, tree=None):
     log_print.debug("== ENTER ==")
     log_print.debug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, "")
-
     server = plex_network.get_server_from_url(url)
     set_window_heading(tree)
-    section=tree.get('title1')
+    thumb=tree.get('thumb')
     for directory in tree:
-        details={'title' : directory_item_translate(directory.get('title','Unknown').encode('utf-8'),section) }
-        #details={'title' : directory.get('title','Unknown').encode('utf-8') }
+        # log_print.info("TITLE: %s" % directory.get('title','Unknown').encode('utf-8'))
+        details={'title' : directory_item_translate(directory.get('title','Unknown').encode('utf-8'),thumb) }
         extraData={'thumb'        : get_thumb_image(tree, server) ,
                    'fanart_image' : get_fanart_image(tree, server) }
 
@@ -1722,113 +1731,123 @@ def process_directory(url, tree=None):
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
-def directory_item_translate(title,section):
+def directory_item_translate(title,thumb):
 
-    translated_title = ""
+    translated_title = title
 
-    if section == 'Serie TV':
+    if thumb.endswith("show.png"):
         if title == "All Shows":
-            translated_title = "Tutte le Serie TV"
+            translated_title = ADDON.getLocalizedString(32013)
         elif title == "Unwatched":
-            translated_title = "Da vedere"
+            translated_title = ADDON.getLocalizedString(32014)
         elif title == "Recently Aired":
-            translated_title = "Trasmesse di recente"
+            translated_title = ADDON.getLocalizedString(32015)
         elif title == 'Recently Added':
-            translated_title = "Aggiunte di recente"
+            translated_title = ADDON.getLocalizedString(32016)
         elif title== 'Recently Viewed Episodes':
-            translated_title = "Episodi visti di recente"
+            translated_title = ADDON.getLocalizedString(32017)
         elif title == 'Recently Viewed Shows':
-            translated_title = "Serie TV viste di recente"
+            translated_title = ADDON.getLocalizedString(32018)
         elif title =="On Deck":
-            translated_title = "In primo piano"
+            translated_title = ADDON.getLocalizedString(32019)
         elif title =="By Collection":
-            translated_title = "Per collezione"
+            translated_title = ADDON.getLocalizedString(32020)
         elif title =="By First Letter":
-            translated_title = "Per prima lettera"
+            translated_title = ADDON.getLocalizedString(32021)
         elif title =="By Genre":
-            translated_title = "Per genere"
+            translated_title = ADDON.getLocalizedString(32022)
         elif title =="By Year":
-            translated_title = "Per anno"
+            translated_title = ADDON.getLocalizedString(32023)
         elif title =="By Content Rating":
-            translated_title = "Per classificazione"
+            translated_title = ADDON.getLocalizedString(32024)
         elif title =="By Folder":
-            translated_title = "Per cartella"
+            translated_title = ADDON.getLocalizedString(32025)
         elif title =="Search Shows...":
-            translated_title = "Cerca spettacoli..."
+            translated_title = ADDON.getLocalizedString(32026)
         elif title =="Search Episodes...":
-            translated_title = "Cerca episodi..."
-        else:
-            translated_title = ""
+            translated_title = ADDON.getLocalizedString(32027)
 
-    if section == 'Musica':
+    if thumb.endswith("artist.png"):
         if title == "All Artists":
-            translated_title = "Tutti gli Artisti"
+            translated_title = ADDON.getLocalizedString(32028)
         elif title == "By Album":
-            translated_title = "Per album"
+            translated_title = ADDON.getLocalizedString(32029)
         elif title == "By Genre":
-            translated_title = "Per genere"
+            translated_title = ADDON.getLocalizedString(32030)
         elif title =="By Year":
-            translated_title = "Per anno"
+            translated_title = ADDON.getLocalizedString(32031)
         elif title =="By Collection":
-            translated_title = "Per collezione"
+            translated_title = ADDON.getLocalizedString(32032)
         elif title == 'Recently Added':
-            translated_title = "Aggiunti di recente"
+            translated_title = ADDON.getLocalizedString(32033)
         elif title =="By Folder":
-            translated_title = "Per cartella"
+            translated_title = ADDON.getLocalizedString(32034)
         elif title =="Search Artists...":
-            translated_title = "Cerca artisti..."
+            translated_title = ADDON.getLocalizedString(32035)
         elif title =="Search Albums...":
-            translated_title = "Cerca album..."
+            translated_title = ADDON.getLocalizedString(32036)
         elif title =="Search Tracks...":
-            translated_title = "Cerca tracce..."
-        else:
-            translated_title = ""
+            translated_title = ADDON.getLocalizedString(32037)
 
-    if section == 'Film' or section == 'Video' or section == 'Registrazioni':
-        if title == "All Film":
-            translated_title = "Tutti i Film"
-        elif title == "All Registrazioni":
-            translated_title = "Tutti le Registrazioni"
-        elif title == "All Video":
-            translated_title = "Tutti i Video"
+    if thumb.endswith("movie.png") or thumb.endswith("video.png"):
+        if title.startswith("All "):
+            translated_title = ADDON.getLocalizedString(32038)
         elif title == "Unwatched":
-            translated_title = "Da vedere"
+            translated_title = ADDON.getLocalizedString(32039)
         elif title == "Recently Released":
-            translated_title = "Usciti di recente"
+            translated_title = ADDON.getLocalizedString(32040)
         elif title == 'Recently Added':
-            translated_title = "Aggiunti di recente"
+            translated_title = ADDON.getLocalizedString(32041)
         elif title== 'Recently Viewed':
-            translated_title = "Visti di recente"
+            translated_title = ADDON.getLocalizedString(32042)
         elif title =="On Deck":
-            translated_title = "In primo piano"
+            translated_title = ADDON.getLocalizedString(32043)
         elif title =="By Collection":
-            translated_title = "Per collezione"
+            translated_title = ADDON.getLocalizedString(32044)
         elif title =="By Genre":
-            translated_title = "Per genere"
+            translated_title = ADDON.getLocalizedString(32045)
         elif title =="By Year":
-            translated_title = "Per anno"
+            translated_title = ADDON.getLocalizedString(32046)
         elif title =="By Decade":
-            translated_title = "Per decade"
+            translated_title = ADDON.getLocalizedString(32047)
         elif title =="By Director":
-            translated_title = "Per regista"
+            translated_title = ADDON.getLocalizedString(32048)
         elif title =="By Starring Actor":
-            translated_title = "Per attore principale"
+            translated_title = ADDON.getLocalizedString(32049)
         elif title =="By Country":
-            translated_title = "Per paese"
+            translated_title = ADDON.getLocalizedString(32050)
         elif title =="By Content Rating":
-            translated_title = "Per classificazione"
+            translated_title = ADDON.getLocalizedString(32051)
         elif title =="By Rating":
-            translated_title = "Per votazione"
+            translated_title = ADDON.getLocalizedString(32052)
         elif title =="By Resolution":
-            translated_title = "Per risoluzione"
+            translated_title = ADDON.getLocalizedString(32053)
         elif title =="By First Letter":
-            translated_title = "Per prima lettera"
+            translated_title = ADDON.getLocalizedString(32054)
         elif title =="By Folder":
-            translated_title = "Per cartella"
+            translated_title = ADDON.getLocalizedString(32055)
         elif title =="Search...":
-            translated_title = "Cerca..."
-        else:
-            translated_title = ""
+            translated_title = ADDON.getLocalizedString(32056)
+
+    if thumb.endswith("photo.png"):
+        if title == "All Photos":
+            translated_title = ADDON.getLocalizedString(32057)
+        elif title == "By Year":
+            translated_title = ADDON.getLocalizedString(32058)
+        elif title == "Recently Added":
+            translated_title = ADDON.getLocalizedString(32059)
+        elif title == "Camera Make":
+            translated_title = ADDON.getLocalizedString(32060)
+        elif title == "Camera Model":
+            translated_title = ADDON.getLocalizedString(32061)
+        elif title == 'Aperture':
+            translated_title = ADDON.getLocalizedString(32062)
+        elif title == "Shutter Speed":
+            translated_title = ADDON.getLocalizedString(32063)
+        elif title == "ISO":
+            translated_title = ADDON.getLocalizedString(32064)
+        elif title == "Lens":
+            translated_title = ADDON.getLocalizedString(32065)
 
     return translated_title
 
@@ -2687,7 +2706,7 @@ def install(url, name):
         # If we find an install option, switch to a yes/no dialog box
         if operations[i].lower() == "install":
             log_print.debug("Not installed.  Print dialog")
-            ret = xbmcgui.Dialog().yesno("Plex Online","About to install " + name)
+            ret = xbmcgui.Dialog().yesno(ADDON.getLocalizedString(32002),ADDON.getLocalizedString(32003) + name)
 
             if ret:
                 log_print.debug("Installing....")
@@ -2695,13 +2714,13 @@ def install(url, name):
 
                 msg=tree.get('message','(blank)')
                 log_print.debug(msg)
-                xbmcgui.Dialog().ok("Plex Online",msg)
+                xbmcgui.Dialog().ok(ADDON.getLocalizedString(32002),msg)
             return
 
         i+=1
 
     # Else continue to a selection dialog box
-    ret = xbmcgui.Dialog().select("This plugin is already installed..",operations.values())
+    ret = xbmcgui.Dialog().select(ADDON.getLocalizedString(32004),operations.values())
 
     if ret == -1:
         log_print.debug("No option selected, cancelling")
@@ -2713,7 +2732,7 @@ def install(url, name):
 
     msg=tree.get('message')
     log_print.debug(msg)
-    xbmcgui.Dialog().ok("Plex Online",msg)
+    xbmcgui.Dialog().ok(ADDON.getLocalizedString(32002),msg)
     xbmc.executebuiltin("Container.Refresh")
 
     return
@@ -3211,7 +3230,7 @@ def full_shelf(server_list={}):
     full_count=0
 
     if server_list == {}:
-        xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
+        xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32066) + ",)")
         clear_shelf(0, 0, 0, 0)
         return
 
@@ -3498,13 +3517,13 @@ def display_content(acceptable_level, content_level):
 
     log_print.info("Checking rating flag [%s] against [%s]" % (content_level, acceptable_level))
 
-    if acceptable_level == "Adults":
+    if acceptable_level == "2":
         log_print.debug("OK to display")
         return True
 
-    content_map = { 'Kids' : 0 ,
-                    'Teens' : 1 ,
-                    'Adults' : 2 }
+    content_map = { 0 : ADDON.getLocalizedString(32589) ,
+                    1 : ADDON.getLocalizedString(32590) ,
+                    2 : ADDON.getLocalizedString(32591) }
 
     rating_map= { 'G' : 0 ,       # MPAA Kids
                   'PG' : 0 ,      # MPAA Kids
@@ -3545,17 +3564,17 @@ def display_content(acceptable_level, content_level):
                   'A' : 2 }       # CAN - Adults
 
     if content_level is None or content_level == "None":
-        log_print.debug("Setting [None] rating as %s" % settings.get_setting('contentNone') )
-        if content_map[settings.get_setting('contentNone')] <= content_map[acceptable_level]:
+        log_print.debug("Setting [None] rating as %s" % content_map[settings.get_setting('contentNone')] )
+        if settings.get_setting('contentNone') <= acceptable_level:
             log_print.debug("OK to display")
             return True
     else:
         try:
-            if rating_map[content_level] <= content_map[acceptable_level]:
+            if rating_map[content_level] <= acceptable_level:
                 log_print.debug("OK to display")
                 return True
         except:
-            print "Unknown rating flag [%s] whilst lookuing for [%s] - will filter for now, but needs to be added" % (content_level, acceptable_level)
+            print "Unknown rating flag [%s] whilst lookuing for [%s] - will filter for now, but needs to be added" % (content_level, content_map[acceptable_level])
 
     log_print.debug("NOT OK to display")
     return False
@@ -3584,7 +3603,7 @@ def shelf(server_list=None):
         server_list=plex_network.get_server_list()
 
     if server_list == {}:
-        xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
+        xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32066) + ",)")
         clear_shelf(0,0,0)
         return
 
@@ -3602,7 +3621,7 @@ def shelf(server_list=None):
             tree=server_details.get_server_ondeck()
 
         if tree is None:
-            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: %s,)" % server_details.get_name() )
+            xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32067) + " %s,)" % server_details.get_name() )
             clear_shelf()
             return
 
@@ -3823,7 +3842,7 @@ def set_shelf_channel(server_list=None):
         server_list = plex_network.get_server_list()
 
     if not server_list:
-        xbmc.executebuiltin("XBMC.Notification(Unable to see any media servers,)")
+        xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32066) + "),")
         clear_shelf_channel()
         return
 
@@ -3838,7 +3857,7 @@ def set_shelf_channel(server_list=None):
 
         tree = server_details.get_channel_recentlyviewed()
         if tree is None:
-            xbmc.executebuiltin("XBMC.Notification(Unable to contact server: %s, )" % server_details.get_name())
+            xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32067) + " %s, )" % server_details.get_name())
             clear_shelf_channel(0)
             return
 
@@ -3922,7 +3941,7 @@ def myplex_queue():
     log_print.debug("== ENTER ==")
 
     if not plex_network.is_myplex_signedin():
-        xbmc.executebuiltin("XBMC.Notification(myplex not configured,)")
+        xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32069) + ",)")
         return
 
     tree = plex_network.get_myplex_queue()
@@ -3938,7 +3957,7 @@ def refresh_plex_library(server_uuid, section_id):
     server.refresh_section(section_id)
 
     log_print.info("Library refresh requested")
-    xbmc.executebuiltin("XBMC.Notification(\"PleXBMC\",Library Refresh started,100)")
+    xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32068) + ",100)")
     return
 
 
@@ -3963,7 +3982,7 @@ def delete_library_media(server_uuid, metadata_id):
     log_print.debug("== ENTER ==")
     log_print.info("Deleting media at: %s" % metadata_id)
 
-    return_value = xbmcgui.Dialog().yesno("Confirm file delete?", "Delete this item? This action will delete media and associated data files.")
+    return_value = xbmcgui.Dialog().yesno(ADDON.getLocalizedString(32000),ADDON.getLocalizedString(32001))
 
     if return_value:
         log_print.debug("Deleting....")
@@ -4018,7 +4037,7 @@ def set_library_subtitiles(server_uuid, metadata_id):
         display_list[0] = display_list[0]+"*"
 
     subtitle_screen = xbmcgui.Dialog()
-    result = subtitle_screen.select('Select subtitle', display_list)
+    result = subtitle_screen.select(ADDON.getLocalizedString(32072), display_list)
     if result == -1:
         return False
 
@@ -4079,7 +4098,7 @@ def set_library_audio(server_uuid, metadata_id):
         break
 
     audio_screen = xbmcgui.Dialog()
-    result = audio_screen.select('Select audio', display_list)
+    result = audio_screen.select(ADDON.getLocalizedString(32073), display_list)
     if result == -1:
         return False
 
@@ -4151,7 +4170,7 @@ def set_master_server():
         display_option_list.append(found_server)
 
     audio_select_screen = xbmcgui.Dialog()
-    result = audio_select_screen.select('Select master server', display_option_list)
+    result = audio_select_screen.select(ADDON.getLocalizedString(32074), display_option_list)
     if result == -1:
         return False
 
@@ -4177,7 +4196,7 @@ def display_known_servers():
         display_list.append("%s [%s] [%s]" % (name, status, secure))
 
     server_display_screen = xbmcgui.Dialog()
-    server_display_screen.select('Known server list', display_list)
+    server_display_screen.select(ADDON.getLocalizedString(32075), display_list)
     return
 
 
@@ -4247,7 +4266,7 @@ def switch_user():
     user_list.pop(plex_network.get_myplex_user(), None)
     
     select_screen = xbmcgui.Dialog()
-    result = select_screen.select('Switch User', user_list.keys())
+    result = select_screen.select(ADDON.getLocalizedString(32076), user_list.keys())
     if result == -1:
         log_print("Dialog cancelled")
         return False
@@ -4258,12 +4277,12 @@ def switch_user():
     pin = None
     if user['protected'] == '1':
         log_print("Protected user [%s], requesting password" % user['title'])
-        pin = select_screen.input("Enter PIN", type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+        pin = select_screen.input(ADDON.getLocalizedString(32077), type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
     success, msg = plex_network.switch_plex_home_user(user['id'], pin)
 
     if not success:
-        xbmcgui.Dialog().ok("Switch Failed", msg)
+        xbmcgui.Dialog().ok(ADDON.getLocalizedString(32005), msg)
         return False
 
     return True 
@@ -4365,9 +4384,9 @@ def start_plexbmc():
 
     elif command == "signout":
         if not plex_network.is_admin():
-            return xbmcgui.Dialog().ok("Sign Out", "To sign out you must be logged in as an admin user. Please switch user and try again")
+            return xbmcgui.Dialog().ok(ADDON.getLocalizedString(32006),ADDON.getLocalizedString(32007))
 
-        ret = xbmcgui.Dialog().yesno("myplex", "You are currently signed into myPlex. Are you sure you want to sign out?")
+        ret = xbmcgui.Dialog().yesno(ADDON.getLocalizedString(32008),ADDON.getLocalizedString(32009))
         if ret:
             plex_network.signout()
             gui_window = xbmcgui.Window(10000)
@@ -4392,14 +4411,14 @@ def start_plexbmc():
     elif command == "managemyplex":
 
         if not plex_network.is_myplex_signedin():
-            ret = xbmcgui.Dialog().yesno("Manage myplex", "You are not currently logged into myplex.  Please continue to sign in, or cancel to return")
+            ret = xbmcgui.Dialog().yesno(ADDON.getLocalizedString(32010),ADDON.getLocalizedString(32011))
             if ret:
                 xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signin)')       
             else:
                 return
 
         elif not plex_network.is_admin():
-            return xbmcgui.Dialog().ok("Manage myplex", "To access these screens you must be logged in as an admin user.  Please switch user and try again")
+            return xbmcgui.Dialog().ok(ADDON.getLocalizedString(32010), ADDON.getLocalizedString(32012))
 
         from resources.lib.plex import plexsignin
         manage_window = plexsignin.PlexManage('Manage myplex')

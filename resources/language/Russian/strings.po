@@ -1,0 +1,420 @@
+# Kodi language file
+# Addon Name: Skin Helper Service
+# Addon id: script.skin.helper.service
+# Addon Provider: marcelveldt
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Russian (http://www.transifex.com/projects/p/xbmc-addons/language/ru/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+###### SETTINGS
+
+msgctxt "#32500"
+msgid "Primary Server Address"
+msgstr "Основной адрес сервера"
+
+msgctxt "#32501"
+msgid "Stream from PMS"
+msgstr "Формат ссылки из PMS"
+
+msgctxt "#32502"
+msgid "Get extended metadata from PMS"
+msgstr "Получать расширенные метаданные из PMS"
+
+msgctxt "#32503"
+msgid "Enable extra filter menus"
+msgstr "Включить меню экстра-фильтров"
+
+msgctxt "#32504"
+msgid "Server Discovery"
+msgstr "Расположение сервера"
+
+msgctxt "#32505"
+msgid "PMS Username: "
+msgstr "PMS Пользователь:"
+
+msgctxt "#32506"
+msgid "PMS Password: "
+msgstr "PMS Пароль:"
+
+msgctxt "#32507"
+msgid "Always Transcode"
+msgstr "Всегда транскодировать"
+
+msgctxt "#32508"
+msgid "Transcode format "
+msgstr "Формат транскодирования"
+
+msgctxt "#32509"
+msgid "Recent & OnDeck items"
+msgstr "Недавно добавленные & На главной"
+
+msgctxt "#32510"
+msgid "Debug log"
+msgstr "Отладочный лог"
+
+msgctxt "#32511"
+msgid "Auto"
+msgstr "Авто"
+
+msgctxt "#32514"
+msgid "Enable PleXBMC debug output to KODI log"
+msgstr "Выводить в лог KODI"
+
+msgctxt "#32515"
+msgid "Use transcoding proxy"
+msgstr "Использовать прокси для транскодирования"
+
+msgctxt "#32516"
+msgid "Server"
+msgstr "Сервер"
+
+msgctxt "#32517"
+msgid "Playback"
+msgstr "Воспроизведение"
+
+msgctxt "#32518"
+msgid "Transcoding"
+msgstr "Транскодирование"
+
+msgctxt "#32519"
+msgid "Wake On LAN"
+msgstr "Wake On LAN"
+
+msgctxt "#32520"
+msgid "Look and Feel"
+msgstr "Внешний вид"
+
+msgctxt "#32521"
+msgid "Skin Home Shelf"
+msgstr "Полка"
+
+msgctxt "#32522"
+msgid "Advanced"
+msgstr "Расширенные"
+
+msgctxt "#32523"
+msgid "Use Wake On LAN"
+msgstr "Использовать Wake On LAN"
+
+msgctxt "#32524"
+msgid "myPlex user"
+msgstr "myPlex пользователь"
+
+msgctxt "#32525"
+msgid "myPlex password"
+msgstr "myPlex пароль"
+
+msgctxt "#32526"
+msgid "Select master server..."
+msgstr "Выбрать Мастер Сервер..."
+
+msgctxt "#32527"
+msgid "Authentication required?"
+msgstr "Необходима авторизация?"
+
+msgctxt "#32528"
+msgid "Load External Subtitles?"
+msgstr "Номер порта"
+
+msgctxt "#32529"
+msgid "Always display subtitles?"
+msgstr "Всегда показывать субтитры?"
+
+msgctxt "#32530"
+msgid "Port Number"
+msgstr "Номер порта"
+
+msgctxt "#32531"
+msgid "Use PMS localisation settings"
+msgstr "Использовать настройки локализации PMS"
+
+msgctxt "#32532"
+msgid "Manual"
+msgstr "Вручную"
+
+msgctxt "#32533"
+msgid "Always"
+msgstr "Всегда"
+
+msgctxt "#32534"
+msgid "Audio stream selection"
+msgstr "Выбор потока аудио"
+
+msgctxt "#32535"
+msgid "Subtitle stream selection"
+msgstr "Выбор потока субтитров"
+
+msgctxt "#32536"
+msgid "KODI Control"
+msgstr "Управляется KODI"
+
+msgctxt "#32537"
+msgid "External"
+msgstr "Внешний"
+
+msgctxt "#32538"
+msgid "Audio and subtitle selector"
+msgstr "Выбор аудио и субтитров"
+
+msgctxt "#32539"
+msgid "Never show subtitles"
+msgstr "Не показывать субтитры"
+
+msgctxt "#32540"
+msgid "Quality"
+msgstr "Качество"
+
+msgctxt "#32541"
+msgid "Proxy Port"
+msgstr "Порт Прокси"
+
+msgctxt "#32542"
+msgid "Plex Channel View"
+msgstr "Вид Каналов Plex"
+
+msgctxt "#32543"
+msgid "Flatten TV Shows"
+msgstr "Схлопывать сериалы"
+
+msgctxt "#32544"
+msgid "Server MAC address"
+msgstr "MAC адрес сервера"
+
+msgctxt "#32545"
+msgid "Plex Style Watched flags"
+msgstr "Отметки просмотренного в стиле Plex"
+
+msgctxt "#32546"
+msgid "Windows Media Server?"
+msgstr "Windows Медиа Сервер?"
+
+msgctxt "#32547"
+msgid "Use WOL?"
+msgstr "Использовать WOL?"
+
+msgctxt "#32548"
+msgid "Clean context menus"
+msgstr "Очистить контекстные меню"
+
+msgctxt "#32549"
+msgid "Skip Genre/director/writer metadata"
+msgstr "Отключить метаданные жанр/режиссер/сценарист"
+
+msgctxt "#32550"
+msgid "Skip images (thumbs, fanart)"
+msgstr "Отключить Картинки (thumbs, fanart)"
+
+msgctxt "#32551"
+msgid "Skip Media Flags"
+msgstr "Отключить Отметки медиа"
+
+msgctxt "#32552"
+msgid "Skip Context Menus"
+msgstr "Отключить Контекстные меню"
+
+msgctxt "#32553"
+msgid "Off"
+msgstr "Выкл"
+
+msgctxt "#32556"
+msgid "Play TV Theme Music"
+msgstr "Играть саундтрек сериала в фоне"
+
+msgctxt "#32557"
+msgid "Select audio output"
+msgstr "Выбрать формат звука"
+
+msgctxt "#32558"
+msgid "If only one season"
+msgstr "Если один сезон"
+
+msgctxt "#32559"
+msgid "All seasons"
+msgstr "Все сезоны"
+
+msgctxt "#32560"
+msgid "Force DVD playback"
+msgstr "Принудительное проигрывание DVD"
+
+msgctxt "#32561"
+msgid "Override SMB location"
+msgstr "Переопределить расположение SMB"
+
+msgctxt "#32562"
+msgid "NAS IP Address"
+msgstr "NAS IP Адрес"
+
+msgctxt "#32564"
+msgid "NAS Username"
+msgstr "NAS Пользователь"
+
+msgctxt "#32565"
+msgid "NAS password"
+msgstr "NAS Пароль"
+
+msgctxt "#32566"
+msgid "NAS Root Folder"
+msgstr "NAS Корневая папка"
+
+msgctxt "#32567"
+msgid "Plex Control"
+msgstr "Управляется Plex"
+
+msgctxt "#32568"
+msgid "Subtitle Size"
+msgstr "Размер субтитров"
+
+msgctxt "#32569"
+msgid "Audio Boost"
+msgstr "Усиление звука"
+
+msgctxt "#32570"
+msgid "Auto (GDM)"
+msgstr "Авто (GDM)"
+
+msgctxt "#32571"
+msgid "Current Master Server"
+msgstr "Текущий Мастер Сервер"
+
+msgctxt "#32572"
+msgid "Shelf Items"
+msgstr "Элементы на полке"
+
+msgctxt "#32573"
+msgid "Recently Added"
+msgstr "Недавно добавленные"
+
+msgctxt "#32574"
+msgid "On Deck"
+msgstr "На главной"
+
+msgctxt "#32575"
+msgid "Force Skin Views"
+msgstr "Принудительный Вид Обложки"
+
+msgctxt "#32576"
+msgid "Skin Name"
+msgstr "Имя обложки"
+
+msgctxt "#32577"
+msgid "Movie View"
+msgstr "Фильмы"
+
+msgctxt "#32578"
+msgid "TV View"
+msgstr "Сериалы"
+
+msgctxt "#32579"
+msgid "Season View"
+msgstr "Сезон"
+
+msgctxt "#32580"
+msgid "Episode View"
+msgstr "Эпизод"
+
+msgctxt "#32581"
+msgid "Music View"
+msgstr "Музыка"
+
+msgctxt "#32582"
+msgid "Enable Movie Shelf"
+msgstr "Включить полку фильмов"
+
+msgctxt "#32583"
+msgid "Enable TV Shelf"
+msgstr "Включить полку сериалов"
+
+msgctxt "#32584"
+msgid "Enable Music Shelf"
+msgstr "Включить полку музыки"
+
+msgctxt "#32585"
+msgid "Enable Channel Shelf"
+msgstr "Включить полку каналов"
+
+msgctxt "#32586"
+msgid "Content filter"
+msgstr "Фильтр содержимого"
+
+msgctxt "#32587"
+msgid "Map unknown content as:"
+msgstr "Связывать неизвестное содержимое как:"
+
+msgctxt "#32588"
+msgid "RA Library filter"
+msgstr "RA-Фильтр библиотеки"
+
+msgctxt "#32591"
+msgid "Adults"
+msgstr "Использовать меню для общих секций"
+
+msgctxt "#32592"
+msgid "Use menu for shared sections"
+msgstr ""
+
+msgctxt "#32593"
+msgid "Cache Data"
+msgstr "Кешировать данные"
+
+msgctxt "#32594"
+msgid "Manual"
+msgstr "Вручную"
+
+msgctxt "#32595"
+msgid "Use full-res thumbs"
+msgstr "Полноразмерные иконки"
+
+msgctxt "#32596"
+msgid "Use full-res fanart"
+msgstr "Полноразмерные фан-арт"
+
+msgctxt "#32597"
+msgid "Hide watched recently added items"
+msgstr "Скрывать просмотренные недавно добавленные элементы"
+
+msgctxt "#32598"
+msgid "Info"
+msgstr "Инфо"
+
+msgctxt "#32599"
+msgid "Debug"
+msgstr "Отладка"
+
+msgctxt "#32600"
+msgid "Debug+"
+msgstr "Отладка+"
+
+msgctxt "#32601"
+msgid "Transcoder"
+msgstr "Транскодер"
+
+msgctxt "#32602"
+msgid "Name"
+msgstr "Имя"
+
+msgctxt "#32603"
+msgid "Disable 'All Episodes'"
+msgstr "Скрыть 'Все эпизоды'"
+
+msgctxt "#32604"
+msgid "Enable KODI view cache"
+msgstr "Включить кеш KODI"
+
+msgctxt "#32605"
+msgid "Manage myPlex"
+msgstr "Управлять myPlex"
+
+msgctxt "#32606"
+msgid "Prefer Season artwork"
+msgstr "Предпочесть обложку сезона"
+
