@@ -360,6 +360,10 @@ msgctxt "#32085"
 msgid "Playlists"
 msgstr ""
 
+msgctxt "#32086"
+msgid "Play Transcoded"
+msgstr ""
+
 ###### SETTINGS
 
 msgctxt "#32500"

@@ -248,7 +248,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if context is not None:
         if not folder and extra_data.get('type', 'video').lower() == "video":
             # Play Transcoded
-            context.insert(0, ('Riproduci con transcodifica', "XBMC.PlayMedia(%s&transcode=1)" % link_url, ))
+            context.insert(0, (ADDON.getLocalizedString(32086), "XBMC.PlayMedia(%s&transcode=1)" % link_url, ))
             log_print.debug("Setting transcode options to [%s&transcode=1]" % link_url)
         log_print.debug("Building Context Menus")
         liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
@@ -619,13 +619,13 @@ def build_context_menu(url, item_data, server):
     item_id = item_data.get('ratingKey', '0')
 
     # Mark media unwatched
-    context.append(('Cancella', "RunScript(plugin.video.plexbmc, delete, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append(('Segna come non visto', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append(('Segna come visto', 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
-    context.append(('Seleziona audio', "RunScript(plugin.video.plexbmc, audio, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append(('Selezione sottotitolo', "RunScript(plugin.video.plexbmc, subs, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append(('Riscansiona sezione libreria', 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section )))
-    context.append(('Ricarica sezione', 'RunScript(plugin.video.plexbmc, refresh)'))
+    context.append((xbmc.getLocalizedString(117), "RunScript(plugin.video.plexbmc, delete, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append((xbmc.getLocalizedString(16104), 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+    context.append((xbmc.getLocalizedString(16103), 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
+    context.append((xbmc.getLocalizedString(292), "RunScript(plugin.video.plexbmc, audio, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append((xbmc.getLocalizedString(287), "RunScript(plugin.video.plexbmc, subs, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append((xbmc.getLocalizedString(653), 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section )))
+    context.append((xbmc.getLocalizedString(184), 'RunScript(plugin.video.plexbmc, refresh)'))
 
     log_print.debug("Using context menus: %s" % context)
 

@@ -360,6 +360,10 @@ msgctxt "#32085"
 msgid "Playlists"
 msgstr "Playlist"
 
+msgctxt "#32086"
+msgid "Play Transcoded"
+msgstr "Riproduci con transcodifica"
+
 ###### SETTINGS
 
 msgctxt "#32500"
@@ -668,7 +672,7 @@ msgstr "Bambini"
 
 msgctxt "#32590"
 msgid "Teens"
-msgstr "Adolescenti"
+msgstr "Ragazzi"
 
 msgctxt "#32591"
 msgid "Adults"
