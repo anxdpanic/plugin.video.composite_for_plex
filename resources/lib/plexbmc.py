@@ -3258,8 +3258,10 @@ def full_shelf(server_list={}):
     recentPhotoCount=1
     ondeckMovieCount=1
     ondeckSeasonCount=1
+    recentViewedShowCount=1
     recent_list=[]
     ondeck_list=[]
+    recentlyViewedShows_list=[]
     full_count=0
 
     if server_list == {}:
@@ -3310,8 +3312,18 @@ def full_shelf(server_list={}):
                 for eachitem in tree:
                     ondeck_list.append((eachitem, server_details, libraryuuid))
 
+                tree = server_details.get_recently_viewed_shows(section=section.get_key(), size=15)
+                if tree is None:
+                    print ("PLEXBMC -> Recently Played Shows items not found on: " + server_details.get_url_location(), False)
+                    continue
+
+                libraryuuid = tree.get("librarySectionUUID", '').encode('utf-8')
+                for eachitem in tree:
+                    recentlyViewedShows_list.append((eachitem, server_details, libraryuuid))
+
     log_print.debugplus("Recent object is: %s" % recent_list)
     log_print.debugplus("ondeck object is: %s" % ondeck_list)
+    log_print.debugplus("Recently Played Shows object is: %s" % recentlyViewedShows_list)
     prefer_season=settings.get_setting('prefer_season_thumbs')
     
     # For each of the servers we have identified
@@ -3539,6 +3551,48 @@ def full_shelf(server_list={}):
         log_print.debug(" Building onDeck window title: %s\n    Building onDeck window url: %s\n    Building onDeck window thumb: %s" % (title_name, title_url, title_thumb))
 
     clear_ondeck_shelf(ondeckMovieCount, ondeckSeasonCount)
+    
+    # For each of the servers we have identified
+    for media, source_server, libuuid in recentlyViewedShows_list:
+
+        if media.get('type') == "show":
+
+            title_name=media.get('title','Unknown').encode('UTF-8')
+            log_print.debug("Found a Recently Viewed Show entry [%s]" % title_name)
+
+            if not settings.get_setting('tvShelf'):
+                WINDOW.clearProperty("Plexbmc.RecentlyViewedShow.1.Path" )
+                continue
+
+            title_url = 'ActivateWindow(Videos, plugin://plugin.video.plexbmc?url=%s%s&mode=6, return)' % (source_server.get_url_location(), media.get('key', '').replace("children", "allLeaves"))
+            title_thumb=get_shelfthumb_image(media,source_server)
+            title_art=get_fanart_image(media,source_server)
+
+            if media.get('duration') > 0:
+                # movie_runtime = media.get('duration', '0')
+                movie_runtime = str(int(float(media.get('duration'))/1000/60))
+            else:
+                movie_runtime = ""
+
+            if media.get('rating') > 0:
+                title_rating = str(round(float(media.get('rating')), 1))
+            else:
+                title_rating = ''
+
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Path" % recentViewedShowCount, title_url)
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Title" % recentViewedShowCount, title_name)
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Year" % recentViewedShowCount, media.get('year', '').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Rating" % recentViewedShowCount, title_rating)
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Duration" % recentViewedShowCount, movie_runtime)
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Thumb" % recentViewedShowCount, title_thumb)
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Art" % recentViewedShowCount, title_art)
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.uuid" % recentViewedShowCount, libuuid)
+
+            recentViewedShowCount += 1
+
+        log_print.debug(" Building Recently Viewed Shows window title: %s\n    Building Recently Viewed Shows window url: %s\n    Building Recently Viewed Shows window thumb: %s" % (title_name, title_url, title_thumb))
+
+    clear_recentlyViewedShow_shelf(recentViewedShowCount)
 
 
 def display_content(acceptable_level, content_level):
@@ -3853,6 +3907,27 @@ def clear_ondeck_shelf(movie_count=0, season_count=0):
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.Art" % i)
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.uuid" % i)
         log_print.debug("Done clearing On Deck tv")
+    except:
+        pass
+
+    return
+
+def clear_recentlyViewedShow_shelf(show_count=0):
+    # Clear out old data
+    gui_window = xbmcgui.Window(10000)
+    log_print.debug("Clearing unused Recently Viewed Shows properties")
+
+    try:
+        for i in range(show_count, 25+1):
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Path" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Title" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Thumb" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Art" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Rating" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Duration" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Year" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.uuid" % i)
+        log_print.debug("Done clearing Recently Viewed Shows")
     except:
         pass
 

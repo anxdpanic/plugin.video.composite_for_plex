@@ -353,6 +353,18 @@ class PlexMediaServer:
 
         return self.processed_xml("/library/sections/%s/onDeck%s" % (section, arguments))
 
+    def get_recently_viewed_shows(self,section=-1,start=0,size=0):
+
+        arguments=""
+
+        if section < 0:
+            return self.processed_xml("/library/recentlyViewedShows%s" % arguments)
+
+        if size > 0:
+            arguments="%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s" % (arguments, start, size)
+
+        return self.processed_xml("/library/sections/%s/recentlyViewedShows%s" % (section, arguments))
+
     def get_server_recentlyadded(self):
         return self.get_recently_added(section=-1)
 
