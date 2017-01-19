@@ -3387,6 +3387,11 @@ def full_shelf(server_list={}):
             title_thumb=get_shelfthumb_image(media,source_server)
             title_art=get_fanart_image(media,source_server)
 
+            if media.get('rating') > 0:
+                season_rating = str(round(float(media.get('rating')), 1))
+            else:
+                season_rating = ''
+
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, '')
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeSeason" % recentSeasonCount, media.get('title','').encode('UTF-8'))
@@ -3394,6 +3399,8 @@ def full_shelf(server_list={}):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % recentSeasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Art" % recentSeasonCount, title_art)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, media.get('librarySectionUUID','').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Plot" % recentSeasonCount, media.get('summary', '').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Rating" % recentSeasonCount, season_rating)
 
             recentSeasonCount += 1
 
@@ -3447,6 +3454,11 @@ def full_shelf(server_list={}):
             title_thumb = get_shelfthumb_image(media, source_server, season_thumb=True, prefer_season=prefer_season)
             title_art=get_fanart_image(media,source_server)
 
+            if media.get('rating') > 0:
+                episode_rating = str(round(float(media.get('rating')), 1))
+            else:
+                episode_rating = ''
+
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Path" % recentSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeTitle" % recentSeasonCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.EpisodeNumber" % recentSeasonCount, media.get('index','').encode('utf-8'))
@@ -3456,6 +3468,8 @@ def full_shelf(server_list={}):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % recentSeasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Art" % recentSeasonCount, title_art)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.uuid" % recentSeasonCount, libuuid)
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Plot" % recentSeasonCount, media.get('summary', '').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Rating" % recentSeasonCount, episode_rating)
 
             recentSeasonCount += 1
 
@@ -3498,6 +3512,7 @@ def full_shelf(server_list={}):
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Thumb" % ondeckMovieCount, title_thumb)
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Art" % ondeckMovieCount, title_art)
             WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.uuid" % ondeckMovieCount, libuuid)
+            WINDOW.setProperty("Plexbmc.OnDeckMovie.%s.Plot" % ondeckMovieCount, media.get('summary', '').encode('UTF-8'))
 
             ondeckMovieCount += 1
 
@@ -3514,12 +3529,19 @@ def full_shelf(server_list={}):
             title_thumb=get_shelfthumb_image(media,source_server)
             title_art=get_fanart_image(media,source_server)
 
+            if media.get('rating') > 0:
+                episode_rating = str(round(float(media.get('rating')), 1))
+            else:
+                episode_rating = ''
+
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url )
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, '')
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeSeason" % ondeckSeasonCount, media.get('title','').encode('UTF-8'))
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.ShowTitle" % ondeckSeasonCount, title_name)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % ondeckSeasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Art" % ondeckSeasonCount, title_art)
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Plot" % ondeckSeasonCount, media.get('summary', '').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Rating" % recentSeasonCount, episode_rating)
 
             ondeckSeasonCount += 1
 
@@ -3536,6 +3558,11 @@ def full_shelf(server_list={}):
             title_thumb=get_shelfthumb_image(media, source_server, season_thumb=True, prefer_season=prefer_season)
             title_art=get_fanart_image(media,source_server)
 
+            if media.get('rating') > 0:
+                episode_rating = str(round(float(media.get('rating')), 1))
+            else:
+                episode_rating = ''
+
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Path" % ondeckSeasonCount, title_url)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeTitle" % ondeckSeasonCount, title_name)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.EpisodeNumber" % ondeckSeasonCount, media.get('index','').encode('utf-8'))
@@ -3545,6 +3572,8 @@ def full_shelf(server_list={}):
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % ondeckSeasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Art" % ondeckSeasonCount, title_art)
             WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.uuid" % ondeckSeasonCount, libuuid)
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Plot" % ondeckSeasonCount, media.get('summary', '').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.OnDeckEpisode.%s.Rating" % recentSeasonCount, episode_rating)
 
             ondeckSeasonCount += 1
 
@@ -3579,6 +3608,11 @@ def full_shelf(server_list={}):
             else:
                 title_rating = ''
 
+            if media.get('rating') > 0:
+                show_rating = str(round(float(media.get('rating')), 1))
+            else:
+                show_rating = ''
+
             WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Path" % recentViewedShowCount, title_url)
             WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Title" % recentViewedShowCount, title_name)
             WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Year" % recentViewedShowCount, media.get('year', '').encode('UTF-8'))
@@ -3587,6 +3621,9 @@ def full_shelf(server_list={}):
             WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Thumb" % recentViewedShowCount, title_thumb)
             WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Art" % recentViewedShowCount, title_art)
             WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.uuid" % recentViewedShowCount, libuuid)
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Plot" % recentViewedShowCount, media.get('summary', '').encode('UTF-8'))
+            WINDOW.setProperty("Plexbmc.RecentlyViewedShow.%s.Rating" % recentSeasonCount, show_rating)
+
 
             recentViewedShowCount += 1
 
@@ -3753,6 +3790,7 @@ def shelf(server_list=None):
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Title" % movieCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Thumb" % movieCount, title_thumb)
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Art" % movieCount, title_art)
+            WINDOW.setProperty("Plexbmc.LatestMovie.%s.Plot" % movieCount, media.get('summary', '').encode('UTF-8'))
 
             movieCount += 1
 
@@ -3775,6 +3813,8 @@ def shelf(server_list=None):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Art" % seasonCount, title_art)
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Plot" % seasonCount, media.get('summary', '').encode('UTF-8'))
+
             seasonCount += 1
 
         elif media.get('type') == "album":
@@ -3816,6 +3856,8 @@ def shelf(server_list=None):
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.ShowTitle" % seasonCount, title_name)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Thumb" % seasonCount, title_thumb)
             WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Art" % seasonCount, title_art)
+            WINDOW.setProperty("Plexbmc.LatestEpisode.%s.Plot" % seasonCount, media.get('summary', '').encode('UTF-8'))
+
             seasonCount += 1
 
         log_print.debug(" Building Recent window title: %s\n        Building Recent window url: %s\n        Building Recent window thumb: %s" % (title_name, title_url, title_thumb))
@@ -3838,6 +3880,7 @@ def clear_shelf(movie_count=0, season_count=0, music_count=0, photo_count=0):
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Thumb" % i)
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Art" % i)
             WINDOW.clearProperty("Plexbmc.LatestMovie.%s.uuid" % i)
+            WINDOW.clearProperty("Plexbmc.LatestMovie.%s.Plot" % i)
         log_print.debug("Done clearing movies")
     except:
         pass
@@ -3851,6 +3894,8 @@ def clear_shelf(movie_count=0, season_count=0, music_count=0, photo_count=0):
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Thumb" % i)
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Art" % i)
             WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.uuid" % i)
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Plot" % i)
+            WINDOW.clearProperty("Plexbmc.LatestEpisode.%s.Rating" % i)
         log_print.debug("Done clearing tv")
     except:
         pass
@@ -3893,6 +3938,7 @@ def clear_ondeck_shelf(movie_count=0, season_count=0):
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Duration" % i)
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Year" % i)
             gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.uuid" % i)
+            gui_window.clearProperty("Plexbmc.OnDeckMovie.%s.Plot" % i)
         log_print.debug("Done clearing On Deck movies")
     except:
         pass
@@ -3906,6 +3952,8 @@ def clear_ondeck_shelf(movie_count=0, season_count=0):
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.Thumb" % i)
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.Art" % i)
             gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.uuid" % i)
+            gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.Plot" % i)
+            gui_window.clearProperty("Plexbmc.OnDeckEpisode.%s.Rating" % i)
         log_print.debug("Done clearing On Deck tv")
     except:
         pass
@@ -3927,6 +3975,8 @@ def clear_recentlyViewedShow_shelf(show_count=0):
             gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Duration" % i)
             gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Year" % i)
             gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.uuid" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Plot" % i)
+            gui_window.clearProperty("Plexbmc.RecentlyViewedShow.%s.Rating" % i)
         log_print.debug("Done clearing Recently Viewed Shows")
     except:
         pass
