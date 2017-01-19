@@ -671,6 +671,7 @@ def process_tvshows(url, tree=None):
                    'season'    : 0,
                    'episode'   : int(show.get('leafCount', 0)),
                    'mpaa'      : show.get('contentRating', ''),
+                   'rating'    : float(show.get('rating', 0)),
                    'aired'     : show.get('originallyAvailableAt', ''),
                    'genre'     : " / ".join(tempgenre),
                    'mediatype' : "tvshow"}
