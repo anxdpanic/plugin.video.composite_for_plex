@@ -346,7 +346,7 @@ msgstr "Login"
 
 msgctxt "#32082"
 msgid "Display servers"
-msgstr "Visuallizza i server"
+msgstr "Visualizza i server"
 
 msgctxt "#32083"
 msgid "Refresh Data"
