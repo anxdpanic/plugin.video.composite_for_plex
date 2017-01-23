@@ -26,7 +26,7 @@
     along with PleXBMC Plugin.  If not, see <http://www.gnu.org/licenses/>.
 
 '''
-system includes
+#system includes
 import sys
 import socket
 import traceback
