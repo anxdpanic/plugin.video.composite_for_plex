@@ -166,7 +166,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     log_print.debug("URL to use for listing: %s" % link_url)
 
-    liz = xbmcgui.ListItem(details.get('title', 'Unknown'), thumbnailImage=extra_data.get('thumb', GENERIC_THUMBNAIL))
+    liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'),extra_data.get('source'),folder), thumbnailImage=extra_data.get('thumb', GENERIC_THUMBNAIL))
 
     log_print.debug("Setting thumbnail as %s" % extra_data.get('thumb', GENERIC_THUMBNAIL))
 
@@ -1885,6 +1885,29 @@ def directory_item_translate(title,thumb):
 
     return translated_title
 
+def item_translate(title,source,folder):
+
+    translated_title = title
+
+    if folder and (source == 'tvshows' or source == 'tvseasons'):
+        if title == "All episodes":
+            translated_title = ADDON.getLocalizedString(32087)
+        elif title.startswith("Season "):
+            translated_title = ADDON.getLocalizedString(32088) + title[6:]
+
+    return translated_title
+
+def heading2_translate(tree):
+
+    title = tree.get('title2')
+    translated_title = directory_item_translate(title, tree.get('thumb'))
+
+    if title.startswith("Season "):
+        translated_title = ADDON.getLocalizedString(32088) + title[6:]
+    elif title.startswith("Search for '"):
+        translated_title = ADDON.getLocalizedString(32089) + title[10:]
+
+    return translated_title
 
 
 def artist(url, tree=None):
@@ -4303,7 +4326,7 @@ def set_window_heading(tree):
     except:
         gui_window.clearProperty("heading")
     try:
-        gui_window.setProperty("heading2", tree.get('title2'))
+        gui_window.setProperty("heading2", heading2_translate(tree))
     except:
         gui_window.clearProperty("heading2")
 

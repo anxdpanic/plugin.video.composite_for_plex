@@ -364,6 +364,18 @@ msgctxt "#32086"
 msgid "Play Transcoded"
 msgstr "Riproduci con transcodifica"
 
+msgctxt "#32087"
+msgid "All episodes"
+msgstr "Tutti gli episodi"
+
+msgctxt "#32088"
+msgid "Season"
+msgstr "Stagione"
+
+msgctxt "#32089"
+msgid "Search for"
+msgstr "Ricerca per"
+
 ###### SETTINGS
 
 msgctxt "#32500"
