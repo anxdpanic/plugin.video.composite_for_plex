@@ -37,6 +37,10 @@ import random
 import datetime
 from resources.lib.common import *  # Needed first to setup import locations
 from resources.lib.plex import plex
+#import requests
+#from requests.packages.urllib3.exceptions import InsecureRequestWarning
+#
+#requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo('id').decode("utf-8")
@@ -902,6 +906,7 @@ def process_tvepisodes(url, tree=None):
             else:
                 details['title'] = "%s - %sx%s %s" % ( details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'] )
 
+
         # Extra data required to manage other properties
         extraData={'type'         : "Video" ,
                    'source'       : 'tvepisodes',
@@ -914,6 +919,9 @@ def process_tvepisodes(url, tree=None):
                    'resume'       : int(int(view_offset)/1000) }
 
         if extraData['fanart_image'] == "" and not settings.get_setting('skipimages'):
+            extraData['fanart_image'] = sectionart
+
+        if "-1" in extraData['fanart_image'] and not settings.get_setting('skipimages'):
             extraData['fanart_image'] = sectionart
 
         if season_thumb:
