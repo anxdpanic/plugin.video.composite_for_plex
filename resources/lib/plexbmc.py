@@ -760,11 +760,12 @@ def process_tvseasons(url):
 
         # Create the basic data structures to pass up
         details = {'title'     : season.get('title', 'Unknown').encode('utf-8'),
-                   'tvshowname': season.get('title', 'Unknown').encode('utf-8'),
+                   'tvshowname': season.get('parentTitle', 'Unknown').encode('utf-8'),
+                   'TVShowTitle': season.get('parentTitle', 'Unknown').encode('utf-8'),
                    'sorttitle' : season.get('titleSort', season.get('title', 'Unknown')).encode('utf-8'),
                    'studio'    : season.get('studio', '').encode('utf-8'),
                    'plot'      : plot,
-                   'season'    : 0,
+                   'season'    : season.get('index', 0),
                    'episode'   : int(season.get('leafCount', 0)),
                    'mpaa'      : season.get('contentRating', ''),
                    'aired'     : season.get('originallyAvailableAt', ''),
