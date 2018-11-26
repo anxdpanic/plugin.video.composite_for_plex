@@ -250,6 +250,8 @@ class PlexMediaServer:
 
     def talk(self,url='/',refresh=False, type='get'):
 
+        if not settings.get_setting('secureconn'):
+            self.set_protocol('http')
         if not self.offline or refresh:
             log_print.info("URL is: %s using %s" % (url, self.protocol))
 

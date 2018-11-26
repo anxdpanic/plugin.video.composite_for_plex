@@ -813,3 +813,8 @@ msgstr ""
 msgctxt "#32609"
 msgid "Switch off playback monitor"
 msgstr ""
+
+msgctxt "#32610"
+msgid "Use HTTPS"
+msgstr ""
+
