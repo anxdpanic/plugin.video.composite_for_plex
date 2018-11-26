@@ -22,5 +22,6 @@
     <minversion>1</minversion>
     <summary lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</summary>
     <description lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</description>
+    <reuselanguageinvoker>true</reuselanguageinvoker>
   </extension>
 </addon>
