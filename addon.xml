@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.plexbmc" name="PleXBMC" version="0.0.1~alpha1" provider-name="Hippojay (plexbmc@h-jay.com)">
+<addon  id="plugin.video.plexbmc" name="PleXBMC" version="0.0.1~alpha2" provider-name="Hippojay (plexbmc@h-jay.com)">
   <requires>
     <import addon="xbmc.python" version="2.20.0"/>
     <import addon="script.module.requests"   version="2.8.1"/>
@@ -22,6 +22,6 @@
     <minversion>1</minversion>
     <summary lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</summary>
     <description lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</description>
-    <reuselanguageinvoker>true</reuselanguageinvoker>
+    <reuselanguageinvoker>false</reuselanguageinvoker>
   </extension>
 </addon>
