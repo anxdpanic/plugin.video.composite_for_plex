@@ -160,9 +160,9 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if not folder and extra_data['type'] == "image":
         link_url = url
     elif url.startswith('http') or url.startswith('file'):
-        link_url = "%s?url=%s&mode=%s" % (sys.argv[0], urllib.quote(url), extra_data.get('mode', 0))
+        link_url = "%s?url=%s&mode=%s" % (argv[0], urllib.quote(url), extra_data.get('mode', 0))
     else:
-        link_url = "%s?url=%s&mode=%s" % (sys.argv[0], url, extra_data.get('mode', 0))
+        link_url = "%s?url=%s&mode=%s" % (argv[0], url, extra_data.get('mode', 0))
 
     if extra_data.get('parameters'):
         for argument, value in extra_data.get('parameters').items():
@@ -4550,7 +4550,7 @@ print "PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__']
 wake_servers()
 
 if settings.get_debug() >= log_print.DEBUG_INFO:
-    print "PleXBMC -> Script argument is %s" % sys.argv
+    #print "PleXBMC -> Script argument is %s" % sys.argv
     print "PleXBMC -> Running Python: %s" % str(sys.version_info)
     print "PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__']
     print "PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform']
@@ -4576,18 +4576,22 @@ else:
     print "PleXBMC -> Debug is turned off.  Running silent"
 
 pluginhandle = 0
+argv = []
 plex_network = plex.Plex(load=False)
 
 
-def start_plexbmc(handle):
+def start_plexbmc(sys_argv):
+    global argv
+    argv = sys_argv
+
     global pluginhandle
     try:
-        pluginhandle = handle
-    except:
+        pluginhandle = int(sys_argv[1])
+    except ValueError:
         pass
 
     try:
-        params = get_params(sys.argv[2])
+        params = get_params(sys_argv[2])
     except:
         params = {}
 
@@ -4611,7 +4615,7 @@ def start_plexbmc(handle):
 
     if command is None:
         try:
-            command = sys.argv[1]
+            command = sys_argv[1]
         except:
             pass
 
@@ -4696,7 +4700,7 @@ def start_plexbmc(handle):
         # Populate Skin variables
         if command == "skin":
             try:
-                type = sys.argv[2]
+                type = sys_argv[2]
             except:
                 type = None
             skin(type=type)
@@ -4715,15 +4719,15 @@ def start_plexbmc(handle):
             
         # Send a library update to Plex    
         elif command == "update":
-            server_uuid = sys.argv[2]
-            section_id = sys.argv[3]
+            server_uuid = sys_argv[2]
+            section_id = sys_argv[3]
             refresh_plex_library(server_uuid, section_id)
 
         # Mark an item as watched/unwatched in plex    
         elif command == "watch":
-            server_uuid = sys.argv[2]
-            metadata_id = sys.argv[3]
-            watch_status = sys.argv[4]
+            server_uuid = sys_argv[2]
+            metadata_id = sys_argv[3]
+            watch_status = sys_argv[4]
             watched(server_uuid, metadata_id, watch_status)
 
         # nt currently used              
@@ -4736,20 +4740,20 @@ def start_plexbmc(handle):
 
         # delete media from PMS    
         elif command == "delete":
-            server_uuid = sys.argv[2]
-            metadata_id = sys.argv[3]
+            server_uuid = sys_argv[2]
+            metadata_id = sys_argv[3]
             delete_library_media(server_uuid, metadata_id)
 
         # Display subtitle selection screen    
         elif command == "subs":
-            server_uuid = sys.argv[2]
-            metadata_id = sys.argv[3]
+            server_uuid = sys_argv[2]
+            metadata_id = sys_argv[3]
             set_library_subtitiles(server_uuid, metadata_id)
 
         # Display audio streanm selection screen    
         elif command == "audio":
-            server_uuid = sys.argv[2]
-            metadata_id = sys.argv[3]
+            server_uuid = sys_argv[2]
+            metadata_id = sys_argv[3]
             set_library_audio(server_uuid, metadata_id)
 
         # Allow a mastre server to be selected (for myplex queue)    

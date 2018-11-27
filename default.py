@@ -10,7 +10,8 @@ from resources.lib import plexbmc
 profile = False
 
 if not profile:
-    plexbmc.start_plexbmc(int(sys.argv[1]))
+    print "PleXBMC -> Script argument is %s" % sys.argv
+    plexbmc.start_plexbmc(sys.argv)
 else:
     # Enable extra profile information
     import StringIO
