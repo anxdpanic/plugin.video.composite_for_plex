@@ -1063,6 +1063,8 @@ def get_audio_subtitles_from_media(server, tree, full=False):
         try:       
             if media_details.get('videoResolution') == "sd":
                 resolution="SD"
+            elif int(media_details.get('videoResolution',0)) > 1088:
+                resolution="4K"
             elif int(media_details.get('videoResolution',0)) >= 1080:
                 resolution="HD 1080"
             elif int(media_details.get('videoResolution',0)) >= 720:
@@ -1074,7 +1076,9 @@ def get_audio_subtitles_from_media(server, tree, full=False):
 
         media_details_temp = { 'bitrate'          : round(float(media_details.get('bitrate',0))/1000,1) ,
                                'videoResolution'  : resolution ,
-                               'container'        : media_details.get('container','unknown') }
+                               'container'        : media_details.get('container','unknown'),
+                               'codec'            : media_details.get('videoCodec')
+                               }
 
         options = media_details.findall('Part')
 
@@ -1209,6 +1213,14 @@ def play_library_media(vids, override=False, force=None, full_data=False, shelf=
         return
 
     url=select_media_to_play(streams, server)
+
+    codec = streams.get('details', [{}])[0].get('codec')
+    resolution = streams.get('details', [{}])[0].get('videoResolution')
+
+    if codec and (settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
+        override = True
+    if resolution and (settings.get_setting('transcode_g1080') and resolution.lower() == '4k'):
+        override = True
 
     if url is None:
         return

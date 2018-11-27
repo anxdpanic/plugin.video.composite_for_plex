@@ -818,3 +818,10 @@ msgctxt "#32610"
 msgid "Use HTTPS"
 msgstr ""
 
+msgctxt "#32611"
+msgid "Transcode >1080p"
+msgstr ""
+
+msgctxt "#32612"
+msgid "Transcode HEVC"
+msgstr ""
