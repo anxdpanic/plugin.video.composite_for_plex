@@ -1,6 +1,7 @@
 
 import xbmcaddon
 import os
+import sys
 import time
 
 plexbmc_start = time.time()
@@ -9,7 +10,7 @@ from resources.lib import plexbmc
 profile = False
 
 if not profile:
-    plexbmc.start_plexbmc()
+    plexbmc.start_plexbmc(int(sys.argv[1]))
 else:
     # Enable extra profile information
     import StringIO

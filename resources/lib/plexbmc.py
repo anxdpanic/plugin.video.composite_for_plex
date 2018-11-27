@@ -4567,7 +4567,13 @@ pluginhandle = 0
 plex_network = plex.Plex(load=False)
 
 
-def start_plexbmc():
+def start_plexbmc(handle):
+    global pluginhandle
+    try:
+        pluginhandle = handle
+    except:
+        pass
+
     try:
         params = get_params(sys.argv[2])
     except:
@@ -4740,13 +4746,6 @@ def start_plexbmc():
 
         # else move to the main code    
         else:
-
-            global pluginhandle
-            try:
-                pluginhandle = int(command)
-            except:
-                pass
-
             gui_window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
             gui_window.clearProperty("heading")
             gui_window.clearProperty("heading2")
