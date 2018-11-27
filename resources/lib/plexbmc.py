@@ -170,7 +170,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     log_print.debug("URL to use for listing: %s" % link_url)
 
-    liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'),extra_data.get('source'),folder), thumbnailImage=extra_data.get('thumb', GENERIC_THUMBNAIL))
+    liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'),extra_data.get('source'),folder), iconImage=extra_data.get('thumb', GENERIC_THUMBNAIL), thumbnailImage=extra_data.get('thumb', GENERIC_THUMBNAIL))
 
     log_print.debug("Setting thumbnail as %s" % extra_data.get('thumb', GENERIC_THUMBNAIL))
 
