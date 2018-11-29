@@ -256,7 +256,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if context is not None:
         if not folder and extra_data.get('type', 'video').lower() == "video":
             # Play Transcoded
-            context.insert(0, (i18n(32086), "PlayMedia(%s&transcode=1)" % link_url,))
+            context.insert(0, (i18n(30086), "PlayMedia(%s&transcode=1)" % link_url,))
             log_print.debug("Setting transcode options to [%s&transcode=1]" % link_url)
         log_print.debug("Building Context Menus")
         liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
@@ -339,7 +339,7 @@ def display_sections(cfilter=None, display_shared=False):
 
     # For each of the servers we have identified            
     if plex_network.is_myplex_signedin():
-        add_item_to_gui('http://myplexqueue', {'title': i18n(32080)}, {'type': 'Video', 'mode': MODE_MYPLEXQUEUE})
+        add_item_to_gui('http://myplexqueue', {'title': i18n(30080)}, {'type': 'Video', 'mode': MODE_MYPLEXQUEUE})
 
     for server in server_list:
 
@@ -355,7 +355,7 @@ def display_sections(cfilter=None, display_shared=False):
         else:
             prefix = ""
 
-        details = {'title': prefix + i18n(32084)}
+        details = {'title': prefix + i18n(30084)}
         extra_data = {'type': "Video", 'mode': MODE_CHANNELVIEW}
 
         u = "%s/channels/all" % server.get_url_location()
@@ -370,7 +370,7 @@ def display_sections(cfilter=None, display_shared=False):
         add_item_to_gui(u, details, extra_data)
 
         # create playlist link
-        details['title'] = prefix + i18n(32085)
+        details['title'] = prefix + i18n(30085)
         extra_data['type'] = "file"
         extra_data['mode'] = MODE_PLAYLISTS
 
@@ -380,31 +380,31 @@ def display_sections(cfilter=None, display_shared=False):
     if plex_network.is_myplex_signedin():
 
         if plex_network.is_plexhome_enabled():
-            details = {'title': i18n(32076)}
+            details = {'title': i18n(30076)}
             extra_data = {'type': 'file'}
 
             u = "cmd:switchuser"
             add_item_to_gui(u, details, extra_data)
 
-        details = {'title': i18n(32006)}
+        details = {'title': i18n(30006)}
         extra_data = {'type': 'file'}
 
         u = "cmd:signout"
         add_item_to_gui(u, details, extra_data)
     else:
-        details = {'title': i18n(32081)}
+        details = {'title': i18n(30081)}
         extra_data = {'type': 'file'}
 
         u = "cmd:signintemp"
         add_item_to_gui(u, details, extra_data)
 
-    details = {'title': i18n(32082)}
+    details = {'title': i18n(30082)}
     extra_data = {'type': 'file'}
     data_url = "cmd:displayservers"
     add_item_to_gui(data_url, details, extra_data)
 
     if settings.get_setting('cache'):
-        details = {'title': i18n(32083)}
+        details = {'title': i18n(30083)}
         extra_data = {'type': "file",
                       'mode': MODE_DELETE_REFRESH}
 
@@ -1216,7 +1216,7 @@ def select_media_to_play(data, server):
 
         log_print.debug("Create selection dialog box - we have a decision to make!")
         startTime = xbmcgui.Dialog()
-        result = startTime.select(i18n(32071), dialogOptions)
+        result = startTime.select(i18n(30071), dialogOptions)
         if result == -1:
             return None
 
@@ -1589,117 +1589,117 @@ def directory_item_translate(title, thumb):
 
     if thumb.endswith("show.png"):
         if title == "All Shows":
-            translated_title = i18n(32013)
+            translated_title = i18n(30013)
         elif title == "Unwatched":
-            translated_title = i18n(32014)
+            translated_title = i18n(30014)
         elif title == "Recently Aired":
-            translated_title = i18n(32015)
+            translated_title = i18n(30015)
         elif title == 'Recently Added':
-            translated_title = i18n(32016)
+            translated_title = i18n(30016)
         elif title == 'Recently Viewed Episodes':
-            translated_title = i18n(32017)
+            translated_title = i18n(30017)
         elif title == 'Recently Viewed Shows':
-            translated_title = i18n(32018)
+            translated_title = i18n(30018)
         elif title == "On Deck":
-            translated_title = i18n(32019)
+            translated_title = i18n(30019)
         elif title == "By Collection":
-            translated_title = i18n(32020)
+            translated_title = i18n(30020)
         elif title == "By First Letter":
-            translated_title = i18n(32021)
+            translated_title = i18n(30021)
         elif title == "By Genre":
-            translated_title = i18n(32022)
+            translated_title = i18n(30022)
         elif title == "By Year":
-            translated_title = i18n(32023)
+            translated_title = i18n(30023)
         elif title == "By Content Rating":
-            translated_title = i18n(32024)
+            translated_title = i18n(30024)
         elif title == "By Folder":
-            translated_title = i18n(32025)
+            translated_title = i18n(30025)
         elif title == "Search Shows...":
-            translated_title = i18n(32026)
+            translated_title = i18n(30026)
         elif title == "Search Episodes...":
-            translated_title = i18n(32027)
+            translated_title = i18n(30027)
 
     if thumb.endswith("artist.png"):
         if title == "All Artists":
-            translated_title = i18n(32028)
+            translated_title = i18n(30028)
         elif title == "By Album":
-            translated_title = i18n(32029)
+            translated_title = i18n(30029)
         elif title == "By Genre":
-            translated_title = i18n(32030)
+            translated_title = i18n(30030)
         elif title == "By Year":
-            translated_title = i18n(32031)
+            translated_title = i18n(30031)
         elif title == "By Collection":
-            translated_title = i18n(32032)
+            translated_title = i18n(30032)
         elif title == 'Recently Added':
-            translated_title = i18n(32033)
+            translated_title = i18n(30033)
         elif title == "By Folder":
-            translated_title = i18n(32034)
+            translated_title = i18n(30034)
         elif title == "Search Artists...":
-            translated_title = i18n(32035)
+            translated_title = i18n(30035)
         elif title == "Search Albums...":
-            translated_title = i18n(32036)
+            translated_title = i18n(30036)
         elif title == "Search Tracks...":
-            translated_title = i18n(32037)
+            translated_title = i18n(30037)
 
     if thumb.endswith("movie.png") or thumb.endswith("video.png"):
         if title.startswith("All "):
-            translated_title = i18n(32038)
+            translated_title = i18n(30038)
         elif title == "Unwatched":
-            translated_title = i18n(32039)
+            translated_title = i18n(30039)
         elif title == "Recently Released":
-            translated_title = i18n(32040)
+            translated_title = i18n(30040)
         elif title == 'Recently Added':
-            translated_title = i18n(32041)
+            translated_title = i18n(30041)
         elif title == 'Recently Viewed':
-            translated_title = i18n(32042)
+            translated_title = i18n(30042)
         elif title == "On Deck":
-            translated_title = i18n(32043)
+            translated_title = i18n(30043)
         elif title == "By Collection":
-            translated_title = i18n(32044)
+            translated_title = i18n(30044)
         elif title == "By Genre":
-            translated_title = i18n(32045)
+            translated_title = i18n(30045)
         elif title == "By Year":
-            translated_title = i18n(32046)
+            translated_title = i18n(30046)
         elif title == "By Decade":
-            translated_title = i18n(32047)
+            translated_title = i18n(30047)
         elif title == "By Director":
-            translated_title = i18n(32048)
+            translated_title = i18n(30048)
         elif title == "By Starring Actor":
-            translated_title = i18n(32049)
+            translated_title = i18n(30049)
         elif title == "By Country":
-            translated_title = i18n(32050)
+            translated_title = i18n(30050)
         elif title == "By Content Rating":
-            translated_title = i18n(32051)
+            translated_title = i18n(30051)
         elif title == "By Rating":
-            translated_title = i18n(32052)
+            translated_title = i18n(30052)
         elif title == "By Resolution":
-            translated_title = i18n(32053)
+            translated_title = i18n(30053)
         elif title == "By First Letter":
-            translated_title = i18n(32054)
+            translated_title = i18n(30054)
         elif title == "By Folder":
-            translated_title = i18n(32055)
+            translated_title = i18n(30055)
         elif title == "Search...":
-            translated_title = i18n(32056)
+            translated_title = i18n(30056)
 
     if thumb.endswith("photo.png"):
         if title == "All Photos":
-            translated_title = i18n(32057)
+            translated_title = i18n(30057)
         elif title == "By Year":
-            translated_title = i18n(32058)
+            translated_title = i18n(30058)
         elif title == "Recently Added":
-            translated_title = i18n(32059)
+            translated_title = i18n(30059)
         elif title == "Camera Make":
-            translated_title = i18n(32060)
+            translated_title = i18n(30060)
         elif title == "Camera Model":
-            translated_title = i18n(32061)
+            translated_title = i18n(30061)
         elif title == 'Aperture':
-            translated_title = i18n(32062)
+            translated_title = i18n(30062)
         elif title == "Shutter Speed":
-            translated_title = i18n(32063)
+            translated_title = i18n(30063)
         elif title == "ISO":
-            translated_title = i18n(32064)
+            translated_title = i18n(30064)
         elif title == "Lens":
-            translated_title = i18n(32065)
+            translated_title = i18n(30065)
 
     return translated_title
 
@@ -1709,9 +1709,9 @@ def item_translate(title, source, folder):
 
     if folder and (source == 'tvshows' or source == 'tvseasons'):
         if title == "All episodes":
-            translated_title = i18n(32087)
+            translated_title = i18n(30087)
         elif title.startswith("Season "):
-            translated_title = i18n(32088) + title[6:]
+            translated_title = i18n(30088) + title[6:]
 
     return translated_title
 
@@ -1721,9 +1721,9 @@ def heading2_translate(tree):
     translated_title = directory_item_translate(title, tree.get('thumb'))
 
     if title.startswith("Season "):
-        translated_title = i18n(32088) + title[6:]
+        translated_title = i18n(30088) + title[6:]
     elif title.startswith("Search for '"):
-        translated_title = i18n(32089) + title[10:]
+        translated_title = i18n(30089) + title[10:]
 
     return translated_title
 
@@ -2527,7 +2527,7 @@ def install(url, name):
         # If we find an install option, switch to a yes/no dialog box
         if operations[i].lower() == "install":
             log_print.debug("Not installed.  Print dialog")
-            ret = xbmcgui.Dialog().yesno(i18n(32002), i18n(32003) + name)
+            ret = xbmcgui.Dialog().yesno(i18n(30002), i18n(30003) + name)
 
             if ret:
                 log_print.debug("Installing....")
@@ -2535,13 +2535,13 @@ def install(url, name):
 
                 msg = tree.get('message', '(blank)')
                 log_print.debug(msg)
-                xbmcgui.Dialog().ok(i18n(32002), msg)
+                xbmcgui.Dialog().ok(i18n(30002), msg)
             return
 
         i += 1
 
     # Else continue to a selection dialog box
-    ret = xbmcgui.Dialog().select(i18n(32004), operations.values())
+    ret = xbmcgui.Dialog().select(i18n(30004), operations.values())
 
     if ret == -1:
         log_print.debug("No option selected, cancelling")
@@ -2553,7 +2553,7 @@ def install(url, name):
 
     msg = tree.get('message')
     log_print.debug(msg)
-    xbmcgui.Dialog().ok(i18n(32002), msg)
+    xbmcgui.Dialog().ok(i18n(30002), msg)
     xbmc.executebuiltin("Container.Refresh")
 
     return
@@ -2616,9 +2616,9 @@ def display_content(acceptable_level, content_level):
         log_print.debug("OK to display")
         return True
 
-    content_map = {0: i18n(32589),
-                   1: i18n(32590),
-                   2: i18n(32591)}
+    content_map = {0: i18n(30589),
+                   1: i18n(30590),
+                   2: i18n(30591)}
 
     rating_map = {'G': 0,  # MPAA Kids
                   'PG': 0,  # MPAA Kids
@@ -2679,7 +2679,7 @@ def myplex_queue():
     log_print.debug("== ENTER ==")
 
     if not plex_network.is_myplex_signedin():
-        xbmc.executebuiltin("Notification(" + i18n(32069) + ",)")
+        xbmc.executebuiltin("Notification(" + i18n(30069) + ",)")
         return
 
     tree = plex_network.get_myplex_queue()
@@ -2695,7 +2695,7 @@ def refresh_plex_library(server_uuid, section_id):
     server.refresh_section(section_id)
 
     log_print.info("Library refresh requested")
-    xbmc.executebuiltin("Notification(" + i18n(32068) + ",100)")
+    xbmc.executebuiltin("Notification(" + i18n(30068) + ",100)")
     return
 
 
@@ -2720,7 +2720,7 @@ def delete_library_media(server_uuid, metadata_id):
     log_print.debug("== ENTER ==")
     log_print.info("Deleting media at: %s" % metadata_id)
 
-    return_value = xbmcgui.Dialog().yesno(i18n(32000), i18n(32001))
+    return_value = xbmcgui.Dialog().yesno(i18n(30000), i18n(30001))
 
     if return_value:
         log_print.debug("Deleting....")
@@ -2776,7 +2776,7 @@ def set_library_subtitiles(server_uuid, metadata_id):
         display_list[0] = display_list[0] + "*"
 
     subtitle_screen = xbmcgui.Dialog()
-    result = subtitle_screen.select(i18n(32072), display_list)
+    result = subtitle_screen.select(i18n(30072), display_list)
     if result == -1:
         return False
 
@@ -2838,7 +2838,7 @@ def set_library_audio(server_uuid, metadata_id):
         break
 
     audio_screen = xbmcgui.Dialog()
-    result = audio_screen.select(i18n(32073), display_list)
+    result = audio_screen.select(i18n(30073), display_list)
     if result == -1:
         return False
 
@@ -2910,7 +2910,7 @@ def set_master_server():
         display_option_list.append(found_server)
 
     audio_select_screen = xbmcgui.Dialog()
-    result = audio_select_screen.select(i18n(32074), display_option_list)
+    result = audio_select_screen.select(i18n(30074), display_option_list)
     if result == -1:
         return False
 
@@ -2936,7 +2936,7 @@ def display_known_servers():
         display_list.append("%s [%s] [%s]" % (name, status, secure))
 
     server_display_screen = xbmcgui.Dialog()
-    server_display_screen.select(i18n(32075), display_list)
+    server_display_screen.select(i18n(30075), display_list)
     return
 
 
@@ -3006,7 +3006,7 @@ def switch_user():
     user_list.pop(plex_network.get_myplex_user(), None)
 
     select_screen = xbmcgui.Dialog()
-    result = select_screen.select(i18n(32076), user_list.keys())
+    result = select_screen.select(i18n(30076), user_list.keys())
     if result == -1:
         log_print.debug("Dialog cancelled")
         return False
@@ -3017,12 +3017,12 @@ def switch_user():
     pin = None
     if user['protected'] == '1':
         log_print.debug("Protected user [%s], requesting password" % user['title'])
-        pin = select_screen.input(i18n(32077), type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+        pin = select_screen.input(i18n(30077), type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
     success, msg = plex_network.switch_plex_home_user(user['id'], pin)
 
     if not success:
-        xbmcgui.Dialog().ok(i18n(32005), msg)
+        xbmcgui.Dialog().ok(i18n(30005), msg)
         return False
 
     return True
@@ -3116,9 +3116,9 @@ def start_plexbmc(sys_argv):
 
     elif command == "signout":
         if not plex_network.is_admin():
-            return xbmcgui.Dialog().ok(i18n(32006), i18n(32007))
+            return xbmcgui.Dialog().ok(i18n(30006), i18n(30007))
 
-        ret = xbmcgui.Dialog().yesno(i18n(32008), i18n(32009))
+        ret = xbmcgui.Dialog().yesno(i18n(30008), i18n(30009))
         if ret:
             plex_network.signout()
             gui_window = xbmcgui.Window(10000)
@@ -3140,14 +3140,14 @@ def start_plexbmc(sys_argv):
     elif command == "managemyplex":
 
         if not plex_network.is_myplex_signedin():
-            ret = xbmcgui.Dialog().yesno(i18n(32010), i18n(32011))
+            ret = xbmcgui.Dialog().yesno(i18n(30010), i18n(30011))
             if ret:
                 xbmc.executebuiltin('RunScript(plugin.video.plexbmc, signin)')
             else:
                 return
 
         elif not plex_network.is_admin():
-            return xbmcgui.Dialog().ok(i18n(32010), i18n(32012))
+            return xbmcgui.Dialog().ok(i18n(30010), i18n(30012))
 
         from .plex import plexsignin
         manage_window = plexsignin.PlexManage('Manage myplex')

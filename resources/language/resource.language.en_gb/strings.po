@@ -16,812 +16,812 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-msgctxt "#32000"
+msgctxt "#30000"
 msgid "Confirm file delete?"
 msgstr ""
 
-msgctxt "#32001"
+msgctxt "#30001"
 msgid "Delete this item? This action will delete media and associated data files."
 msgstr ""
 
-msgctxt "#32002"
+msgctxt "#30002"
 msgid "Plex Online"
 msgstr ""
 
-msgctxt "#32003"
+msgctxt "#30003"
 msgid "About to install "
 msgstr ""
 
-msgctxt "#32004"
+msgctxt "#30004"
 msgid "This plugin is already installed.."
 msgstr ""
 
-msgctxt "#32005"
+msgctxt "#30005"
 msgid "Switch Failed"
 msgstr ""
 
-msgctxt "#32006"
+msgctxt "#30006"
 msgid "Sign Out"
 msgstr ""
 
-msgctxt "#32007"
+msgctxt "#30007"
 msgid "To sign out you must be logged in as an admin user. Please switch user and try again"
 msgstr ""
 
-msgctxt "#32008"
+msgctxt "#30008"
 msgid "myplex"
 msgstr ""
 
-msgctxt "#32009"
+msgctxt "#30009"
 msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
 msgstr ""
 
-msgctxt "#32010"
+msgctxt "#30010"
 msgid "Manage myplex"
 msgstr ""
 
-msgctxt "#32011"
+msgctxt "#30011"
 msgid "You are not currently logged into myplex.  Please continue to sign in, or cancel to return"
 msgstr ""
 
-msgctxt "#32012"
+msgctxt "#30012"
 msgid "To access these screens you must be logged in as an admin user.  Please switch user and try again"
 msgstr ""
 
-msgctxt "#32013"
+msgctxt "#30013"
 msgid "All"
 msgstr ""
 
-msgctxt "#32014"
+msgctxt "#30014"
 msgid "Unwatched"
 msgstr ""
 
-msgctxt "#32015"
+msgctxt "#30015"
 msgid "Recently Aired"
 msgstr ""
 
-msgctxt "#32016"
+msgctxt "#30016"
 msgid "Recently Added"
 msgstr ""
 
-msgctxt "#32017"
+msgctxt "#30017"
 msgid "Recently Viewed Episodes"
 msgstr ""
 
-msgctxt "#32018"
+msgctxt "#30018"
 msgid "Recently Viewed Shows"
 msgstr ""
 
-msgctxt "#32019"
+msgctxt "#30019"
 msgid "On Deck"
 msgstr ""
 
-msgctxt "#32020"
+msgctxt "#30020"
 msgid "By Collection"
 msgstr ""
 
-msgctxt "#32021"
+msgctxt "#30021"
 msgid "By First Letter"
 msgstr ""
 
-msgctxt "#32022"
+msgctxt "#30022"
 msgid "By Genre"
 msgstr ""
 
-msgctxt "#32023"
+msgctxt "#30023"
 msgid "By Year"
 msgstr ""
 
-msgctxt "#32024"
+msgctxt "#30024"
 msgid "By Content Rating"
 msgstr ""
 
-msgctxt "#32025"
+msgctxt "#30025"
 msgid "By Folder"
 msgstr ""
 
-msgctxt "#32026"
+msgctxt "#30026"
 msgid "Search Shows..."
 msgstr ""
 
-msgctxt "#32027"
+msgctxt "#30027"
 msgid "Search Episodes..."
 msgstr ""
 
-msgctxt "#32028"
+msgctxt "#30028"
 msgid "All"
 msgstr ""
 
-msgctxt "#32029"
+msgctxt "#30029"
 msgid "By Album"
 msgstr ""
 
-msgctxt "#32030"
+msgctxt "#30030"
 msgid "By Genre"
 msgstr ""
 
-msgctxt "#32031"
+msgctxt "#30031"
 msgid "By Year"
 msgstr ""
 
-msgctxt "#32032"
+msgctxt "#30032"
 msgid "By Collection"
 msgstr ""
 
-msgctxt "#32033"
+msgctxt "#30033"
 msgid "Recently Added"
 msgstr ""
 
-msgctxt "#32034"
+msgctxt "#30034"
 msgid "By Folder"
 msgstr ""
 
-msgctxt "#32035"
+msgctxt "#30035"
 msgid "Search Artists..."
 msgstr ""
 
-msgctxt "#32036"
+msgctxt "#30036"
 msgid "Search Albums..."
 msgstr ""
 
-msgctxt "#32037"
+msgctxt "#30037"
 msgid "Search Tracks..."
 msgstr ""
 
-msgctxt "#32038"
+msgctxt "#30038"
 msgid "All"
 msgstr ""
 
-msgctxt "#32039"
+msgctxt "#30039"
 msgid "Unwatched"
 msgstr ""
 
-msgctxt "#32040"
+msgctxt "#30040"
 msgid "Recently Released"
 msgstr ""
 
-msgctxt "#32041"
+msgctxt "#30041"
 msgid "Recently Added"
 msgstr ""
 
-msgctxt "#32042"
+msgctxt "#30042"
 msgid "Recently Viewed"
 msgstr ""
 
-msgctxt "#32043"
+msgctxt "#30043"
 msgid "On Deck"
 msgstr ""
 
-msgctxt "#32044"
+msgctxt "#30044"
 msgid "By Collection"
 msgstr ""
 
-msgctxt "#32045"
+msgctxt "#30045"
 msgid "By Genre"
 msgstr ""
 
-msgctxt "#32046"
+msgctxt "#30046"
 msgid "By Year"
 msgstr ""
 
-msgctxt "#32047"
+msgctxt "#30047"
 msgid "By Decade"
 msgstr ""
 
-msgctxt "#32048"
+msgctxt "#30048"
 msgid "By Director"
 msgstr ""
 
-msgctxt "#32049"
+msgctxt "#30049"
 msgid "By Starring Actor"
 msgstr ""
 
-msgctxt "#32050"
+msgctxt "#30050"
 msgid "By Country"
 msgstr ""
 
-msgctxt "#32051"
+msgctxt "#30051"
 msgid "By Content Rating"
 msgstr ""
 
-msgctxt "#32052"
+msgctxt "#30052"
 msgid "By Rating"
 msgstr ""
 
-msgctxt "#32053"
+msgctxt "#30053"
 msgid "By Resolution"
 msgstr ""
 
-msgctxt "#32054"
+msgctxt "#30054"
 msgid "By First Letter"
 msgstr ""
 
-msgctxt "#32055"
+msgctxt "#30055"
 msgid "By Folder"
 msgstr ""
 
-msgctxt "#32056"
+msgctxt "#30056"
 msgid "Search..."
 msgstr ""
 
-msgctxt "#32057"
+msgctxt "#30057"
 msgid "All"
 msgstr ""
 
-msgctxt "#32058"
+msgctxt "#30058"
 msgid "By Year"
 msgstr ""
 
-msgctxt "#32059"
+msgctxt "#30059"
 msgid "Recently Added"
 msgstr ""
 
-msgctxt "#32060"
+msgctxt "#30060"
 msgid "Camera Make"
 msgstr ""
 
-msgctxt "#32061"
+msgctxt "#30061"
 msgid "Camera Model"
 msgstr ""
 
-msgctxt "#32062"
+msgctxt "#30062"
 msgid "Aperture"
 msgstr ""
 
-msgctxt "#32063"
+msgctxt "#30063"
 msgid "Shutter Speed"
 msgstr ""
 
-msgctxt "#32064"
+msgctxt "#30064"
 msgid "ISO"
 msgstr ""
 
-msgctxt "#32065"
+msgctxt "#30065"
 msgid "Lens"
 msgstr ""
 
-msgctxt "#32066"
+msgctxt "#30066"
 msgid "Unable to see any media servers"
 msgstr ""
 
-msgctxt "#32067"
+msgctxt "#30067"
 msgid "Unable to contact server:"
 msgstr ""
 
-msgctxt "#32068"
+msgctxt "#30068"
 msgid "\"PleXBMC\",Library Refresh started"
 msgstr ""
 
-msgctxt "#32069"
+msgctxt "#30069"
 msgid "myplex not configured"
 msgstr ""
 
-msgctxt "#32070"
+msgctxt "#30070"
 msgid "Resume"
 msgstr ""
 
-msgctxt "#32071"
+msgctxt "#30071"
 msgid "Select media to play"
 msgstr ""
 
-msgctxt "#32072"
+msgctxt "#30072"
 msgid "Select subtitle"
 msgstr ""
 
-msgctxt "#32073"
+msgctxt "#30073"
 msgid "Select audio"
 msgstr ""
 
-msgctxt "#32074"
+msgctxt "#30074"
 msgid "Select master server"
 msgstr ""
 
-msgctxt "#32075"
+msgctxt "#30075"
 msgid "Known server list"
 msgstr ""
 
-msgctxt "#32076"
+msgctxt "#30076"
 msgid "Switch User"
 msgstr ""
 
-msgctxt "#32077"
+msgctxt "#30077"
 msgid "Enter PIN"
 msgstr ""
 
-msgctxt "#32078"
+msgctxt "#30078"
 msgid "Resume from"
 msgstr ""
 
-msgctxt "#32079"
+msgctxt "#30079"
 msgid "Start from beginning"
 msgstr ""
 
-msgctxt "#32080"
+msgctxt "#30080"
 msgid "MyPlex Queue"
 msgstr ""
 
-msgctxt "#32081"
+msgctxt "#30081"
 msgid "Sign In"
 msgstr ""
 
-msgctxt "#32082"
+msgctxt "#30082"
 msgid "Display servers"
 msgstr ""
 
-msgctxt "#32083"
+msgctxt "#30083"
 msgid "Refresh Data"
 msgstr ""
 
-msgctxt "#32084"
+msgctxt "#30084"
 msgid "Channels"
 msgstr ""
 
-msgctxt "#32085"
+msgctxt "#30085"
 msgid "Playlists"
 msgstr ""
 
-msgctxt "#32086"
+msgctxt "#30086"
 msgid "Play Transcoded"
 msgstr ""
 
-msgctxt "#32087"
+msgctxt "#30087"
 msgid "All episodes"
 msgstr ""
 
-msgctxt "#32088"
+msgctxt "#30088"
 msgid "Season"
 msgstr ""
 
-msgctxt "#32089"
+msgctxt "#30089"
 msgid "Search for"
 msgstr ""
 
 ###### SETTINGS
 
-msgctxt "#32500"
+msgctxt "#30500"
 msgid "Primary Server Address"
 msgstr ""
 
-msgctxt "#32501"
+msgctxt "#30501"
 msgid "Stream from PMS"
 msgstr ""
 
-msgctxt "#32502"
+msgctxt "#30502"
 msgid "Get extended metadata from PMS"
 msgstr ""
 
-msgctxt "#32503"
+msgctxt "#30503"
 msgid "Enable extra filter menus"
 msgstr ""
 
-msgctxt "#32504"
+msgctxt "#30504"
 msgid "Server Discovery"
 msgstr ""
 
-msgctxt "#32505"
+msgctxt "#30505"
 msgid "PMS Username: "
 msgstr ""
 
-msgctxt "#32506"
+msgctxt "#30506"
 msgid "PMS Password: "
 msgstr ""
 
-msgctxt "#32507"
+msgctxt "#30507"
 msgid "Always Transcode"
 msgstr ""
 
-msgctxt "#32508"
+msgctxt "#30508"
 msgid "Transcode format "
 msgstr ""
 
-msgctxt "#32509"
+msgctxt "#30509"
 msgid "Recent & OnDeck items"
 msgstr ""
 
-msgctxt "#32510"
+msgctxt "#30510"
 msgid "Debug log"
 msgstr ""
 
-msgctxt "#32511"
+msgctxt "#30511"
 msgid "Auto"
 msgstr ""
 
-msgctxt "#32512"
+msgctxt "#30512"
 msgid "http"
 msgstr ""
 
-msgctxt "#32513"
+msgctxt "#30513"
 msgid "smb"
 msgstr ""
 
-msgctxt "#32514"
+msgctxt "#30514"
 msgid "Enable PleXBMC debug output to KODI log"
 msgstr ""
 
-msgctxt "#32515"
+msgctxt "#30515"
 msgid "Use transcoding proxy"
 msgstr ""
 
-msgctxt "#32516"
+msgctxt "#30516"
 msgid "Server"
 msgstr ""
 
-msgctxt "#32517"
+msgctxt "#30517"
 msgid "Playback"
 msgstr ""
 
-msgctxt "#32518"
+msgctxt "#30518"
 msgid "Transcoding"
 msgstr ""
 
-msgctxt "#32519"
+msgctxt "#30519"
 msgid "Wake On LAN"
 msgstr ""
 
-msgctxt "#32520"
+msgctxt "#30520"
 msgid "Look and Feel"
 msgstr ""
 
-msgctxt "#32521"
+msgctxt "#30521"
 msgid "Skin Home Shelf"
 msgstr ""
 
-msgctxt "#32522"
+msgctxt "#30522"
 msgid "Advanced"
 msgstr ""
 
-msgctxt "#32523"
+msgctxt "#30523"
 msgid "Use Wake On LAN"
 msgstr ""
 
-msgctxt "#32524"
+msgctxt "#30524"
 msgid "myPlex user"
 msgstr ""
 
-msgctxt "#32525"
+msgctxt "#30525"
 msgid "myPlex password"
 msgstr ""
 
-msgctxt "#32526"
+msgctxt "#30526"
 msgid "Select master server..."
 msgstr ""
 
-msgctxt "#32527"
+msgctxt "#30527"
 msgid "Authentication required?"
 msgstr ""
 
-msgctxt "#32528"
+msgctxt "#30528"
 msgid "Load External Subtitles?"
 msgstr ""
 
-msgctxt "#32529"
+msgctxt "#30529"
 msgid "Always display subtitles?"
 msgstr ""
 
-msgctxt "#32530"
+msgctxt "#30530"
 msgid "Port Number"
 msgstr ""
 
-msgctxt "#32531"
+msgctxt "#30531"
 msgid "Use PMS localisation settings"
 msgstr ""
 
-msgctxt "#32532"
+msgctxt "#30532"
 msgid "Manual"
 msgstr ""
 
-msgctxt "#32533"
+msgctxt "#30533"
 msgid "Always"
 msgstr ""
 
-msgctxt "#32534"
+msgctxt "#30534"
 msgid "Audio stream selection"
 msgstr ""
 
-msgctxt "#32535"
+msgctxt "#30535"
 msgid "Subtitle stream selection"
 msgstr ""
 
-msgctxt "#32536"
+msgctxt "#30536"
 msgid "KODI Control"
 msgstr ""
 
-msgctxt "#32537"
+msgctxt "#30537"
 msgid "External"
 msgstr ""
 
-msgctxt "#32538"
+msgctxt "#30538"
 msgid "Audio and subtitle selector"
 msgstr ""
 
-msgctxt "#32539"
+msgctxt "#30539"
 msgid "Never show subtitles"
 msgstr ""
 
-msgctxt "#32540"
+msgctxt "#30540"
 msgid "Quality"
 msgstr ""
 
-msgctxt "#32541"
+msgctxt "#30541"
 msgid "Proxy Port"
 msgstr ""
 
-msgctxt "#32542"
+msgctxt "#30542"
 msgid "Plex Channel View"
 msgstr ""
 
-msgctxt "#32543"
+msgctxt "#30543"
 msgid "Flatten TV Shows"
 msgstr ""
 
-msgctxt "#32544"
+msgctxt "#30544"
 msgid "Server MAC address"
 msgstr ""
 
-msgctxt "#32545"
+msgctxt "#30545"
 msgid "Plex Style Watched flags"
 msgstr ""
 
-msgctxt "#32546"
+msgctxt "#30546"
 msgid "Windows Media Server?"
 msgstr ""
 
-msgctxt "#32547"
+msgctxt "#30547"
 msgid "Use WOL?"
 msgstr ""
 
-msgctxt "#32548"
+msgctxt "#30548"
 msgid "Clean context menus"
 msgstr ""
 
-msgctxt "#32549"
+msgctxt "#30549"
 msgid "Skip Genre/director/writer metadata"
 msgstr ""
 
-msgctxt "#32550"
+msgctxt "#30550"
 msgid "Skip images (thumbs, fanart)"
 msgstr ""
 
-msgctxt "#32551"
+msgctxt "#30551"
 msgid "Skip Media Flags"
 msgstr ""
 
-msgctxt "#32552"
+msgctxt "#30552"
 msgid "Skip Context Menus"
 msgstr ""
 
-msgctxt "#32553"
+msgctxt "#30553"
 msgid "Off"
 msgstr ""
 
-msgctxt "#32554"
+msgctxt "#30554"
 msgid "Bonjour"
 msgstr ""
 
-msgctxt "#32556"
+msgctxt "#30556"
 msgid "Play TV Theme Music"
 msgstr ""
 
-msgctxt "#32557"
+msgctxt "#30557"
 msgid "Select audio output"
 msgstr ""
 
-msgctxt "#32558"
+msgctxt "#30558"
 msgid "If only one season"
 msgstr ""
 
-msgctxt "#32559"
+msgctxt "#30559"
 msgid "All seasons"
 msgstr ""
 
-msgctxt "#32560"
+msgctxt "#30560"
 msgid "Force DVD playback"
 msgstr ""
 
-msgctxt "#32561"
+msgctxt "#30561"
 msgid "Override SMB location"
 msgstr ""
 
-msgctxt "#32562"
+msgctxt "#30562"
 msgid "NAS IP Address"
 msgstr ""
 
-msgctxt "#32563"
+msgctxt "#30563"
 msgid "AFP"
 msgstr ""
 
-msgctxt "#32564"
+msgctxt "#30564"
 msgid "NAS Username"
 msgstr ""
 
-msgctxt "#32565"
+msgctxt "#30565"
 msgid "NAS password"
 msgstr ""
 
-msgctxt "#32566"
+msgctxt "#30566"
 msgid "NAS Root Folder"
 msgstr ""
 
-msgctxt "#32567"
+msgctxt "#30567"
 msgid "Plex Control"
 msgstr ""
 
-msgctxt "#32568"
+msgctxt "#30568"
 msgid "Subtitle Size"
 msgstr ""
 
-msgctxt "#32569"
+msgctxt "#30569"
 msgid "Audio Boost"
 msgstr ""
 
-msgctxt "#32570"
+msgctxt "#30570"
 msgid "Auto (GDM)"
 msgstr ""
 
-msgctxt "#32571"
+msgctxt "#30571"
 msgid "Current Master Server"
 msgstr ""
 
-msgctxt "#32572"
+msgctxt "#30572"
 msgid "Current Master Server"
 msgstr ""
 
-msgctxt "#32573"
+msgctxt "#30573"
 msgid "Recently Added"
 msgstr ""
 
-msgctxt "#32574"
+msgctxt "#30574"
 msgid "On Deck"
 msgstr ""
 
-msgctxt "#32575"
+msgctxt "#30575"
 msgid "Force Skin Views"
 msgstr ""
 
-msgctxt "#32576"
+msgctxt "#30576"
 msgid "Skin Name"
 msgstr ""
 
-msgctxt "#32577"
+msgctxt "#30577"
 msgid "Movie View"
 msgstr ""
 
-msgctxt "#32578"
+msgctxt "#30578"
 msgid "TV View"
 msgstr ""
 
-msgctxt "#32579"
+msgctxt "#30579"
 msgid "Season View"
 msgstr ""
 
-msgctxt "#32580"
+msgctxt "#30580"
 msgid "Episode View"
 msgstr ""
 
-msgctxt "#32581"
+msgctxt "#30581"
 msgid "Music View"
 msgstr ""
 
-msgctxt "#32582"
+msgctxt "#30582"
 msgid "Enable Movie Shelf"
 msgstr ""
 
-msgctxt "#32583"
+msgctxt "#30583"
 msgid "Enable TV Shelf"
 msgstr ""
 
-msgctxt "#32584"
+msgctxt "#30584"
 msgid "Enable Music Shelf"
 msgstr ""
 
-msgctxt "#32585"
+msgctxt "#30585"
 msgid "Enable Channel Shelf"
 msgstr ""
 
-msgctxt "#32586"
+msgctxt "#30586"
 msgid "Content filter"
 msgstr ""
 
-msgctxt "#32587"
+msgctxt "#30587"
 msgid "Map unknown content as:"
 msgstr ""
 
-msgctxt "#32588"
+msgctxt "#30588"
 msgid "RA Library filter"
 msgstr ""
 
-msgctxt "#32589"
+msgctxt "#30589"
 msgid "Kids"
 msgstr ""
 
-msgctxt "#32590"
+msgctxt "#30590"
 msgid "Teens"
 msgstr ""
 
-msgctxt "#32591"
+msgctxt "#30591"
 msgid "Adults"
 msgstr ""
 
-msgctxt "#32592"
+msgctxt "#30592"
 msgid "Use menu for shared sections"
 msgstr ""
 
-msgctxt "#32593"
+msgctxt "#30593"
 msgid "Cache Data"
 msgstr ""
 
-msgctxt "#32594"
+msgctxt "#30594"
 msgid "Manual"
 msgstr ""
 
-msgctxt "#32595"
+msgctxt "#30595"
 msgid "Use full-res thumbs"
 msgstr ""
 
-msgctxt "#32596"
+msgctxt "#30596"
 msgid "Use full-res fanart"
 msgstr ""
 
-msgctxt "#32597"
+msgctxt "#30597"
 msgid "Hide watched recently added items"
 msgstr ""
 
-msgctxt "#32598"
+msgctxt "#30598"
 msgid "Info"
 msgstr ""
 
-msgctxt "#32599"
+msgctxt "#30599"
 msgid "Debug"
 msgstr ""
 
-msgctxt "#32600"
+msgctxt "#30600"
 msgid "Debug+"
 msgstr ""
 
-msgctxt "#32601"
+msgctxt "#30601"
 msgid "Transcoder"
 msgstr ""
 
-msgctxt "#32602"
+msgctxt "#30602"
 msgid "Name"
 msgstr ""
 
-msgctxt "#32603"
+msgctxt "#30603"
 msgid "Disable 'All Episodes'"
 msgstr ""
 
-msgctxt "#32604"
+msgctxt "#30604"
 msgid "Enable KODI view cache"
 msgstr ""
 
-msgctxt "#32605"
+msgctxt "#30605"
 msgid "Manage myPlex"
 msgstr ""
 
-msgctxt "#32606"
+msgctxt "#30606"
 msgid "Prefer Season artwork"
 msgstr ""
 
-msgctxt "#32607"
+msgctxt "#30607"
 msgid "Hide Unique Information in log"
 msgstr ""
 
-msgctxt "#32608"
+msgctxt "#30608"
 msgid "Use KODI client name?"
 msgstr ""
 
-msgctxt "#32609"
+msgctxt "#30609"
 msgid "Switch off playback monitor"
 msgstr ""
 
-msgctxt "#32610"
+msgctxt "#30610"
 msgid "Use HTTPS"
 msgstr ""
 
-msgctxt "#32611"
+msgctxt "#30611"
 msgid "Transcode >1080p"
 msgstr ""
 
-msgctxt "#32612"
+msgctxt "#30612"
 msgid "Transcode HEVC"
 msgstr ""

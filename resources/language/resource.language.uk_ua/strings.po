@@ -18,414 +18,414 @@ msgstr ""
 
 ###### SETTINGS
 
-msgctxt "#32500"
+msgctxt "#30500"
 msgid "Primary Server Address"
 msgstr "Головна адреса сервера"
 
-msgctxt "#32501"
+msgctxt "#30501"
 msgid "Stream from PMS"
 msgstr "Формат посилання з PMS"
 
-msgctxt "#32502"
+msgctxt "#30502"
 msgid "Get extended metadata from PMS"
 msgstr "Отримувати розширені метадані з PMS"
 
-msgctxt "#32503"
+msgctxt "#30503"
 msgid "Enable extra filter menus"
 msgstr "Ввімкнути меню екстра-фільтрів"
 
-msgctxt "#32504"
+msgctxt "#30504"
 msgid "Server Discovery"
 msgstr "Розташування сервера"
 
-msgctxt "#32505"
+msgctxt "#30505"
 msgid "PMS Username: "
 msgstr "PMS Користувач:"
 
-msgctxt "#32506"
+msgctxt "#30506"
 msgid "PMS Password: "
 msgstr "PMS Пароль:"
 
-msgctxt "#32507"
+msgctxt "#30507"
 msgid "Always Transcode"
 msgstr "Завжди транскодувати"
 
-msgctxt "#32508"
+msgctxt "#30508"
 msgid "Transcode format "
 msgstr "Формат транскодування"
 
-msgctxt "#32509"
+msgctxt "#30509"
 msgid "Recent & OnDeck items"
 msgstr "Нові & На головній"
 
-msgctxt "#32510"
+msgctxt "#30510"
 msgid "Debug log"
 msgstr "Лог відладки"
 
-msgctxt "#32511"
+msgctxt "#30511"
 msgid "Auto"
 msgstr "Авто"
 
-msgctxt "#32512"
+msgctxt "#30512"
 msgid "http"
 msgstr "http"
 
-msgctxt "#32513"
+msgctxt "#30513"
 msgid "smb"
 msgstr "smb"
 
-msgctxt "#32514"
+msgctxt "#30514"
 msgid "Enable PleXBMC debug output to KODI log"
 msgstr "Виводити у лог KODI"
 
-msgctxt "#32515"
+msgctxt "#30515"
 msgid "Use transcoding proxy"
 msgstr "Використовувати проксі для транскодування"
 
-msgctxt "#32516"
+msgctxt "#30516"
 msgid "Server"
 msgstr "Сервер"
 
-msgctxt "#32517"
+msgctxt "#30517"
 msgid "Playback"
 msgstr "Відтворення"
 
-msgctxt "#32518"
+msgctxt "#30518"
 msgid "Transcoding"
 msgstr "Транскодування"
 
-msgctxt "#32519"
+msgctxt "#30519"
 msgid "Wake On LAN"
 msgstr "Wake On LAN"
 
-msgctxt "#32520"
+msgctxt "#30520"
 msgid "Look and Feel"
 msgstr "Вигляд"
 
-msgctxt "#32521"
+msgctxt "#30521"
 msgid "Skin Home Shelf"
 msgstr "Поличка"
 
-msgctxt "#32522"
+msgctxt "#30522"
 msgid "Advanced"
 msgstr "Розширені"
 
-msgctxt "#32523"
+msgctxt "#30523"
 msgid "Use Wake On LAN"
 msgstr "Використовувати Wake On LAN"
 
-msgctxt "#32524"
+msgctxt "#30524"
 msgid "myPlex user"
 msgstr "myPlex користувач"
 
-msgctxt "#32525"
+msgctxt "#30525"
 msgid "myPlex password"
 msgstr "myPlex пароль"
 
-msgctxt "#32526"
+msgctxt "#30526"
 msgid "Select master server..."
 msgstr "Обрати Майстер Сервер..."
 
-msgctxt "#32527"
+msgctxt "#30527"
 msgid "Authentication required?"
 msgstr "Необхідна авторизація?"
 
-msgctxt "#32528"
+msgctxt "#30528"
 msgid "Load External Subtitles?"
 msgstr "Завантажувати зовнішні субтитри?"
 
-msgctxt "#32529"
+msgctxt "#30529"
 msgid "Always display subtitles?"
 msgstr "Завжди відображати субтитри?"
 
-msgctxt "#32530"
+msgctxt "#30530"
 msgid "Port Number"
 msgstr "Номер порту"
 
-msgctxt "#32531"
+msgctxt "#30531"
 msgid "Use PMS localisation settings"
 msgstr "Використовувати налаштування локалізації PMS"
 
-msgctxt "#32532"
+msgctxt "#30532"
 msgid "Manual"
 msgstr "Уручну"
 
-msgctxt "#32533"
+msgctxt "#30533"
 msgid "Always"
 msgstr "Завжди"
 
-msgctxt "#32534"
+msgctxt "#30534"
 msgid "Audio stream selection"
 msgstr "Вибір потоку аудіо"
 
-msgctxt "#32535"
+msgctxt "#30535"
 msgid "Subtitle stream selection"
 msgstr "Вибір потоку субтитрів"
 
-msgctxt "#32536"
+msgctxt "#30536"
 msgid "KODI Control"
 msgstr "Керується KODI"
 
-msgctxt "#32537"
+msgctxt "#30537"
 msgid "External"
 msgstr "Зовнішній"
 
-msgctxt "#32538"
+msgctxt "#30538"
 msgid "Audio and subtitle selector"
 msgstr "Вибір аудіо та субтитрів"
 
-msgctxt "#32539"
+msgctxt "#30539"
 msgid "Never show subtitles"
 msgstr "Не відображати субтитри"
 
-msgctxt "#32540"
+msgctxt "#30540"
 msgid "Quality"
 msgstr "Якість"
 
-msgctxt "#32541"
+msgctxt "#30541"
 msgid "Proxy Port"
 msgstr "Порт Проксі"
 
-msgctxt "#32542"
+msgctxt "#30542"
 msgid "Plex Channel View"
 msgstr "Вигляд каналів Plex"
 
-msgctxt "#32543"
+msgctxt "#30543"
 msgid "Flatten TV Shows"
 msgstr "Згортати серіали"
 
-msgctxt "#32544"
+msgctxt "#30544"
 msgid "Server MAC address"
 msgstr "MAC адреса сервера"
 
-msgctxt "#32545"
+msgctxt "#30545"
 msgid "Plex Style Watched flags"
 msgstr "Відмітки переглянутого у стилі Plex"
 
-msgctxt "#32546"
+msgctxt "#30546"
 msgid "Windows Media Server?"
 msgstr "Windows Медіа Сервер?"
 
-msgctxt "#32547"
+msgctxt "#30547"
 msgid "Use WOL?"
 msgstr "Використовувати WOL?"
 
-msgctxt "#32548"
+msgctxt "#30548"
 msgid "Clean context menus"
 msgstr "Очистити Контекстні меню"
 
-msgctxt "#32549"
+msgctxt "#30549"
 msgid "Skip Genre/director/writer metadata"
 msgstr "Вимкнути Метадані жанр/режисер/сценарист"
 
-msgctxt "#32550"
+msgctxt "#30550"
 msgid "Skip images (thumbs, fanart)"
 msgstr "Вимкнути Зображення (іконки, фан-арти)"
 
-msgctxt "#32551"
+msgctxt "#30551"
 msgid "Skip Media Flags"
 msgstr "Вимкнути Відмітки медіа"
 
-msgctxt "#32552"
+msgctxt "#30552"
 msgid "Skip Context Menus"
 msgstr "Вимкнути Контекстні меню"
 
-msgctxt "#32553"
+msgctxt "#30553"
 msgid "Off"
 msgstr "Вимкнути"
 
-msgctxt "#32554"
+msgctxt "#30554"
 msgid "Bonjour"
 msgstr "Bonjour"
 
-msgctxt "#32556"
+msgctxt "#30556"
 msgid "Play TV Theme Music"
 msgstr "Грати саундтрек серіалу у фоні"
 
-msgctxt "#32557"
+msgctxt "#30557"
 msgid "Select audio output"
 msgstr "Обрати формат звуку"
 
-msgctxt "#32558"
+msgctxt "#30558"
 msgid "If only one season"
 msgstr "Якщо один сезон"
 
-msgctxt "#32559"
+msgctxt "#30559"
 msgid "All seasons"
 msgstr "Усі сезони"
 
-msgctxt "#32560"
+msgctxt "#30560"
 msgid "Force DVD playback"
 msgstr "Примусове програвання DVD"
 
-msgctxt "#32561"
+msgctxt "#30561"
 msgid "Override SMB location"
 msgstr "Переназначити розташування SMB"
 
-msgctxt "#32562"
+msgctxt "#30562"
 msgid "NAS IP Address"
 msgstr "NAS IP Адреса"
 
-msgctxt "#32563"
+msgctxt "#30563"
 msgid "AFP"
 msgstr "AFP"
 
-msgctxt "#32564"
+msgctxt "#30564"
 msgid "NAS Username"
 msgstr "NAS Користувач"
 
-msgctxt "#32565"
+msgctxt "#30565"
 msgid "NAS password"
 msgstr "NAS Пароль"
 
-msgctxt "#32566"
+msgctxt "#30566"
 msgid "NAS Root Folder"
 msgstr "NAS Коренева директорія"
 
-msgctxt "#32567"
+msgctxt "#30567"
 msgid "Plex Control"
 msgstr "Керується Plex"
 
-msgctxt "#32568"
+msgctxt "#30568"
 msgid "Subtitle Size"
 msgstr "Розмір субтитрів"
 
-msgctxt "#32569"
+msgctxt "#30569"
 msgid "Audio Boost"
 msgstr "Розмір субтитрів"
 
-msgctxt "#32570"
+msgctxt "#30570"
 msgid "Auto (GDM)"
 msgstr "Авто (GDM)"
 
-msgctxt "#32571"
+msgctxt "#30571"
 msgid "Current Master Server"
 msgstr "Поточний Майстер Сервер"
 
-msgctxt "#32572"
+msgctxt "#30572"
 msgid "Shelf Items"
 msgstr "Елементи на полиці"
 
-msgctxt "#32573"
+msgctxt "#30573"
 msgid "Recently Added"
 msgstr "Недавно додані"
 
-msgctxt "#32574"
+msgctxt "#30574"
 msgid "On Deck"
 msgstr "На головній"
 
-msgctxt "#32575"
+msgctxt "#30575"
 msgid "Force Skin Views"
 msgstr "Примусовий вигляд обкладинки"
 
-msgctxt "#32576"
+msgctxt "#30576"
 msgid "Skin Name"
 msgstr "Назва обкладинки"
 
-msgctxt "#32577"
+msgctxt "#30577"
 msgid "Movie View"
 msgstr "Фільми"
 
-msgctxt "#32578"
+msgctxt "#30578"
 msgid "TV View"
 msgstr "Серіали"
 
-msgctxt "#32579"
+msgctxt "#30579"
 msgid "Season View"
 msgstr "Сезон"
 
-msgctxt "#32580"
+msgctxt "#30580"
 msgid "Episode View"
 msgstr "Серія"
 
-msgctxt "#32581"
+msgctxt "#30581"
 msgid "Music View"
 msgstr "Музика"
 
-msgctxt "#32582"
+msgctxt "#30582"
 msgid "Enable Movie Shelf"
 msgstr "Ввімкнути поличку фільмів"
 
-msgctxt "#32583"
+msgctxt "#30583"
 msgid "Enable TV Shelf"
 msgstr "Ввімкнути поличку серіалів"
 
-msgctxt "#32584"
+msgctxt "#30584"
 msgid "Enable Music Shelf"
 msgstr "Ввімкнути поличку музики"
 
-msgctxt "#32585"
+msgctxt "#30585"
 msgid "Enable Channel Shelf"
 msgstr "Ввімкнути поличку каналів"
 
-msgctxt "#32586"
+msgctxt "#30586"
 msgid "Content filter"
 msgstr "Фільтр контенту"
 
-msgctxt "#32587"
+msgctxt "#30587"
 msgid "Map unknown content as:"
 msgstr "Відмічати невідомий контент як"
 
-msgctxt "#32588"
+msgctxt "#30588"
 msgid "RA Library filter"
 msgstr "RA-Фільтр бібліотеки"
 
-msgctxt "#32592"
+msgctxt "#30592"
 msgid "Use menu for shared sections"
 msgstr "Використовувати меню для загальних секцій"
 
-msgctxt "#32593"
+msgctxt "#30593"
 msgid "Cache Data"
 msgstr "Кешувати дані"
 
-msgctxt "#32594"
+msgctxt "#30594"
 msgid "Manual"
 msgstr "Вручну"
 
-msgctxt "#32595"
+msgctxt "#30595"
 msgid "Use full-res thumbs"
 msgstr "Повнорозмірні іконки"
 
-msgctxt "#32596"
+msgctxt "#30596"
 msgid "Use full-res fanart"
 msgstr "Повнорозмірні фан-арти"
 
-msgctxt "#32597"
+msgctxt "#30597"
 msgid "Hide watched recently added items"
 msgstr "Приховувати нові переглянуті елементи"
 
-msgctxt "#32598"
+msgctxt "#30598"
 msgid "Info"
 msgstr "Інфо"
 
-msgctxt "#32599"
+msgctxt "#30599"
 msgid "Debug"
 msgstr "Відладка"
 
-msgctxt "#32600"
+msgctxt "#30600"
 msgid "Debug+"
 msgstr "Відладка+"
 
-msgctxt "#32601"
+msgctxt "#30601"
 msgid "Transcoder"
 msgstr "Транскодер"
 
-msgctxt "#32602"
+msgctxt "#30602"
 msgid "Name"
 msgstr "Ім&#39;я"
 
-msgctxt "#32603"
+msgctxt "#30603"
 msgid "Disable 'All Episodes'"
 msgstr "Не відображати 'Всі серії'"
 
-msgctxt "#32604"
+msgctxt "#30604"
 msgid "Enable KODI view cache"
 msgstr "Ввімкнути кеш KODI"
 
-msgctxt "#32605"
+msgctxt "#30605"
 msgid "Manage myPlex"
 msgstr "Керувати myPlex"
 
-msgctxt "#32606"
+msgctxt "#30606"
 msgid "Prefer Season artwork"
 msgstr "Віддавати перевагу обкладинці сезону"
