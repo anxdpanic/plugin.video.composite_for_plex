@@ -1,4 +1,3 @@
-
 import xbmcaddon
 import os
 import sys
@@ -7,6 +6,7 @@ import time
 plexbmc_start = time.time()
 print "===== PLEXBMC START [id: %s] =====" % plexbmc_start
 from resources.lib import plexbmc
+
 profile = False
 
 if not profile:

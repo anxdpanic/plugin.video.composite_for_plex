@@ -7,6 +7,7 @@ from resources.lib.helper.httppersist import requests
 
 log_print = PrintDebug("PleXBMC Helper", "subscribers")
 
+
 class SubscriptionManager:
     def __init__(self):
         self.subscribers = {}
@@ -20,7 +21,7 @@ class SubscriptionManager:
         self.port = ""
         self.playerprops = {}
         self.sentstopped = True
-        
+
     def getVolume(self):
         self.volume = getVolume()
 
@@ -39,13 +40,13 @@ class SubscriptionManager:
         else:
             self.mainlocation = "navigation"
         msg += ' location="%s">' % self.mainlocation
-       
+
         msg += self.getTimelineXML(getAudioPlayerId(players), plex_audio())
         msg += self.getTimelineXML(getPhotoPlayerId(players), plex_photo())
         msg += self.getTimelineXML(getVideoPlayerId(players), plex_video())
         msg += "\r\n</MediaContainer>"
         return msg
-        
+
     def getTimelineXML(self, playerid, ptype):
         if playerid is not None:
             info = self.getPlayerProperties(playerid)
@@ -56,13 +57,13 @@ class SubscriptionManager:
         else:
             state = "stopped"
             time = 0
-        ret = "\r\n"+'<Timeline location="%s" state="%s" time="%s" type="%s"' % (self.mainlocation, state, time, ptype)
+        ret = "\r\n" + '<Timeline location="%s" state="%s" time="%s" type="%s"' % (self.mainlocation, state, time, ptype)
         if playerid is not None:
             WINDOW = xbmcgui.Window(10000)
             pbmc_server = str(WINDOW.getProperty('plexbmc.nowplaying.server'))
             keyid = str(WINDOW.getProperty('plexbmc.nowplaying.id'))
             if keyid:
-                self.lastkey = "/library/metadata/%s"%keyid
+                self.lastkey = "/library/metadata/%s" % keyid
                 self.lastratingkey = keyid
                 if pbmc_server:
                     (self.server, self.port) = pbmc_server.split(':')
@@ -80,15 +81,15 @@ class SubscriptionManager:
             ret += ' ratingKey="%s"' % (self.lastratingkey or "900000")
             ret += ' volume="%s"' % info['volume']
             ret += ' shuffle="%s"' % info['shuffle']
-        
+
         ret += '/>'
         return ret
-     
+
     def updateCommandID(self, uuid, commandID):
         if commandID and self.subscribers.get(uuid, False):
-            self.subscribers[uuid].commandID = int(commandID)            
-        
-    def notify(self, event = False):
+            self.subscribers[uuid].commandID = int(commandID)
+
+    def notify(self, event=False):
         self.cleanup()
         players = getPlayers()
         # fetch the message, subscribers or not, since the server
@@ -97,10 +98,10 @@ class SubscriptionManager:
         if self.subscribers:
             with threading.RLock():
                 for sub in self.subscribers.values():
-                    sub.send_update(msg, len(players)==0)
+                    sub.send_update(msg, len(players) == 0)
         self.notifyServer(players)
         return True
-    
+
     def notifyServer(self, players):
         if not players and self.sentstopped: return True
         params = {'state': 'stopped'}
@@ -122,30 +123,30 @@ class SubscriptionManager:
             self.sentstopped = False
         else:
             self.sentstopped = True
-    
+
     def controllable(self):
         return "playPause,play,stop,skipPrevious,skipNext,volume,stepBack,stepForward,seekTo"
-        
+
     def addSubscriber(self, protocol, host, port, uuid, commandID):
         sub = Subscriber(protocol, host, port, uuid, commandID)
         with threading.RLock():
             self.subscribers[sub.uuid] = sub
         return sub
-        
+
     def removeSubscriber(self, uuid):
         with threading.RLock():
             for sub in self.subscribers.values():
                 if sub.uuid == uuid or sub.host == uuid:
                     sub.cleanup()
                     del self.subscribers[sub.uuid]
-                    
+
     def cleanup(self):
         with threading.RLock():
             for sub in self.subscribers.values():
                 if sub.age > 30:
                     sub.cleanup()
                     del self.subscribers[sub.uuid]
-            
+
     def getPlayerProperties(self, playerid):
         info = {}
         try:
@@ -155,7 +156,7 @@ class SubscriptionManager:
             info['time'] = timeToMillis(props['time'])
             info['duration'] = timeToMillis(props['totaltime'])
             info['state'] = ("paused", "playing")[int(props['speed'])]
-            info['shuffle'] = ("0","1")[props.get('shuffled', False)]            
+            info['shuffle'] = ("0", "1")[props.get('shuffled', False)]
         except:
             info['time'] = 0
             info['duration'] = 0
@@ -167,6 +168,7 @@ class SubscriptionManager:
 
         return info
 
+
 class Subscriber:
     def __init__(self, protocol, host, port, uuid, commandID):
         self.protocol = protocol or "http"
@@ -176,12 +178,16 @@ class Subscriber:
         self.commandID = int(commandID) or 0
         self.navlocationsent = False
         self.age = 0
+
     def __eq__(self, other):
         return self.uuid == other.uuid
+
     def tostr(self):
         return "uuid=%s,commandID=%i" % (self.uuid, self.commandID)
+
     def cleanup(self):
         requests.closeConnection(self.protocol, self.host, self.port)
+
     def send_update(self, msg, is_nav):
         self.age += 1
         if not is_nav:
@@ -195,4 +201,5 @@ class Subscriber:
         if not requests.post(self.host, self.port, "/:/timeline", msg, getPlexHeaders(), self.protocol):
             subMgr.removeSubscriber(self.uuid)
 
-subMgr = SubscriptionManager()    
+
+subMgr = SubscriptionManager()

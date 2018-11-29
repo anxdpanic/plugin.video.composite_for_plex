@@ -28,13 +28,13 @@ class PlexSection:
 
     def get_details(self):
 
-        return {'title'      : self.title,
+        return {'title': self.title,
                 'sectionuuid': self.sectionuuid,
-                'path'       : self.path,
-                'key'        : self.key,
-                'location'   : self.local,
-                'art'        : self.art,
-                'type'       : self.type}
+                'path': self.path,
+                'key': self.key,
+                'location': self.local,
+                'art': self.art,
+                'type': self.type}
 
     def get_title(self):
         return self.title

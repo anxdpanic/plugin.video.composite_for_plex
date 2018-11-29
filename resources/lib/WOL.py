@@ -6,7 +6,7 @@ def wake_on_lan(macaddress):
     """ Switches on remote computers using WOL. """
 
     macaddress = macaddress.strip()
-    
+
     # Check macaddress format and try to compensate.
     if len(macaddress) == 12:
         pass
@@ -15,10 +15,10 @@ def wake_on_lan(macaddress):
         macaddress = macaddress.replace(sep, '')
     else:
         raise ValueError('Incorrect MAC address format')
- 
+
     # Pad the synchronization stream.
     data = ''.join(['FFFFFFFFFFFF', macaddress * 20])
-    send_data = '' 
+    send_data = ''
 
     # Split up the hex values and pack.
     for i in range(0, len(data), 2):

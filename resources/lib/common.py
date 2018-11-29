@@ -14,7 +14,7 @@ class PrintDebug:
 
         self.main = main
         if sub:
-            self.sub = "."+sub
+            self.sub = "." + sub
         else:
             self.sub = ''
 
@@ -30,11 +30,11 @@ class PrintDebug:
         self.ip_regex = re.compile('\.\d{1,3}\.\d{1,3}\.')
         self.user_regex = re.compile('-User=[a-z|0-9].*?[&|$]')
 
-        self.DEBUG_MAP = {self.DEBUG_OFF      : "off",
-                          self.DEBUG_INFO     : "info",
-                          self.DEBUG_DEBUG    : "debug",
+        self.DEBUG_MAP = {self.DEBUG_OFF: "off",
+                          self.DEBUG_INFO: "info",
+                          self.DEBUG_DEBUG: "debug",
                           self.DEBUG_DEBUGPLUS: "debug+",
-                          self.DEBUG_HELPER   : "debug+h"}
+                          self.DEBUG_HELPER: "debug+h"}
 
     def get_name(self, level):
         return self.DEBUG_MAP[level]
@@ -89,7 +89,7 @@ def get_platform():
         return "Windows"
     elif xbmc.getCondVisibility('system.platform.linux'):
         return "Linux/RPi"
-    elif xbmc.getCondVisibility('system.platform.android'): 
+    elif xbmc.getCondVisibility('system.platform.android'):
         return "Linux/Android"
     return "Unknown"
 
@@ -117,7 +117,7 @@ def setup_python_locations():
     setup['__version__'] = setup['__addon__'].getAddonInfo('version')
     setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
     sys.path.append(setup['__resources__'])
-    return setup                
+    return setup
 
 
 def is_ip(address):
@@ -133,6 +133,7 @@ def is_ip(address):
 
 def get_platform_ip():
     return xbmc.getIPAddress()
+
 
 GLOBAL_SETUP = setup_python_locations()
 GLOBAL_SETUP['platform'] = get_platform()

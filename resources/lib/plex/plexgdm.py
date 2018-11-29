@@ -60,7 +60,7 @@ class PlexGDM:
         self.__log_print = PrintDebug("PleXBMC", "PlexGDM")
 
     def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
-        self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % (c_id, c_name, c_post, c_product, c_version )
+        self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % (c_id, c_name, c_post, c_product, c_version)
         self.client_id = c_id
 
     def getClientDetails(self):
@@ -83,7 +83,7 @@ class PlexGDM:
             update_sock.bind(('0.0.0.0', self.client_update_port))
         except:
             self.__log_print.warn("Error: Unable to bind to port [%s] - client will not be registered" % self.client_update_port)
-            return    
+            return
 
         update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
         update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(self._multicast_address) + socket.inet_aton('0.0.0.0'))
@@ -113,7 +113,7 @@ class PlexGDM:
 
                     self.__log_print.debug_helper("Sending registration data: HTTP/1.0 200 OK\n%s" % self.client_data)
                     self.client_registered = True
-            time.sleep(0.5)        
+            time.sleep(0.5)
 
         self.__log_print.debug_helper("Client Update loop stopped")
 
@@ -285,7 +285,7 @@ class PlexGDM:
         else:
             self.__log_print.debug("Discovery already running")
 
-    def start_registration(self, daemon = False):
+    def start_registration(self, daemon=False):
         if not self._registration_is_running:
             self.__log_print.info("Registration starting up")
             self._registration_is_running = True
@@ -295,9 +295,10 @@ class PlexGDM:
         else:
             self.__log_print.info("Registration already running")
 
-    def start_all(self, daemon = False):
+    def start_all(self, daemon=False):
         self.start_discovery(daemon)
         self.start_registration(daemon)
+
 
 # Example usage
 if __name__ == '__main__':

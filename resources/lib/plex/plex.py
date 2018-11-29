@@ -21,7 +21,7 @@ class Plex:
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = resources.lib.CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__']+"cache/servers", settings.get_setting('cache'))
+        self.cache = resources.lib.CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__'] + "cache/servers", settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
@@ -33,10 +33,10 @@ class Plex:
         self.plexhome_cache = "plexhome_user.pcache"
         self.client_id = None
         self.user_list = dict()
-        self.plexhome_settings = {'myplex_signedin'     : False,
-                                  'plexhome_enabled'    : False,
-                                  'myplex_user_cache'   : '',
-                                  'plexhome_user_cache' : '',
+        self.plexhome_settings = {'myplex_signedin': False,
+                                  'plexhome_enabled': False,
+                                  'myplex_user_cache': '',
+                                  'plexhome_user_cache': '',
                                   'plexhome_user_avatar': ''}
 
         self.setup_user_token()
@@ -56,10 +56,10 @@ class Plex:
         return self.plexhome_settings['plexhome_user_avatar']
 
     def signout(self):
-        self.plexhome_settings = {'myplex_signedin'     : False,
-                                  'plexhome_enabled'    : False,
-                                  'myplex_user_cache'   : '',
-                                  'plexhome_user_cache' : '',
+        self.plexhome_settings = {'myplex_signedin': False,
+                                  'plexhome_enabled': False,
+                                  'myplex_user_cache': '',
+                                  'plexhome_user_cache': '',
                                   'plexhome_user_avatar': ''}
 
         self.delete_cache(True)
@@ -210,8 +210,8 @@ class Plex:
                     log_print.debug("Old object revision found")
                     return False
             except:
-                    log_print.debug("No revision found")
-                    return False
+                log_print.debug("No revision found")
+                return False
         return True
 
     def check_user(self):
@@ -237,17 +237,17 @@ class Plex:
         return self.server_list.values()
 
     def plex_identification(self):
-        header = {'X-Plex-Device'           : 'PleXBMC',
-                  'X-Plex-Client-Platform'  : 'KODI',
-                  'X-Plex-Device-Name'      : settings.get_setting('devicename'),
-                  'X-Plex-Language'         : 'en',
-                  'X-Plex-Model'            : 'unknown',
-                  'X-Plex-Platform'         : 'PleXBMC',
+        header = {'X-Plex-Device': 'PleXBMC',
+                  'X-Plex-Client-Platform': 'KODI',
+                  'X-Plex-Device-Name': settings.get_setting('devicename'),
+                  'X-Plex-Language': 'en',
+                  'X-Plex-Model': 'unknown',
+                  'X-Plex-Platform': 'PleXBMC',
                   'X-Plex-Client-Identifier': self.get_client_identifier(),
-                  'X-Plex-Product'          : 'PleXBMC',
-                  'X-Plex-Platform-Version' : GLOBAL_SETUP['platform'],
-                  'X-Plex-Version'          : GLOBAL_SETUP['__version__'],
-                  'X-Plex-Provides'         : "player"}
+                  'X-Plex-Product': 'PleXBMC',
+                  'X-Plex-Platform-Version': GLOBAL_SETUP['platform'],
+                  'X-Plex-Version': GLOBAL_SETUP['__version__'],
+                  'X-Plex-Provides': "player"}
         if self.effective_token is not None:
             header['X-Plex-Token'] = self.effective_token
 
@@ -282,14 +282,14 @@ class Plex:
         self.server_list = {}
         # First discover the servers we should know about from myplex
         if self.is_myplex_signedin():
-                log_print.info("PleXBMC -> Adding myplex as a server location")
+            log_print.info("PleXBMC -> Adding myplex as a server location")
 
-                self.server_list = self.get_myplex_servers()
+            self.server_list = self.get_myplex_servers()
 
-                if self.server_list:
-                    log_print.info("MyPlex discovery completed sucecssfully")
-                else:
-                    log_print.info("MyPlex discovery found no servers")
+            if self.server_list:
+                log_print.info("MyPlex discovery completed sucecssfully")
+            else:
+                log_print.info("MyPlex discovery found no servers")
 
         # Now grab any local devices we can find
         if settings.get_setting('discovery') == "1":
@@ -381,17 +381,17 @@ class Plex:
             discovered_server.set_user(self.effective_user)
 
             for connection in device.findall('Connection'):
-                    log_print.debug("[%s] Found server connection" % device.get('name'))
+                log_print.debug("[%s] Found server connection" % device.get('name'))
 
-                    if connection.get('local') == '0':
-                        discovered_server.add_external_connection(connection.get('address'), connection.get('port'))
+                if connection.get('local') == '0':
+                    discovered_server.add_external_connection(connection.get('address'), connection.get('port'))
 
-                    else:
-                        discovered_server.add_internal_connection(connection.get('address'), connection.get('port'))
+                else:
+                    discovered_server.add_internal_connection(connection.get('address'), connection.get('port'))
 
-                    if connection.get('protocol') == "http":
-                        log_print.debug("[%s] Dropping back to http" % device.get('name'))
-                        discovered_server.set_protocol('http')
+                if connection.get('protocol') == "http":
+                    log_print.debug("[%s] Dropping back to http" % device.get('name'))
+                    discovered_server.set_protocol('http')
 
             discovered_server.set_best_address()  # Default to external address
 
@@ -404,7 +404,7 @@ class Plex:
         log_print.info("merging server with uuid %s" % server.get_uuid())
 
         try:
-            existing=self.get_server_from_uuid(server.get_uuid())
+            existing = self.get_server_from_uuid(server.get_uuid())
         except:
             log_print.debug("Adding new server %s %s" % (server.get_name(), server.get_uuid()))
             server.refresh()
@@ -446,7 +446,7 @@ class Plex:
             log_print.debugplus("Full header recieved was: %s" % response.headers)
 
             if response.status_code == 401 and not renew:
-                return self.talk_to_myplex(path,True)
+                return self.talk_to_myplex(path, True)
 
             if response.status_code >= 400:
                 error = "HTTP response error: %s" % response.status_code
@@ -592,28 +592,28 @@ class Plex:
         data = ETree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list = dict()
         for users in data:
-            add = {'id'        : users.get('id'),
-                   'admin'     : users.get('admin'),
+            add = {'id': users.get('id'),
+                   'admin': users.get('admin'),
                    'restricted': users.get('restricted'),
-                   'protected' : users.get('protected'),
-                   'title'     : users.get('title'),
-                   'username'  : users.get('username'),
-                   'email'     : users.get('email'),
-                   'thumb'     : users.get('thumb')}
+                   'protected': users.get('protected'),
+                   'title': users.get('title'),
+                   'username': users.get('username'),
+                   'email': users.get('email'),
+                   'thumb': users.get('thumb')}
             self.user_list[users.get('id')] = add
 
     def get_plex_home_users(self):
         data = ETree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list = dict()
         for users in data:
-            add = {'id'        : users.get('id'),
-                   'admin'     : users.get('admin'),
+            add = {'id': users.get('id'),
+                   'admin': users.get('admin'),
                    'restricted': users.get('restricted'),
-                   'protected' : users.get('protected'),
-                   'title'     : users.get('title'),
-                   'username'  : users.get('username'),
-                   'email'     : users.get('email'),
-                   'thumb'     : users.get('thumb')}
+                   'protected': users.get('protected'),
+                   'title': users.get('title'),
+                   'username': users.get('username'),
+                   'email': users.get('email'),
+                   'thumb': users.get('thumb')}
             self.user_list[users.get('title')] = add
 
         return self.user_list

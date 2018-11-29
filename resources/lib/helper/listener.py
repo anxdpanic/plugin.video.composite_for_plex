@@ -11,12 +11,15 @@ from resources.lib.common import GLOBAL_SETUP, get_platform, PrintDebug, setting
 
 log_print = PrintDebug("PleXBMC Helper", "listener")
 
+
 class MyHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
+
     def log_message(s, format, *args):
         # I have my own logging, suppressing BaseHTTPRequestHandler's
-        #printDebug(format % args)
+        # printDebug(format % args)
         return True
+
     def do_HEAD(s):
         log_print.debug("Serving HEAD request...")
         s.answer_request(0)
@@ -38,7 +41,7 @@ class MyHandler(BaseHTTPRequestHandler):
         s.end_headers()
         s.wfile.close()
 
-    def response(s, body, headers = {}, code = 200):
+    def response(s, body, headers={}, code=200):
         try:
             s.send_response(code)
             for key in headers:
@@ -53,21 +56,21 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def answer_request(s, sendData):
         try:
-            request_path=s.path[1:]
-            request_path=re.sub(r"\?.*","",request_path)
+            request_path = s.path[1:]
+            request_path = re.sub(r"\?.*", "", request_path)
             url = urlparse(s.path)
             paramarrays = parse_qs(url.query)
             params = {}
             for key in paramarrays:
                 params[key] = paramarrays[key][0]
-            log_print ( "request path is: [%s]" % ( request_path,) )
-            log_print ( "params are: %s" % params )
+            log_print("request path is: [%s]" % (request_path,))
+            log_print("params are: %s" % params)
             subMgr.updateCommandID(s.headers.get('X-Plex-Client-Identifier', s.client_address[0]), params.get('commandID', False))
-            if request_path=="version":
+            if request_path == "version":
                 s.response("PleXBMC Helper Remote Redirector: Running\r\nVersion: %s" % GLOBAL_SETUP['__version__'])
-            elif request_path=="verify":
-                result=jsonrpc("ping")
-                s.response("XBMC JSON connection test:\r\n"+result)
+            elif request_path == "verify":
+                result = jsonrpc("ping")
+                s.response("XBMC JSON connection test:\r\n" + result)
             elif "resources" == request_path:
                 resp = getXMLHeader()
                 resp += "<MediaContainer>"
@@ -98,10 +101,10 @@ class MyHandler(BaseHTTPRequestHandler):
                     xbmc.sleep(950)
                 commandID = params.get('commandID', 0)
                 s.response(re.sub(r"INSERTCOMMANDID", str(commandID), subMgr.msg(getPlayers())), {
-                  'X-Plex-Client-Identifier': settings.get_setting('client_id'),
-                  'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
-                  'Access-Control-Allow-Origin': '*',
-                  'Content-Type': 'text/xml'
+                    'X-Plex-Client-Identifier': settings.get_setting('client_id'),
+                    'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'text/xml'
                 })
             elif "/unsubscribe" in request_path:
                 s.response(getOKMsg(), getPlexHeaders())
@@ -120,7 +123,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 address = params.get('address', s.client_address[0])
                 server = getServerByHost(address)
                 port = params.get('port', server.get('port', '32400'))
-                fullurl = protocol+"://"+address+":"+port+params['key']
+                fullurl = protocol + "://" + address + ":" + port + params['key']
                 log_print("playMedia command -> fullurl: %s" % fullurl)
                 jsonrpc("playmedia", [fullurl, resume])
                 subMgr.lastkey = params['key']
@@ -131,39 +134,39 @@ class MyHandler(BaseHTTPRequestHandler):
             elif request_path == "player/playback/play":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": True})
+                    jsonrpc("Player.PlayPause", {"playerid": playerid, "play": True})
             elif request_path == "player/playback/pause":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.PlayPause", {"playerid" : playerid, "play": False})
+                    jsonrpc("Player.PlayPause", {"playerid": playerid, "play": False})
             elif request_path == "player/playback/stop":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.Stop", {"playerid" : playerid})
+                    jsonrpc("Player.Stop", {"playerid": playerid})
             elif request_path == "player/playback/seekTo":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.Seek", {"playerid":playerid, "value":millisToTime(params.get('offset', 0))})
+                    jsonrpc("Player.Seek", {"playerid": playerid, "value": millisToTime(params.get('offset', 0))})
                 subMgr.notify()
             elif request_path == "player/playback/stepForward":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallforward"})
+                    jsonrpc("Player.Seek", {"playerid": playerid, "value": "smallforward"})
                 subMgr.notify()
             elif request_path == "player/playback/stepBack":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"smallbackward"})
+                    jsonrpc("Player.Seek", {"playerid": playerid, "value": "smallbackward"})
                 subMgr.notify()
             elif request_path == "player/playback/skipNext":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigforward"})
+                    jsonrpc("Player.Seek", {"playerid": playerid, "value": "bigforward"})
                 subMgr.notify()
             elif request_path == "player/playback/skipPrevious":
                 s.response(getOKMsg(), getPlexHeaders())
                 for playerid in getPlayerIds():
-                    jsonrpc("Player.Seek", {"playerid":playerid, "value":"bigbackward"})
+                    jsonrpc("Player.Seek", {"playerid": playerid, "value": "bigbackward"})
                 subMgr.notify()
             elif request_path == "player/navigation/moveUp":
                 s.response(getOKMsg(), getPlexHeaders())
@@ -188,6 +191,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 jsonrpc("Input.Back")
         except:
             traceback.print_exc()
-    
+
+
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True

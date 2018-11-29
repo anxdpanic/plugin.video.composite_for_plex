@@ -119,7 +119,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.submit_button.setVisible(False)
         self.pin_button.setVisible(False)
         self.submit_pin_button.setVisible(True)
-        self.cancel_button.setNavigation(self.submit_pin_button, self.manual_button, self.manual_button, self.submit_pin_button )
+        self.cancel_button.setNavigation(self.submit_pin_button, self.manual_button, self.manual_button, self.submit_pin_button)
         self.submit_pin_button.setNavigation(self.manual_button, self.cancel_button, self.cancel_button, self.manual_button)
         self.manual_button.setNavigation(self.cancel_button, self.submit_pin_button, self.submit_pin_button, self.cancel_button)
 
@@ -155,7 +155,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.digit_two.setVisible(False)
         self.digit_three.setVisible(False)
         self.digit_four.setVisible(False)
-        self.submit_pin_button.setVisible(False)        
+        self.submit_pin_button.setVisible(False)
         self.setFocus(self.name_field)
 
         if failure:

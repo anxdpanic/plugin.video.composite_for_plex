@@ -11,6 +11,7 @@ Utilises pickle to store object data as file within the KODI virtual file system
 
 import xbmcvfs
 import time
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -33,7 +34,7 @@ class CacheControl:
             if self.cache_location[-1] != "/":
                 self.cache_location += "/"
 
-            if not xbmcvfs.exists(self.cache_location): 
+            if not xbmcvfs.exists(self.cache_location):
                 log_print.debug("CACHE [%s]: Location does not exist.  Creating" % self.cache_location)
                 if not xbmcvfs.mkdirs(self.cache_location):
                     log_print.debug("CACHE [%s]: Location cannot be created" % self.cache_location)
@@ -51,7 +52,7 @@ class CacheControl:
 
         log_print.debug("CACHE [%s]: attempting to read" % cache_name)
         try:
-            cache = xbmcvfs.File(self.cache_location+cache_name)
+            cache = xbmcvfs.File(self.cache_location + cache_name)
             cachedata = cache.read()
             cache.close()
         except Exception, e:
@@ -74,11 +75,11 @@ class CacheControl:
 
         log_print.debug("CACHE [%s]: Writing file" % cache_name)
         try:
-            cache = xbmcvfs.File(self.cache_location+cache_name, 'w')
+            cache = xbmcvfs.File(self.cache_location + cache_name, 'w')
             cache.write(pickle.dumps(object))
             cache.close()
         except Exception, e:
-            log_print.debug("CACHE [%s]: Writing error [%s]" % (self.cache_location+cache_name, e))
+            log_print.debug("CACHE [%s]: Writing error [%s]" % (self.cache_location + cache_name, e))
 
         return True
 
@@ -87,16 +88,16 @@ class CacheControl:
         if self.cache_location is None:
             return False, None
 
-        if xbmcvfs.exists(self.cache_location+cache_name):
+        if xbmcvfs.exists(self.cache_location + cache_name):
             log_print.debug("CACHE [%s]: exists" % cache_name)
             now = int(round(time.time(), 0))
-            modified = int(xbmcvfs.Stat(self.cache_location+cache_name).st_mtime())
+            modified = int(xbmcvfs.Stat(self.cache_location + cache_name).st_mtime())
             log_print.debug("CACHE [%s]: mod[%s] now[%s] diff[%s]" % (cache_name, modified, now, now - modified))
 
             if (modified < 0) or (now - modified) > life:
                 log_print.debug("CACHE [%s]: too old, delete" % cache_name)
 
-                if xbmcvfs.delete(self.cache_location+cache_name):
+                if xbmcvfs.delete(self.cache_location + cache_name):
                     log_print.debug("CACHE [%s]: deleted" % cache_name)
                 else:
                     log_print.debug("CACHE [%s]: not deleted" % cache_name)
@@ -125,7 +126,7 @@ class CacheControl:
             elif cache_suffix not in file:
                 continue
 
-            if xbmcvfs.delete(self.cache_location+file):
+            if xbmcvfs.delete(self.cache_location + file):
                 log_print.debug("SUCCESSFUL: removed %s" % file)
             else:
                 log_print.debug("UNSUCESSFUL: did not remove %s" % file)
