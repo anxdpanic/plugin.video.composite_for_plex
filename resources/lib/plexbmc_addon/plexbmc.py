@@ -3090,17 +3090,7 @@ def start_plexbmc(sys_argv):
         except:
             pass
 
-    if command == "cacherefresh":
-        plex_network.delete_cache()
-        xbmc.executebuiltin("ReloadSkin()")
-    # Open the add-on settings page, then refresh plugin
-    elif command == "setting":
-        settings.open_settings()
-        if xbmcgui.getCurrentWindowId() == 10000:
-            log_print.debug("Currently in home - refreshing to allow new settings to be taken")
-            xbmc.executebuiltin("ReloadSkin()")
-    # Refresh the current XBMC listing    
-    elif command == "refresh":
+    if command == "refresh":
         xbmc.executebuiltin("Container.Refresh")
     elif command == "switchuser":
         if switch_user():
@@ -3155,9 +3145,6 @@ def start_plexbmc(sys_argv):
         manage_window.set_authentication_target(plex_network)
         manage_window.start()
         del manage_window
-    elif command == "displayservers":
-        plex_network.load()
-        display_known_servers()
 
     else:
         plex_network.load()
@@ -3173,11 +3160,6 @@ def start_plexbmc(sys_argv):
             metadata_id = sys_argv[3]
             watch_status = sys_argv[4]
             watched(server_uuid, metadata_id, watch_status)
-
-        # nt currently used              
-        elif command == "refreshplexbmc":
-            plex_network.discover()
-            server_list = plex_network.get_server_list()
 
         # delete media from PMS    
         elif command == "delete":
