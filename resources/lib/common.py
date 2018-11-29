@@ -110,8 +110,7 @@ def wake_servers():
 
 
 def setup_python_locations():
-    setup = {}
-    setup['__addon__'] = xbmcaddon.Addon()
+    setup = {'__addon__': xbmcaddon.Addon()}
     setup['__cachedir__'] = setup['__addon__'].getAddonInfo('profile')
     setup['__cwd__'] = xbmc.translatePath(setup['__addon__'].getAddonInfo('path')).decode('utf-8')
     setup['__version__'] = setup['__addon__'].getAddonInfo('version')

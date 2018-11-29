@@ -26,12 +26,7 @@
 
 import urllib
 import urlparse
-import re
-import xbmcplugin, xbmcgui, xbmc, xbmcaddon, xbmcvfs
-import httplib
-import socket
-import sys
-import os
+import xbmcplugin, xbmcgui
 import time
 import random
 import datetime
@@ -59,35 +54,36 @@ sys.path.append(xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'lib'))
 
 def select_media_type(part_data, server, dvdplayback=False):
     stream = part_data['key']
-    file = part_data['file']
+    f = part_data['file']
+    filelocation = ''
 
-    if (file is None) or (settings.get_stream() == "1"):
+    if (f is None) or (settings.get_stream() == "1"):
         log_print.debug("Selecting stream")
         return server.get_formatted_url(stream)
 
     # First determine what sort of 'file' file is
 
-    if file[0:2] == "\\\\":
+    if f[0:2] == "\\\\":
         log_print.debug("Detected UNC source file")
-        type = "UNC"
-    elif file[0:1] == "/" or file[0:1] == "\\":
+        ftype = "UNC"
+    elif f[0:1] == "/" or f[0:1] == "\\":
         log_print.debug("Detected unix source file")
-        type = "nixfile"
-    elif file[1:3] == ":\\" or file[1:2] == ":/":
+        ftype = "nixfile"
+    elif f[1:3] == ":\\" or f[1:2] == ":/":
         log_print.debug("Detected windows source file")
-        type = "winfile"
+        ftype = "winfile"
     else:
         log_print.debug("Unknown file type source: %s" % file)
-        type = None
+        ftype = None
 
     # 0 is auto select.  basically check for local file first, then stream if not found
     if settings.get_stream() == "0":
         # check if the file can be found locally
-        if type == "nixfile" or type == "winfile":
+        if ftype == "nixfile" or ftype == "winfile":
             log_print.debug("Checking for local file")
             try:
-                exists = open(file, 'r')
-                log_print.debug("Local file found, will use this")
+                exists = open(f, 'r')
+                log_print.debug("Local f found, will use this")
                 exists.close()
                 return "file:%s" % file
             except:
@@ -103,15 +99,15 @@ def select_media_type(part_data, server, dvdplayback=False):
     # 2 is use SMB
     elif settings.get_stream() == "2" or settings.get_stream() == "3":
 
-        file = urllib.unquote(file)
+        f = urllib.unquote(f)
         if settings.get_stream() == "2":
             protocol = "smb"
         else:
             protocol = "afp"
 
         log_print.debug("Selecting smb/unc")
-        if type == "UNC":
-            filelocation = "%s:%s" % (protocol, file.replace("\\", "/"))
+        if ftype == "UNC":
+            filelocation = "%s:%s" % (protocol, f.replace("\\", "/"))
         else:
             # Might be OSX type, in which case, remove Volumes and replace with server
             server = server.get_location().split(':')[0]
@@ -126,14 +122,14 @@ def select_media_type(part_data, server, dvdplayback=False):
                     loginstring = "%s:%s@" % (settings.get_setting('nasuserid'), settings.get_setting('naspass'))
                     log_print.debug("Adding AFP/SMB login info for user: %s" % settings.get_setting('nasuserid'))
 
-            if file.find('Volumes') > 0:
-                filelocation = "%s:/%s" % (protocol, file.replace("Volumes", loginstring + server))
+            if f.find('Volumes') > 0:
+                filelocation = "%s:/%s" % (protocol, f.replace("Volumes", loginstring + server))
             else:
-                if type == "winfile":
-                    filelocation = ("%s://%s%s/%s" % (protocol, loginstring, server, file[3:].replace("\\", "/")))
+                if ftype == "winfile":
+                    filelocation = ("%s://%s%s/%s" % (protocol, loginstring, server, f[3:].replace("\\", "/")))
                 else:
                     # else assume its a file local to server available over smb/samba.  Add server name to file path.
-                    filelocation = "%s://%s%s%s" % (protocol, loginstring, server, file)
+                    filelocation = "%s://%s%s%s" % (protocol, loginstring, server, f)
 
         if settings.get_setting('nasoverride') and settings.get_setting('nasroot'):
             # Re-root the file path
@@ -261,7 +257,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=link_url, listitem=liz, isFolder=folder)
 
 
-def display_sections(filter=None, display_shared=False):
+def display_sections(cfilter=None, display_shared=False):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'files')
 
@@ -291,22 +287,22 @@ def display_sections(filter=None, display_shared=False):
 
             if section.is_show():
                 mode = MODE_TVSHOWS
-                if (filter is not None) and (filter != "tvshows"):
+                if (cfilter is not None) and (cfilter != "tvshows"):
                     continue
 
             elif section.is_movie():
                 mode = MODE_MOVIES
-                if (filter is not None) and (filter != "movies"):
+                if (cfilter is not None) and (cfilter != "movies"):
                     continue
 
             elif section.is_artist():
                 mode = MODE_ARTISTS
-                if (filter is not None) and (filter != "music"):
+                if (cfilter is not None) and (cfilter != "music"):
                     continue
 
             elif section.is_photo():
                 mode = MODE_PHOTOS
-                if (filter is not None) and (filter != "photos"):
+                if (cfilter is not None) and (cfilter != "photos"):
                     continue
             else:
                 log_print.debug("Ignoring section %s of type %s as unable to process"
@@ -344,7 +340,7 @@ def display_sections(filter=None, display_shared=False):
             continue
 
         # Plex plugin handling
-        if (filter is not None) and (filter != "plugins"):
+        if (cfilter is not None) and (cfilter != "plugins"):
             continue
 
         if len(server_list) > 1:
@@ -1191,7 +1187,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, shelf=
 
     server = plex_network.get_server_from_url(vids)
 
-    id = vids.split('?')[0].split('&')[0].split('/')[-1]
+    _id = vids.split('?')[0].split('&')[0].split('/')[-1]
 
     tree = get_xml(vids)
     if tree is None:
@@ -1231,7 +1227,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, shelf=
             if settings.get_setting('transcode_type') == "universal":
                 session, playurl = server.get_universal_transcode(streams['extra']['path'])
             elif settings.get_setting('transcode_type') == "legacy":
-                session, playurl = server.get_legacy_transcode(id, url)
+                session, playurl = server.get_legacy_transcode(_id, url)
 
         else:
             playurl = server.get_formatted_url(url)
@@ -1433,7 +1429,7 @@ def select_media_to_play(data, server):
     return newurl
 
 
-def monitor_playback(id, server, playurl, session=None):
+def monitor_playback(_id, server, playurl, session=None):
     log_print.debug("== ENTER ==")
 
     if session:
@@ -1465,18 +1461,18 @@ def monitor_playback(id, server, playurl, session=None):
 
         if playedTime == currentTime:
             log_print.debug("Movies paused at: %s secs of %s @ %s%%" % (currentTime, totalTime, progress))
-            server.report_playback_progress(id, currentTime * 1000, state="paused", duration=totalTime * 1000)
+            server.report_playback_progress(_id, currentTime * 1000, state="paused", duration=totalTime * 1000)
         else:
 
             log_print.debug("Movies played time: %s secs of %s @ %s%%" % (currentTime, totalTime, progress))
-            server.report_playback_progress(id, currentTime * 1000, state="playing", duration=totalTime * 1000)
+            server.report_playback_progress(_id, currentTime * 1000, state="playing", duration=totalTime * 1000)
             playedTime = currentTime
 
         xbmc.sleep(2000)
 
     # If we get this far, playback has stopped
     log_print.debug("Playback Stopped")
-    server.report_playback_progress(id, playedTime * 1000, state='stopped', duration=totalTime * 1000)
+    server.report_playback_progress(_id, playedTime * 1000, state='stopped', duration=totalTime * 1000)
 
     if session is not None:
         log_print.debug("Stopping PMS transcode job with session %s" % session)
@@ -1582,7 +1578,7 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
 
             playlist = get_xml(vids)
 
-            if not playlist or not "# EXTM3U" in playlist:
+            if not playlist or "# EXTM3U" not in playlist:
                 log_print.debug("Unable to get valid m3u8 playlist from transcoder")
                 return
 
@@ -2178,7 +2174,7 @@ def channel_settings(url, settingID):
 
         if plugin.get('id') == settingID:
             log_print.debug("Found correct id entry for: %s" % settingID)
-            id = settingID
+            sid = settingID
 
             label = plugin.get('label', "Enter value")
             option = plugin.get('option')
@@ -2217,12 +2213,12 @@ def channel_settings(url, settingID):
 
         else:
             value = plugin.get('value')
-            id = plugin.get('id')
+            sid = plugin.get('id')
 
         if setString is None:
-            setString = '%s/set?%s=%s' % (url, id, value)
+            setString = '%s/set?%s=%s' % (url, sid, value)
         else:
-            setString = '%s&%s=%s' % (setString, id, value)
+            setString = '%s&%s=%s' % (setString, sid, value)
 
     log_print.debug("Settings URL: %s" % setString)
     plex_network.talk_to_server(setString)
@@ -2424,7 +2420,7 @@ def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True)
     if listing:
         add_item_to_gui(u, details, extraData, folder=False)
     else:
-        return (url, details)
+        return (u, details)
 
 
 def playlist_tag(url, server, tree, track, sectionart="", sectionthumb="", listing=True):
@@ -2721,8 +2717,6 @@ def get_link_url(url, pathData, server, season_shelf=False):
         log_print.debug("Detected relative link")
         return "%s/%s" % (url, path)
 
-    return url
-
 
 def plex_online(url):
     log_print.debug("== ENTER ==")
@@ -2849,7 +2843,7 @@ def channel_view(url):
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
-def skin(server_list=None, type=None):
+def skin(server_list=None, stype=None):
     # Gather some data and set the window properties
     log_print.debug("== ENTER ==")
     # Get the global host variable set in settings
@@ -2937,7 +2931,7 @@ def skin(server_list=None, type=None):
             log_print.debug("PATH in use is: ActivateWindow(%s,plugin://plugin.video.plexbmc/?url=%s,return)" % (window, s_url))
             sectionCount += 1
 
-    if type == "nocat":
+    if stype == "nocat":
         WINDOW.setProperty("plexbmc.%d.title" % (sectionCount), "Shared...")
         WINDOW.setProperty("plexbmc.%d.subtitle" % (sectionCount), "Shared")
         WINDOW.setProperty("plexbmc.%d.path" % (sectionCount), "ActivateWindow(videos,plugin://plugin.video.plexbmc/?url=/&mode=%s,return)" % MODE_SHARED_ALL)
@@ -3410,7 +3404,6 @@ def full_shelf(server_list={}):
             WINDOW.setProperty("Plexbmc.LatestMovie.%s.Genre" % recentMovieCount, ", ".join(m_genre).encode('UTF-8'))
 
             recentMovieCount += 1
-
 
         elif media.get('type') == "season":
 
@@ -4361,7 +4354,7 @@ def set_window_heading(tree):
         gui_window.clearProperty("heading2")
 
 
-def get_master_server(all=False):
+def get_master_server(all_servers=False):
     log_print.debug("== ENTER ==")
 
     possible_servers = []
@@ -4372,7 +4365,7 @@ def get_master_server(all=False):
             possible_servers.append(serverData)
     log_print.debug("Possible master servers are: %s" % possible_servers)
 
-    if all:
+    if all_servers:
         return possible_servers
 
     if len(possible_servers) > 1:
@@ -4442,8 +4435,8 @@ def display_known_servers():
 
 def display_plex_servers(url):
     log_print.debug("== ENTER ==")
-    type = url.split('/')[2]
-    log_print.debug("Displaying entries for %s" % type)
+    ctype = url.split('/')[2]
+    log_print.debug("Displaying entries for %s" % ctype)
     servers = plex_network.get_server_list()
     servers_list = len(servers)
 
@@ -4457,28 +4450,28 @@ def display_plex_servers(url):
 
         extra_data = {}
 
-        if type == "video":
+        if ctype == "video":
             extra_data['mode'] = MODE_PLEXPLUGINS
             s_url = '%s%s' % (mediaserver.get_url_location(), '/video')
             if servers_list == 1:
                 plex_plugins(s_url)
                 return
 
-        elif type == "online":
+        elif ctype == "online":
             extra_data['mode'] = MODE_PLEXONLINE
             s_url = '%s%s' % (mediaserver.get_url_location(), '/system/plexonline')
             if servers_list == 1:
                 plex_online(s_url)
                 return
 
-        elif type == "music":
+        elif ctype == "music":
             extra_data['mode'] = MODE_MUSIC
             s_url = '%s%s' % (mediaserver.get_url_location(), '/music')
             if servers_list == 1:
                 music(s_url)
                 return
 
-        elif type == "photo":
+        elif ctype == "photo":
             extra_data['mode'] = MODE_PHOTOS
             s_url = '%s%s' % (mediaserver.get_url_location(), '/photos')
             if servers_list == 1:
@@ -4686,10 +4679,10 @@ def start_plexbmc(sys_argv):
         # Populate Skin variables
         if command == "skin":
             try:
-                type = sys_argv[2]
+                stype = sys_argv[2]
             except:
-                type = None
-            skin(type=type)
+                stype = None
+            skin(stype=stype)
 
         elif command == "amberskin":
             amberskin()
@@ -4832,16 +4825,16 @@ def start_plexbmc(sys_argv):
                 channel_settings(param_url, params.get('id'))
 
             elif mode == MODE_SHARED_MOVIES:
-                display_sections(filter="movies", display_shared=True)
+                display_sections(cfilter="movies", display_shared=True)
 
             elif mode == MODE_SHARED_SHOWS:
-                display_sections(filter="tvshows", display_shared=True)
+                display_sections(cfilter="tvshows", display_shared=True)
 
             elif mode == MODE_SHARED_PHOTOS:
-                display_sections(filter="photos", display_shared=True)
+                display_sections(cfilter="photos", display_shared=True)
 
             elif mode == MODE_SHARED_MUSIC:
-                display_sections(filter="music", display_shared=True)
+                display_sections(cfilter="music", display_shared=True)
 
             elif mode == MODE_SHARED_ALL:
                 display_sections(display_shared=True)

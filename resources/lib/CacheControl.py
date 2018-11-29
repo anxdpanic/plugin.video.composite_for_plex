@@ -68,7 +68,7 @@ class CacheControl:
         log_print.debug("CACHE [%s]: empty" % cache_name)
         return False, None
 
-    def write_cache(self, cache_name, object):
+    def write_cache(self, cache_name, obj):
 
         if self.cache_location is None:
             return True
@@ -76,7 +76,7 @@ class CacheControl:
         log_print.debug("CACHE [%s]: Writing file" % cache_name)
         try:
             cache = xbmcvfs.File(self.cache_location + cache_name, 'w')
-            cache.write(pickle.dumps(object))
+            cache.write(pickle.dumps(obj))
             cache.close()
         except Exception as e:
             log_print.debug("CACHE [%s]: Writing error [%s]" % (self.cache_location + cache_name, e))
@@ -119,14 +119,14 @@ class CacheControl:
         log_print.debug("List of file: [%s]" % file_list)
         log_print.debug("List of dirs: [%s]" % dirs)
 
-        for file in file_list:
+        for f in file_list:
 
-            if force and persistant_cache_suffix in file:
+            if force and persistant_cache_suffix in f:
                 log_print("Force deletion of persistent cache file")
-            elif cache_suffix not in file:
+            elif cache_suffix not in f:
                 continue
 
-            if xbmcvfs.delete(self.cache_location + file):
-                log_print.debug("SUCCESSFUL: removed %s" % file)
+            if xbmcvfs.delete(self.cache_location + f):
+                log_print.debug("SUCCESSFUL: removed %s" % f)
             else:
-                log_print.debug("UNSUCESSFUL: did not remove %s" % file)
+                log_print.debug("UNSUCESSFUL: did not remove %s" % f)

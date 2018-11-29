@@ -1,12 +1,9 @@
-import sys
-import os
 import xml.etree.ElementTree as ETree
 import urlparse
 import urllib
 import time
 import uuid
 
-from resources.lib.settings import AddonSettings
 import plexsection
 from resources.lib.common import *
 import requests
@@ -249,7 +246,7 @@ class PlexMediaServer:
 
         return
 
-    def talk(self, url='/', refresh=False, type='get'):
+    def talk(self, url='/', refresh=False, method='get'):
 
         if not settings.get_setting('secureconn'):
             self.set_protocol('http')
@@ -258,11 +255,11 @@ class PlexMediaServer:
 
             start_time = time.time()
             try:
-                if type == 'get':
+                if method == 'get':
                     response = requests.get("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2, 60))
-                elif type == 'put':
+                elif method == 'put':
                     response = requests.put("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2, 60))
-                elif type == 'delete':
+                elif method == 'delete':
                     response = requests.delete("%s://%s:%s%s" % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2, 60))
                 else:
                     response = None
@@ -273,7 +270,7 @@ class PlexMediaServer:
                 if self.protocol == "https" and refresh:
                     log_print.info("Server: %s - switching to http" % self.get_address())
                     self.protocol = "http"
-                    return self.talk(url, refresh, type)
+                    return self.talk(url, refresh, method)
                 else:
                     self.offline = True
 
@@ -299,7 +296,7 @@ class PlexMediaServer:
         return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
 
     def tell(self, url, refresh=False):
-        return self.talk(url, refresh, type='put')
+        return self.talk(url, refresh, method='put')
 
     def refresh(self):
         data = self.talk(refresh=True)
@@ -491,7 +488,7 @@ class PlexMediaServer:
         self.talk('/video/:/transcode/segmented/stop?session=%s' % session)
         return
 
-    def report_playback_progress(self, id, time, state='playing', duration=0):
+    def report_playback_progress(self, _id, time, state='playing', duration=0):
 
         try:
             if state == 'stopped' and int((float(time) / float(duration)) * 100) > 98:
@@ -499,22 +496,22 @@ class PlexMediaServer:
         except:
             pass
 
-        self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, id, id, state, time))
+        self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, _id, _id, state, time))
         return
 
-    def mark_item_watched(self, id):
-        self.talk('/:/scrobble?key=%s&identifier=com.plexapp.plugins.library' % id)
+    def mark_item_watched(self, _id):
+        self.talk('/:/scrobble?key=%s&identifier=com.plexapp.plugins.library' % _id)
         return
 
-    def mark_item_unwatched(self, id):
-        self.talk('/:/unscrobble?key=%s&identifier=com.plexapp.plugins.library' % id)
+    def mark_item_unwatched(self, _id):
+        self.talk('/:/unscrobble?key=%s&identifier=com.plexapp.plugins.library' % _id)
         return
 
     def refresh_section(self, key):
         return self.talk('/library/sections/%s/refresh' % key)
 
-    def get_metadata(self, id):
-        return self.processed_xml('/library/metadata/%s' % id)
+    def get_metadata(self, _id):
+        return self.processed_xml('/library/metadata/%s' % _id)
 
     def set_audio_stream(self, part_id, stream_id):
         return self.tell("/library/parts/%s?audioStreamID=%s" % (part_id, stream_id))
@@ -522,8 +519,8 @@ class PlexMediaServer:
     def set_subtitle_stream(self, part_id, stream_id):
         return self.tell("/library/parts/%s?subtitleStreamID=%s" % (part_id, stream_id))
 
-    def delete_metadata(self, id):
-        return self.talk('/library/metadata/%s' % id, type='delete')
+    def delete_metadata(self, _id):
+        return self.talk('/library/metadata/%s' % _id, method='delete')
 
     def get_universal_transcode(self, url):
         # Check for myplex user, which we need to alter to a master server
@@ -560,7 +557,7 @@ class PlexMediaServer:
         log_print.debug("Transcoded media location URL: %s" % full_url)
         return session, self.get_formatted_url(full_url, options={'X-Plex-Device': 'Plex Home Theater'})
 
-    def get_legacy_transcode(self, id, url, identifier=None):
+    def get_legacy_transcode(self, _id, url, identifier=None):
 
         import uuid
         import hmac
@@ -596,7 +593,7 @@ class PlexMediaServer:
                               'identifier': identifier,
                               'httpCookie': "",
                               'userAgent': "",
-                              'ratingKey': id,
+                              'ratingKey': _id,
                               'subtitleSize': settings.get_setting('subSize').split('.')[0],
                               'audioBoost': settings.get_setting('audioSize').split('.')[0],
                               'key': ""}
@@ -606,7 +603,7 @@ class PlexMediaServer:
             transcode_settings['webkit'] = 1
         else:
             transcode_settings['identifier'] = "com.plexapp.plugins.library"
-            transcode_settings['key'] = urllib.quote_plus("%s/library/metadata/%s" % (self.get_url_location(), id))
+            transcode_settings['key'] = urllib.quote_plus("%s/library/metadata/%s" % (self.get_url_location(), _id))
             transcode_target = urllib.quote_plus("http://127.0.0.1:32400" + "/" + "/".join(url.split('/')[3:]))
             log_print.debug("filestream URL is: %s" % transcode_target)
 
@@ -626,12 +623,12 @@ class PlexMediaServer:
         public_key = "KQMIY6GATPC63AIMC4R2"
         private_key = base64.decodestring("k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=")
 
-        hash = hmac.new(private_key, msg, digestmod=hashlib.sha256)
+        sha256_hash = hmac.new(private_key, msg, digestmod=hashlib.sha256)
 
-        log_print.debug("HMAC after hash is %s" % hash.hexdigest())
+        log_print.debug("HMAC after hash is %s" % sha256_hash.hexdigest())
 
         # Encode the binary hash in base64 for transmission
-        token = base64.b64encode(hash.digest())
+        token = base64.b64encode(sha256_hash.digest())
 
         # Send as part of URL to avoid the case sensitive header issue.
         full_url = "%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s" % (self.get_url_location(), transcode_request, public_key, now, urllib.quote_plus(token), capability)

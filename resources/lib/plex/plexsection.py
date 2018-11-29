@@ -32,7 +32,7 @@ class PlexSection:
                 'sectionuuid': self.sectionuuid,
                 'path': self.path,
                 'key': self.key,
-                'location': self.local,
+                'location': self.location,
                 'art': self.art,
                 'type': self.type}
 

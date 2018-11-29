@@ -21,10 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA.
 """
 
-import socket
 import struct
-import sys
-import re
 import threading
 import time
 import urllib2
@@ -58,6 +55,9 @@ class PlexGDM:
         self.discovery_complete = False
         self.client_registered = False
         self.__log_print = PrintDebug("PleXBMC", "PlexGDM")
+
+        self.discover_t = None
+        self.register_t = None
 
     def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
         self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % (c_id, c_name, c_post, c_product, c_version)
@@ -181,7 +181,7 @@ class PlexGDM:
             while True:
                 try:
                     data, server = sock.recvfrom(1024)
-                    self.__log_print.debug_helper("Received data from %s, %s" % server)
+                    self.__log_print.debug_helper("Received data from %s" % server)
                     self.__log_print.debug_helper("Data received is:\n %s" % data)
                     return_data.append({'from': server,
                                         'data': data})
@@ -302,7 +302,7 @@ class PlexGDM:
 
 # Example usage
 if __name__ == '__main__':
-    client = PlexGDM(debug=3)
+    client = PlexGDM()
     client.clientDetails("Test-Name", "Test Client", "3003", "Test-App", "1.2.3")
     client.start_all()
     while not client.discovery_complete:

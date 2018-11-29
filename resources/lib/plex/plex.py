@@ -1,9 +1,7 @@
 import sys
-import os
 import xml.etree.ElementTree as ETree
 import base64
 from resources.lib.plex.plexgdm import PlexGDM
-from resources.lib.settings import AddonSettings
 from resources.lib.common import *
 import resources.lib.CacheControl
 import requests
@@ -66,7 +64,7 @@ class Plex:
         log_print.info("Signed out from myPlex")
 
     def get_signin_pin(self):
-        data = self.talk_to_myplex('/pins.xml', type="post")
+        data = self.talk_to_myplex('/pins.xml', method="post")
         try:
             xml = ETree.fromstring(data)
             code = xml.find('code').text
@@ -87,7 +85,7 @@ class Plex:
                 'code': list(code)}
 
     def check_signin_status(self, identifier):
-        data = self.talk_to_myplex('/pins/%s.xml' % identifier, type="get2")
+        data = self.talk_to_myplex('/pins/%s.xml' % identifier, method="get2")
         xml = ETree.fromstring(data)
         temp_token = xml.find('auth_token').text
 
@@ -419,18 +417,18 @@ class Plex:
 
         return
 
-    def talk_to_myplex(self, path, renew=False, type='get'):
+    def talk_to_myplex(self, path, renew=False, method='get'):
         log_print.info("url = %s%s" % (self.myplex_server, path))
 
         try:
-            if type == 'get':
+            if method == 'get':
                 response = requests.get("%s%s" % (self.myplex_server, path), params=self.plex_identification(), verify=True, timeout=(3, 10))
-            elif type == 'get2':
+            elif method == 'get2':
                 response = requests.get("%s%s" % (self.myplex_server, path), headers=self.plex_identification(), verify=True, timeout=(3, 10))
-            elif type == 'post':
+            elif method == 'post':
                 response = requests.post("%s%s" % (self.myplex_server, path), data='', headers=self.plex_identification(), verify=True, timeout=(3, 10))
             else:
-                log_print.error("Unknown HTTP type requested: %s" % type)
+                log_print.error("Unknown HTTP method requested: %s" % method)
                 response = None
         except requests.exceptions.ConnectionError as e:
             log_print.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
@@ -618,13 +616,13 @@ class Plex:
 
         return self.user_list
 
-    def switch_plex_home_user(self, id, pin):
+    def switch_plex_home_user(self, uid, pin):
         if pin is None:
             pin_arg = "?X-Plex-Token=%s" % self.effective_token
         else:
             pin_arg = "?pin=%s&X-Plex-Token=%s" % (pin, self.effective_token)
 
-        data = self.talk_to_myplex('/api/home/users/%s/switch%s' % (id, pin_arg), type='post')
+        data = self.talk_to_myplex('/api/home/users/%s/switch%s' % (uid, pin_arg), method='post')
         tree = ETree.fromstring(data)
 
         if tree.get('status') == "unauthorized":
@@ -634,7 +632,7 @@ class Plex:
         else:
             username = None
             for users in self.user_list.values():
-                if id == users['id']:
+                if uid == users['id']:
                     username = users['title']
                     break
 
