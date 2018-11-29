@@ -1,13 +1,16 @@
 import inspect
 import os
-import sys
 import socket
 import re
 
 import xbmc
 import xbmcaddon
 
+from six import PY3
+
 from .settings import AddonSettings
+
+__addon = xbmcaddon.Addon('plugin.video.plexbmc')
 
 
 class PrintDebug:
@@ -85,6 +88,24 @@ class PrintDebug:
         return self.__print_message(msg, level)
 
 
+def i18n(string_id):
+    try:
+        core = int(string_id) < 30000
+    except ValueError:
+        return ''
+
+    if core:
+        if PY3:
+            return xbmc.getLocalizedString(string_id)
+        else:
+            return xbmc.getLocalizedString(string_id).encode('utf-8', 'ignore')
+    else:
+        if PY3:
+            return __addon.getLocalizedString(string_id)
+        else:
+            return __addon.getLocalizedString(string_id).encode('utf-8', 'ignore')
+
+
 def get_platform():
     if xbmc.getCondVisibility('system.platform.osx'):
         return "OSX"
@@ -118,12 +139,11 @@ def wake_servers():
 
 
 def setup_python_locations():
-    setup = {'__addon__': xbmcaddon.Addon()}
-    setup['__cachedir__'] = setup['__addon__'].getAddonInfo('profile')
-    setup['__cwd__'] = xbmc.translatePath(setup['__addon__'].getAddonInfo('path')).decode('utf-8')
-    setup['__version__'] = setup['__addon__'].getAddonInfo('version')
+    setup = {'__addon__': __addon,
+             '__cachedir__': __addon.getAddonInfo('profile'),
+             '__cwd__': xbmc.translatePath(__addon.getAddonInfo('path')).decode('utf-8'),
+             '__version__': __addon.getAddonInfo('version')}
     setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
-    sys.path.append(setup['__resources__'])
     return setup
 
 
