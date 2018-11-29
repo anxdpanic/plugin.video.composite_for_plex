@@ -3329,7 +3329,7 @@ def full_shelf(server_list=None):
 
                 tree = server_details.get_ondeck(section=section.get_key(), size=15)
                 if tree is None:
-                    log_print.debug("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location(), False)
+                    log_print.debug("PLEXBMC -> OnDeck items not found on: " + server_details.get_url_location())
                     continue
 
                 libraryuuid = tree.get("librarySectionUUID", '').encode('utf-8')
@@ -3338,7 +3338,7 @@ def full_shelf(server_list=None):
 
                 tree = server_details.get_recently_viewed_shows(section=section.get_key(), size=15)
                 if tree is None:
-                    log_print.debug("PLEXBMC -> Recently Played Shows items not found on: " + server_details.get_url_location(), False)
+                    log_print.debug("PLEXBMC -> Recently Played Shows items not found on: " + server_details.get_url_location())
                     continue
 
                 libraryuuid = tree.get("librarySectionUUID", '').encode('utf-8')

@@ -6,10 +6,13 @@
         <import addon="script.module.requests" version="2.12.4"/>
         <import addon="script.module.pyxbmct" version="1.2.0"/>
     </requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
+    <extension point="xbmc.python.pluginsource" library="resources/lib/entry_point.py">
         <provides>video audio image</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
         <platform>all</platform>
         <summary lang="en_GB">Browse and play local video, music and photo media files managed by Plex Media Server.</summary>
         <description lang="en_GB">Browse and play local video, music and photo media files managed by Plex Media Server.</description>

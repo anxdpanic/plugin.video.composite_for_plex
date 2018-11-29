@@ -1,9 +1,10 @@
 import sys
 import time
+
 import xbmc
 
 plexbmc_start = time.time()
-from resources.lib import plexbmc
+from plexbmc_addon import plexbmc
 
 profile = False
 
