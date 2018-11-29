@@ -1,11 +1,13 @@
-import xbmc
-import xbmcaddon
 import inspect
 import os
 import sys
 import socket
 import re
-from settings import AddonSettings
+
+import xbmc
+import xbmcaddon
+
+from .settings import AddonSettings
 
 
 class PrintDebug:

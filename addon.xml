@@ -2,6 +2,7 @@
 <addon id="plugin.video.plexbmc" name="PleXBMC" version="0.0.1~alpha4" provider-name="Hippojay (plexbmc@h-jay.com)">
     <requires>
         <import addon="xbmc.python" version="2.25.0"/>
+        <import addon="script.module.six" version="1.11.0"/>
         <import addon="script.module.requests" version="2.12.4"/>
         <import addon="script.module.pyxbmct" version="1.2.0"/>
     </requires>

@@ -1,14 +1,18 @@
-import sys
-import xml.etree.ElementTree as ETree
 import base64
-from resources.lib.plex.plexgdm import PlexGDM
-from resources.lib.common import *
-import resources.lib.CacheControl
-import requests
-from resources.lib.plex.plexserver import PlexMediaServer
-import urlparse
 import uuid
 import traceback
+import xml.etree.ElementTree as ETree
+
+import requests
+from six import iteritems
+from six import string_types
+from six.moves.urllib_parse import urlparse
+
+from ..common import *
+from .. import CacheControl
+from .plexgdm import PlexGDM
+from .plexserver import PlexMediaServer
+
 
 log_print = PrintDebug("PleXBMC", "plex")
 DEFAULT_PORT = "32400"
@@ -19,7 +23,7 @@ class Plex:
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = resources.lib.CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__'] + "cache/servers", settings.get_setting('cache'))
+        self.cache = CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__'] + "cache/servers", settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
@@ -184,11 +188,11 @@ class Plex:
                     raise TypeError
                 if not isinstance(token_cache['plexhome_enabled'], int):
                     raise TypeError
-                if not isinstance(token_cache['myplex_user_cache'], basestring):
+                if not isinstance(token_cache['myplex_user_cache'], string_types):
                     raise TypeError
-                if not isinstance(token_cache['plexhome_user_cache'], basestring):
+                if not isinstance(token_cache['plexhome_user_cache'], string_types):
                     raise TypeError
-                if not isinstance(token_cache['plexhome_user_avatar'], basestring):
+                if not isinstance(token_cache['plexhome_user_avatar'], string_types):
                     raise TypeError
 
                 self.plexhome_settings = token_cache
@@ -202,7 +206,7 @@ class Plex:
         self.cache.write_cache(self.plexhome_cache, self.plexhome_settings)
 
     def check_server_version(self):
-        for _uuid, servers in self.server_list.iteritems():
+        for _uuid, servers in iteritems(self.server_list):
             try:
                 if not servers.get_revision() == REQUIRED_REVISION:
                     log_print.debug("Old object revision found")
@@ -217,7 +221,7 @@ class Plex:
         if self.effective_user is None:
             return True
 
-        for _uuid, servers in self.server_list.iteritems():
+        for _uuid, servers in iteritems(self.server_list):
             if not servers.get_user() == self.effective_user:
                 log_print.debug("authorized user mismatch")
                 return False
@@ -557,14 +561,14 @@ class Plex:
         return PlexMediaServer(name="Unknown", address=uri, port=port, discovery='local')
 
     def get_server_from_url(self, url):
-        url_parts = urlparse.urlparse(url)
+        url_parts = urlparse(url)
         return self.get_server_from_ip(url_parts.netloc)
 
     def get_server_from_uuid(self, _uuid):
         return self.server_list[_uuid]
 
     def get_processed_xml(self, url):
-        url_parts = urlparse.urlparse(url)
+        url_parts = urlparse(url)
         server = self.get_server_from_ip(url_parts.netloc)
 
         if server:
@@ -572,7 +576,7 @@ class Plex:
         return ''
 
     def talk_to_server(self, url):
-        url_parts = urlparse.urlparse(url)
+        url_parts = urlparse(url)
         server = self.get_server_from_ip(url_parts.netloc)
 
         if server:

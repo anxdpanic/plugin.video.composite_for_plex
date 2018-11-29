@@ -24,20 +24,19 @@
     along with PleXBMC Plugin.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import urllib
-import urlparse
-import xbmcplugin
-import xbmcgui
 import time
 import random
 import datetime
-from resources.lib.common import *  # Needed first to setup import locations
-from resources.lib.plex import plex
+import urllib
 
-# import requests
-# from requests.packages.urllib3.exceptions import InsecureRequestWarning
-#
-# requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+import xbmcplugin
+import xbmcgui
+
+from six.moves.urllib_parse import urlparse
+
+from .common import *  # Needed first to setup import locations
+from .plex import plex
+
 
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo('id').decode("utf-8")
@@ -620,7 +619,7 @@ def process_movies(url, tree=None):
 
 def build_context_menu(url, item_data, server):
     context = []
-    url_parts = urlparse.urlparse(url)
+    url_parts = urlparse(url)
     section = url_parts.path.split('/')[3]
     item_id = item_data.get('ratingKey', '0')
 

@@ -25,8 +25,11 @@ import socket
 import struct
 import threading
 import time
-import urllib2
-from resources.lib.common import PrintDebug
+
+from six.moves.urllib_request import urlopen
+
+from ..common import PrintDebug
+
 
 __author__ = 'DHJ (hippojay) <plex@h-jay.com>'
 
@@ -141,7 +144,7 @@ class PlexGDM:
                 media_port = self.server_list[0]['port']
 
                 _log_print.debug_helper("Checking server [%s] on port [%s]" % (media_server, media_port))
-                f = urllib2.urlopen('http://%s:%s/clients' % (media_server, media_port))
+                f = urlopen('http://%s:%s/clients' % (media_server, media_port))
                 client_result = f.read()
                 if self.client_id in client_result:
                     _log_print.debug_helper("Client registration successful")

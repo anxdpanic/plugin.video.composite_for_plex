@@ -1,15 +1,19 @@
-import xml.etree.ElementTree as ETree
-import urlparse
-import urllib
+import base64
+import hashlib
+import hmac
 import time
 import uuid
-import hmac
-import hashlib
-import base64
+import urllib
+import xml.etree.ElementTree as ETree
 
-import plexsection
-from resources.lib.common import *
 import requests
+from six.moves.urllib_parse import urlparse
+from six.moves.urllib_parse import urlunparse
+from six.moves.urllib_parse import parse_qsl
+
+from . import plexsection
+from ..common import *
+
 
 log_print = PrintDebug("PleXBMC", "plexserver")
 
@@ -380,7 +384,7 @@ class PlexMediaServer:
     def processed_xml(self, url):
         if url.startswith('http'):
             log_print.debug("We have been passed a full URL. Parsing out path")
-            url_parts = urlparse.urlparse(url)
+            url_parts = urlparse(url)
             url = url_parts.path
 
             if url_parts.query:
@@ -395,7 +399,7 @@ class PlexMediaServer:
     def raw_xml(self, url):
         if url.startswith('http'):
             log_print.debug("We have been passed a full URL. Parsing out path")
-            url_parts = urlparse.urlparse(url)
+            url_parts = urlparse(url)
             url = url_parts.path
 
             if url_parts.query:
@@ -429,7 +433,7 @@ class PlexMediaServer:
         url_options.update(options)
 
         if url.startswith('http'):
-            url_parts = urlparse.urlparse(url)
+            url_parts = urlparse(url)
             url = url_parts.path
 
             if url_parts.query:
@@ -437,14 +441,14 @@ class PlexMediaServer:
 
         location = "%s%s" % (self.get_url_location(), url)
 
-        url_parts = urlparse.urlparse(location)
+        url_parts = urlparse(location)
 
-        query_args = urlparse.parse_qsl(url_parts.query)
+        query_args = parse_qsl(url_parts.query)
         query_args += url_options.items()
 
         new_query_args = urllib.urlencode(query_args, True)
 
-        return urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
+        return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
 
     def get_kodi_header_formatted_url(self, url, options=None):
 
@@ -452,7 +456,7 @@ class PlexMediaServer:
             options = {}
 
         if url.startswith('http'):
-            url_parts = urlparse.urlparse(url)
+            url_parts = urlparse(url)
             url = url_parts.path
 
             if url_parts.query:
@@ -460,9 +464,9 @@ class PlexMediaServer:
 
         location = "%s%s" % (self.get_url_location(), url)
 
-        url_parts = urlparse.urlparse(location)
+        url_parts = urlparse(location)
 
-        query_args = urlparse.parse_qsl(url_parts.query)
+        query_args = parse_qsl(url_parts.query)
         query_args += options.items()
 
         if self.token is not None:
@@ -470,7 +474,7 @@ class PlexMediaServer:
 
         new_query_args = urllib.urlencode(query_args, True)
 
-        return "%s | %s" % (urlparse.urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
+        return "%s | %s" % (urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
 
