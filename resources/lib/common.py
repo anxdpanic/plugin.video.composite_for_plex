@@ -144,7 +144,7 @@ def get_platform_ip():
 
 GLOBAL_SETUP = setup_python_locations()
 GLOBAL_SETUP['platform'] = get_platform()
-GENERIC_THUMBNAIL = xbmc.translatePath('special://home/addons/plugin.video.plexbmc/resources/thumb.png')
+GENERIC_THUMBNAIL = xbmc.translatePath('special://home/addons/plugin.video.plexbmc/resources/media/thumb.png')
 REQUIRED_REVISION = "1.0.7"
 settings = AddonSettings('plugin.video.plexbmc')
 
