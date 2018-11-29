@@ -24,6 +24,7 @@
     along with PleXBMC Plugin.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import sys
 import time
 import random
 import datetime
