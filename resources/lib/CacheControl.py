@@ -122,7 +122,7 @@ class CacheControl:
         for f in file_list:
 
             if force and persistant_cache_suffix in f:
-                log_print("Force deletion of persistent cache file")
+                log_print.debug("Force deletion of persistent cache file")
             elif cache_suffix not in f:
                 continue
 

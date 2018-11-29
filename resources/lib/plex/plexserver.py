@@ -3,6 +3,9 @@ import urlparse
 import urllib
 import time
 import uuid
+import hmac
+import hashlib
+import base64
 
 import plexsection
 from resources.lib.common import *
@@ -17,11 +20,11 @@ log_print.debug("Using Requests version for HTTP: %s" % requests.__version__)
 
 class PlexMediaServer:
 
-    def __init__(self, uuid=None, name=None, address=None, port=32400, token=None, discovery=None, class_type='primary'):
+    def __init__(self, server_uuid=None, name=None, address=None, port=32400, token=None, discovery=None, class_type='primary'):
 
         self.__revision = REQUIRED_REVISION
         self.protocol = "https"
-        self.uuid = uuid
+        self.uuid = server_uuid
         self.server_name = name
         self.discovery = discovery
         self.local_address = []
@@ -185,8 +188,8 @@ class PlexMediaServer:
 
     # Set and add functions:
 
-    def set_uuid(self, uuid):
-        self.uuid = uuid
+    def set_uuid(self, _uuid):
+        self.uuid = _uuid
 
     def set_owned(self, value):
         self.owned = int(value)
@@ -488,15 +491,15 @@ class PlexMediaServer:
         self.talk('/video/:/transcode/segmented/stop?session=%s' % session)
         return
 
-    def report_playback_progress(self, _id, time, state='playing', duration=0):
+    def report_playback_progress(self, _id, _time, state='playing', duration=0):
 
         try:
-            if state == 'stopped' and int((float(time) / float(duration)) * 100) > 98:
-                time = duration
+            if state == 'stopped' and int((float(_time) / float(duration)) * 100) > 98:
+                _time = duration
         except:
             pass
 
-        self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, _id, _id, state, time))
+        self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, _id, _id, state, _time))
         return
 
     def mark_item_watched(self, _id):
@@ -524,7 +527,6 @@ class PlexMediaServer:
 
     def get_universal_transcode(self, url):
         # Check for myplex user, which we need to alter to a master server
-        import uuid
         log_print.debug("incoming URL is: %s" % url)
         resolution, bitrate = settings.get_setting('quality_uni').split(',')
 
@@ -559,10 +561,6 @@ class PlexMediaServer:
 
     def get_legacy_transcode(self, _id, url, identifier=None):
 
-        import uuid
-        import hmac
-        import hashlib
-        import base64
         session = str(uuid.uuid4())
 
         # Check for myplex user, which we need to alter to a master server

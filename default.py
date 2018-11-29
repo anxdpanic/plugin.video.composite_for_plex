@@ -1,14 +1,14 @@
 import sys
 import time
+import xbmc
 
 plexbmc_start = time.time()
-print "===== PLEXBMC START [id: %s] =====" % plexbmc_start
 from resources.lib import plexbmc
 
 profile = False
 
 if not profile:
-    print "PleXBMC -> Script argument is %s" % sys.argv
+    xbmc.log("PleXBMC -> Script argument is %s" % sys.argv, xbmc.LOGDEBUG)
     plexbmc.start_plexbmc(sys.argv)
 else:
     # Enable extra profile information
@@ -25,6 +25,6 @@ else:
     # Stream now contains the report text.
     # Can be accessed with stream.getvalue()
 
-    print stream.getvalue()
+    xbmc.log(stream.getvalue(), xbmc.LOGDEBUG)
 
-print "===== PLEXBMC STOP [id: %s]: %s seconds =====" % (plexbmc_start, (time.time() - plexbmc_start))
+xbmc.log("===== PLEXBMC STOP [id: %s]: %s seconds =====" % (plexbmc_start, (time.time() - plexbmc_start)), xbmc.LOGDEBUG)

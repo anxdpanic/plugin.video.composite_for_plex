@@ -26,6 +26,7 @@ class PrintDebug:
         self.DEBUG_DEBUG = 2
         self.DEBUG_DEBUGPLUS = 3
         self.DEBUG_HELPER = 4
+        self.LOG_ERROR = 9
         self.token_regex = re.compile('-Token=[a-z|0-9].*?[&|$]')
         self.ip_regex = re.compile('\.\d{1,3}\.\d{1,3}\.')
         self.user_regex = re.compile('-User=[a-z|0-9].*?[&|$]')
@@ -34,13 +35,14 @@ class PrintDebug:
                           self.DEBUG_INFO: "info",
                           self.DEBUG_DEBUG: "debug",
                           self.DEBUG_DEBUGPLUS: "debug+",
-                          self.DEBUG_HELPER: "debug+h"}
+                          self.DEBUG_HELPER: "debug+h",
+                          self.LOG_ERROR: 'error'}
 
     def get_name(self, level):
         return self.DEBUG_MAP[level]
 
     def error(self, message):
-        return self.__print_message(message, 0)
+        return self.__print_message(message, 9)
 
     def warn(self, message):
         return self.__print_message(message, 0)
@@ -61,18 +63,21 @@ class PrintDebug:
         return self.__print_message(message, 4)
 
     def __print_message(self, msg, level=1):
-        if self.level >= level:
-            if self.privacy:
-                msg = self.token_regex.sub("X-Plex-Token=XXXXXXXXXX&", str(msg))
-                msg = self.ip_regex.sub(".X.X.", msg)
-                msg = self.user_regex.sub("X-Plex-User=XXXXXXX&", msg)
+        if self.privacy:
+            msg = self.token_regex.sub("X-Plex-Token=XXXXXXXXXX&", str(msg))
+            msg = self.ip_regex.sub(".X.X.", msg)
+            msg = self.user_regex.sub("X-Plex-User=XXXXXXX&", msg)
 
+        if self.level >= level != self.LOG_ERROR:
             try:
                 xbmc.log("%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGDEBUG)
             except:
                 xbmc.log("%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGDEBUG)
-
-        return
+        elif level == self.LOG_ERROR:
+            try:
+                xbmc.log("%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGERROR)
+            except:
+                xbmc.log("%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGERROR)
 
     def __call__(self, msg, level=1):
         return self.__print_message(msg, level)
@@ -97,17 +102,17 @@ def get_platform():
 def wake_servers():
     if settings.get_setting('wolon'):
         from WOL import wake_on_lan
-        log = PrintDebug("common", "wake_servers")
-        log.debug("PleXBMC -> Wake On LAN: true")
+        log_print = PrintDebug("PleXBMC", "wake_servers")
+        log_print.debug("PleXBMC -> Wake On LAN: true")
         for servers in settings.get_wakeservers():
             if servers:
                 try:
-                    log.debug("PleXBMC -> Waking server with MAC: %s" % servers)
+                    log_print.debug("PleXBMC -> Waking server with MAC: %s" % servers)
                     wake_on_lan(servers)
                 except ValueError:
-                    log.debug("PleXBMC -> Incorrect MAC address format for server %s" % servers)
+                    log_print.debug("PleXBMC -> Incorrect MAC address format for server %s" % servers)
                 except:
-                    log.debug("PleXBMC -> Unknown wake on lan error")
+                    log_print.debug("PleXBMC -> Unknown wake on lan error")
 
 
 def setup_python_locations():

@@ -192,9 +192,9 @@ class Plex:
                     raise TypeError
 
                 self.plexhome_settings = token_cache
-                log_print("plexhome_cache data loaded successfully")
+                log_print.debug("plexhome_cache data loaded successfully")
             except:
-                log_print("plexhome_cache data is corrupt. Will not use.")
+                log_print.debug("plexhome_cache data is corrupt. Will not use.")
         else:
             log_print.debug("plexhome cache data not loaded")
 
@@ -202,7 +202,7 @@ class Plex:
         self.cache.write_cache(self.plexhome_cache, self.plexhome_settings)
 
     def check_server_version(self):
-        for uuid, servers in self.server_list.iteritems():
+        for _uuid, servers in self.server_list.iteritems():
             try:
                 if not servers.get_revision() == REQUIRED_REVISION:
                     log_print.debug("Old object revision found")
@@ -217,7 +217,7 @@ class Plex:
         if self.effective_user is None:
             return True
 
-        for uuid, servers in self.server_list.iteritems():
+        for _uuid, servers in self.server_list.iteritems():
             if not servers.get_user() == self.effective_user:
                 log_print.debug("authorized user mismatch")
                 return False
@@ -306,14 +306,14 @@ class Plex:
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
             except Exception as e:
-                print "PleXBMC -> GDM Issue [%s]" % e
+                log_print.error("PleXBMC -> GDM Issue [%s]" % e)
                 traceback.print_exc()
             else:
                 if gdm_client.discovery_complete and gdm_server_name:
                     log_print.info("GDM discovery completed")
 
                     for device in gdm_server_name:
-                        new_server = PlexMediaServer(name=device['serverName'], address=device['server'], port=device['port'], discovery='discovery', uuid=device['uuid'])
+                        new_server = PlexMediaServer(name=device['serverName'], address=device['server'], port=device['port'], discovery='discovery', server_uuid=device['uuid'])
                         new_server.set_user(self.effective_user)
                         new_server.set_token(self.effective_token)
 
@@ -448,7 +448,7 @@ class Plex:
 
             if response.status_code >= 400:
                 error = "HTTP response error: %s" % response.status_code
-                print error
+                log_print.error(error)
                 if response.status_code == 404:
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
                 else:
@@ -510,7 +510,7 @@ class Plex:
                 log_print.info("No authentication token found")
         else:
             error = "HTTP response error: %s %s" % (response.status_code, response.reason)
-            print error
+            log_print.error(error)
             return None
 
         return token
@@ -560,8 +560,8 @@ class Plex:
         url_parts = urlparse.urlparse(url)
         return self.get_server_from_ip(url_parts.netloc)
 
-    def get_server_from_uuid(self, uuid):
-        return self.server_list[uuid]
+    def get_server_from_uuid(self, _uuid):
+        return self.server_list[_uuid]
 
     def get_processed_xml(self, url):
         url_parts = urlparse.urlparse(url)
@@ -675,6 +675,6 @@ class Plex:
         except:
             result['membersince'] = "Unknown"
 
-        log_print("Gathered information: %s" % result)
+        log_print.debug("Gathered information: %s" % result)
 
         return result
