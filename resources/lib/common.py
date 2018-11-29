@@ -68,9 +68,9 @@ class PrintDebug:
                 msg = self.user_regex.sub("X-Plex-User=XXXXXXX&", msg)
 
             try:
-                print "%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8'))
+                xbmc.log("%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGDEBUG)
             except:
-                print "%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg)
+                xbmc.log("%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGDEBUG)
 
         return
 
@@ -97,16 +97,17 @@ def get_platform():
 def wake_servers():
     if settings.get_setting('wolon'):
         from WOL import wake_on_lan
-        print "PleXBMC -> Wake On LAN: true"
+        log = PrintDebug("common", "wake_servers")
+        log.debug("PleXBMC -> Wake On LAN: true")
         for servers in settings.get_wakeservers():
             if servers:
                 try:
-                    print "PleXBMC -> Waking server with MAC: %s" % servers
+                    log.debug("PleXBMC -> Waking server with MAC: %s" % servers)
                     wake_on_lan(servers)
                 except ValueError:
-                    print "PleXBMC -> Incorrect MAC address format for server %s" % servers
+                    log.debug("PleXBMC -> Incorrect MAC address format for server %s" % servers)
                 except:
-                    print "PleXBMC -> Unknown wake on lan error"
+                    log.debug("PleXBMC -> Unknown wake on lan error")
 
 
 def setup_python_locations():
