@@ -51,17 +51,6 @@
         <setting id="disable_all_season" type="bool" label="32603" default="false"/>
         <setting id="hide_shared" type="bool" label="32592" default="true"/>
     </category>
-    <category label="32521"> <!-- Shelf -->
-        <setting id="homeshelf" type="enum" label="32572" lvalues="32573|32574|32509|32553" default="2"/>
-        <setting id="hide_watched_recent_items" type="bool" label="32597" visible="eq(-1,0) | eq(-1,2)" default="false"/>
-        <setting id="prefer_season_thumbs" type="bool" label="32606" visible="eq(-2,0) | eq(-2,2)" default="false"/>
-        <setting id="movieShelf" type="bool" label="32582" visible="!eq(-2,3)" default="true"/>
-        <setting id="tvShelf" type="bool" label="32583" visible="!eq(-3,3)" default="true"/>
-        <setting id="musicShelf" type="bool" label="32584" visible="!eq(-4,3)" default="true"/>
-        <setting id="channelShelf" type="bool" label="32585" visible="!eq(-5,3)" default="true"/>
-        <setting id="contentFilter" type="enum" label="32586" visible="!eq(-6,3)" lvalues="32589|32590|32591" default="2"/>
-        <setting id="contentNone" type="enum" label="32587" visible="!eq(-7,3)" lvalues="32589|32590|32591" default="2"/>
-    </category>
     <category label="32522"> <!-- advanced -->
         <setting id="libraryfilter" type="bool" label="32588" default="false"/>
         <setting id="monitoroff" type="bool" label="32609" default="false"/>
