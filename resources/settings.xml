@@ -50,56 +50,6 @@
         <setting id="flatten" type="enum" label="32543" lvalues="32553|32558|32559" default="0"/>
         <setting id="disable_all_season" type="bool" label="32603" default="false"/>
         <setting id="hide_shared" type="bool" label="32592" default="true"/>
-        <setting id="skinoverride" type="bool" label="32575" default="false"/>
-        <setting id="skinname" type="enum" label="32576" values="Quartz|Quartz V3|Confluence|Amber|Aeon Nox 5|Black Glass Nova|Chroma|Nebula" default="Confluence" visible="eq(-1,true)" enable="eq(-1,true)" subsetting="true"/>
-        <!--Quartz Skin-->
-        <setting id="mo_view_0" type="labelenum" label="32577" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true" visible="eq(-1,0)" enable="eq(-2,true)+eq(-1,0)"/>
-        <setting id="tv_view_0" type="labelenum" label="32578" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true" visible="eq(-2,0)" enable="eq(-3,true)+eq(-2,0)"/>
-        <setting id="se_view_0" type="labelenum" label="32579" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true" visible="eq(-3,0)" enable="eq(-4,true)+eq(-3,0)"/>
-        <setting id="ep_view_0" type="labelenum" label="32580" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true" visible="eq(-4,0)" enable="eq(-5,true)+eq(-4,0)"/>
-        <setting id="mu_view_0" type="labelenum" label="32581" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart|Fanart 2" default="None" subsetting="true" visible="eq(-5,0)" enable="eq(-6,true)+eq(-5,0)"/>
-        <!--Quartz V3 Skin-->
-        <setting id="mo_view_1" type="labelenum" label="32577" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true" visible="eq(-7,true)+eq(-6,1)" enable="eq(-7,true)+eq(-6,1)"/>
-        <setting id="tv_view_1" type="labelenum" label="32578" values="None|List|Big List|MediaInfo|MediaInfo 2|Big Icons|Icons|Panel|Wide|Fanart 1|Fanart 2|Fanart 3" default="None" subsetting="true" visible="eq(-8,true)+eq(-7,1)" enable="eq(-8,true)+eq(-7,1)"/>
-        <setting id="se_view_1" type="labelenum" label="32579" values="None|List|MediaInfo|MediaInfo 2|Icons|Wide|Big Icons|Icons 2|Panel|Fanart 1|Fanart 2" default="None" subsetting="true" visible="eq(-9,true)+eq(-8,1)" enable="eq(-9,true)+eq(-8,1)"/>
-        <setting id="ep_view_1" type="labelenum" label="32580" values="None|List|Big List|MediaInfo|MediaInfo 2|Icons|Panel|Wide|Fanart 3" default="None" subsetting="true" visible="eq(-10,true)+eq(-9,1)" enable="eq(-10,true)+eq(-9,1)"/>
-        <setting id="mu_view_1" type="labelenum" label="32581" values="None|List|Icons|Fanart 3" default="None" subsetting="true" visible="eq(-11,true)+eq(-10,1)" enable="eq(-11,true)+eq(-10,1)"/>
-        <!--Confluence Skin-->
-        <setting id="mo_view_2" type="labelenum" label="32577" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true" visible="eq(-12,true)+eq(-11,2)" enable="eq(-12,true)+eq(-11,2)"/>
-        <setting id="tv_view_2" type="labelenum" label="32578" values="None|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3|Wide Icons" default="None" subsetting="true" visible="eq(-13,true)+eq(-12,2)" enable="eq(-13,true)+eq(-12,2)"/>
-        <setting id="se_view_2" type="labelenum" label="32579" values="None|List|Big List|Thumbnail|Poster Wrap|Fanart|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true" visible="eq(-14,true)+eq(-13,2)" enable="eq(-14,true)+eq(-13,2)"/>
-        <setting id="ep_view_2" type="labelenum" label="32580" values="None|List|Big List|Thumbnail|Media Info|Media Info 2|Media Info 3" default="None" subsetting="true" visible="eq(-15,true)+eq(-14,2)" enable="eq(-15,true)+eq(-14,2)"/>
-        <setting id="mu_view_2" type="labelenum" label="32581" values="None|List|Big List|Thumbnail|Media Info" default="None" subsetting="true" visible="eq(-16,true)+eq(-15,2)" enable="eq(-16,true)+eq(-15,2)"/>
-        <!--Amber Skin-->
-        <setting id="mo_view_3" type="labelenum" label="32577" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true" visible="eq(-17,true)+eq(-16,3)" enable="eq(-17,true)+eq(-16,3)"/>
-        <setting id="tv_view_3" type="labelenum" label="32578" values="None|List|Banner List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true" visible="eq(-18,true)+eq(-17,3)" enable="eq(-18,true)+eq(-17,3)"/>
-        <setting id="se_view_3" type="labelenum" label="32579" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true" visible="eq(-19,true)+eq(-18,3)" enable="eq(-19,true)+eq(-18,3)"/>
-        <setting id="ep_view_3" type="labelenum" label="32580" values="None|List|Big List|Panel|Low List|Icons|Big Panel|Fanart" default="None" subsetting="true" visible="eq(-20,true)+eq(-19,3)" enable="eq(-20,true)+eq(-19,3)"/>
-        <setting id="mu_view_3" type="labelenum" label="32581" values="None|List|Big List|Panel|Low List|Icons|Fanart" default="None" subsetting="true" visible="eq(-21,true)+eq(-20,3)" enable="eq(-21,true)+eq(-20,3)"/>
-        <!--Aeon Nox 5 Skin-->
-        <setting id="mo_view_4" type="labelenum" label="32577" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true" visible="eq(-22,true)+eq(-21,4)" enable="eq(-22,true)+eq(-21,4)"/>
-        <setting id="tv_view_4" type="labelenum" label="32578" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true" visible="eq(-23,true)+eq(-22,4)" enable="eq(-23,true)+eq(-22,4)"/>
-        <setting id="se_view_4" type="labelenum" label="32579" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true" visible="eq(-24,true)+eq(-23,4)" enable="eq(-24,true)+eq(-23,4)"/>
-        <setting id="ep_view_4" type="labelenum" label="32580" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true" visible="eq(-25,true)+eq(-24,4)" enable="eq(-25,true)+eq(-24,4)"/>
-        <setting id="mu_view_4" type="labelenum" label="32581" values="None|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|Wall|BigList" default="None" subsetting="true" visible="eq(-26,true)+eq(-25,4)" enable="eq(-26,true)+eq(-25,4)"/>
-        <!--Black Glass Nova Skin-->
-        <setting id="mo_view_5" type="labelenum" label="32577" values="None|List|Panel|Big List|Icons|Low List|Big Panel|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-27,true)+eq(-26,5)" enable="eq(-27,true)+eq(-26,5)"/>
-        <setting id="tv_view_5" type="labelenum" label="32578" values="None|List|Panel|Big List|Icons|Low List|Big Panel|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-28,true)+eq(-27,5)" enable="eq(-28,true)+eq(-27,5)"/>
-        <setting id="se_view_5" type="labelenum" label="32579" values="None|List|Panel|Big List|Icons|Low List|Big Panel|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-29,true)+eq(-28,5)" enable="eq(-29,true)+eq(-28,5)"/>
-        <setting id="ep_view_5" type="labelenum" label="32580" values="None|List|Panel|Big List|Icons|Low List|Big Panel|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-30,true)+eq(-29,5)" enable="eq(-30,true)+eq(-29,5)"/>
-        <setting id="mu_view_5" type="labelenum" label="32581" values="None|List|Panel|Big List|Icons|Low List|Big Panel|ShowCase|Card List" default="None" subsetting="true" visible="eq(-31,true)+eq(-30,5)" enable="eq(-31,true)+eq(-30,5)"/>
-        <!--Chroma Skin-->
-        <setting id="mo_view_6" type="labelenum" label="32577" values="None|List|Panel|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-32,true)+eq(-31,6)" enable="eq(-32,true)+eq(-31,6)"/>
-        <setting id="tv_view_6" type="labelenum" label="32578" values="None|List|Panel|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-33,true)+eq(-32,6)" enable="eq(-33,true)+eq(-32,6)"/>
-        <setting id="se_view_6" type="labelenum" label="32579" values="None|List|Panel|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-34,true)+eq(-33,6)" enable="eq(-34,true)+eq(-33,6)"/>
-        <setting id="ep_view_6" type="labelenum" label="32580" values="None|List|Panel|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-35,true)+eq(-34,6)" enable="eq(-35,true)+eq(-34,6)"/>
-        <setting id="mu_view_6" type="labelenum" label="32581" values="None|List|Panel|Icons|Fanart|ShowCase|Card List" default="None" subsetting="true" visible="eq(-36,true)+eq(-35,6)" enable="eq(-36,true)+eq(-35,6)"/>
-        <!--Nebula Skin-->
-        <setting id="mo_view_7" type="labelenum" label="32577" values="None|Big List|Slim List|List|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-37,true)+eq(-36,7)" enable="eq(-37,true)+eq(-36,7)"/>
-        <setting id="tv_view_7" type="labelenum" label="32578" values="None|Big List|Slim List|List|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-38,true)+eq(-37,7)" enable="eq(-38,true)+eq(-37,7)"/>
-        <setting id="se_view_7" type="labelenum" label="32579" values="None|Big List|Slim List|List|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-39,true)+eq(-38,7)" enable="eq(-39,true)+eq(-38,7)"/>
-        <setting id="ep_view_7" type="labelenum" label="32580" values="None|Big List|Slim List|List|Icons|Fanart|Banner List|ShowCase|Card List" default="None" subsetting="true" visible="eq(-40,true)+eq(-39,7)" enable="eq(-40,true)+eq(-39,7)"/>
-        <setting id="mu_view_7" type="labelenum" label="32581" values="None|Big List|Slim List|List|Icons|Fanart|ShowCase|Card List" default="None" subsetting="true" visible="eq(-41,true)+eq(-40,7)" enable="eq(-41,true)+eq(-40,7)"/>
     </category>
     <category label="32521"> <!-- Shelf -->
         <setting id="homeshelf" type="enum" label="32572" lvalues="32573|32574|32509|32553" default="2"/>

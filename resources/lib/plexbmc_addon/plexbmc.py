@@ -415,166 +415,6 @@ def display_sections(cfilter=None, display_shared=False):
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
-def enforce_skin_view(mode):
-    '''
-    Ensure that the views are consistance across plugin usage, depending
-    upon view selected by user
-    @input: User view selection
-    @return: view id for skin
-    '''
-
-    log_print.debug("== ENTER ==")
-
-    if not settings.get_setting('skinoverride'):
-        return None
-
-    skinname = settings.get_setting('skinname')
-
-    current_skin_name = xbmc.getSkinDir()
-
-    skin_map = {'2': 'skin.confluence',
-                '0': 'skin.quartz',
-                '1': 'skin.quartz3',
-                '3': 'skin.amber',
-                '4': 'skin.aeon.nox.5',
-                '5': 'skin.blackglassnova',
-                '6': 'skin.chroma',
-                '7': 'skin.nebula'}
-
-    if skin_map[skinname] not in current_skin_name:
-        log_print.debug("Do not have the correct skin [%s] selected in settings [%s] - ignoring" % (current_skin_name, skin_map[skinname]))
-        return None
-
-    if mode == "movie":
-        log_print.debug("Looking for movie skin settings")
-        viewname = settings.get_setting('mo_view_%s' % skinname)
-
-    elif mode == "tv":
-        log_print.debug("Looking for tv skin settings")
-        viewname = settings.get_setting('tv_view_%s' % skinname)
-
-    elif mode == "music":
-        log_print.debug("Looking for music skin settings")
-        viewname = settings.get_setting('mu_view_%s' % skinname)
-
-    elif mode == "episode":
-        log_print.debug("Looking for music skin settings")
-        viewname = settings.get_setting('ep_view_%s' % skinname)
-
-    elif mode == "season":
-        log_print.debug("Looking for music skin settings")
-        viewname = settings.get_setting('se_view_%s' % skinname)
-
-    else:
-        viewname = "None"
-
-    log_print.debug("view name is %s" % viewname)
-
-    if viewname == "None":
-        return None
-
-    QuartzV3_views = {'List': 50,
-                      'Big List': 51,
-                      'MediaInfo': 52,
-                      'MediaInfo 2': 54,
-                      'Big Icons': 501,
-                      'Icons': 53,
-                      'Panel': 502,
-                      'Wide': 55,
-                      'Fanart 1': 57,
-                      'Fanart 2': 59,
-                      'Fanart 3': 500}
-
-    Quartz_views = {'List': 50,
-                    'MediaInfo': 51,
-                    'MediaInfo 2': 52,
-                    'Icons': 53,
-                    'Wide': 54,
-                    'Big Icons': 55,
-                    'Icons 2': 56,
-                    'Panel': 57,
-                    'Fanart': 58,
-                    'Fanart 2': 59}
-
-    Confluence_views = {'List': 50,
-                        'Big List': 51,
-                        'Thumbnail': 500,
-                        'Poster Wrap': 501,
-                        'Fanart': 508,
-                        'Media Info': 504,
-                        'Media Info 2': 503,
-                        'Media Info 3': 515,
-                        'Wide Icons': 505}
-
-    Amber_views = {'List': 50,
-                   'Big List': 52,
-                   'Panel': 51,
-                   'Low List': 54,
-                   'Icons': 53,
-                   'Big Panel': 55,
-                   'Fanart': 59}
-
-    aeon_nox_views = {'List': 50,
-                      'InfoWall': 51,
-                      'Landscape': 52,
-                      'ShowCase1': 53,
-                      'ShowCase2': 54,
-                      'TriPanel': 55,
-                      'Posters': 56,
-                      'Shift': 57,
-                      'BannerWall': 58,
-                      'Logo': 59,
-                      'Wall': 500,
-                      'LowList': 501,
-                      'Episode': 502,
-                      'Wall': 503,
-                      'BigList': 510}
-
-    blackglassnova_views = {'List': 50,
-                            'Panel': 51,
-                            'Big List': 52,
-                            'Icons': 53,
-                            'Low List': 54,
-                            'Big Panel': 55,
-                            'Banner List': 56,
-                            'ShowCase': 59,
-                            'Card List': 5050}
-
-    chroma_views = {'List': 50,
-                    'Panel': 51,
-                    'Icons': 53,
-                    'Fanart': 54,
-                    'Banner List': 56,
-                    'ShowCase': 59,
-                    'Card List': 5050}
-
-    nebula_views = {'Big List': 50,
-                    'Slim List': 51,
-                    'List': 52,
-                    'Icons': 53,
-                    'Fanart': 54,
-                    'Banner List': 56,
-                    'ShowCase': 59,
-                    'Card List': 5050}
-
-    skin_list = {"0": Quartz_views,
-                 "1": QuartzV3_views,
-                 "2": Confluence_views,
-                 "3": Amber_views,
-                 "4": aeon_nox_views,
-                 "5": blackglassnova_views,
-                 "6": chroma_views,
-                 "7": nebula_views}
-
-    log_print.debug("Using skin view: %s" % skin_list[skinname][viewname])
-
-    try:
-        return skin_list[skinname][viewname]
-    except:
-        log_print.error("PleXBMC -> skin name or view name error")
-        return None
-
-
 def process_movies(url, tree=None):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
@@ -609,11 +449,6 @@ def process_movies(url, tree=None):
             count += 1
 
     log_print.info("PROCESS: It took %s seconds to process %s items" % (time.time() - start_time, count))
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('movie')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
-
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
@@ -716,11 +551,6 @@ def process_tvshows(url, tree=None):
 
         add_item_to_gui(u, details, extraData, context)
 
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('tv')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
-
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
@@ -808,11 +638,6 @@ def process_tvseasons(url):
 
         # Build the screen directory listing
         add_item_to_gui(url, details, extraData, context)
-
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('season')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -963,11 +788,6 @@ def process_tvepisodes(url, tree=None):
         u = "%s%s%st=%s" % (server.get_url_location(), extraData['key'], separator, randomNumber)
 
         add_item_to_gui(u, details, extraData, context, folder=False)
-
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('episode')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -1961,11 +1781,6 @@ def artist(url, tree=None):
 
         add_item_to_gui(url, details, extraData)
 
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('music')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
-
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
@@ -2013,11 +1828,6 @@ def albums(url, tree=None):
 
         add_item_to_gui(url, details, extraData)
 
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('music')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
-
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
@@ -2047,11 +1857,6 @@ def tracks(url, tree=None):
             sectionthumb = get_thumb_image(track, server)
 
         track_tag(server, tree, track, sectionart, sectionthumb)
-
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('music')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -2562,11 +2367,6 @@ def music(url, tree=None):
 
             extraData['mode'] = MODE_MUSIC
             add_item_to_gui(u, details, extraData)
-
-    log_print.debug("Skin override is: %s" % settings.get_setting('skinoverride'))
-    view_id = enforce_skin_view('music')
-    if view_id:
-        xbmc.executebuiltin("Container.SetViewMode(%s)" % view_id)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
