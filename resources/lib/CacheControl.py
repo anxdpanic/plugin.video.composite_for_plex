@@ -55,7 +55,7 @@ class CacheControl:
             cache = xbmcvfs.File(self.cache_location + cache_name)
             cachedata = cache.read()
             cache.close()
-        except Exception, e:
+        except Exception as e:
             log_print.debug("CACHE [%s]: read error [%s]" % (cache_name, e))
             cachedata = False
 
@@ -78,7 +78,7 @@ class CacheControl:
             cache = xbmcvfs.File(self.cache_location + cache_name, 'w')
             cache.write(pickle.dumps(object))
             cache.close()
-        except Exception, e:
+        except Exception as e:
             log_print.debug("CACHE [%s]: Writing error [%s]" % (self.cache_location + cache_name, e))
 
         return True

@@ -101,7 +101,7 @@ class PlexGDM:
             try:
                 data, addr = update_sock.recvfrom(1024)
                 self.__log_print.debug_helper("Received UDP packet from [%s] containing [%s]" % (addr, data.strip()))
-            except socket.error, e:
+            except socket.error as e:
                 pass
             else:
                 if "M-SEARCH * HTTP/1." in data:

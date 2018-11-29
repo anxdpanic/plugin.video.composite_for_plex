@@ -267,7 +267,7 @@ class PlexMediaServer:
                 else:
                     response = None
                 self.offline = False
-            except requests.exceptions.ConnectionError, e:
+            except requests.exceptions.ConnectionError as e:
                 log_print.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
 
                 if self.protocol == "https" and refresh:

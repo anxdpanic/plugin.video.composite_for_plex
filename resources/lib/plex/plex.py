@@ -307,7 +307,7 @@ class Plex:
                 gdm_client = PlexGDM(interface=interface_address)
                 gdm_client.discover()
                 gdm_server_name = gdm_client.getServerList()
-            except Exception, e:
+            except Exception as e:
                 print "PleXBMC -> GDM Issue [%s]" % e
                 traceback.print_exc()
             else:
@@ -432,7 +432,7 @@ class Plex:
             else:
                 log_print.error("Unknown HTTP type requested: %s" % type)
                 response = None
-        except requests.exceptions.ConnectionError, e:
+        except requests.exceptions.ConnectionError as e:
             log_print.error("myplex: %s is offline or uncontactable. error: %s" % (self.myplex_server, e))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
         except requests.exceptions.ReadTimeout:
