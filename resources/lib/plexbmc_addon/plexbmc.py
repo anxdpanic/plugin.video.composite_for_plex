@@ -3097,11 +3097,7 @@ def start_plexbmc(sys_argv):
             gui_window = xbmcgui.Window(10000)
             gui_window.setProperty("plexbmc.plexhome_user", str(plex_network.get_myplex_user()))
             gui_window.setProperty("plexbmc.plexhome_avatar", str(plex_network.get_myplex_avatar()))
-            if xbmcgui.getCurrentWindowId() == 10000:
-                log_print.debug("Currently in home - refreshing to allow new settings to be taken")
-                xbmc.executebuiltin("ReloadSkin()")
-            else:
-                xbmc.executebuiltin("Container.Refresh")
+            xbmc.executebuiltin("Container.Refresh")
         else:
             log_print.info("Switch User Failed")
 
@@ -3115,7 +3111,7 @@ def start_plexbmc(sys_argv):
             gui_window = xbmcgui.Window(10000)
             gui_window.clearProperty("plexbmc.plexhome_user")
             gui_window.clearProperty("plexbmc.plexhome_avatar")
-            xbmc.executebuiltin("ReloadSkin()")
+            xbmc.executebuiltin("Container.Refresh")
 
     elif command == "signin":
         from .plex import plexsignin
