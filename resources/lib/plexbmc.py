@@ -4587,7 +4587,7 @@ def start_plexbmc(sys_argv):
     global pluginhandle
     try:
         pluginhandle = int(sys_argv[1])
-    except ValueError:
+    except (ValueError, IndexError):
         pass
 
     try:
