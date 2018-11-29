@@ -1,64 +1,62 @@
 # Kodi language file
-# Addon Name: Skin Helper Service
-# Addon id: script.skin.helper.service
-# Addon Provider: marcelveldt
+# Addon Name:
+# Addon id:
+# Addon Provider:
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-01-30 10:04+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kodi Translation Team\n"
-"Language-Team: German (http://www.transifex.com/projects/p/xbmc-addons/"
-"language/de/)\n"
-"Language: de\n"
+"Language-Team: Dutch (http://www.transifex.com/projects/p/xbmc-addons/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.6\n"
 
 ###### SETTINGS
 
 msgctxt "#32500"
 msgid "Primary Server Address"
-msgstr "Addresse des primären Servers"
+msgstr "Adres van primaire server"
 
 msgctxt "#32501"
 msgid "Stream from PMS"
-msgstr "Zugriffsart auf Videostreams vom Server"
+msgstr "Stream vanaf PMS"
 
 msgctxt "#32502"
 msgid "Get extended metadata from PMS"
-msgstr "Hole erweiterte Metadaten vom PMS"
+msgstr "Verkrijg uitgebreide metadata van PMS"
 
 msgctxt "#32503"
 msgid "Enable extra filter menus"
-msgstr "Zeige Menü mit erweiterten Filtern"
+msgstr "Schakel extra filter menus in"
 
 msgctxt "#32504"
 msgid "Server Discovery"
-msgstr "Art der Server-Suche"
+msgstr "Server Ontdekking"
 
 msgctxt "#32505"
 msgid "PMS Username: "
-msgstr "PMS Benutzername: "
+msgstr "PMS Gebruikersnaam: "
 
 msgctxt "#32506"
 msgid "PMS Password: "
-msgstr "PMS Passwort: "
+msgstr "PMS Wachtwoord: "
 
 msgctxt "#32507"
 msgid "Always Transcode"
-msgstr "Transcoding immer aktiv"
+msgstr "Altijd Transcoden"
 
 msgctxt "#32508"
 msgid "Transcode format "
-msgstr "Transcoding Format "
+msgstr "Transcode formaat "
 
 msgctxt "#32509"
 msgid "Recent & OnDeck items"
-msgstr "Kürzlich hinzugefügt & Aktuell "
+msgstr "Recente & OnDeck items"
 
 msgctxt "#32510"
 msgid "Debug log"
@@ -77,12 +75,12 @@ msgid "smb"
 msgstr "smb"
 
 msgctxt "#32514"
-msgid "Enable PleXBMC debug output to KODI log"
-msgstr "Plex Addon debug Infos in Kodi-Log"
+msgid "Enable PleXBMC debug output to XBMC log"
+msgstr "Schakel PleXBMC debug output in XBMC log in"
 
 msgctxt "#32515"
 msgid "Use transcoding proxy"
-msgstr "Benutze Transcoding Proxy"
+msgstr "Gebruik transcoding proxy"
 
 msgctxt "#32516"
 msgid "Server"
@@ -90,11 +88,11 @@ msgstr "Server"
 
 msgctxt "#32517"
 msgid "Playback"
-msgstr "Wiedergabe"
+msgstr "Afspelen"
 
 msgctxt "#32518"
 msgid "Transcoding"
-msgstr "Transcoding"
+msgstr "Transcoden"
 
 msgctxt "#32519"
 msgid "Wake On LAN"
@@ -102,71 +100,71 @@ msgstr "Wake On LAN"
 
 msgctxt "#32520"
 msgid "Look and Feel"
-msgstr "Aussehen"
+msgstr "Uiterlijk"
 
 msgctxt "#32521"
 msgid "Skin Home Shelf"
-msgstr "Skin Home Shelf"
+msgstr "Skin-schapitems"
 
 msgctxt "#32522"
 msgid "Advanced"
-msgstr "Erweitert"
+msgstr "Geavanceerd"
 
 msgctxt "#32523"
 msgid "Use Wake On LAN"
-msgstr "Benutze Wake On LAN"
+msgstr "Gebruik Wake On LAN"
 
 msgctxt "#32524"
 msgid "myPlex user"
-msgstr "myPlex Benutzer"
+msgstr "myPlex gebruiker"
 
 msgctxt "#32525"
 msgid "myPlex password"
-msgstr "myPlex Passwort"
+msgstr "myPlex wachtwoord"
 
 msgctxt "#32526"
 msgid "Select master server..."
-msgstr "Hauptserver auswählen..."
+msgstr "Selecteer masterserver..."
 
 msgctxt "#32527"
 msgid "Authentication required?"
-msgstr "Authentifizierung benötigt?"
+msgstr "Authenticatie vereist?"
 
 msgctxt "#32528"
 msgid "Load External Subtitles?"
-msgstr "Lade externe Untertitel?"
+msgstr "Laad externe ondertitles?"
 
 msgctxt "#32529"
 msgid "Always display subtitles?"
-msgstr "Untertitel immer anzeigen?"
+msgstr "Altijd ondertitels tonen?"
 
 msgctxt "#32530"
 msgid "Port Number"
-msgstr "Port Nummerer"
+msgstr "Poortnummer"
 
 msgctxt "#32531"
 msgid "Use PMS localisation settings"
-msgstr "Benutze Ländereinstellungen des PMS"
+msgstr "Gebruik PMS localisatie instellingen"
 
 msgctxt "#32532"
 msgid "Manual"
-msgstr "Manuell"
+msgstr "Manueel"
 
 msgctxt "#32533"
 msgid "Always"
-msgstr "Immer"
+msgstr "Altijd"
 
 msgctxt "#32534"
 msgid "Audio stream selection"
-msgstr "Auswahl des Audio Streams"
+msgstr "Audiostream selectie"
 
 msgctxt "#32535"
 msgid "Subtitle stream selection"
-msgstr "Auswahl des Untertitel Streams"
+msgstr "Ondertitelstream selectie"
 
 msgctxt "#32536"
-msgid "KODI Control"
-msgstr "Kodi"
+msgid "XBMC Control"
+msgstr "Beheerd door XBMC"
 
 msgctxt "#32537"
 msgid "External"
@@ -174,35 +172,35 @@ msgstr "Extern"
 
 msgctxt "#32538"
 msgid "Audio and subtitle selector"
-msgstr "Quelle für Audio- und Untertitel-Auswahl"
+msgstr "Audio en ondertitel selectie"
 
 msgctxt "#32539"
 msgid "Never show subtitles"
-msgstr "Keine Untertitel"
+msgstr "Nooit ondertitels tonen"
 
 msgctxt "#32540"
 msgid "Quality"
-msgstr "Qualität"
+msgstr "Kwaliteit"
 
 msgctxt "#32541"
 msgid "Proxy Port"
-msgstr "Proxy Port"
+msgstr "Proxy Poort"
 
 msgctxt "#32542"
 msgid "Plex Channel View"
-msgstr "Plex Känele Ansicht"
+msgstr "Plex Kanaal Weergave"
 
 msgctxt "#32543"
 msgid "Flatten TV Shows"
-msgstr "Serien Staffel reduzieren"
+msgstr "Vlakke TV Show weergave"
 
 msgctxt "#32544"
 msgid "Server MAC address"
-msgstr "Server MAC Addresse"
+msgstr "Server MAC-adres"
 
 msgctxt "#32545"
 msgid "Plex Style Watched flags"
-msgstr "Gesehen-Markierung im Plex-Stil anzeigen"
+msgstr "Plex-stijl 'Bekeken'-vlaggen"
 
 msgctxt "#32546"
 msgid "Windows Media Server?"
@@ -210,31 +208,31 @@ msgstr "Windows Media Server?"
 
 msgctxt "#32547"
 msgid "Use WOL?"
-msgstr "Benutze Wake on LAN?"
+msgstr "Gebruik WOL?"
 
 msgctxt "#32548"
 msgid "Clean context menus"
-msgstr "Kontext Menü säubern"
+msgstr "Schoon contextmenu's op"
 
 msgctxt "#32549"
 msgid "Skip Genre/director/writer metadata"
-msgstr "Genre/Regie/Author Metadaten überspringen"
+msgstr "Genre/regisseur/schrijver-metadata overslaan"
 
 msgctxt "#32550"
 msgid "Skip images (thumbs, fanart)"
-msgstr "Bilder (Vorschaubilder, Hintergrundbilder) überspringen"
+msgstr "Afbeeldingen (thumbnails, fanart) overslaan"
 
 msgctxt "#32551"
 msgid "Skip Media Flags"
-msgstr "Medien Markierungen überspringen"
+msgstr "Mediavlaggen overslaan"
 
 msgctxt "#32552"
 msgid "Skip Context Menus"
-msgstr "Kontext Menü überspringen"
+msgstr "Contextmenu's overslaan"
 
 msgctxt "#32553"
 msgid "Off"
-msgstr "Aus"
+msgstr "Uit"
 
 msgctxt "#32554"
 msgid "Bonjour"
@@ -242,31 +240,31 @@ msgstr "Bonjour"
 
 msgctxt "#32556"
 msgid "Play TV Theme Music"
-msgstr "TV-Themes abspielen"
+msgstr "Speel TV-themamuziek"
 
 msgctxt "#32557"
 msgid "Select audio output"
-msgstr "Audioausgabe wählen"
+msgstr "Selecteer audio uitvoer"
 
 msgctxt "#32558"
 msgid "If only one season"
-msgstr "Bei nur einer Staffel"
+msgstr "Als er slechts één seizoen is"
 
 msgctxt "#32559"
 msgid "All seasons"
-msgstr "Alle Staffeln"
+msgstr "Alle seizoenen"
 
 msgctxt "#32560"
 msgid "Force DVD playback"
-msgstr "DVD Wiedergabe erzwingen"
+msgstr "Forceer afspelen van DVD"
 
 msgctxt "#32561"
 msgid "Override SMB location"
-msgstr "SMB Pfad überschreiben"
+msgstr "Aangepaste SMB locatie"
 
 msgctxt "#32562"
 msgid "NAS IP Address"
-msgstr "NAS IP Addresse"
+msgstr "NAS IP-adres"
 
 msgctxt "#32563"
 msgid "AFP"
@@ -274,27 +272,27 @@ msgstr "AFP"
 
 msgctxt "#32564"
 msgid "NAS Username"
-msgstr "NAS Benutzername"
+msgstr "NAS Gebruikersnaam"
 
 msgctxt "#32565"
 msgid "NAS password"
-msgstr "NAS Passwort"
+msgstr "NAS Wachtwoord"
 
 msgctxt "#32566"
 msgid "NAS Root Folder"
-msgstr "NAS Stammordner"
+msgstr "NAS Rootmap"
 
 msgctxt "#32567"
 msgid "Plex Control"
-msgstr "PMS"
+msgstr "Beheerd door Plex"
 
 msgctxt "#32568"
 msgid "Subtitle Size"
-msgstr "Untertitelgröße"
+msgstr "Ondertitelgrootte"
 
 msgctxt "#32569"
 msgid "Audio Boost"
-msgstr "Lautstärke erhöhen"
+msgstr "Audio Boost"
 
 msgctxt "#32570"
 msgid "Auto (GDM)"
@@ -302,111 +300,111 @@ msgstr "Automatisch (GDM)"
 
 msgctxt "#32571"
 msgid "Current Master Server"
-msgstr "Aktueller Hauptserver"
+msgstr "Huidige masterserver"
 
 msgctxt "#32572"
 msgid "Current Master Server"
-msgstr "Shelf Menüpunkte"
+msgstr "Schapitems"
 
 msgctxt "#32573"
 msgid "Recently Added"
-msgstr "Kürzlich hinzugefügt"
+msgstr "Recent toegevoegd"
 
 msgctxt "#32574"
 msgid "On Deck"
-msgstr "Aktuell"
+msgstr "On Deck"
 
 msgctxt "#32575"
 msgid "Force Skin Views"
-msgstr "Erzwinge Ansicht im Skin"
+msgstr "Forceer Skin-weergaven"
 
 msgctxt "#32576"
 msgid "Skin Name"
-msgstr "Skin Name"
+msgstr "Skinnaam"
 
 msgctxt "#32577"
 msgid "Movie View"
-msgstr "Ansicht für Filme"
+msgstr "Filmweergave"
 
 msgctxt "#32578"
 msgid "TV View"
-msgstr "Ansicht für Serien"
+msgstr "TV-weergave"
 
 msgctxt "#32579"
 msgid "Season View"
-msgstr "Ansicht für Staffel"
+msgstr "Seizoenweergave"
 
 msgctxt "#32580"
 msgid "Episode View"
-msgstr "Ansicht für Episoden"
+msgstr "Afleveringweergave"
 
 msgctxt "#32581"
 msgid "Music View"
-msgstr "Ansicht für Musik"
+msgstr "Muziekweergave"
 
 msgctxt "#32582"
 msgid "Enable Movie Shelf"
-msgstr "Aktiviere Shelf für Filme"
+msgstr "Schakel filmschap in"
 
 msgctxt "#32583"
 msgid "Enable TV Shelf"
-msgstr "Aktiviere Shelf für Serien"
+msgstr "Schakel tv-schap in"
 
 msgctxt "#32584"
 msgid "Enable Music Shelf"
-msgstr "Aktiviere Shelf für Musik"
+msgstr "Schakel muziekschap in"
 
 msgctxt "#32585"
 msgid "Enable Channel Shelf"
-msgstr "Aktiviere Shelf für Kanäle"
+msgstr "Schakel kanaalschap in"
 
 msgctxt "#32586"
 msgid "Content filter"
-msgstr "Inhalte filtern für"
+msgstr "Inhoudsfilter"
 
 msgctxt "#32587"
 msgid "Map unknown content as:"
-msgstr "Unbekannte Bewertungen filtern für:"
+msgstr "Toon onbekende inhoud als:"
 
 msgctxt "#32588"
 msgid "RA Library filter"
-msgstr "RA Bibliotheks-Filter"
+msgstr "RA-bibliotheekfilter"
 
 msgctxt "#32589"
 msgid "Kids"
-msgstr "Kinder"
+msgstr "Kinderen"
 
 msgctxt "#32590"
 msgid "Teens"
-msgstr "Jugendliche"
+msgstr "Tieners"
 
 msgctxt "#32591"
 msgid "Adults"
-msgstr "Erwachsene"
+msgstr "Volwassenen"
 
 msgctxt "#32592"
 msgid "Use menu for shared sections"
-msgstr "Benutze Untermenü für geteilte Sektionen"
+msgstr "Gebruik menu voor gedeelde secties"
 
 msgctxt "#32593"
 msgid "Cache Data"
-msgstr "Daten zwischenspeichern"
+msgstr "Cachedata"
 
 msgctxt "#32594"
 msgid "Manual"
-msgstr "Manuell"
+msgstr "Manueel"
 
 msgctxt "#32595"
 msgid "Use full-res thumbs"
-msgstr "Benutze Vorschaubilder in voller Auflösung"
+msgstr "Gebruik thumbnails van volledige resolutie"
 
 msgctxt "#32596"
 msgid "Use full-res fanart"
-msgstr "Benutze Hintergrundbilder in voller Auflösung"
+msgstr "Gebruik fanart van volledige resolutie"
 
 msgctxt "#32597"
 msgid "Hide watched recently added items"
-msgstr "Gesehene Elemente in 'Kürzlich hinzugefügt' verstecken"
+msgstr "Verberg reeds bekeken recent toegevoegde items"
 
 msgctxt "#32598"
 msgid "Info"
@@ -426,8 +424,24 @@ msgstr "Transcoder"
 
 msgctxt "#32602"
 msgid "Name"
-msgstr "Clientname"
+msgstr "Naam"
 
 msgctxt "#32603"
 msgid "Disable 'All Episodes'"
-msgstr "'Alle Episoden' aus Liste der Staffeln ausblenden"
+msgstr "Schakel 'Alle Afleveringen' uit"
+
+msgctxt "#32604"
+msgid "Enable KODI view cache"
+msgstr "Schakel KODI-weergavecache in"
+
+msgctxt "#32605"
+msgid "Manage myPlex"
+msgstr "Beheer myPlex"
+
+msgctxt "#32606"
+msgid "Prefer Season artwork"
+msgstr "Prefereer seizoen-fanart"
+
+msgctxt "#32607"
+msgid "Hide Unique Information in log"
+msgstr ""

@@ -12,8 +12,8 @@
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
         <minversion>1</minversion>
-        <summary lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</summary>
-        <description lang="en">Browse and play local video, music and photo media files managed by Plex Media Server.</description>
+        <summary lang="en_GB">Browse and play local video, music and photo media files managed by Plex Media Server.</summary>
+        <description lang="en_GB">Browse and play local video, music and photo media files managed by Plex Media Server.</description>
         <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>

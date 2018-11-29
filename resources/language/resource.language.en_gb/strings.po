@@ -1,815 +1,827 @@
 # Kodi language file
-# Addon Name: Skin Helper Service
-# Addon id: script.skin.helper.service
-# Addon Provider: marcelveldt
+# Addon Name:
+# Addon id:
+# Addon Provider:
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: 2014-10-26 17:05+0000\n"
-"PO-Revision-Date: 2017-11-05 16:13+0200\n"
-"Last-Translator: A. Dambledore\n"
-"Language-Team: Eng2Heb\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: he_IL\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgctxt "#32000"
 msgid "Confirm file delete?"
-msgstr "לאשר את מחיקת קובץ?"
+msgstr ""
 
 msgctxt "#32001"
 msgid "Delete this item? This action will delete media and associated data files."
-msgstr "האם למחוק את פריט זה? פעולה זו תמחק את המדיה ואת קיבצי הנתונים המקושרים."
+msgstr ""
 
 msgctxt "#32002"
 msgid "Plex Online"
-msgstr "פלקס במצב מקוון"
+msgstr ""
 
 msgctxt "#32003"
 msgid "About to install "
-msgstr "עומד להתקין "
+msgstr ""
 
 msgctxt "#32004"
 msgid "This plugin is already installed.."
-msgstr "תוסף זה מותקן כבר."
+msgstr ""
 
 msgctxt "#32005"
 msgid "Switch Failed"
-msgstr "ההחלפה נכשלה"
+msgstr ""
 
 msgctxt "#32006"
 msgid "Sign Out"
-msgstr "התנתקות"
+msgstr ""
 
 msgctxt "#32007"
 msgid "To sign out you must be logged in as an admin user. Please switch user and try again"
-msgstr "כדי לצאת עליך להיות מחובר כמשתמש admin. נא להחליף משתמש ונסה שוב"
+msgstr ""
 
 msgctxt "#32008"
 msgid "myplex"
-msgstr "myplex"
+msgstr ""
 
 msgctxt "#32009"
 msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
-msgstr "אתם כרגע מחובר אל myPlex. האם אתה בטוח שברצונך להתנתק?"
+msgstr ""
 
 msgctxt "#32010"
 msgid "Manage myplex"
-msgstr "ניהול myplex"
+msgstr ""
 
 msgctxt "#32011"
 msgid "You are not currently logged into myplex.  Please continue to sign in, or cancel to return"
-msgstr "אתה לא מחובר כעת לתוך myplex. אנא המשך לרישום, או על ביטול כדי לחזור"
+msgstr ""
 
 msgctxt "#32012"
 msgid "To access these screens you must be logged in as an admin user.  Please switch user and try again"
-msgstr "כדי לגשת את המסכים הבאים, שעליך להיות מחובר כמשתמש admin. אנא החלף משתמש ונסה שוב"
+msgstr ""
 
 msgctxt "#32013"
 msgid "All"
-msgstr "הכל"
+msgstr ""
 
 msgctxt "#32014"
 msgid "Unwatched"
-msgstr "לא נצפה"
+msgstr ""
 
 msgctxt "#32015"
 msgid "Recently Aired"
-msgstr "שודר לאחרונה"
+msgstr ""
 
 msgctxt "#32016"
 msgid "Recently Added"
-msgstr "נוסף לאחרונה"
+msgstr ""
 
 msgctxt "#32017"
 msgid "Recently Viewed Episodes"
-msgstr "פרקים שנצפו לאחרונה"
+msgstr ""
 
 msgctxt "#32018"
 msgid "Recently Viewed Shows"
-msgstr "סדרות שנצפו לאחרונה"
+msgstr ""
 
 msgctxt "#32019"
 msgid "On Deck"
-msgstr "על המדף"
+msgstr ""
 
 msgctxt "#32020"
 msgid "By Collection"
-msgstr "לפי אוסף"
+msgstr ""
 
 msgctxt "#32021"
 msgid "By First Letter"
-msgstr "לפי אות ראשונה"
+msgstr ""
 
 msgctxt "#32022"
 msgid "By Genre"
-msgstr "לפי סגנון"
+msgstr ""
 
 msgctxt "#32023"
 msgid "By Year"
-msgstr "לפי שנה"
+msgstr ""
 
 msgctxt "#32024"
 msgid "By Content Rating"
-msgstr "לפי דירוג תוכן"
+msgstr ""
 
 msgctxt "#32025"
 msgid "By Folder"
-msgstr "לפי תיקייה"
+msgstr ""
 
 msgctxt "#32026"
 msgid "Search Shows..."
-msgstr "חיפוש סדרות..."
+msgstr ""
 
 msgctxt "#32027"
 msgid "Search Episodes..."
-msgstr "חיפוש פרקים..."
+msgstr ""
 
 msgctxt "#32028"
 msgid "All"
-msgstr "הכל"
+msgstr ""
 
 msgctxt "#32029"
 msgid "By Album"
-msgstr "לפי אלבום"
+msgstr ""
 
 msgctxt "#32030"
 msgid "By Genre"
-msgstr "לפי סגנון"
+msgstr ""
 
 msgctxt "#32031"
 msgid "By Year"
-msgstr "לפי שנה"
+msgstr ""
 
 msgctxt "#32032"
 msgid "By Collection"
-msgstr "לפי אוסף"
+msgstr ""
 
 msgctxt "#32033"
 msgid "Recently Added"
-msgstr "נוסף לאחרונה"
+msgstr ""
 
 msgctxt "#32034"
 msgid "By Folder"
-msgstr "לפי תיקייה"
+msgstr ""
 
 msgctxt "#32035"
 msgid "Search Artists..."
-msgstr "חיפוש אמנים..."
+msgstr ""
 
 msgctxt "#32036"
 msgid "Search Albums..."
-msgstr "חיפוש אלבומים..."
+msgstr ""
 
 msgctxt "#32037"
 msgid "Search Tracks..."
-msgstr "חיפוש רצועות..."
+msgstr ""
 
 msgctxt "#32038"
 msgid "All"
-msgstr "הכל"
+msgstr ""
 
 msgctxt "#32039"
 msgid "Unwatched"
-msgstr "לא נצפה"
+msgstr ""
 
 msgctxt "#32040"
 msgid "Recently Released"
-msgstr "שוחרר לאחרונה"
+msgstr ""
 
 msgctxt "#32041"
 msgid "Recently Added"
-msgstr "נוסף לאחרונה"
+msgstr ""
 
 msgctxt "#32042"
 msgid "Recently Viewed"
-msgstr "נצפה לאחרונה"
+msgstr ""
 
 msgctxt "#32043"
 msgid "On Deck"
-msgstr "על המדף"
+msgstr ""
 
 msgctxt "#32044"
 msgid "By Collection"
-msgstr "לפי אוסף"
+msgstr ""
 
 msgctxt "#32045"
 msgid "By Genre"
-msgstr "לפי סגנון"
+msgstr ""
 
 msgctxt "#32046"
 msgid "By Year"
-msgstr "לפי שנה"
+msgstr ""
 
 msgctxt "#32047"
 msgid "By Decade"
-msgstr "לפי עשור"
+msgstr ""
 
 msgctxt "#32048"
 msgid "By Director"
-msgstr "‎לפי במאי"
+msgstr ""
 
 msgctxt "#32049"
 msgid "By Starring Actor"
-msgstr "‎לפי שחקן ראשי"
+msgstr ""
 
 msgctxt "#32050"
 msgid "By Country"
-msgstr "לפי מדינה"
+msgstr ""
 
 msgctxt "#32051"
 msgid "By Content Rating"
-msgstr "לפי דירוג תוכן"
+msgstr ""
 
 msgctxt "#32052"
 msgid "By Rating"
-msgstr "לפי דרוג"
+msgstr ""
 
 msgctxt "#32053"
 msgid "By Resolution"
-msgstr "לפי רזולוציה"
+msgstr ""
 
 msgctxt "#32054"
 msgid "By First Letter"
-msgstr "לפי אות ראשונה"
+msgstr ""
 
 msgctxt "#32055"
 msgid "By Folder"
-msgstr "לפי תיקייה"
+msgstr ""
 
 msgctxt "#32056"
 msgid "Search..."
-msgstr "חיפוש..."
+msgstr ""
 
 msgctxt "#32057"
 msgid "All"
-msgstr "הכל"
+msgstr ""
 
 msgctxt "#32058"
 msgid "By Year"
-msgstr "לפי שנה"
+msgstr ""
 
 msgctxt "#32059"
 msgid "Recently Added"
-msgstr "נוסף לאחרונה"
+msgstr ""
 
 msgctxt "#32060"
 msgid "Camera Make"
-msgstr "יצרן מצלמה"
+msgstr ""
 
 msgctxt "#32061"
 msgid "Camera Model"
-msgstr "מודל מצלמה"
+msgstr ""
 
 msgctxt "#32062"
 msgid "Aperture"
-msgstr "צמצם"
+msgstr ""
 
 msgctxt "#32063"
 msgid "Shutter Speed"
-msgstr "מהירות התריס"
+msgstr ""
 
 msgctxt "#32064"
 msgid "ISO"
-msgstr "ISO"
+msgstr ""
 
 msgctxt "#32065"
 msgid "Lens"
-msgstr "עדשה"
+msgstr ""
 
 msgctxt "#32066"
 msgid "Unable to see any media servers"
-msgstr "אין אפשרות למצוא שרתי מדיה"
+msgstr ""
 
 msgctxt "#32067"
 msgid "Unable to contact server:"
-msgstr "אין אפשרות ליצור קשר עם השרת:"
+msgstr ""
 
 msgctxt "#32068"
 msgid "\"PleXBMC\",Library Refresh started"
-msgstr "\"PleXBMC\", עדכון הספרייה התחיל"
+msgstr ""
 
 msgctxt "#32069"
 msgid "myplex not configured"
-msgstr "myplex לא מוגדר"
+msgstr ""
 
 msgctxt "#32070"
 msgid "Resume"
-msgstr "חדש ניגון"
+msgstr ""
 
 msgctxt "#32071"
 msgid "Select media to play"
-msgstr "בחירת מדיה לניגון"
+msgstr ""
 
 msgctxt "#32072"
 msgid "Select subtitle"
-msgstr "בחר כתוביות"
+msgstr ""
 
 msgctxt "#32073"
 msgid "Select audio"
-msgstr "בחירת שמע"
+msgstr ""
 
 msgctxt "#32074"
 msgid "Select master server"
-msgstr "בחר שרת ראשי"
+msgstr ""
 
 msgctxt "#32075"
 msgid "Known server list"
-msgstr "רשימת שרתים ידועים"
+msgstr ""
 
 msgctxt "#32076"
 msgid "Switch User"
-msgstr "החלפת משתמש"
+msgstr ""
 
 msgctxt "#32077"
 msgid "Enter PIN"
-msgstr "הכנס קוד"
+msgstr ""
 
 msgctxt "#32078"
 msgid "Resume from"
-msgstr "המשך מ-"
+msgstr ""
 
 msgctxt "#32079"
 msgid "Start from beginning"
-msgstr "התחל מההתחלה"
+msgstr ""
 
 msgctxt "#32080"
 msgid "MyPlex Queue"
-msgstr "תור ב-MyPlex"
+msgstr ""
 
 msgctxt "#32081"
 msgid "Sign In"
-msgstr "התחברות"
+msgstr ""
 
 msgctxt "#32082"
 msgid "Display servers"
-msgstr "הצג שרתים"
+msgstr ""
 
 msgctxt "#32083"
 msgid "Refresh Data"
-msgstr "רענן מידע"
+msgstr ""
 
 msgctxt "#32084"
 msgid "Channels"
-msgstr "ערוצים"
+msgstr ""
 
 msgctxt "#32085"
 msgid "Playlists"
-msgstr "רשימות השמעה"
+msgstr ""
 
 msgctxt "#32086"
 msgid "Play Transcoded"
-msgstr "נגן קובץ מומר"
+msgstr ""
 
 msgctxt "#32087"
 msgid "All episodes"
-msgstr "כל הפרקים"
+msgstr ""
 
 msgctxt "#32088"
 msgid "Season"
-msgstr "עונה"
+msgstr ""
 
 msgctxt "#32089"
 msgid "Search for"
-msgstr "חפש את"
+msgstr ""
 
-# ##### SETTINGS
+###### SETTINGS
+
 msgctxt "#32500"
 msgid "Primary Server Address"
-msgstr "כתובת השרת הראשי"
+msgstr ""
 
 msgctxt "#32501"
 msgid "Stream from PMS"
-msgstr "הזרמה מ- PMS"
+msgstr ""
 
 msgctxt "#32502"
 msgid "Get extended metadata from PMS"
-msgstr "קבל מידע-מטא מורחב מ-PMS"
+msgstr ""
 
 msgctxt "#32503"
 msgid "Enable extra filter menus"
-msgstr "אפשר תפריטים עם סינון נוסף"
+msgstr ""
 
 msgctxt "#32504"
 msgid "Server Discovery"
-msgstr "גילוי שרת"
+msgstr ""
 
 msgctxt "#32505"
 msgid "PMS Username: "
-msgstr "שם משתמש של PMS:"
+msgstr ""
 
 msgctxt "#32506"
 msgid "PMS Password: "
-msgstr "סיסמה ל-PMS:"
+msgstr ""
 
 msgctxt "#32507"
 msgid "Always Transcode"
-msgstr "המר תמיד"
+msgstr ""
 
 msgctxt "#32508"
 msgid "Transcode format "
-msgstr "פורמט המרה "
+msgstr ""
 
 msgctxt "#32509"
 msgid "Recent & OnDeck items"
-msgstr "פריטים אחרונים ו-OnDeck"
+msgstr ""
 
 msgctxt "#32510"
 msgid "Debug log"
-msgstr "לוג איתור באגים"
+msgstr ""
 
 msgctxt "#32511"
 msgid "Auto"
-msgstr "אוטומטי"
+msgstr ""
 
 msgctxt "#32512"
 msgid "http"
-msgstr "http"
+msgstr ""
 
 msgctxt "#32513"
 msgid "smb"
-msgstr "smb"
+msgstr ""
 
 msgctxt "#32514"
 msgid "Enable PleXBMC debug output to KODI log"
-msgstr "אפשר פלט PleXBMC איתור באגים ליומן קודי"
+msgstr ""
 
 msgctxt "#32515"
 msgid "Use transcoding proxy"
-msgstr "השתמש בפרוקסי המרה"
+msgstr ""
 
 msgctxt "#32516"
 msgid "Server"
-msgstr "שרת"
+msgstr ""
 
 msgctxt "#32517"
 msgid "Playback"
-msgstr "ניגון"
+msgstr ""
 
 msgctxt "#32518"
 msgid "Transcoding"
-msgstr "ממיר"
+msgstr ""
 
 msgctxt "#32519"
 msgid "Wake On LAN"
-msgstr "התעוררות דרך הרשת - WOL"
+msgstr ""
 
 msgctxt "#32520"
 msgid "Look and Feel"
-msgstr "מראה ותחושה"
+msgstr ""
 
 msgctxt "#32521"
 msgid "Skin Home Shelf"
-msgstr "מדף מעטפת הבית"
+msgstr ""
 
 msgctxt "#32522"
 msgid "Advanced"
-msgstr "מתקדם"
+msgstr ""
 
 msgctxt "#32523"
 msgid "Use Wake On LAN"
-msgstr "תשתמש בהתעוררות דרך הרשת - WOL"
+msgstr ""
 
 msgctxt "#32524"
 msgid "myPlex user"
-msgstr "שם משתמש ב-myPlex"
+msgstr ""
 
 msgctxt "#32525"
 msgid "myPlex password"
-msgstr "סיסמה ל-myPlex"
+msgstr ""
 
 msgctxt "#32526"
 msgid "Select master server..."
-msgstr "בחר שרת ראשי..."
+msgstr ""
 
 msgctxt "#32527"
 msgid "Authentication required?"
-msgstr "נדרש אימות?"
+msgstr ""
 
 msgctxt "#32528"
 msgid "Load External Subtitles?"
-msgstr "לטעון כתוביות חיצוניות?"
+msgstr ""
 
 msgctxt "#32529"
 msgid "Always display subtitles?"
-msgstr "תמיד להציג כתוביות?"
+msgstr ""
 
 msgctxt "#32530"
 msgid "Port Number"
-msgstr "מספר היציאה"
+msgstr ""
 
 msgctxt "#32531"
 msgid "Use PMS localisation settings"
-msgstr "תשתמש בהגדרות לוקליזציה ל-PMS"
+msgstr ""
 
 msgctxt "#32532"
 msgid "Manual"
-msgstr "ידני"
+msgstr ""
 
 msgctxt "#32533"
 msgid "Always"
-msgstr "תמיד"
+msgstr ""
 
 msgctxt "#32534"
 msgid "Audio stream selection"
-msgstr "בחירת הזרמת שמע"
+msgstr ""
 
 msgctxt "#32535"
 msgid "Subtitle stream selection"
-msgstr "בחירת הזרמת כתובית"
+msgstr ""
 
 msgctxt "#32536"
 msgid "KODI Control"
-msgstr "שליטה בקודי"
+msgstr ""
 
 msgctxt "#32537"
 msgid "External"
-msgstr "קישור חיצוני"
+msgstr ""
 
 msgctxt "#32538"
 msgid "Audio and subtitle selector"
-msgstr "בורר שמע וכתוביות"
+msgstr ""
 
 msgctxt "#32539"
 msgid "Never show subtitles"
-msgstr "אל תציג כתוביות לעולם"
+msgstr ""
 
 msgctxt "#32540"
 msgid "Quality"
-msgstr "איכות"
+msgstr ""
 
 msgctxt "#32541"
 msgid "Proxy Port"
-msgstr "פורט לפרוקסי"
+msgstr ""
 
 msgctxt "#32542"
 msgid "Plex Channel View"
-msgstr "צפיית ערוץ פלקס"
+msgstr ""
 
 msgctxt "#32543"
 msgid "Flatten TV Shows"
-msgstr "לשטח את הסדרות"
+msgstr ""
 
 msgctxt "#32544"
 msgid "Server MAC address"
-msgstr "כתובת MAC של השרת"
+msgstr ""
 
 msgctxt "#32545"
 msgid "Plex Style Watched flags"
-msgstr "דגלי נצפה בעיצוב פלקס"
+msgstr ""
 
 msgctxt "#32546"
 msgid "Windows Media Server?"
-msgstr "שרת מדיה של ווינדוס?"
+msgstr ""
 
 msgctxt "#32547"
 msgid "Use WOL?"
-msgstr "להשתמש WOL?"
+msgstr ""
 
 msgctxt "#32548"
 msgid "Clean context menus"
-msgstr "נקה תפריטי קישור"
+msgstr ""
 
 msgctxt "#32549"
 msgid "Skip Genre/director/writer metadata"
-msgstr "דלג על מידע-מטא של סגנון, במאי ותסריטאי"
+msgstr ""
 
 msgctxt "#32550"
 msgid "Skip images (thumbs, fanart)"
-msgstr "דלג על תמונות (תמונות ממוזערות, פאנארט)"
+msgstr ""
 
 msgctxt "#32551"
 msgid "Skip Media Flags"
-msgstr "דלג על דגלי מדיה"
+msgstr ""
 
 msgctxt "#32552"
 msgid "Skip Context Menus"
-msgstr "דלג על תפריטי קישור"
+msgstr ""
 
 msgctxt "#32553"
 msgid "Off"
-msgstr "כבוי"
+msgstr ""
 
 msgctxt "#32554"
 msgid "Bonjour"
-msgstr "תכנת Bonjour"
+msgstr ""
 
 msgctxt "#32556"
 msgid "Play TV Theme Music"
-msgstr "נגן נעימת סדרה"
+msgstr ""
 
 msgctxt "#32557"
 msgid "Select audio output"
-msgstr "בחר פלט שמע"
+msgstr ""
 
 msgctxt "#32558"
 msgid "If only one season"
-msgstr "אם קיימת עונה בודדת"
+msgstr ""
 
 msgctxt "#32559"
 msgid "All seasons"
-msgstr "כל העונות"
+msgstr ""
 
 msgctxt "#32560"
 msgid "Force DVD playback"
-msgstr "כפה הפעלת DVD"
+msgstr ""
 
 msgctxt "#32561"
 msgid "Override SMB location"
-msgstr "עקוף את מיקום SMB"
+msgstr ""
 
 msgctxt "#32562"
 msgid "NAS IP Address"
-msgstr "כתובת IP ל-NAS"
+msgstr ""
 
 msgctxt "#32563"
 msgid "AFP"
-msgstr "AFP"
+msgstr ""
 
 msgctxt "#32564"
 msgid "NAS Username"
-msgstr "שם משתמש ל- NAS"
+msgstr ""
 
 msgctxt "#32565"
 msgid "NAS password"
-msgstr "סיסמה ל- NAS"
+msgstr ""
 
 msgctxt "#32566"
 msgid "NAS Root Folder"
-msgstr "תיקייה ראשית ל- NAS"
+msgstr ""
 
 msgctxt "#32567"
 msgid "Plex Control"
-msgstr "שליטה ב-Plex"
+msgstr ""
 
 msgctxt "#32568"
 msgid "Subtitle Size"
-msgstr "גודל כתוביות"
+msgstr ""
 
 msgctxt "#32569"
 msgid "Audio Boost"
-msgstr "הגברת אודיו"
+msgstr ""
 
 msgctxt "#32570"
 msgid "Auto (GDM)"
-msgstr "אוטומטי (GDM)"
+msgstr ""
 
 msgctxt "#32571"
 msgid "Current Master Server"
-msgstr "שרת ראשי נוכחי"
+msgstr ""
 
 msgctxt "#32572"
 msgid "Current Master Server"
-msgstr "שרת ראשי נוכחי"
+msgstr ""
 
 msgctxt "#32573"
 msgid "Recently Added"
-msgstr "נוסף לאחרונה"
+msgstr ""
 
 msgctxt "#32574"
 msgid "On Deck"
-msgstr "על המדף"
+msgstr ""
 
 msgctxt "#32575"
 msgid "Force Skin Views"
-msgstr "כפה תצוגת מעטפת"
+msgstr ""
 
 msgctxt "#32576"
 msgid "Skin Name"
-msgstr "שם המעטפת"
+msgstr ""
 
 msgctxt "#32577"
 msgid "Movie View"
-msgstr "תצוגת סרט"
+msgstr ""
 
 msgctxt "#32578"
 msgid "TV View"
-msgstr "תצוגת סדרה"
+msgstr ""
 
 msgctxt "#32579"
 msgid "Season View"
-msgstr "תצוגת עונות"
+msgstr ""
 
 msgctxt "#32580"
 msgid "Episode View"
-msgstr "תצוגת פרקים"
+msgstr ""
 
 msgctxt "#32581"
 msgid "Music View"
-msgstr "תצוגת מוזיקה"
+msgstr ""
 
 msgctxt "#32582"
 msgid "Enable Movie Shelf"
-msgstr "אפשר מדף סרטים"
+msgstr ""
 
 msgctxt "#32583"
 msgid "Enable TV Shelf"
-msgstr "אפשר מדף טלוויזיה"
+msgstr ""
 
 msgctxt "#32584"
 msgid "Enable Music Shelf"
-msgstr "אפשר מדף מוזיקה"
+msgstr ""
 
 msgctxt "#32585"
 msgid "Enable Channel Shelf"
-msgstr "אפשר מדף ערוצים"
+msgstr ""
 
 msgctxt "#32586"
 msgid "Content filter"
-msgstr "מסנן תוכן"
+msgstr ""
 
 msgctxt "#32587"
 msgid "Map unknown content as:"
-msgstr "מיפוי תוכן לא ידוע בתור:"
+msgstr ""
 
 msgctxt "#32588"
 msgid "RA Library filter"
-msgstr "מסנן ספריית RA"
+msgstr ""
 
 msgctxt "#32589"
 msgid "Kids"
-msgstr "ילדים"
+msgstr ""
 
 msgctxt "#32590"
 msgid "Teens"
-msgstr "התבגרות"
+msgstr ""
 
 msgctxt "#32591"
 msgid "Adults"
-msgstr "מבוגרים"
+msgstr ""
 
 msgctxt "#32592"
 msgid "Use menu for shared sections"
-msgstr "תשתמש בתפריט עבור מקטעים משותפים"
+msgstr ""
 
 msgctxt "#32593"
 msgid "Cache Data"
-msgstr "מטמון נתונים"
+msgstr ""
 
 msgctxt "#32594"
 msgid "Manual"
-msgstr "ידני"
+msgstr ""
 
 msgctxt "#32595"
 msgid "Use full-res thumbs"
-msgstr "תשתמש ברזולוציה מלאה של תמונות ממוזערות"
+msgstr ""
 
 msgctxt "#32596"
 msgid "Use full-res fanart"
-msgstr "תשתמש ברזולוציה מלאה של פאנארט"
+msgstr ""
 
 msgctxt "#32597"
 msgid "Hide watched recently added items"
-msgstr "הסתר פריטים שנוספו לאחרונה ונצפו"
+msgstr ""
 
 msgctxt "#32598"
 msgid "Info"
-msgstr "פרטים"
+msgstr ""
 
 msgctxt "#32599"
 msgid "Debug"
-msgstr "ניפוי שגיאות"
+msgstr ""
 
 msgctxt "#32600"
 msgid "Debug+"
-msgstr "איתור באגים פלוס"
+msgstr ""
 
 msgctxt "#32601"
 msgid "Transcoder"
-msgstr "רכיב המרה"
+msgstr ""
 
 msgctxt "#32602"
 msgid "Name"
-msgstr "שם"
+msgstr ""
 
 msgctxt "#32603"
 msgid "Disable 'All Episodes'"
-msgstr "בטל \\'כל הפרקים\\'"
+msgstr ""
 
 msgctxt "#32604"
 msgid "Enable KODI view cache"
-msgstr "אפשר הצגת מטמון קודי"
+msgstr ""
 
 msgctxt "#32605"
 msgid "Manage myPlex"
-msgstr "ניהול myplex"
+msgstr ""
 
 msgctxt "#32606"
 msgid "Prefer Season artwork"
-msgstr "גרפיקת עונה מועדפת"
+msgstr ""
 
 msgctxt "#32607"
 msgid "Hide Unique Information in log"
-msgstr "להסתיר מידע ייחודי ביומן"
+msgstr ""
 
 msgctxt "#32608"
 msgid "Use KODI client name?"
-msgstr "להשתמש בשם הלקוח של קודי?"
+msgstr ""
 
 msgctxt "#32609"
 msgid "Switch off playback monitor"
-msgstr "כיבוי צג הניגון"
+msgstr ""
+
+msgctxt "#32610"
+msgid "Use HTTPS"
+msgstr ""
+
+msgctxt "#32611"
+msgid "Transcode >1080p"
+msgstr ""
+
+msgctxt "#32612"
+msgid "Transcode HEVC"
+msgstr ""
