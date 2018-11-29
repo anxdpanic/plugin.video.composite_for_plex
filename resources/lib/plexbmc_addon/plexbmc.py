@@ -659,6 +659,7 @@ def process_tvepisodes(url, tree=None):
     ShowTags = tree.findall('Video')
     server = plex_network.get_server_from_url(url)
 
+    sectionart = ''
     if not settings.get_setting('skipimages'):
         sectionart = get_fanart_image(tree, server)
 
@@ -688,6 +689,7 @@ def process_tvepisodes(url, tree=None):
         tempcast = []
         tempdir = []
         tempwriter = []
+        mediaarguments = {}
 
         for child in episode:
             if child.tag == "Media":
@@ -1048,7 +1050,8 @@ def play_library_media(vids, override=False, force=None, full_data=False, helper
                 session, playurl = server.get_universal_transcode(streams['extra']['path'])
             elif settings.get_setting('transcode_type') == "legacy":
                 session, playurl = server.get_legacy_transcode(_id, url)
-
+            else:
+                playurl = ''
         else:
             playurl = server.get_formatted_url(url)
     else:
@@ -1295,17 +1298,22 @@ def play_media_stream(url):
         if '?' in url:
             server = plex_network.get_server_from_url(url)
             playurl = server.get_formatted_url(url)
+        else:
+            playurl = ''
     else:
         playurl = url
 
     item = xbmcgui.ListItem(path=playurl)
-    return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+    resolved = playurl != ''
+    xbmcplugin.setResolvedUrl(pluginhandle, resolved, item)
 
 
 def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
     server = plex_network.get_server_from_url(vids)
     if "node.plexapp.com" in vids:
         server = get_master_server()
+
+    session = None
 
     if indirect:
         # Probably should transcode this
@@ -1402,7 +1410,7 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
     item = xbmcgui.ListItem(path=url)
     xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-    if transcode:
+    if transcode and session:
         try:
             monitor_channel_transcode_playback(session, server)
         except:
@@ -2072,6 +2080,8 @@ def movie_tag(url, server, tree, movie, random_number):
     tempdir = []
     tempwriter = []
 
+    mediaarguments = {}
+
     # Lets grab all the info we can quickly through either a dictionary, or assignment to a list
     # We'll process it later
     for child in movie:
@@ -2177,6 +2187,8 @@ def get_media_data(tag_dict):
 def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True):
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
+
+    partDetails = ()
 
     for child in track:
         for babies in child:
@@ -2732,6 +2744,7 @@ def set_library_subtitiles(server_uuid, metadata_id):
     sub_list = ['']
     display_list = ["None"]
     fl_select = False
+    part_id = ''
     for parts in tree.getiterator('Part'):
 
         part_id = parts.get('id')
@@ -2785,6 +2798,7 @@ def set_library_audio(server_uuid, metadata_id):
 
     audio_list = []
     display_list = []
+    part_id = ''
     for parts in tree.getiterator('Part'):
 
         part_id = parts.get('id')
