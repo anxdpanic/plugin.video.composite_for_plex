@@ -999,7 +999,7 @@ def play_playlist(server, data):
     return
 
 
-def play_library_media(vids, override=False, force=None, full_data=False, helper=False):
+def play_library_media(vids, override=False, force=None, full_data=False):
     session = None
     if settings.get_setting('transcode'):
         override = True
@@ -1468,7 +1468,6 @@ def get_params(paramstring):
 
         pairsofparams = cleanedparams.split('&')
         for i in range(len(pairsofparams)):
-            splitparams = {}
             splitparams = pairsofparams[i].split('=')
             if (len(splitparams)) == 2:
                 param[splitparams[0]] = splitparams[1]
@@ -3096,7 +3095,6 @@ def start_plexbmc(sys_argv):
     param_identifier = params.get('identifier')
     param_indirect = params.get('indirect')
     force = params.get('force')
-    helper = True if int(params.get('helper', 0)) == 1 else False
 
     if command is None:
         try:
@@ -3224,7 +3222,7 @@ def start_plexbmc(sys_argv):
                 process_tvseasons(param_url)
 
             elif mode == MODE_PLAYLIBRARY:
-                play_library_media(param_url, force=force, override=play_transcode, helper=helper)
+                play_library_media(param_url, force=force, override=play_transcode)
 
             elif mode == MODE_TVEPISODES:
                 process_tvepisodes(param_url)

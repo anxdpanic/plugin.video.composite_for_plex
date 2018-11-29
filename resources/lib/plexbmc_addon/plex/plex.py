@@ -463,7 +463,7 @@ class Plex:
 
         return link
 
-    def get_myplex_token(self, renew=False):
+    def get_myplex_token(self):
 
         if self.plexhome_settings['myplex_signedin']:
             return {'X-Plex-Token': self.effective_token}
