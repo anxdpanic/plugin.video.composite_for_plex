@@ -183,15 +183,15 @@ class Plex:
         if data_ok:
             try:
                 if not isinstance(token_cache['myplex_signedin'], int):
-                    raise
+                    raise TypeError
                 if not isinstance(token_cache['plexhome_enabled'], int):
-                    raise
+                    raise TypeError
                 if not isinstance(token_cache['myplex_user_cache'], basestring):
-                    raise
+                    raise TypeError
                 if not isinstance(token_cache['plexhome_user_cache'], basestring):
-                    raise
+                    raise TypeError
                 if not isinstance(token_cache['plexhome_user_avatar'], basestring):
-                    raise
+                    raise TypeError
 
                 self.plexhome_settings = token_cache
                 log_print("plexhome_cache data loaded successfully")
