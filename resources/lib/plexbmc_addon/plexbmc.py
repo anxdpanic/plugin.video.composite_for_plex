@@ -255,7 +255,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if context is not None:
         if not folder and extra_data.get('type', 'video').lower() == "video":
             # Play Transcoded
-            context.insert(0, (ADDON.getLocalizedString(32086), "XBMC.PlayMedia(%s&transcode=1)" % link_url,))
+            context.insert(0, (ADDON.getLocalizedString(32086), "PlayMedia(%s&transcode=1)" % link_url,))
             log_print.debug("Setting transcode options to [%s&transcode=1]" % link_url)
         log_print.debug("Building Context Menus")
         liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
@@ -2667,7 +2667,7 @@ def myplex_queue():
     log_print.debug("== ENTER ==")
 
     if not plex_network.is_myplex_signedin():
-        xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32069) + ",)")
+        xbmc.executebuiltin("Notification(" + ADDON.getLocalizedString(32069) + ",)")
         return
 
     tree = plex_network.get_myplex_queue()
@@ -2683,7 +2683,7 @@ def refresh_plex_library(server_uuid, section_id):
     server.refresh_section(section_id)
 
     log_print.info("Library refresh requested")
-    xbmc.executebuiltin("XBMC.Notification(" + ADDON.getLocalizedString(32068) + ",100)")
+    xbmc.executebuiltin("Notification(" + ADDON.getLocalizedString(32068) + ",100)")
     return
 
 
@@ -3122,14 +3122,14 @@ def start_plexbmc(sys_argv):
 
     elif command == "signintemp":
         # Awful hack to get around running a script from a listitem..
-        xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signin)')
+        xbmc.executebuiltin('RunScript(plugin.video.plexbmc, signin)')
 
     elif command == "managemyplex":
 
         if not plex_network.is_myplex_signedin():
             ret = xbmcgui.Dialog().yesno(ADDON.getLocalizedString(32010), ADDON.getLocalizedString(32011))
             if ret:
-                xbmc.executebuiltin('XBMC.RunScript(plugin.video.plexbmc, signin)')
+                xbmc.executebuiltin('RunScript(plugin.video.plexbmc, signin)')
             else:
                 return
 
