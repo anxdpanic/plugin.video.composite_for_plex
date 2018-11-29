@@ -1,3 +1,3 @@
 __author__ = 'hippojay (Dave Hawes-Johnson)'
 
-__all__ = ['CacheControl', 'common', 'plex', 'plexbmc', 'settings', 'WOL']
+__all__ = ['cache_control', 'common', 'plex', 'plexbmc', 'settings', 'wol']

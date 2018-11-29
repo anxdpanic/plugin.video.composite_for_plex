@@ -9,7 +9,7 @@ from six import string_types
 from six.moves.urllib_parse import urlparse
 
 from ..common import *
-from .. import CacheControl
+from .. import cache_control
 from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
@@ -23,7 +23,7 @@ class Plex:
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = CacheControl.CacheControl(GLOBAL_SETUP['__cachedir__'] + "cache/servers", settings.get_setting('cache'))
+        self.cache = cache_control.CacheControl(GLOBAL_SETUP['__cachedir__'] + "cache/servers", settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
