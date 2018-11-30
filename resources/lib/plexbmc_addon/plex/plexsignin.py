@@ -24,35 +24,6 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.plex_network = None
         self.identifier = None
 
-        self.description = None
-        self.name_label = None
-        self.name_field = None
-        self.password_label = None
-        self.password_field = None
-        self.cancel_button = None
-        self.submit_button = None
-        self.manual_button = None
-        self.pin_button = None
-        self.submit_pin_button = None
-        self.error_cross = None
-        self.error_message = None
-        self.digit_one = None
-        self.digit_two = None
-        self.digit_three = None
-        self.digit_four = None
-        self.data = None
-        self.tick = None
-        self.description = None
-        self.thumb = None
-        self.email_label = None
-        self.email_field = None
-        self.plexpass_label = None
-        self.plexpass_field = None
-        self.membersince_label = None
-        self.membersince_field = None
-        self.switch_button = None
-        self.signout_button = None
-
     def start(self):
         self.display_pin()
         self.doModal()
