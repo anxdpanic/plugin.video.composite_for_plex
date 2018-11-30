@@ -38,7 +38,6 @@ from six.moves.urllib_parse import urlparse
 from .common import *  # Needed first to setup import locations
 from .plex import plex
 
-
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo('id').decode("utf-8")
 ADDON_ICON = ADDON.getAddonInfo('icon').decode("utf-8")
@@ -445,7 +444,7 @@ def process_movies(url, tree=None):
     for movie in tree:
 
         if movie.tag == "Video":
-            movie_tag(url, server, tree, movie, random_number)
+            movie_tag(url, server, movie, random_number)
             count += 1
 
     log_print.info("PROCESS: It took %s seconds to process %s items" % (time.time() - start_time, count))
@@ -517,15 +516,15 @@ def process_tvshows(url, tree=None):
                    'mediatype': "tvshow"}
 
         extra_data = {'type': 'video',
-                     'source': 'tvshows',
-                     'UnWatchedEpisodes': int(details['episode']) - _watched,
-                     'WatchedEpisodes': _watched,
-                     'TotalEpisodes': details['episode'],
-                     'thumb': get_thumb_image(show, server),
-                     'fanart_image': get_fanart_image(show, server),
-                     'banner': get_banner_image(show, server),
-                     'key': show.get('key', ''),
-                     'ratingKey': str(show.get('ratingKey', 0))}
+                      'source': 'tvshows',
+                      'UnWatchedEpisodes': int(details['episode']) - _watched,
+                      'WatchedEpisodes': _watched,
+                      'TotalEpisodes': details['episode'],
+                      'thumb': get_thumb_image(show, server),
+                      'fanart_image': get_fanart_image(show, server),
+                      'banner': get_banner_image(show, server),
+                      'key': show.get('key', ''),
+                      'ratingKey': str(show.get('ratingKey', 0))}
 
         # Set up overlays for watched and unwatched episodes
         if extra_data['WatchedEpisodes'] == 0:
@@ -607,16 +606,16 @@ def process_tvseasons(url):
             details['sorttitle'] = season.get('sorttitle')
 
         extra_data = {'type': 'video',
-                     'source': 'tvseasons',
-                     'TotalEpisodes': details['episode'],
-                     'WatchedEpisodes': _watched,
-                     'UnWatchedEpisodes': details['episode'] - _watched,
-                     'thumb': get_thumb_image(season, server),
-                     'fanart_image': get_fanart_image(season, server),
-                     'banner': banner,
-                     'key': season.get('key', ''),
-                     'ratingKey': str(season.get('ratingKey', 0)),
-                     'mode': MODE_TVEPISODES}
+                      'source': 'tvseasons',
+                      'TotalEpisodes': details['episode'],
+                      'WatchedEpisodes': _watched,
+                      'UnWatchedEpisodes': details['episode'] - _watched,
+                      'thumb': get_thumb_image(season, server),
+                      'fanart_image': get_fanart_image(season, server),
+                      'banner': banner,
+                      'key': season.get('key', ''),
+                      'ratingKey': str(season.get('ratingKey', 0)),
+                      'mode': MODE_TVEPISODES}
 
         if extra_data['fanart_image'] == "":
             extra_data['fanart_image'] = sectionart
@@ -736,14 +735,14 @@ def process_tvepisodes(url, tree=None):
 
         # Extra data required to manage other properties
         extra_data = {'type': "Video",
-                     'source': 'tvepisodes',
-                     'thumb': get_thumb_image(episode, server),
-                     'fanart_image': get_fanart_image(episode, server),
-                     'banner': banner,
-                     'key': episode.get('key', ''),
-                     'ratingKey': str(episode.get('ratingKey', 0)),
-                     'duration': duration,
-                     'resume': int(int(view_offset) / 1000)}
+                      'source': 'tvepisodes',
+                      'thumb': get_thumb_image(episode, server),
+                      'fanart_image': get_fanart_image(episode, server),
+                      'banner': banner,
+                      'key': episode.get('key', ''),
+                      'ratingKey': str(episode.get('ratingKey', 0)),
+                      'duration': duration,
+                      'resume': int(int(view_offset) / 1000)}
 
         if extra_data['fanart_image'] == "" and not settings.get_setting('skipimages'):
             extra_data['fanart_image'] = sectionart
@@ -817,7 +816,6 @@ def get_audio_subtitles_from_media(server, tree, full=False):
     selected_audio_offset = -1
     full_data = {}
     contents = "type"
-    media_type = "unknown"
     extra = {}
 
     timings = tree.find('Video')
@@ -953,19 +951,19 @@ def get_audio_subtitles_from_media(server, tree, full=False):
         log_print.debug("Stream selection is set OFF")
 
     stream_data = {'contents': contents,  # What type of data we are holding
-                  'audio': audio,  # Audio data held in a dict
-                  'audio_count': audio_count,  # Number of audio streams
-                  'subtitle': subtitle,  # Subtitle data (embedded) held as a dict
-                  'sub_count': sub_count,  # Number of subtitle streams
-                  'parts': parts,  # The differet media locations
-                  'parts_count': parts_count,  # Number of media locations
-                  'media': media,  # Resume/duration data for media
-                  'details': media_details_list,  # Bitrate, resolution and container for each part
-                  'sub_offset': selected_sub_offset,  # Stream index for selected subs
-                  'audio_offset': selected_audio_offset,  # STream index for select audio
-                  'full_data': full_data,  # Full metadata extract if requested
-                  'type': media_type,  # Type of metadata
-                  'extra': extra}  # Extra data
+                   'audio': audio,  # Audio data held in a dict
+                   'audio_count': audio_count,  # Number of audio streams
+                   'subtitle': subtitle,  # Subtitle data (embedded) held as a dict
+                   'sub_count': sub_count,  # Number of subtitle streams
+                   'parts': parts,  # The differet media locations
+                   'parts_count': parts_count,  # Number of media locations
+                   'media': media,  # Resume/duration data for media
+                   'details': media_details_list,  # Bitrate, resolution and container for each part
+                   'sub_offset': selected_sub_offset,  # Stream index for selected subs
+                   'audio_offset': selected_audio_offset,  # STream index for select audio
+                   'full_data': full_data,  # Full metadata extract if requested
+                   'type': media_type,  # Type of metadata
+                   'extra': extra}  # Extra data
 
     log_print.debug(stream_data)
     return stream_data
@@ -1246,7 +1244,7 @@ def monitor_playback(_id, server, playurl, session=None):
 
     played_time = 0
     total_time = 0
-    current_time = 0
+
     # Whilst the file is playing back
     while xbmc.Player().isPlaying():
 
@@ -1755,12 +1753,12 @@ def artist(url, tree=None):
         details['title'] = details['artist']
 
         extra_data = {'type': "Music",
-                     'thumb': get_thumb_image(_artist, server),
-                     'fanart_image': get_fanart_image(_artist, server),
-                     'ratingKey': _artist.get('title', ''),
-                     'key': _artist.get('key', ''),
-                     'mode': MODE_ALBUMS,
-                     'plot': _artist.get('summary', '')}
+                      'thumb': get_thumb_image(_artist, server),
+                      'fanart_image': get_fanart_image(_artist, server),
+                      'ratingKey': _artist.get('title', ''),
+                      'key': _artist.get('key', ''),
+                      'mode': MODE_ALBUMS,
+                      'plot': _artist.get('summary', '')}
 
         url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
@@ -1800,11 +1798,11 @@ def albums(url, tree=None):
             details['title'] = details['album']
 
         extra_data = {'type': "Music",
-                     'thumb': get_thumb_image(album, server),
-                     'fanart_image': get_fanart_image(album, server),
-                     'key': album.get('key', ''),
-                     'mode': MODE_TRACKS,
-                     'plot': album.get('summary', '')}
+                      'thumb': get_thumb_image(album, server),
+                      'fanart_image': get_fanart_image(album, server),
+                      'key': album.get('key', ''),
+                      'mode': MODE_TRACKS,
+                      'plot': album.get('summary', '')}
 
         if extra_data['fanart_image'] == "":
             extra_data['fanart_image'] = sectionart
@@ -1891,10 +1889,10 @@ def plex_plugins(url, tree=None):
             details['plot'] = plugin.get('summary')
 
         extra_data = {'thumb': get_thumb_image(plugin, server),
-                     'fanart_image': get_fanart_image(plugin, server),
-                     'identifier': tree.get('identifier', ''),
-                     'type': "Video",
-                     'key': plugin.get('key', '')}
+                      'fanart_image': get_fanart_image(plugin, server),
+                      'identifier': tree.get('identifier', ''),
+                      'type': "Video",
+                      'key': plugin.get('key', '')}
 
         if myplex_url:
             extra_data['key'] = extra_data['key'].replace('node.plexapp.com:32400', server.get_location())
@@ -2043,9 +2041,9 @@ def process_xml(url, tree=None):
             details['title'] = plugin.get('name', "Unknown").encode('utf-8')
 
         extra_data = {'thumb': get_thumb_image(plugin, server),
-                     'fanart_image': get_fanart_image(plugin, server),
-                     'identifier': tree.get('identifier', ''),
-                     'type': "Video"}
+                      'fanart_image': get_fanart_image(plugin, server),
+                      'identifier': tree.get('identifier', ''),
+                      'type': "Video"}
 
         if extra_data['fanart_image'] == "":
             extra_data['fanart_image'] = get_fanart_image(tree, server)
@@ -2060,7 +2058,7 @@ def process_xml(url, tree=None):
             track_tag(server, tree, plugin)
 
         elif plugin.tag == "Playlist":
-            playlist_tag(url, server, tree, plugin)
+            playlist_tag(url, server, plugin)
 
         elif tree.get('viewGroup') == "movie":
             process_movies(url, tree)
@@ -2073,7 +2071,7 @@ def process_xml(url, tree=None):
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
-def movie_tag(url, server, tree, movie, random_number):
+def movie_tag(url, server, movie, random_number):
     log_print.debug("---New Item---")
     tempgenre = []
     tempcast = []
@@ -2118,13 +2116,13 @@ def movie_tag(url, server, tree, movie, random_number):
 
     # Extra data required to manage other properties
     extra_data = {'type': "Video",
-                 'source': 'movies',
-                 'thumb': get_thumb_image(movie, server),
-                 'fanart_image': get_fanart_image(movie, server),
-                 'key': movie.get('key', ''),
-                 'ratingKey': str(movie.get('ratingKey', 0)),
-                 'duration': duration,
-                 'resume': int(int(view_offset) / 1000)}
+                  'source': 'movies',
+                  'thumb': get_thumb_image(movie, server),
+                  'fanart_image': get_fanart_image(movie, server),
+                  'key': movie.get('key', ''),
+                  'ratingKey': str(movie.get('ratingKey', 0)),
+                  'duration': duration,
+                  'resume': int(int(view_offset) / 1000)}
 
     # Determine what type of watched flag [overlay] to use
     if int(movie.get('viewCount', 0)) > 0:
@@ -2206,10 +2204,10 @@ def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True)
                'duration': int(track.get('duration', 0)) / 1000}
 
     extra_data = {'type': "music",
-                 'fanart_image': sectionart,
-                 'thumb': sectionthumb,
-                 'key': track.get('key', ''),
-                 'mode': MODE_PLAYLIBRARY}
+                  'fanart_image': sectionart,
+                  'thumb': sectionthumb,
+                  'key': track.get('key', ''),
+                  'mode': MODE_PLAYLIBRARY}
 
     # If we are streaming, then get the virtual location
     u = "%s%s" % (server.get_url_location(), extra_data['key'])
@@ -2220,7 +2218,7 @@ def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True)
         return u, details
 
 
-def playlist_tag(url, server, tree, track, sectionart="", sectionthumb="", listing=True):
+def playlist_tag(url, server, track, listing=True):
     log_print.debug("== ENTER ==")
 
     details = {'title': track.get('title', 'Unknown').encode('utf-8'),
@@ -2228,7 +2226,7 @@ def playlist_tag(url, server, tree, track, sectionart="", sectionthumb="", listi
                }
 
     extra_data = {'type': track.get('playlistType', ''),
-                 'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server)}
+                  'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server)}
 
     if extra_data['type'] == "video":
         extra_data['mode'] = MODE_MOVIES
@@ -2265,8 +2263,8 @@ def photo(url, tree=None):
             details['title'] = "Unknown"
 
         extra_data = {'thumb': get_thumb_image(picture, server),
-                     'fanart_image': get_fanart_image(picture, server),
-                     'type': "image"}
+                      'fanart_image': get_fanart_image(picture, server),
+                      'type': "image"}
 
         if extra_data['fanart_image'] == "":
             extra_data['fanart_image'] = section_art
@@ -2317,8 +2315,8 @@ def music(url, tree=None):
                    'title': "Unknown"}
 
         extra_data = {'type': "Music",
-                     'thumb': get_thumb_image(grapes, server),
-                     'fanart_image': get_fanart_image(grapes, server)}
+                      'thumb': get_thumb_image(grapes, server),
+                      'fanart_image': get_fanart_image(grapes, server)}
 
         if extra_data['fanart_image'] == "":
             extra_data['fanart_image'] = get_fanart_image(tree, server)
@@ -2492,10 +2490,10 @@ def plex_online(url):
 
         details = {'title': plugin.get('title', plugin.get('name', 'Unknown')).encode('utf-8')}
         extra_data = {'type': "Video",
-                     'installed': int(plugin.get('installed', 2)),
-                     'key': plugin.get('key', ''),
-                     'thumb': get_thumb_image(plugin, server),
-                     'mode': MODE_CHANNELINSTALL}
+                      'installed': int(plugin.get('installed', 2)),
+                      'key': plugin.get('key', ''),
+                      'thumb': get_thumb_image(plugin, server),
+                      'mode': MODE_CHANNELINSTALL}
 
         if extra_data['installed'] == 1:
             details['title'] = details['title'] + " (installed)"
@@ -2573,10 +2571,10 @@ def channel_view(url):
         if channels.get('local', '') == "0":
             continue
 
-        arguments = dict(channels.items())
+        # arguments = dict(channels.items())
 
         extra_data = {'fanart_image': get_fanart_image(channels, server),
-                     'thumb': get_thumb_image(channels, server)}
+                      'thumb': get_thumb_image(channels, server)}
 
         details = {'title': channels.get('title', 'Unknown')}
 
