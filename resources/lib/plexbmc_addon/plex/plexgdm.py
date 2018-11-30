@@ -64,13 +64,13 @@ class PlexGDM:
         self.discover_t = None
         self.register_t = None
 
-    def clientDetails(self, c_id, c_name, c_post, c_product, c_version):
+    def client_details(self, c_id, c_name, c_post, c_product, c_version):
         self.client_data = "Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s" % (c_id, c_name, c_post, c_product, c_version)
         self.client_id = c_id
 
-    def getClientDetails(self):
+    def get_client_details(self):
         if not self.client_data:
-            _log_print.warn("Client data has not been initialised.  Please use PlexGDM.clientDetails()")
+            _log_print.warn("Client data has not been initialised.  Please use PlexGDM.client_details()")
 
         return self.client_data
 
@@ -160,7 +160,7 @@ class PlexGDM:
 
         return False
 
-    def getServerList(self):
+    def get_server_list(self):
         return self.server_list
 
     def discover(self):
@@ -243,7 +243,7 @@ class PlexGDM:
             for items in self.server_list:
                 _log_print.debug_helper("Server Discovered: %s" % items['serverName'])
 
-    def setInterval(self, interval):
+    def set_interval(self, interval):
         self.discovery_interval = interval
 
     def stop_all(self):
@@ -308,13 +308,13 @@ class PlexGDM:
 # Example usage
 if __name__ == '__main__':
     client = PlexGDM()
-    client.clientDetails("Test-Name", "Test Client", "3003", "Test-App", "1.2.3")
+    client.client_details("Test-Name", "Test Client", "3003", "Test-App", "1.2.3")
     client.start_all()
     while not client.discovery_complete:
         _log_print.debug("Waiting for results")
         time.sleep(1)
     time.sleep(20)
-    _log_print.debug(client.getServerList())
+    _log_print.debug(client.get_server_list())
     if client.check_client_registration():
         _log_print.debug("Successfully registered")
     else:

@@ -151,7 +151,7 @@ def select_media_type(part_data, server, dvdplayback=False):
 def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     log_print.debug("Adding Dir for [%s]\n"
                     "      Passed details: %s\n"
-                    "      Passed extraData: %s" % (details.get('title', 'Unknown'), details, extra_data))
+                    "      Passed extra_data: %s" % (details.get('title', 'Unknown'), details, extra_data))
 
     # Create the URL to pass to the item
     if not folder and extra_data['type'] == "image":
@@ -491,8 +491,8 @@ def process_tvshows(url, tree=None):
 
     set_window_heading(tree)
     # For each directory tag we find
-    ShowTags = tree.findall('Directory')
-    for show in ShowTags:
+    show_tags = tree.findall('Directory')
+    for show in show_tags:
 
         tempgenre = []
 
@@ -516,7 +516,7 @@ def process_tvshows(url, tree=None):
                    'genre': " / ".join(tempgenre),
                    'mediatype': "tvshow"}
 
-        extraData = {'type': 'video',
+        extra_data = {'type': 'video',
                      'source': 'tvshows',
                      'UnWatchedEpisodes': int(details['episode']) - _watched,
                      'WatchedEpisodes': _watched,
@@ -528,28 +528,28 @@ def process_tvshows(url, tree=None):
                      'ratingKey': str(show.get('ratingKey', 0))}
 
         # Set up overlays for watched and unwatched episodes
-        if extraData['WatchedEpisodes'] == 0:
+        if extra_data['WatchedEpisodes'] == 0:
             details['playcount'] = 0
-        elif extraData['UnWatchedEpisodes'] == 0:
+        elif extra_data['UnWatchedEpisodes'] == 0:
             details['playcount'] = 1
         else:
-            extraData['partialTV'] = 1
+            extra_data['partialTV'] = 1
 
         # Create URL based on whether we are going to flatten the season view
         if settings.get_setting('flatten') == "2":
             log_print.debug("Flattening all shows")
-            extraData['mode'] = MODE_TVEPISODES
-            u = '%s%s' % (server.get_url_location(), extraData['key'].replace("children", "allLeaves"))
+            extra_data['mode'] = MODE_TVEPISODES
+            u = '%s%s' % (server.get_url_location(), extra_data['key'].replace("children", "allLeaves"))
         else:
-            extraData['mode'] = MODE_TVSEASONS
-            u = '%s%s' % (server.get_url_location(), extraData['key'])
+            extra_data['mode'] = MODE_TVSEASONS
+            u = '%s%s' % (server.get_url_location(), extra_data['key'])
 
         if not settings.get_setting('skipcontextmenus'):
-            context = build_context_menu(url, extraData, server)
+            context = build_context_menu(url, extra_data, server)
         else:
             context = None
 
-        add_item_to_gui(u, details, extraData, context)
+        add_item_to_gui(u, details, extra_data, context)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -564,22 +564,22 @@ def process_tvseasons(url):
     if tree is None:
         return
 
-    willFlatten = False
+    will_flatten = False
     if settings.get_setting('flatten') == "1":
         # check for a single season
         if int(tree.get('size', 0)) == 1:
             log_print.debug("Flattening single season show")
-            willFlatten = True
+            will_flatten = True
 
     sectionart = get_fanart_image(tree, server)
     banner = get_banner_image(tree, server)
     set_window_heading(tree)
     # For all the directory tags
-    SeasonTags = tree.findall('Directory')
+    season_tags = tree.findall('Directory')
     plot = tree.get('summary', '').encode('utf-8')
-    for season in SeasonTags:
+    for season in season_tags:
 
-        if willFlatten:
+        if will_flatten:
             url = server.get_url_location() + season.get('key')
             process_tvepisodes(url)
             return
@@ -606,7 +606,7 @@ def process_tvseasons(url):
         if season.get('sorttitle'):
             details['sorttitle'] = season.get('sorttitle')
 
-        extraData = {'type': 'video',
+        extra_data = {'type': 'video',
                      'source': 'tvseasons',
                      'TotalEpisodes': details['episode'],
                      'WatchedEpisodes': _watched,
@@ -618,18 +618,18 @@ def process_tvseasons(url):
                      'ratingKey': str(season.get('ratingKey', 0)),
                      'mode': MODE_TVEPISODES}
 
-        if extraData['fanart_image'] == "":
-            extraData['fanart_image'] = sectionart
+        if extra_data['fanart_image'] == "":
+            extra_data['fanart_image'] = sectionart
 
         # Set up overlays for watched and unwatched episodes
-        if extraData['WatchedEpisodes'] == 0:
+        if extra_data['WatchedEpisodes'] == 0:
             details['playcount'] = 0
-        elif extraData['UnWatchedEpisodes'] == 0:
+        elif extra_data['UnWatchedEpisodes'] == 0:
             details['playcount'] = 1
         else:
-            extraData['partialTV'] = 1
+            extra_data['partialTV'] = 1
 
-        url = '%s%s' % (server.get_url_location(), extraData['key'])
+        url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
         if not settings.get_setting('skipcontextmenus'):
             context = build_context_menu(url, season, server)
@@ -637,7 +637,7 @@ def process_tvseasons(url):
             context = None
 
         # Build the screen directory listing
-        add_item_to_gui(url, details, extraData, context)
+        add_item_to_gui(url, details, extra_data, context)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -657,7 +657,7 @@ def process_tvepisodes(url, tree=None):
     if season_thumb == "/:/resources/show.png":
         season_thumb = ""
 
-    ShowTags = tree.findall('Video')
+    show_tags = tree.findall('Video')
     server = plex_network.get_server_from_url(url)
 
     sectionart = ''
@@ -666,7 +666,7 @@ def process_tvepisodes(url, tree=None):
 
     banner = get_banner_image(tree, server)
 
-    randomNumber = str(random.randint(1000000000, 9999999999))
+    random_number = str(random.randint(1000000000, 9999999999))
 
     if tree.get('mixedParents') == '1':
         log_print.info('Setting plex sort')
@@ -683,7 +683,7 @@ def process_tvepisodes(url, tree=None):
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_MPAA_RATING)
 
-    for episode in ShowTags:
+    for episode in show_tags:
 
         log_print.debug("---New Item---")
         tempgenre = []
@@ -735,7 +735,7 @@ def process_tvepisodes(url, tree=None):
                 details['title'] = "%s - %sx%s %s" % (details['tvshowtitle'], details['season'], str(details['episode']).zfill(2), details['title'])
 
         # Extra data required to manage other properties
-        extraData = {'type': "Video",
+        extra_data = {'type': "Video",
                      'source': 'tvepisodes',
                      'thumb': get_thumb_image(episode, server),
                      'fanart_image': get_fanart_image(episode, server),
@@ -745,20 +745,20 @@ def process_tvepisodes(url, tree=None):
                      'duration': duration,
                      'resume': int(int(view_offset) / 1000)}
 
-        if extraData['fanart_image'] == "" and not settings.get_setting('skipimages'):
-            extraData['fanart_image'] = sectionart
+        if extra_data['fanart_image'] == "" and not settings.get_setting('skipimages'):
+            extra_data['fanart_image'] = sectionart
 
-        if "-1" in extraData['fanart_image'] and not settings.get_setting('skipimages'):
-            extraData['fanart_image'] = sectionart
+        if "-1" in extra_data['fanart_image'] and not settings.get_setting('skipimages'):
+            extra_data['fanart_image'] = sectionart
 
         if season_thumb:
-            extraData['season_thumb'] = server.get_url_location() + season_thumb
+            extra_data['season_thumb'] = server.get_url_location() + season_thumb
 
         # get ALL SEASONS or TVSHOW thumb
         if not season_thumb and episode.get('parentThumb', ""):
-            extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('parentThumb', ""))
+            extra_data['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('parentThumb', ""))
         elif not season_thumb and episode.get('grandparentThumb', ""):
-            extraData['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('grandparentThumb', ""))
+            extra_data['season_thumb'] = "%s%s" % (server.get_url_location(), episode.get('grandparentThumb', ""))
 
         # Determine what tupe of watched flag [overlay] to use
         if int(episode.get('viewCount', 0)) > 0:
@@ -775,21 +775,21 @@ def process_tvepisodes(url, tree=None):
 
         # Add extra media flag data
         if not settings.get_setting('skipflags'):
-            extraData.update(get_media_data(mediaarguments))
+            extra_data.update(get_media_data(mediaarguments))
 
         # Build any specific context menu entries
         if not settings.get_setting('skipcontextmenus'):
-            context = build_context_menu(url, extraData, server)
+            context = build_context_menu(url, extra_data, server)
         else:
             context = None
 
-        extraData['mode'] = MODE_PLAYLIBRARY
+        extra_data['mode'] = MODE_PLAYLIBRARY
         separator = "?"
-        if "?" in extraData['key']:
+        if "?" in extra_data['key']:
             separator = "&"
-        u = "%s%s%st=%s" % (server.get_url_location(), extraData['key'], separator, randomNumber)
+        u = "%s%s%st=%s" % (server.get_url_location(), extra_data['key'], separator, random_number)
 
-        add_item_to_gui(u, details, extraData, context, folder=False)
+        add_item_to_gui(u, details, extra_data, context, folder=False)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -805,16 +805,16 @@ def get_audio_subtitles_from_media(server, tree, full=False):
     log_print.debug("Gather media stream info")
 
     parts = []
-    partsCount = 0
+    parts_count = 0
     subtitle = {}
-    subCount = 0
+    sub_count = 0
     audio = {}
-    audioCount = 0
+    audio_count = 0
     media = {}
-    subOffset = -1
-    audioOffset = -1
-    selectedSubOffset = -1
-    selectedAudioOffset = -1
+    sub_offset = -1
+    audio_offset = -1
+    selected_sub_offset = -1
+    selected_audio_offset = -1
     full_data = {}
     contents = "type"
     media_type = "unknown"
@@ -910,7 +910,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
                 bits = stuff.get('key'), stuff.get('file')
                 parts.append(bits)
                 media_details_list.append(media_details_temp)
-                partsCount += 1
+                parts_count += 1
             except:
                 pass
 
@@ -925,50 +925,50 @@ def get_audio_subtitles_from_media(server, tree, full=False):
 
             # Audio Streams
             if stream['streamType'] == '2':
-                audioCount += 1
-                audioOffset += 1
+                audio_count += 1
+                audio_offset += 1
                 if stream.get('selected') == "1":
                     log_print.debug("Found preferred audio id: %s " % stream['id'])
                     audio = stream
-                    selectedAudioOffset = audioOffset
+                    selected_audio_offset = audio_offset
 
             # Subtitle Streams
             elif stream['streamType'] == '3':
 
-                if subOffset == -1:
-                    subOffset = int(stream.get('index', -1))
-                elif 0 < stream.get('index', -1) < subOffset:
-                    subOffset = int(stream.get('index', -1))
+                if sub_offset == -1:
+                    sub_offset = int(stream.get('index', -1))
+                elif 0 < stream.get('index', -1) < sub_offset:
+                    sub_offset = int(stream.get('index', -1))
 
                 if stream.get('selected') == "1":
                     log_print.debug("Found preferred subtitles id : %s " % stream['id'])
-                    subCount += 1
+                    sub_count += 1
                     subtitle = stream
                     if stream.get('key'):
                         subtitle['key'] = server.get_formatted_url(stream['key'])
                     else:
-                        selectedSubOffset = int(stream.get('index')) - subOffset
+                        selected_sub_offset = int(stream.get('index')) - sub_offset
 
     else:
         log_print.debug("Stream selection is set OFF")
 
-    streamData = {'contents': contents,  # What type of data we are holding
+    stream_data = {'contents': contents,  # What type of data we are holding
                   'audio': audio,  # Audio data held in a dict
-                  'audioCount': audioCount,  # Number of audio streams
+                  'audio_count': audio_count,  # Number of audio streams
                   'subtitle': subtitle,  # Subtitle data (embedded) held as a dict
-                  'subCount': subCount,  # Number of subtitle streams
+                  'sub_count': sub_count,  # Number of subtitle streams
                   'parts': parts,  # The differet media locations
-                  'partsCount': partsCount,  # Number of media locations
+                  'parts_count': parts_count,  # Number of media locations
                   'media': media,  # Resume/duration data for media
                   'details': media_details_list,  # Bitrate, resolution and container for each part
-                  'subOffset': selectedSubOffset,  # Stream index for selected subs
-                  'audioOffset': selectedAudioOffset,  # STream index for select audio
+                  'sub_offset': selected_sub_offset,  # Stream index for selected subs
+                  'audio_offset': selected_audio_offset,  # STream index for select audio
                   'full_data': full_data,  # Full metadata extract if requested
                   'type': media_type,  # Type of metadata
                   'extra': extra}  # Extra data
 
-    log_print.debug(streamData)
-    return streamData
+    log_print.debug(stream_data)
+    return stream_data
 
 
 def play_playlist(server, data):
@@ -982,8 +982,8 @@ def play_playlist(server, data):
     if tree is None:
         return
 
-    TrackTags = tree.findall('Track')
-    for track in TrackTags:
+    track_tags = tree.findall('Track')
+    for track in track_tags:
         log_print.debug("Adding playlist item")
 
         url, item = track_tag(server, tree, track, listing=False)
@@ -1144,14 +1144,14 @@ def set_audio_subtitles(stream):
 
         audio = stream['audio']
 
-        if stream['audioCount'] == 1:
+        if stream['audio_count'] == 1:
             log_print.info("Only one audio stream present - will leave as default")
 
         elif audio:
             log_print.debug("Attempting to use selected language setting: %s" % audio.get('language', audio.get('languageCode', 'Unknown')).encode('utf8'))
-            log_print.info("Found preferred language at index %s" % stream['audioOffset'])
+            log_print.info("Found preferred language at index %s" % stream['audio_offset'])
             try:
-                xbmc.Player().setAudioStream(stream['audioOffset'])
+                xbmc.Player().setAudioStream(stream['audio_offset'])
                 log_print.debug("Audio set")
             except:
                 log_print.info("Error setting audio, will use embedded default stream")
@@ -1167,8 +1167,8 @@ def set_audio_subtitles(stream):
                 if subtitle.get('key'):
                     xbmc.Player().setSubtitles(subtitle['key'])
                 else:
-                    log_print.info("Enabling embedded subtitles at index %s" % stream['subOffset'])
-                    xbmc.Player().setSubtitleStream(int(stream['subOffset']))
+                    log_print.info("Enabling embedded subtitles at index %s" % stream['sub_offset'])
+                    xbmc.Player().setSubtitleStream(int(stream['sub_offset']))
 
                 xbmc.Player().showSubtitles(True)
                 return True
@@ -1188,39 +1188,39 @@ def select_media_to_play(data, server):
     result = 0
     dvdplayback = False
 
-    count = data['partsCount']
+    count = data['parts_count']
     options = data['parts']
     details = data['details']
 
     if count > 1:
 
-        dialogOptions = []
-        dvdIndex = []
-        indexCount = 0
+        dialog_options = []
+        dvd_index = []
+        index_count = 0
         for items in options:
 
             if items[1]:
                 name = items[1].split('/')[-1]
-                # name="%s %s %sMbps" % (items[1].split('/')[-1], details[indexCount]['videoResolution'], details[indexCount]['bitrate'])
+                # name="%s %s %sMbps" % (items[1].split('/')[-1], details[index_count]['videoResolution'], details[index_count]['bitrate'])
             else:
-                name = "%s %s %sMbps" % (items[0].split('.')[-1], details[indexCount]['videoResolution'], details[indexCount]['bitrate'])
+                name = "%s %s %sMbps" % (items[0].split('.')[-1], details[index_count]['videoResolution'], details[index_count]['bitrate'])
 
             if settings.get_setting('forcedvd'):
                 if '.ifo' in name.lower():
                     log_print.debug("Found IFO DVD file in " + name)
                     name = "DVD Image"
-                    dvdIndex.append(indexCount)
+                    dvd_index.append(index_count)
 
-            dialogOptions.append(name)
-            indexCount += 1
+            dialog_options.append(name)
+            index_count += 1
 
         log_print.debug("Create selection dialog box - we have a decision to make!")
-        startTime = xbmcgui.Dialog()
-        result = startTime.select(i18n(30071), dialogOptions)
+        start_time = xbmcgui.Dialog()
+        result = start_time.select(i18n(30071), dialog_options)
         if result == -1:
             return None
 
-        if result in dvdIndex:
+        if result in dvd_index:
             log_print.debug("DVD Media selected")
             dvdplayback = True
 
@@ -1244,9 +1244,9 @@ def monitor_playback(_id, server, playurl, session=None):
     if settings.get_setting('monitoroff'):
         return
 
-    playedTime = 0
-    totalTime = 0
-    currentTime = 0
+    played_time = 0
+    total_time = 0
+    current_time = 0
     # Whilst the file is playing back
     while xbmc.Player().isPlaying():
 
@@ -1257,28 +1257,28 @@ def monitor_playback(_id, server, playurl, session=None):
         except:
             pass
 
-        currentTime = int(xbmc.Player().getTime())
-        totalTime = int(xbmc.Player().getTotalTime())
+        current_time = int(xbmc.Player().getTime())
+        total_time = int(xbmc.Player().getTotalTime())
 
         try:
-            progress = int((float(currentTime) / float(totalTime)) * 100)
+            progress = int((float(current_time) / float(total_time)) * 100)
         except:
             progress = 0
 
-        if playedTime == currentTime:
-            log_print.debug("Movies paused at: %s secs of %s @ %s%%" % (currentTime, totalTime, progress))
-            server.report_playback_progress(_id, currentTime * 1000, state="paused", duration=totalTime * 1000)
+        if played_time == current_time:
+            log_print.debug("Movies paused at: %s secs of %s @ %s%%" % (current_time, total_time, progress))
+            server.report_playback_progress(_id, current_time * 1000, state="paused", duration=total_time * 1000)
         else:
 
-            log_print.debug("Movies played time: %s secs of %s @ %s%%" % (currentTime, totalTime, progress))
-            server.report_playback_progress(_id, currentTime * 1000, state="playing", duration=totalTime * 1000)
-            playedTime = currentTime
+            log_print.debug("Movies played time: %s secs of %s @ %s%%" % (current_time, total_time, progress))
+            server.report_playback_progress(_id, current_time * 1000, state="playing", duration=total_time * 1000)
+            played_time = current_time
 
         xbmc.sleep(2000)
 
     # If we get this far, playback has stopped
     log_print.debug("Playback Stopped")
-    server.report_playback_progress(_id, playedTime * 1000, state='stopped', duration=totalTime * 1000)
+    server.report_playback_progress(_id, played_time * 1000, state='stopped', duration=total_time * 1000)
 
     if session is not None:
         log_print.debug("Stopping PMS transcode job with session %s" % session)
@@ -1349,10 +1349,10 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         result=0
         if mediaCount > 1:
             printDebug ("Select from plugin video sources")
-            dialogOptions=[x['videoResolution'] for x in mediaDetails ]
+            dialog_options=[x['videoResolution'] for x in mediaDetails ]
             videoResolution = xbmcgui.Dialog()
 
-            result = videoResolution.select('Select resolution..',dialogOptions)
+            result = videoResolution.select('Select resolution..',dialog_options)
 
             if result == -1:
                 return
@@ -1422,7 +1422,7 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
     return
 
 
-def monitor_channel_transcode_playback(sessionID, server):
+def monitor_channel_transcode_playback(session_id, server):
     log_print.debug("== ENTER ==")
 
     # Logic may appear backward, but this does allow for a failed start to be detected
@@ -1446,8 +1446,8 @@ def monitor_channel_transcode_playback(sessionID, server):
         xbmc.sleep(4000)
 
     log_print.debug("Playback Stopped")
-    log_print.debug("Stopping PMS transcode job with session: %s" % sessionID)
-    server.stop_transcode_session(sessionID)
+    log_print.debug("Stopping PMS transcode job with session: %s" % session_id)
+    server.stop_transcode_session(session_id)
 
     return
 
@@ -1575,11 +1575,11 @@ def process_directory(url, tree=None):
     for directory in tree:
         # log_print.info("TITLE: %s" % directory.get('title','Unknown').encode('utf-8'))
         details = {'title': directory_item_translate(directory.get('title', 'Unknown').encode('utf-8'), thumb)}
-        extraData = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODE_GETCONTENT}
+        extra_data = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODE_GETCONTENT}
 
         u = '%s' % (get_link_url(url, directory, server))
 
-        add_item_to_gui(u, details, extraData)
+        add_item_to_gui(u, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -1748,13 +1748,13 @@ def artist(url, tree=None):
 
     server = plex_network.get_server_from_url(url)
     set_window_heading(tree)
-    ArtistTag = tree.findall('Directory')
-    for _artist in ArtistTag:
+    artist_tag = tree.findall('Directory')
+    for _artist in artist_tag:
         details = {'artist': _artist.get('title', '').encode('utf-8')}
 
         details['title'] = details['artist']
 
-        extraData = {'type': "Music",
+        extra_data = {'type': "Music",
                      'thumb': get_thumb_image(_artist, server),
                      'fanart_image': get_fanart_image(_artist, server),
                      'ratingKey': _artist.get('title', ''),
@@ -1762,9 +1762,9 @@ def artist(url, tree=None):
                      'mode': MODE_ALBUMS,
                      'plot': _artist.get('summary', '')}
 
-        url = '%s%s' % (server.get_url_location(), extraData['key'])
+        url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-        add_item_to_gui(url, details, extraData)
+        add_item_to_gui(url, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -1786,9 +1786,9 @@ def albums(url, tree=None):
     server = plex_network.get_server_from_url(url)
     sectionart = get_fanart_image(tree, server)
     set_window_heading(tree)
-    AlbumTags = tree.findall('Directory')
+    album_tags = tree.findall('Directory')
     recent = True if 'recentlyAdded' in url else False
-    for album in AlbumTags:
+    for album in album_tags:
 
         details = {'album': album.get('title', '').encode('utf-8'),
                    'year': int(album.get('year', 0)),
@@ -1799,19 +1799,19 @@ def albums(url, tree=None):
         else:
             details['title'] = details['album']
 
-        extraData = {'type': "Music",
+        extra_data = {'type': "Music",
                      'thumb': get_thumb_image(album, server),
                      'fanart_image': get_fanart_image(album, server),
                      'key': album.get('key', ''),
                      'mode': MODE_TRACKS,
                      'plot': album.get('summary', '')}
 
-        if extraData['fanart_image'] == "":
-            extraData['fanart_image'] = sectionart
+        if extra_data['fanart_image'] == "":
+            extra_data['fanart_image'] = sectionart
 
-        url = '%s%s' % (server.get_url_location(), extraData['key'])
+        url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-        add_item_to_gui(url, details, extraData)
+        add_item_to_gui(url, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -1836,8 +1836,8 @@ def tracks(url, tree=None):
     sectionart = get_fanart_image(tree, server)
     sectionthumb = get_thumb_image(tree, server)
     set_window_heading(tree)
-    TrackTags = tree.findall('Track')
-    for track in TrackTags:
+    track_tags = tree.findall('Track')
+    for track in track_tags:
         if track.get('thumb'):
             sectionthumb = get_thumb_image(track, server)
 
@@ -1890,38 +1890,38 @@ def plex_plugins(url, tree=None):
         if plugin.get('summary'):
             details['plot'] = plugin.get('summary')
 
-        extraData = {'thumb': get_thumb_image(plugin, server),
+        extra_data = {'thumb': get_thumb_image(plugin, server),
                      'fanart_image': get_fanart_image(plugin, server),
                      'identifier': tree.get('identifier', ''),
                      'type': "Video",
                      'key': plugin.get('key', '')}
 
         if myplex_url:
-            extraData['key'] = extraData['key'].replace('node.plexapp.com:32400', server.get_location())
+            extra_data['key'] = extra_data['key'].replace('node.plexapp.com:32400', server.get_location())
 
-        if extraData['fanart_image'] == "":
-            extraData['fanart_image'] = get_fanart_image(tree, server)
+        if extra_data['fanart_image'] == "":
+            extra_data['fanart_image'] = get_fanart_image(tree, server)
 
-        p_url = get_link_url(url, extraData, server)
+        p_url = get_link_url(url, extra_data, server)
 
         if plugin.tag == "Directory" or plugin.tag == "Podcast":
 
             if plugin.get('search') == '1':
-                extraData['mode'] = MODE_CHANNELSEARCH
-                extraData['parameters'] = {'prompt': plugin.get('prompt', "Enter Search Term").encode('utf-8')}
+                extra_data['mode'] = MODE_CHANNELSEARCH
+                extra_data['parameters'] = {'prompt': plugin.get('prompt', "Enter Search Term").encode('utf-8')}
             else:
-                extraData['mode'] = MODE_PLEXPLUGINS
+                extra_data['mode'] = MODE_PLEXPLUGINS
 
-            add_item_to_gui(p_url, details, extraData)
+            add_item_to_gui(p_url, details, extra_data)
 
         elif plugin.tag == "Video":
-            extraData['mode'] = MODE_VIDEOPLUGINPLAY
+            extra_data['mode'] = MODE_VIDEOPLUGINPLAY
 
             for child in plugin:
                 if child.tag == "Media":
-                    extraData['parameters'] = {'indirect': child.get('indirect', '0')}
+                    extra_data['parameters'] = {'indirect': child.get('indirect', '0')}
 
-            add_item_to_gui(p_url, details, extraData, folder=False)
+            add_item_to_gui(p_url, details, extra_data, folder=False)
 
         elif plugin.tag == "Setting":
 
@@ -1935,14 +1935,14 @@ def plex_plugins(url, tree=None):
                 value = plugin.get('value')
 
             details['title'] = "%s - [%s]" % (plugin.get('label', 'Unknown').encode('utf-8'), value)
-            extraData['mode'] = MODE_CHANNELPREFS
-            extraData['parameters'] = {'id': plugin.get('id')}
-            add_item_to_gui(url, details, extraData)
+            extra_data['mode'] = MODE_CHANNELPREFS
+            extra_data['parameters'] = {'id': plugin.get('id')}
+            add_item_to_gui(url, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
-def channel_settings(url, settingID):
+def channel_settings(url, setting_id):
     '''
         Take the setting XML and parse it to create an updated
         string with the new settings.  For the selected value, create
@@ -1951,9 +1951,9 @@ def channel_settings(url, settingID):
         @ return: nothing
     '''
     log_print.debug("== ENTER ==")
-    log_print.debug("Setting preference for ID: %s" % settingID)
+    log_print.debug("Setting preference for ID: %s" % setting_id)
 
-    if not settingID:
+    if not setting_id:
         log_print.debug("ID not set")
         return
 
@@ -1962,12 +1962,12 @@ def channel_settings(url, settingID):
         return
 
     set_window_heading(tree)
-    setString = None
+    set_string = None
     for plugin in tree:
 
-        if plugin.get('id') == settingID:
-            log_print.debug("Found correct id entry for: %s" % settingID)
-            sid = settingID
+        if plugin.get('id') == setting_id:
+            log_print.debug("Found correct id entry for: %s" % setting_id)
+            sid = setting_id
 
             label = plugin.get('label', "Enter value")
             option = plugin.get('option')
@@ -1996,8 +1996,8 @@ def channel_settings(url, settingID):
 
                 values = plugin.get('values').split('|')
 
-                settingScreen = xbmcgui.Dialog()
-                value = settingScreen.select(label, values)
+                setting_screen = xbmcgui.Dialog()
+                value = setting_screen.select(label, values)
                 if value == -1:
                     log_print.debug("User cancelled dialog")
                     return False
@@ -2008,13 +2008,13 @@ def channel_settings(url, settingID):
             value = plugin.get('value')
             sid = plugin.get('id')
 
-        if setString is None:
-            setString = '%s/set?%s=%s' % (url, sid, value)
+        if set_string is None:
+            set_string = '%s/set?%s=%s' % (url, sid, value)
         else:
-            setString = '%s&%s=%s' % (setString, sid, value)
+            set_string = '%s&%s=%s' % (set_string, sid, value)
 
-    log_print.debug("Settings URL: %s" % setString)
-    plex_network.talk_to_server(setString)
+    log_print.debug("Settings URL: %s" % set_string)
+    plex_network.talk_to_server(set_string)
     xbmc.executebuiltin("Container.Refresh")
 
     return False
@@ -2042,19 +2042,19 @@ def process_xml(url, tree=None):
         if details['title'] == "Unknown":
             details['title'] = plugin.get('name', "Unknown").encode('utf-8')
 
-        extraData = {'thumb': get_thumb_image(plugin, server),
+        extra_data = {'thumb': get_thumb_image(plugin, server),
                      'fanart_image': get_fanart_image(plugin, server),
                      'identifier': tree.get('identifier', ''),
                      'type': "Video"}
 
-        if extraData['fanart_image'] == "":
-            extraData['fanart_image'] = get_fanart_image(tree, server)
+        if extra_data['fanart_image'] == "":
+            extra_data['fanart_image'] = get_fanart_image(tree, server)
 
         p_url = get_link_url(url, plugin, server)
 
         if plugin.tag == "Directory" or plugin.tag == "Podcast":
-            extraData['mode'] = MODE_PROCESSXML
-            add_item_to_gui(p_url, details, extraData)
+            extra_data['mode'] = MODE_PROCESSXML
+            add_item_to_gui(p_url, details, extra_data)
 
         elif plugin.tag == "Track":
             track_tag(server, tree, plugin)
@@ -2117,7 +2117,7 @@ def movie_tag(url, server, tree, movie, random_number):
                'mediatype': "movie"}
 
     # Extra data required to manage other properties
-    extraData = {'type': "Video",
+    extra_data = {'type': "Video",
                  'source': 'movies',
                  'thumb': get_thumb_image(movie, server),
                  'fanart_image': get_fanart_image(movie, server),
@@ -2145,21 +2145,21 @@ def movie_tag(url, server, tree, movie, random_number):
 
     # Add extra media flag data
     if not settings.get_setting('skipflags'):
-        extraData.update(get_media_data(mediaarguments))
+        extra_data.update(get_media_data(mediaarguments))
 
     # Build any specific context menu entries
     if not settings.get_setting('skipcontextmenus'):
-        context = build_context_menu(url, extraData, server)
+        context = build_context_menu(url, extra_data, server)
     else:
         context = None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
-    extraData['mode'] = MODE_PLAYLIBRARY
+    extra_data['mode'] = MODE_PLAYLIBRARY
     separator = "?"
-    if "?" in extraData['key']:
+    if "?" in extra_data['key']:
         separator = "&"
-    final_url = "%s%s%st=%s" % (server.get_url_location(), extraData['key'], separator, random_number)
+    final_url = "%s%s%st=%s" % (server.get_url_location(), extra_data['key'], separator, random_number)
 
-    add_item_to_gui(final_url, details, extraData, context, folder=False)
+    add_item_to_gui(final_url, details, extra_data, context, folder=False)
     return
 
 
@@ -2188,14 +2188,14 @@ def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True)
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
 
-    partDetails = ()
+    part_details = ()
 
     for child in track:
         for babies in child:
             if babies.tag == "Part":
-                partDetails = (dict(babies.items()))
+                part_details = (dict(babies.items()))
 
-    log_print.debug("Part is %s" % str(partDetails))
+    log_print.debug("Part is %s" % str(part_details))
 
     details = {'TrackNumber': int(track.get('index', 0)),
                'discnumber': int(track.get('parentIndex', 0)),
@@ -2205,17 +2205,17 @@ def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True)
                'artist': track.get('grandparentTitle', tree.get('grandparentTitle', '')).encode('utf-8'),
                'duration': int(track.get('duration', 0)) / 1000}
 
-    extraData = {'type': "music",
+    extra_data = {'type': "music",
                  'fanart_image': sectionart,
                  'thumb': sectionthumb,
                  'key': track.get('key', ''),
                  'mode': MODE_PLAYLIBRARY}
 
     # If we are streaming, then get the virtual location
-    u = "%s%s" % (server.get_url_location(), extraData['key'])
+    u = "%s%s" % (server.get_url_location(), extra_data['key'])
 
     if listing:
-        add_item_to_gui(u, details, extraData, folder=False)
+        add_item_to_gui(u, details, extra_data, folder=False)
     else:
         return u, details
 
@@ -2227,20 +2227,20 @@ def playlist_tag(url, server, tree, track, sectionart="", sectionthumb="", listi
                'duration': int(track.get('duration', 0)) / 1000
                }
 
-    extraData = {'type': track.get('playlistType', ''),
+    extra_data = {'type': track.get('playlistType', ''),
                  'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server)}
 
-    if extraData['type'] == "video":
-        extraData['mode'] = MODE_MOVIES
-    elif extraData['type'] == "audio":
-        extraData['mode'] = MODE_TRACKS
+    if extra_data['type'] == "video":
+        extra_data['mode'] = MODE_MOVIES
+    elif extra_data['type'] == "audio":
+        extra_data['mode'] = MODE_TRACKS
     else:
-        extraData['mode'] = MODE_GETCONTENT
+        extra_data['mode'] = MODE_GETCONTENT
 
     u = get_link_url(url, track, server)
 
     if listing:
-        add_item_to_gui(u, details, extraData, folder=True)
+        add_item_to_gui(u, details, extra_data, folder=True)
     else:
         return url, details
 
@@ -2255,7 +2255,7 @@ def photo(url, tree=None):
     if tree is None:
         return
 
-    sectionArt = get_fanart_image(tree, server)
+    section_art = get_fanart_image(tree, server)
     set_window_heading(tree)
     for picture in tree:
 
@@ -2264,18 +2264,18 @@ def photo(url, tree=None):
         if not details['title']:
             details['title'] = "Unknown"
 
-        extraData = {'thumb': get_thumb_image(picture, server),
+        extra_data = {'thumb': get_thumb_image(picture, server),
                      'fanart_image': get_fanart_image(picture, server),
                      'type': "image"}
 
-        if extraData['fanart_image'] == "":
-            extraData['fanart_image'] = sectionArt
+        if extra_data['fanart_image'] == "":
+            extra_data['fanart_image'] = section_art
 
         u = get_link_url(url, picture, server)
 
         if picture.tag == "Directory":
-            extraData['mode'] = MODE_PHOTOS
-            add_item_to_gui(u, details, extraData)
+            extra_data['mode'] = MODE_PHOTOS
+            add_item_to_gui(u, details, extra_data)
 
         elif picture.tag == "Photo":
 
@@ -2284,11 +2284,11 @@ def photo(url, tree=None):
                     if pics.tag == "Media":
                         for images in pics:
                             if images.tag == "Part":
-                                extraData['key'] = server.get_url_location() + images.get('key', '')
+                                extra_data['key'] = server.get_url_location() + images.get('key', '')
                                 details['size'] = int(images.get('size', 0))
-                                u = extraData['key']
+                                u = extra_data['key']
 
-            add_item_to_gui(u, details, extraData, folder=False)
+            add_item_to_gui(u, details, extra_data, folder=False)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -2316,12 +2316,12 @@ def music(url, tree=None):
                    'tracknumber': int(grapes.get('index', 0)),
                    'title': "Unknown"}
 
-        extraData = {'type': "Music",
+        extra_data = {'type': "Music",
                      'thumb': get_thumb_image(grapes, server),
                      'fanart_image': get_fanart_image(grapes, server)}
 
-        if extraData['fanart_image'] == "":
-            extraData['fanart_image'] = get_fanart_image(tree, server)
+        if extra_data['fanart_image'] == "":
+            extra_data['fanart_image'] = get_fanart_image(tree, server)
 
         u = get_link_url(url, grapes, server)
 
@@ -2330,10 +2330,10 @@ def music(url, tree=None):
             xbmcplugin.setContent(pluginhandle, 'songs')
 
             details['title'] = grapes.get('track', grapes.get('title', 'Unknown')).encode('utf-8')
-            details['duration'] = int(int(grapes.get('totalTime', 0)) / 1000)
+            details['duration'] = int(int(grapes.get('total_time', 0)) / 1000)
 
-            extraData['mode'] = MODE_BASICPLAY
-            add_item_to_gui(u, details, extraData, folder=False)
+            extra_data['mode'] = MODE_BASICPLAY
+            add_item_to_gui(u, details, extra_data, folder=False)
 
         else:
 
@@ -2354,8 +2354,8 @@ def music(url, tree=None):
                 log_print.debug("Generic Tag: %s" % grapes.tag)
                 details['title'] = grapes.get('title', 'Unknown').encode('utf-8')
 
-            extraData['mode'] = MODE_MUSIC
-            add_item_to_gui(u, details, extraData)
+            extra_data['mode'] = MODE_MUSIC
+            add_item_to_gui(u, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -2435,8 +2435,8 @@ def get_fanart_image(data, server, width=1280, height=720):
     return ''
 
 
-def get_link_url(url, pathData, server):
-    path = pathData.get('key', '')
+def get_link_url(url, path_data, server):
+    path = path_data.get('key', '')
 
     log_print.debug("Path is %s" % path)
 
@@ -2462,8 +2462,8 @@ def get_link_url(url, pathData, server):
             if 'prefix=' in i:
                 del components[components.index(i)]
                 break
-        if pathData.get('identifier') is not None:
-            components.append('identifier=' + pathData['identifier'])
+        if path_data.get('identifier') is not None:
+            components.append('identifier=' + path_data['identifier'])
 
         path = '&'.join(components)
         return 'plex://' + server.get_location() + '/' + '/'.join(path.split('/')[3:])
@@ -2491,23 +2491,23 @@ def plex_online(url):
     for plugin in tree:
 
         details = {'title': plugin.get('title', plugin.get('name', 'Unknown')).encode('utf-8')}
-        extraData = {'type': "Video",
+        extra_data = {'type': "Video",
                      'installed': int(plugin.get('installed', 2)),
                      'key': plugin.get('key', ''),
                      'thumb': get_thumb_image(plugin, server),
                      'mode': MODE_CHANNELINSTALL}
 
-        if extraData['installed'] == 1:
+        if extra_data['installed'] == 1:
             details['title'] = details['title'] + " (installed)"
 
-        elif extraData['installed'] == 2:
-            extraData['mode'] = MODE_PLEXONLINE
+        elif extra_data['installed'] == 2:
+            extra_data['mode'] = MODE_PLEXONLINE
 
         u = get_link_url(url, plugin, server)
 
-        extraData['parameters'] = {'name': details['title']}
+        extra_data['parameters'] = {'name': details['title']}
 
-        add_item_to_gui(u, details, extraData)
+        add_item_to_gui(u, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
@@ -2575,7 +2575,7 @@ def channel_view(url):
 
         arguments = dict(channels.items())
 
-        extraData = {'fanart_image': get_fanart_image(channels, server),
+        extra_data = {'fanart_image': get_fanart_image(channels, server),
                      'thumb': get_thumb_image(channels, server)}
 
         details = {'title': channels.get('title', 'Unknown')}
@@ -2589,15 +2589,15 @@ def channel_view(url):
         p_url = get_link_url(url, {'key': channels.get('key'), 'identifier': channels.get('key')}, server)
 
         if suffix == "photos":
-            extraData['mode'] = MODE_PHOTOS
+            extra_data['mode'] = MODE_PHOTOS
         elif suffix == "video":
-            extraData['mode'] = MODE_PLEXPLUGINS
+            extra_data['mode'] = MODE_PLEXPLUGINS
         elif suffix == "music":
-            extraData['mode'] = MODE_MUSIC
+            extra_data['mode'] = MODE_MUSIC
         else:
-            extraData['mode'] = MODE_GETCONTENT
+            extra_data['mode'] = MODE_GETCONTENT
 
-        add_item_to_gui(p_url, details, extraData)
+        add_item_to_gui(p_url, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 

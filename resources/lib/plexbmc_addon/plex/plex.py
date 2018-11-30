@@ -308,7 +308,7 @@ class Plex:
             try:
                 gdm_client = PlexGDM(interface=interface_address)
                 gdm_client.discover()
-                gdm_server_name = gdm_client.getServerList()
+                gdm_server_name = gdm_client.get_server_list()
             except Exception as e:
                 log_print.error("PleXBMC -> GDM Issue [%s]" % e)
                 traceback.print_exc()
