@@ -837,3 +837,7 @@ msgstr ""
 msgctxt "#30615"
 msgid "Legacy"
 msgstr ""
+
+msgctxt "#30616"
+msgid "Refresh library section"
+msgstr ""
