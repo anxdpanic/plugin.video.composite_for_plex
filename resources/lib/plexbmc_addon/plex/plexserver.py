@@ -14,7 +14,6 @@ from six.moves.urllib_parse import parse_qsl
 from . import plexsection
 from ..common import *
 
-
 log_print = PrintDebug("PleXBMC", "plexserver")
 
 DEFAULT_PORT = "32400"
@@ -547,6 +546,9 @@ class PlexMediaServer:
         session = str(uuid.uuid4())
         quality = "100"
         transcode_settings = {'protocol': 'hls',
+                              'container': 'mpegts',
+                              'videoCodec': 'h264',
+                              'audioCodec': 'aac',
                               'session': session,
                               'offset': 0,
                               'videoResolution': resolution,
