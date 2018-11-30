@@ -2627,7 +2627,7 @@ def display_content(acceptable_level, content_level):
                   'Unrated': 2,  # MPAA Adults
 
                   'U': 0,  # BBFC Kids
-                  'PG': 0,  # BBFC Kids
+                  # 'PG': 0,  # BBFC Kids
                   '12': 1,  # BBFC Teens
                   '12A': 1,  # BBFC Teens
                   '15': 1,  # BBFC Teens
@@ -2635,8 +2635,8 @@ def display_content(acceptable_level, content_level):
                   'R18': 2,  # BBFC Adults
 
                   'E': 0,  # ACB Kids (hopefully)
-                  'G': 0,  # ACB Kids
-                  'PG': 0,  # ACB Kids
+                  # 'G': 0,  # ACB Kids
+                  # 'PG': 0,  # ACB Kids
                   'M': 1,  # ACB Teens
                   'MA15+': 2,  # ADC Adults
                   'R18+': 2,  # ACB Adults
@@ -2649,11 +2649,11 @@ def display_content(acceptable_level, content_level):
                   'TV-14': 1,  # US TV - Teens
                   'TV-MA': 2,  # US TV - Adults
 
-                  'G': 0,  # CAN - kids
-                  'PG': 0,  # CAN - kids
+                  # 'G': 0,  # CAN - kids
+                  # 'PG': 0,  # CAN - kids
                   '14A': 1,  # CAN - teens
                   '18A': 2,  # CAN - Adults
-                  'R': 2,  # CAN - Adults
+                  # 'R': 2,  # CAN - Adults
                   'A': 2}  # CAN - Adults
 
     if content_level is None or content_level == "None":
