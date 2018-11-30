@@ -842,3 +842,75 @@ msgstr ""
 msgctxt "#30616"
 msgid "Refresh library section"
 msgstr ""
+
+msgctxt "#30617"
+msgid "Username:"
+msgstr ""
+
+msgctxt "#30618"
+msgid "Password:"
+msgstr ""
+
+msgctxt "#30619"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "#30620"
+msgid "Submit"
+msgstr ""
+
+msgctxt "#30621"
+msgid "Manual"
+msgstr ""
+
+msgctxt "#30622"
+msgid "Use PIN"
+msgstr ""
+
+msgctxt "#30623"
+msgid "Done"
+msgstr ""
+
+msgctxt "#30624"
+msgid "Unable to Login"
+msgstr ""
+
+msgctxt "#30625"
+msgid "From your computer, go to %s and enter the code below"
+msgstr ""
+
+msgctxt "#30626"
+msgid "Successfully Signed In"
+msgstr ""
+
+msgctxt "#30627"
+msgid "Not Successful signed in"
+msgstr ""
+
+msgctxt "#30628"
+msgid "Email:"
+msgstr ""
+
+msgctxt "#30629"
+msgid "Plexpass:"
+msgstr ""
+
+msgctxt "#30630"
+msgid "Joined:"
+msgstr ""
+
+msgctxt "#30631"
+msgid "Exit"
+msgstr ""
+
+msgctxt "#30632"
+msgid "Switch User"
+msgstr ""
+
+msgctxt "#30633"
+msgid "Sign out"
+msgstr ""
+
+msgctxt "#30634"
+msgid "Please enter your myplex details below"
+msgstr ""
