@@ -164,3 +164,6 @@ pip-log.txt
 
 ##PyCharm
 .idea
+
+/resources/language/append_to_languages.py
+/resources/language/new_strings.txt
