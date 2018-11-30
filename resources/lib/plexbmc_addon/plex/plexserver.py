@@ -258,7 +258,7 @@ class PlexMediaServer:
         if not settings.get_setting('secureconn'):
             self.set_protocol('http')
         if not self.offline or refresh:
-            log_print.info("URL is: %s using %s" % (url, self.protocol))
+            log_print.debug("URL is: %s using %s" % (url, self.protocol))
 
             start_time = time.time()
             try:
@@ -275,14 +275,14 @@ class PlexMediaServer:
                 log_print.error("Server: %s is offline or uncontactable. error: %s" % (self.get_address(), e))
 
                 if self.protocol == "https" and refresh:
-                    log_print.info("Server: %s - switching to http" % self.get_address())
+                    log_print.debug("Server: %s - switching to http" % self.get_address())
                     self.protocol = "http"
                     return self.talk(url, refresh, method)
                 else:
                     self.offline = True
 
             except requests.exceptions.ReadTimeout:
-                log_print.info("Server: read timeout for %s on %s " % (self.get_address(), url))
+                log_print.debug("Server: read timeout for %s on %s " % (self.get_address(), url))
             else:
 
                 log_print.debug("URL was: %s" % response.url)
@@ -292,7 +292,7 @@ class PlexMediaServer:
                     log_print.debugplus("XML: \n%s" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
 
-                    log_print.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.get_address()))
+                    log_print.debug("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.get_address()))
                     return data
                 elif response.status_code == requests.codes.unauthorized:
                     log_print.debug("Response: 401 Unauthorized - Please log into myplex or check your myplex password")
@@ -393,7 +393,7 @@ class PlexMediaServer:
         data = self.talk(url)
         start_time = time.time()
         tree = ETree.fromstring(data)
-        log_print.info("PARSE: it took %.2f seconds to parse data from %s" % ((time.time() - start_time), self.get_address()))
+        log_print.debug("PARSE: it took %.2f seconds to parse data from %s" % ((time.time() - start_time), self.get_address()))
         return tree
 
     def raw_xml(self, url):
@@ -409,7 +409,7 @@ class PlexMediaServer:
 
         data = self.talk(url)
 
-        log_print.info("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.get_address()))
+        log_print.debug("PROCESSING: it took %.2f seconds to process data from %s" % ((time.time() - start_time), self.get_address()))
         return data
 
     def is_owned(self):

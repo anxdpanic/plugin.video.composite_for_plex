@@ -438,7 +438,7 @@ def process_movies(url, tree=None):
             movie_tag(url, server, movie, random_number)
             count += 1
 
-    log_print.info("PROCESS: It took %s seconds to process %s items" % (time.time() - start_time, count))
+    log_print.debug("PROCESS: It took %s seconds to process %s items" % (time.time() - start_time, count))
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
 
 
@@ -656,10 +656,10 @@ def process_tvepisodes(url, tree=None):
     random_number = str(random.randint(1000000000, 9999999999))
 
     if tree.get('mixedParents') == '1':
-        log_print.info('Setting plex sort')
+        log_print.debug('Setting plex sort')
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)  # maintain original plex sorted
     else:
-        log_print.info('Setting KODI sort')
+        log_print.debug('Setting KODI sort')
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)  # episode
 
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATE)
@@ -1034,9 +1034,9 @@ def play_library_media(vids, override=False, force=None, full_data=False):
         log_print.debug("We are playing a stream")
         if override:
             log_print.debug("We will be transcoding the stream")
-            if settings.get_setting('transcode_type') == "universal":
+            if settings.get_setting('transcode_type') == "0":  # universal
                 session, playurl = server.get_universal_transcode(streams['extra']['path'])
-            elif settings.get_setting('transcode_type') == "legacy":
+            elif settings.get_setting('transcode_type') == "1":  # legacy
                 session, playurl = server.get_legacy_transcode(_id, url)
             else:
                 playurl = ''
@@ -1070,7 +1070,7 @@ def play_library_media(vids, override=False, force=None, full_data=False):
             item.setProperty('ResumeTime', str(resume))
             item.setProperty('TotalTime', str(duration))
             item.setProperty('StartOffset', str(resume))
-            log_print.info("Playback from resume point: %s" % resume)
+            log_print.debug("Playback from resume point: %s" % resume)
 
     if streams['type'] == "picture":
         import json
@@ -1115,7 +1115,7 @@ def set_audio_subtitles(stream):
 
     # If we have decided not to collect any sub data then do not set subs
     if stream['contents'] == "type":
-        log_print.info("No audio or subtitle streams to process.")
+        log_print.debug("No audio or subtitle streams to process.")
 
         # If we have decided to force off all subs, then turn them off now and return
         if settings.get_setting('streamControl') == SUB_AUDIO_NEVER_SHOW:
@@ -1131,16 +1131,16 @@ def set_audio_subtitles(stream):
         audio = stream['audio']
 
         if stream['audio_count'] == 1:
-            log_print.info("Only one audio stream present - will leave as default")
+            log_print.debug("Only one audio stream present - will leave as default")
 
         elif audio:
             log_print.debug("Attempting to use selected language setting: %s" % audio.get('language', audio.get('languageCode', 'Unknown')).encode('utf8'))
-            log_print.info("Found preferred language at index %s" % stream['audio_offset'])
+            log_print.debug("Found preferred language at index %s" % stream['audio_offset'])
             try:
                 xbmc.Player().setAudioStream(stream['audio_offset'])
                 log_print.debug("Audio set")
             except:
-                log_print.info("Error setting audio, will use embedded default stream")
+                log_print.debug("Error setting audio, will use embedded default stream")
 
     # Set the SUBTITLE component
     if settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
@@ -1153,16 +1153,16 @@ def set_audio_subtitles(stream):
                 if subtitle.get('key'):
                     xbmc.Player().setSubtitles(subtitle['key'])
                 else:
-                    log_print.info("Enabling embedded subtitles at index %s" % stream['sub_offset'])
+                    log_print.debug("Enabling embedded subtitles at index %s" % stream['sub_offset'])
                     xbmc.Player().setSubtitleStream(int(stream['sub_offset']))
 
                 xbmc.Player().showSubtitles(True)
                 return True
             except:
-                log_print.info("Error setting subtitle")
+                log_print.debug("Error setting subtitle")
 
         else:
-            log_print.info("No preferred subtitles to set")
+            log_print.debug("No preferred subtitles to set")
             xbmc.Player().showSubtitles(False)
 
     return False
@@ -1235,7 +1235,7 @@ def monitor_playback(_id, server, playurl, session=None):
 
         try:
             if not (playurl == xbmc.Player().getPlayingFile()):
-                log_print.info("File stopped being played")
+                log_print.debug("File stopped being played")
                 break
         except:
             pass
@@ -1361,9 +1361,9 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         log_print.debug("found webkit video, pass to transcoder")
         if not prefix:
             prefix = "system"
-            if settings.get_setting('transcode_type') == "universal":
+            if settings.get_setting('transcode_type') == "0":
                 session, vids = server.get_universal_transcode(vids)
-            elif settings.get_setting('transcode_type') == "legacy":
+            elif settings.get_setting('transcode_type') == "0":
                 session, vids = server.get_legacy_transcode(0, vids, prefix)
 
         # Workaround for XBMC HLS request limit of 1024 byts
@@ -1552,7 +1552,7 @@ def process_directory(url, tree=None):
     set_window_heading(tree)
     thumb = tree.get('thumb')
     for directory in tree:
-        # log_print.info("TITLE: %s" % directory.get('title','Unknown').encode('utf-8'))
+        # log_print.debug("TITLE: %s" % directory.get('title','Unknown').encode('utf-8'))
         details = {'title': directory_item_translate(directory.get('title', 'Unknown').encode('utf-8'), thumb)}
         extra_data = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODE_GETCONTENT}
 
@@ -2571,7 +2571,7 @@ def display_content(acceptable_level, content_level):
         @output: boolean
     """
 
-    log_print.info("Checking rating flag [%s] against [%s]" % (content_level, acceptable_level))
+    log_print.debug("Checking rating flag [%s] against [%s]" % (content_level, acceptable_level))
 
     if acceptable_level == "2":
         log_print.debug("OK to display")
@@ -2651,7 +2651,7 @@ def refresh_plex_library(server_uuid, section_id):
     server = plex_network.get_server_from_uuid(server_uuid)
     server.refresh_section(section_id)
 
-    log_print.info("Library refresh requested")
+    log_print.debug("Library refresh requested")
     xbmc.executebuiltin("Notification(" + i18n(30068) + ",100)")
     return
 
@@ -2660,10 +2660,10 @@ def watched(server_uuid, metadata_id, watched_status='watch'):
     server = plex_network.get_server_from_uuid(server_uuid)
 
     if watched_status == 'watch':
-        log_print.info("Marking %s as watched" % metadata_id)
+        log_print.debug("Marking %s as watched" % metadata_id)
         server.mark_item_watched(metadata_id)
     else:
-        log_print.info("Marking %s as unwatched" % metadata_id)
+        log_print.debug("Marking %s as unwatched" % metadata_id)
         server.mark_item_unwatched(metadata_id)
 
     xbmc.executebuiltin("Container.Refresh")
@@ -2672,7 +2672,7 @@ def watched(server_uuid, metadata_id, watched_status='watch'):
 
 
 def delete_library_media(server_uuid, metadata_id):
-    log_print.info("Deleting media at: %s" % metadata_id)
+    log_print.debug("Deleting media at: %s" % metadata_id)
 
     return_value = xbmcgui.Dialog().yesno(i18n(30000), i18n(30001))
 
@@ -2982,30 +2982,28 @@ log_print.debug("PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__'])
 
 wake_servers()
 
-if settings.get_debug() >= log_print.DEBUG_INFO:
-    log_print.debug("PleXBMC -> Running Python: %s" % str(sys.version_info))
-    log_print.debug("PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__'])
-    log_print.debug("PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform'])
-    log_print.debug("PleXBMC -> Setting debug: %s" % log_print.get_name(settings.get_debug()))
-    log_print.debug("PleXBMC -> FullRes Thumbs are set to: %s" % settings.get_setting('fullres_thumbs'))
-    log_print.debug("PleXBMC -> Settings streaming: %s" % settings.get_stream())
-    log_print.debug("PleXBMC -> Setting filter menus: %s" % settings.get_setting('secondary'))
-    log_print.debug("PleXBMC -> Flatten is: %s" % settings.get_setting('flatten'))
-    if settings.get_setting('streamControl') == SUB_AUDIO_XBMC_CONTROL:
-        log_print.debug("PleXBMC -> Setting stream Control to : XBMC CONTROL")
-    elif settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
-        log_print.debug("PleXBMC -> Setting stream Control to : PLEX CONTROL")
-    elif settings.get_setting('streamControl') == SUB_AUDIO_NEVER_SHOW:
-        log_print.debug("PleXBMC -> Setting stream Control to : NEVER SHOW")
+log_print.debug("PleXBMC -> Running Python: %s" % str(sys.version_info))
+log_print.debug("PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__'])
+log_print.debug("PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform'])
+log_print.debug("PleXBMC -> Setting debug: %s" % log_print.get_name(settings.get_debug()))
+log_print.debug("PleXBMC -> FullRes Thumbs are set to: %s" % settings.get_setting('fullres_thumbs'))
+log_print.debug("PleXBMC -> Settings streaming: %s" % settings.get_stream())
+log_print.debug("PleXBMC -> Setting filter menus: %s" % settings.get_setting('secondary'))
+log_print.debug("PleXBMC -> Flatten is: %s" % settings.get_setting('flatten'))
+if settings.get_setting('streamControl') == SUB_AUDIO_XBMC_CONTROL:
+    log_print.debug("PleXBMC -> Setting stream Control to : XBMC CONTROL")
+elif settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
+    log_print.debug("PleXBMC -> Setting stream Control to : PLEX CONTROL")
+elif settings.get_setting('streamControl') == SUB_AUDIO_NEVER_SHOW:
+    log_print.debug("PleXBMC -> Setting stream Control to : NEVER SHOW")
 
-    log_print.debug("PleXBMC -> Force DVD playback: %s" % settings.get_setting('forcedvd'))
-    log_print.debug("PleXBMC -> SMB IP Override: %s" % settings.get_setting('nasoverride'))
-    if settings.get_setting('nasoverride') and not settings.get_setting('nasoverrideip'):
-        log_print.error("PleXBMC -> No NAS IP Specified.  Ignoring setting")
-    else:
-        log_print.debug("PleXBMC -> NAS IP: " + settings.get_setting('nasoverrideip'))
+log_print.debug("PleXBMC -> Force DVD playback: %s" % settings.get_setting('forcedvd'))
+log_print.debug("PleXBMC -> SMB IP Override: %s" % settings.get_setting('nasoverride'))
+if settings.get_setting('nasoverride') and not settings.get_setting('nasoverrideip'):
+    log_print.error("PleXBMC -> No NAS IP Specified.  Ignoring setting")
 else:
-    log_print.debug("PleXBMC -> Debug is turned off.  Running silent")
+    log_print.debug("PleXBMC -> NAS IP: " + settings.get_setting('nasoverrideip'))
+
 
 pluginhandle = 0
 argv = []
@@ -3059,7 +3057,7 @@ def start_plexbmc(sys_argv):
             gui_window.setProperty("plexbmc.plexhome_avatar", str(plex_network.get_myplex_avatar()))
             xbmc.executebuiltin("Container.Refresh")
         else:
-            log_print.info("Switch User Failed")
+            log_print.debug("Switch User Failed")
 
     elif command == "signout":
         if not plex_network.is_admin():

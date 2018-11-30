@@ -26,21 +26,15 @@ class PrintDebug:
         self.level = settings.get_debug()
         self.privacy = settings.get_setting('privacy')
 
-        self.DEBUG_OFF = 0
-        self.DEBUG_INFO = 1
-        self.DEBUG_DEBUG = 2
-        self.DEBUG_DEBUGPLUS = 3
-        self.DEBUG_HELPER = 4
+        self.DEBUG_DEBUG = 0
+        self.DEBUG_DEBUGPLUS = 1
         self.LOG_ERROR = 9
         self.token_regex = re.compile('-Token=[a-z|0-9].*?[&|$]')
         self.ip_regex = re.compile('\.\d{1,3}\.\d{1,3}\.')
         self.user_regex = re.compile('-User=[a-z|0-9].*?[&|$]')
 
-        self.DEBUG_MAP = {self.DEBUG_OFF: "off",
-                          self.DEBUG_INFO: "info",
-                          self.DEBUG_DEBUG: "debug",
+        self.DEBUG_MAP = {self.DEBUG_DEBUG: "debug",
                           self.DEBUG_DEBUGPLUS: "debug+",
-                          self.DEBUG_HELPER: "debug+h",
                           self.LOG_ERROR: 'error'}
 
     def get_name(self, level):
@@ -49,25 +43,13 @@ class PrintDebug:
     def error(self, message):
         return self.__print_message(message, 9)
 
-    def warn(self, message):
+    def debug(self, message):
         return self.__print_message(message, 0)
 
-    def info(self, message):
+    def debugplus(self, message):
         return self.__print_message(message, 1)
 
-    def debug(self, message):
-        return self.__print_message(message, 2)
-
-    def dev(self, message):
-        return self.__print_message(message, 3)
-
-    def debugplus(self, message):
-        return self.__print_message(message, 3)
-
-    def debug_helper(self, message):
-        return self.__print_message(message, 4)
-
-    def __print_message(self, msg, level=1):
+    def __print_message(self, msg, level=0):
         if self.privacy:
             msg = self.token_regex.sub("X-Plex-Token=XXXXXXXXXX&", str(msg))
             msg = self.ip_regex.sub(".X.X.", msg)
@@ -84,7 +66,7 @@ class PrintDebug:
             except:
                 xbmc.log("%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGERROR)
 
-    def __call__(self, msg, level=1):
+    def __call__(self, msg, level=0):
         return self.__print_message(msg, level)
 
 
