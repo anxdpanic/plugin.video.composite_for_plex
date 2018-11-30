@@ -125,7 +125,6 @@ def setup_python_locations():
              '__cachedir__': __addon.getAddonInfo('profile'),
              '__cwd__': xbmc.translatePath(__addon.getAddonInfo('path')).decode('utf-8'),
              '__version__': __addon.getAddonInfo('version')}
-    setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
     return setup
 
 
