@@ -3099,6 +3099,9 @@ def start_plexbmc(sys_argv):
         manage_window.set_authentication_target(plex_network)
         manage_window.start()
         del manage_window
+    elif command == "displayservers":
+        plex_network.load()
+        display_known_servers()
 
     else:
         plex_network.load()
