@@ -13,7 +13,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: it\n"
+"Language: it_IT\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30000"
@@ -340,7 +340,7 @@ msgctxt "#30080"
 msgid "MyPlex Queue"
 msgstr "Coda MyPlex"
 
-msgctxt "#30080"
+msgctxt "#30081"
 msgid "Sign In"
 msgstr "Login"
 
@@ -745,3 +745,15 @@ msgstr "Utilizza il nome del client KODI"
 msgctxt "#30609"
 msgid "Switch off playback monitor"
 msgstr "Spegni il monitoraggio per la riproduzione"
+
+msgctxt "#30610"
+msgid "Use HTTPS"
+msgstr ""
+
+msgctxt "#30611"
+msgid "Transcode >1080p"
+msgstr ""
+
+msgctxt "#30612"
+msgid "Transcode HEVC"
+msgstr ""

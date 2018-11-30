@@ -1,7 +1,7 @@
 # Kodi language file
-# Addon Name: Skin Helper Service
-# Addon id: script.skin.helper.service
-# Addon Provider: marcelveldt
+# Addon Name:
+# Addon id:
+# Addon Provider:
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC Addons\n"
@@ -13,8 +13,368 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: uk\n"
+"Language: uk_UK\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgctxt "#30000"
+msgid "Confirm file delete?"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Delete this item? This action will delete media and associated data files."
+msgstr ""
+
+msgctxt "#30002"
+msgid "Plex Online"
+msgstr ""
+
+msgctxt "#30003"
+msgid "About to install "
+msgstr ""
+
+msgctxt "#30004"
+msgid "This plugin is already installed.."
+msgstr ""
+
+msgctxt "#30005"
+msgid "Switch Failed"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Sign Out"
+msgstr ""
+
+msgctxt "#30007"
+msgid "To sign out you must be logged in as an admin user. Please switch user and try again"
+msgstr ""
+
+msgctxt "#30008"
+msgid "myplex"
+msgstr ""
+
+msgctxt "#30009"
+msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Manage myplex"
+msgstr ""
+
+msgctxt "#30011"
+msgid "You are not currently logged into myplex.  Please continue to sign in, or cancel to return"
+msgstr ""
+
+msgctxt "#30012"
+msgid "To access these screens you must be logged in as an admin user.  Please switch user and try again"
+msgstr ""
+
+msgctxt "#30013"
+msgid "All"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Unwatched"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Recently Aired"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Recently Added"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Recently Viewed Episodes"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Recently Viewed Shows"
+msgstr ""
+
+msgctxt "#30019"
+msgid "On Deck"
+msgstr ""
+
+msgctxt "#30020"
+msgid "By Collection"
+msgstr ""
+
+msgctxt "#30021"
+msgid "By First Letter"
+msgstr ""
+
+msgctxt "#30022"
+msgid "By Genre"
+msgstr ""
+
+msgctxt "#30023"
+msgid "By Year"
+msgstr ""
+
+msgctxt "#30024"
+msgid "By Content Rating"
+msgstr ""
+
+msgctxt "#30025"
+msgid "By Folder"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Search Shows..."
+msgstr ""
+
+msgctxt "#30027"
+msgid "Search Episodes..."
+msgstr ""
+
+msgctxt "#30028"
+msgid "All"
+msgstr ""
+
+msgctxt "#30029"
+msgid "By Album"
+msgstr ""
+
+msgctxt "#30030"
+msgid "By Genre"
+msgstr ""
+
+msgctxt "#30031"
+msgid "By Year"
+msgstr ""
+
+msgctxt "#30032"
+msgid "By Collection"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Recently Added"
+msgstr ""
+
+msgctxt "#30034"
+msgid "By Folder"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Search Artists..."
+msgstr ""
+
+msgctxt "#30036"
+msgid "Search Albums..."
+msgstr ""
+
+msgctxt "#30037"
+msgid "Search Tracks..."
+msgstr ""
+
+msgctxt "#30038"
+msgid "All"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Unwatched"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Recently Released"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Recently Added"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Recently Viewed"
+msgstr ""
+
+msgctxt "#30043"
+msgid "On Deck"
+msgstr ""
+
+msgctxt "#30044"
+msgid "By Collection"
+msgstr ""
+
+msgctxt "#30045"
+msgid "By Genre"
+msgstr ""
+
+msgctxt "#30046"
+msgid "By Year"
+msgstr ""
+
+msgctxt "#30047"
+msgid "By Decade"
+msgstr ""
+
+msgctxt "#30048"
+msgid "By Director"
+msgstr ""
+
+msgctxt "#30049"
+msgid "By Starring Actor"
+msgstr ""
+
+msgctxt "#30050"
+msgid "By Country"
+msgstr ""
+
+msgctxt "#30051"
+msgid "By Content Rating"
+msgstr ""
+
+msgctxt "#30052"
+msgid "By Rating"
+msgstr ""
+
+msgctxt "#30053"
+msgid "By Resolution"
+msgstr ""
+
+msgctxt "#30054"
+msgid "By First Letter"
+msgstr ""
+
+msgctxt "#30055"
+msgid "By Folder"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Search..."
+msgstr ""
+
+msgctxt "#30057"
+msgid "All"
+msgstr ""
+
+msgctxt "#30058"
+msgid "By Year"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Recently Added"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Camera Make"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Camera Model"
+msgstr ""
+
+msgctxt "#30062"
+msgid "Aperture"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Shutter Speed"
+msgstr ""
+
+msgctxt "#30064"
+msgid "ISO"
+msgstr ""
+
+msgctxt "#30065"
+msgid "Lens"
+msgstr ""
+
+msgctxt "#30066"
+msgid "Unable to see any media servers"
+msgstr ""
+
+msgctxt "#30067"
+msgid "Unable to contact server:"
+msgstr ""
+
+msgctxt "#30068"
+msgid "\"PleXBMC\",Library Refresh started"
+msgstr ""
+
+msgctxt "#30069"
+msgid "myplex not configured"
+msgstr ""
+
+msgctxt "#30070"
+msgid "Resume"
+msgstr ""
+
+msgctxt "#30071"
+msgid "Select media to play"
+msgstr ""
+
+msgctxt "#30072"
+msgid "Select subtitle"
+msgstr ""
+
+msgctxt "#30073"
+msgid "Select audio"
+msgstr ""
+
+msgctxt "#30074"
+msgid "Select master server"
+msgstr ""
+
+msgctxt "#30075"
+msgid "Known server list"
+msgstr ""
+
+msgctxt "#30076"
+msgid "Switch User"
+msgstr ""
+
+msgctxt "#30077"
+msgid "Enter PIN"
+msgstr ""
+
+msgctxt "#30078"
+msgid "Resume from"
+msgstr ""
+
+msgctxt "#30079"
+msgid "Start from beginning"
+msgstr ""
+
+msgctxt "#30080"
+msgid "MyPlex Queue"
+msgstr ""
+
+msgctxt "#30081"
+msgid "Sign In"
+msgstr ""
+
+msgctxt "#30082"
+msgid "Display servers"
+msgstr ""
+
+msgctxt "#30083"
+msgid "Refresh Data"
+msgstr ""
+
+msgctxt "#30084"
+msgid "Channels"
+msgstr ""
+
+msgctxt "#30085"
+msgid "Playlists"
+msgstr ""
+
+msgctxt "#30086"
+msgid "Play Transcoded"
+msgstr ""
+
+msgctxt "#30087"
+msgid "All episodes"
+msgstr ""
+
+msgctxt "#30088"
+msgid "Season"
+msgstr ""
+
+msgctxt "#30089"
+msgid "Search for"
+msgstr ""
 
 ###### SETTINGS
 
@@ -429,3 +789,27 @@ msgstr "Керувати myPlex"
 msgctxt "#30606"
 msgid "Prefer Season artwork"
 msgstr "Віддавати перевагу обкладинці сезону"
+
+msgctxt "#30607"
+msgid "Hide Unique Information in log"
+msgstr ""
+
+msgctxt "#30608"
+msgid "Use KODI client name?"
+msgstr ""
+
+msgctxt "#30609"
+msgid "Switch off playback monitor"
+msgstr ""
+
+msgctxt "#30610"
+msgid "Use HTTPS"
+msgstr ""
+
+msgctxt "#30611"
+msgid "Transcode >1080p"
+msgstr ""
+
+msgctxt "#30612"
+msgid "Transcode HEVC"
+msgstr ""
