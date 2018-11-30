@@ -12,17 +12,17 @@
         <setting id="masterServer" label="30571" type="text" default=""/>
         <setting id="client_id" type="text" visible="false" option="hidden"/>
         <setting id="wolon" type="bool" label="30523" default="false"/>
-        <setting id="wol1" type="text" label="MAC Address 1" visible="eq(-1,true)" enable="eq(-1,true)" default=""/>
-        <setting id="wol2" type="text" label="MAC Address 2" visible="eq(-2,true)" enable="eq(-2,true)" default=""/>
-        <setting id="wol3" type="text" label="MAC Address 3" visible="eq(-3,true)" enable="eq(-3,true)" default=""/>
-        <setting id="wol4" type="text" label="MAC Address 4" visible="eq(-4,true)" enable="eq(-4,true)" default=""/>
-        <setting id="wol5" type="text" label="MAC Address 5" visible="eq(-5,true)" enable="eq(-5,true)" default=""/>
-        <setting id="wol6" type="text" label="MAC Address 6" visible="eq(-6,true)" enable="eq(-6,true)" default=""/>
-        <setting id="wol7" type="text" label="MAC Address 7" visible="eq(-7,true)" enable="eq(-7,true)" default=""/>
-        <setting id="wol8" type="text" label="MAC Address 8" visible="eq(-8,true)" enable="eq(-8,true)" default=""/>
-        <setting id="wol9" type="text" label="MAC Address 9" visible="eq(-9,true)" enable="eq(-9,true)" default=""/>
-        <setting id="wol10" type="text" label="MAC Address 10" visible="eq(-10,true)" enable="eq(-10,true)" default=""/>
-        <setting id="wol11" type="text" label="MAC Address 11" visible="eq(-11,true)" enable="eq(-11,true)" default=""/>
+        <setting id="wol1" type="text" label="30613" visible="eq(-1,true)" enable="eq(-1,true)" default=""/>
+        <setting id="wol2" type="text" label="30613" visible="eq(-2,true)" enable="eq(-2,true)" default=""/>
+        <setting id="wol3" type="text" label="30613" visible="eq(-3,true)" enable="eq(-3,true)" default=""/>
+        <setting id="wol4" type="text" label="30613" visible="eq(-4,true)" enable="eq(-4,true)" default=""/>
+        <setting id="wol5" type="text" label="30613" visible="eq(-5,true)" enable="eq(-5,true)" default=""/>
+        <setting id="wol6" type="text" label="30613" visible="eq(-6,true)" enable="eq(-6,true)" default=""/>
+        <setting id="wol7" type="text" label="30613" visible="eq(-7,true)" enable="eq(-7,true)" default=""/>
+        <setting id="wol8" type="text" label="30613" visible="eq(-8,true)" enable="eq(-8,true)" default=""/>
+        <setting id="wol9" type="text" label="30613" visible="eq(-9,true)" enable="eq(-9,true)" default=""/>
+        <setting id="wol10" type="text" label="30613" visible="eq(-10,true)" enable="eq(-10,true)" default=""/>
+        <setting id="wol11" type="text" label="30613" visible="eq(-11,true)" enable="eq(-11,true)" default=""/>
     </category>
     <category label="30517"> <!-- Playback -->
         <setting id="streaming" type="enum" label="30501" lvalues="30511|30512|30513|30563" default="0"/>
@@ -36,7 +36,7 @@
         <setting id="transcode" type="bool" label="30507" default="false"/>
         <setting id="transcode_g1080" type="bool" label="30611" default="false"/>
         <setting id="transcode_hevc" type="bool" label="30612" default="false"/>
-        <setting id="transcode_type" label="30601" type="labelenum" values="universal|legacy" default="0"/>
+        <setting id="transcode_type" label="30601" type="enum" lvalues="30614|30615" default="0"/>
         <setting id="quality_uni" visible="eq(-1,0)" type="labelenum" label="30540" values="420x420, 320Kbps|576x320, 720Kbps|720x480, 1.5Mbps|1024x768, 2Mbps|1280x720, 3Mbps|1280x720, 4Mbps|1920x1080, 8Mbps|1920x1080, 10Mbps|1920x1080, 12Mbps|1920x1080, 20Mbps|1920x1080, 40Mbps|1920x1080, unlimited"/>
         <setting id="quality_leg" visible="eq(-2,1)" type="enum" label="30540" values="300kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p"/>
         <setting id="subSize" label="30568" type="slider" option="int" range="0,325" default="100"/>

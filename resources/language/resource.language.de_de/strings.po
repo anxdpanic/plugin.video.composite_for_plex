@@ -826,3 +826,15 @@ msgstr ""
 msgctxt "#30612"
 msgid "Transcode HEVC"
 msgstr ""
+
+msgctxt "#30613"
+msgid "MAC Address"
+msgstr ""
+
+msgctxt "#30614"
+msgid "Universal"
+msgstr ""
+
+msgctxt "#30615"
+msgid "Legacy"
+msgstr ""
