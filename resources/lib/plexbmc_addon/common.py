@@ -161,6 +161,10 @@ def is_ip(address):
 def get_platform_ip():
     return xbmc.getIPAddress()
 
+try:
+    KODI_VERSION = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
+except:
+    KODI_VERSION = 0
 
 GLOBAL_SETUP = setup_python_locations()
 GLOBAL_SETUP['platform'] = get_platform()

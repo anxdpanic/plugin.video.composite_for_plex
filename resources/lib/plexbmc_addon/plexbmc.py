@@ -165,11 +165,10 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
             link_url = "%s&%s=%s" % (link_url, argument, urllib.quote(value))
 
     log_print.debug("URL to use for listing: %s" % link_url)
-
-    liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'), extra_data.get('source'), folder), iconImage=extra_data.get('thumb', GENERIC_THUMBNAIL), thumbnailImage=extra_data.get('thumb', GENERIC_THUMBNAIL))
-
-    log_print.debug("Setting thumbnail as %s" % extra_data.get('thumb', GENERIC_THUMBNAIL))
-
+    if KODI_VERSION >= 18:
+        liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'), extra_data.get('source'), folder), offscreen=True)
+    else:
+        liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'), extra_data.get('source'), folder))
     # Set the properties of the item, such as summary, name, season, etc
     liz.setInfo(type=extra_data.get('type', 'Video'), infoLabels=details)
 
@@ -229,7 +228,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     # assign artwork
     fanart = extra_data.get('fanart_image', '')
-    thumb = extra_data.get('thumb', '')
+    thumb = extra_data.get('thumb', extra_data.get('thumb', GENERIC_THUMBNAIL))
     banner = extra_data.get('banner', '')
 
     # tvshow poster
@@ -240,17 +239,11 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     else:
         poster = thumb
 
-    if fanart:
-        log_print.debug("Setting fan art as %s" % fanart)
-        liz.setProperty('fanart_image', fanart)
-    if banner:
-        log_print.debug("Setting banner as %s" % banner)
-        liz.setProperty('banner', '%s' % banner)
     if season_thumb:
         log_print.debug("Setting season Thumb as %s" % season_thumb)
         liz.setProperty('seasonThumb', '%s' % season_thumb)
 
-    liz.setArt({"fanart": fanart, "poster": poster, "banner": banner, "thumb": thumb})
+    liz.setArt({"fanart": fanart, "poster": poster, "banner": banner, "thumb": thumb, "icon": thumb})
 
     if context is not None:
         if not folder and extra_data.get('type', 'video').lower() == "video":
@@ -978,9 +971,12 @@ def play_playlist(server, data):
         log_print.debug("Adding playlist item")
 
         url, item = track_tag(server, tree, track, listing=False)
-
-        liz = xbmcgui.ListItem(item.get('title', 'Unknown'), iconImage=data['full_data'].get('thumbnailImage', ''), thumbnailImage=data['full_data'].get('thumbnailImage', ''))
-
+        if KODI_VERSION >= 18:
+            liz = xbmcgui.ListItem(item.get('title', 'Unknown'), offscreen=True)
+        else:
+            liz = xbmcgui.ListItem(item.get('title', 'Unknown'))
+        thumb = data['full_data'].get('thumbnailImage', GENERIC_THUMBNAIL)
+        liz.setArt({'icon': thumb, 'thumb': thumb})
         liz.setInfo(type='music', infoLabels=item)
         playlist.add(url, liz)
 
@@ -1053,13 +1049,14 @@ def play_library_media(vids, override=False, force=None, full_data=False):
     duration = int(int(streams['media']['duration']) / 1000)
 
     log_print.debug("Resume has been set to %s " % resume)
-
-    item = xbmcgui.ListItem(path=playurl)
-
+    if KODI_VERSION >= 18:
+        item = xbmcgui.ListItem(path=playurl, offscreen=True)
+    else:
+        item = xbmcgui.ListItem(path=playurl)
     if streams['full_data']:
         item.setInfo(type=streams['type'], infoLabels=streams['full_data'])
-        item.setThumbnailImage(streams['full_data'].get('thumbnailImage', ''))
-        item.setIconImage(streams['full_data'].get('thumbnailImage', ''))
+        thumb = streams['full_data'].get('thumbnailImage', GENERIC_THUMBNAIL)
+        item.setArt({'icon': thumb, 'thumb': thumb})
 
     if force:
 
@@ -1287,8 +1284,10 @@ def play_media_stream(url):
             playurl = ''
     else:
         playurl = url
-
-    item = xbmcgui.ListItem(path=playurl)
+    if KODI_VERSION >= 18:
+        item = xbmcgui.ListItem(path=playurl, offscreen=True)
+    else:
+        item = xbmcgui.ListItem(path=playurl)
     resolved = playurl != ''
     xbmcplugin.setResolvedUrl(pluginhandle, resolved, item)
 
@@ -1391,8 +1390,10 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         url = vids
 
     log_print.debug("Final URL is: %s" % url)
-
-    item = xbmcgui.ListItem(path=url)
+    if KODI_VERSION >= 18:
+        item = xbmcgui.ListItem(path=url, offscreen=True)
+    else:
+        item = xbmcgui.ListItem(path=url)
     xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
     if transcode and session:
