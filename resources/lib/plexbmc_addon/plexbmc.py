@@ -795,12 +795,12 @@ def process_tvepisodes(url, tree=None):
 
 
 def get_audio_subtitles_from_media(server, tree, full=False):
-    '''
+    """
         Cycle through the Parts sections to find all "selected" audio and subtitle streams
         If a stream is marked as selected=1 then we will record it in the dict
         Any that are not, are ignored as we do not need to set them
         We also record the media locations for playback decision later on
-    '''
+    """
     log_print.debug("== ENTER ==")
     log_print.debug("Gather media stream info")
 
@@ -1120,10 +1120,10 @@ def play_library_media(vids, override=False, force=None, full_data=False):
 
 
 def set_audio_subtitles(stream):
-    '''
+    """
         Take the collected audio/sub stream data and apply to the media
         If we do not have any subs then we switch them off
-    '''
+    """
 
     log_print.debug("== ENTER ==")
 
@@ -1479,11 +1479,11 @@ def get_params(paramstring):
 
 
 def channel_search(url, prompt):
-    '''
+    """
         When we encounter a search request, branch off to this function to generate the keyboard
         and accept the terms.  This URL is then fed back into the correct function for
         onward processing.
-    '''
+    """
     log_print.debug("== ENTER ==")
 
     if prompt:
@@ -1503,13 +1503,13 @@ def channel_search(url, prompt):
 
 
 def get_content(url):
-    '''
+    """
         This function takes teh URL, gets the XML and determines what the content is
         This XML is then redirected to the best processing function.
         If a search term is detected, then show keyboard and run search query
         @input: URL of XML page
         @return: nothing, redirects to another function
-    '''
+    """
     log_print.debug("== ENTER ==")
 
     server = plex_network.get_server_from_url(url)
@@ -1729,11 +1729,11 @@ def heading2_translate(tree):
 
 
 def artist(url, tree=None):
-    '''
+    """
         Process artist XML and display data
         @input: url of XML page, or existing tree of XML page
         @return: nothing
-    '''
+    """
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -1860,13 +1860,13 @@ def get_xml(url, tree=None):
 
 
 def plex_plugins(url, tree=None):
-    '''
+    """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
         main tag is.
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
-    '''
+    """
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
     server = plex_network.get_server_from_url(url)
@@ -1943,13 +1943,13 @@ def plex_plugins(url, tree=None):
 
 
 def channel_settings(url, setting_id):
-    '''
+    """
         Take the setting XML and parse it to create an updated
         string with the new settings.  For the selected value, create
         a user input screen (text or list) to update the setting.
         @ input: url
         @ return: nothing
-    '''
+    """
     log_print.debug("== ENTER ==")
     log_print.debug("Setting preference for ID: %s" % setting_id)
 
@@ -2021,13 +2021,13 @@ def channel_settings(url, setting_id):
 
 
 def process_xml(url, tree=None):
-    '''
+    """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
         main tag is.
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
-    '''
+    """
     log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
     server = plex_network.get_server_from_url(url)
@@ -2164,11 +2164,11 @@ def movie_tag(url, server, tree, movie, random_number):
 
 
 def get_media_data(tag_dict):
-    '''
+    """
         Extra the media details from the XML
         @input: dict of <media /> tag attributes
         @output: dict of required values
-    '''
+    """
     log_print.debug("== ENTER ==")
 
     return {'VideoResolution': tag_dict.get('videoResolution', ''),
@@ -2361,11 +2361,11 @@ def music(url, tree=None):
 
 
 def get_thumb_image(data, server, width=720, height=720):
-    '''
+    """
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
         @ return formatted URL
-    '''
+    """
 
     if settings.get_setting('skipimages'):
         return ''
@@ -2413,11 +2413,11 @@ def get_banner_image(data, server, width=720, height=720):
 
 
 def get_fanart_image(data, server, width=1280, height=720):
-    '''
+    """
         Simply take a URL or path and determine how to format for fanart
         @ input: elementTree element, server name
         @ return formatted URL for photo resizing
-    '''
+    """
     if settings.get_setting('skipimages'):
         return ''
 
@@ -2603,12 +2603,12 @@ def channel_view(url):
 
 
 def display_content(acceptable_level, content_level):
-    '''
+    """
         Takes a content Rating and decides whether it is an allowable
         level, as defined by the content filter
         @input: content rating
         @output: boolean
-    '''
+    """
 
     log_print.info("Checking rating flag [%s] against [%s]" % (content_level, acceptable_level))
 
