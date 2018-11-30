@@ -23,7 +23,6 @@
         <setting id="wol9" type="text" label="MAC Address 9" visible="eq(-9,true)" enable="eq(-9,true)" default=""/>
         <setting id="wol10" type="text" label="MAC Address 10" visible="eq(-10,true)" enable="eq(-10,true)" default=""/>
         <setting id="wol11" type="text" label="MAC Address 11" visible="eq(-11,true)" enable="eq(-11,true)" default=""/>
-        <setting id="use_xbmc_name" type="bool" label="30608" default="true"/>
     </category>
     <category label="30517"> <!-- Playback -->
         <setting id="streaming" type="enum" label="30501" lvalues="30511|30512|30513|30563" default="0"/>
@@ -68,6 +67,5 @@
         <setting id="kodicache" type="bool" label="30604" default="false"/>
         <setting type="sep"/>
         <setting id="privacy" type="bool" label="30607" default="true"/>
-        <setting id="restart_webserver" type="bool" label="Replacement" visible="false" default="false"/>
     </category>
 </settings>
