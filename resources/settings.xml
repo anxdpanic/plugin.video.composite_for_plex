@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <category label="32516"> <!-- Media Sources -->
-        <setting id="devicename" type="text" label="32602" default="My PleXBMC Client"/>
-        <setting id="discovery" type="enum" label="32504" lvalues="32594|32570" default="1"/>
-        <setting id="ipaddress" type="text" label="32500" default="localhost" visible="eq(-1,0)" enable="eq(-1,0)"/>
-        <setting id="port" type="text" label="32530" default="32400" visible="eq(-2,0)" enable="eq(-2,0)"/>
-        <setting id="secureconn" type="bool" label="32610" default="true" visible="eq(-3,0)" enable="eq(-3,0)"/>
+    <category label="30516"> <!-- Media Sources -->
+        <setting id="devicename" type="text" label="30602" default="My PleXBMC Client"/>
+        <setting id="discovery" type="enum" label="30504" lvalues="30594|30570" default="1"/>
+        <setting id="ipaddress" type="text" label="30500" default="localhost" visible="eq(-1,0)" enable="eq(-1,0)"/>
+        <setting id="port" type="text" label="30530" default="30400" visible="eq(-2,0)" enable="eq(-2,0)"/>
+        <setting id="secureconn" type="bool" label="30610" default="true" visible="eq(-3,0)" enable="eq(-3,0)"/>
         <!--<setting type="sep" />-->
-        <setting id="managemyplex" label="32605" type="action" action="RunScript(plugin.video.plexbmc, managemyplex)" option="close"/>
-        <setting id="selectMaster" label="32526" type="action" action="RunScript(plugin.video.plexbmc, master)"/>
-        <setting id="masterServer" label="32571" type="text" default=""/>
+        <setting id="managemyplex" label="30605" type="action" action="RunScript(plugin.video.plexbmc, managemyplex)" option="close"/>
+        <setting id="selectMaster" label="30526" type="action" action="RunScript(plugin.video.plexbmc, master)"/>
+        <setting id="masterServer" label="30571" type="text" default=""/>
         <setting id="client_id" type="text" visible="false" option="hidden"/>
-        <setting id="wolon" type="bool" label="32523" default="false"/>
+        <setting id="wolon" type="bool" label="30523" default="false"/>
         <setting id="wol1" type="text" label="MAC Address 1" visible="eq(-1,true)" enable="eq(-1,true)" default=""/>
         <setting id="wol2" type="text" label="MAC Address 2" visible="eq(-2,true)" enable="eq(-2,true)" default=""/>
         <setting id="wol3" type="text" label="MAC Address 3" visible="eq(-3,true)" enable="eq(-3,true)" default=""/>
@@ -23,51 +23,51 @@
         <setting id="wol9" type="text" label="MAC Address 9" visible="eq(-9,true)" enable="eq(-9,true)" default=""/>
         <setting id="wol10" type="text" label="MAC Address 10" visible="eq(-10,true)" enable="eq(-10,true)" default=""/>
         <setting id="wol11" type="text" label="MAC Address 11" visible="eq(-11,true)" enable="eq(-11,true)" default=""/>
-        <setting id="use_xbmc_name" type="bool" label="32608" default="true"/>
+        <setting id="use_xbmc_name" type="bool" label="30608" default="true"/>
     </category>
-    <category label="32517"> <!-- Playback -->
-        <setting id="streaming" type="enum" label="32501" lvalues="32511|32512|32513|32563" default="0"/>
-        <setting id="streamControl" type="enum" label="32538" lvalues="32536|32567|32539" default="1"/>
-        <setting id="forcedvd" type="bool" label="32560" default="false"/>
-        <setting id="nasoverride" type="bool" label="32561" default="false"/>
-        <setting id="nasoverrideip" type="text" label="32562" default="" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)"/>
-        <setting id="nasuserid" type="text" label="32564" default="" subsetting="true" visible="eq(-2,true)" enable="eq(-2,true)"/>
-        <setting id="naspass" type="text" label="32565" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)"/>
-        <setting id="nasroot" type="text" label="32566" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)"/>
-        <setting id="transcode" type="bool" label="32507" default="false"/>
-        <setting id="transcode_g1080" type="bool" label="32611" default="false"/>
-        <setting id="transcode_hevc" type="bool" label="32612" default="false"/>
-        <setting id="transcode_type" label="32601" type="labelenum" values="universal|legacy" default="0"/>
-        <setting id="quality_uni" visible="eq(-1,0)" type="labelenum" label="32540" values="420x420, 320Kbps|576x320, 720Kbps|720x480, 1.5Mbps|1024x768, 2Mbps|1280x720, 3Mbps|1280x720, 4Mbps|1920x1080, 8Mbps|1920x1080, 10Mbps|1920x1080, 12Mbps|1920x1080, 20Mbps|1920x1080, 40Mbps|1920x1080, unlimited"/>
-        <setting id="quality_leg" visible="eq(-2,1)" type="enum" label="32540" values="320kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p"/>
-        <setting id="subSize" label="32568" type="slider" option="int" range="0,325" default="100"/>
-        <setting id="audioSize" label="32569" type="slider" option="int" range="0,325" default="0"/>
-        <setting id="audiotype" visible="eq(-5,1)" type="enum" label="32557" values="Stereo|AC3|DTS" default="0"/>
+    <category label="30517"> <!-- Playback -->
+        <setting id="streaming" type="enum" label="30501" lvalues="30511|30512|30513|30563" default="0"/>
+        <setting id="streamControl" type="enum" label="30538" lvalues="30536|30567|30539" default="1"/>
+        <setting id="forcedvd" type="bool" label="30560" default="false"/>
+        <setting id="nasoverride" type="bool" label="30561" default="false"/>
+        <setting id="nasoverrideip" type="text" label="30562" default="" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)"/>
+        <setting id="nasuserid" type="text" label="30564" default="" subsetting="true" visible="eq(-2,true)" enable="eq(-2,true)"/>
+        <setting id="naspass" type="text" label="30565" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)"/>
+        <setting id="nasroot" type="text" label="30566" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)"/>
+        <setting id="transcode" type="bool" label="30507" default="false"/>
+        <setting id="transcode_g1080" type="bool" label="30611" default="false"/>
+        <setting id="transcode_hevc" type="bool" label="30612" default="false"/>
+        <setting id="transcode_type" label="30601" type="labelenum" values="universal|legacy" default="0"/>
+        <setting id="quality_uni" visible="eq(-1,0)" type="labelenum" label="30540" values="420x420, 320Kbps|576x320, 720Kbps|720x480, 1.5Mbps|1024x768, 2Mbps|1280x720, 3Mbps|1280x720, 4Mbps|1920x1080, 8Mbps|1920x1080, 10Mbps|1920x1080, 12Mbps|1920x1080, 20Mbps|1920x1080, 40Mbps|1920x1080, unlimited"/>
+        <setting id="quality_leg" visible="eq(-2,1)" type="enum" label="30540" values="300kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p"/>
+        <setting id="subSize" label="30568" type="slider" option="int" range="0,325" default="100"/>
+        <setting id="audioSize" label="30569" type="slider" option="int" range="0,325" default="0"/>
+        <setting id="audiotype" visible="eq(-5,1)" type="enum" label="30557" values="Stereo|AC3|DTS" default="0"/>
     </category>
-    <category label="32520"> <!-- Look and feel -->
-        <setting id="secondary" type="bool" label="32503" default="true"/>
-        <setting id="channelview" type="bool" label="32542" default="false"/>
-        <setting id="flatten" type="enum" label="32543" lvalues="32553|32558|32559" default="0"/>
-        <setting id="disable_all_season" type="bool" label="32603" default="false"/>
-        <setting id="hide_shared" type="bool" label="32592" default="true"/>
+    <category label="30520"> <!-- Look and feel -->
+        <setting id="secondary" type="bool" label="30503" default="true"/>
+        <setting id="channelview" type="bool" label="30542" default="false"/>
+        <setting id="flatten" type="enum" label="30543" lvalues="30553|30558|30559" default="0"/>
+        <setting id="disable_all_season" type="bool" label="30603" default="false"/>
+        <setting id="hide_shared" type="bool" label="30592" default="true"/>
     </category>
-    <category label="32522"> <!-- advanced -->
-        <setting id="libraryfilter" type="bool" label="32588" default="false"/>
-        <setting id="monitoroff" type="bool" label="32609" default="false"/>
-        <setting id="fullres_thumbs" type="bool" label="32595" default="false"/>
-        <setting id="fullres_fanart" type="bool" label="32596" default="true"/>
-        <setting id="contextreplace" type="bool" label="32548" default="false"/>
-        <setting id="skipcontextmenus" type="bool" label="32552" default="false"/>
-        <setting id="skipmetadata" type="bool" label="32549" default="false"/>
-        <setting id="skipimages" type="bool" label="32550" default="false"/>
-        <setting id="skipflags" type="bool" label="32551" default="false"/>
+    <category label="30522"> <!-- advanced -->
+        <setting id="libraryfilter" type="bool" label="30588" default="false"/>
+        <setting id="monitoroff" type="bool" label="30609" default="false"/>
+        <setting id="fullres_thumbs" type="bool" label="30595" default="false"/>
+        <setting id="fullres_fanart" type="bool" label="30596" default="true"/>
+        <setting id="contextreplace" type="bool" label="30548" default="false"/>
+        <setting id="skipcontextmenus" type="bool" label="30552" default="false"/>
+        <setting id="skipmetadata" type="bool" label="30549" default="false"/>
+        <setting id="skipimages" type="bool" label="30550" default="false"/>
+        <setting id="skipflags" type="bool" label="30551" default="false"/>
     </category>
-    <category label="32510"> <!-- debug -->
-        <setting id="debug" type="enum" label="32514" lvalues="32553|32598|32599|32600|32608" default="0"/>
-        <setting id="cache" type="bool" label="32593" default="true"/>
-        <setting id="kodicache" type="bool" label="32604" default="false"/>
+    <category label="30510"> <!-- debug -->
+        <setting id="debug" type="enum" label="30514" lvalues="30553|30598|30599|30600|30608" default="0"/>
+        <setting id="cache" type="bool" label="30593" default="true"/>
+        <setting id="kodicache" type="bool" label="30604" default="false"/>
         <setting type="sep"/>
-        <setting id="privacy" type="bool" label="32607" default="true"/>
+        <setting id="privacy" type="bool" label="30607" default="true"/>
         <setting id="restart_webserver" type="bool" label="Replacement" visible="false" default="false"/>
     </category>
 </settings>
