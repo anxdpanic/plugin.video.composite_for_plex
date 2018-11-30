@@ -272,7 +272,7 @@ class Plex:
         log_print.debug("URL was: %s" % response.url)
 
         if response.status_code == requests.codes.ok:
-            log_print.debugplus("===XML===\n%s\n===XML===" % response.text)
+            log_print.debugplus("XML: \n%s" % response.text)
             return response.text
 
     def get_processed_myplex_xml(self, url):
@@ -459,7 +459,7 @@ class Plex:
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
             else:
                 link = response.text.encode('utf-8')
-                log_print.debugplus("====== XML returned =======\n%s====== XML finished ======" % link)
+                log_print.debugplus("XML: \n%s" % link)
 
         return link
 

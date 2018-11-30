@@ -289,7 +289,7 @@ class PlexMediaServer:
 
                 if response.status_code == requests.codes.ok:
                     log_print.debug("Response: 200 OK - Encoding: %s" % response.encoding)
-                    log_print.debugplus("===XML===\n%s\n===XML===" % response.text.encode('utf-8'))
+                    log_print.debugplus("XML: \n%s" % response.text.encode('utf-8'))
                     data = response.text.encode('utf-8')
 
                     log_print.info("DOWNLOAD: It took %.2f seconds to retrieve data from %s" % ((time.time() - start_time), self.get_address()))

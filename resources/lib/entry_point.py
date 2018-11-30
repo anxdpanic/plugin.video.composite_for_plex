@@ -28,4 +28,4 @@ else:
 
     xbmc.log(stream.getvalue(), xbmc.LOGDEBUG)
 
-xbmc.log("===== PLEXBMC STOP [id: %s]: %s seconds =====" % (plexbmc_start, (time.time() - plexbmc_start)), xbmc.LOGDEBUG)
+xbmc.log("PLEXBMC STOP [id: %s]: %s seconds" % (plexbmc_start, (time.time() - plexbmc_start)), xbmc.LOGDEBUG)

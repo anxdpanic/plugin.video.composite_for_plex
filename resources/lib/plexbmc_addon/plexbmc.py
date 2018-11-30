@@ -264,7 +264,6 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
 
 def display_sections(cfilter=None, display_shared=False):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'files')
 
     server_list = plex_network.get_server_list()
@@ -415,7 +414,6 @@ def display_sections(cfilter=None, display_shared=False):
 
 
 def process_movies(url, tree=None):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
 
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -472,7 +470,6 @@ def build_context_menu(url, item_data, server):
 
 
 def process_tvshows(url, tree=None):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'tvshows')
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
@@ -554,7 +551,6 @@ def process_tvshows(url, tree=None):
 
 
 def process_tvseasons(url):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'seasons')
 
     # Get URL, XML and parse
@@ -642,7 +638,6 @@ def process_tvseasons(url):
 
 
 def process_tvepisodes(url, tree=None):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'episodes')
 
     tree = get_xml(url, tree)
@@ -800,7 +795,6 @@ def get_audio_subtitles_from_media(server, tree, full=False):
         Any that are not, are ignored as we do not need to set them
         We also record the media locations for playback decision later on
     """
-    log_print.debug("== ENTER ==")
     log_print.debug("Gather media stream info")
 
     parts = []
@@ -970,7 +964,6 @@ def get_audio_subtitles_from_media(server, tree, full=False):
 
 
 def play_playlist(server, data):
-    log_print.debug("== ENTER ==")
     log_print.debug("Creating new playlist")
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
@@ -1123,8 +1116,6 @@ def set_audio_subtitles(stream):
         If we do not have any subs then we switch them off
     """
 
-    log_print.debug("== ENTER ==")
-
     # If we have decided not to collect any sub data then do not set subs
     if stream['contents'] == "type":
         log_print.info("No audio or subtitle streams to process.")
@@ -1181,7 +1172,6 @@ def set_audio_subtitles(stream):
 
 
 def select_media_to_play(data, server):
-    log_print.debug("== ENTER ==")
     # if we have two or more files for the same movie, then present a screen
     result = 0
     dvdplayback = False
@@ -1234,8 +1224,6 @@ def select_media_to_play(data, server):
 
 
 def monitor_playback(_id, server, playurl, session=None):
-    log_print.debug("== ENTER ==")
-
     if session:
         log_print.debug("We are monitoring a transcode session")
 
@@ -1286,8 +1274,6 @@ def monitor_playback(_id, server, playurl, session=None):
 
 
 def play_media_stream(url):
-    log_print.debug("== ENTER ==")
-
     if url.startswith('file'):
         log_print.debug("We are playing a local file")
         # Split out the path from the URL
@@ -1421,8 +1407,6 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
 
 
 def monitor_channel_transcode_playback(session_id, server):
-    log_print.debug("== ENTER ==")
-
     # Logic may appear backward, but this does allow for a failed start to be detected
     # First while loop waiting for start
 
@@ -1451,7 +1435,6 @@ def monitor_channel_transcode_playback(session_id, server):
 
 
 def get_params(paramstring):
-    log_print.debug("== ENTER ==")
     log_print.debug("Parameter string: %s" % paramstring)
     param = {}
     if len(paramstring) >= 2:
@@ -1482,7 +1465,6 @@ def channel_search(url, prompt):
         and accept the terms.  This URL is then fed back into the correct function for
         onward processing.
     """
-    log_print.debug("== ENTER ==")
 
     if prompt:
         prompt = urllib.unquote(prompt)
@@ -1508,7 +1490,6 @@ def get_content(url):
         @input: URL of XML page
         @return: nothing, redirects to another function
     """
-    log_print.debug("== ENTER ==")
 
     server = plex_network.get_server_from_url(url)
     lastbit = url.split('/')[-1]
@@ -1564,7 +1545,6 @@ def get_content(url):
 
 
 def process_directory(url, tree=None):
-    log_print.debug("== ENTER ==")
     log_print.debug("Processing secondary menus")
     xbmcplugin.setContent(pluginhandle, "")
     server = plex_network.get_server_from_url(url)
@@ -1732,7 +1712,6 @@ def artist(url, tree=None):
         @input: url of XML page, or existing tree of XML page
         @return: nothing
     """
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
@@ -1768,7 +1747,6 @@ def artist(url, tree=None):
 
 
 def albums(url, tree=None):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'albums')
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ALBUM_IGNORE_THE)
@@ -1815,7 +1793,6 @@ def albums(url, tree=None):
 
 
 def tracks(url, tree=None):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
@@ -1845,8 +1822,6 @@ def tracks(url, tree=None):
 
 
 def get_xml(url, tree=None):
-    log_print.debug("== ENTER ==")
-
     if tree is None:
         tree = plex_network.get_processed_xml(url)
 
@@ -1865,7 +1840,6 @@ def plex_plugins(url, tree=None):
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
     """
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
     server = plex_network.get_server_from_url(url)
     tree = get_xml(url, tree)
@@ -1948,7 +1922,6 @@ def channel_settings(url, setting_id):
         @ input: url
         @ return: nothing
     """
-    log_print.debug("== ENTER ==")
     log_print.debug("Setting preference for ID: %s" % setting_id)
 
     if not setting_id:
@@ -2026,7 +1999,6 @@ def process_xml(url, tree=None):
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
     """
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'movies')
     server = plex_network.get_server_from_url(url)
     tree = get_xml(url, tree)
@@ -2167,8 +2139,6 @@ def get_media_data(tag_dict):
         @input: dict of <media /> tag attributes
         @output: dict of required values
     """
-    log_print.debug("== ENTER ==")
-
     return {'VideoResolution': tag_dict.get('videoResolution', ''),
             'VideoCodec': tag_dict.get('videoCodec', ''),
             'AudioCodec': tag_dict.get('audioCodec', ''),
@@ -2183,7 +2153,6 @@ def get_media_data(tag_dict):
 
 
 def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'songs')
 
     part_details = ()
@@ -2219,8 +2188,6 @@ def track_tag(server, tree, track, sectionart="", sectionthumb="", listing=True)
 
 
 def playlist_tag(url, server, track, listing=True):
-    log_print.debug("== ENTER ==")
-
     details = {'title': track.get('title', 'Unknown').encode('utf-8'),
                'duration': int(track.get('duration', 0)) / 1000
                }
@@ -2244,7 +2211,6 @@ def playlist_tag(url, server, track, listing=True):
 
 
 def photo(url, tree=None):
-    log_print.debug("== ENTER ==")
     server = plex_network.get_server_from_url(url)
 
     xbmcplugin.setContent(pluginhandle, 'photo')
@@ -2292,7 +2258,6 @@ def photo(url, tree=None):
 
 
 def music(url, tree=None):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'artists')
 
     server = plex_network.get_server_from_url(url)
@@ -2477,7 +2442,6 @@ def get_link_url(url, path_data, server):
 
 
 def plex_online(url):
-    log_print.debug("== ENTER ==")
     xbmcplugin.setContent(pluginhandle, 'addons')
 
     server = plex_network.get_server_from_url(url)
@@ -2511,7 +2475,6 @@ def plex_online(url):
 
 
 def install(url, name):
-    log_print.debug("== ENTER ==")
     server = plex_network.get_server_from_url(url)
     tree = server.processed_xml(url)
     if tree is None:
@@ -2558,7 +2521,6 @@ def install(url, name):
 
 
 def channel_view(url):
-    log_print.debug("== ENTER ==")
     server = plex_network.get_server_from_url(url)
     tree = server.processed_xml(url)
 
@@ -2674,8 +2636,6 @@ def display_content(acceptable_level, content_level):
 
 
 def myplex_queue():
-    log_print.debug("== ENTER ==")
-
     if not plex_network.is_myplex_signedin():
         xbmc.executebuiltin("Notification(" + i18n(30069) + ",)")
         return
@@ -2687,8 +2647,6 @@ def myplex_queue():
 
 
 def refresh_plex_library(server_uuid, section_id):
-    log_print.debug("== ENTER ==")
-
     server = plex_network.get_server_from_uuid(server_uuid)
     server.refresh_section(section_id)
 
@@ -2698,8 +2656,6 @@ def refresh_plex_library(server_uuid, section_id):
 
 
 def watched(server_uuid, metadata_id, watched_status='watch'):
-    log_print.debug("== ENTER ==")
-
     server = plex_network.get_server_from_uuid(server_uuid)
 
     if watched_status == 'watch':
@@ -2715,7 +2671,6 @@ def watched(server_uuid, metadata_id, watched_status='watch'):
 
 
 def delete_library_media(server_uuid, metadata_id):
-    log_print.debug("== ENTER ==")
     log_print.info("Deleting media at: %s" % metadata_id)
 
     return_value = xbmcgui.Dialog().yesno(i18n(30000), i18n(30001))
@@ -2734,7 +2689,6 @@ def set_library_subtitiles(server_uuid, metadata_id):
         Display a list of available Subtitle streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     """
-    log_print.debug("== ENTER ==")
 
     server = plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
@@ -2789,7 +2743,6 @@ def set_library_audio(server_uuid, metadata_id):
         Display a list of available audio streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     """
-    log_print.debug("== ENTER ==")
 
     server = plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
@@ -2860,8 +2813,6 @@ def set_window_heading(tree):
 
 
 def get_master_server(all_servers=False):
-    log_print.debug("== ENTER ==")
-
     possible_servers = []
     current_master = settings.get_setting('masterServer')
     for serverData in plex_network.get_server_list():
@@ -2893,8 +2844,6 @@ def get_master_server(all_servers=False):
 
 
 def set_master_server():
-    log_print.debug("== ENTER ==")
-
     servers = get_master_server(True)
     log_print.debug(str(servers))
 
@@ -2939,7 +2888,6 @@ def display_known_servers():
 
 
 def display_plex_servers(url):
-    log_print.debug("== ENTER ==")
     ctype = url.split('/')[2]
     log_print.debug("Displaying entries for %s" % ctype)
     servers = plex_network.get_server_list()
