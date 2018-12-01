@@ -180,7 +180,7 @@ class PlexGDM:
         try:
             # Send data to the multicast group
             _log_print.debug('Sending discovery messages: %s' % self.discover_message)
-            sent = sock.sendto(self.discover_message, self.discover_group)
+            sent = sock.sendto(self.discover_message.encode('utf-8'), self.discover_group)
 
             # Look for responses from all recipients
             while True:

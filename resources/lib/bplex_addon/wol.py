@@ -1,6 +1,8 @@
 import socket
 import struct
 
+from six.moves import range
+
 
 def wake_on_lan(macaddress):
     """ Switches on remote computers using WOL. """
@@ -21,7 +23,7 @@ def wake_on_lan(macaddress):
     send_data = ''
 
     # Split up the hex values and pack.
-    for i in range(0, len(data), 2):
+    for i in list(range(0, len(data), 2)):
         send_data = ''.join([send_data,
                              struct.pack('B', int(data[i: i + 2], 16))])
 

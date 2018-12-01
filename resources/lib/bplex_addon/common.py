@@ -54,16 +54,15 @@ class PrintDebug:
             msg = self.ip_regex.sub('.X.X.', msg)
             msg = self.user_regex.sub('X-Plex-User=XXXXXXX&', msg)
 
-        if self.level >= level != self.LOG_ERROR:
+        if self.level >= level or level == self.LOG_ERROR:
+            log_level = xbmc.LOGERROR if level == self.LOG_ERROR else xbmc.LOGDEBUG
             try:
-                xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGDEBUG)
+                if PY3:
+                    xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg), log_level)
+                else:
+                    xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), log_level)
             except:
-                xbmc.log('%s%s -> %s : %s [NONUTF8]' % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGDEBUG)
-        elif level == self.LOG_ERROR:
-            try:
-                xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGERROR)
-            except:
-                xbmc.log('%s%s -> %s : %s [NONUTF8]' % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGERROR)
+                xbmc.log('%s%s -> %s : %s [NONUTF8]' % (self.main, self.sub, inspect.stack(0)[2][3], msg), log_level)
 
     def __call__(self, msg, level=0):
         return self.__print_message(msg, level)
@@ -120,10 +119,16 @@ def wake_servers():
 
 
 def setup_python_locations():
-    setup = {'__addon__': __addon,
-             '__cachedir__': __addon.getAddonInfo('profile'),
-             '__cwd__': xbmc.translatePath(__addon.getAddonInfo('path')).decode('utf-8'),
-             '__version__': __addon.getAddonInfo('version')}
+    if PY3:
+        setup = {'__addon__': __addon,
+                 '__cachedir__': __addon.getAddonInfo('profile'),
+                 '__cwd__': xbmc.translatePath(__addon.getAddonInfo('path')),
+                 '__version__': __addon.getAddonInfo('version')}
+    else:
+        setup = {'__addon__': __addon,
+                 '__cachedir__': __addon.getAddonInfo('profile').decode('utf-8'),
+                 '__cwd__': xbmc.translatePath(__addon.getAddonInfo('path')).decode('utf-8'),
+                 '__version__': __addon.getAddonInfo('version').decode('utf-8')}
     return setup
 
 

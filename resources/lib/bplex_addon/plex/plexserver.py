@@ -3,13 +3,15 @@ import hashlib
 import hmac
 import time
 import uuid
-import urllib
 import xml.etree.ElementTree as ETree
 
 import requests
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import urlunparse
 from six.moves.urllib_parse import parse_qsl
+from six.moves.urllib_parse import quote
+from six.moves.urllib_parse import quote_plus
+from six.moves.urllib_parse import urlencode
 
 from . import plexsection
 from ..common import *
@@ -110,7 +112,7 @@ class PlexMediaServer:
     def create_plex_identification_string(self):
         header = []
         for key, value in self.create_plex_identification().items():
-            header.append('%s=%s' % (key, urllib.quote(value)))
+            header.append('%s=%s' % (key, quote(value)))
 
         return '&'.join(header)
 
@@ -445,7 +447,7 @@ class PlexMediaServer:
         query_args = parse_qsl(url_parts.query)
         query_args += url_options.items()
 
-        new_query_args = urllib.urlencode(query_args, True)
+        new_query_args = urlencode(query_args, True)
 
         return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
 
@@ -471,7 +473,7 @@ class PlexMediaServer:
         if self.token is not None:
             query_args += {'X-Plex-Token': self.token}.items()
 
-        new_query_args = urllib.urlencode(query_args, True)
+        new_query_args = urlencode(query_args, True)
 
         return '%s | %s' % (urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
 
@@ -486,7 +488,7 @@ class PlexMediaServer:
             if settings.get_setting('fullres_fanart'):
                 return self.get_formatted_url(section.get_art())
             else:
-                return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + section.get_art()), width, height))
+                return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (quote_plus('http://localhost:32400' + section.get_art()), width, height))
 
         return section.get_art()
 
@@ -561,7 +563,7 @@ class PlexMediaServer:
                               'fastSeek': '1',
                               'path': 'http://127.0.0.1:32400%s' % url}
 
-        full_url = '%s%s' % (transcode_request, urllib.urlencode(transcode_settings))
+        full_url = '%s%s' % (transcode_request, urlencode(transcode_settings))
         log_print.debug('Transcoded media location URL: %s' % full_url)
         return session, self.get_formatted_url(full_url, options={'X-Plex-Device': 'Plex Home Theater'})
 
@@ -587,7 +589,7 @@ class PlexMediaServer:
             audio = 'mp3'
 
         base_capability = 'http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s' % audio
-        capability = 'X-Plex-Client-Capabilities=%s' % urllib.quote_plus(base_capability)
+        capability = 'X-Plex-Client-Capabilities=%s' % quote_plus(base_capability)
 
         transcode_request = '/video/:/transcode/segmented/start.m3u8'
         transcode_settings = {'3g': 0,
@@ -607,8 +609,8 @@ class PlexMediaServer:
             transcode_settings['webkit'] = 1
         else:
             transcode_settings['identifier'] = 'com.plexapp.plugins.library'
-            transcode_settings['key'] = urllib.quote_plus('%s/library/metadata/%s' % (self.get_url_location(), _id))
-            transcode_target = urllib.quote_plus('http://127.0.0.1:32400' + '/' + '/'.join(url.split('/')[3:]))
+            transcode_settings['key'] = quote_plus('%s/library/metadata/%s' % (self.get_url_location(), _id))
+            transcode_target = quote_plus('http://127.0.0.1:32400' + '/' + '/'.join(url.split('/')[3:]))
             log_print.debug('filestream URL is: %s' % transcode_target)
 
         transcode_request = '%s?url=%s' % (transcode_request, transcode_target)
@@ -635,7 +637,7 @@ class PlexMediaServer:
         token = base64.b64encode(sha256_hash.digest())
 
         # Send as part of URL to avoid the case sensitive header issue.
-        full_url = '%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s' % (self.get_url_location(), transcode_request, public_key, now, urllib.quote_plus(token), capability)
+        full_url = '%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s' % (self.get_url_location(), transcode_request, public_key, now, quote_plus(token), capability)
 
         log_print.debug('Transcoded media location URL: %s' % full_url)
 

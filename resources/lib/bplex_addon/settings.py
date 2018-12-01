@@ -1,6 +1,8 @@
 import xbmcaddon
 import xbmc
 
+from six.moves import range
+
 
 class AddonSettings:
 
@@ -45,7 +47,7 @@ class AddonSettings:
 
     def get_wakeservers(self):
         wakeserver = []
-        for servers in range(1, 12):
+        for servers in list(range(1, 12)):
             wakeserver.append(self.settings.getSetting('wol%s' % servers))
         return wakeserver
 

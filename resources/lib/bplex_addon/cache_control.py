@@ -13,6 +13,7 @@ import time
 
 import xbmcvfs
 
+from six import PY3
 from six.moves import cPickle as pickle
 
 from .common import PrintDebug
@@ -50,13 +51,17 @@ class CacheControl:
             return False, None
 
         log_print.debug('CACHE [%s]: attempting to read' % cache_name)
+        cache = xbmcvfs.File(self.cache_location + cache_name)
         try:
-            cache = xbmcvfs.File(self.cache_location + cache_name)
-            cachedata = cache.read()
-            cache.close()
+            if PY3:
+                cachedata = cache.readBytes()
+            else:
+                cachedata = cache.read()
         except Exception as e:
             log_print.debug('CACHE [%s]: read error [%s]' % (cache_name, e))
             cachedata = False
+        finally:
+            cache.close()
 
         if cachedata:
             log_print.debug('CACHE [%s]: read' % cache_name)
@@ -73,13 +78,16 @@ class CacheControl:
             return True
 
         log_print.debug('CACHE [%s]: Writing file' % cache_name)
+        cache = xbmcvfs.File(self.cache_location + cache_name, 'w')
         try:
-            cache = xbmcvfs.File(self.cache_location + cache_name, 'w')
-            cache.write(pickle.dumps(obj))
-            cache.close()
+            if PY3:
+                cache.write(bytearray(pickle.dumps(obj)))
+            else:
+                cache.write(pickle.dumps(obj))
         except Exception as e:
             log_print.debug('CACHE [%s]: Writing error [%s]' % (self.cache_location + cache_name, e))
-
+        finally:
+            cache.close()
         return True
 
     def check_cache(self, cache_name, life=3600):

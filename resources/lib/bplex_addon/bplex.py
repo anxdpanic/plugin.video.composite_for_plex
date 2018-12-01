@@ -28,23 +28,35 @@ import sys
 import time
 import random
 import datetime
-import urllib
 
 import xbmcplugin
 import xbmcgui
 
 from six.moves.urllib_parse import urlparse
+from six.moves.urllib_parse import quote
+from six.moves.urllib_parse import unquote
+from six.moves.urllib_parse import quote_plus
+from six.moves.urllib_parse import unquote_plus
+from six.moves import range
 
 from .common import *  # Needed first to setup import locations
 from .plex import plex
 
 ADDON = xbmcaddon.Addon()
-ADDON_ID = ADDON.getAddonInfo('id').decode('utf-8')
-ADDON_ICON = ADDON.getAddonInfo('icon').decode('utf-8')
-ADDON_NAME = ADDON.getAddonInfo('name').decode('utf-8')
-ADDON_PATH = ADDON.getAddonInfo('path').decode('utf-8')
-ADDON_VERSION = ADDON.getAddonInfo('version').decode('utf-8')
-ADDON_DATA_PATH = xbmc.translatePath('special://profile/addon_data/%s' % ADDON_ID).decode('utf-8')
+try:
+    ADDON_ID = ADDON.getAddonInfo('id').decode('utf-8')
+    ADDON_ICON = ADDON.getAddonInfo('icon').decode('utf-8')
+    ADDON_NAME = ADDON.getAddonInfo('name').decode('utf-8')
+    ADDON_PATH = ADDON.getAddonInfo('path').decode('utf-8')
+    ADDON_VERSION = ADDON.getAddonInfo('version').decode('utf-8')
+    ADDON_DATA_PATH = xbmc.translatePath('special://profile/addon_data/%s' % ADDON_ID).decode('utf-8')
+except AttributeError:
+    ADDON_ID = ADDON.getAddonInfo('id')
+    ADDON_ICON = ADDON.getAddonInfo('icon')
+    ADDON_NAME = ADDON.getAddonInfo('name')
+    ADDON_PATH = ADDON.getAddonInfo('path')
+    ADDON_VERSION = ADDON.getAddonInfo('version')
+    ADDON_DATA_PATH = xbmc.translatePath('special://profile/addon_data/%s' % ADDON_ID)
 KODI_VERSION = int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 WINDOW = xbmcgui.Window(10000)
 SETTING = ADDON.getSetting
@@ -98,7 +110,7 @@ def select_media_type(part_data, server, dvdplayback=False):
     # 2 is use SMB
     elif settings.get_stream() == '2' or settings.get_stream() == '3':
 
-        f = urllib.unquote(f)
+        f = unquote(f)
         if settings.get_stream() == '2':
             protocol = 'smb'
         else:
@@ -136,7 +148,7 @@ def select_media_type(part_data, server, dvdplayback=False):
             if '/' + settings.get_setting('nasroot') + '/' in filelocation:
                 components = filelocation.split('/')
                 index = components.index(settings.get_setting('nasroot'))
-                for i in range(3, index):
+                for i in list(range(3, index)):
                     components.pop(3)
                 filelocation = '/'.join(components)
     else:
@@ -156,13 +168,13 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if not folder and extra_data['type'] == 'image':
         link_url = url
     elif url.startswith('http') or url.startswith('file'):
-        link_url = '%s?url=%s&mode=%s' % (argv[0], urllib.quote(url), extra_data.get('mode', 0))
+        link_url = '%s?url=%s&mode=%s' % (argv[0], quote(url), extra_data.get('mode', 0))
     else:
         link_url = '%s?url=%s&mode=%s' % (argv[0], url, extra_data.get('mode', 0))
 
     if extra_data.get('parameters'):
         for argument, value in extra_data.get('parameters').items():
-            link_url = '%s&%s=%s' % (link_url, argument, urllib.quote(value))
+            link_url = '%s&%s=%s' % (link_url, argument, quote(value))
 
     log_print.debug('URL to use for listing: %s' % link_url)
     if KODI_VERSION >= 18:
@@ -1401,7 +1413,7 @@ def get_params(paramstring):
             params = params[0:len(params) - 2]
 
         pairsofparams = cleanedparams.split('&')
-        for i in range(len(pairsofparams)):
+        for i in list(range(len(pairsofparams))):
             splitparams = pairsofparams[i].split('=')
             if (len(splitparams)) == 2:
                 param[splitparams[0]] = splitparams[1]
@@ -1419,7 +1431,7 @@ def channel_search(url, prompt):
     """
 
     if prompt:
-        prompt = urllib.unquote(prompt)
+        prompt = unquote(prompt)
     else:
         prompt = 'Enter Search Term...'
 
@@ -1429,7 +1441,7 @@ def channel_search(url, prompt):
     if kb.isConfirmed():
         text = kb.getText()
         log_print.debug('Search term input: %s' % text)
-        url = url + '&query=' + urllib.quote(text)
+        url = url + '&query=' + quote(text)
         plex_plugins(url)
     return
 
@@ -1456,7 +1468,7 @@ def get_content(url):
         if kb.isConfirmed():
             text = kb.getText()
             log_print.debug('Search term input: %s' % text)
-            url = url + '&query=' + urllib.quote(text)
+            url = url + '&query=' + quote(text)
         else:
             return
 
@@ -2295,7 +2307,7 @@ def get_thumb_image(data, server, width=720, height=720):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
             return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s'
-                                                        % (urllib.quote_plus('http://localhost:32400' + thumbnail),
+                                                        % (quote_plus('http://localhost:32400' + thumbnail),
                                                            width, height))
 
     return GENERIC_THUMBNAIL
@@ -2321,7 +2333,7 @@ def get_banner_image(data, server, width=720, height=720):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
             return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s'
-                                                        % (urllib.quote_plus('http://localhost:32400' + thumbnail),
+                                                        % (quote_plus('http://localhost:32400' + thumbnail),
                                                            width, height))
 
     return GENERIC_THUMBNAIL
@@ -2345,7 +2357,7 @@ def get_fanart_image(data, server, width=1280, height=720):
         if settings.get_setting('fullres_fanart'):
             return server.get_kodi_header_formatted_url(fanart)
         else:
-            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (urllib.quote_plus('http://localhost:32400' + fanart), width, height))
+            return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (quote_plus('http://localhost:32400' + fanart), width, height))
 
     return ''
 
@@ -2982,11 +2994,11 @@ def start_bplex(sys_argv):
 
     if param_url:
         if param_url.startswith('http') or param_url.startswith('file'):
-            param_url = urllib.unquote(param_url)
+            param_url = unquote(param_url)
         elif param_url.startswith('cmd'):
-            command = urllib.unquote(param_url).split(':')[1]
+            command = unquote(param_url).split(':')[1]
 
-    param_name = urllib.unquote_plus(params.get('name', ''))
+    param_name = unquote_plus(params.get('name', ''))
     mode = int(params.get('mode', -1))
     play_transcode = True if int(params.get('transcode', 0)) == 1 else False
     param_identifier = params.get('identifier')
