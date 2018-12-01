@@ -25,6 +25,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.identifier = None
 
     def start(self):
+        xbmc.executebuiltin('Dialog.Close(all,true)')
         self.display_pin()
         self.doModal()
 
@@ -243,6 +244,7 @@ class PlexManage(pyxbmct.AddonFullWindow):
         self.plex_network = None
 
     def start(self):
+        xbmc.executebuiltin('Dialog.Close(all,true)')
         self.gather_plex_information()
         self.setFocus(self.cancel_button)
         self.doModal()
