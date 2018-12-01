@@ -353,7 +353,7 @@ def display_sections(cfilter=None, display_shared=False):
         add_item_to_gui(u, details, extra_data)
 
         # Create plexonline link
-        details['title'] = prefix + 'Plex Online'
+        details['title'] = prefix + i18n(30635)
         extra_data['type'] = 'file'
         extra_data['mode'] = MODE_PLEXONLINE
 
