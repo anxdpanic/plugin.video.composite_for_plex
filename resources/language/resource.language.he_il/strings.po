@@ -435,8 +435,8 @@ msgid "smb"
 msgstr "smb"
 
 msgctxt "#30514"
-msgid "Enable bPlex debug output to KODI log"
-msgstr "אפשר פלט bPlex איתור באגים ליומן קודי"
+msgid "Debug level"
+msgstr ""
 
 msgctxt "#30515"
 msgid "Use transcoding proxy"

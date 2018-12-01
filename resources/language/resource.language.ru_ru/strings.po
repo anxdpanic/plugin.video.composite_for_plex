@@ -427,8 +427,8 @@ msgid "Auto"
 msgstr "Авто"
 
 msgctxt "#30514"
-msgid "Enable bPlex debug output to KODI log"
-msgstr "Выводить в лог KODI"
+msgid "Debug level"
+msgstr ""
 
 msgctxt "#30515"
 msgid "Use transcoding proxy"

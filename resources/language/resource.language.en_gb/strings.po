@@ -435,7 +435,7 @@ msgid "smb"
 msgstr ""
 
 msgctxt "#30514"
-msgid "Enable bPlex debug output to KODI log"
+msgid "Debug level"
 msgstr ""
 
 msgctxt "#30515"
