@@ -316,7 +316,7 @@ def display_sections(cfilter=None, display_shared=False):
             section_url = '%s%s' % (server.get_url_location(), path)
 
             if not settings.get_setting('skipcontextmenus'):
-                context = [(i18n(30616), 'RunScript(plugin.video.plexbmc, update, %s, %s)'
+                context = [(i18n(30616), 'RunScript(plugin.video.bplex, update, %s, %s)'
                             % (server.get_uuid(), section.get_key()))]
             else:
                 context = None
@@ -449,13 +449,13 @@ def build_context_menu(url, item_data, server):
     item_id = item_data.get('ratingKey', '0')
 
     # Mark media unwatched
-    context.append((i18n(117), "RunScript(plugin.video.plexbmc, delete, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append((i18n(16104), 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append((i18n(16103), 'RunScript(plugin.video.plexbmc, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
-    context.append((i18n(292), "RunScript(plugin.video.plexbmc, audio, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append((i18n(287), "RunScript(plugin.video.plexbmc, subs, %s, %s)" % (server.get_uuid(), item_id)))
-    context.append((i18n(653), 'RunScript(plugin.video.plexbmc, update, %s, %s)' % (server.get_uuid(), section)))
-    context.append((i18n(184), 'RunScript(plugin.video.plexbmc, refresh)'))
+    context.append((i18n(117), "RunScript(plugin.video.bplex, delete, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append((i18n(16104), 'RunScript(plugin.video.bplex, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+    context.append((i18n(16103), 'RunScript(plugin.video.bplex, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
+    context.append((i18n(292), "RunScript(plugin.video.bplex, audio, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append((i18n(287), "RunScript(plugin.video.bplex, subs, %s, %s)" % (server.get_uuid(), item_id)))
+    context.append((i18n(653), 'RunScript(plugin.video.bplex, update, %s, %s)' % (server.get_uuid(), section)))
+    context.append((i18n(184), 'RunScript(plugin.video.bplex, refresh)'))
 
     log_print.debug("Using context menus: %s" % context)
 
@@ -1085,8 +1085,8 @@ def play_library_media(vids, override=False, force=None, full_data=False):
 
     # record the playing file and server in the home window
     # so that plexbmc helper can find out what is playing
-    WINDOW.setProperty('plexbmc.nowplaying.server', server.get_location())
-    WINDOW.setProperty('plexbmc.nowplaying.id', _id)
+    WINDOW.setProperty('bplex.nowplaying.server', server.get_location())
+    WINDOW.setProperty('bplex.nowplaying.id', _id)
 
     # Set a loop to wait for positive confirmation of playback
     count = 0
@@ -1456,7 +1456,7 @@ def get_params(paramstring):
                 param[splitparams[0]] = splitparams[1]
             elif (len(splitparams)) == 3:
                 param[splitparams[0]] = splitparams[1] + "=" + splitparams[2]
-    log_print.debug("PleXBMC -> Detected parameters: " + str(param))
+    log_print.debug("bPlex -> Detected parameters: " + str(param))
     return param
 
 
@@ -2111,7 +2111,7 @@ def movie_tag(url, server, movie, random_number):
         details['genre'] = " / ".join(tempgenre)
 
     if movie.get('primaryExtraKey') is not None:
-        details['trailer'] = "plugin://plugin.video.plexbmc/?url=%s%s?t=%s&mode=%s" % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODE_PLAYLIBRARY)
+        details['trailer'] = "plugin://plugin.video.bplex/?url=%s%s?t=%s&mode=%s" % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODE_PLAYLIBRARY)
         log_print.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
@@ -2976,33 +2976,33 @@ def switch_user():
 
 
 # #So this is where we really start the addon 
-log_print = PrintDebug("PleXBMC")
+log_print = PrintDebug("bPlex")
 
-log_print.debug("PleXBMC -> Running PleXBMC: %s " % GLOBAL_SETUP['__version__'])
+log_print.debug("bPlex -> Running bPlex: %s " % GLOBAL_SETUP['__version__'])
 
 wake_servers()
 
-log_print.debug("PleXBMC -> Running Python: %s" % str(sys.version_info))
-log_print.debug("PleXBMC -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__'])
-log_print.debug("PleXBMC -> Platform: %s" % GLOBAL_SETUP['platform'])
-log_print.debug("PleXBMC -> Setting debug: %s" % log_print.get_name(settings.get_debug()))
-log_print.debug("PleXBMC -> FullRes Thumbs are set to: %s" % settings.get_setting('fullres_thumbs'))
-log_print.debug("PleXBMC -> Settings streaming: %s" % settings.get_stream())
-log_print.debug("PleXBMC -> Setting filter menus: %s" % settings.get_setting('secondary'))
-log_print.debug("PleXBMC -> Flatten is: %s" % settings.get_setting('flatten'))
+log_print.debug("bPlex -> Running Python: %s" % str(sys.version_info))
+log_print.debug("bPlex -> CWD is set to: %s" % GLOBAL_SETUP['__cwd__'])
+log_print.debug("bPlex -> Platform: %s" % GLOBAL_SETUP['platform'])
+log_print.debug("bPlex -> Setting debug: %s" % log_print.get_name(settings.get_debug()))
+log_print.debug("bPlex -> FullRes Thumbs are set to: %s" % settings.get_setting('fullres_thumbs'))
+log_print.debug("bPlex -> Settings streaming: %s" % settings.get_stream())
+log_print.debug("bPlex -> Setting filter menus: %s" % settings.get_setting('secondary'))
+log_print.debug("bPlex -> Flatten is: %s" % settings.get_setting('flatten'))
 if settings.get_setting('streamControl') == SUB_AUDIO_XBMC_CONTROL:
-    log_print.debug("PleXBMC -> Setting stream Control to : XBMC CONTROL")
+    log_print.debug("bPlex -> Setting stream Control to : XBMC CONTROL")
 elif settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
-    log_print.debug("PleXBMC -> Setting stream Control to : PLEX CONTROL")
+    log_print.debug("bPlex -> Setting stream Control to : PLEX CONTROL")
 elif settings.get_setting('streamControl') == SUB_AUDIO_NEVER_SHOW:
-    log_print.debug("PleXBMC -> Setting stream Control to : NEVER SHOW")
+    log_print.debug("bPlex -> Setting stream Control to : NEVER SHOW")
 
-log_print.debug("PleXBMC -> Force DVD playback: %s" % settings.get_setting('forcedvd'))
-log_print.debug("PleXBMC -> SMB IP Override: %s" % settings.get_setting('nasoverride'))
+log_print.debug("bPlex -> Force DVD playback: %s" % settings.get_setting('forcedvd'))
+log_print.debug("bPlex -> SMB IP Override: %s" % settings.get_setting('nasoverride'))
 if settings.get_setting('nasoverride') and not settings.get_setting('nasoverrideip'):
-    log_print.error("PleXBMC -> No NAS IP Specified.  Ignoring setting")
+    log_print.error("bPlex -> No NAS IP Specified.  Ignoring setting")
 else:
-    log_print.debug("PleXBMC -> NAS IP: " + settings.get_setting('nasoverrideip'))
+    log_print.debug("bPlex -> NAS IP: " + settings.get_setting('nasoverrideip'))
 
 
 pluginhandle = 0
@@ -3010,7 +3010,7 @@ argv = []
 plex_network = plex.Plex(load=False)
 
 
-def start_plexbmc(sys_argv):
+def start_bplex(sys_argv):
     global argv
     argv = sys_argv
 
@@ -3053,8 +3053,8 @@ def start_plexbmc(sys_argv):
     elif command == "switchuser":
         if switch_user():
             gui_window = xbmcgui.Window(10000)
-            gui_window.setProperty("plexbmc.plexhome_user", str(plex_network.get_myplex_user()))
-            gui_window.setProperty("plexbmc.plexhome_avatar", str(plex_network.get_myplex_avatar()))
+            gui_window.setProperty("bplex.plexhome_user", str(plex_network.get_myplex_user()))
+            gui_window.setProperty("bplex.plexhome_avatar", str(plex_network.get_myplex_avatar()))
             xbmc.executebuiltin("Container.Refresh")
         else:
             log_print.debug("Switch User Failed")
@@ -3067,8 +3067,8 @@ def start_plexbmc(sys_argv):
         if ret:
             plex_network.signout()
             gui_window = xbmcgui.Window(10000)
-            gui_window.clearProperty("plexbmc.plexhome_user")
-            gui_window.clearProperty("plexbmc.plexhome_avatar")
+            gui_window.clearProperty("bplex.plexhome_user")
+            gui_window.clearProperty("bplex.plexhome_avatar")
             xbmc.executebuiltin("Container.Refresh")
 
     elif command == "signin":
@@ -3080,14 +3080,14 @@ def start_plexbmc(sys_argv):
 
     elif command == "signintemp":
         # Awful hack to get around running a script from a listitem..
-        xbmc.executebuiltin('RunScript(plugin.video.plexbmc, signin)')
+        xbmc.executebuiltin('RunScript(plugin.video.bplex, signin)')
 
     elif command == "managemyplex":
 
         if not plex_network.is_myplex_signedin():
             ret = xbmcgui.Dialog().yesno(i18n(30010), i18n(30011))
             if ret:
-                xbmc.executebuiltin('RunScript(plugin.video.plexbmc, signin)')
+                xbmc.executebuiltin('RunScript(plugin.video.bplex, signin)')
             else:
                 return
 
@@ -3146,10 +3146,10 @@ def start_plexbmc(sys_argv):
             gui_window.clearProperty("heading")
             gui_window.clearProperty("heading2")
 
-            log_print.debug("PleXBMC -> Mode: %s " % mode)
-            log_print.debug("PleXBMC -> URL: %s" % param_url)
-            log_print.debug("PleXBMC -> Name: %s" % param_name)
-            log_print.debug("PleXBMC -> identifier: %s" % param_identifier)
+            log_print.debug("bPlex -> Mode: %s " % mode)
+            log_print.debug("bPlex -> URL: %s" % param_url)
+            log_print.debug("bPlex -> Name: %s" % param_name)
+            log_print.debug("bPlex -> identifier: %s" % param_identifier)
 
             # Run a function based on the mode variable that was passed in the URL
             if (mode is None) or (param_url is None) or (len(param_url) < 1):

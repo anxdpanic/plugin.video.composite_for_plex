@@ -3,21 +3,21 @@ import time
 
 import xbmc
 
-plexbmc_start = time.time()
-from plexbmc_addon import plexbmc
+bplex_start = time.time()
+from bplex_addon import bplex
 
 profile = False
 
 if not profile:
-    xbmc.log("PleXBMC -> Script argument is %s" % sys.argv, xbmc.LOGDEBUG)
-    plexbmc.start_plexbmc(sys.argv)
+    xbmc.log("bPlex -> Script argument is %s" % sys.argv, xbmc.LOGDEBUG)
+    bplex.start_bplex(sys.argv)
 else:
     # Enable extra profile information
     import StringIO
     import cProfile
     import pstats
 
-    cProfile.run('plexbmc.start_plexbmc()', 'statsfile')
+    cProfile.run('bplex.start_bplex()', 'statsfile')
     stream = StringIO.StringIO()
     stats = pstats.Stats('statsfile', stream=stream)
     stats.sort_stats('tottime')
@@ -28,4 +28,4 @@ else:
 
     xbmc.log(stream.getvalue(), xbmc.LOGDEBUG)
 
-xbmc.log("PLEXBMC STOP [id: %s]: %s seconds" % (plexbmc_start, (time.time() - plexbmc_start)), xbmc.LOGDEBUG)
+xbmc.log("bPlex STOP [id: %s]: %s seconds" % (bplex_start, (time.time() - bplex_start)), xbmc.LOGDEBUG)

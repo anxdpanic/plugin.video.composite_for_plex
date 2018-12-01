@@ -9,7 +9,7 @@ from six import PY3
 
 from .settings import AddonSettings
 
-__addon = xbmcaddon.Addon('plugin.video.plexbmc')
+__addon = xbmcaddon.Addon('plugin.video.bplex')
 
 
 class PrintDebug:
@@ -106,17 +106,17 @@ def get_platform():
 def wake_servers():
     if settings.get_setting('wolon'):
         from .wol import wake_on_lan
-        log_print = PrintDebug("PleXBMC", "wake_servers")
-        log_print.debug("PleXBMC -> Wake On LAN: true")
+        log_print = PrintDebug("bPlex", "wake_servers")
+        log_print.debug("bPlex -> Wake On LAN: true")
         for servers in settings.get_wakeservers():
             if servers:
                 try:
-                    log_print.debug("PleXBMC -> Waking server with MAC: %s" % servers)
+                    log_print.debug("bPlex -> Waking server with MAC: %s" % servers)
                     wake_on_lan(servers)
                 except ValueError:
-                    log_print.debug("PleXBMC -> Incorrect MAC address format for server %s" % servers)
+                    log_print.debug("bPlex -> Incorrect MAC address format for server %s" % servers)
                 except:
-                    log_print.debug("PleXBMC -> Unknown wake on lan error")
+                    log_print.debug("bPlex -> Unknown wake on lan error")
 
 
 def setup_python_locations():
@@ -148,9 +148,9 @@ except:
 
 GLOBAL_SETUP = setup_python_locations()
 GLOBAL_SETUP['platform'] = get_platform()
-GENERIC_THUMBNAIL = xbmc.translatePath('special://home/addons/plugin.video.plexbmc/resources/media/thumb.png')
+GENERIC_THUMBNAIL = xbmc.translatePath('special://home/addons/plugin.video.bplex/resources/media/thumb.png')
 REQUIRED_REVISION = "1.0.7"
-settings = AddonSettings('plugin.video.plexbmc')
+settings = AddonSettings('plugin.video.bplex')
 
 # Get the setting from the appropriate file.
 MODE_GETCONTENT = 0

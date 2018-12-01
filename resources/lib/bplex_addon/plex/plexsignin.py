@@ -5,7 +5,7 @@ import pyxbmct.addonwindow as pyxbmct
 from ..common import i18n, PrintDebug, GLOBAL_SETUP
 
 
-log_print = PrintDebug("PleXBMC", "plex_signin")
+log_print = PrintDebug("bPlex", "plex_signin")
 
 
 class PlexSignin(pyxbmct.AddonFullWindow):
@@ -318,11 +318,11 @@ class PlexManage(pyxbmct.AddonFullWindow):
         self.connect(self.signout_button, lambda: self.signout())
 
     def switch(self):
-        xbmc.executebuiltin('RunScript(plugin.video.plexbmc, switchuser)')
+        xbmc.executebuiltin('RunScript(plugin.video.bplex, switchuser)')
         self.close()
 
     def signout(self):
-        xbmc.executebuiltin('RunScript(plugin.video.plexbmc, signout)')
+        xbmc.executebuiltin('RunScript(plugin.video.bplex, signout)')
         if not self.plex_network.is_myplex_signedin():
             self.close()
 

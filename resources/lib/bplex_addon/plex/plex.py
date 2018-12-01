@@ -14,7 +14,7 @@ from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
 
-log_print = PrintDebug("PleXBMC", "plex")
+log_print = PrintDebug("bPlex", "plex")
 DEFAULT_PORT = "32400"
 
 
@@ -239,14 +239,14 @@ class Plex:
         return self.server_list.values()
 
     def plex_identification(self):
-        header = {'X-Plex-Device': 'PleXBMC',
+        header = {'X-Plex-Device': 'bPlex',
                   'X-Plex-Client-Platform': 'KODI',
                   'X-Plex-Device-Name': settings.get_setting('devicename'),
                   'X-Plex-Language': 'en',
                   'X-Plex-Model': 'unknown',
-                  'X-Plex-Platform': 'PleXBMC',
+                  'X-Plex-Platform': 'bPlex',
                   'X-Plex-Client-Identifier': self.get_client_identifier(),
-                  'X-Plex-Product': 'PleXBMC',
+                  'X-Plex-Product': 'bPlex',
                   'X-Plex-Platform-Version': GLOBAL_SETUP['platform'],
                   'X-Plex-Version': GLOBAL_SETUP['__version__'],
                   'X-Plex-Provides': "player"}
@@ -284,7 +284,7 @@ class Plex:
         self.server_list = {}
         # First discover the servers we should know about from myplex
         if self.is_myplex_signedin():
-            log_print.debug("PleXBMC -> Adding myplex as a server location")
+            log_print.debug("bPlex -> Adding myplex as a server location")
 
             self.server_list = self.get_myplex_servers()
 
@@ -310,7 +310,7 @@ class Plex:
                 gdm_client.discover()
                 gdm_server_name = gdm_client.get_server_list()
             except Exception as e:
-                log_print.error("PleXBMC -> GDM Issue [%s]" % e)
+                log_print.error("bPlex -> GDM Issue [%s]" % e)
                 traceback.print_exc()
             else:
                 if gdm_client.discovery_complete and gdm_server_name:
@@ -331,10 +331,10 @@ class Plex:
 
                 port = settings.get_setting('port')
                 if not port:
-                    log_print.debug("PleXBMC -> No port defined.  Using default of " + DEFAULT_PORT)
+                    log_print.debug("bPlex -> No port defined.  Using default of " + DEFAULT_PORT)
                     port = DEFAULT_PORT
 
-                log_print.debug("PleXBMC -> Settings hostname and port: %s : %s" % (settings.get_setting('ipaddress'), port))
+                log_print.debug("bPlex -> Settings hostname and port: %s : %s" % (settings.get_setting('ipaddress'), port))
 
                 local_server = PlexMediaServer(address=settings.get_setting('ipaddress'), port=port, discovery='local')
                 local_server.set_user(self.effective_user)
@@ -346,7 +346,7 @@ class Plex:
                     log_print.error("Error: Unable to discover server %s" % settings.get_setting('ipaddress'))
 
         self.cache.write_cache(self.server_list_cache, self.server_list)
-        log_print.debug("PleXBMC -> serverList is: %s " % self.server_list)
+        log_print.debug("bPlex -> serverList is: %s " % self.server_list)
 
         return
 

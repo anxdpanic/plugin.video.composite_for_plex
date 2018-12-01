@@ -33,7 +33,7 @@ from ..common import PrintDebug
 
 __author__ = 'DHJ (hippojay) <plex@h-jay.com>'
 
-_log_print = PrintDebug("PleXBMC", "PlexGDM")
+_log_print = PrintDebug("bPlex", "PlexGDM")
 
 
 class PlexGDM:

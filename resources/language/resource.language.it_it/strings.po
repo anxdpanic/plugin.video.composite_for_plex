@@ -289,8 +289,8 @@ msgid "Unable to contact server:"
 msgstr "Non è possibile contattare il server:"
 
 msgctxt "#30068"
-msgid "\"PleXBMC\",Library Refresh started"
-msgstr "\"PleXBMC\",iniziato aggiornamento libreria"
+msgid "\"bPlex\",Library Refresh started"
+msgstr "\"bPlex\",iniziato aggiornamento libreria"
 
 msgctxt "#30069"
 msgid "myplex not configured"
@@ -435,8 +435,8 @@ msgid "smb"
 msgstr "smb"
 
 msgctxt "#30514"
-msgid "Enable PleXBMC debug output to KODI log"
-msgstr "Abilita PleXBMC debug nel log KODI"
+msgid "Enable bPlex debug output to KODI log"
+msgstr "Abilita bPlex debug nel log KODI"
 
 msgctxt "#30515"
 msgid "Use transcoding proxy"

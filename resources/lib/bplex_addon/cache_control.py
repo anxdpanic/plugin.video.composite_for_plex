@@ -18,7 +18,7 @@ from six.moves import cPickle as pickle
 from .common import PrintDebug
 
 
-log_print = PrintDebug("PleXBMC", "cachecontrol")
+log_print = PrintDebug("bPlex", "cachecontrol")
 
 
 class CacheControl:

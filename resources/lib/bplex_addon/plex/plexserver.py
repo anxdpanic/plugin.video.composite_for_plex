@@ -14,7 +14,7 @@ from six.moves.urllib_parse import parse_qsl
 from . import plexsection
 from ..common import *
 
-log_print = PrintDebug("PleXBMC", "plexserver")
+log_print = PrintDebug("bPlex", "plexserver")
 
 DEFAULT_PORT = "32400"
 
@@ -87,14 +87,14 @@ class PlexMediaServer:
 
     def create_plex_identification(self):
 
-        headers = {'X-Plex-Device': 'PleXBMC',
+        headers = {'X-Plex-Device': 'bPlex',
                    'X-Plex-Client-Platform': 'KODI',
                    'X-Plex-Device-Name': self.get_device_name(),
                    'X-Plex-Language': 'en',
                    'X-Plex-Model': 'unknown',
                    'X-Plex-Platform': 'KODI',
                    'X-Plex-Client-Identifier': self.get_client_identifier(),
-                   'X-Plex-Product': 'PleXBMC',
+                   'X-Plex-Product': 'bPlex',
                    'X-Plex-Platform-Version': GLOBAL_SETUP['platform'],
                    'X-Plex-Version': GLOBAL_SETUP['__version__'],
                    'X-Plex-Provides': "player"}

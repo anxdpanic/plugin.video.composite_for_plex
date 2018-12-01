@@ -290,7 +290,7 @@ msgid "Unable to contact server:"
 msgstr ""
 
 msgctxt "#30068"
-msgid "\"PleXBMC\",Library Refresh started"
+msgid "\"bPlex\",Library Refresh started"
 msgstr ""
 
 msgctxt "#30069"
@@ -436,7 +436,7 @@ msgid "smb"
 msgstr "smb"
 
 msgctxt "#30514"
-msgid "Enable PleXBMC debug output to KODI log"
+msgid "Enable bPlex debug output to KODI log"
 msgstr "Plex Addon debug Infos in Kodi-Log"
 
 msgctxt "#30515"
