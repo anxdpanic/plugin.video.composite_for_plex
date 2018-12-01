@@ -9,7 +9,7 @@ from bplex_addon import bplex
 profile = False
 
 if not profile:
-    xbmc.log("bPlex -> Script argument is %s" % sys.argv, xbmc.LOGDEBUG)
+    xbmc.log('bPlex -> Script argument is %s' % sys.argv, xbmc.LOGDEBUG)
     bplex.start_bplex(sys.argv)
 else:
     # Enable extra profile information
@@ -28,4 +28,4 @@ else:
 
     xbmc.log(stream.getvalue(), xbmc.LOGDEBUG)
 
-xbmc.log("bPlex STOP [id: %s]: %s seconds" % (bplex_start, (time.time() - bplex_start)), xbmc.LOGDEBUG)
+xbmc.log('bPlex STOP [id: %s]: %s seconds' % (bplex_start, (time.time() - bplex_start)), xbmc.LOGDEBUG)

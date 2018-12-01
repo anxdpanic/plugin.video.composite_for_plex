@@ -8,7 +8,7 @@ class PlexSection:
         self.key = None
         self.art = None
         self.type = None
-        self.location = "local"
+        self.location = 'local'
 
         if data is not None:
             self.populate(data)
@@ -16,7 +16,7 @@ class PlexSection:
     def populate(self, data):
 
         path = data.get('key')
-        if not path[0] == "/":
+        if not path[0] == '/':
             path = '/library/sections/%s' % path
 
         self.title = data.get('title', 'Unknown').encode('utf-8')

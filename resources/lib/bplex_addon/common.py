@@ -18,7 +18,7 @@ class PrintDebug:
 
         self.main = main
         if sub:
-            self.sub = "." + sub
+            self.sub = '.' + sub
         else:
             self.sub = ''
 
@@ -32,8 +32,8 @@ class PrintDebug:
         self.ip_regex = re.compile('\.\d{1,3}\.\d{1,3}\.')
         self.user_regex = re.compile('-User=[a-z|0-9].*?[&|$]')
 
-        self.DEBUG_MAP = {self.DEBUG_DEBUG: "debug",
-                          self.DEBUG_DEBUGPLUS: "debug+",
+        self.DEBUG_MAP = {self.DEBUG_DEBUG: 'debug',
+                          self.DEBUG_DEBUGPLUS: 'debug+',
                           self.LOG_ERROR: 'error'}
 
     def get_name(self, level):
@@ -50,20 +50,20 @@ class PrintDebug:
 
     def __print_message(self, msg, level=0):
         if self.privacy:
-            msg = self.token_regex.sub("X-Plex-Token=XXXXXXXXXX&", str(msg))
-            msg = self.ip_regex.sub(".X.X.", msg)
-            msg = self.user_regex.sub("X-Plex-User=XXXXXXX&", msg)
+            msg = self.token_regex.sub('X-Plex-Token=XXXXXXXXXX&', str(msg))
+            msg = self.ip_regex.sub('.X.X.', msg)
+            msg = self.user_regex.sub('X-Plex-User=XXXXXXX&', msg)
 
         if self.level >= level != self.LOG_ERROR:
             try:
-                xbmc.log("%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGDEBUG)
+                xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGDEBUG)
             except:
-                xbmc.log("%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGDEBUG)
+                xbmc.log('%s%s -> %s : %s [NONUTF8]' % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGDEBUG)
         elif level == self.LOG_ERROR:
             try:
-                xbmc.log("%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGERROR)
+                xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), xbmc.LOGERROR)
             except:
-                xbmc.log("%s%s -> %s : %s [NONUTF8]" % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGERROR)
+                xbmc.log('%s%s -> %s : %s [NONUTF8]' % (self.main, self.sub, inspect.stack(0)[2][3], msg), xbmc.LOGERROR)
 
     def __call__(self, msg, level=0):
         return self.__print_message(msg, level)
@@ -89,34 +89,34 @@ def i18n(string_id):
 
 def get_platform():
     if xbmc.getCondVisibility('system.platform.osx'):
-        return "OSX"
+        return 'OSX'
     elif xbmc.getCondVisibility('system.platform.atv2'):
-        return "ATV2"
+        return 'ATV2'
     elif xbmc.getCondVisibility('system.platform.ios'):
-        return "iOS"
+        return 'iOS'
     elif xbmc.getCondVisibility('system.platform.windows'):
-        return "Windows"
+        return 'Windows'
     elif xbmc.getCondVisibility('system.platform.linux'):
-        return "Linux/RPi"
+        return 'Linux/RPi'
     elif xbmc.getCondVisibility('system.platform.android'):
-        return "Linux/Android"
-    return "Unknown"
+        return 'Linux/Android'
+    return 'Unknown'
 
 
 def wake_servers():
     if settings.get_setting('wolon'):
         from .wol import wake_on_lan
-        log_print = PrintDebug("bPlex", "wake_servers")
-        log_print.debug("bPlex -> Wake On LAN: true")
+        log_print = PrintDebug('bPlex', 'wake_servers')
+        log_print.debug('bPlex -> Wake On LAN: true')
         for mac_address in settings.get_wakeservers():
             if mac_address:
                 try:
-                    log_print.debug("bPlex -> Waking server with MAC: %s" % mac_address)
+                    log_print.debug('bPlex -> Waking server with MAC: %s' % mac_address)
                     wake_on_lan(mac_address)
                 except ValueError:
-                    log_print.debug("bPlex -> Incorrect MAC address format for server %s" % mac_address)
+                    log_print.debug('bPlex -> Incorrect MAC address format for server %s' % mac_address)
                 except:
-                    log_print.debug("bPlex -> Unknown wake on lan error")
+                    log_print.debug('bPlex -> Unknown wake on lan error')
 
 
 def setup_python_locations():
@@ -149,7 +149,7 @@ except:
 GLOBAL_SETUP = setup_python_locations()
 GLOBAL_SETUP['platform'] = get_platform()
 GENERIC_THUMBNAIL = xbmc.translatePath('special://home/addons/plugin.video.bplex/resources/media/thumb.png')
-REQUIRED_REVISION = "1.0.7"
+REQUIRED_REVISION = '1.0.7'
 settings = AddonSettings('plugin.video.bplex')
 
 # Get the setting from the appropriate file.
@@ -185,6 +185,6 @@ MODE_DELETE_REFRESH = 28
 MODE_SHARED_ALL = 29
 MODE_PLAYLISTS = 30
 
-SUB_AUDIO_XBMC_CONTROL = "0"
-SUB_AUDIO_PLEX_CONTROL = "1"
-SUB_AUDIO_NEVER_SHOW = "2"
+SUB_AUDIO_XBMC_CONTROL = '0'
+SUB_AUDIO_PLEX_CONTROL = '1'
+SUB_AUDIO_NEVER_SHOW = '2'
