@@ -1,2 +1,4 @@
 1.0.0
-- Initial release after fork of PleXBMC (https://github.com/Tgxcorporation/plugin.video.plexbmc)
+- Initial stable release after fork of PleXBMC
+https://github.com/hippojay/plugin.video.plexbmc
+https://github.com/Tgxcorporation/plugin.video.plexbmc

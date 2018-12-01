@@ -1,6 +1,7 @@
 bPlex - Use Kodi 16+ to play media from Plex Media Server
 
 This addon is a fork of PleXBMC by Hippojay (plexbmc@h-jay.com)
+https://github.com/hippojay/plugin.video.plexbmc
 https://github.com/Tgxcorporation/plugin.video.plexbmc
 
 bPlex allows media and metadata stored in the Plex Media Server (PMS) to be viewed and played using the Kodi interface.
