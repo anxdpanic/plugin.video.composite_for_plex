@@ -20,5 +20,6 @@
         <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
         <summary lang="en_GB">Browse and play local video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay (plexbmc@h-jay.com)</summary>
         <description lang="en_GB">Browse and play local video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay (plexbmc@h-jay.com)</description>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>
