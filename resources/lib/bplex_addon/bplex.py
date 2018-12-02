@@ -3016,7 +3016,7 @@ def start_bplex(sys_argv):
 
     elif command == 'signin':
         from .plex import plexsignin
-        signin_window = plexsignin.PlexSignin('Myplex Login')
+        signin_window = plexsignin.PlexSignin(i18n(30637))
         signin_window.set_authentication_target(plex_network)
         signin_window.start()
         del signin_window
@@ -3038,7 +3038,7 @@ def start_bplex(sys_argv):
             return xbmcgui.Dialog().ok(i18n(30010), i18n(30012))
 
         from .plex import plexsignin
-        manage_window = plexsignin.PlexManage('Manage myplex')
+        manage_window = plexsignin.PlexManage(i18n(30605))
         manage_window.set_authentication_target(plex_network)
         manage_window.start()
         del manage_window
