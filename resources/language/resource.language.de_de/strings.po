@@ -346,7 +346,7 @@ msgid "Sign In"
 msgstr ""
 
 msgctxt "#30082"
-msgid "Display servers"
+msgid "Display Servers"
 msgstr ""
 
 msgctxt "#30083"

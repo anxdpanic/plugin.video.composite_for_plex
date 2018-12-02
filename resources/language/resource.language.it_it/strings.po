@@ -345,8 +345,8 @@ msgid "Sign In"
 msgstr "Login"
 
 msgctxt "#30082"
-msgid "Display servers"
-msgstr "Visualizza i server"
+msgid "Display Servers"
+msgstr "Visualizza i Server"
 
 msgctxt "#30083"
 msgid "Refresh Data"
