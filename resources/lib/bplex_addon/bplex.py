@@ -1885,13 +1885,13 @@ def channel_settings(url, setting_id):
             log_print.debug('Found correct id entry for: %s' % setting_id)
             sid = setting_id
 
-            label = plugin.get('label', 'Enter value')
+            label = plugin.get('label', i18n(30639))
             option = plugin.get('option')
             value = plugin.get('value')
 
             if plugin.get('type') == 'text':
                 log_print.debug('Setting up a text entry screen')
-                kb = xbmc.Keyboard(value, 'heading')
+                kb = xbmc.Keyboard(value, i18n(30639))
                 kb.setHeading(label)
 
                 if option == 'hidden':

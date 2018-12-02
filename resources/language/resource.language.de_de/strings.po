@@ -930,3 +930,7 @@ msgstr ""
 msgctxt "#30638"
 msgid "Enter search term"
 msgstr ""
+
+msgctxt "#30639"
+msgid "Enter value"
+msgstr ""
