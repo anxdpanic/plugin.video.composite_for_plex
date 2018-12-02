@@ -4,7 +4,7 @@
 # Addon Provider:
 msgid ""
 msgstr ""
-"Project-Id-Version: XBMC-Addons\n"
+"Project-Id-Version: Kodi-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: 2014-10-26 17:05+0000\n"
 "PO-Revision-Date: 2017-11-05 16:13+0200\n"
@@ -523,7 +523,7 @@ msgid "Subtitle stream selection"
 msgstr "בחירת הזרמת כתובית"
 
 msgctxt "#30536"
-msgid "KODI Control"
+msgid "Kodi Control"
 msgstr "שליטה בקודי"
 
 msgctxt "#30537"
@@ -791,7 +791,7 @@ msgid "Disable 'All Episodes'"
 msgstr "בטל \\'כל הפרקים\\'"
 
 msgctxt "#30604"
-msgid "Enable KODI view cache"
+msgid "Enable Kodi view cache"
 msgstr "אפשר הצגת מטמון קודי"
 
 msgctxt "#30605"
@@ -807,7 +807,7 @@ msgid "Hide Unique Information in log"
 msgstr "להסתיר מידע ייחודי ביומן"
 
 msgctxt "#30608"
-msgid "Use KODI client name?"
+msgid "Use Kodi client name?"
 msgstr "להשתמש בשם הלקוח של קודי?"
 
 msgctxt "#30609"

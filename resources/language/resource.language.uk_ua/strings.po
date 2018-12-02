@@ -4,7 +4,7 @@
 # Addon Provider:
 msgid ""
 msgstr ""
-"Project-Id-Version: XBMC Addons\n"
+"Project-Id-Version: Kodi Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -523,8 +523,8 @@ msgid "Subtitle stream selection"
 msgstr "Вибір потоку субтитрів"
 
 msgctxt "#30536"
-msgid "KODI Control"
-msgstr "Керується KODI"
+msgid "Kodi Control"
+msgstr "Керується Kodi"
 
 msgctxt "#30537"
 msgid "External"
@@ -779,8 +779,8 @@ msgid "Disable 'All Episodes'"
 msgstr "Не відображати 'Всі серії'"
 
 msgctxt "#30604"
-msgid "Enable KODI view cache"
-msgstr "Ввімкнути кеш KODI"
+msgid "Enable Kodi view cache"
+msgstr "Ввімкнути кеш Kodi"
 
 msgctxt "#30605"
 msgid "Manage myPlex"
@@ -795,7 +795,7 @@ msgid "Hide Unique Information in log"
 msgstr ""
 
 msgctxt "#30608"
-msgid "Use KODI client name?"
+msgid "Use Kodi client name?"
 msgstr ""
 
 msgctxt "#30609"

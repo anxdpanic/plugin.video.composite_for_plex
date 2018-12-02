@@ -4,7 +4,7 @@
 # Addon Provider:
 msgid ""
 msgstr ""
-"Project-Id-Version: XBMC Addons\n"
+"Project-Id-Version: Kodi Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -523,8 +523,8 @@ msgid "Subtitle stream selection"
 msgstr "Ondertitelstream selectie"
 
 msgctxt "#30536"
-msgid "XBMC Control"
-msgstr "Beheerd door XBMC"
+msgid "Kodi Control"
+msgstr "Beheerd door Kodi"
 
 msgctxt "#30537"
 msgid "External"
@@ -791,8 +791,8 @@ msgid "Disable 'All Episodes'"
 msgstr "Schakel 'Alle Afleveringen' uit"
 
 msgctxt "#30604"
-msgid "Enable KODI view cache"
-msgstr "Schakel KODI-weergavecache in"
+msgid "Enable Kodi view cache"
+msgstr "Schakel Kodi-weergavecache in"
 
 msgctxt "#30605"
 msgid "Manage myPlex"
@@ -807,7 +807,7 @@ msgid "Hide Unique Information in log"
 msgstr ""
 
 msgctxt "#30608"
-msgid "Use KODI client name?"
+msgid "Use Kodi client name?"
 msgstr ""
 
 msgctxt "#30609"

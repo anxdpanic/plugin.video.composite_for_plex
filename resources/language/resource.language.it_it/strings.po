@@ -4,7 +4,7 @@
 # Addon Provider:
 msgid ""
 msgstr ""
-"Project-Id-Version: XBMC Addons\n"
+"Project-Id-Version: Kodi Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -503,8 +503,8 @@ msgid "Port Number"
 msgstr "Numero porta"
 
 msgctxt "#30536"
-msgid "KODI Control"
-msgstr "Controllo KODI"
+msgid "Kodi Control"
+msgstr "Controllo Kodi"
 
 msgctxt "#30538"
 msgid "Audio and subtitle selector"
@@ -723,7 +723,7 @@ msgid "Disable 'All Episodes'"
 msgstr "Disabilita 'Tutti gli Episodi'"
 
 msgctxt "#30604"
-msgid "Enable KODI view cache"
+msgid "Enable Kodi view cache"
 msgstr "Abilita la cache di Kodi"
 
 msgctxt "#30605"
@@ -739,8 +739,8 @@ msgid "Hide Unique Information in log"
 msgstr "Nascondi le informazioni uniche nel log"
 
 msgctxt "#30608"
-msgid "Use KODI client name?"
-msgstr "Utilizza il nome del client KODI"
+msgid "Use Kodi client name?"
+msgstr "Utilizza il nome del client Kodi"
 
 msgctxt "#30609"
 msgid "Switch off playback monitor"

@@ -4,7 +4,7 @@
 # Addon Provider:
 msgid ""
 msgstr ""
-"Project-Id-Version: XBMC Addons\n"
+"Project-Id-Version: Kodi Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2016-01-30 10:04+0100\n"
@@ -524,7 +524,7 @@ msgid "Subtitle stream selection"
 msgstr "Auswahl des Untertitel Streams"
 
 msgctxt "#30536"
-msgid "KODI Control"
+msgid "Kodi Control"
 msgstr "Kodi"
 
 msgctxt "#30537"
@@ -792,7 +792,7 @@ msgid "Disable 'All Episodes'"
 msgstr "'Alle Episoden' aus Liste der Staffeln ausblenden"
 
 msgctxt "#30604"
-msgid "Enable KODI view cache"
+msgid "Enable Kodi view cache"
 msgstr ""
 
 msgctxt "#30605"
@@ -808,7 +808,7 @@ msgid "Hide Unique Information in log"
 msgstr ""
 
 msgctxt "#30608"
-msgid "Use KODI client name?"
+msgid "Use Kodi client name?"
 msgstr ""
 
 msgctxt "#30609"
