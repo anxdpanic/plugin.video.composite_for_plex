@@ -926,3 +926,7 @@ msgstr ""
 msgctxt "#30637"
 msgid "myPlex Login"
 msgstr ""
+
+msgctxt "#30638"
+msgid "Enter search term"
+msgstr ""

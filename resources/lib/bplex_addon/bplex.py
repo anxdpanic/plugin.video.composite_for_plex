@@ -1415,9 +1415,9 @@ def channel_search(url, prompt):
     if prompt:
         prompt = unquote(prompt)
     else:
-        prompt = 'Enter Search Term...'
+        prompt = i18n(30638)
 
-    kb = xbmc.Keyboard('', 'heading')
+    kb = xbmc.Keyboard('', i18n(30056))
     kb.setHeading(prompt)
     kb.doModal()
     if kb.isConfirmed():
@@ -1444,8 +1444,8 @@ def get_content(url):
     # Catch search requests, as we need to process input before getting results.
     if lastbit.startswith('search'):
         log_print.debug('This is a search URL.  Bringing up keyboard')
-        kb = xbmc.Keyboard('', 'heading')
-        kb.setHeading('Enter search term')
+        kb = xbmc.Keyboard('', i18n(30056))
+        kb.setHeading(i18n(30638))
         kb.doModal()
         if kb.isConfirmed():
             text = kb.getText()
