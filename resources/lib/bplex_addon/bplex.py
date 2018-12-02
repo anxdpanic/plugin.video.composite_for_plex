@@ -278,22 +278,22 @@ def display_sections(cfilter=None, display_shared=False):
             path = section.get_path()
 
             if section.is_show():
-                mode = MODE_TVSHOWS
+                mode = MODES.TVSHOWS
                 if (cfilter is not None) and (cfilter != 'tvshows'):
                     continue
 
             elif section.is_movie():
-                mode = MODE_MOVIES
+                mode = MODES.MOVIES
                 if (cfilter is not None) and (cfilter != 'movies'):
                     continue
 
             elif section.is_artist():
-                mode = MODE_ARTISTS
+                mode = MODES.ARTISTS
                 if (cfilter is not None) and (cfilter != 'music'):
                     continue
 
             elif section.is_photo():
-                mode = MODE_PHOTOS
+                mode = MODES.PHOTOS
                 if (cfilter is not None) and (cfilter != 'photos'):
                     continue
             else:
@@ -302,7 +302,7 @@ def display_sections(cfilter=None, display_shared=False):
                 continue
 
             if settings.get_setting('secondary'):
-                mode = MODE_GETCONTENT
+                mode = MODES.GETCONTENT
             else:
                 path = path + '/all'
 
@@ -324,7 +324,7 @@ def display_sections(cfilter=None, display_shared=False):
 
     # For each of the servers we have identified            
     if plex_network.is_myplex_signedin():
-        add_item_to_gui('http://myplexqueue', {'title': i18n(30080)}, {'type': 'Video', 'mode': MODE_MYPLEXQUEUE})
+        add_item_to_gui('http://myplexqueue', {'title': i18n(30080)}, {'type': 'Video', 'mode': MODES.MYPLEXQUEUE})
 
     for server in server_list:
 
@@ -341,7 +341,7 @@ def display_sections(cfilter=None, display_shared=False):
             prefix = ''
 
         details = {'title': prefix + i18n(30084)}
-        extra_data = {'type': 'Video', 'mode': MODE_CHANNELVIEW}
+        extra_data = {'type': 'Video', 'mode': MODES.CHANNELVIEW}
 
         u = '%s/channels/all' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
@@ -349,7 +349,7 @@ def display_sections(cfilter=None, display_shared=False):
         # Create plexonline link
         details['title'] = prefix + i18n(30635)
         extra_data['type'] = 'file'
-        extra_data['mode'] = MODE_PLEXONLINE
+        extra_data['mode'] = MODES.PLEXONLINE
 
         u = '%s/system/plexonline' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
@@ -357,7 +357,7 @@ def display_sections(cfilter=None, display_shared=False):
         # create playlist link
         details['title'] = prefix + i18n(30085)
         extra_data['type'] = 'file'
-        extra_data['mode'] = MODE_PLAYLISTS
+        extra_data['mode'] = MODES.PLAYLISTS
 
         u = '%s/playlists' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
@@ -391,7 +391,7 @@ def display_sections(cfilter=None, display_shared=False):
     if settings.get_setting('cache'):
         details = {'title': i18n(30083)}
         extra_data = {'type': 'file',
-                      'mode': MODE_DELETE_REFRESH}
+                      'mode': MODES.DELETE_REFRESH}
 
         u = 'http://nothing'
         add_item_to_gui(u, details, extra_data)
@@ -521,10 +521,10 @@ def process_tvshows(url, tree=None):
         # Create URL based on whether we are going to flatten the season view
         if settings.get_setting('flatten') == '2':
             log_print.debug('Flattening all shows')
-            extra_data['mode'] = MODE_TVEPISODES
+            extra_data['mode'] = MODES.TVEPISODES
             u = '%s%s' % (server.get_url_location(), extra_data['key'].replace('children', 'allLeaves'))
         else:
-            extra_data['mode'] = MODE_TVSEASONS
+            extra_data['mode'] = MODES.TVSEASONS
             u = '%s%s' % (server.get_url_location(), extra_data['key'])
 
         if not settings.get_setting('skipcontextmenus'):
@@ -598,7 +598,7 @@ def process_tvseasons(url):
                       'banner': banner,
                       'key': season.get('key', ''),
                       'ratingKey': str(season.get('ratingKey', 0)),
-                      'mode': MODE_TVEPISODES}
+                      'mode': MODES.TVEPISODES}
 
         if extra_data['fanart_image'] == '':
             extra_data['fanart_image'] = sectionart
@@ -764,7 +764,7 @@ def process_tvepisodes(url, tree=None):
         else:
             context = None
 
-        extra_data['mode'] = MODE_PLAYLIBRARY
+        extra_data['mode'] = MODES.PLAYLIBRARY
         separator = '?'
         if '?' in extra_data['key']:
             separator = '&'
@@ -1499,7 +1499,7 @@ def process_directory(url, tree=None):
     for directory in tree:
         # log_print.debug('TITLE: %s' % directory.get('title','Unknown').encode('utf-8'))
         details = {'title': directory_item_translate(directory.get('title', 'Unknown').encode('utf-8'), thumb)}
-        extra_data = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODE_GETCONTENT}
+        extra_data = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODES.GETCONTENT}
 
         u = '%s' % (get_link_url(url, directory, server))
 
@@ -1682,7 +1682,7 @@ def artist(url, tree=None):
                       'fanart_image': get_fanart_image(_artist, server),
                       'ratingKey': _artist.get('title', ''),
                       'key': _artist.get('key', ''),
-                      'mode': MODE_ALBUMS,
+                      'mode': MODES.ALBUMS,
                       'plot': _artist.get('summary', '')}
 
         url = '%s%s' % (server.get_url_location(), extra_data['key'])
@@ -1725,7 +1725,7 @@ def albums(url, tree=None):
                       'thumb': get_thumb_image(album, server),
                       'fanart_image': get_fanart_image(album, server),
                       'key': album.get('key', ''),
-                      'mode': MODE_TRACKS,
+                      'mode': MODES.TRACKS,
                       'plot': album.get('summary', '')}
 
         if extra_data['fanart_image'] == '':
@@ -1825,15 +1825,15 @@ def plex_plugins(url, tree=None):
         if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
 
             if plugin.get('search') == '1':
-                extra_data['mode'] = MODE_CHANNELSEARCH
+                extra_data['mode'] = MODES.CHANNELSEARCH
                 extra_data['parameters'] = {'prompt': plugin.get('prompt', 'Enter Search Term').encode('utf-8')}
             else:
-                extra_data['mode'] = MODE_PLEXPLUGINS
+                extra_data['mode'] = MODES.PLEXPLUGINS
 
             add_item_to_gui(p_url, details, extra_data)
 
         elif plugin.tag == 'Video':
-            extra_data['mode'] = MODE_VIDEOPLUGINPLAY
+            extra_data['mode'] = MODES.VIDEOPLUGINPLAY
 
             for child in plugin:
                 if child.tag == 'Media':
@@ -1853,7 +1853,7 @@ def plex_plugins(url, tree=None):
                 value = plugin.get('value')
 
             details['title'] = '%s - [%s]' % (plugin.get('label', 'Unknown').encode('utf-8'), value)
-            extra_data['mode'] = MODE_CHANNELPREFS
+            extra_data['mode'] = MODES.CHANNELPREFS
             extra_data['parameters'] = {'id': plugin.get('id')}
             add_item_to_gui(url, details, extra_data)
 
@@ -1969,7 +1969,7 @@ def process_xml(url, tree=None):
         p_url = get_link_url(url, plugin, server)
 
         if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
-            extra_data['mode'] = MODE_PROCESSXML
+            extra_data['mode'] = MODES.PROCESSXML
             add_item_to_gui(p_url, details, extra_data)
 
         elif plugin.tag == 'Track':
@@ -2056,7 +2056,7 @@ def movie_tag(url, server, movie, random_number):
         details['genre'] = ' / '.join(tempgenre)
 
     if movie.get('primaryExtraKey') is not None:
-        details['trailer'] = 'plugin://plugin.video.bplex/?url=%s%s?t=%s&mode=%s' % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODE_PLAYLIBRARY)
+        details['trailer'] = 'plugin://plugin.video.bplex/?url=%s%s?t=%s&mode=%s' % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODES.PLAYLIBRARY)
         log_print.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
@@ -2069,7 +2069,7 @@ def movie_tag(url, server, movie, random_number):
     else:
         context = None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
-    extra_data['mode'] = MODE_PLAYLIBRARY
+    extra_data['mode'] = MODES.PLAYLIBRARY
     separator = '?'
     if '?' in extra_data['key']:
         separator = '&'
@@ -2122,7 +2122,7 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
                   'fanart_image': sectionart,
                   'thumb': sectionthumb,
                   'key': track.get('key', ''),
-                  'mode': MODE_PLAYLIBRARY}
+                  'mode': MODES.PLAYLIBRARY}
 
     # If we are streaming, then get the virtual location
     u = '%s%s' % (server.get_url_location(), extra_data['key'])
@@ -2142,11 +2142,11 @@ def playlist_tag(url, server, track, listing=True):
                   'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server)}
 
     if extra_data['type'] == 'video':
-        extra_data['mode'] = MODE_MOVIES
+        extra_data['mode'] = MODES.MOVIES
     elif extra_data['type'] == 'audio':
-        extra_data['mode'] = MODE_TRACKS
+        extra_data['mode'] = MODES.TRACKS
     else:
-        extra_data['mode'] = MODE_GETCONTENT
+        extra_data['mode'] = MODES.GETCONTENT
 
     u = get_link_url(url, track, server)
 
@@ -2184,7 +2184,7 @@ def photo(url, tree=None):
         u = get_link_url(url, picture, server)
 
         if picture.tag == 'Directory':
-            extra_data['mode'] = MODE_PHOTOS
+            extra_data['mode'] = MODES.PHOTOS
             add_item_to_gui(u, details, extra_data)
 
         elif picture.tag == 'Photo':
@@ -2241,7 +2241,7 @@ def music(url, tree=None):
             details['title'] = grapes.get('track', grapes.get('title', 'Unknown')).encode('utf-8')
             details['duration'] = int(int(grapes.get('total_time', 0)) / 1000)
 
-            extra_data['mode'] = MODE_BASICPLAY
+            extra_data['mode'] = MODES.BASICPLAY
             add_item_to_gui(u, details, extra_data, folder=False)
 
         else:
@@ -2263,7 +2263,7 @@ def music(url, tree=None):
                 log_print.debug('Generic Tag: %s' % grapes.tag)
                 details['title'] = grapes.get('title', 'Unknown').encode('utf-8')
 
-            extra_data['mode'] = MODE_MUSIC
+            extra_data['mode'] = MODES.MUSIC
             add_item_to_gui(u, details, extra_data)
 
     xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
@@ -2403,13 +2403,13 @@ def plex_online(url):
                       'installed': int(plugin.get('installed', 2)),
                       'key': plugin.get('key', ''),
                       'thumb': get_thumb_image(plugin, server),
-                      'mode': MODE_CHANNELINSTALL}
+                      'mode': MODES.CHANNELINSTALL}
 
         if extra_data['installed'] == 1:
             details['title'] = details['title'] + ' (installed)'
 
         elif extra_data['installed'] == 2:
-            extra_data['mode'] = MODE_PLEXONLINE
+            extra_data['mode'] = MODES.PLEXONLINE
 
         u = get_link_url(url, plugin, server)
 
@@ -2495,13 +2495,13 @@ def channel_view(url):
         p_url = get_link_url(url, {'key': channels.get('key'), 'identifier': channels.get('key')}, server)
 
         if suffix == 'photos':
-            extra_data['mode'] = MODE_PHOTOS
+            extra_data['mode'] = MODES.PHOTOS
         elif suffix == 'video':
-            extra_data['mode'] = MODE_PLEXPLUGINS
+            extra_data['mode'] = MODES.PLEXPLUGINS
         elif suffix == 'music':
-            extra_data['mode'] = MODE_MUSIC
+            extra_data['mode'] = MODES.MUSIC
         else:
-            extra_data['mode'] = MODE_GETCONTENT
+            extra_data['mode'] = MODES.GETCONTENT
 
         add_item_to_gui(p_url, details, extra_data)
 
@@ -2850,28 +2850,28 @@ def display_plex_servers(url):
         extra_data = {}
 
         if ctype == 'video':
-            extra_data['mode'] = MODE_PLEXPLUGINS
+            extra_data['mode'] = MODES.PLEXPLUGINS
             s_url = '%s%s' % (mediaserver.get_url_location(), '/video')
             if servers_list == 1:
                 plex_plugins(s_url)
                 return
 
         elif ctype == 'online':
-            extra_data['mode'] = MODE_PLEXONLINE
+            extra_data['mode'] = MODES.PLEXONLINE
             s_url = '%s%s' % (mediaserver.get_url_location(), '/system/plexonline')
             if servers_list == 1:
                 plex_online(s_url)
                 return
 
         elif ctype == 'music':
-            extra_data['mode'] = MODE_MUSIC
+            extra_data['mode'] = MODES.MUSIC
             s_url = '%s%s' % (mediaserver.get_url_location(), '/music')
             if servers_list == 1:
                 music(s_url)
                 return
 
         elif ctype == 'photo':
-            extra_data['mode'] = MODE_PHOTOS
+            extra_data['mode'] = MODES.PHOTOS
             s_url = '%s%s' % (mediaserver.get_url_location(), '/photos')
             if servers_list == 1:
                 photo(s_url)
@@ -2946,7 +2946,6 @@ if settings.get_setting('nasoverride') and not settings.get_setting('nasoverride
     log_print.error('bPlex -> No NAS IP Specified.  Ignoring setting')
 else:
     log_print.debug('bPlex -> NAS IP: ' + settings.get_setting('nasoverrideip'))
-
 
 pluginhandle = 0
 argv = []
@@ -3098,93 +3097,93 @@ def start_bplex(sys_argv):
             if (mode is None) or (param_url is None) or (len(param_url) < 1):
                 display_sections()
 
-            elif mode == MODE_GETCONTENT:
+            elif mode == MODES.GETCONTENT:
                 get_content(param_url)
 
-            elif mode == MODE_TVSHOWS:
+            elif mode == MODES.TVSHOWS:
                 process_tvshows(param_url)
 
-            elif mode == MODE_MOVIES:
+            elif mode == MODES.MOVIES:
                 process_movies(param_url)
 
-            elif mode == MODE_ARTISTS:
+            elif mode == MODES.ARTISTS:
                 artist(param_url)
 
-            elif mode == MODE_TVSEASONS:
+            elif mode == MODES.TVSEASONS:
                 process_tvseasons(param_url)
 
-            elif mode == MODE_PLAYLIBRARY:
+            elif mode == MODES.PLAYLIBRARY:
                 play_library_media(param_url, force=force, override=play_transcode)
 
-            elif mode == MODE_TVEPISODES:
+            elif mode == MODES.TVEPISODES:
                 process_tvepisodes(param_url)
 
-            elif mode == MODE_PLEXPLUGINS:
+            elif mode == MODES.PLEXPLUGINS:
                 plex_plugins(param_url)
 
-            elif mode == MODE_PROCESSXML:
+            elif mode == MODES.PROCESSXML:
                 process_xml(param_url)
 
-            elif mode == MODE_BASICPLAY:
+            elif mode == MODES.BASICPLAY:
                 play_media_stream(param_url)
 
-            elif mode == MODE_ALBUMS:
+            elif mode == MODES.ALBUMS:
                 albums(param_url)
 
-            elif mode == MODE_TRACKS:
+            elif mode == MODES.TRACKS:
                 tracks(param_url)
 
-            elif mode == MODE_PHOTOS:
+            elif mode == MODES.PHOTOS:
                 photo(param_url)
 
-            elif mode == MODE_MUSIC:
+            elif mode == MODES.MUSIC:
                 music(param_url)
 
-            elif mode == MODE_VIDEOPLUGINPLAY:
+            elif mode == MODES.VIDEOPLUGINPLAY:
                 play_video_channel(param_url, param_identifier, param_indirect)
 
-            elif mode == MODE_PLEXONLINE:
+            elif mode == MODES.PLEXONLINE:
                 plex_online(param_url)
 
-            elif mode == MODE_CHANNELINSTALL:
+            elif mode == MODES.CHANNELINSTALL:
                 install(param_url, param_name)
 
-            elif mode == MODE_CHANNELVIEW:
+            elif mode == MODES.CHANNELVIEW:
                 channel_view(param_url)
 
-            elif mode == MODE_PLAYLIBRARY_TRANSCODE:
+            elif mode == MODES.PLAYLIBRARY_TRANSCODE:
                 play_library_media(param_url, override=True)
 
-            elif mode == MODE_MYPLEXQUEUE:
+            elif mode == MODES.MYPLEXQUEUE:
                 myplex_queue()
 
-            elif mode == MODE_CHANNELSEARCH:
+            elif mode == MODES.CHANNELSEARCH:
                 channel_search(param_url, params.get('prompt'))
 
-            elif mode == MODE_CHANNELPREFS:
+            elif mode == MODES.CHANNELPREFS:
                 channel_settings(param_url, params.get('id'))
 
-            elif mode == MODE_SHARED_MOVIES:
+            elif mode == MODES.SHARED_MOVIES:
                 display_sections(cfilter='movies', display_shared=True)
 
-            elif mode == MODE_SHARED_SHOWS:
+            elif mode == MODES.SHARED_SHOWS:
                 display_sections(cfilter='tvshows', display_shared=True)
 
-            elif mode == MODE_SHARED_PHOTOS:
+            elif mode == MODES.SHARED_PHOTOS:
                 display_sections(cfilter='photos', display_shared=True)
 
-            elif mode == MODE_SHARED_MUSIC:
+            elif mode == MODES.SHARED_MUSIC:
                 display_sections(cfilter='music', display_shared=True)
 
-            elif mode == MODE_SHARED_ALL:
+            elif mode == MODES.SHARED_ALL:
                 display_sections(display_shared=True)
 
-            elif mode == MODE_DELETE_REFRESH:
+            elif mode == MODES.DELETE_REFRESH:
                 plex_network.delete_cache()
                 xbmc.executebuiltin('Container.Refresh')
 
-            elif mode == MODE_PLAYLISTS:
+            elif mode == MODES.PLAYLISTS:
                 process_xml(param_url)
 
-            elif mode == MODE_DISPLAYSERVERS:
+            elif mode == MODES.DISPLAYSERVERS:
                 display_plex_servers(param_url)
