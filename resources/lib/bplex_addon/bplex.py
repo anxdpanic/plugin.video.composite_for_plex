@@ -2888,7 +2888,7 @@ def switch_user():
     user_list = plex_network.get_plex_home_users()
     # zero means we are not plexHome'd up
     if user_list is None or len(user_list) == 1:
-        log_print.debug('No users listed or only one user, plexHome not enabled')
+        log_print.debug('No users listed or only one user, Plex Home not enabled')
         return False
 
     log_print.debug('found %s users: %s' % (len(user_list), user_list.keys()))

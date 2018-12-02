@@ -117,10 +117,10 @@ class Plex:
 
                     if home == '1':
                         self.plexhome_settings['plexhome_enabled'] = True
-                        log_print.debug('Setting PlexHome enabled.')
+                        log_print.debug('Setting Plex Home enabled.')
                     else:
                         self.plexhome_settings['plexhome_enabled'] = False
-                        log_print.debug('Setting PlexHome disabled.')
+                        log_print.debug('Setting Plex Home disabled.')
 
                     token = xml.findtext('authentication-token')
                     self.plexhome_settings['myplex_user_cache'] = '%s|%s' % (username, token)
@@ -501,10 +501,10 @@ class Plex:
 
                 if home == '1':
                     self.plexhome_settings['plexhome_enabled'] = True
-                    log_print.debug('Setting PlexHome enabled.')
+                    log_print.debug('Setting Plex Home enabled.')
                 else:
                     self.plexhome_settings['plexhome_enabled'] = False
-                    log_print.debug('Setting PlexHome disabled.')
+                    log_print.debug('Setting Plex Home disabled.')
 
                 token = xml.findtext('authentication-token')
                 self.plexhome_settings['myplex_user_cache'] = '%s|%s' % (username, token)
