@@ -23,7 +23,7 @@ class Plex:
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl(GLOBAL_SETUP['__cachedir__'] + 'cache/servers', settings.get_setting('cache'))
+        self.cache = cache_control.CacheControl(GLOBAL_SETUP['cache_dir'] + 'servers', settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
@@ -248,7 +248,7 @@ class Plex:
                   'X-Plex-Client-Identifier': self.get_client_identifier(),
                   'X-Plex-Product': 'bPlex',
                   'X-Plex-Platform-Version': GLOBAL_SETUP['platform'],
-                  'X-Plex-Version': GLOBAL_SETUP['__version__'],
+                  'X-Plex-Version': GLOBAL_SETUP['version'],
                   'X-Plex-Provides': 'player'}
         if self.effective_token is not None:
             header['X-Plex-Token'] = self.effective_token

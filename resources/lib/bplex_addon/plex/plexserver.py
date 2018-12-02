@@ -98,7 +98,7 @@ class PlexMediaServer:
                    'X-Plex-Client-Identifier': self.get_client_identifier(),
                    'X-Plex-Product': 'bPlex',
                    'X-Plex-Platform-Version': GLOBAL_SETUP['platform'],
-                   'X-Plex-Version': GLOBAL_SETUP['__version__'],
+                   'X-Plex-Version': GLOBAL_SETUP['version'],
                    'X-Plex-Provides': 'player'}
 
         if self.token is not None:

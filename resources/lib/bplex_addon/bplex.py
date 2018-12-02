@@ -42,25 +42,7 @@ from six.moves import range
 from .common import *  # Needed first to setup import locations
 from .plex import plex
 
-ADDON = xbmcaddon.Addon()
-try:
-    ADDON_ID = ADDON.getAddonInfo('id').decode('utf-8')
-    ADDON_ICON = ADDON.getAddonInfo('icon').decode('utf-8')
-    ADDON_NAME = ADDON.getAddonInfo('name').decode('utf-8')
-    ADDON_PATH = ADDON.getAddonInfo('path').decode('utf-8')
-    ADDON_VERSION = ADDON.getAddonInfo('version').decode('utf-8')
-    ADDON_DATA_PATH = xbmc.translatePath('special://profile/addon_data/%s' % ADDON_ID).decode('utf-8')
-except AttributeError:
-    ADDON_ID = ADDON.getAddonInfo('id')
-    ADDON_ICON = ADDON.getAddonInfo('icon')
-    ADDON_NAME = ADDON.getAddonInfo('name')
-    ADDON_PATH = ADDON.getAddonInfo('path')
-    ADDON_VERSION = ADDON.getAddonInfo('version')
-    ADDON_DATA_PATH = xbmc.translatePath('special://profile/addon_data/%s' % ADDON_ID)
-KODI_VERSION = int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 WINDOW = xbmcgui.Window(10000)
-SETTING = ADDON.getSetting
-KODILANGUAGE = xbmc.getLanguage(xbmc.ISO_639_1)
 
 
 def select_media_type(part_data, server, dvdplayback=False):
@@ -2941,14 +2923,12 @@ def switch_user():
 # #So this is where we really start the addon 
 log_print = PrintDebug('bPlex')
 
-log_print.debug('bPlex -> Running bPlex: %s ' % GLOBAL_SETUP['__version__'])
+log_print.debug('bPlex -> Running bPlex: %s ' % GLOBAL_SETUP['version'])
 
 wake_servers()
 
 log_print.debug('bPlex -> Running Python: %s' % str(sys.version_info))
-log_print.debug('bPlex -> CWD is set to: %s' % GLOBAL_SETUP['__cwd__'])
 log_print.debug('bPlex -> Platform: %s' % GLOBAL_SETUP['platform'])
-log_print.debug('bPlex -> Setting debug: %s' % log_print.get_name(settings.get_debug()))
 log_print.debug('bPlex -> FullRes Thumbs are set to: %s' % settings.get_setting('fullres_thumbs'))
 log_print.debug('bPlex -> Settings streaming: %s' % settings.get_stream())
 log_print.debug('bPlex -> Setting filter menus: %s' % settings.get_setting('secondary'))

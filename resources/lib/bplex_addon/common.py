@@ -68,6 +68,19 @@ class PrintDebug:
         return self.__print_message(msg, level)
 
 
+def decode_utf8(string):
+    try:
+        return string.decode('utf-8')
+    except AttributeError:
+        return string
+
+
+def encode_utf8(string, py2_only=True):
+    if py2_only and PY3:
+        return string
+    return string.encode('utf-8')
+
+
 def i18n(string_id):
     try:
         core = int(string_id) < 30000
@@ -118,20 +131,6 @@ def wake_servers():
                     log_print.debug('bPlex -> Unknown wake on lan error')
 
 
-def setup_python_locations():
-    if PY3:
-        setup = {'__addon__': __addon,
-                 '__cachedir__': __addon.getAddonInfo('profile'),
-                 '__cwd__': xbmc.translatePath(__addon.getAddonInfo('path')),
-                 '__version__': __addon.getAddonInfo('version')}
-    else:
-        setup = {'__addon__': __addon,
-                 '__cachedir__': __addon.getAddonInfo('profile').decode('utf-8'),
-                 '__cwd__': xbmc.translatePath(__addon.getAddonInfo('path')).decode('utf-8'),
-                 '__version__': __addon.getAddonInfo('version').decode('utf-8')}
-    return setup
-
-
 def is_ip(address):
     """from http://www.seanelavelle.com/2012/04/16/checking-for-a-valid-ip-in-python/"""
     try:
@@ -146,14 +145,20 @@ def is_ip(address):
 def get_platform_ip():
     return xbmc.getIPAddress()
 
+
 try:
     KODI_VERSION = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
 except:
     KODI_VERSION = 0
 
-GLOBAL_SETUP = setup_python_locations()
-GLOBAL_SETUP['platform'] = get_platform()
-GENERIC_THUMBNAIL = xbmc.translatePath('special://home/addons/plugin.video.bplex/resources/media/thumb.png')
+GLOBAL_SETUP = {'addon': __addon,
+                'cache_dir': decode_utf8(xbmc.translatePath(__addon.getAddonInfo('profile') + 'cache/')),
+                'cwd': decode_utf8(xbmc.translatePath(__addon.getAddonInfo('path'))),
+                'version': decode_utf8(__addon.getAddonInfo('version')),
+                'platform': decode_utf8(get_platform()),
+                'media_dir': decode_utf8(xbmc.translatePath('special://home/addons/plugin.video.bplex/resources/media/'))}
+
+GENERIC_THUMBNAIL = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_dir'] + 'thumb.png'))
 REQUIRED_REVISION = '1.0.7'
 settings = AddonSettings('plugin.video.bplex')
 
