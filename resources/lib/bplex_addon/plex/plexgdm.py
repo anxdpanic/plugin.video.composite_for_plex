@@ -28,7 +28,7 @@ import time
 
 from six.moves.urllib_request import urlopen
 
-from ..common import PrintDebug
+from ..common import PrintDebug, encode_utf8
 
 
 __author__ = 'DHJ (hippojay) <plex@h-jay.com>'
@@ -180,7 +180,7 @@ class PlexGDM:
         try:
             # Send data to the multicast group
             _log_print.debug('Sending discovery messages: %s' % self.discover_message)
-            sent = sock.sendto(self.discover_message.encode('utf-8'), self.discover_group)
+            sent = sock.sendto(encode_utf8(self.discover_message, py2_only=False), self.discover_group)
 
             # Look for responses from all recipients
             while True:

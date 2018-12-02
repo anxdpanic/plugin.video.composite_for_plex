@@ -290,8 +290,8 @@ class PlexMediaServer:
 
                 if response.status_code == requests.codes.ok:
                     log_print.debug('Response: 200 OK - Encoding: %s' % response.encoding)
-                    log_print.debugplus('XML: \n%s' % response.text.encode('utf-8'))
-                    data = response.text.encode('utf-8')
+                    log_print.debugplus('XML: \n%s' % encode_utf8(response.text))
+                    data = encode_utf8(response.text)
 
                     log_print.debug('DOWNLOAD: It took %.2f seconds to retrieve data from %s' % ((time.time() - start_time), self.get_address()))
                     return data
@@ -312,7 +312,7 @@ class PlexMediaServer:
         tree = ETree.fromstring(data)
 
         if tree is not None and not (tree.get('status') == 'offline' or tree.get('status') == 'unauthorized'):
-            self.server_name = tree.get('friendlyName').encode('utf-8')
+            self.server_name = encode_utf8(tree.get('friendlyName'))
             self.uuid = tree.get('machineIdentifier')
             self.owned = 1
             self.master = 1

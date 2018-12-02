@@ -102,9 +102,9 @@ class Plex:
 
             if response.status_code == 200:
                 try:
-                    log_print.debugplus(response.text.encode('utf-8'))
+                    log_print.debugplus(encode_utf8(response.text))
                     log_print.debug('Received new plex token')
-                    xml = ETree.fromstring(response.text.encode('utf-8'))
+                    xml = ETree.fromstring(encode_utf8(response.text))
                     home = xml.get('home', '0')
                     username = xml.get('username', '')
 
@@ -376,7 +376,7 @@ class Plex:
                 log_print.debug('[%s] Skipping as not a server [%s]' % (device.get('name'), device.get('provides')))
                 continue
 
-            discovered_server = PlexMediaServer(name=device.get('name').encode('utf-8'), discovery='myplex')
+            discovered_server = PlexMediaServer(name=encode_utf8(device.get('name')), discovery='myplex')
             discovered_server.set_uuid(device.get('clientIdentifier'))
             discovered_server.set_owned(device.get('owned'))
             discovered_server.set_token(device.get('accessToken'))
@@ -458,7 +458,7 @@ class Plex:
                 else:
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
             else:
-                link = response.text.encode('utf-8')
+                link = encode_utf8(response.text)
                 log_print.debugplus('XML: \n%s' % link)
 
         return link
@@ -487,9 +487,9 @@ class Plex:
 
         if response.status_code == 201:
             try:
-                log_print.debugplus(response.text.encode('utf-8'))
+                log_print.debugplus(encode_utf8(response.text))
                 log_print.debug('Received new plex token')
-                xml = ETree.fromstring(response.text.encode('utf-8'))
+                xml = ETree.fromstring(encode_utf8(response.text))
                 home = xml.get('home', '0')
 
                 avatar = xml.get('thumb')
