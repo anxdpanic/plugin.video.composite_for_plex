@@ -73,7 +73,7 @@ class PlexMediaServer:
         elif self.access_address in self.local_address:
             return 'Nearby'
         else:
-            return 'Unknown'
+            return i18n(30636)
 
     def get_details(self):
 

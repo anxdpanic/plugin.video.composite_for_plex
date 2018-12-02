@@ -144,7 +144,7 @@ def select_media_type(part_data, server, dvdplayback=False):
 def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     log_print.debug('Adding Dir for [%s]\n'
                     '      Passed details: %s\n'
-                    '      Passed extra_data: %s' % (details.get('title', 'Unknown'), details, extra_data))
+                    '      Passed extra_data: %s' % (details.get('title', i18n(30636)), details, extra_data))
 
     # Create the URL to pass to the item
     if not folder and extra_data['type'] == 'image':
@@ -160,9 +160,9 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     log_print.debug('URL to use for listing: %s' % link_url)
     if KODI_VERSION >= 18:
-        liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'), extra_data.get('source'), folder), offscreen=True)
+        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n(30636)), extra_data.get('source'), folder), offscreen=True)
     else:
-        liz = xbmcgui.ListItem(item_translate(details.get('title', 'Unknown'), extra_data.get('source'), folder))
+        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n(30636)), extra_data.get('source'), folder))
     # Set the properties of the item, such as summary, name, season, etc
     liz.setInfo(type=extra_data.get('type', 'Video'), infoLabels=details)
 
@@ -486,9 +486,9 @@ def process_tvshows(url, tree=None):
         _watched = int(show.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details = {'title': encode_utf8(show.get('title', 'Unknown')),
-                   'sorttitle': encode_utf8(show.get('titleSort', show.get('title', 'Unknown'))),
-                   'tvshowname': encode_utf8(show.get('title', 'Unknown')),
+        details = {'title': encode_utf8(show.get('title', i18n(30636))),
+                   'sorttitle': encode_utf8(show.get('titleSort', show.get('title', i18n(30636)))),
+                   'tvshowname': encode_utf8(show.get('title', i18n(30636))),
                    'studio': encode_utf8(show.get('studio', '')),
                    'plot': encode_utf8(show.get('summary', '')),
                    'season': 0,
@@ -572,10 +572,10 @@ def process_tvseasons(url):
         _watched = int(season.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details = {'title': encode_utf8(season.get('title', 'Unknown')),
-                   'tvshowname': encode_utf8(season.get('parentTitle', 'Unknown')),
-                   'TVShowTitle': encode_utf8(season.get('parentTitle', 'Unknown')),
-                   'sorttitle': encode_utf8(season.get('titleSort', season.get('title', 'Unknown'))),
+        details = {'title': encode_utf8(season.get('title', i18n(30636))),
+                   'tvshowname': encode_utf8(season.get('parentTitle', i18n(30636))),
+                   'TVShowTitle': encode_utf8(season.get('parentTitle', i18n(30636))),
+                   'sorttitle': encode_utf8(season.get('titleSort', season.get('title', i18n(30636)))),
                    'studio': encode_utf8(season.get('studio', '')),
                    'plot': plot,
                    'season': season.get('index', 0),
@@ -693,8 +693,8 @@ def process_tvepisodes(url, tree=None):
 
         # Required listItem entries for XBMC
         details = {'plot': encode_utf8(episode.get('summary', '')),
-                   'title': encode_utf8(episode.get('title', 'Unknown')),
-                   'sorttitle': encode_utf8(episode.get('titleSort', episode.get('title', 'Unknown'))),
+                   'title': encode_utf8(episode.get('title', i18n(30636))),
+                   'sorttitle': encode_utf8(episode.get('titleSort', episode.get('title', i18n(30636)))),
                    'rating': float(episode.get('rating', 0)),
                    'studio': encode_utf8(episode.get('studio', tree.get('studio', ''))),
                    'mpaa': episode.get('contentRating', tree.get('grandparentContentRating', '')),
@@ -823,8 +823,8 @@ def get_audio_subtitles_from_media(server, tree, full=False):
     if full:
         if media_type == 'video':
             full_data = {'plot': encode_utf8(timings.get('summary', '')),
-                         'title': encode_utf8(timings.get('title', 'Unknown')),
-                         'sorttitle': encode_utf8(timings.get('titleSort', timings.get('title', 'Unknown'))),
+                         'title': encode_utf8(timings.get('title', i18n(30636))),
+                         'sorttitle': encode_utf8(timings.get('titleSort', timings.get('title', i18n(30636)))),
                          'rating': float(timings.get('rating', 0)),
                          'studio': encode_utf8(timings.get('studio', '')),
                          'mpaa': encode_utf8(timings.get('contentRating', '')),
@@ -844,7 +844,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
 
             full_data = {'TrackNumber': int(timings.get('index', 0)),
                          'discnumber': int(timings.get('parentIndex', 0)),
-                         'title': str(timings.get('index', 0)).zfill(2) + '. ' + encode_utf8(timings.get('title', 'Unknown')),
+                         'title': str(timings.get('index', 0)).zfill(2) + '. ' + encode_utf8(timings.get('title', i18n(30636))),
                          'rating': float(timings.get('rating', 0)),
                          'album': encode_utf8(timings.get('parentTitle', tree.get('parentTitle', ''))),
                          'artist': encode_utf8(timings.get('grandparentTitle', tree.get('grandparentTitle', ''))),
@@ -966,9 +966,9 @@ def play_playlist(server, data):
 
         url, item = track_tag(server, tree, track, listing=False)
         if KODI_VERSION >= 18:
-            liz = xbmcgui.ListItem(item.get('title', 'Unknown'), offscreen=True)
+            liz = xbmcgui.ListItem(item.get('title', i18n(30636)), offscreen=True)
         else:
-            liz = xbmcgui.ListItem(item.get('title', 'Unknown'))
+            liz = xbmcgui.ListItem(item.get('title', i18n(30636)))
         thumb = data['full_data'].get('thumbnailImage', GENERIC_THUMBNAIL)
         liz.setArt({'icon': thumb, 'thumb': thumb})
         liz.setInfo(type='music', infoLabels=item)
@@ -1129,7 +1129,7 @@ def set_audio_subtitles(stream):
 
         elif audio:
             log_print.debug('Attempting to use selected language setting: %s' %
-                            encode_utf8(audio.get('language', audio.get('languageCode', 'Unknown'))))
+                            encode_utf8(audio.get('language', audio.get('languageCode', i18n(30636)))))
             log_print.debug('Found preferred language at index %s' % stream['audio_offset'])
             try:
                 xbmc.Player().setAudioStream(stream['audio_offset'])
@@ -1498,7 +1498,7 @@ def process_directory(url, tree=None):
     set_window_heading(tree)
     thumb = tree.get('thumb')
     for directory in tree:
-        details = {'title': directory_item_translate(encode_utf8(directory.get('title', 'Unknown')), thumb)}
+        details = {'title': directory_item_translate(encode_utf8(directory.get('title', i18n(30636))), thumb)}
         extra_data = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODES.GETCONTENT}
 
         u = '%s' % (get_link_url(url, directory, server))
@@ -1800,10 +1800,10 @@ def plex_plugins(url, tree=None):
 
     for plugin in tree:
 
-        details = {'title': encode_utf8(plugin.get('title', 'Unknown'))}
+        details = {'title': encode_utf8(plugin.get('title'))}
 
-        if details['title'] == 'Unknown':
-            details['title'] = encode_utf8(plugin.get('name', 'Unknown'))
+        if details['title']:
+            details['title'] = encode_utf8(plugin.get('name', i18n(30636)))
 
         if plugin.get('summary'):
             details['plot'] = plugin.get('summary')
@@ -1852,7 +1852,7 @@ def plex_plugins(url, tree=None):
             else:
                 value = plugin.get('value')
 
-            details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', 'Unknown')), value)
+            details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n(30636))), value)
             extra_data['mode'] = MODES.CHANNELPREFS
             extra_data['parameters'] = {'id': plugin.get('id')}
             add_item_to_gui(url, details, extra_data)
@@ -1953,10 +1953,10 @@ def process_xml(url, tree=None):
     set_window_heading(tree)
     for plugin in tree:
 
-        details = {'title': encode_utf8(plugin.get('title', 'Unknown'))}
+        details = {'title': encode_utf8(plugin.get('title'))}
 
-        if details['title'] == 'Unknown':
-            details['title'] = encode_utf8(plugin.get('name', 'Unknown'))
+        if details['title']:
+            details['title'] = encode_utf8(plugin.get('name', i18n(30636)))
 
         extra_data = {'thumb': get_thumb_image(plugin, server),
                       'fanart_image': get_fanart_image(plugin, server),
@@ -2020,8 +2020,8 @@ def movie_tag(url, server, movie, random_number):
 
     # Required listItem entries for XBMC
     details = {'plot': encode_utf8(movie.get('summary', '')),
-               'title': encode_utf8(movie.get('title', 'Unknown')),
-               'sorttitle': encode_utf8(movie.get('titleSort', movie.get('title', 'Unknown'))),
+               'title': encode_utf8(movie.get('title', i18n(30636))),
+               'sorttitle': encode_utf8(movie.get('titleSort', movie.get('title', i18n(30636)))),
                'rating': float(movie.get('rating', 0)),
                'studio': encode_utf8(movie.get('studio', '')),
                'mpaa': encode_utf8(movie.get('contentRating', '')),
@@ -2112,7 +2112,7 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
 
     details = {'TrackNumber': int(track.get('index', 0)),
                'discnumber': int(track.get('parentIndex', 0)),
-               'title': str(track.get('index', 0)).zfill(2) + '. ' + encode_utf8(track.get('title', 'Unknown')),
+               'title': str(track.get('index', 0)).zfill(2) + '. ' + encode_utf8(track.get('title', i18n(30636))),
                'rating': float(track.get('rating', 0)),
                'album': encode_utf8(track.get('parentTitle', tree.get('parentTitle', ''))),
                'artist': encode_utf8(track.get('grandparentTitle', tree.get('grandparentTitle', ''))),
@@ -2134,7 +2134,7 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
 
 
 def playlist_tag(url, server, track, listing=True):
-    details = {'title': encode_utf8(track.get('title', 'Unknown')),
+    details = {'title': encode_utf8(track.get('title', i18n(30636))),
                'duration': int(track.get('duration', 0)) / 1000
                }
 
@@ -2169,10 +2169,10 @@ def photo(url, tree=None):
     set_window_heading(tree)
     for picture in tree:
 
-        details = {'title': encode_utf8(picture.get('title', picture.get('name', 'Unknown')))}
+        details = {'title': encode_utf8(picture.get('title', picture.get('name', i18n(30636))))}
 
         if not details['title']:
-            details['title'] = 'Unknown'
+            details['title'] = i18n(30636)
 
         extra_data = {'thumb': get_thumb_image(picture, server),
                       'fanart_image': get_fanart_image(picture, server),
@@ -2223,7 +2223,7 @@ def music(url, tree=None):
                    'year': int(grapes.get('year', 0)),
                    'album': encode_utf8(grapes.get('album', '')),
                    'tracknumber': int(grapes.get('index', 0)),
-                   'title': 'Unknown'}
+                   'title': i18n(30636)}
 
         extra_data = {'type': 'Music',
                       'thumb': get_thumb_image(grapes, server),
@@ -2238,7 +2238,7 @@ def music(url, tree=None):
             log_print.debug('Track Tag')
             xbmcplugin.setContent(pluginhandle, 'songs')
 
-            details['title'] = grapes.get('track', encode_utf8(grapes.get('title', 'Unknown')))
+            details['title'] = grapes.get('track', encode_utf8(grapes.get('title', i18n(30636))))
             details['duration'] = int(int(grapes.get('total_time', 0)) / 1000)
 
             extra_data['mode'] = MODES.BASICPLAY
@@ -2249,19 +2249,19 @@ def music(url, tree=None):
             if grapes.tag == 'Artist':
                 log_print.debug('Artist Tag')
                 xbmcplugin.setContent(pluginhandle, 'artists')
-                details['title'] = encode_utf8(grapes.get('artist', 'Unknown'))
+                details['title'] = encode_utf8(grapes.get('artist', i18n(30636)))
 
             elif grapes.tag == 'Album':
                 log_print.debug('Album Tag')
                 xbmcplugin.setContent(pluginhandle, 'albums')
-                details['title'] = encode_utf8(grapes.get('album', 'Unknown'))
+                details['title'] = encode_utf8(grapes.get('album', i18n(30636)))
 
             elif grapes.tag == 'Genre':
-                details['title'] = encode_utf8(grapes.get('genre', 'Unknown'))
+                details['title'] = encode_utf8(grapes.get('genre', i18n(30636)))
 
             else:
                 log_print.debug('Generic Tag: %s' % grapes.tag)
-                details['title'] = encode_utf8(grapes.get('title', 'Unknown'))
+                details['title'] = encode_utf8(grapes.get('title', i18n(30636)))
 
             extra_data['mode'] = MODES.MUSIC
             add_item_to_gui(u, details, extra_data)
@@ -2398,7 +2398,7 @@ def plex_online(url):
 
     for plugin in tree:
 
-        details = {'title': encode_utf8(plugin.get('title', plugin.get('name', 'Unknown')))}
+        details = {'title': encode_utf8(plugin.get('title', plugin.get('name', i18n(30636))))}
         extra_data = {'type': 'Video',
                       'installed': int(plugin.get('installed', 2)),
                       'key': plugin.get('key', ''),
@@ -2484,7 +2484,7 @@ def channel_view(url):
         extra_data = {'fanart_image': get_fanart_image(channels, server),
                       'thumb': get_thumb_image(channels, server)}
 
-        details = {'title': channels.get('title', 'Unknown')}
+        details = {'title': channels.get('title', i18n(30636))}
 
         suffix = channels.get('key').split('/')[1]
 
@@ -2652,7 +2652,7 @@ def set_library_subtitiles(server_uuid, metadata_id):
             if streams.get('streamType', '') == '3':
 
                 stream_id = streams.get('id')
-                lang = encode_utf8(streams.get('languageCode', 'Unknown'))
+                lang = encode_utf8(streams.get('languageCode', i18n(30636)))
                 log_print.debug('Detected Subtitle stream [%s] [%s]' % (stream_id, lang))
 
                 if streams.get('format', streams.get('codec')) == 'idx':
@@ -2663,9 +2663,9 @@ def set_library_subtitiles(server_uuid, metadata_id):
 
                     if streams.get('selected') == '1':
                         fl_select = True
-                        language = streams.get('language', 'Unknown') + '*'
+                        language = streams.get('language', i18n(30636)) + '*'
                     else:
-                        language = streams.get('language', 'Unknown')
+                        language = streams.get('language', i18n(30636))
 
                     display_list.append(language)
         break
@@ -2706,27 +2706,27 @@ def set_library_audio(server_uuid, metadata_id):
 
                 stream_id = streams.get('id')
                 audio_list.append(stream_id)
-                lang = streams.get('languageCode', 'Unknown')
+                lang = streams.get('languageCode', i18n(30636))
 
                 log_print.debug('Detected Audio stream [%s] [%s] ' % (stream_id, lang))
 
-                if streams.get('channels', 'Unknown') == '6':
+                if streams.get('channels', i18n(30636)) == '6':
                     channels = '5.1'
-                elif streams.get('channels', 'Unknown') == '7':
+                elif streams.get('channels', i18n(30636)) == '7':
                     channels = '6.1'
-                elif streams.get('channels', 'Unknown') == '2':
+                elif streams.get('channels', i18n(30636)) == '2':
                     channels = 'Stereo'
                 else:
-                    channels = streams.get('channels', 'Unknown')
+                    channels = streams.get('channels', i18n(30636))
 
-                if streams.get('codec', 'Unknown') == 'ac3':
+                if streams.get('codec', i18n(30636)) == 'ac3':
                     codec = 'AC3'
-                elif streams.get('codec', 'Unknown') == 'dca':
+                elif streams.get('codec', i18n(30636)) == 'dca':
                     codec = 'DTS'
                 else:
-                    codec = streams.get('codec', 'Unknown')
+                    codec = streams.get('codec', i18n(30636))
 
-                language = '%s (%s %s)' % (encode_utf8(streams.get('language', 'Unknown')), codec, channels)
+                language = '%s (%s %s)' % (encode_utf8(streams.get('language', i18n(30636))), codec, channels)
 
                 if streams.get('selected') == '1':
                     language = language + '*'

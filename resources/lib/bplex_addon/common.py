@@ -116,7 +116,7 @@ def get_platform():
         return 'Linux/RPi'
     elif xbmc.getCondVisibility('system.platform.android'):
         return 'Linux/Android'
-    return 'Unknown'
+    return i18n(30636)
 
 
 def wake_servers():

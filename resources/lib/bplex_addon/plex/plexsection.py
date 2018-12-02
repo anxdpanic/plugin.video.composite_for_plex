@@ -1,4 +1,4 @@
-from ..common import encode_utf8
+from ..common import encode_utf8, i18n
 
 
 class PlexSection:
@@ -22,7 +22,7 @@ class PlexSection:
         if not path[0] == '/':
             path = '/library/sections/%s' % path
 
-        self.title = encode_utf8(data.get('title', 'Unknown'))
+        self.title = encode_utf8(data.get('title', i18n(30636)))
         self.sectionuuid = data.get('uuid', '')
         self.path = encode_utf8(path)
         self.key = data.get('key')

@@ -558,7 +558,7 @@ class Plex:
 
         log_print.debug('Unable to translate - Returning new plex server set to %s' % uri)
 
-        return PlexMediaServer(name='Unknown', address=uri, port=port, discovery='local')
+        return PlexMediaServer(name=i18n(30636), address=uri, port=port, discovery='local')
 
     def get_server_from_url(self, url):
         url_parts = urlparse(url)
@@ -677,7 +677,7 @@ class Plex:
             date = xml.find('joined-at').text
             result['membersince'] = date.split(' ')[0]
         except:
-            result['membersince'] = 'Unknown'
+            result['membersince'] = i18n(30636)
 
         log_print.debug('Gathered information: %s' % result)
 
