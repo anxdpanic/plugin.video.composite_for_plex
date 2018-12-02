@@ -3045,7 +3045,7 @@ def start_bplex(sys_argv):
     elif command == 'displayservers':
         plex_network.load()
         display_known_servers()
-
+        xbmc.executebuiltin('Container.Refresh')
     else:
         plex_network.load()
 
