@@ -92,15 +92,9 @@ def i18n(string_id):
         return ''
 
     if core:
-        if PY3:
-            return xbmc.getLocalizedString(string_id)
-        else:
-            return xbmc.getLocalizedString(string_id).encode('utf-8', 'ignore')
+        return encode_utf8(xbmc.getLocalizedString(string_id))
     else:
-        if PY3:
-            return __addon.getLocalizedString(string_id)
-        else:
-            return __addon.getLocalizedString(string_id).encode('utf-8', 'ignore')
+        return encode_utf8(__addon.getLocalizedString(string_id))
 
 
 def get_platform():
