@@ -894,7 +894,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
                 pass
 
     # if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == 'video' and settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
+    if media_type == 'video' and settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
 
         contents = 'all'
         tags = tree.getiterator('Stream')
@@ -1112,14 +1112,14 @@ def set_audio_subtitles(stream):
         log_print.debug('No audio or subtitle streams to process.')
 
         # If we have decided to force off all subs, then turn them off now and return
-        if settings.get_setting('streamControl') == SUB_AUDIO_NEVER_SHOW:
+        if settings.get_setting('streamControl') == SUB_AUDIO.NEVER:
             xbmc.Player().showSubtitles(False)
             log_print.debug('All subs disabled')
 
         return True
 
     # Set the AUDIO component
-    if settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
+    if settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
         log_print.debug('Attempting to set Audio Stream')
 
         audio = stream['audio']
@@ -1137,7 +1137,7 @@ def set_audio_subtitles(stream):
                 log_print.debug('Error setting audio, will use embedded default stream')
 
     # Set the SUBTITLE component
-    if settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
+    if settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
         log_print.debug('Attempting to set preferred subtitle Stream')
         subtitle = stream['subtitle']
         if subtitle:
@@ -2933,12 +2933,13 @@ log_print.debug('bPlex -> FullRes Thumbs are set to: %s' % settings.get_setting(
 log_print.debug('bPlex -> Settings streaming: %s' % settings.get_stream())
 log_print.debug('bPlex -> Setting filter menus: %s' % settings.get_setting('secondary'))
 log_print.debug('bPlex -> Flatten is: %s' % settings.get_setting('flatten'))
-if settings.get_setting('streamControl') == SUB_AUDIO_XBMC_CONTROL:
-    log_print.debug('bPlex -> Setting stream Control to : XBMC CONTROL')
-elif settings.get_setting('streamControl') == SUB_AUDIO_PLEX_CONTROL:
-    log_print.debug('bPlex -> Setting stream Control to : PLEX CONTROL')
-elif settings.get_setting('streamControl') == SUB_AUDIO_NEVER_SHOW:
-    log_print.debug('bPlex -> Setting stream Control to : NEVER SHOW')
+
+if settings.get_setting('streamControl') == SUB_AUDIO.KODI:
+    log_print.debug('bPlex -> Setting stream Control to : Kodi')
+elif settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
+    log_print.debug('bPlex -> Setting stream Control to : Plex')
+elif settings.get_setting('streamControl') == SUB_AUDIO.NEVER:
+    log_print.debug('bPlex -> Setting stream Control to : Never')
 
 log_print.debug('bPlex -> Force DVD playback: %s' % settings.get_setting('forcedvd'))
 log_print.debug('bPlex -> SMB IP Override: %s' % settings.get_setting('nasoverride'))

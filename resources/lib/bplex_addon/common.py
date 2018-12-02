@@ -200,6 +200,8 @@ MODES = __enum(
     PLAYLISTS=30
 )
 
-SUB_AUDIO_XBMC_CONTROL = '0'
-SUB_AUDIO_PLEX_CONTROL = '1'
-SUB_AUDIO_NEVER_SHOW = '2'
+SUB_AUDIO = __enum(
+    KODI='0',
+    PLEX='1',
+    NEVER='2'
+)
