@@ -530,10 +530,18 @@ class PlexMediaServer:
     def delete_metadata(self, _id):
         return self.talk('/library/metadata/%s' % _id, method='delete')
 
-    def get_universal_transcode(self, url):
+    def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
         log_print.debug('incoming URL is: %s' % url)
-        resolution, bitrate = settings.get_setting('quality_uni').split(',')
+
+        try:
+            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' % transcode_profile).split(',')
+            subtitle_size = settings.get_setting('transcode_target_sub_size_%s' % transcode_profile).split('.')[0]
+            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % transcode_profile).split('.')[0]
+        except ValueError:
+            resolution, bitrate = settings.get_setting('transcode_target_quality_0').split(',')
+            subtitle_size = settings.get_setting('transcode_target_sub_size_0').split('.')[0]
+            audio_boost = settings.get_setting('transcode_target_audio_size_0').split('.')[0]
 
         if bitrate.endswith('Mbps'):
             max_video_bitrate = float(bitrate.strip().split('Mbps')[0]) * 1000
@@ -549,8 +557,6 @@ class PlexMediaServer:
         quality = '100'
         transcode_settings = {'protocol': 'hls',
                               'container': 'mpegts',
-                              'videoCodec': 'h264',
-                              'audioCodec': 'aac',
                               'session': session,
                               'offset': 0,
                               'videoResolution': resolution,
@@ -558,13 +564,15 @@ class PlexMediaServer:
                               'videoQuality': quality,
                               'directStream': '1',
                               'directPlay': '0',
-                              'subtitleSize': settings.get_setting('subSize').split('.')[0],
-                              'audioBoost': settings.get_setting('audioSize').split('.')[0],
+                              'subtitleSize': subtitle_size,
+                              'audioBoost': audio_boost,
                               'fastSeek': '1',
                               'path': 'http://127.0.0.1:32400%s' % url}
 
         full_url = '%s%s' % (transcode_request, urlencode(transcode_settings))
-        log_print.debug('Transcoded media location URL: %s' % full_url)
+        log_print.debug('\nURL: |%s|\nProfile: |[%s] %s@%s (%s/%s)|' %
+                        (full_url, str(transcode_profile + 1), resolution, bitrate.strip(), subtitle_size, audio_boost))
+
         return session, self.get_formatted_url(full_url, options={'X-Plex-Device': 'Plex Home Theater'})
 
     def get_legacy_transcode(self, _id, url, identifier=None):

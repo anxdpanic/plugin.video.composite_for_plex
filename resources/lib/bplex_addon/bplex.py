@@ -916,7 +916,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
 
                 if sub_offset == -1:
                     sub_offset = int(stream.get('index', -1))
-                elif 0 < stream.get('index', -1) < sub_offset:
+                elif 0 < int(stream.get('index', -1)) < sub_offset:
                     sub_offset = int(stream.get('index', -1))
 
                 if stream.get('selected') == '1':
@@ -981,7 +981,7 @@ def play_playlist(server, data):
     return
 
 
-def play_library_media(vids, override=False, force=None, full_data=False):
+def play_library_media(vids, override=False, force=None, full_data=False, transcode_profile=0):
     session = None
     if settings.get_setting('transcode'):
         override = True
@@ -1028,12 +1028,12 @@ def play_library_media(vids, override=False, force=None, full_data=False):
         log_print.debug('We are playing a stream')
         if override:
             log_print.debug('We will be transcoding the stream')
-            if settings.get_setting('transcode_type') == '0':  # universal
-                session, playurl = server.get_universal_transcode(streams['extra']['path'])
-            elif settings.get_setting('transcode_type') == '1':  # legacy
-                session, playurl = server.get_legacy_transcode(_id, url)
-            else:
-                playurl = ''
+            # if settings.get_setting('transcode_type') == '0':  # universal
+            session, playurl = server.get_universal_transcode(streams['extra']['path'], transcode_profile=transcode_profile)
+            # elif settings.get_setting('transcode_type') == '1':  # legacy
+            #     session, playurl = server.get_legacy_transcode(_id, url)
+            # else:
+            #     playurl = ''
         else:
             playurl = server.get_formatted_url(url)
     else:
@@ -1307,10 +1307,10 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         log_print.debug('found webkit video, pass to transcoder')
         if not prefix:
             prefix = 'system'
-            if settings.get_setting('transcode_type') == '0':
-                session, vids = server.get_universal_transcode(vids)
-            elif settings.get_setting('transcode_type') == '0':
-                session, vids = server.get_legacy_transcode(0, vids, prefix)
+            # if settings.get_setting('transcode_type') == '0':
+            session, vids = server.get_universal_transcode(vids)
+            # elif settings.get_setting('transcode_type') == '0':
+            #     session, vids = server.get_legacy_transcode(0, vids, prefix)
 
         # Workaround for Kodi HLS request limit of 1024 byts
         if len(vids) > 1000:
@@ -2919,6 +2919,29 @@ def switch_user():
     return True
 
 
+def get_transcode_profile():
+    profile_count = 3
+    profile_labels = []
+
+    for i in list(range(profile_count)):
+        if i == 0 or settings.get_setting('transcode_target_enabled_%s' % str(i)):
+            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' % str(i)).split(',')
+            sub_size = settings.get_setting('transcode_target_sub_size_%s' % str(i))
+            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % str(i))
+            profile_labels.append('[%s] %s@%s (%s/%s)' % (str(i + 1), resolution, bitrate.strip(), sub_size, audio_boost))
+
+    if len(profile_labels) == 1:
+        return 0
+
+    dialog = xbmcgui.Dialog()
+    result = dialog.select(i18n(30641), profile_labels)
+
+    if result == -1:
+        return 0
+    else:
+        return result
+
+
 # #So this is where we really start the addon 
 log_print = PrintDebug('bPlex')
 
@@ -3100,7 +3123,10 @@ def start_bplex(sys_argv):
                 process_tvseasons(param_url)
 
             elif mode == MODES.PLAYLIBRARY:
-                play_library_media(param_url, force=force, override=play_transcode)
+                transcode_profile = 0
+                if play_transcode:
+                    transcode_profile = get_transcode_profile()
+                play_library_media(param_url, force=force, override=play_transcode, transcode_profile=transcode_profile)
 
             elif mode == MODES.TVEPISODES:
                 process_tvepisodes(param_url)

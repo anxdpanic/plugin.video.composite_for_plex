@@ -751,7 +751,7 @@ msgid "Use HTTPS"
 msgstr ""
 
 msgctxt "#30611"
-msgid "Transcode >1080p"
+msgid "Transcode > 1080p"
 msgstr ""
 
 msgctxt "#30612"
@@ -864,4 +864,12 @@ msgstr ""
 
 msgctxt "#30639"
 msgid "Enter value"
+msgstr ""
+
+msgctxt "#30640"
+msgid "Transcode Profile"
+msgstr ""
+
+msgctxt "#30641"
+msgid "Transcode Profiles"
 msgstr ""
