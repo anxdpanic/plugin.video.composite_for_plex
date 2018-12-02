@@ -117,16 +117,16 @@ def wake_servers():
     if settings.get_setting('wolon'):
         from .wol import wake_on_lan
         log_print = PrintDebug('bPlex', 'wake_servers')
-        log_print.debug('bPlex -> Wake On LAN: true')
+        log_print.debug('Wake On LAN: true')
         for mac_address in settings.get_wakeservers():
             if mac_address:
                 try:
-                    log_print.debug('bPlex -> Waking server with MAC: %s' % mac_address)
+                    log_print.debug('Waking server with MAC: %s' % mac_address)
                     wake_on_lan(mac_address)
                 except ValueError:
-                    log_print.debug('bPlex -> Incorrect MAC address format for server %s' % mac_address)
+                    log_print.debug('Incorrect MAC address format for server %s' % mac_address)
                 except:
-                    log_print.debug('bPlex -> Unknown wake on lan error')
+                    log_print.debug('Unknown wake on lan error')
 
 
 def is_ip(address):

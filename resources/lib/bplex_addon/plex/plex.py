@@ -158,7 +158,7 @@ class Plex:
         self.load_tokencache()
 
         if self.plexhome_settings['myplex_signedin']:
-            log_print.debug('Myplex is logged in')
+            log_print.debug('myPlex is logged in')
         else:
             return
 
@@ -175,7 +175,7 @@ class Plex:
             self.effective_token = self.myplex_token
             self.save_tokencache()
 
-        log_print.debug('myplex userid: %s' % self.myplex_user)
+        log_print.debug('myPlex userid: %s' % self.myplex_user)
         log_print.debug('effective userid: %s' % self.effective_user)
 
     def load_tokencache(self):
@@ -284,7 +284,7 @@ class Plex:
         self.server_list = {}
         # First discover the servers we should know about from myplex
         if self.is_myplex_signedin():
-            log_print.debug('bPlex -> Adding myplex as a server location')
+            log_print.debug('Adding myPlex as a server location')
 
             self.server_list = self.get_myplex_servers()
 
@@ -310,7 +310,7 @@ class Plex:
                 gdm_client.discover()
                 gdm_server_name = gdm_client.get_server_list()
             except Exception as e:
-                log_print.error('bPlex -> GDM Issue [%s]' % e)
+                log_print.error('GDM Issue [%s]' % e)
                 traceback.print_exc()
             else:
                 if gdm_client.discovery_complete and gdm_server_name:
@@ -331,10 +331,10 @@ class Plex:
 
                 port = settings.get_setting('port')
                 if not port:
-                    log_print.debug('bPlex -> No port defined.  Using default of ' + DEFAULT_PORT)
+                    log_print.debug('No port defined.  Using default of ' + DEFAULT_PORT)
                     port = DEFAULT_PORT
 
-                log_print.debug('bPlex -> Settings hostname and port: %s : %s' % (settings.get_setting('ipaddress'), port))
+                log_print.debug('Settings hostname and port: %s : %s' % (settings.get_setting('ipaddress'), port))
 
                 local_server = PlexMediaServer(address=settings.get_setting('ipaddress'), port=port, discovery='local')
                 local_server.set_user(self.effective_user)
@@ -346,7 +346,7 @@ class Plex:
                     log_print.error('Error: Unable to discover server %s' % settings.get_setting('ipaddress'))
 
         self.cache.write_cache(self.server_list_cache, self.server_list)
-        log_print.debug('bPlex -> serverList is: %s ' % self.server_list)
+        log_print.debug('serverList is: %s ' % self.server_list)
 
         return
 
@@ -398,7 +398,7 @@ class Plex:
             discovered_server.set_best_address()  # Default to external address
 
             temp_servers[discovered_server.get_uuid()] = discovered_server
-            log_print.debug('[%s] Discovered server via myplex: %s' % (discovered_server.get_name(), discovered_server.get_uuid()))
+            log_print.debug('[%s] Discovered server via myPlex: %s' % (discovered_server.get_name(), discovered_server.get_uuid()))
 
         return temp_servers
 
@@ -435,10 +435,10 @@ class Plex:
                 log_print.error('Unknown HTTP method requested: %s' % method)
                 response = None
         except requests.exceptions.ConnectionError as e:
-            log_print.error('myplex: %s is offline or uncontactable. error: %s' % (self.myplex_server, e))
+            log_print.error('myPlex: %s is offline or uncontactable. error: %s' % (self.myplex_server, e))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
         except requests.exceptions.ReadTimeout:
-            log_print.debug('myplex: read timeout for %s on %s ' % (self.myplex_server, path))
+            log_print.debug('myPlex: read timeout for %s on %s ' % (self.myplex_server, path))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
 
         else:
@@ -475,7 +475,7 @@ class Plex:
         log_print.debug('Getting New token')
 
         if username is None:
-            log_print.debug('No myplex details in provided..')
+            log_print.debug('No myPlex details in provided..')
             return None
 
         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')

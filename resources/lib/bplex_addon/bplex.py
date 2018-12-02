@@ -142,9 +142,9 @@ def select_media_type(part_data, server, dvdplayback=False):
 
 
 def add_item_to_gui(url, details, extra_data, context=None, folder=True):
-    log_print.debug('Adding Dir for [%s]\n'
-                    '      Passed details: %s\n'
-                    '      Passed extra_data: %s' % (details.get('title', i18n(30636)), details, extra_data))
+    log_print.debug('Adding [%s]\n'
+                    'Passed details: %s\n'
+                    'Passed extra_data: %s' % (details.get('title', i18n(30636)), details, extra_data))
 
     # Create the URL to pass to the item
     if not folder and extra_data['type'] == 'image':
@@ -1382,7 +1382,6 @@ def monitor_channel_transcode_playback(session_id, server):
 
 
 def get_params(paramstring):
-    log_print.debug('Parameter string: %s' % paramstring)
     param = {}
     if len(paramstring) >= 2:
         params = paramstring
@@ -1402,7 +1401,7 @@ def get_params(paramstring):
                 param[splitparams[0]] = splitparams[1]
             elif (len(splitparams)) == 3:
                 param[splitparams[0]] = splitparams[1] + '=' + splitparams[2]
-    log_print.debug('bPlex -> Detected parameters: ' + str(param))
+    log_print.debug('Parameters |%s| -> |%s|' % (paramstring, str(param)))
     return param
 
 
@@ -1795,7 +1794,7 @@ def plex_plugins(url, tree=None):
     myplex_url = False
     if (tree.get('identifier') != 'com.plexapp.plugins.myplex') and ('node.plexapp.com' in url):
         myplex_url = True
-        log_print.debug('This is a myplex URL, attempting to locate master server')
+        log_print.debug('This is a myPlex URL, attempting to locate master server')
         server = get_master_server()
 
     for plugin in tree:
@@ -2923,30 +2922,19 @@ def switch_user():
 # #So this is where we really start the addon 
 log_print = PrintDebug('bPlex')
 
-log_print.debug('bPlex -> Running bPlex: %s ' % GLOBAL_SETUP['version'])
-
+log_print.debug('bPlex %s: Kodi %s on %s with Python %s' %
+                (GLOBAL_SETUP['version'], KODI_VERSION,
+                 GLOBAL_SETUP['platform'], '-'.join([str(i) for i in sys.version_info])))
 wake_servers()
 
-log_print.debug('bPlex -> Running Python: %s' % str(sys.version_info))
-log_print.debug('bPlex -> Platform: %s' % GLOBAL_SETUP['platform'])
-log_print.debug('bPlex -> FullRes Thumbs are set to: %s' % settings.get_setting('fullres_thumbs'))
-log_print.debug('bPlex -> Settings streaming: %s' % settings.get_stream())
-log_print.debug('bPlex -> Setting filter menus: %s' % settings.get_setting('secondary'))
-log_print.debug('bPlex -> Flatten is: %s' % settings.get_setting('flatten'))
+stream_control_map = {SUB_AUDIO.KODI: 'Kodi', SUB_AUDIO.PLEX: 'Plex', SUB_AUDIO.NEVER: 'Never'}
+stream_control_setting = stream_control_map.get(settings.get_setting('streamControl'))
 
-if settings.get_setting('streamControl') == SUB_AUDIO.KODI:
-    log_print.debug('bPlex -> Setting stream Control to : Kodi')
-elif settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
-    log_print.debug('bPlex -> Setting stream Control to : Plex')
-elif settings.get_setting('streamControl') == SUB_AUDIO.NEVER:
-    log_print.debug('bPlex -> Setting stream Control to : Never')
-
-log_print.debug('bPlex -> Force DVD playback: %s' % settings.get_setting('forcedvd'))
-log_print.debug('bPlex -> SMB IP Override: %s' % settings.get_setting('nasoverride'))
-if settings.get_setting('nasoverride') and not settings.get_setting('nasoverrideip'):
-    log_print.error('bPlex -> No NAS IP Specified.  Ignoring setting')
-else:
-    log_print.debug('bPlex -> NAS IP: ' + settings.get_setting('nasoverrideip'))
+log_print.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s| Flatten |%s|\n'
+                'Stream Control |%s| Force DVD |%s| SMB IP Override |%s| NAS IP |%s|' %
+                (settings.get_setting('fullres_thumbs'), settings.get_stream(), settings.get_setting('secondary'),
+                 settings.get_setting('flatten'), stream_control_setting, settings.get_setting('forcedvd'),
+                 settings.get_setting('nasoverride'), settings.get_setting('nasoverrideip')))
 
 pluginhandle = 0
 argv = []
@@ -2990,6 +2978,9 @@ def start_bplex(sys_argv):
             command = sys_argv[1]
         except:
             pass
+
+    log_print.debug('Mode |%s| Command |%s| URL |%s| Name |%s| Identifier |%s|' %
+                    (mode, command, param_url, param_name, param_identifier))
 
     if command == 'refresh':
         xbmc.executebuiltin('Container.Refresh')
@@ -3088,11 +3079,6 @@ def start_bplex(sys_argv):
             gui_window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
             gui_window.clearProperty('heading')
             gui_window.clearProperty('heading2')
-
-            log_print.debug('bPlex -> Mode: %s ' % mode)
-            log_print.debug('bPlex -> URL: %s' % param_url)
-            log_print.debug('bPlex -> Name: %s' % param_name)
-            log_print.debug('bPlex -> identifier: %s' % param_identifier)
 
             # Run a function based on the mode variable that was passed in the URL
             if (mode is None) or (param_url is None) or (len(param_url) < 1):

@@ -17,9 +17,6 @@ class AddonSettings:
     def get_setting(self, name):
         value = self.settings.getSetting(name)
 
-        if value is None or value == '':
-            xbmc.log('bPlex.setting -> setting: %s is : %s' % (name, value), xbmc.LOGDEBUG)
-
         if value == 'true':
             return True
         elif value == 'false':
@@ -28,16 +25,7 @@ class AddonSettings:
             return value
 
     def get_debug(self):
-        if self.settings.getSetting('debug') == 'true':
-            xbmc.log('bPlex < 3.6 debug setting detected - settings must be re-saved', xbmc.LOGDEBUG)
-            self.settings.setSetting('debug', '2')
-            return 2
-        elif self.settings.getSetting('debug') == 'false':
-            xbmc.log('bPlex < 3.6 debug setting detected - settings must be re-saved', xbmc.LOGDEBUG)
-            self.settings.setSetting('debug', '1')
-            return 0
-
-        return int(self.settings.getSetting('debug'))
+        return int(self.get_setting('debug'))
 
     def set_setting(self, name, value):
         if isinstance(value, bool):
@@ -61,5 +49,5 @@ class AddonSettings:
         return self.__dict__
 
     def update_master_server(self, value):
-        xbmc.log('Updating master server to%s' % value, xbmc.LOGDEBUG)
+        xbmc.log('Updating master server to %s' % value, xbmc.LOGDEBUG)
         self.settings.setSetting('masterServer', '%s' % value)

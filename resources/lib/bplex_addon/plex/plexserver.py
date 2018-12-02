@@ -296,7 +296,7 @@ class PlexMediaServer:
                     log_print.debug('DOWNLOAD: It took %.2f seconds to retrieve data from %s' % ((time.time() - start_time), self.get_address()))
                     return data
                 elif response.status_code == requests.codes.unauthorized:
-                    log_print.debug('Response: 401 Unauthorized - Please log into myplex or check your myplex password')
+                    log_print.debug('Response: 401 Unauthorized - Please log into myPlex or check your myPlex password')
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
                 else:
                     log_print.debug('Unexpected Response: %s ' % response.status_code)
