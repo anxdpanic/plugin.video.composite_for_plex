@@ -49,7 +49,7 @@ msgid "To sign out you must be logged in as an admin user. Please switch user an
 msgstr ""
 
 msgctxt "#30008"
-msgid "myplex"
+msgid "myPlex"
 msgstr ""
 
 msgctxt "#30009"
@@ -57,11 +57,11 @@ msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
 msgstr ""
 
 msgctxt "#30010"
-msgid "Manage myplex"
+msgid "Manage myPlex"
 msgstr ""
 
 msgctxt "#30011"
-msgid "You are not currently logged into myplex.  Please continue to sign in, or cancel to return"
+msgid "You are not currently logged into myPlex.  Please continue to sign in, or cancel to return"
 msgstr ""
 
 msgctxt "#30012"
@@ -293,7 +293,7 @@ msgid "\"bPlex\",Library Refresh started"
 msgstr ""
 
 msgctxt "#30069"
-msgid "myplex not configured"
+msgid "myPlex not configured"
 msgstr ""
 
 msgctxt "#30070"
@@ -337,7 +337,7 @@ msgid "Start from beginning"
 msgstr ""
 
 msgctxt "#30080"
-msgid "MyPlex Queue"
+msgid "myPlex Queue"
 msgstr ""
 
 msgctxt "#30081"
@@ -887,7 +887,7 @@ msgid "Sign out"
 msgstr ""
 
 msgctxt "#30634"
-msgid "Please enter your myplex details below"
+msgid "Please enter your myPlex details below"
 msgstr ""
 
 msgctxt "#30635"
