@@ -31,8 +31,9 @@ class CacheControl:
 
         if self.enabled:
 
-            if self.cache_location[-1] != '/':
-                self.cache_location += '/'
+            delim = '/' if self.cache_location.find('/') > -1 else '\\'
+            if self.cache_location[-1] != delim:
+                self.cache_location += delim
 
             if not xbmcvfs.exists(self.cache_location):
                 log_print.debug('CACHE [%s]: Location does not exist.  Creating' % self.cache_location)

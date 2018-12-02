@@ -150,13 +150,12 @@ except:
     KODI_VERSION = 0
 
 GLOBAL_SETUP = {'addon': __addon,
-                'cache_dir': decode_utf8(xbmc.translatePath(__addon.getAddonInfo('profile') + 'cache/')),
-                'cwd': decode_utf8(xbmc.translatePath(__addon.getAddonInfo('path'))),
+                'data_path': decode_utf8(__addon.getAddonInfo('profile')),
                 'version': decode_utf8(__addon.getAddonInfo('version')),
                 'platform': decode_utf8(get_platform()),
-                'media_dir': decode_utf8(xbmc.translatePath('special://home/addons/plugin.video.bplex/resources/media/'))}
+                'media_path': 'special://home/addons/%s/resources/media/' % decode_utf8(__addon.getAddonInfo('id'))}
 
-GENERIC_THUMBNAIL = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_dir'] + 'thumb.png'))
+GENERIC_THUMBNAIL = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_path'] + 'thumb.png'))
 REQUIRED_REVISION = '1.0.7'
 settings = AddonSettings('plugin.video.bplex')
 

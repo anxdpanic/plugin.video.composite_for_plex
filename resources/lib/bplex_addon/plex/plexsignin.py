@@ -2,9 +2,10 @@ import xbmc
 
 import pyxbmct.addonwindow as pyxbmct
 
-from ..common import i18n, PrintDebug, GLOBAL_SETUP
+from ..common import decode_utf8, i18n, PrintDebug, GLOBAL_SETUP
 
 log_print = PrintDebug('bPlex', 'plex_signin')
+media_path = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_path']))
 
 
 class PlexSignin(pyxbmct.AddonFullWindow):
@@ -81,17 +82,17 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.connect(self.submit_pin_button, lambda: self.submit_pin())
 
         # set up failure message
-        self.error_cross = pyxbmct.Image(GLOBAL_SETUP['media_dir'] + 'error.png', aspectRatio=2)
+        self.error_cross = pyxbmct.Image(media_path + 'error.png', aspectRatio=2)
         self.placeControl(self.error_cross, 4, 2)
         self.error_message = pyxbmct.Label(i18n(30624))
         self.placeControl(self.error_message, 4, 3, columnspan=2, rowspan=2)
         self.error_cross.setVisible(False)
         self.error_message.setVisible(False)
 
-        self.digit_one = pyxbmct.Image(GLOBAL_SETUP['media_dir'] + '-.png', aspectRatio=2)
-        self.digit_two = pyxbmct.Image(GLOBAL_SETUP['media_dir'] + '-.png', aspectRatio=2)
-        self.digit_three = pyxbmct.Image(GLOBAL_SETUP['media_dir'] + '-.png', aspectRatio=2)
-        self.digit_four = pyxbmct.Image(GLOBAL_SETUP['media_dir'] + '-.png', aspectRatio=2)
+        self.digit_one = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
+        self.digit_two = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
+        self.digit_three = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
+        self.digit_four = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
 
         self.placeControl(self.digit_one, 3, 1)
         self.placeControl(self.digit_two, 3, 2)
@@ -134,10 +135,10 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.digit_three.setVisible(True)
         self.digit_four.setVisible(True)
 
-        self.digit_one.setImage(GLOBAL_SETUP['media_dir'] + digits[0].lower() + '.png')
-        self.digit_two.setImage(GLOBAL_SETUP['media_dir'] + digits[1].lower() + '.png')
-        self.digit_three.setImage(GLOBAL_SETUP['media_dir'] + digits[2].lower() + '.png')
-        self.digit_four.setImage(GLOBAL_SETUP['media_dir'] + digits[3].lower() + '.png')
+        self.digit_one.setImage(media_path + digits[0].lower() + '.png')
+        self.digit_two.setImage(media_path + digits[1].lower() + '.png')
+        self.digit_three.setImage(media_path + digits[2].lower() + '.png')
+        self.digit_four.setImage(media_path + digits[3].lower() + '.png')
 
         self.setFocus(self.submit_pin_button)
 
@@ -178,7 +179,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
             self.submit_button.setVisible(False)
             self.pin_button.setVisible(False)
             # tick mark
-            self.tick = pyxbmct.Image(GLOBAL_SETUP['media_dir'] + 'tick.png', aspectRatio=2)
+            self.tick = pyxbmct.Image(media_path + 'tick.png', aspectRatio=2)
             self.placeControl(self.tick, 2, 2, columnspan=2, rowspan=2)
 
             self.description.setText(i18n(30626))
@@ -205,7 +206,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
             self.pin_button.setVisible(False)
             self.submit_pin_button.setVisible(False)
             # tick mark
-            self.tick = pyxbmct.Image(GLOBAL_SETUP['media_dir'] + 'tick.png', aspectRatio=2)
+            self.tick = pyxbmct.Image(media_path + 'tick.png', aspectRatio=2)
             self.placeControl(self.tick, 2, 2, columnspan=2, rowspan=2)
 
             self.description.setText(i18n(30626))

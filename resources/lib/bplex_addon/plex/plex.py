@@ -3,6 +3,8 @@ import uuid
 import traceback
 import xml.etree.ElementTree as ETree
 
+import xbmc
+
 import requests
 from six import iteritems
 from six import string_types
@@ -23,7 +25,8 @@ class Plex:
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl(GLOBAL_SETUP['cache_dir'] + 'servers', settings.get_setting('cache'))
+        self.cache = cache_control.CacheControl(decode_utf8(xbmc.translatePath(GLOBAL_SETUP['data_path'] + 'cache/servers')),
+                                                settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
