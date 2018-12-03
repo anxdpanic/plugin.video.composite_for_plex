@@ -42,8 +42,6 @@ from six.moves import range
 from .common import *  # Needed first to setup import locations
 from .plex import plex
 
-WINDOW = xbmcgui.Window(10000)
-
 
 def select_media_type(part_data, server, dvdplayback=False):
     stream = part_data['key']
@@ -420,7 +418,6 @@ def process_movies(url, tree=None):
     if tree is None:
         return
 
-    set_window_heading(tree)
     random_number = str(random.randint(1000000000, 9999999999))
 
     # Find all the video tags, as they contain the data we need to link to a file.
@@ -472,7 +469,6 @@ def process_tvshows(url, tree=None):
 
     server = plex_network.get_server_from_url(url)
 
-    set_window_heading(tree)
     # For each directory tag we find
     show_tags = tree.findall('Directory')
     for show in show_tags:
@@ -555,7 +551,6 @@ def process_tvseasons(url):
 
     sectionart = get_fanart_image(tree, server)
     banner = get_banner_image(tree, server)
-    set_window_heading(tree)
     # For all the directory tags
     season_tags = tree.findall('Directory')
     plot = encode_utf8(tree.get('summary', ''))
@@ -630,8 +625,6 @@ def process_tvepisodes(url, tree=None):
     tree = get_xml(url, tree)
     if tree is None:
         return
-
-    set_window_heading(tree)
 
     # get season thumb for SEASON NODE
     season_thumb = tree.get('thumb', '')
@@ -1077,11 +1070,6 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
     else:
         xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-    # record the playing file and server in the home window
-    # so that plexbmc helper can find out what is playing
-    WINDOW.setProperty('bplex.nowplaying.server', server.get_location())
-    WINDOW.setProperty('bplex.nowplaying.id', _id)
-
     # Set a loop to wait for positive confirmation of playback
     count = 0
     while not xbmc.Player().isPlaying():
@@ -1456,8 +1444,6 @@ def get_content(url):
 
     tree = server.processed_xml(url)
 
-    set_window_heading(tree)
-
     if lastbit == 'folder' or lastbit == 'playlists':
         process_xml(url, tree)
         return
@@ -1494,7 +1480,6 @@ def process_directory(url, tree=None):
     log_print.debug('Processing secondary menus')
     xbmcplugin.setContent(pluginhandle, '')
     server = plex_network.get_server_from_url(url)
-    set_window_heading(tree)
     thumb = tree.get('thumb')
     for directory in tree:
         details = {'title': directory_item_translate(encode_utf8(directory.get('title', i18n(30636))), thumb)}
@@ -1669,7 +1654,6 @@ def artist(url, tree=None):
         return
 
     server = plex_network.get_server_from_url(url)
-    set_window_heading(tree)
     artist_tag = tree.findall('Directory')
     for _artist in artist_tag:
         details = {'artist': encode_utf8(_artist.get('title', ''))}
@@ -1706,7 +1690,6 @@ def albums(url, tree=None):
 
     server = plex_network.get_server_from_url(url)
     sectionart = get_fanart_image(tree, server)
-    set_window_heading(tree)
     album_tags = tree.findall('Directory')
     recent = True if 'recentlyAdded' in url else False
     for album in album_tags:
@@ -1755,7 +1738,6 @@ def tracks(url, tree=None):
     server = plex_network.get_server_from_url(url)
     sectionart = get_fanart_image(tree, server)
     sectionthumb = get_thumb_image(tree, server)
-    set_window_heading(tree)
     track_tags = tree.findall('Track')
     for track in track_tags:
         if track.get('thumb'):
@@ -1877,7 +1859,6 @@ def channel_settings(url, setting_id):
     if tree is None:
         return
 
-    set_window_heading(tree)
     set_string = None
     for plugin in tree:
 
@@ -1949,7 +1930,6 @@ def process_xml(url, tree=None):
     tree = get_xml(url, tree)
     if tree is None:
         return
-    set_window_heading(tree)
     for plugin in tree:
 
         details = {'title': encode_utf8(plugin.get('title'))}
@@ -2165,7 +2145,6 @@ def photo(url, tree=None):
         return
 
     section_art = get_fanart_image(tree, server)
-    set_window_heading(tree)
     for picture in tree:
 
         details = {'title': encode_utf8(picture.get('title', picture.get('name', i18n(30636))))}
@@ -2211,7 +2190,6 @@ def music(url, tree=None):
     if tree is None:
         return
 
-    set_window_heading(tree)
     for grapes in tree:
 
         if grapes.get('key') is None:
@@ -2472,7 +2450,6 @@ def channel_view(url):
     if tree is None:
         return
 
-    set_window_heading(tree)
     for channels in tree.getiterator('Directory'):
 
         if channels.get('local', '') == '0':
@@ -2745,18 +2722,6 @@ def set_library_audio(server_uuid, metadata_id):
     return True
 
 
-def set_window_heading(tree):
-    gui_window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
-    try:
-        gui_window.setProperty('heading', tree.get('title1'))
-    except:
-        gui_window.clearProperty('heading')
-    try:
-        gui_window.setProperty('heading2', heading2_translate(tree))
-    except:
-        gui_window.clearProperty('heading2')
-
-
 def get_master_server(all_servers=False):
     possible_servers = []
     current_master = settings.get_setting('masterServer')
@@ -3009,9 +2974,6 @@ def start_bplex(sys_argv):
         xbmc.executebuiltin('Container.Refresh')
     elif command == 'switchuser':
         if switch_user():
-            gui_window = xbmcgui.Window(10000)
-            gui_window.setProperty('bplex.plexhome_user', str(plex_network.get_myplex_user()))
-            gui_window.setProperty('bplex.plexhome_avatar', str(plex_network.get_myplex_avatar()))
             xbmc.executebuiltin('Container.Refresh')
         else:
             log_print.debug('Switch User Failed')
@@ -3023,9 +2985,6 @@ def start_bplex(sys_argv):
         ret = xbmcgui.Dialog().yesno(i18n(30008), i18n(30009))
         if ret:
             plex_network.signout()
-            gui_window = xbmcgui.Window(10000)
-            gui_window.clearProperty('bplex.plexhome_user')
-            gui_window.clearProperty('bplex.plexhome_avatar')
             xbmc.executebuiltin('Container.Refresh')
 
     elif command == 'signin':
@@ -3099,9 +3058,6 @@ def start_bplex(sys_argv):
 
         # else move to the main code    
         else:
-            gui_window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
-            gui_window.clearProperty('heading')
-            gui_window.clearProperty('heading2')
 
             # Run a function based on the mode variable that was passed in the URL
             if (mode is None) or (param_url is None) or (len(param_url) < 1):
