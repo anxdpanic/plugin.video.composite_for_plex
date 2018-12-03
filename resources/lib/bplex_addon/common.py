@@ -56,21 +56,21 @@ class PrintDebug:
         return self.__print_message(message, 1, no_privacy)
 
     def __print_message(self, msg, level=0, no_privacy=False):
+        try:
+            tag = ''
+            msg = encode_utf8(msg)
+        except:
+            tag = ' [NONUTF8]'
+
         if self.privacy and not no_privacy:
-            msg = self.token_regex.sub('X-Plex-Token=XXXXXXXXXX&', str(msg))
+            msg = self.token_regex.sub('X-Plex-Token=XXXXXXXXXX&', msg)
             msg = self.ip_regex.sub('.X.X.', msg)
             msg = self.ip_dom_regex.sub('-X-X-', msg)
             msg = self.user_regex.sub('X-Plex-User=XXXXXXX&', msg)
 
         if self.level >= level or level == self.LOG_ERROR:
             log_level = xbmc.LOGERROR if level == self.LOG_ERROR else xbmc.LOGDEBUG
-            try:
-                if PY3:
-                    xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg), log_level)
-                else:
-                    xbmc.log('%s%s -> %s : %s' % (self.main, self.sub, inspect.stack(0)[2][3], msg.encode('utf-8')), log_level)
-            except:
-                xbmc.log('%s%s -> %s : %s [NONUTF8]' % (self.main, self.sub, inspect.stack(0)[2][3], msg), log_level)
+            xbmc.log('%s%s -> %s : %s%s' % (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
 
     def __call__(self, msg, level=0):
         return self.__print_message(msg, level)
