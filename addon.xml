@@ -14,7 +14,7 @@
 
         </news>
         <assets>
-            <icon>resources/media/icon.png</icon>
+            <icon>icon.png</icon>
         </assets>
         <platform>all</platform>
         <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
