@@ -128,7 +128,7 @@ def select_media_type(part_data, server, dvdplayback=False):
             if '/' + settings.get_setting('nasroot') + '/' in filelocation:
                 components = filelocation.split('/')
                 index = components.index(settings.get_setting('nasroot'))
-                for i in list(range(3, index)):
+                for m in list(range(3, index)):
                     components.pop(3)
                 filelocation = '/'.join(components)
     else:
@@ -1383,8 +1383,8 @@ def get_params(paramstring):
             params = params[0:len(params) - 2]
 
         pairsofparams = cleanedparams.split('&')
-        for i in list(range(len(pairsofparams))):
-            splitparams = pairsofparams[i].split('=')
+        for m in list(range(len(pairsofparams))):
+            splitparams = pairsofparams[m].split('=')
             if (len(splitparams)) == 2:
                 param[splitparams[0]] = splitparams[1]
             elif (len(splitparams)) == 3:
@@ -2344,9 +2344,9 @@ def get_link_url(url, path_data, server):
     elif path.startswith('plex:'):
         log_print.debug('Detected plex link')
         components = path.split('&')
-        for i in components:
-            if 'prefix=' in i:
-                del components[components.index(i)]
+        for m in components:
+            if 'prefix=' in m:
+                del components[components.index(m)]
                 break
         if path_data.get('identifier') is not None:
             components.append('identifier=' + path_data['identifier'])
@@ -2404,12 +2404,12 @@ def install(url, name):
         return
 
     operations = {}
-    i = 0
+    m = 0
     for plums in tree.findall('Directory'):
-        operations[i] = plums.get('title')
+        operations[m] = plums.get('title')
 
         # If we find an install option, switch to a yes/no dialog box
-        if operations[i].lower() == 'install':
+        if operations[m].lower() == 'install':
             log_print.debug('Not installed.  Print dialog')
             ret = xbmcgui.Dialog().yesno(i18n(30002), i18n(30003) + name)
 
@@ -2422,7 +2422,7 @@ def install(url, name):
                 xbmcgui.Dialog().ok(i18n(30002), msg)
             return
 
-        i += 1
+        m += 1
 
     # Else continue to a selection dialog box
     ret = xbmcgui.Dialog().select(i18n(30004), operations.values())
@@ -2888,12 +2888,12 @@ def get_transcode_profile():
     profile_count = 3
     profile_labels = []
 
-    for i in list(range(profile_count)):
-        if i == 0 or settings.get_setting('transcode_target_enabled_%s' % str(i)):
-            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' % str(i)).split(',')
-            sub_size = settings.get_setting('transcode_target_sub_size_%s' % str(i))
-            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % str(i))
-            profile_labels.append('[%s] %s@%s (%s/%s)' % (str(i + 1), resolution, bitrate.strip(), sub_size, audio_boost))
+    for m in list(range(profile_count)):
+        if m == 0 or settings.get_setting('transcode_target_enabled_%s' % str(m)):
+            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' % str(m)).split(',')
+            sub_size = settings.get_setting('transcode_target_sub_size_%s' % str(m))
+            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % str(m))
+            profile_labels.append('[%s] %s@%s (%s/%s)' % (str(m + 1), resolution, bitrate.strip(), sub_size, audio_boost))
 
     if len(profile_labels) == 1:
         return 0
