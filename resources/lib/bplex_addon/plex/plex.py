@@ -242,17 +242,18 @@ class Plex:
         return self.server_list.values()
 
     def plex_identification(self):
-        header = {'X-Plex-Device': 'bPlex',
-                  'X-Plex-Client-Platform': 'KODI',
+
+        header = {'X-Plex-Device': GLOBAL_SETUP['device'],
+                  'X-Plex-Client-Platform': 'Kodi',
                   'X-Plex-Device-Name': settings.get_setting('devicename'),
                   'X-Plex-Language': 'en',
-                  'X-Plex-Model': 'unknown',
-                  'X-Plex-Platform': 'bPlex',
+                  'X-Plex-Platform': GLOBAL_SETUP['platform'],
                   'X-Plex-Client-Identifier': self.get_client_identifier(),
                   'X-Plex-Product': 'bPlex',
-                  'X-Plex-Platform-Version': GLOBAL_SETUP['platform'],
-                  'X-Plex-Version': GLOBAL_SETUP['version'],
-                  'X-Plex-Provides': 'player'}
+                  'X-Plex-Platform-Version': GLOBAL_SETUP['platform_version'],
+                  'X-Plex-Version': '0.0.0a1',
+                  'X-Plex-Provides': 'player,controller'}
+
         if self.effective_token is not None:
             header['X-Plex-Token'] = self.effective_token
 

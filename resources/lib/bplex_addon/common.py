@@ -1,5 +1,7 @@
 import inspect
+import platform
 import socket
+import sys
 import re
 
 import xbmc
@@ -99,20 +101,14 @@ def i18n(string_id):
         return encode_utf8(__addon.getLocalizedString(string_id))
 
 
-def get_platform():
-    if xbmc.getCondVisibility('system.platform.osx'):
-        return 'OSX'
-    elif xbmc.getCondVisibility('system.platform.atv2'):
-        return 'ATV2'
-    elif xbmc.getCondVisibility('system.platform.ios'):
-        return 'iOS'
-    elif xbmc.getCondVisibility('system.platform.windows'):
-        return 'Windows'
-    elif xbmc.getCondVisibility('system.platform.linux'):
-        return 'Linux/RPi'
-    elif xbmc.getCondVisibility('system.platform.android'):
-        return 'Linux/Android'
-    return i18n(30636)
+def get_device():
+    try:
+        return platform.system()
+    except:
+        try:
+            return platform.platform(terse=True)
+        except:
+            return sys.platform
 
 
 def wake_servers():
@@ -154,7 +150,9 @@ except:
 GLOBAL_SETUP = {'addon': __addon,
                 'data_path': decode_utf8(__addon.getAddonInfo('profile')),
                 'version': decode_utf8(__addon.getAddonInfo('version')),
-                'platform': decode_utf8(get_platform()),
+                'device': get_device(),
+                'platform': platform.uname()[0],
+                'platform_version': platform.uname()[2],
                 'media_path': 'special://home/addons/%s/resources/media/' % decode_utf8(__addon.getAddonInfo('id'))}
 
 GENERIC_THUMBNAIL = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_path'] + 'thumb.png'))
