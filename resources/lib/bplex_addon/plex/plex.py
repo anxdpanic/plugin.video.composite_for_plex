@@ -389,10 +389,9 @@ class Plex:
                 log_print.debug('[%s] Found server connection' % device.get('name'))
 
                 if connection.get('local') == '0':
-                    discovered_server.add_external_connection(connection.get('address'), connection.get('port'))
-
+                    discovered_server.add_external_connection(connection.get('address'), connection.get('port'), connection.get('uri'))
                 else:
-                    discovered_server.add_internal_connection(connection.get('address'), connection.get('port'))
+                    discovered_server.add_internal_connection(connection.get('address'), connection.get('port'), connection.get('uri'))
 
                 if connection.get('protocol') == 'http':
                     log_print.debug('[%s] Dropping back to http' % device.get('name'))

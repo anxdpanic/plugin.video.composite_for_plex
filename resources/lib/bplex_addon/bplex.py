@@ -2914,7 +2914,8 @@ log_print = PrintDebug('bPlex')
 
 log_print.debug('bPlex %s: Kodi %s on %s with Python %s' %
                 (GLOBAL_SETUP['version'], KODI_VERSION,
-                 GLOBAL_SETUP['platform'], '-'.join([str(i) for i in sys.version_info])))
+                 GLOBAL_SETUP['platform'], '.'.join([str(i) for i in sys.version_info])),
+                no_privacy=True)  # force no privacy to avoid redacting version strings
 wake_servers()
 
 stream_control_map = {SUB_AUDIO.KODI: 'Kodi', SUB_AUDIO.PLEX: 'Plex', SUB_AUDIO.NEVER: 'Never'}

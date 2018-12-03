@@ -34,11 +34,15 @@ class PlexMediaServer:
         self.discovery = discovery
         self.local_address = []
         self.external_address = None
+        self.external_address_uri = None
+        self.local_address_uri = []
 
         if self.discovery == 'myplex':
             self.external_address = '%s:%s' % (address, port)
+            self.external_address_uri = None
         elif self.discovery == 'discovery':
             self.local_address = ['%s:%s' % (address, port)]
+            self.local_address_uri = [None]
 
         self.access_address = '%s:%s' % (address, port)
 
@@ -222,12 +226,14 @@ class PlexMediaServer:
     def set_plex_home_disabled(self):
         self.plex_home_enabled = False
 
-    def add_external_connection(self, address, port):
+    def add_external_connection(self, address, port, uri):
         self.external_address = '%s:%s' % (address, port)
+        self.external_address_uri = uri
 
-    def add_internal_connection(self, address, port):
+    def add_internal_connection(self, address, port, uri):
         if '%s:%s' % (address, port) not in self.local_address:
             self.local_address.append('%s:%s' % (address, port))
+            self.local_address_uri.append(uri)
 
     def add_local_address(self, address):
         self.local_address = address.split(',')
@@ -255,20 +261,25 @@ class PlexMediaServer:
         return
 
     def talk(self, url='/', refresh=False, method='get'):
-
-        if not settings.get_setting('secureconn'):
-            self.set_protocol('http')
         if not self.offline or refresh:
             log_print.debug('URL is: %s using %s' % (url, self.protocol))
 
             start_time = time.time()
+            if self.external_address_uri and (self.get_access_address() in self.external_address):
+                uri = self.external_address_uri + url
+                if not settings.get_setting('secureconn'):
+                    uri = uri.replace('https', 'http')
+            else:
+                if not settings.get_setting('secureconn'):
+                    self.set_protocol('http')
+                uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             try:
                 if method == 'get':
-                    response = requests.get('%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2, 60))
+                    response = requests.get(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
                 elif method == 'put':
-                    response = requests.put('%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2, 60))
+                    response = requests.put(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
                 elif method == 'delete':
-                    response = requests.delete('%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url), params=self.plex_identification_header, verify=False, timeout=(2, 60))
+                    response = requests.delete(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
                 else:
                     response = None
                 self.offline = False
@@ -439,7 +450,10 @@ class PlexMediaServer:
             if url_parts.query:
                 url = url + '?' + url_parts.query
 
-        location = '%s%s' % (self.get_url_location(), url)
+        if self.external_address_uri and (self.get_access_address() in self.external_address):
+            location = '%s%s' % (self.external_address_uri, url)
+        else:
+            location = '%s%s' % (self.get_url_location(), url)
 
         url_parts = urlparse(location)
 
@@ -448,7 +462,11 @@ class PlexMediaServer:
 
         new_query_args = urlencode(query_args, True)
 
-        return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
+        scheme = url_parts.scheme
+        if scheme == 'https' and not settings.get_setting('secureconn'):
+            scheme = 'http'
+
+        return urlunparse((scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
 
     def get_kodi_header_formatted_url(self, url, options=None):
 
@@ -462,7 +480,10 @@ class PlexMediaServer:
             if url_parts.query:
                 url = url + '?' + url_parts.query
 
-        location = '%s%s' % (self.get_url_location(), url)
+        if self.external_address_uri and (self.get_access_address() in self.external_address):
+            location = '%s%s' % (self.external_address_uri, url)
+        else:
+            location = '%s%s' % (self.get_url_location(), url)
 
         url_parts = urlparse(location)
 
@@ -474,7 +495,11 @@ class PlexMediaServer:
 
         new_query_args = urlencode(query_args, True)
 
-        return '%s | %s' % (urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
+        scheme = url_parts.scheme
+        if scheme == 'https' and not settings.get_setting('secureconn'):
+            scheme = 'http'
+
+        return '%s | %s' % (urlunparse((scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
 

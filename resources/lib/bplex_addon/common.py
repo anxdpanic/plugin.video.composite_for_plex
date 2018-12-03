@@ -34,6 +34,7 @@ class PrintDebug:
         self.LOG_ERROR = 9
         self.token_regex = re.compile('-Token=[a-z|0-9].*?[&|$]')
         self.ip_regex = re.compile('\.\d{1,3}\.\d{1,3}\.')
+        self.ip_dom_regex = re.compile('-\d{1,3}-\d{1,3}-')
         self.user_regex = re.compile('-User=[a-z|0-9].*?[&|$]')
 
         self.DEBUG_MAP = {self.DEBUG_DEBUG: 'debug',
@@ -43,19 +44,20 @@ class PrintDebug:
     def get_name(self, level):
         return self.DEBUG_MAP[level]
 
-    def error(self, message):
-        return self.__print_message(message, 9)
+    def error(self, message, no_privacy=False):
+        return self.__print_message(message, 9, no_privacy)
 
-    def debug(self, message):
-        return self.__print_message(message, 0)
+    def debug(self, message, no_privacy=False):
+        return self.__print_message(message, 0, no_privacy)
 
-    def debugplus(self, message):
-        return self.__print_message(message, 1)
+    def debugplus(self, message, no_privacy=False):
+        return self.__print_message(message, 1, no_privacy)
 
-    def __print_message(self, msg, level=0):
-        if self.privacy:
+    def __print_message(self, msg, level=0, no_privacy=False):
+        if self.privacy and not no_privacy:
             msg = self.token_regex.sub('X-Plex-Token=XXXXXXXXXX&', str(msg))
             msg = self.ip_regex.sub('.X.X.', msg)
+            msg = self.ip_dom_regex.sub('-X-X-', msg)
             msg = self.user_regex.sub('X-Plex-User=XXXXXXX&', msg)
 
         if self.level >= level or level == self.LOG_ERROR:
