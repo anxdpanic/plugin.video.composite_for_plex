@@ -105,7 +105,7 @@ class Plex:
 
             if response.status_code == 200:
                 try:
-                    log_print.debugplus(encode_utf8(response.text))
+                    log_print.debugplus(encode_utf8(response.text, py2_only=False))
                     log_print.debug('Received new plex token')
                     xml = ETree.fromstring(encode_utf8(response.text))
                     home = xml.get('home', '0')
@@ -275,7 +275,7 @@ class Plex:
         log_print.debug('URL was: %s' % response.url)
 
         if response.status_code == requests.codes.ok:
-            log_print.debugplus('XML: \n%s' % response.text)
+            log_print.debugplus('XML: \n%s' % encode_utf8(response.text, py2_only=False))
             return response.text
 
     def get_processed_myplex_xml(self, url):
@@ -461,7 +461,7 @@ class Plex:
                 else:
                     return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
             else:
-                link = encode_utf8(response.text)
+                link = encode_utf8(response.text, py2_only=False)
                 log_print.debugplus('XML: \n%s' % link)
 
         return link
@@ -490,7 +490,7 @@ class Plex:
 
         if response.status_code == 201:
             try:
-                log_print.debugplus(encode_utf8(response.text))
+                log_print.debugplus(encode_utf8(response.text, py2_only=False))
                 log_print.debug('Received new plex token')
                 xml = ETree.fromstring(encode_utf8(response.text))
                 home = xml.get('home', '0')

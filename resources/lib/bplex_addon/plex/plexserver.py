@@ -290,9 +290,8 @@ class PlexMediaServer:
 
                 if response.status_code == requests.codes.ok:
                     log_print.debug('Response: 200 OK - Encoding: %s' % response.encoding)
-                    log_print.debugplus('XML: \n%s' % encode_utf8(response.text))
-                    data = encode_utf8(response.text)
-
+                    data = encode_utf8(response.text, py2_only=False)
+                    log_print.debugplus('XML: \n%s' % data)
                     log_print.debug('DOWNLOAD: It took %.2f seconds to retrieve data from %s' % ((time.time() - start_time), self.get_address()))
                     return data
                 elif response.status_code == requests.codes.unauthorized:
