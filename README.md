@@ -27,5 +27,7 @@ bPlex allows media and metadata stored in the Plex Media Server (PMS) to be view
 ---
 
 This add-on is a fork of PleXBMC by Hippojay
+
 https://github.com/hippojay/plugin.video.plexbmc
+
 https://github.com/Tgxcorporation/plugin.video.plexbmc
