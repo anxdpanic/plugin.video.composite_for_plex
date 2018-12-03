@@ -1,3 +1,6 @@
+1.0.1
+[fix] log encoding
+
 1.0.0
 - Initial stable release after fork of PleXBMC
 https://github.com/hippojay/plugin.video.plexbmc
