@@ -942,3 +942,23 @@ msgstr ""
 msgctxt "#30641"
 msgid "Transcode Profiles"
 msgstr ""
+
+msgctxt "#30642"
+msgid "Offline"
+msgstr ""
+
+msgctxt "#30643"
+msgid "Remote"
+msgstr ""
+
+msgctxt "#30644"
+msgid "Nearby"
+msgstr ""
+
+msgctxt "#30645"
+msgid "SSL"
+msgstr ""
+
+msgctxt "#30646"
+msgid "Not Secure"
+msgstr ""

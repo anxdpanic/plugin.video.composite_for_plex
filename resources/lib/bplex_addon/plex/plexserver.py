@@ -67,13 +67,13 @@ class PlexMediaServer:
 
     def get_status(self):
         if self.offline:
-            return 'Offline'
+            return 'Offline', i18n(30642)
         elif self.access_address == self.external_address:
-            return 'Remote'
+            return 'Remote', i18n(30643)
         elif self.access_address in self.local_address:
-            return 'Nearby'
+            return 'Nearby', i18n(30644)
         else:
-            return i18n(30636)
+            return 'Unknown', i18n(30636)
 
     def get_details(self):
 

@@ -2782,15 +2782,17 @@ def display_known_servers():
 
     for device in known_servers:
         name = device.get_name()
-        status = device.get_status()
+        log_status, status_label = device.get_status()
         if device.is_secure():
-            secure = 'SSL'
+            log_secure = 'SSL'
+            secure_label = i18n(30645)
         else:
-            secure = 'Not Secure'
+            log_secure = 'Not Secure'
+            secure_label = i18n(30646)
 
-        log_print.debug('Device: %s [%s] [%s]' % (name, status, secure))
+        log_print.debug('Device: %s [%s] [%s]' % (name, log_status, log_secure))
         log_print.debugplus('Full device dump [%s]' % device.__dict__)
-        display_list.append('%s [%s] [%s]' % (name, status, secure))
+        display_list.append('%s [%s] [%s]' % (name, status_label, secure_label))
 
     server_display_screen = xbmcgui.Dialog()
     server_display_screen.select(i18n(30075), display_list)
