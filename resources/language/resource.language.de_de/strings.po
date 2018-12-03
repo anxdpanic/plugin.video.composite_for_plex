@@ -962,3 +962,7 @@ msgstr ""
 msgctxt "#30646"
 msgid "Not Secure"
 msgstr ""
+
+msgctxt "#30647"
+msgid "Certificate Verification"
+msgstr ""

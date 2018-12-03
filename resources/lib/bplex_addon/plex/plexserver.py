@@ -261,23 +261,28 @@ class PlexMediaServer:
     def talk(self, url='/', refresh=False, method='get'):
         if not self.offline or refresh:
             log_print.debug('URL is: %s using %s' % (url, self.protocol))
-
             start_time = time.time()
+
+            verify_cert = settings.get_setting('verify_cert')
+
             if self.external_address_uri and (self.get_access_address() in self.external_address):
                 uri = self.external_address_uri + url
                 if not settings.get_setting('secureconn'):
                     uri = uri.replace('https', 'http')
+                    verify_cert = False
             else:
                 if not settings.get_setting('secureconn'):
                     self.set_protocol('http')
+                    verify_cert = False
                 uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
+
             try:
                 if method == 'get':
-                    response = requests.get(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
+                    response = requests.get(uri, params=self.plex_identification_header, verify=verify_cert, timeout=(2, 60))
                 elif method == 'put':
-                    response = requests.put(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
+                    response = requests.put(uri, params=self.plex_identification_header, verify=verify_cert, timeout=(2, 60))
                 elif method == 'delete':
-                    response = requests.delete(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
+                    response = requests.delete(uri, params=self.plex_identification_header, verify=verify_cert, timeout=(2, 60))
                 else:
                     response = None
                 self.offline = False
