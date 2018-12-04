@@ -7,7 +7,7 @@ import re
 import xbmc
 import xbmcaddon
 
-from six import PY3
+from six import PY3, string_types
 
 from .settings import AddonSettings
 
@@ -56,6 +56,9 @@ class PrintDebug:
         return self.__print_message(message, 1, no_privacy)
 
     def __print_message(self, msg, level=0, no_privacy=False):
+        if not isinstance(msg, string_types):
+            msg = str(msg)
+
         try:
             tag = ''
             msg = encode_utf8(msg)

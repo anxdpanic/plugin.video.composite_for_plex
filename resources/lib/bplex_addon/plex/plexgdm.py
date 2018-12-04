@@ -186,7 +186,7 @@ class PlexGDM:
             while True:
                 try:
                     data, server = sock.recvfrom(1024)
-                    _log_print.debug('Received data from %s' % server)
+                    _log_print.debug('Received data from %s:%s' % (server[0], server[1]))
                     _log_print.debug('Data received is:\n %s' % data)
                     return_data.append({'from': server,
                                         'data': data})
