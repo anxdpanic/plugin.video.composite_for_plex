@@ -322,7 +322,7 @@ class PlexMediaServer:
             log_print.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = settings.get_setting('verify_cert')
+            verify_cert = False if self.protocol == 'http' else settings.get_setting('verify_cert')
 
             if not settings.get_setting('secureconn'):
                 self.set_protocol('http')
