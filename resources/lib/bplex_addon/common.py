@@ -162,6 +162,7 @@ except:
     KODI_VERSION = 0
 
 GLOBAL_SETUP = {'addon': __addon,
+                'id': decode_utf8(__addon.getAddonInfo('id')),
                 'data_path': decode_utf8(__addon.getAddonInfo('profile')),
                 'version': decode_utf8(__addon.getAddonInfo('version')),
                 'device': get_device(),

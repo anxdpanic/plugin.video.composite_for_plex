@@ -425,13 +425,13 @@ def build_context_menu(url, item_data, server):
     item_id = item_data.get('ratingKey', '0')
 
     # Mark media unwatched
-    context.append((i18n(117), 'RunScript(plugin.video.bplex, delete, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n(16104), 'RunScript(plugin.video.bplex, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append((i18n(16103), 'RunScript(plugin.video.bplex, watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
-    context.append((i18n(292), 'RunScript(plugin.video.bplex, audio, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n(287), 'RunScript(plugin.video.bplex, subs, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n(653), 'RunScript(plugin.video.bplex, update, %s, %s)' % (server.get_uuid(), section)))
-    context.append((i18n(184), 'RunScript(plugin.video.bplex, refresh)'))
+    context.append((i18n(117), 'RunScript(' + GLOBAL_SETUP['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n(16104), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+    context.append((i18n(16103), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
+    context.append((i18n(292), 'RunScript(' + GLOBAL_SETUP['id'] + ', audio, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n(287), 'RunScript(' + GLOBAL_SETUP['id'] + ', subs, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n(653), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)' % (server.get_uuid(), section)))
+    context.append((i18n(184), 'RunScript(' + GLOBAL_SETUP['id'] + ', refresh)'))
 
     log_print.debug('Using context menus: %s' % context)
 
@@ -2020,7 +2020,7 @@ def movie_tag(url, server, movie, random_number):
         details['genre'] = ' / '.join(tempgenre)
 
     if movie.get('primaryExtraKey') is not None:
-        details['trailer'] = 'plugin://plugin.video.bplex/?url=%s%s?t=%s&mode=%s' % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODES.PLAYLIBRARY)
+        details['trailer'] = 'plugin://' + GLOBAL_SETUP['id'] + '/?url=%s%s?t=%s&mode=%s' % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODES.PLAYLIBRARY)
         log_print.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
@@ -2984,14 +2984,14 @@ def start_bplex(sys_argv):
 
     elif command == 'signintemp':
         # Awful hack to get around running a script from a listitem..
-        xbmc.executebuiltin('RunScript(plugin.video.bplex, signin)')
+        xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', signin)')
 
     elif command == 'managemyplex':
 
         if not plex_network.is_myplex_signedin():
             ret = xbmcgui.Dialog().yesno(i18n(30010), i18n(30011))
             if ret:
-                xbmc.executebuiltin('RunScript(plugin.video.bplex, signin)')
+                xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', signin)')
             else:
                 return
 
@@ -3137,7 +3137,7 @@ def start_bplex(sys_argv):
 
             elif mode == MODES.DELETE_REFRESH:
                 plex_network.delete_cache()
-                xbmc.executebuiltin('Container.Refresh')
+                xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', refresh)')
 
             elif mode == MODES.PLAYLISTS:
                 process_xml(param_url)
