@@ -8,8 +8,8 @@
         <setting id='secureconn' type='bool' label='30610' default='true'/>
         <setting id='verify_cert' type='bool' label='30647' default='true'/>
         <!--<setting type='sep' />-->
-        <setting id='managemyplex' label='30605' type='action' action='RunScript(plugin.video.bplex, managemyplex)' option='close'/>
-        <setting id='selectMaster' label='30526' type='action' action='RunScript(plugin.video.bplex, master)'/>
+        <setting id='managemyplex' label='30605' type='action' action='RunScript($ID, managemyplex)' option='close'/>
+        <setting id='selectMaster' label='30526' type='action' action='RunScript($ID, master)'/>
         <setting id='masterServer' label='30571' type='text' default=''/>
         <setting id='client_id' type='text' visible='false' option='hidden'/>
         <setting id='wolon' type='bool' label='30523' default='false'/>
@@ -79,5 +79,7 @@
         <setting id='kodicache' type='bool' label='30604' default='false'/>
         <setting type='sep'/>
         <setting id='privacy' type='bool' label='30607' default='true'/>
+        <setting type='sep'/>
+        <setting id='refresh_data' label='30083' type='action' action='RunPlugin(plugin://$ID/?mode=28&amp;type=file)' option='close'/>
     </category>
 </settings>
