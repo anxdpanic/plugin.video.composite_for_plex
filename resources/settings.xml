@@ -80,6 +80,6 @@
         <setting type='sep'/>
         <setting id='privacy' type='bool' label='30607' default='true'/>
         <setting type='sep'/>
-        <setting id='refresh_data' label='30083' type='action' action='RunPlugin(plugin://$ID/?mode=28&amp;type=file)' option='close'/>
+        <setting id='refresh_data' label='30083' type='action' action='RunScript($ID, delete_refresh)' option='close'/>
     </category>
 </settings>

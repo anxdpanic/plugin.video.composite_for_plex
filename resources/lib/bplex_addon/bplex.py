@@ -373,10 +373,8 @@ def display_sections(cfilter=None, display_shared=False):
 
     if settings.get_setting('cache'):
         details = {'title': i18n(30083)}
-        extra_data = {'type': 'file',
-                      'mode': MODES.DELETE_REFRESH}
-
-        u = 'http://nothing'
+        extra_data = {'type': 'file'}
+        u = 'cmd:delete_refresh'
         add_item_to_gui(u, details, extra_data)
 
     # All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
@@ -3007,6 +3005,9 @@ def start_bplex(sys_argv):
         plex_network.load()
         display_known_servers()
         xbmc.executebuiltin('Container.Refresh')
+    elif command == 'delete_refresh':
+        plex_network.delete_cache()
+        xbmc.executebuiltin('Container.Refresh')
     else:
         plex_network.load()
 
@@ -3134,10 +3135,6 @@ def start_bplex(sys_argv):
 
             elif mode == MODES.SHARED_ALL:
                 display_sections(display_shared=True)
-
-            elif mode == MODES.DELETE_REFRESH:
-                plex_network.delete_cache()
-                xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', refresh)')
 
             elif mode == MODES.PLAYLISTS:
                 process_xml(param_url)
