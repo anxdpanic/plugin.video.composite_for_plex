@@ -941,3 +941,7 @@ msgstr ""
 msgctxt "#30647"
 msgid "Certificate Verification"
 msgstr ""
+
+msgctxt "#30648"
+msgid "Message"
+msgstr ""

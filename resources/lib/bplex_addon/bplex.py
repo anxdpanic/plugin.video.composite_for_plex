@@ -1736,7 +1736,7 @@ def get_xml(url, tree=None):
         tree = plex_network.get_processed_xml(url)
 
     if tree.get('message'):
-        xbmcgui.Dialog().ok(tree.get('header', 'Message'), tree.get('message', ''))
+        xbmcgui.Dialog().ok(tree.get('header', i18n(30648)), tree.get('message', ''))
         return None
 
     return tree
