@@ -350,7 +350,7 @@ class PlexMediaServer:
 
                 if self.protocol == 'https' and refresh:
                     log_print.debug('Server: %s - switching to http' % self.get_address())
-                    self.protocol = 'http'
+                    self.set_protocol('http')
                     return self.talk(url, refresh, method)
                 else:
                     self.offline = True
