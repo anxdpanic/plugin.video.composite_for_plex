@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
-<addon id='plugin.video.bplex' name='bPlex' version='1.0.2' provider-name='anxdpanic'>
+<addon id='plugin.video.bplex' name='bPlex' version='1.1.0' provider-name='anxdpanic'>
     <requires>
         <import addon='xbmc.python' version='2.24.0'/>
         <import addon='script.module.six' version='1.11.0'/>
@@ -12,6 +12,7 @@
     <extension point='xbmc.addon.metadata'>
         <news>
 1.1.0
+[chg] use RunScript for Refresh Data
 [chg] use https setting applied during set best address
 [chg] use SPDX license identifiers
 
