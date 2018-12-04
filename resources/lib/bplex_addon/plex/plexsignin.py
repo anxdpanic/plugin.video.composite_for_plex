@@ -36,7 +36,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         """Set up UI controls"""
         # Description Text
         self.description = pyxbmct.TextBox()
-        self.placeControl(self.description, 1, 1, columnspan=4)
+        self.placeControl(self.description, 1, 1, columnspan=4, rowspan=2)
 
         # Username label
         self.name_label = pyxbmct.Label(i18n(30617))
