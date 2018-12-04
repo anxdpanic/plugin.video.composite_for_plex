@@ -1,24 +1,16 @@
 """
-PlexGDM.py - Version 0.3
 
-This class implements the Plex GDM (G'Day Mate) protocol to discover
-local Plex Media Servers.  Also allow client registration into all local
-media servers.
+    This class implements the Plex GDM (G'Day Mate) protocol to discover
+    local Plex Media Servers. Also allow client registration into all local
+    media servers.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+    Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
+    Copyright (C) 2018 bPlex (plugin.video.bplex)
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This file is part of bPlex (plugin.video.bplex)
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-MA 02110-1301, USA.
+    SPDX-License-Identifier: GPL-2.0-or-later
+    See LICENSES/GPL-2.0-or-later for more information.
 """
 
 import socket
@@ -30,8 +22,6 @@ from six.moves.urllib_request import urlopen
 
 from ..common import PrintDebug, encode_utf8
 
-
-__author__ = 'DHJ (hippojay) <plex@h-jay.com>'
 
 _log_print = PrintDebug('bPlex', 'PlexGDM')
 

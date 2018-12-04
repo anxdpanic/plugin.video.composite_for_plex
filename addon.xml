@@ -19,7 +19,7 @@
             <icon>icon.png</icon>
         </assets>
         <platform>all</platform>
-        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+        <license>GPL-2.0-or-later</license>
         <source>https://github.com/anxdpanic/plugin.video.bplex</source>
         <summary lang='en_GB'>Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</summary>
         <description lang='en_GB'>Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</description>

@@ -1,12 +1,17 @@
+
 """
-Class: CacheControl
+    Class: CacheControl
 
-Author: Hippojay (kodex@h-jay.com)
-Version: 1
-Requires: Kodex/Plexbmc
+    Implementation of file based caching for python objects.
+    Utilises pickle to store object data as file within the KODI virtual file system.
 
-Implementation of file based caching for python objects.  
-Utilises pickle to store object data as file within the KODI virtual file system.
+    Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
+    Copyright (C) 2018 bPlex (plugin.video.bplex)
+
+    This file is part of bPlex (plugin.video.bplex)
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+    See LICENSES/GPL-2.0-or-later for more information.
 """
 
 import time
