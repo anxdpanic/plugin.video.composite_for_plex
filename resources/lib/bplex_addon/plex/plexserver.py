@@ -253,6 +253,10 @@ class PlexMediaServer:
         def _head(_uri):
             return requests.head(_uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
 
+        use_https = settings.get_setting('secureconn')
+        if not use_https:
+            self.set_protocol('http')
+
         external_uri = ''
         if self.external_address_uri:
             url_parts = urlparse(self.external_address_uri)
@@ -260,7 +264,9 @@ class PlexMediaServer:
         internal_address = ''
         if self.local_address:
             internal_address = self.local_address[0]
-        external_address = self.external_address
+        external_address = ''
+        if self.external_address and not self.external_address.lower().startswith('none:'):
+            external_address = self.external_address
 
         # Ensure that ipaddress comes in an ip:port format
         if external_uri and ':' not in external_uri:
@@ -274,13 +280,16 @@ class PlexMediaServer:
         tested = []
         uris = []
         if external_uri:
-            uris.append('%s://%s/' % ('https', external_uri))
+            if use_https:
+                uris.append('%s://%s/' % ('https', external_uri))
             uris.append('%s://%s/' % ('http', external_uri))
         if internal_address:
-            uris.append('%s://%s/' % ('https', internal_address))
+            if use_https:
+                uris.append('%s://%s/' % ('https', internal_address))
             uris.append('%s://%s/' % ('http', internal_address))
         if external_address:
-            uris.append('%s://%s/' % ('https', external_address))
+            if use_https:
+                uris.append('%s://%s/' % ('https', external_address))
             uris.append('%s://%s/' % ('http', external_address))
 
         for m in list(range(len(uris))):
@@ -290,8 +299,9 @@ class PlexMediaServer:
 
             tested.append(uri)
             try:
-                log_print.debug('Head request |%s|' % uri)
+                log_print.debug('[%s] Head request |%s|' % (self.uuid, uri))
                 response = _head(uri)
+                log_print.debug('[%s] Head status |%s|' % (self.uuid, str(response.status_code)))
                 if response.status_code == requests.codes.ok:
                     url_parts = urlparse(uri)
                     ipaddress = url_parts.netloc
@@ -301,7 +311,8 @@ class PlexMediaServer:
                 continue
 
         if ipaddress is None:
-            ipaddress = self.external_address
+            self.offline = True
+            log_print.debug('[%s] Server appears to be offline' % self.uuid)
 
         if ipaddress in self.local_address:
             log_print.debug('[%s] IP address [%s] found on existing internal list.  Selecting as default' % (self.uuid, ipaddress))
@@ -312,8 +323,6 @@ class PlexMediaServer:
         elif self.external_address_uri and (ipaddress in self.external_address_uri):
             log_print.debug('[%s] IP address [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
             self.access_address = ipaddress
-        else:
-            log_print.debug('[%s] Address [%s] is not currently on list.  Possible uuid clash?' % (self.uuid, ipaddress))
 
         return
 
@@ -324,9 +333,6 @@ class PlexMediaServer:
 
             verify_cert = False if self.protocol == 'http' else settings.get_setting('verify_cert')
 
-            if not settings.get_setting('secureconn'):
-                self.set_protocol('http')
-                verify_cert = False
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
 
             try:
@@ -515,11 +521,7 @@ class PlexMediaServer:
 
         new_query_args = urlencode(query_args, True)
 
-        scheme = url_parts.scheme
-        if scheme == 'https' and not settings.get_setting('secureconn'):
-            scheme = 'http'
-
-        return urlunparse((scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
+        return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
 
     def get_kodi_header_formatted_url(self, url, options=None):
 
@@ -545,11 +547,7 @@ class PlexMediaServer:
 
         new_query_args = urlencode(query_args, True)
 
-        scheme = url_parts.scheme
-        if scheme == 'https' and not settings.get_setting('secureconn'):
-            scheme = 'http'
-
-        return '%s|%s' % (urlunparse((scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
+        return '%s|%s' % (urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
 
