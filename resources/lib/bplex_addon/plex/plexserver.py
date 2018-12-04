@@ -6,6 +6,7 @@ import uuid
 import xml.etree.ElementTree as ETree
 
 import requests
+from six.moves import range
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import urlunparse
 from six.moves.urllib_parse import parse_qsl
@@ -72,7 +73,8 @@ class PlexMediaServer:
     def get_status(self):
         if self.offline:
             return 'Offline', i18n(30642)
-        elif self.access_address == self.external_address:
+        elif self.access_address == self.external_address or \
+                (self.external_address_uri and (self.access_address in self.external_address_uri)):
             return 'Remote', i18n(30643)
         elif self.access_address in self.local_address:
             return 'Nearby', i18n(30644)
@@ -236,25 +238,71 @@ class PlexMediaServer:
     def add_local_address(self, address):
         self.local_address = address.split(',')
 
-    def set_best_address(self, ipaddress=None):
+    def set_best_address(self):
+        def _head(_uri):
+            return requests.head(_uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
+
+        external_uri = ''
+        if self.external_address_uri:
+            url_parts = urlparse(self.external_address_uri)
+            external_uri = url_parts.netloc
+        internal_address = ''
+        if self.local_address:
+            internal_address = self.local_address[0]
+        external_address = self.external_address
+
+        # Ensure that ipaddress comes in an ip:port format
+        if external_uri and ':' not in external_uri:
+            external_uri = '%s:%s' % (external_uri, DEFAULT_PORT)
+        if internal_address and ':' not in internal_address:
+            internal_address = '%s:%s' % (internal_address, DEFAULT_PORT)
+        if external_address and ':' not in external_address:
+            external_address = '%s:%s' % (external_address, DEFAULT_PORT)
+
+        ipaddress = None
+        tested = []
+        uris = []
+        if external_uri:
+            uris.append('%s://%s/' % ('https', external_uri))
+            uris.append('%s://%s/' % ('http', external_uri))
+        if internal_address:
+            uris.append('%s://%s/' % ('https', internal_address))
+            uris.append('%s://%s/' % ('http', internal_address))
+        if external_address:
+            uris.append('%s://%s/' % ('https', external_address))
+            uris.append('%s://%s/' % ('http', external_address))
+
+        for m in list(range(len(uris))):
+            uri = uris[m]
+            if uri in tested:
+                continue
+
+            tested.append(uri)
+            try:
+                log_print.debug('Head request |%s|' % uri)
+                response = _head(uri)
+                if response.status_code == requests.codes.ok:
+                    url_parts = urlparse(uri)
+                    ipaddress = url_parts.netloc
+                    self.set_protocol(url_parts.scheme)
+                    break
+            except:
+                continue
 
         if ipaddress is None:
-            log_print.debug('[%s] No address given - setting to external' % self.uuid)
-            self.access_address = self.external_address
+            ipaddress = self.external_address
+
+        if ipaddress in self.local_address:
+            log_print.debug('[%s] IP address [%s] found on existing internal list.  Selecting as default' % (self.uuid, ipaddress))
+            self.access_address = ipaddress
+        elif ipaddress == self.external_address:
+            log_print.debug('[%s] IP address [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
+            self.access_address = ipaddress
+        elif self.external_address_uri and (ipaddress in self.external_address_uri):
+            log_print.debug('[%s] IP address [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
+            self.access_address = ipaddress
         else:
-
-            # Ensure that ipaddress comes in an ip:port format
-            if ':' not in ipaddress:
-                ipaddress = '%s:%s' % (ipaddress, DEFAULT_PORT)
-
-            if ipaddress in self.local_address:
-                log_print.debug('[%s] IP address [%s] found on existing internal list.  Selecting as default' % (self.uuid, ipaddress))
-                self.access_address = ipaddress
-            elif ipaddress == self.external_address:
-                log_print.debug('[%s] IP address [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
-                self.access_address = self.external_address
-            else:
-                log_print.debug('[%s] Address [%s] is not currently on list.  Possible uuid clash?' % (self.uuid, ipaddress))
+            log_print.debug('[%s] Address [%s] is not currently on list.  Possible uuid clash?' % (self.uuid, ipaddress))
 
         return
 
@@ -265,16 +313,10 @@ class PlexMediaServer:
 
             verify_cert = settings.get_setting('verify_cert')
 
-            if self.external_address_uri and (self.get_access_address() in self.external_address):
-                uri = self.external_address_uri + url
-                if not settings.get_setting('secureconn'):
-                    uri = uri.replace('https', 'http')
-                    verify_cert = False
-            else:
-                if not settings.get_setting('secureconn'):
-                    self.set_protocol('http')
-                    verify_cert = False
-                uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
+            if not settings.get_setting('secureconn'):
+                self.set_protocol('http')
+                verify_cert = False
+            uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
 
             try:
                 if method == 'get':
@@ -453,10 +495,7 @@ class PlexMediaServer:
             if url_parts.query:
                 url = url + '?' + url_parts.query
 
-        if self.external_address_uri and (self.get_access_address() in self.external_address):
-            location = '%s%s' % (self.external_address_uri, url)
-        else:
-            location = '%s%s' % (self.get_url_location(), url)
+        location = '%s%s' % (self.get_url_location(), url)
 
         url_parts = urlparse(location)
 
@@ -483,10 +522,7 @@ class PlexMediaServer:
             if url_parts.query:
                 url = url + '?' + url_parts.query
 
-        if self.external_address_uri and (self.get_access_address() in self.external_address):
-            location = '%s%s' % (self.external_address_uri, url)
-        else:
-            location = '%s%s' % (self.get_url_location(), url)
+        location = '%s%s' % (self.get_url_location(), url)
 
         url_parts = urlparse(location)
 

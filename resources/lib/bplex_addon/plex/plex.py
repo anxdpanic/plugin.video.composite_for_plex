@@ -418,7 +418,7 @@ class Plex:
         else:
             log_print.debug('Found existing server %s %s' % (existing.get_name(), existing.get_uuid()))
 
-            existing.set_best_address(server.get_access_address())
+            # existing.set_best_address(server.get_access_address())
             existing.refresh()
             self.server_list[existing.get_uuid()] = existing
 
