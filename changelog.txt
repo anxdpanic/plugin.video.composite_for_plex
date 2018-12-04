@@ -1,3 +1,8 @@
+1.0.2
+[fix] sign in dialog partially cutting off directions
+[fix] local servers
+[fix] logging non-strings types
+
 1.0.1
 [fix] log encoding
 
