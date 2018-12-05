@@ -305,7 +305,8 @@ class PlexMediaServer:
                 log_print.debug('[%s] Head request |%s|' % (self.uuid, uri))
                 response = _head(uri)
                 log_print.debug('[%s] Head status |%s|' % (self.uuid, str(response.status_code)))
-                if response.status_code == requests.codes.ok:
+                if response.status_code == requests.codes.ok or \
+                        response.status_code == requests.codes.unauthorized:
                     url_parts = urlparse(uri)
                     ipaddress = url_parts.netloc
                     self.set_protocol(url_parts.scheme)
