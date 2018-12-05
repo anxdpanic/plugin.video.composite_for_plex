@@ -23,7 +23,8 @@ from six import string_types
 
 from .settings import AddonSettings
 
-__addon = xbmcaddon.Addon('plugin.video.bplex')
+__id = 'plugin.video.bplex'
+__addon = xbmcaddon.Addon(id=__id)
 
 
 def __enum(**enums):
@@ -167,7 +168,7 @@ except:
     KODI_VERSION = 0
 
 GLOBAL_SETUP = {'addon': __addon,
-                'id': decode_utf8(__addon.getAddonInfo('id')),
+                'id': __id,
                 'data_path': decode_utf8(__addon.getAddonInfo('profile')),
                 'version': decode_utf8(__addon.getAddonInfo('version')),
                 'device': get_device(),

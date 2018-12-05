@@ -334,11 +334,11 @@ class PlexManage(pyxbmct.AddonFullWindow):
         self.connect(self.signout_button, lambda: self.signout())
 
     def switch(self):
-        xbmc.executebuiltin('RunScript(plugin.video.bplex, switchuser)')
+        xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', switchuser)')
         self.close()
 
     def signout(self):
-        xbmc.executebuiltin('RunScript(plugin.video.bplex, signout)')
+        xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', signout)')
         if not self.plex_network.is_myplex_signedin():
             self.close()
 

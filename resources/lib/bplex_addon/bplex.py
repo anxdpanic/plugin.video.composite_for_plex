@@ -304,7 +304,7 @@ def display_sections(cfilter=None, display_shared=False):
             section_url = '%s%s' % (server.get_url_location(), path)
 
             if not settings.get_setting('skipcontextmenus'):
-                context = [(i18n(30616), 'RunScript(plugin.video.bplex, update, %s, %s)'
+                context = [(i18n(30616), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)'
                             % (server.get_uuid(), section.get_key()))]
             else:
                 context = None
