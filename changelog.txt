@@ -1,3 +1,6 @@
+1.1.1
+[fix] set_best_address ip comparison
+
 1.1.0
 [chg] use RunScript for Refresh Data
 [chg] use https setting applied during set best address

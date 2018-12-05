@@ -11,15 +11,13 @@
     </extension>
     <extension point='xbmc.addon.metadata'>
         <news>
+1.1.1
+[fix] set_best_address ip comparison
+
 1.1.0
 [chg] use RunScript for Refresh Data
 [chg] use https setting applied during set best address
 [chg] use SPDX license identifiers
-
-1.0.2
-[fix] sign in dialog partially cutting off directions
-[fix] local servers
-[fix] logging non-strings types
         </news>
         <assets>
             <icon>icon.png</icon>

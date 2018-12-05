@@ -253,6 +253,9 @@ class PlexMediaServer:
         def _head(_uri):
             return requests.head(_uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
 
+        self.offline = False
+        self.update_identification()
+
         use_https = settings.get_setting('secureconn')
         if not use_https:
             self.set_protocol('http')
@@ -313,8 +316,7 @@ class PlexMediaServer:
         if ipaddress is None:
             self.offline = True
             log_print.debug('[%s] Server appears to be offline' % self.uuid)
-
-        if ipaddress in self.local_address:
+        elif ipaddress in self.local_address:
             log_print.debug('[%s] IP address [%s] found on existing internal list.  Selecting as default' % (self.uuid, ipaddress))
             self.access_address = ipaddress
         elif ipaddress == self.external_address:
