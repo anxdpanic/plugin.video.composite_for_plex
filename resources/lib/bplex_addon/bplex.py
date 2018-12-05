@@ -14,6 +14,7 @@ import time
 import random
 import datetime
 
+import xbmc
 import xbmcplugin
 import xbmcgui
 
@@ -24,7 +25,17 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import unquote_plus
 from six.moves import range
 
-from .common import *  # Needed first to setup import locations
+from .common import GENERIC_THUMBNAIL
+from .common import GLOBAL_SETUP
+from .common import KODI_VERSION
+from .common import MODES
+from .common import SUB_AUDIO
+from .common import PrintDebug
+from .common import encode_utf8
+from .common import i18n
+from .common import settings
+from .common import wake_servers
+
 from .plex import plex
 
 

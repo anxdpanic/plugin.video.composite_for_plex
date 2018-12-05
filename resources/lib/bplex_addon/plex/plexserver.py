@@ -26,7 +26,12 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
 
 from . import plexsection
-from ..common import *
+from ..common import GLOBAL_SETUP
+from ..common import REQUIRED_REVISION
+from ..common import PrintDebug
+from ..common import encode_utf8
+from ..common import i18n
+from ..common import settings
 
 log_print = PrintDebug('bPlex', 'plexserver')
 

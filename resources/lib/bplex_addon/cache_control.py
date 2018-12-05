@@ -1,4 +1,3 @@
-
 """
     Class: CacheControl
 
@@ -22,7 +21,6 @@ from six import PY3
 from six.moves import cPickle as pickle
 
 from .common import PrintDebug
-
 
 log_print = PrintDebug('bPlex', 'cachecontrol')
 

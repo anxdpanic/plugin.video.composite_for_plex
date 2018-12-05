@@ -18,7 +18,8 @@ import re
 import xbmc
 import xbmcaddon
 
-from six import PY3, string_types
+from six import PY3
+from six import string_types
 
 from .settings import AddonSettings
 

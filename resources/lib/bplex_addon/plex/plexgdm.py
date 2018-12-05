@@ -20,8 +20,8 @@ import time
 
 from six.moves.urllib_request import urlopen
 
-from ..common import PrintDebug, encode_utf8
-
+from ..common import PrintDebug
+from ..common import encode_utf8
 
 _log_print = PrintDebug('bPlex', 'PlexGDM')
 

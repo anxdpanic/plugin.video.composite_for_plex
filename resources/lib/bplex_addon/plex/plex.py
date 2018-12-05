@@ -21,11 +21,19 @@ from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
 
-from ..common import *
+from ..common import GLOBAL_SETUP
+from ..common import REQUIRED_REVISION
+from ..common import PrintDebug
+from ..common import decode_utf8
+from ..common import encode_utf8
+from ..common import get_platform_ip
+from ..common import i18n
+from ..common import is_ip
+from ..common import settings
+
 from .. import cache_control
 from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
-
 
 log_print = PrintDebug('bPlex', 'plex')
 DEFAULT_PORT = '32400'

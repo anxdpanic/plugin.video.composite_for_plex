@@ -13,7 +13,10 @@ import xbmc
 
 import pyxbmct.addonwindow as pyxbmct
 
-from ..common import decode_utf8, i18n, PrintDebug, GLOBAL_SETUP
+from ..common import GLOBAL_SETUP
+from ..common import PrintDebug
+from ..common import decode_utf8
+from ..common import i18n
 
 log_print = PrintDebug('bPlex', 'plex_signin')
 media_path = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_path']))
