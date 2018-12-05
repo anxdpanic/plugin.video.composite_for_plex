@@ -254,7 +254,7 @@ class PlexMediaServer:
     def add_local_address(self, address):
         self.local_address = address.split(',')
 
-    def set_best_address(self):
+    def set_best_address(self, address=''):
         def _head(_uri):
             return requests.head(_uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
 
@@ -283,10 +283,16 @@ class PlexMediaServer:
             internal_address = '%s:%s' % (internal_address, DEFAULT_PORT)
         if external_address and ':' not in external_address:
             external_address = '%s:%s' % (external_address, DEFAULT_PORT)
+        if address and ':' not in address:
+            access_address = '%s:%s' % (address, DEFAULT_PORT)
 
         ipaddress = None
         tested = []
         uris = []
+        if address:
+            if use_https:
+                uris.append('%s://%s/' % ('https', address))
+            uris.append('%s://%s/' % ('http', address))
         if external_uri:
             if use_https:
                 uris.append('%s://%s/' % ('https', external_uri))
@@ -323,13 +329,16 @@ class PlexMediaServer:
             self.offline = True
             log_print.debug('[%s] Server appears to be offline' % self.uuid)
         elif ipaddress in self.local_address:
-            log_print.debug('[%s] IP address [%s] found on existing internal list.  Selecting as default' % (self.uuid, ipaddress))
+            log_print.debug('[%s] Server [%s] found on existing internal list.  Selecting as default' % (self.uuid, ipaddress))
             self.access_address = ipaddress
         elif ipaddress == self.external_address:
-            log_print.debug('[%s] IP address [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
+            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
             self.access_address = ipaddress
         elif self.external_address_uri and (ipaddress in self.external_address_uri):
-            log_print.debug('[%s] IP address [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
+            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
+            self.access_address = ipaddress
+        else:
+            log_print.debug('[%s] Server [%s] not found in existing lists.  selecting as default' % (self.uuid, ipaddress))
             self.access_address = ipaddress
 
         return
