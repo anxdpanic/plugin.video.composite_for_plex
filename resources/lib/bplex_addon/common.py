@@ -68,7 +68,11 @@ class PrintDebug:
 
     def __print_message(self, msg, level=0, no_privacy=False):
         if not isinstance(msg, string_types):
-            msg = str(msg)
+            try:
+                msg = str(msg)
+            except:
+                level = self.LOG_ERROR
+                msg = 'Logging failed to coerce \'%s\' message' % type(msg)
 
         try:
             tag = ''
