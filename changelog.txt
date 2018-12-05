@@ -1,3 +1,7 @@
+1.1.2
+[upd] improve address selection
+[upd] remove wildcard imports
+
 1.1.1
 [fix] set_best_address ip comparison
 [fix] log failed logging message coercion
