@@ -1,3 +1,10 @@
+1.2.0
+[fix] append default port to provided address if required
+[chg] use xbmcgui for notifications
+[chg] variable refactoring
+[upd] suppress some inspections
+[i18n] string mapping for readability
+
 1.1.2
 [upd] improve address selection
 [upd] remove wildcard imports
