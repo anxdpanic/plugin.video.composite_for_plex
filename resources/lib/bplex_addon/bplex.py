@@ -2553,7 +2553,9 @@ def display_content(acceptable_level, content_level):
 
 def myplex_queue():
     if not plex_network.is_myplex_signedin():
-        xbmc.executebuiltin('Notification(' + i18n('myPlex not configured') + ',)')
+        xbmcgui.Dialog().notification(heading=GLOBAL_SETUP['name'],
+                                      message=i18n('myPlex not configured'),
+                                      icon=GLOBAL_SETUP['icon'])
         return
 
     tree = plex_network.get_myplex_queue()
@@ -2567,7 +2569,9 @@ def refresh_plex_library(server_uuid, section_id):
     server.refresh_section(section_id)
 
     log_print.debug('Library refresh requested')
-    xbmc.executebuiltin('Notification(' + GLOBAL_SETUP['name'] + ': ' + i18n('Library refresh started') + ',100)')
+    xbmcgui.Dialog().notification(heading=GLOBAL_SETUP['name'],
+                                  message=i18n('Library refresh started'),
+                                  icon=GLOBAL_SETUP['icon'])
     return
 
 

@@ -175,6 +175,7 @@ except:
 GLOBAL_SETUP = {'addon': __addon,
                 'id': __id,
                 'name': decode_utf8(__addon.getAddonInfo('name')),
+                'icon': decode_utf8(__addon.getAddonInfo('icon')),
                 'data_path': decode_utf8(__addon.getAddonInfo('profile')),
                 'version': decode_utf8(__addon.getAddonInfo('version')),
                 'device': get_device(),
