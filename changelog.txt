@@ -1,3 +1,6 @@
+1.2.1
+[i18n] remove i18n from get_status
+
 1.2.0
 [fix] append default port to provided address if required
 [chg] use xbmcgui for notifications
