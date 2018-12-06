@@ -139,7 +139,7 @@ def get_device():
 def wake_servers():
     if settings.get_setting('wolon'):
         from .wol import wake_on_lan
-        log_print = PrintDebug('bPlex', 'wake_servers')
+        log_print = PrintDebug(CONFIG['name'], 'wake_servers')
         log_print.debug('Wake On LAN: true')
         for mac_address in settings.get_wakeservers():
             if mac_address:
@@ -167,25 +167,26 @@ def get_platform_ip():
     return xbmc.getIPAddress()
 
 
+CONFIG = {'addon': __addon,
+          'id': __id,
+          'name': decode_utf8(__addon.getAddonInfo('name')),
+          'icon': decode_utf8(__addon.getAddonInfo('icon')),
+          'data_path': decode_utf8(__addon.getAddonInfo('profile')),
+          'version': decode_utf8(__addon.getAddonInfo('version')),
+          'device': get_device(),
+          'platform': platform.uname()[0],
+          'platform_version': platform.uname()[2],
+          'media_path': 'special://home/addons/%s/resources/media/' % decode_utf8(__addon.getAddonInfo('id')),
+          'required_revision': '1.0.7'}
+
 try:
-    KODI_VERSION = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
+    CONFIG['kodi_version'] = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
 except:
-    KODI_VERSION = 0
+    CONFIG['kodi_version'] = 0
 
-GLOBAL_SETUP = {'addon': __addon,
-                'id': __id,
-                'name': decode_utf8(__addon.getAddonInfo('name')),
-                'icon': decode_utf8(__addon.getAddonInfo('icon')),
-                'data_path': decode_utf8(__addon.getAddonInfo('profile')),
-                'version': decode_utf8(__addon.getAddonInfo('version')),
-                'device': get_device(),
-                'platform': platform.uname()[0],
-                'platform_version': platform.uname()[2],
-                'media_path': 'special://home/addons/%s/resources/media/' % decode_utf8(__addon.getAddonInfo('id'))}
+CONFIG['thumbnail'] = decode_utf8(xbmc.translatePath(CONFIG['media_path'] + 'thumb.png'))
 
-GENERIC_THUMBNAIL = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_path'] + 'thumb.png'))
-REQUIRED_REVISION = '1.0.7'
-settings = AddonSettings('plugin.video.bplex')
+settings = AddonSettings(__id)
 
 MODES = __enum(
     GETCONTENT=0,
@@ -220,7 +221,7 @@ MODES = __enum(
     PLAYLISTS=30
 )
 
-SUB_AUDIO = __enum(
+STREAM_CONTROL = __enum(
     KODI='0',
     PLEX='1',
     NEVER='2'

@@ -17,9 +17,13 @@ from six.moves import range
 
 class AddonSettings:
 
-    def __init__(self, name):
-        xbmc.log('bPlex.setting -> Reading settings configuration', xbmc.LOGDEBUG)
-        self.settings = xbmcaddon.Addon(name)
+    def __init__(self, addon_id):
+        self.settings = xbmcaddon.Addon(addon_id)
+        try:
+            self.addon_name = self.settings.getAddonInfo('name').decode('utf-8')
+        except AttributeError:
+            self.addon_name = self.settings.getAddonInfo('name')
+        xbmc.log(self.addon_name + '.settings -> Reading settings configuration', xbmc.LOGDEBUG)
         self.stream = self.settings.getSetting('streaming')
 
     def open_settings(self):
@@ -60,5 +64,5 @@ class AddonSettings:
         return self.__dict__
 
     def update_master_server(self, value):
-        xbmc.log('Updating master server to %s' % value, xbmc.LOGDEBUG)
+        xbmc.log(self.addon_name + '.settings -> Updating master server to %s' % value, xbmc.LOGDEBUG)
         self.settings.setSetting('masterServer', '%s' % value)

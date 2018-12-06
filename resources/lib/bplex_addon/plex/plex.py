@@ -21,8 +21,7 @@ from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
 
-from ..common import GLOBAL_SETUP
-from ..common import REQUIRED_REVISION
+from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import decode_utf8
 from ..common import encode_utf8
@@ -35,7 +34,7 @@ from .. import cache_control
 from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
-log_print = PrintDebug('bPlex', 'plex')
+log_print = PrintDebug(CONFIG['name'], 'plex')
 DEFAULT_PORT = '32400'
 
 
@@ -44,7 +43,7 @@ class Plex:
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl(decode_utf8(xbmc.translatePath(GLOBAL_SETUP['data_path'] + 'cache/servers')),
+        self.cache = cache_control.CacheControl(decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/servers')),
                                                 settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
@@ -230,7 +229,7 @@ class Plex:
     def check_server_version(self):
         for _uuid, servers in iteritems(self.server_list):
             try:
-                if not servers.get_revision() == REQUIRED_REVISION:
+                if not servers.get_revision() == CONFIG['required_revision']:
                     log_print.debug('Old object revision found')
                     return False
             except:
@@ -262,14 +261,14 @@ class Plex:
 
     def plex_identification(self):
 
-        header = {'X-Plex-Device': GLOBAL_SETUP['device'],
+        header = {'X-Plex-Device': CONFIG['device'],
                   'X-Plex-Client-Platform': 'Kodi',
                   'X-Plex-Device-Name': settings.get_setting('devicename'),
                   'X-Plex-Language': 'en',
-                  'X-Plex-Platform': GLOBAL_SETUP['platform'],
+                  'X-Plex-Platform': CONFIG['platform'],
                   'X-Plex-Client-Identifier': self.get_client_identifier(),
-                  'X-Plex-Product': 'bPlex',
-                  'X-Plex-Platform-Version': GLOBAL_SETUP['platform_version'],
+                  'X-Plex-Product': CONFIG['name'],
+                  'X-Plex-Platform-Version': CONFIG['platform_version'],
                   'X-Plex-Version': '0.0.0a1',
                   'X-Plex-Provides': 'player,controller'}
 

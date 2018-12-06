@@ -26,14 +26,13 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
 
 from . import plexsection
-from ..common import GLOBAL_SETUP
-from ..common import REQUIRED_REVISION
+from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import encode_utf8
 from ..common import i18n
 from ..common import settings
 
-log_print = PrintDebug('bPlex', 'plexserver')
+log_print = PrintDebug(CONFIG['name'], 'plexserver')
 
 DEFAULT_PORT = '32400'
 
@@ -44,7 +43,7 @@ class PlexMediaServer:
 
     def __init__(self, server_uuid=None, name=None, address=None, port=32400, token=None, discovery=None, class_type='primary'):
 
-        self.__revision = REQUIRED_REVISION
+        self.__revision = CONFIG['required_revision']
         self.protocol = 'https'
         self.uuid = server_uuid
         self.server_name = name
@@ -110,14 +109,14 @@ class PlexMediaServer:
                 'class': self.class_type}
 
     def create_plex_identification(self):
-        headers = {'X-Plex-Device': GLOBAL_SETUP['device'],
+        headers = {'X-Plex-Device': CONFIG['device'],
                    'X-Plex-Client-Platform': 'Kodi',
                    'X-Plex-Device-Name': self.get_device_name(),
                    'X-Plex-Language': 'en',
-                   'X-Plex-Platform': GLOBAL_SETUP['platform'],
+                   'X-Plex-Platform': CONFIG['platform'],
                    'X-Plex-Client-Identifier': self.get_client_identifier(),
-                   'X-Plex-Product': 'bPlex',
-                   'X-Plex-Platform-Version': GLOBAL_SETUP['platform_version'],
+                   'X-Plex-Product': CONFIG['name'],
+                   'X-Plex-Platform-Version': CONFIG['platform_version'],
                    'X-Plex-Version': '0.0.0a1',
                    'X-Plex-Provides': 'player,controller'}
 

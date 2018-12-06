@@ -25,11 +25,9 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import unquote_plus
 from six.moves import range
 
-from .common import GENERIC_THUMBNAIL
-from .common import GLOBAL_SETUP
-from .common import KODI_VERSION
+from .common import CONFIG
 from .common import MODES
-from .common import SUB_AUDIO
+from .common import STREAM_CONTROL
 from .common import PrintDebug
 from .common import encode_utf8
 from .common import i18n
@@ -153,7 +151,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
             link_url = '%s&%s=%s' % (link_url, argument, quote(value))
 
     log_print.debug('URL to use for listing: %s' % link_url)
-    if KODI_VERSION >= 18:
+    if CONFIG['kodi_version'] >= 18:
         liz = xbmcgui.ListItem(item_translate(details.get('title', i18n('Unknown')), extra_data.get('source'), folder), offscreen=True)
     else:
         liz = xbmcgui.ListItem(item_translate(details.get('title', i18n('Unknown')), extra_data.get('source'), folder))
@@ -216,7 +214,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     # assign artwork
     fanart = extra_data.get('fanart_image', '')
-    thumb = extra_data.get('thumb', extra_data.get('thumb', GENERIC_THUMBNAIL))
+    thumb = extra_data.get('thumb', extra_data.get('thumb', CONFIG['thumbnail']))
     banner = extra_data.get('banner', '')
 
     # tvshow poster
@@ -304,7 +302,7 @@ def display_sections(cfilter=None, display_shared=False):
             section_url = '%s%s' % (server.get_url_location(), path)
 
             if not settings.get_setting('skipcontextmenus'):
-                context = [(i18n('Refresh library section'), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)'
+                context = [(i18n('Refresh library section'), 'RunScript(' + CONFIG['id'] + ', update, %s, %s)'
                             % (server.get_uuid(), section.get_key()))]
             else:
                 context = None
@@ -434,13 +432,13 @@ def build_context_menu(url, item_data, server):
     item_id = item_data.get('ratingKey', '0')
 
     # Mark media unwatched
-    context.append((i18n('Delete'), 'RunScript(' + GLOBAL_SETUP['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n('Mark as unwatched'), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append((i18n('Mark as watched'), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
-    context.append((i18n('Audio'), 'RunScript(' + GLOBAL_SETUP['id'] + ', audio, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n('Subtitles'), 'RunScript(' + GLOBAL_SETUP['id'] + ', subs, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n('Update library'), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)' % (server.get_uuid(), section)))
-    context.append((i18n('Refresh'), 'RunScript(' + GLOBAL_SETUP['id'] + ', refresh)'))
+    context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+    context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
+    context.append((i18n('Audio'), 'RunScript(' + CONFIG['id'] + ', audio, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n('Subtitles'), 'RunScript(' + CONFIG['id'] + ', subs, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n('Update library'), 'RunScript(' + CONFIG['id'] + ', update, %s, %s)' % (server.get_uuid(), section)))
+    context.append((i18n('Refresh'), 'RunScript(' + CONFIG['id'] + ', refresh)'))
 
     log_print.debug('Using context menus: %s' % context)
 
@@ -881,7 +879,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
                 pass
 
     # if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == 'video' and settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
+    if media_type == 'video' and settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
 
         contents = 'all'
         tags = tree.getiterator('Stream')
@@ -952,11 +950,11 @@ def play_playlist(server, data):
         log_print.debug('Adding playlist item')
 
         url, item = track_tag(server, tree, track, listing=False)
-        if KODI_VERSION >= 18:
+        if CONFIG['kodi_version'] >= 18:
             liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')), offscreen=True)
         else:
             liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')))
-        thumb = data['full_data'].get('thumbnailImage', GENERIC_THUMBNAIL)
+        thumb = data['full_data'].get('thumbnailImage', CONFIG['thumbnail'])
         liz.setArt({'icon': thumb, 'thumb': thumb})
         liz.setInfo(type='music', infoLabels=item)
         playlist.add(url, liz)
@@ -1030,13 +1028,13 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
     duration = int(int(streams['media']['duration']) / 1000)
 
     log_print.debug('Resume has been set to %s ' % resume)
-    if KODI_VERSION >= 18:
+    if CONFIG['kodi_version'] >= 18:
         item = xbmcgui.ListItem(path=playurl, offscreen=True)
     else:
         item = xbmcgui.ListItem(path=playurl)
     if streams['full_data']:
         item.setInfo(type=streams['type'], infoLabels=streams['full_data'])
-        thumb = streams['full_data'].get('thumbnailImage', GENERIC_THUMBNAIL)
+        thumb = streams['full_data'].get('thumbnailImage', CONFIG['thumbnail'])
         item.setArt({'icon': thumb, 'thumb': thumb})
 
     if force:
@@ -1095,14 +1093,14 @@ def set_audio_subtitles(stream):
         log_print.debug('No audio or subtitle streams to process.')
 
         # If we have decided to force off all subs, then turn them off now and return
-        if settings.get_setting('streamControl') == SUB_AUDIO.NEVER:
+        if settings.get_setting('streamControl') == STREAM_CONTROL.NEVER:
             xbmc.Player().showSubtitles(False)
             log_print.debug('All subs disabled')
 
         return True
 
     # Set the AUDIO component
-    if settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
+    if settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
         log_print.debug('Attempting to set Audio Stream')
 
         audio = stream['audio']
@@ -1121,7 +1119,7 @@ def set_audio_subtitles(stream):
                 log_print.debug('Error setting audio, will use embedded default stream')
 
     # Set the SUBTITLE component
-    if settings.get_setting('streamControl') == SUB_AUDIO.PLEX:
+    if settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
         log_print.debug('Attempting to set preferred subtitle Stream')
         subtitle = stream['subtitle']
         if subtitle:
@@ -1262,7 +1260,7 @@ def play_media_stream(url):
             playurl = ''
     else:
         playurl = url
-    if KODI_VERSION >= 18:
+    if CONFIG['kodi_version'] >= 18:
         item = xbmcgui.ListItem(path=playurl, offscreen=True)
     else:
         item = xbmcgui.ListItem(path=playurl)
@@ -1319,7 +1317,7 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         url = vids
 
     log_print.debug('Final URL is: %s' % url)
-    if KODI_VERSION >= 18:
+    if CONFIG['kodi_version'] >= 18:
         item = xbmcgui.ListItem(path=url, offscreen=True)
     else:
         item = xbmcgui.ListItem(path=url)
@@ -2030,7 +2028,7 @@ def movie_tag(url, server, movie, random_number):
         details['genre'] = ' / '.join(tempgenre)
 
     if movie.get('primaryExtraKey') is not None:
-        details['trailer'] = 'plugin://' + GLOBAL_SETUP['id'] + '/?url=%s%s?t=%s&mode=%s' % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODES.PLAYLIBRARY)
+        details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?t=%s&mode=%s' % (server.get_url_location(), movie.get('primaryExtraKey', ''), random_number, MODES.PLAYLIBRARY)
         log_print.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
@@ -2264,7 +2262,7 @@ def get_thumb_image(data, server, width=720, height=720):
                                                         % (quote_plus('http://localhost:32400' + thumbnail),
                                                            width, height))
 
-    return GENERIC_THUMBNAIL
+    return CONFIG['thumbnail']
 
 
 def get_banner_image(data, server, width=720, height=720):
@@ -2290,7 +2288,7 @@ def get_banner_image(data, server, width=720, height=720):
                                                         % (quote_plus('http://localhost:32400' + thumbnail),
                                                            width, height))
 
-    return GENERIC_THUMBNAIL
+    return CONFIG['thumbnail']
 
 
 def get_fanart_image(data, server, width=1280, height=720):
@@ -2554,9 +2552,9 @@ def display_content(acceptable_level, content_level):
 
 def myplex_queue():
     if not plex_network.is_myplex_signedin():
-        xbmcgui.Dialog().notification(heading=GLOBAL_SETUP['name'],
+        xbmcgui.Dialog().notification(heading=CONFIG['name'],
                                       message=i18n('myPlex not configured'),
-                                      icon=GLOBAL_SETUP['icon'])
+                                      icon=CONFIG['icon'])
         return
 
     tree = plex_network.get_myplex_queue()
@@ -2570,9 +2568,9 @@ def refresh_plex_library(server_uuid, section_id):
     server.refresh_section(section_id)
 
     log_print.debug('Library refresh requested')
-    xbmcgui.Dialog().notification(heading=GLOBAL_SETUP['name'],
+    xbmcgui.Dialog().notification(heading=CONFIG['name'],
                                   message=i18n('Library refresh started'),
-                                  icon=GLOBAL_SETUP['icon'])
+                                  icon=CONFIG['icon'])
     return
 
 
@@ -2909,15 +2907,15 @@ def get_transcode_profile():
 
 
 # #So this is where we really start the addon 
-log_print = PrintDebug('bPlex')
+log_print = PrintDebug(CONFIG['name'])
 
-log_print.debug('bPlex %s: Kodi %s on %s with Python %s' %
-                (GLOBAL_SETUP['version'], KODI_VERSION,
-                 GLOBAL_SETUP['platform'], '.'.join([str(i) for i in sys.version_info])),
+log_print.debug('%s %s: Kodi %s on %s with Python %s' %
+                (CONFIG['name'], CONFIG['version'], CONFIG['kodi_version'],
+                 CONFIG['platform'], '.'.join([str(i) for i in sys.version_info])),
                 no_privacy=True)  # force no privacy to avoid redacting version strings
 wake_servers()
 
-stream_control_map = {SUB_AUDIO.KODI: 'Kodi', SUB_AUDIO.PLEX: 'Plex', SUB_AUDIO.NEVER: 'Never'}
+stream_control_map = {STREAM_CONTROL.KODI: 'Kodi', STREAM_CONTROL.PLEX: 'Plex', STREAM_CONTROL.NEVER: 'Never'}
 stream_control_setting = stream_control_map.get(settings.get_setting('streamControl'))
 
 log_print.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s| Flatten |%s|\n'
@@ -2931,7 +2929,7 @@ argv = []
 plex_network = plex.Plex(load=False)
 
 
-def start_bplex(sys_argv):
+def start_bplex(sys_argv, start_time):
     global argv
     argv = sys_argv
 
@@ -2982,7 +2980,7 @@ def start_bplex(sys_argv):
 
     elif command == 'signout':
         if not plex_network.is_admin():
-            return xbmcgui.Dialog().ok(i18n('Sign Out'), 
+            return xbmcgui.Dialog().ok(i18n('Sign Out'),
                                        i18n('To sign out you must be logged in as an admin user. Please switch user and try again'))
 
         ret = xbmcgui.Dialog().yesno(i18n('myPlex'), i18n('You are currently signed into myPlex. Are you sure you want to sign out?'))
@@ -2999,15 +2997,15 @@ def start_bplex(sys_argv):
 
     elif command == 'signintemp':
         # Awful hack to get around running a script from a listitem..
-        xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', signin)')
+        xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signin)')
 
     elif command == 'managemyplex':
 
         if not plex_network.is_myplex_signedin():
-            ret = xbmcgui.Dialog().yesno(i18n('Manage myPlex'), 
+            ret = xbmcgui.Dialog().yesno(i18n('Manage myPlex'),
                                          i18n('You are not currently logged into myPlex.  Please continue to sign in, or cancel to return'))
             if ret:
-                xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', signin)')
+                xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signin)')
             else:
                 return
 
@@ -3160,3 +3158,5 @@ def start_bplex(sys_argv):
 
             elif mode == MODES.DISPLAYSERVERS:
                 display_plex_servers(param_url)
+
+    log_print.debug('Finished. |%ss|' % (time.time() - start_time))

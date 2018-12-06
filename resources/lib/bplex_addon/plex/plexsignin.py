@@ -13,13 +13,13 @@ import xbmc
 
 import pyxbmct.addonwindow as pyxbmct
 
-from ..common import GLOBAL_SETUP
+from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import decode_utf8
 from ..common import i18n
 
-log_print = PrintDebug('bPlex', 'plex_signin')
-media_path = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_path']))
+log_print = PrintDebug(CONFIG['name'], 'plex_signin')
+media_path = decode_utf8(xbmc.translatePath(CONFIG['media_path']))
 
 
 # noinspection PyAttributeOutsideInit
@@ -336,11 +336,11 @@ class PlexManage(pyxbmct.AddonFullWindow):
         self.connect(self.signout_button, lambda: self.signout())
 
     def switch(self):
-        xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', switchuser)')
+        xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', switchuser)')
         self.close()
 
     def signout(self):
-        xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', signout)')
+        xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signout)')
         if not self.plex_network.is_myplex_signedin():
             self.close()
 

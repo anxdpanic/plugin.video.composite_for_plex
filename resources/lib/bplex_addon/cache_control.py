@@ -21,9 +21,10 @@ from six import PY3
 # noinspection PyPep8Naming
 from six.moves import cPickle as pickle
 
+from .common import CONFIG
 from .common import PrintDebug
 
-log_print = PrintDebug('bPlex', 'cachecontrol')
+log_print = PrintDebug(CONFIG['name'], 'cachecontrol')
 
 
 class CacheControl:
