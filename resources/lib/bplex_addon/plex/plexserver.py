@@ -284,7 +284,7 @@ class PlexMediaServer:
         if external_address and ':' not in external_address:
             external_address = '%s:%s' % (external_address, DEFAULT_PORT)
         if address and ':' not in address:
-            access_address = '%s:%s' % (address, DEFAULT_PORT)
+            address = '%s:%s' % (address, DEFAULT_PORT)
 
         ipaddress = None
         tested = []
