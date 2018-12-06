@@ -34,7 +34,7 @@ class PlexSection:
         if not path[0] == '/':
             path = '/library/sections/%s' % path
 
-        self.title = encode_utf8(data.get('title', i18n(30636)))
+        self.title = encode_utf8(data.get('title', i18n('Unknown')))
         self.sectionuuid = data.get('uuid', '')
         self.path = encode_utf8(path)
         self.key = data.get('key')

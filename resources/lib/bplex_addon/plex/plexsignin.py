@@ -53,40 +53,40 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.placeControl(self.description, 1, 1, columnspan=4, rowspan=2)
 
         # Username label
-        self.name_label = pyxbmct.Label(i18n(30617))
+        self.name_label = pyxbmct.Label(i18n('Username:'))
         self.placeControl(self.name_label, 2, 1)
         # username entry box
         self.name_field = pyxbmct.Edit('')
         self.placeControl(self.name_field, 2, 2, columnspan=2)
 
         # Password Label
-        self.password_label = pyxbmct.Label(i18n(30618))
+        self.password_label = pyxbmct.Label(i18n('Password:'))
         self.placeControl(self.password_label, 3, 1)
         # Password entry box
         self.password_field = pyxbmct.Edit('', isPassword=True)
         self.placeControl(self.password_field, 3, 2, columnspan=2)
 
         # Cancel button
-        self.cancel_button = pyxbmct.Button(i18n(30619))
+        self.cancel_button = pyxbmct.Button(i18n('Cancel'))
         self.placeControl(self.cancel_button, 5, 1)
         # Cancel button closes window
         self.connect(self.cancel_button, self.close)
 
         # Submit button
-        self.submit_button = pyxbmct.Button(i18n(30620))
+        self.submit_button = pyxbmct.Button(i18n('Submit'))
         self.placeControl(self.submit_button, 5, 4)
         # Submit button to get token
 
         # Manual button
-        self.manual_button = pyxbmct.Button(i18n(30621))
+        self.manual_button = pyxbmct.Button(i18n('Manual'))
         self.placeControl(self.manual_button, 5, 4)
 
         # PIN button
-        self.pin_button = pyxbmct.Button(i18n(30622))
+        self.pin_button = pyxbmct.Button(i18n('Use PIN'))
         self.placeControl(self.pin_button, 5, 2, columnspan=2)
 
         # PIN button
-        self.submit_pin_button = pyxbmct.Button(i18n(30623))
+        self.submit_pin_button = pyxbmct.Button(i18n('Done'))
         self.placeControl(self.submit_pin_button, 5, 2, columnspan=2)
 
         # Submit button to get token
@@ -98,7 +98,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         # set up failure message
         self.error_cross = pyxbmct.Image(media_path + 'error.png', aspectRatio=2)
         self.placeControl(self.error_cross, 4, 2)
-        self.error_message = pyxbmct.Label(i18n(30624))
+        self.error_message = pyxbmct.Label(i18n('Unable to sign in'))
         self.placeControl(self.error_message, 4, 3, columnspan=2, rowspan=2)
         self.error_cross.setVisible(False)
         self.error_message.setVisible(False)
@@ -127,7 +127,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         else:
             self.display_failure(False)
 
-        self.description.setText(i18n(30625) % 'http://plex.tv/pin')
+        self.description.setText(i18n('From your computer, go to %s and enter the code below') % 'http://plex.tv/pin')
         self.name_label.setVisible(False)
         self.password_label.setVisible(False)
         self.name_field.setVisible(False)
@@ -157,7 +157,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.setFocus(self.submit_pin_button)
 
     def display_manual(self, failure=False):
-        self.description.setText(i18n(30634))
+        self.description.setText(i18n('Enter your myPlex details below'))
         self.name_label.setVisible(True)
         self.password_label.setVisible(True)
         self.name_field.setVisible(True)
@@ -196,14 +196,14 @@ class PlexSignin(pyxbmct.AddonFullWindow):
             self.tick = pyxbmct.Image(media_path + 'tick.png', aspectRatio=2)
             self.placeControl(self.tick, 2, 2, columnspan=2, rowspan=2)
 
-            self.description.setText(i18n(30626))
+            self.description.setText(i18n('Successfully signed in'))
             xbmc.sleep(2000)
 
-            log_print.debug(i18n(30626))
+            log_print.debug(i18n('Successfully signed in'))
 
             self.close()
         else:
-            log_print.debug(i18n(30627))
+            log_print.debug(i18n('Sign in not successful'))
             self.display_manual(True)
 
     def submit_pin(self):
@@ -223,14 +223,14 @@ class PlexSignin(pyxbmct.AddonFullWindow):
             self.tick = pyxbmct.Image(media_path + 'tick.png', aspectRatio=2)
             self.placeControl(self.tick, 2, 2, columnspan=2, rowspan=2)
 
-            self.description.setText(i18n(30626))
+            self.description.setText(i18n('Successfully signed in'))
             xbmc.sleep(2000)
 
-            log_print.debug(i18n(30626))
+            log_print.debug(i18n('Successfully signed in'))
 
             self.close()
         else:
-            log_print.debug(i18n(30627))
+            log_print.debug(i18n('Sign in not successful'))
             self.display_pin(True)
 
     def set_navigation(self):
@@ -283,7 +283,7 @@ class PlexManage(pyxbmct.AddonFullWindow):
         self.placeControl(self.description, 2, 0, columnspan=4)
 
         # Username label
-        self.name_label = pyxbmct.Label(i18n(30617))
+        self.name_label = pyxbmct.Label(i18n('Username:'))
         self.placeControl(self.name_label, 1, 1)
 
         # username text box
@@ -295,37 +295,37 @@ class PlexManage(pyxbmct.AddonFullWindow):
         self.placeControl(self.thumb, 1, 4)
 
         # Email Label
-        self.email_label = pyxbmct.Label(i18n(30628))
+        self.email_label = pyxbmct.Label(i18n('Email:'))
         self.placeControl(self.email_label, 2, 1)
         # Email text box
         self.email_field = pyxbmct.TextBox()
         self.placeControl(self.email_field, 2, 2, columnspan=2)
 
         # plexpass Label
-        self.plexpass_label = pyxbmct.Label(i18n(30629))
+        self.plexpass_label = pyxbmct.Label(i18n('Plex Pass:'))
         self.placeControl(self.plexpass_label, 3, 1)
         # Password entry box
         self.plexpass_field = pyxbmct.TextBox()
         self.placeControl(self.plexpass_field, 3, 2, columnspan=2)
 
         # membersince Label
-        self.membersince_label = pyxbmct.Label(i18n(30630))
+        self.membersince_label = pyxbmct.Label(i18n('Joined:'))
         self.placeControl(self.membersince_label, 4, 1)
         # Membersince text box
         self.membersince_field = pyxbmct.TextBox()
         self.placeControl(self.membersince_field, 4, 2, columnspan=2)
 
         # Cancel button
-        self.cancel_button = pyxbmct.Button(i18n(30631))
+        self.cancel_button = pyxbmct.Button(i18n('Exit'))
         self.placeControl(self.cancel_button, 5, 1)
         # Cancel button closes window
 
         # Switch button
-        self.switch_button = pyxbmct.Button(i18n(30632))
+        self.switch_button = pyxbmct.Button(i18n('Switch User'))
         self.placeControl(self.switch_button, 5, 2, columnspan=2)
 
         # Signout button
-        self.signout_button = pyxbmct.Button(i18n(30633))
+        self.signout_button = pyxbmct.Button(i18n('Sign Out'))
         self.placeControl(self.signout_button, 5, 4)
 
         # Submit button to get token

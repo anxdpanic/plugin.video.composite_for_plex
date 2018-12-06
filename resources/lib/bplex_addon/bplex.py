@@ -138,7 +138,7 @@ def select_media_type(part_data, server, dvdplayback=False):
 def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     log_print.debug('Adding [%s]\n'
                     'Passed details: %s\n'
-                    'Passed extra_data: %s' % (details.get('title', i18n(30636)), details, extra_data))
+                    'Passed extra_data: %s' % (details.get('title', i18n('Unknown')), details, extra_data))
 
     # Create the URL to pass to the item
     if not folder and extra_data['type'] == 'image':
@@ -154,9 +154,9 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     log_print.debug('URL to use for listing: %s' % link_url)
     if KODI_VERSION >= 18:
-        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n(30636)), extra_data.get('source'), folder), offscreen=True)
+        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n('Unknown')), extra_data.get('source'), folder), offscreen=True)
     else:
-        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n(30636)), extra_data.get('source'), folder))
+        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n('Unknown')), extra_data.get('source'), folder))
     # Set the properties of the item, such as summary, name, season, etc
     liz.setInfo(type=extra_data.get('type', 'Video'), infoLabels=details)
 
@@ -236,7 +236,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if context is not None:
         if not folder and extra_data.get('type', 'video').lower() == 'video':
             # Play Transcoded
-            context.insert(0, (i18n(30086), 'PlayMedia(%s&transcode=1)' % link_url,))
+            context.insert(0, (i18n('Play Transcoded'), 'PlayMedia(%s&transcode=1)' % link_url,))
             log_print.debug('Setting transcode options to [%s&transcode=1]' % link_url)
         log_print.debug('Building Context Menus')
         liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
@@ -304,7 +304,7 @@ def display_sections(cfilter=None, display_shared=False):
             section_url = '%s%s' % (server.get_url_location(), path)
 
             if not settings.get_setting('skipcontextmenus'):
-                context = [(i18n(30616), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)'
+                context = [(i18n('Refresh library section'), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)'
                             % (server.get_uuid(), section.get_key()))]
             else:
                 context = None
@@ -318,7 +318,7 @@ def display_sections(cfilter=None, display_shared=False):
 
     # For each of the servers we have identified            
     if plex_network.is_myplex_signedin():
-        add_item_to_gui('http://myplexqueue', {'title': i18n(30080)}, {'type': 'Video', 'mode': MODES.MYPLEXQUEUE})
+        add_item_to_gui('http://myplexqueue', {'title': i18n('myPlex Queue')}, {'type': 'Video', 'mode': MODES.MYPLEXQUEUE})
 
     for server in server_list:
 
@@ -334,14 +334,14 @@ def display_sections(cfilter=None, display_shared=False):
         else:
             prefix = ''
 
-        details = {'title': prefix + i18n(30084)}
+        details = {'title': prefix + i18n('Channels')}
         extra_data = {'type': 'Video', 'mode': MODES.CHANNELVIEW}
 
         u = '%s/channels/all' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
 
         # Create plexonline link
-        details['title'] = prefix + i18n(30635)
+        details['title'] = prefix + i18n('Plex Online')
         extra_data['type'] = 'file'
         extra_data['mode'] = MODES.PLEXONLINE
 
@@ -349,7 +349,7 @@ def display_sections(cfilter=None, display_shared=False):
         add_item_to_gui(u, details, extra_data)
 
         # create playlist link
-        details['title'] = prefix + i18n(30085)
+        details['title'] = prefix + i18n('Playlists')
         extra_data['type'] = 'file'
         extra_data['mode'] = MODES.PLAYLISTS
 
@@ -359,31 +359,31 @@ def display_sections(cfilter=None, display_shared=False):
     if plex_network.is_myplex_signedin():
 
         if plex_network.is_plexhome_enabled():
-            details = {'title': i18n(30076)}
+            details = {'title': i18n('Switch User')}
             extra_data = {'type': 'file'}
 
             u = 'cmd:switchuser'
             add_item_to_gui(u, details, extra_data)
 
-        details = {'title': i18n(30006)}
+        details = {'title': i18n('Sign Out')}
         extra_data = {'type': 'file'}
 
         u = 'cmd:signout'
         add_item_to_gui(u, details, extra_data)
     else:
-        details = {'title': i18n(30081)}
+        details = {'title': i18n('Sign In')}
         extra_data = {'type': 'file'}
 
         u = 'cmd:signintemp'
         add_item_to_gui(u, details, extra_data)
 
-    details = {'title': i18n(30082)}
+    details = {'title': i18n('Display Servers')}
     extra_data = {'type': 'file'}
     data_url = 'cmd:displayservers'
     add_item_to_gui(data_url, details, extra_data)
 
     if settings.get_setting('cache'):
-        details = {'title': i18n(30083)}
+        details = {'title': i18n('Refresh Data')}
         extra_data = {'type': 'file'}
         u = 'cmd:delete_refresh'
         add_item_to_gui(u, details, extra_data)
@@ -434,13 +434,13 @@ def build_context_menu(url, item_data, server):
     item_id = item_data.get('ratingKey', '0')
 
     # Mark media unwatched
-    context.append((i18n(117), 'RunScript(' + GLOBAL_SETUP['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n(16104), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append((i18n(16103), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
-    context.append((i18n(292), 'RunScript(' + GLOBAL_SETUP['id'] + ', audio, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n(287), 'RunScript(' + GLOBAL_SETUP['id'] + ', subs, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n(653), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)' % (server.get_uuid(), section)))
-    context.append((i18n(184), 'RunScript(' + GLOBAL_SETUP['id'] + ', refresh)'))
+    context.append((i18n('Delete'), 'RunScript(' + GLOBAL_SETUP['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n('Mark as unwatched'), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+    context.append((i18n('Mark as watched'), 'RunScript(' + GLOBAL_SETUP['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
+    context.append((i18n('Audio'), 'RunScript(' + GLOBAL_SETUP['id'] + ', audio, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n('Subtitles'), 'RunScript(' + GLOBAL_SETUP['id'] + ', subs, %s, %s)' % (server.get_uuid(), item_id)))
+    context.append((i18n('Update library'), 'RunScript(' + GLOBAL_SETUP['id'] + ', update, %s, %s)' % (server.get_uuid(), section)))
+    context.append((i18n('Refresh'), 'RunScript(' + GLOBAL_SETUP['id'] + ', refresh)'))
 
     log_print.debug('Using context menus: %s' % context)
 
@@ -476,9 +476,9 @@ def process_tvshows(url, tree=None):
         _watched = int(show.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details = {'title': encode_utf8(show.get('title', i18n(30636))),
-                   'sorttitle': encode_utf8(show.get('titleSort', show.get('title', i18n(30636)))),
-                   'tvshowname': encode_utf8(show.get('title', i18n(30636))),
+        details = {'title': encode_utf8(show.get('title', i18n('Unknown'))),
+                   'sorttitle': encode_utf8(show.get('titleSort', show.get('title', i18n('Unknown')))),
+                   'tvshowname': encode_utf8(show.get('title', i18n('Unknown'))),
                    'studio': encode_utf8(show.get('studio', '')),
                    'plot': encode_utf8(show.get('summary', '')),
                    'season': 0,
@@ -561,10 +561,10 @@ def process_tvseasons(url):
         _watched = int(season.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details = {'title': encode_utf8(season.get('title', i18n(30636))),
-                   'tvshowname': encode_utf8(season.get('parentTitle', i18n(30636))),
-                   'TVShowTitle': encode_utf8(season.get('parentTitle', i18n(30636))),
-                   'sorttitle': encode_utf8(season.get('titleSort', season.get('title', i18n(30636)))),
+        details = {'title': encode_utf8(season.get('title', i18n('Unknown'))),
+                   'tvshowname': encode_utf8(season.get('parentTitle', i18n('Unknown'))),
+                   'TVShowTitle': encode_utf8(season.get('parentTitle', i18n('Unknown'))),
+                   'sorttitle': encode_utf8(season.get('titleSort', season.get('title', i18n('Unknown')))),
                    'studio': encode_utf8(season.get('studio', '')),
                    'plot': plot,
                    'season': season.get('index', 0),
@@ -680,8 +680,8 @@ def process_tvepisodes(url, tree=None):
 
         # Required listItem entries for XBMC
         details = {'plot': encode_utf8(episode.get('summary', '')),
-                   'title': encode_utf8(episode.get('title', i18n(30636))),
-                   'sorttitle': encode_utf8(episode.get('titleSort', episode.get('title', i18n(30636)))),
+                   'title': encode_utf8(episode.get('title', i18n('Unknown'))),
+                   'sorttitle': encode_utf8(episode.get('titleSort', episode.get('title', i18n('Unknown')))),
                    'rating': float(episode.get('rating', 0)),
                    'studio': encode_utf8(episode.get('studio', tree.get('studio', ''))),
                    'mpaa': episode.get('contentRating', tree.get('grandparentContentRating', '')),
@@ -810,8 +810,8 @@ def get_audio_subtitles_from_media(server, tree, full=False):
     if full:
         if media_type == 'video':
             full_data = {'plot': encode_utf8(timings.get('summary', '')),
-                         'title': encode_utf8(timings.get('title', i18n(30636))),
-                         'sorttitle': encode_utf8(timings.get('titleSort', timings.get('title', i18n(30636)))),
+                         'title': encode_utf8(timings.get('title', i18n('Unknown'))),
+                         'sorttitle': encode_utf8(timings.get('titleSort', timings.get('title', i18n('Unknown')))),
                          'rating': float(timings.get('rating', 0)),
                          'studio': encode_utf8(timings.get('studio', '')),
                          'mpaa': encode_utf8(timings.get('contentRating', '')),
@@ -831,7 +831,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
 
             full_data = {'TrackNumber': int(timings.get('index', 0)),
                          'discnumber': int(timings.get('parentIndex', 0)),
-                         'title': str(timings.get('index', 0)).zfill(2) + '. ' + encode_utf8(timings.get('title', i18n(30636))),
+                         'title': str(timings.get('index', 0)).zfill(2) + '. ' + encode_utf8(timings.get('title', i18n('Unknown'))),
                          'rating': float(timings.get('rating', 0)),
                          'album': encode_utf8(timings.get('parentTitle', tree.get('parentTitle', ''))),
                          'artist': encode_utf8(timings.get('grandparentTitle', tree.get('grandparentTitle', ''))),
@@ -953,9 +953,9 @@ def play_playlist(server, data):
 
         url, item = track_tag(server, tree, track, listing=False)
         if KODI_VERSION >= 18:
-            liz = xbmcgui.ListItem(item.get('title', i18n(30636)), offscreen=True)
+            liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')), offscreen=True)
         else:
-            liz = xbmcgui.ListItem(item.get('title', i18n(30636)))
+            liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')))
         thumb = data['full_data'].get('thumbnailImage', GENERIC_THUMBNAIL)
         liz.setArt({'icon': thumb, 'thumb': thumb})
         liz.setInfo(type='music', infoLabels=item)
@@ -1111,7 +1111,7 @@ def set_audio_subtitles(stream):
 
         elif audio:
             log_print.debug('Attempting to use selected language setting: %s' %
-                            encode_utf8(audio.get('language', audio.get('languageCode', i18n(30636)))))
+                            encode_utf8(audio.get('language', audio.get('languageCode', i18n('Unknown')))))
             log_print.debug('Found preferred language at index %s' % stream['audio_offset'])
             try:
                 xbmc.Player().setAudioStream(stream['audio_offset'])
@@ -1178,7 +1178,7 @@ def select_media_to_play(data, server):
 
         log_print.debug('Create selection dialog box - we have a decision to make!')
         start_time = xbmcgui.Dialog()
-        result = start_time.select(i18n(30071), dialog_options)
+        result = start_time.select(i18n('Select media to play'), dialog_options)
         if result == -1:
             return None
 
@@ -1397,9 +1397,9 @@ def channel_search(url, prompt):
     if prompt:
         prompt = unquote(prompt)
     else:
-        prompt = i18n(30638)
+        prompt = i18n('Enter search term')
 
-    kb = xbmc.Keyboard('', i18n(30056))
+    kb = xbmc.Keyboard('', i18n('Search...'))
     kb.setHeading(prompt)
     kb.doModal()
     if kb.isConfirmed():
@@ -1426,8 +1426,8 @@ def get_content(url):
     # Catch search requests, as we need to process input before getting results.
     if lastbit.startswith('search'):
         log_print.debug('This is a search URL.  Bringing up keyboard')
-        kb = xbmc.Keyboard('', i18n(30056))
-        kb.setHeading(i18n(30638))
+        kb = xbmc.Keyboard('', i18n('Search...'))
+        kb.setHeading(i18n('Enter search term'))
         kb.doModal()
         if kb.isConfirmed():
             text = kb.getText()
@@ -1476,7 +1476,7 @@ def process_directory(url, tree=None):
     server = plex_network.get_server_from_url(url)
     thumb = tree.get('thumb')
     for directory in tree:
-        details = {'title': directory_item_translate(encode_utf8(directory.get('title', i18n(30636))), thumb)}
+        details = {'title': directory_item_translate(encode_utf8(directory.get('title', i18n('Unknown'))), thumb)}
         extra_data = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODES.GETCONTENT}
 
         u = '%s' % (get_link_url(url, directory, server))
@@ -1491,117 +1491,117 @@ def directory_item_translate(title, thumb):
 
     if thumb.endswith('show.png'):
         if title == 'All Shows':
-            translated_title = i18n(30013)
+            translated_title = i18n('All')
         elif title == 'Unwatched':
-            translated_title = i18n(30014)
+            translated_title = i18n('Unwatched')
         elif title == 'Recently Aired':
-            translated_title = i18n(30015)
+            translated_title = i18n('Recently Aired')
         elif title == 'Recently Added':
-            translated_title = i18n(30016)
+            translated_title = i18n('Recently Added')
         elif title == 'Recently Viewed Episodes':
-            translated_title = i18n(30017)
+            translated_title = i18n('Recently Viewed Episodes')
         elif title == 'Recently Viewed Shows':
-            translated_title = i18n(30018)
+            translated_title = i18n('Recently Viewed Shows')
         elif title == 'On Deck':
-            translated_title = i18n(30019)
+            translated_title = i18n('On Deck')
         elif title == 'By Collection':
-            translated_title = i18n(30020)
+            translated_title = i18n('By Collection')
         elif title == 'By First Letter':
-            translated_title = i18n(30021)
+            translated_title = i18n('By First Letter')
         elif title == 'By Genre':
-            translated_title = i18n(30022)
+            translated_title = i18n('By Genre')
         elif title == 'By Year':
-            translated_title = i18n(30023)
+            translated_title = i18n('By Year')
         elif title == 'By Content Rating':
-            translated_title = i18n(30024)
+            translated_title = i18n('By Content Rating')
         elif title == 'By Folder':
-            translated_title = i18n(30025)
+            translated_title = i18n('By Folder')
         elif title == 'Search Shows...':
-            translated_title = i18n(30026)
+            translated_title = i18n('Search Shows...')
         elif title == 'Search Episodes...':
-            translated_title = i18n(30027)
+            translated_title = i18n('Search Episodes...')
 
     if thumb.endswith('artist.png'):
         if title == 'All Artists':
-            translated_title = i18n(30028)
+            translated_title = i18n('All')
         elif title == 'By Album':
-            translated_title = i18n(30029)
+            translated_title = i18n('By Album')
         elif title == 'By Genre':
-            translated_title = i18n(30030)
+            translated_title = i18n('By Genre')
         elif title == 'By Year':
-            translated_title = i18n(30031)
+            translated_title = i18n('By Year')
         elif title == 'By Collection':
-            translated_title = i18n(30032)
+            translated_title = i18n('By Collection')
         elif title == 'Recently Added':
-            translated_title = i18n(30033)
+            translated_title = i18n('Recently Added')
         elif title == 'By Folder':
-            translated_title = i18n(30034)
+            translated_title = i18n('By Folder')
         elif title == 'Search Artists...':
-            translated_title = i18n(30035)
+            translated_title = i18n('Search Artists...')
         elif title == 'Search Albums...':
-            translated_title = i18n(30036)
+            translated_title = i18n('Search Albums...')
         elif title == 'Search Tracks...':
-            translated_title = i18n(30037)
+            translated_title = i18n('Search Tracks...')
 
     if thumb.endswith('movie.png') or thumb.endswith('video.png'):
         if title.startswith('All '):
-            translated_title = i18n(30038)
+            translated_title = i18n('All')
         elif title == 'Unwatched':
-            translated_title = i18n(30039)
+            translated_title = i18n('Unwatched')
         elif title == 'Recently Released':
-            translated_title = i18n(30040)
+            translated_title = i18n('Recently Released')
         elif title == 'Recently Added':
-            translated_title = i18n(30041)
+            translated_title = i18n('Recently Added')
         elif title == 'Recently Viewed':
-            translated_title = i18n(30042)
+            translated_title = i18n('Recently Viewed')
         elif title == 'On Deck':
-            translated_title = i18n(30043)
+            translated_title = i18n('On Deck')
         elif title == 'By Collection':
-            translated_title = i18n(30044)
+            translated_title = i18n('By Collection')
         elif title == 'By Genre':
-            translated_title = i18n(30045)
+            translated_title = i18n('By Genre')
         elif title == 'By Year':
-            translated_title = i18n(30046)
+            translated_title = i18n('By Year')
         elif title == 'By Decade':
-            translated_title = i18n(30047)
+            translated_title = i18n('By Decade')
         elif title == 'By Director':
-            translated_title = i18n(30048)
+            translated_title = i18n('By Director')
         elif title == 'By Starring Actor':
-            translated_title = i18n(30049)
+            translated_title = i18n('By Starring Actor')
         elif title == 'By Country':
-            translated_title = i18n(30050)
+            translated_title = i18n('By Country')
         elif title == 'By Content Rating':
-            translated_title = i18n(30051)
+            translated_title = i18n('By Content Rating')
         elif title == 'By Rating':
-            translated_title = i18n(30052)
+            translated_title = i18n('By Rating')
         elif title == 'By Resolution':
-            translated_title = i18n(30053)
+            translated_title = i18n('By Resolution')
         elif title == 'By First Letter':
-            translated_title = i18n(30054)
+            translated_title = i18n('By First Letter')
         elif title == 'By Folder':
-            translated_title = i18n(30055)
+            translated_title = i18n('By Folder')
         elif title == 'Search...':
-            translated_title = i18n(30056)
+            translated_title = i18n('Search...')
 
     if thumb.endswith('photo.png'):
         if title == 'All Photos':
-            translated_title = i18n(30057)
+            translated_title = i18n('All')
         elif title == 'By Year':
-            translated_title = i18n(30058)
+            translated_title = i18n('By Year')
         elif title == 'Recently Added':
-            translated_title = i18n(30059)
+            translated_title = i18n('Recently Added')
         elif title == 'Camera Make':
-            translated_title = i18n(30060)
+            translated_title = i18n('Camera Make')
         elif title == 'Camera Model':
-            translated_title = i18n(30061)
+            translated_title = i18n('Camera Model')
         elif title == 'Aperture':
-            translated_title = i18n(30062)
+            translated_title = i18n('Aperture')
         elif title == 'Shutter Speed':
-            translated_title = i18n(30063)
+            translated_title = i18n('Shutter Speed')
         elif title == 'ISO':
-            translated_title = i18n(30064)
+            translated_title = i18n('ISO')
         elif title == 'Lens':
-            translated_title = i18n(30065)
+            translated_title = i18n('Lens')
 
     return translated_title
 
@@ -1611,9 +1611,9 @@ def item_translate(title, source, folder):
 
     if folder and (source == 'tvshows' or source == 'tvseasons'):
         if title == 'All episodes':
-            translated_title = i18n(30087)
+            translated_title = i18n('All episodes')
         elif title.startswith('Season '):
-            translated_title = i18n(30088) + title[6:]
+            translated_title = i18n('Season') + title[6:]
 
     return translated_title
 
@@ -1623,9 +1623,9 @@ def heading2_translate(tree):
     translated_title = directory_item_translate(title, tree.get('thumb'))
 
     if title.startswith('Season '):
-        translated_title = i18n(30088) + title[6:]
+        translated_title = i18n('Season') + title[6:]
     elif title.startswith('Search for \''):
-        translated_title = i18n(30089) + title[10:]
+        translated_title = i18n('Search for') + title[10:]
 
     return translated_title
 
@@ -1747,7 +1747,7 @@ def get_xml(url, tree=None):
         tree = plex_network.get_processed_xml(url)
 
     if tree.get('message'):
-        xbmcgui.Dialog().ok(tree.get('header', i18n(30648)), tree.get('message', ''))
+        xbmcgui.Dialog().ok(tree.get('header', i18n('Message')), tree.get('message', ''))
         return None
 
     return tree
@@ -1778,7 +1778,7 @@ def plex_plugins(url, tree=None):
         details = {'title': encode_utf8(plugin.get('title'))}
 
         if details['title']:
-            details['title'] = encode_utf8(plugin.get('name', i18n(30636)))
+            details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
 
         if plugin.get('summary'):
             details['plot'] = plugin.get('summary')
@@ -1827,7 +1827,7 @@ def plex_plugins(url, tree=None):
             else:
                 value = plugin.get('value')
 
-            details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n(30636))), value)
+            details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n('Unknown'))), value)
             extra_data['mode'] = MODES.CHANNELPREFS
             extra_data['parameters'] = {'id': plugin.get('id')}
             add_item_to_gui(url, details, extra_data)
@@ -1860,13 +1860,13 @@ def channel_settings(url, setting_id):
             log_print.debug('Found correct id entry for: %s' % setting_id)
             sid = setting_id
 
-            label = plugin.get('label', i18n(30639))
+            label = plugin.get('label', i18n('Enter value'))
             option = plugin.get('option')
             value = plugin.get('value')
 
             if plugin.get('type') == 'text':
                 log_print.debug('Setting up a text entry screen')
-                kb = xbmc.Keyboard(value, i18n(30639))
+                kb = xbmc.Keyboard(value, i18n('Enter value'))
                 kb.setHeading(label)
 
                 if option == 'hidden':
@@ -1929,7 +1929,7 @@ def process_xml(url, tree=None):
         details = {'title': encode_utf8(plugin.get('title'))}
 
         if details['title']:
-            details['title'] = encode_utf8(plugin.get('name', i18n(30636)))
+            details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
 
         extra_data = {'thumb': get_thumb_image(plugin, server),
                       'fanart_image': get_fanart_image(plugin, server),
@@ -1993,8 +1993,8 @@ def movie_tag(url, server, movie, random_number):
 
     # Required listItem entries for XBMC
     details = {'plot': encode_utf8(movie.get('summary', '')),
-               'title': encode_utf8(movie.get('title', i18n(30636))),
-               'sorttitle': encode_utf8(movie.get('titleSort', movie.get('title', i18n(30636)))),
+               'title': encode_utf8(movie.get('title', i18n('Unknown'))),
+               'sorttitle': encode_utf8(movie.get('titleSort', movie.get('title', i18n('Unknown')))),
                'rating': float(movie.get('rating', 0)),
                'studio': encode_utf8(movie.get('studio', '')),
                'mpaa': encode_utf8(movie.get('contentRating', '')),
@@ -2085,7 +2085,7 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
 
     details = {'TrackNumber': int(track.get('index', 0)),
                'discnumber': int(track.get('parentIndex', 0)),
-               'title': str(track.get('index', 0)).zfill(2) + '. ' + encode_utf8(track.get('title', i18n(30636))),
+               'title': str(track.get('index', 0)).zfill(2) + '. ' + encode_utf8(track.get('title', i18n('Unknown'))),
                'rating': float(track.get('rating', 0)),
                'album': encode_utf8(track.get('parentTitle', tree.get('parentTitle', ''))),
                'artist': encode_utf8(track.get('grandparentTitle', tree.get('grandparentTitle', ''))),
@@ -2107,7 +2107,7 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
 
 
 def playlist_tag(url, server, track, listing=True):
-    details = {'title': encode_utf8(track.get('title', i18n(30636))),
+    details = {'title': encode_utf8(track.get('title', i18n('Unknown'))),
                'duration': int(track.get('duration', 0)) / 1000
                }
 
@@ -2141,10 +2141,10 @@ def photo(url, tree=None):
     section_art = get_fanart_image(tree, server)
     for picture in tree:
 
-        details = {'title': encode_utf8(picture.get('title', picture.get('name', i18n(30636))))}
+        details = {'title': encode_utf8(picture.get('title', picture.get('name', i18n('Unknown'))))}
 
         if not details['title']:
-            details['title'] = i18n(30636)
+            details['title'] = i18n('Unknown')
 
         extra_data = {'thumb': get_thumb_image(picture, server),
                       'fanart_image': get_fanart_image(picture, server),
@@ -2194,7 +2194,7 @@ def music(url, tree=None):
                    'year': int(grapes.get('year', 0)),
                    'album': encode_utf8(grapes.get('album', '')),
                    'tracknumber': int(grapes.get('index', 0)),
-                   'title': i18n(30636)}
+                   'title': i18n('Unknown')}
 
         extra_data = {'type': 'Music',
                       'thumb': get_thumb_image(grapes, server),
@@ -2209,7 +2209,7 @@ def music(url, tree=None):
             log_print.debug('Track Tag')
             xbmcplugin.setContent(pluginhandle, 'songs')
 
-            details['title'] = grapes.get('track', encode_utf8(grapes.get('title', i18n(30636))))
+            details['title'] = grapes.get('track', encode_utf8(grapes.get('title', i18n('Unknown'))))
             details['duration'] = int(int(grapes.get('total_time', 0)) / 1000)
 
             extra_data['mode'] = MODES.BASICPLAY
@@ -2220,19 +2220,19 @@ def music(url, tree=None):
             if grapes.tag == 'Artist':
                 log_print.debug('Artist Tag')
                 xbmcplugin.setContent(pluginhandle, 'artists')
-                details['title'] = encode_utf8(grapes.get('artist', i18n(30636)))
+                details['title'] = encode_utf8(grapes.get('artist', i18n('Unknown')))
 
             elif grapes.tag == 'Album':
                 log_print.debug('Album Tag')
                 xbmcplugin.setContent(pluginhandle, 'albums')
-                details['title'] = encode_utf8(grapes.get('album', i18n(30636)))
+                details['title'] = encode_utf8(grapes.get('album', i18n('Unknown')))
 
             elif grapes.tag == 'Genre':
-                details['title'] = encode_utf8(grapes.get('genre', i18n(30636)))
+                details['title'] = encode_utf8(grapes.get('genre', i18n('Unknown')))
 
             else:
                 log_print.debug('Generic Tag: %s' % grapes.tag)
-                details['title'] = encode_utf8(grapes.get('title', i18n(30636)))
+                details['title'] = encode_utf8(grapes.get('title', i18n('Unknown')))
 
             extra_data['mode'] = MODES.MUSIC
             add_item_to_gui(u, details, extra_data)
@@ -2369,7 +2369,7 @@ def plex_online(url):
 
     for plugin in tree:
 
-        details = {'title': encode_utf8(plugin.get('title', plugin.get('name', i18n(30636))))}
+        details = {'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))}
         extra_data = {'type': 'Video',
                       'installed': int(plugin.get('installed', 2)),
                       'key': plugin.get('key', ''),
@@ -2405,21 +2405,21 @@ def install(url, name):
         # If we find an install option, switch to a yes/no dialog box
         if operations[m].lower() == 'install':
             log_print.debug('Not installed.  Print dialog')
-            ret = xbmcgui.Dialog().yesno(i18n(30002), i18n(30003) + name)
+            ret = xbmcgui.Dialog().yesno(i18n('Plex Online'), i18n('About to install') + ' ' + name)
 
             if ret:
                 log_print.debug('Installing....')
                 tree = server.processed_xml(url + '/install')
 
-                msg = tree.get('message', '(blank)')
+                msg = tree.get('message', '(' + i18n('blank') + ')')
                 log_print.debug(msg)
-                xbmcgui.Dialog().ok(i18n(30002), msg)
+                xbmcgui.Dialog().ok(i18n('Plex Online'), msg)
             return
 
         m += 1
 
     # Else continue to a selection dialog box
-    ret = xbmcgui.Dialog().select(i18n(30004), operations.values())
+    ret = xbmcgui.Dialog().select(i18n('This plugin is already installed'), operations.values())
 
     if ret == -1:
         log_print.debug('No option selected, cancelling')
@@ -2431,7 +2431,7 @@ def install(url, name):
 
     msg = tree.get('message')
     log_print.debug(msg)
-    xbmcgui.Dialog().ok(i18n(30002), msg)
+    xbmcgui.Dialog().ok(i18n('Plex Online'), msg)
     xbmc.executebuiltin('Container.Refresh')
 
     return
@@ -2454,7 +2454,7 @@ def channel_view(url):
         extra_data = {'fanart_image': get_fanart_image(channels, server),
                       'thumb': get_thumb_image(channels, server)}
 
-        details = {'title': channels.get('title', i18n(30636))}
+        details = {'title': channels.get('title', i18n('Unknown'))}
 
         suffix = channels.get('key').split('/')[1]
 
@@ -2492,9 +2492,9 @@ def display_content(acceptable_level, content_level):
         log_print.debug('OK to display')
         return True
 
-    content_map = {0: i18n(30589),
-                   1: i18n(30590),
-                   2: i18n(30591)}
+    content_map = {0: i18n('Kids'),
+                   1: i18n('Teens'),
+                   2: i18n('Adults')}
 
     rating_map = {'G': 0,  # MPAA Kids
                   'PG': 0,  # MPAA Kids
@@ -2553,7 +2553,7 @@ def display_content(acceptable_level, content_level):
 
 def myplex_queue():
     if not plex_network.is_myplex_signedin():
-        xbmc.executebuiltin('Notification(' + i18n(30069) + ',)')
+        xbmc.executebuiltin('Notification(' + i18n('myPlex not configured') + ',)')
         return
 
     tree = plex_network.get_myplex_queue()
@@ -2567,7 +2567,7 @@ def refresh_plex_library(server_uuid, section_id):
     server.refresh_section(section_id)
 
     log_print.debug('Library refresh requested')
-    xbmc.executebuiltin('Notification(' + i18n(30068) + ',100)')
+    xbmc.executebuiltin('Notification(' + GLOBAL_SETUP['name'] + ': ' + i18n('Library refresh started') + ',100)')
     return
 
 
@@ -2589,7 +2589,7 @@ def watched(server_uuid, metadata_id, watched_status='watch'):
 def delete_library_media(server_uuid, metadata_id):
     log_print.debug('Deleting media at: %s' % metadata_id)
 
-    return_value = xbmcgui.Dialog().yesno(i18n(30000), i18n(30001))
+    return_value = xbmcgui.Dialog().yesno(i18n('Confirm file delete?'), i18n('Delete this item? This action will delete media and associated data files.'))
 
     if return_value:
         log_print.debug('Deleting....')
@@ -2622,7 +2622,7 @@ def set_library_subtitiles(server_uuid, metadata_id):
             if streams.get('streamType', '') == '3':
 
                 stream_id = streams.get('id')
-                lang = encode_utf8(streams.get('languageCode', i18n(30636)))
+                lang = encode_utf8(streams.get('languageCode', i18n('Unknown')))
                 log_print.debug('Detected Subtitle stream [%s] [%s]' % (stream_id, lang))
 
                 if streams.get('format', streams.get('codec')) == 'idx':
@@ -2633,9 +2633,9 @@ def set_library_subtitiles(server_uuid, metadata_id):
 
                     if streams.get('selected') == '1':
                         fl_select = True
-                        language = streams.get('language', i18n(30636)) + '*'
+                        language = streams.get('language', i18n('Unknown')) + '*'
                     else:
-                        language = streams.get('language', i18n(30636))
+                        language = streams.get('language', i18n('Unknown'))
 
                     display_list.append(language)
         break
@@ -2644,7 +2644,7 @@ def set_library_subtitiles(server_uuid, metadata_id):
         display_list[0] = display_list[0] + '*'
 
     subtitle_screen = xbmcgui.Dialog()
-    result = subtitle_screen.select(i18n(30072), display_list)
+    result = subtitle_screen.select(i18n('Select subtitle'), display_list)
     if result == -1:
         return False
 
@@ -2676,27 +2676,27 @@ def set_library_audio(server_uuid, metadata_id):
 
                 stream_id = streams.get('id')
                 audio_list.append(stream_id)
-                lang = streams.get('languageCode', i18n(30636))
+                lang = streams.get('languageCode', i18n('Unknown'))
 
                 log_print.debug('Detected Audio stream [%s] [%s] ' % (stream_id, lang))
 
-                if streams.get('channels', i18n(30636)) == '6':
+                if streams.get('channels', i18n('Unknown')) == '6':
                     channels = '5.1'
-                elif streams.get('channels', i18n(30636)) == '7':
+                elif streams.get('channels', i18n('Unknown')) == '7':
                     channels = '6.1'
-                elif streams.get('channels', i18n(30636)) == '2':
+                elif streams.get('channels', i18n('Unknown')) == '2':
                     channels = 'Stereo'
                 else:
-                    channels = streams.get('channels', i18n(30636))
+                    channels = streams.get('channels', i18n('Unknown'))
 
-                if streams.get('codec', i18n(30636)) == 'ac3':
+                if streams.get('codec', i18n('Unknown')) == 'ac3':
                     codec = 'AC3'
-                elif streams.get('codec', i18n(30636)) == 'dca':
+                elif streams.get('codec', i18n('Unknown')) == 'dca':
                     codec = 'DTS'
                 else:
-                    codec = streams.get('codec', i18n(30636))
+                    codec = streams.get('codec', i18n('Unknown'))
 
-                language = '%s (%s %s)' % (encode_utf8(streams.get('language', i18n(30636))), codec, channels)
+                language = '%s (%s %s)' % (encode_utf8(streams.get('language', i18n('Unknown'))), codec, channels)
 
                 if streams.get('selected') == '1':
                     language = language + '*'
@@ -2705,7 +2705,7 @@ def set_library_audio(server_uuid, metadata_id):
         break
 
     audio_screen = xbmcgui.Dialog()
-    result = audio_screen.select(i18n(30073), display_list)
+    result = audio_screen.select(i18n('Select audio'), display_list)
     if result == -1:
         return False
 
@@ -2761,7 +2761,7 @@ def set_master_server():
         display_option_list.append(found_server)
 
     audio_select_screen = xbmcgui.Dialog()
-    result = audio_select_screen.select(i18n(30074), display_option_list)
+    result = audio_select_screen.select(i18n('Select master server'), display_option_list)
     if result == -1:
         return False
 
@@ -2779,17 +2779,17 @@ def display_known_servers():
         log_status, status_label = device.get_status()
         if device.is_secure():
             log_secure = 'SSL'
-            secure_label = i18n(30645)
+            secure_label = i18n('SSL')
         else:
             log_secure = 'Not Secure'
-            secure_label = i18n(30646)
+            secure_label = i18n('Not Secure')
 
         log_print.debug('Device: %s [%s] [%s]' % (name, log_status, log_secure))
         log_print.debugplus('Full device dump [%s]' % device.__dict__)
         display_list.append('%s [%s] [%s]' % (name, status_label, secure_label))
 
     server_display_screen = xbmcgui.Dialog()
-    server_display_screen.select(i18n(30075), display_list)
+    server_display_screen.select(i18n('Known server list'), display_list)
     return
 
 
@@ -2858,7 +2858,7 @@ def switch_user():
     user_list.pop(plex_network.get_myplex_user(), None)
 
     select_screen = xbmcgui.Dialog()
-    result = select_screen.select(i18n(30076), user_list.keys())
+    result = select_screen.select(i18n('Switch User'), user_list.keys())
     if result == -1:
         log_print.debug('Dialog cancelled')
         return False
@@ -2869,12 +2869,12 @@ def switch_user():
     pin = None
     if user['protected'] == '1':
         log_print.debug('Protected user [%s], requesting password' % user['title'])
-        pin = select_screen.input(i18n(30077), type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+        pin = select_screen.input(i18n('Enter PIN'), type=xbmcgui.INPUT_NUMERIC, option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
     success, msg = plex_network.switch_plex_home_user(user['id'], pin)
 
     if not success:
-        xbmcgui.Dialog().ok(i18n(30005), msg)
+        xbmcgui.Dialog().ok(i18n('Switch Failed'), msg)
         return False
 
     return True
@@ -2895,7 +2895,7 @@ def get_transcode_profile():
         return 0
 
     dialog = xbmcgui.Dialog()
-    result = dialog.select(i18n(30641), profile_labels)
+    result = dialog.select(i18n('Transcode Profiles'), profile_labels)
 
     if result == -1:
         return 0
@@ -2977,16 +2977,17 @@ def start_bplex(sys_argv):
 
     elif command == 'signout':
         if not plex_network.is_admin():
-            return xbmcgui.Dialog().ok(i18n(30006), i18n(30007))
+            return xbmcgui.Dialog().ok(i18n('Sign Out'), 
+                                       i18n('To sign out you must be logged in as an admin user. Please switch user and try again'))
 
-        ret = xbmcgui.Dialog().yesno(i18n(30008), i18n(30009))
+        ret = xbmcgui.Dialog().yesno(i18n('myPlex'), i18n('You are currently signed into myPlex. Are you sure you want to sign out?'))
         if ret:
             plex_network.signout()
             xbmc.executebuiltin('Container.Refresh')
 
     elif command == 'signin':
         from .plex import plexsignin
-        signin_window = plexsignin.PlexSignin(i18n(30637))
+        signin_window = plexsignin.PlexSignin(i18n('myPlex Login'))
         signin_window.set_authentication_target(plex_network)
         signin_window.start()
         del signin_window
@@ -2998,17 +2999,19 @@ def start_bplex(sys_argv):
     elif command == 'managemyplex':
 
         if not plex_network.is_myplex_signedin():
-            ret = xbmcgui.Dialog().yesno(i18n(30010), i18n(30011))
+            ret = xbmcgui.Dialog().yesno(i18n('Manage myPlex'), 
+                                         i18n('You are not currently logged into myPlex.  Please continue to sign in, or cancel to return'))
             if ret:
                 xbmc.executebuiltin('RunScript(' + GLOBAL_SETUP['id'] + ', signin)')
             else:
                 return
 
         elif not plex_network.is_admin():
-            return xbmcgui.Dialog().ok(i18n(30010), i18n(30012))
+            return xbmcgui.Dialog().ok(i18n('Manage myPlex'),
+                                       i18n('To access these screens you must be logged in as an admin user. Please switch user and try again'))
 
         from .plex import plexsignin
-        manage_window = plexsignin.PlexManage(i18n(30605))
+        manage_window = plexsignin.PlexManage(i18n('Manage myPlex'))
         manage_window.set_authentication_target(plex_network)
         manage_window.start()
         del manage_window

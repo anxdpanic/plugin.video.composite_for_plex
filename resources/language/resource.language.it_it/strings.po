@@ -29,12 +29,12 @@ msgid "Plex Online"
 msgstr "Plex Online"
 
 msgctxt "#30003"
-msgid "Sto per installare "
-msgstr ""
+msgid "About to install"
+msgstr "Sto per installare"
 
 msgctxt "#30004"
-msgid "This plugin is already installed.."
-msgstr "Questo plugin è già stato installato.."
+msgid "This plugin is already installed"
+msgstr "Questo plugin è già stato installato"
 
 msgctxt "#30005"
 msgid "Switch Failed"
@@ -45,7 +45,7 @@ msgid "Sign Out"
 msgstr "Esci"
 
 msgctxt "#30007"
-msgid "To sign out you must be logged in as an admin user. Please switch user and try again"
+msgid "To sign out you must be logged in as an admin user. Switch user and try again"
 msgstr "Per uscire devi essere loggato come utente amministrativo. Per favore cambia utente e prova di nuovo"
 
 msgctxt "#30008"
@@ -56,16 +56,14 @@ msgctxt "#30009"
 msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
 msgstr "Hai eseguito l'accesso in myPlex. Sei sicuro di voler uscire?"
 
-msgctxt "#30010"
-msgid "Manage myPlex"
-msgstr "Gestisci myPlex"
+#  30010
 
 msgctxt "#30011"
-msgid "You are not currently logged into myPlex.  Please continue to sign in, or cancel to return"
+msgid "You are not currently logged into myPlex. Continue to sign in, or cancel to return"
 msgstr "Non sei attualmente loggato in myPlex. Per favore continua il login, oppure annulla per tornare indietro"
 
 msgctxt "#30012"
-msgid "To access these screens you must be logged in as an admin user.  Please switch user and try again"
+msgid "To access these screens you must be logged in as an admin user. Switch user and try again"
 msgstr "Per accedere a queste schermate devi essere loggato come utente amministrativo. Per favore cambia utente e prova di nuovo"
 
 msgctxt "#30013"
@@ -289,8 +287,8 @@ msgid "Unable to contact server:"
 msgstr "Non è possibile contattare il server:"
 
 msgctxt "#30068"
-msgid "\"bPlex\",Library Refresh started"
-msgstr "\"bPlex\",iniziato aggiornamento libreria"
+msgid "Library refresh started"
+msgstr "iniziato aggiornamento libreria"
 
 msgctxt "#30069"
 msgid "myPlex not configured"
@@ -803,7 +801,7 @@ msgid "Done"
 msgstr ""
 
 msgctxt "#30624"
-msgid "Unable to Login"
+msgid "Unable to sign in"
 msgstr ""
 
 msgctxt "#30625"
@@ -811,11 +809,11 @@ msgid "From your computer, go to %s and enter the code below"
 msgstr ""
 
 msgctxt "#30626"
-msgid "Successfully Signed In"
+msgid "Successfully signed in"
 msgstr ""
 
 msgctxt "#30627"
-msgid "Not Successful signed in"
+msgid "Sign in not successful"
 msgstr ""
 
 msgctxt "#30628"
@@ -823,7 +821,7 @@ msgid "Email:"
 msgstr ""
 
 msgctxt "#30629"
-msgid "Plexpass:"
+msgid "Plex Pass:"
 msgstr ""
 
 msgctxt "#30630"
@@ -834,21 +832,15 @@ msgctxt "#30631"
 msgid "Exit"
 msgstr ""
 
-msgctxt "#30632"
-msgid "Switch User"
-msgstr ""
+#  30632
 
-msgctxt "#30633"
-msgid "Sign out"
-msgstr ""
+#  30633
 
 msgctxt "#30634"
-msgid "Please enter your myPlex details below"
+msgid "Enter your myPlex details below"
 msgstr ""
 
-msgctxt "#30635"
-msgid "Plex Online"
-msgstr ""
+#  30635
 
 msgctxt "#30636"
 msgid "Unknown"
@@ -900,4 +892,8 @@ msgstr ""
 
 msgctxt "#30648"
 msgid "Message"
+msgstr ""
+
+msgctxt "#30649"
+msgid "blank"
 msgstr ""

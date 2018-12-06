@@ -22,6 +22,7 @@ from six import PY3
 from six import string_types
 
 from .settings import AddonSettings
+from .strings import strings
 
 __id = 'plugin.video.bplex'
 __addon = xbmcaddon.Addon(id=__id)
@@ -110,10 +111,14 @@ def encode_utf8(string, py2_only=True):
 
 
 def i18n(string_id):
+    mapped_string_id = strings.get(string_id)
+    if mapped_string_id:
+        string_id = mapped_string_id
+
     try:
         core = int(string_id) < 30000
     except ValueError:
-        return ''
+        return string_id
 
     if core:
         return encode_utf8(xbmc.getLocalizedString(string_id))
@@ -169,6 +174,7 @@ except:
 
 GLOBAL_SETUP = {'addon': __addon,
                 'id': __id,
+                'name': decode_utf8(__addon.getAddonInfo('name')),
                 'data_path': decode_utf8(__addon.getAddonInfo('profile')),
                 'version': decode_utf8(__addon.getAddonInfo('version')),
                 'device': get_device(),
