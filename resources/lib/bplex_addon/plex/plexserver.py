@@ -29,7 +29,6 @@ from . import plexsection
 from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import encode_utf8
-from ..common import i18n
 from ..common import settings
 
 log_print = PrintDebug(CONFIG['name'], 'plexserver')
@@ -87,14 +86,14 @@ class PlexMediaServer:
 
     def get_status(self):
         if self.offline:
-            return 'Offline', i18n('Offline')
+            return 'Offline'
         elif self.access_address == self.external_address or \
                 (self.external_address_uri and (self.access_address in self.external_address_uri)):
-            return 'Remote', i18n('Remote')
+            return 'Remote'
         elif self.access_address in self.local_address:
-            return 'Nearby', i18n('Nearby')
+            return 'Nearby'
         else:
-            return 'Unknown', i18n('Unknown')
+            return 'Unknown'
 
     def get_details(self):
 

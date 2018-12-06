@@ -2779,13 +2779,14 @@ def display_known_servers():
 
     for device in known_servers:
         name = device.get_name()
-        log_status, status_label = device.get_status()
+        log_status = device.get_status()
+        status_label = i18n(log_status)
         if device.is_secure():
             log_secure = 'SSL'
-            secure_label = i18n('SSL')
+            secure_label = i18n(log_secure)
         else:
             log_secure = 'Not Secure'
-            secure_label = i18n('Not Secure')
+            secure_label = i18n(log_secure)
 
         log_print.debug('Device: %s [%s] [%s]' % (name, log_status, log_secure))
         log_print.debugplus('Full device dump [%s]' % device.__dict__)
