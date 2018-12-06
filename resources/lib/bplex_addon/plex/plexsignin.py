@@ -22,6 +22,7 @@ log_print = PrintDebug('bPlex', 'plex_signin')
 media_path = decode_utf8(xbmc.translatePath(GLOBAL_SETUP['media_path']))
 
 
+# noinspection PyAttributeOutsideInit
 class PlexSignin(pyxbmct.AddonFullWindow):
     def __init__(self, title=''):
         """Class constructor"""
@@ -242,6 +243,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         # Set initial focus.
 
 
+# noinspection PyAttributeOutsideInit
 class PlexManage(pyxbmct.AddonFullWindow):
     def __init__(self, title=''):
         """Class constructor"""

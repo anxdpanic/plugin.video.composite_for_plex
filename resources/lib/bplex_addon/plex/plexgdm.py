@@ -82,6 +82,7 @@ class PlexGDM:
 
         update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
         update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(self._multicast_address) + socket.inet_aton('0.0.0.0'))
+        # noinspection PyTypeChecker
         update_sock.setblocking(0)
         _log_print.debugplus('Sending registration data: HELLO %s\n%s' % (self.client_header, self.client_data))
 
@@ -170,8 +171,8 @@ class PlexGDM:
         try:
             # Send data to the multicast group
             _log_print.debug('Sending discovery messages: %s' % self.discover_message)
+            # noinspection PyUnusedLocal
             sent = sock.sendto(encode_utf8(self.discover_message, py2_only=False), self.discover_group)
-
             # Look for responses from all recipients
             while True:
                 try:

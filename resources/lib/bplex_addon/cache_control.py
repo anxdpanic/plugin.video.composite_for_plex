@@ -18,6 +18,7 @@ import time
 import xbmcvfs
 
 from six import PY3
+# noinspection PyPep8Naming
 from six.moves import cPickle as pickle
 
 from .common import PrintDebug

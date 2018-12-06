@@ -16,6 +16,7 @@ import xbmc
 
 bplex_start = time.time()
 
+# noinspection PyPep8
 from bplex_addon import bplex
 
 bplex.start_bplex(sys.argv)

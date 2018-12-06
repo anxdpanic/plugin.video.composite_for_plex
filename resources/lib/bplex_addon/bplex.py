@@ -124,7 +124,7 @@ def select_media_type(part_data, server, dvdplayback=False):
             if '/' + settings.get_setting('nasroot') + '/' in filelocation:
                 components = filelocation.split('/')
                 index = components.index(settings.get_setting('nasroot'))
-                for m in list(range(3, index)):
+                for _ in list(range(3, index)):
                     components.pop(3)
                 filelocation = '/'.join(components)
     else:
@@ -1059,7 +1059,8 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
                               'jsonrpc': '2.0',
                               'method': 'Player.Open',
                               'params': {'item': {'file': playurl}}})
-        html = xbmc.executeJSONRPC(request)
+        # noinspection PyUnusedLocal
+        response = xbmc.executeJSONRPC(request)
         return
     else:
         xbmcplugin.setResolvedUrl(pluginhandle, True, item)
@@ -1373,8 +1374,8 @@ def get_params(paramstring):
         else:
             cleanedparams = params
 
-        if params[len(params) - 1] == '/':
-            params = params[0:len(params) - 2]
+        # if params[len(params) - 1] == '/':
+        #    params = params[0:len(params) - 2]
 
         pairsofparams = cleanedparams.split('&')
         for m in list(range(len(pairsofparams))):
