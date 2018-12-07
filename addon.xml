@@ -11,18 +11,8 @@
     </extension>
     <extension point='xbmc.addon.metadata'>
         <news>
-1.2.2
-[chg] Platform and device name
-
-1.2.1
-[i18n] remove i18n from get_status
-
-1.2.0
-[fix] append default port to provided address if required
-[chg] use xbmcgui for notifications
-[chg] variable refactoring
-[upd] suppress some inspections
-[i18n] string mapping for readability
+1.3.0
+[upd] use threaded head requests to configure best connection address
         </news>
         <assets>
             <icon>icon.png</icon>
