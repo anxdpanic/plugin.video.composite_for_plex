@@ -110,7 +110,7 @@ class PlexMediaServer:
     def create_plex_identification(self):
         headers = {'X-Plex-Device': CONFIG['device'],
                    'X-Plex-Client-Platform': 'Kodi',
-                   'X-Plex-Device-Name': self.get_device_name()  + ' (' + CONFIG['platform'] + ')',
+                   'X-Plex-Device-Name': self.get_device_name() + ' (' + CONFIG['platform'] + ')',
                    'X-Plex-Language': 'en',
                    'X-Plex-Platform': 'Kodi',
                    'X-Plex-Client-Identifier': self.get_client_identifier(),
