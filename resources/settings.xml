@@ -73,7 +73,7 @@
         <setting id='skipimages' type='bool' label='30550' default='false'/>
         <setting id='skipflags' type='bool' label='30551' default='false'/>
     </category>
-    <category label='30510'> <!-- debug -->
+    <category label='30599'> <!-- debug -->
         <setting id='debug' type='enum' label='30514' lvalues='30599|30600' default='0'/>
         <setting id='cache' type='bool' label='30593' default='true' visible='false'/>
         <setting id='kodicache' type='bool' label='30604' default='false'/>
