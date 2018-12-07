@@ -12,6 +12,7 @@
 import base64
 import hashlib
 import hmac
+import threading
 import time
 import uuid
 import xml.etree.ElementTree as ETree
@@ -73,6 +74,7 @@ class PlexMediaServer:
         self.device_name = None
         self.plex_home_enabled = False
         self.best_address = 'address'
+        self.connection_test_results = []
         self.plex_identification_header = None
         self.plex_identification_string = None
         self.update_identification()
@@ -252,9 +254,26 @@ class PlexMediaServer:
     def add_local_address(self, address):
         self.local_address = address.split(',')
 
+    def connection_test(self, tag, uri):
+        log_print.debug('[%s] Head request |%s|' % (self.uuid, uri))
+        url_parts = urlparse(uri)
+        status_code = requests.codes.not_found
+        try:
+            response = requests.head(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
+            status_code = response.status_code
+            log_print.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
+            if status_code == requests.codes.ok or \
+                    status_code == requests.codes.unauthorized:
+                self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, True))
+                return
+        except:
+            pass
+        log_print.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
+        self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
+
     def set_best_address(self, address=''):
-        def _head(_uri):
-            return requests.head(_uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
+        if not address:
+            self.connection_test_results = []
 
         self.offline = False
         self.update_identification()
@@ -264,82 +283,106 @@ class PlexMediaServer:
             self.set_protocol('http')
 
         external_uri = ''
-        if self.external_address_uri:
-            url_parts = urlparse(self.external_address_uri)
-            external_uri = url_parts.netloc
         internal_address = ''
-        if self.local_address:
-            internal_address = self.local_address[0]
         external_address = ''
-        if self.external_address and not self.external_address.lower().startswith('none:'):
-            external_address = self.external_address
 
-        # Ensure that ipaddress comes in an ip:port format
-        if external_uri and ':' not in external_uri:
-            external_uri = '%s:%s' % (external_uri, DEFAULT_PORT)
-        if internal_address and ':' not in internal_address:
-            internal_address = '%s:%s' % (internal_address, DEFAULT_PORT)
-        if external_address and ':' not in external_address:
-            external_address = '%s:%s' % (external_address, DEFAULT_PORT)
-        if address and ':' not in address:
-            address = '%s:%s' % (address, DEFAULT_PORT)
-
-        ipaddress = None
+        tags = []
         tested = []
+        threads = []
         uris = []
+
+        if address:
+            if ':' not in address:
+                address = '%s:%s' % (address, DEFAULT_PORT)
+        else:
+            if self.external_address_uri:
+                url_parts = urlparse(self.external_address_uri)
+                external_uri = url_parts.netloc
+            if self.local_address:
+                internal_address = self.local_address[0]
+            if self.external_address and not self.external_address.lower().startswith('none:'):
+                external_address = self.external_address
+
+            # Ensure that ipaddress comes in an ip:port format
+            if external_uri and ':' not in external_uri:
+                external_uri = '%s:%s' % (external_uri, DEFAULT_PORT)
+            if internal_address and ':' not in internal_address:
+                internal_address = '%s:%s' % (internal_address, DEFAULT_PORT)
+            if external_address and ':' not in external_address:
+                external_address = '%s:%s' % (external_address, DEFAULT_PORT)
+
         if address:
             if use_https:
                 uris.append('%s://%s/' % ('https', address))
+                tags.append('user')
             uris.append('%s://%s/' % ('http', address))
-        if external_uri:
-            if use_https:
-                uris.append('%s://%s/' % ('https', external_uri))
-            uris.append('%s://%s/' % ('http', external_uri))
-        if internal_address:
-            if use_https:
-                uris.append('%s://%s/' % ('https', internal_address))
-            uris.append('%s://%s/' % ('http', internal_address))
-        if external_address:
-            if use_https:
-                uris.append('%s://%s/' % ('https', external_address))
-            uris.append('%s://%s/' % ('http', external_address))
+            tags.append('user')
+        else:
+            if external_uri:
+                if use_https:
+                    uris.append('%s://%s/' % ('https', external_uri))
+                    tags.append('external_uri')
+                uris.append('%s://%s/' % ('http', external_uri))
+                tags.append('external_uri')
+            if internal_address:
+                if use_https:
+                    uris.append('%s://%s/' % ('https', internal_address))
+                    tags.append('internal')
+                uris.append('%s://%s/' % ('http', internal_address))
+                tags.append('internal')
+            if external_address:
+                if use_https:
+                    uris.append('%s://%s/' % ('https', external_address))
+                    tags.append('external')
+                uris.append('%s://%s/' % ('http', external_address))
+                tags.append('external')
 
         for m in list(range(len(uris))):
             uri = uris[m]
             if uri in tested:
                 continue
-
             tested.append(uri)
-            try:
-                log_print.debug('[%s] Head request |%s|' % (self.uuid, uri))
-                response = _head(uri)
-                log_print.debug('[%s] Head status |%s|' % (self.uuid, str(response.status_code)))
-                if response.status_code == requests.codes.ok or \
-                        response.status_code == requests.codes.unauthorized:
-                    url_parts = urlparse(uri)
-                    ipaddress = url_parts.netloc
-                    self.set_protocol(url_parts.scheme)
-                    break
-            except:
-                continue
+            threads.append(threading.Thread(target=self.connection_test, args=(tags[m], uri)))
 
-        if ipaddress is None:
+        _ = [thread.start() for thread in threads]
+        _ = [thread.join() for thread in threads]
+
+        log_print.debug('[%s] Server connection test results |%s|' % (self.uuid, str(self.connection_test_results)))
+
+        #  connection preference https (user provided, external uri, internal address, external address)
+        if any(c[0] == 'user' and c[1] == 'https' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'user' and c[1] == 'https' and c[3])
+            log_print.debug('[%s] Server [%s] not found in existing lists.  selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external_uri' and c[1] == 'https' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external_uri' and c[1] == 'https' and c[3])
+            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'internal' and c[1] == 'https' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'internal' and c[1] == 'https' and c[3])
+            log_print.debug('[%s] Server [%s] found on existing internal list.  Selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external' and c[1] == 'https' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external' and c[1] == 'https' and c[3])
+            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
+
+        #  connection preference http (user provided, external uri, internal address, external address)
+        elif any(c[0] == 'user' and c[1] == 'http' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'user' and c[1] == 'http' and c[3])
+            self.set_protocol('http')
+            log_print.debug('[%s] Server [%s] not found in existing lists.  selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external_uri' and c[1] == 'http' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external_uri' and c[1] == 'http' and c[3])
+            self.set_protocol('http')
+            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'internal' and c[1] == 'http' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'internal' and c[1] == 'http' and c[3])
+            self.set_protocol('http')
+            log_print.debug('[%s] Server [%s] found on existing internal list.  Selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external' and c[1] == 'http' and c[3] for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external' and c[1] == 'http' and c[3])
+            self.set_protocol('http')
+            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
+        else:
             self.offline = True
             log_print.debug('[%s] Server appears to be offline' % self.uuid)
-        elif ipaddress in self.local_address:
-            log_print.debug('[%s] Server [%s] found on existing internal list.  Selecting as default' % (self.uuid, ipaddress))
-            self.access_address = ipaddress
-        elif ipaddress == self.external_address:
-            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
-            self.access_address = ipaddress
-        elif self.external_address_uri and (ipaddress in self.external_address_uri):
-            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, ipaddress))
-            self.access_address = ipaddress
-        else:
-            log_print.debug('[%s] Server [%s] not found in existing lists.  selecting as default' % (self.uuid, ipaddress))
-            self.access_address = ipaddress
-
-        return
 
     def talk(self, url='/', refresh=False, method='get'):
         if not self.offline or refresh:
