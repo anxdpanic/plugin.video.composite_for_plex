@@ -476,7 +476,7 @@ def process_tvshows(url, tree=None):
         # Create the basic data structures to pass up
         details = {'title': encode_utf8(show.get('title', i18n('Unknown'))),
                    'sorttitle': encode_utf8(show.get('titleSort', show.get('title', i18n('Unknown')))),
-                   'tvshowname': encode_utf8(show.get('title', i18n('Unknown'))),
+                   'TVShowTitle': encode_utf8(show.get('title', i18n('Unknown'))),
                    'studio': encode_utf8(show.get('studio', '')),
                    'plot': encode_utf8(show.get('summary', '')),
                    'season': 0,
@@ -560,7 +560,6 @@ def process_tvseasons(url):
 
         # Create the basic data structures to pass up
         details = {'title': encode_utf8(season.get('title', i18n('Unknown'))),
-                   'tvshowname': encode_utf8(season.get('parentTitle', i18n('Unknown'))),
                    'TVShowTitle': encode_utf8(season.get('parentTitle', i18n('Unknown'))),
                    'sorttitle': encode_utf8(season.get('titleSort', season.get('title', i18n('Unknown')))),
                    'studio': encode_utf8(season.get('studio', '')),
