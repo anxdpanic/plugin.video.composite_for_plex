@@ -11,9 +11,10 @@
 
 import inspect
 import platform
+import re
 import socket
 import sys
-import re
+import traceback
 
 import xbmc
 import xbmcaddon
@@ -48,10 +49,10 @@ class PrintDebug:
         self.DEBUG_DEBUG = 0
         self.DEBUG_DEBUGPLUS = 1
         self.LOG_ERROR = 9
-        self.token_regex = re.compile('-Token=[a-z|0-9].*?[&|$]')
-        self.ip_regex = re.compile('\.\d{1,3}\.\d{1,3}\.')
-        self.ip_dom_regex = re.compile('-\d{1,3}-\d{1,3}-')
-        self.user_regex = re.compile('-User=[a-z|0-9].*?[&|$]')
+        self.token_regex = re.compile(r'-Token=[a-z|0-9].*?[&|$]')
+        self.ip_regex = re.compile(r'\.\d{1,3}\.\d{1,3}\.')
+        self.ip_dom_regex = re.compile(r'-\d{1,3}-\d{1,3}-')
+        self.user_regex = re.compile(r'-User=[a-z|0-9].*?[&|$]')
 
         self.DEBUG_MAP = {self.DEBUG_DEBUG: 'debug',
                           self.DEBUG_DEBUGPLUS: 'debug+',
@@ -80,18 +81,29 @@ class PrintDebug:
         try:
             tag = ''
             msg = encode_utf8(msg)
+        except UnicodeDecodeError:
+            msg = decode_utf8(msg)
+            msg = msg.encode('ascii', 'ignore')
+            tag = ' [ASCII]'
         except:
             tag = ' [NONUTF8]'
 
         if self.privacy and not no_privacy:
-            msg = self.token_regex.sub('X-Plex-Token=XXXXXXXXXX&', msg)
-            msg = self.ip_regex.sub('.X.X.', msg)
-            msg = self.ip_dom_regex.sub('-X-X-', msg)
-            msg = self.user_regex.sub('X-Plex-User=XXXXXXX&', msg)
+            try:
+                msg = self.token_regex.sub('X-Plex-Token=XXXXXXXXXX&', msg)
+                msg = self.ip_regex.sub('.X.X.', msg)
+                msg = self.ip_dom_regex.sub('-X-X-', msg)
+                msg = self.user_regex.sub('X-Plex-User=XXXXXXX&', msg)
+            except:
+                msg = 'Logging failure:\n%s' % traceback.format_exc()
 
         if self.level >= level or level == self.LOG_ERROR:
             log_level = xbmc.LOGERROR if level == self.LOG_ERROR else xbmc.LOGDEBUG
-            xbmc.log('%s%s -> %s : %s%s' % (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
+            try:
+                xbmc.log('%s%s -> %s : %s%s' % (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
+            except:
+                msg = 'Logging failure:\n%s' % traceback.format_exc()
+                xbmc.log('%s%s -> %s : %s%s' % (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
 
     def __call__(self, msg, level=0):
         return self.__print_message(msg, level)
