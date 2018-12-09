@@ -1,3 +1,7 @@
+1.3.1
+[chg] make errors during logging non-blocking
+[rem] removed invalid infoLabel tvshowname
+
 1.3.0
 [upd] use threaded head requests to configure best connection address
 
