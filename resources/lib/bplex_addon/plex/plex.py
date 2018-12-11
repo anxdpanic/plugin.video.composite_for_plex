@@ -15,6 +15,7 @@ import traceback
 import xml.etree.ElementTree as ETree
 
 import xbmc
+import xbmcgui
 
 import requests
 from six import iteritems
@@ -163,7 +164,7 @@ class Plex:
                 data_ok = False
 
             if not self.check_user():
-                log_print.debug('User Switch, refreshing for new authorisation settings')
+                log_print.debug('User Switch, refreshing for new authorization settings')
                 data_ok = False
 
         if not data_ok or not len(self.server_list):
@@ -302,11 +303,15 @@ class Plex:
         return ETree.fromstring(data)
 
     def discover_all_servers(self):
-
+        progress_dialog = xbmcgui.DialogProgressBG()
+        progress_dialog.create(heading=CONFIG['name'] + ' ' + i18n('Server Discovery'),
+                               message=i18n('Please wait...'))
+        percent = 0
         self.server_list = {}
         # First discover the servers we should know about from myplex
         if self.is_myplex_signedin():
             log_print.debug('Adding myPlex as a server location')
+            progress_dialog.update(percent=percent, message=i18n('myPlex discovery...'))
 
             self.server_list = self.get_myplex_servers()
 
@@ -319,7 +324,8 @@ class Plex:
         if settings.get_setting('discovery') == '1':
             log_print.debug('local GDM discovery setting enabled.')
             log_print.debug('Attempting GDM lookup on multicast')
-
+            percent += 40
+            progress_dialog.update(percent=percent, message=i18n('GDM discovery...'))
             try:
                 interface_address = get_platform_ip()
                 log_print.debug('Using interface: %s for GDM discovery' % interface_address)
@@ -350,6 +356,8 @@ class Plex:
         # Get any manually configured servers
         else:
             if settings.get_setting('ipaddress'):
+                percent += 40
+                progress_dialog.update(percent=percent, message=i18n('User provided...'))
 
                 port = settings.get_setting('port')
                 if not port:
@@ -367,8 +375,22 @@ class Plex:
                 else:
                     log_print.error('Error: Unable to discover server %s' % settings.get_setting('ipaddress'))
 
+        percent += 40
+        progress_dialog.update(percent=percent, message=i18n('Caching results...'))
         self.cache.write_cache(self.server_list_cache, self.server_list)
-        log_print.debug('serverList is: %s ' % self.server_list)
+
+        servers = [(self.server_list[key].get_name(), key) for key in list(self.server_list.keys())]
+        server_names = ', '.join([server[0] for server in servers])
+
+        log_print.debug('serverList is: %s ' % servers)
+
+        progress_dialog.update(percent=100, message=i18n('Finished'))
+        progress_dialog.close()
+
+        xbmcgui.Dialog().notification(heading=CONFIG['name'],
+                                      message=i18n('Found servers:') + ' ' + server_names,
+                                      icon=CONFIG['icon'],
+                                      sound=False)
 
         return
 

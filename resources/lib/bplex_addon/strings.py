@@ -116,4 +116,12 @@ strings = {
     'Not Secure': 30646,
     'Message': 30648,
     'blank': 30649,
+    'Server Discovery': 30650,
+    'Please wait...': 30651,
+    'myPlex discovery...': 30652,
+    'GDM discovery...': 30653,
+    'User provided...': 30654,
+    'Caching results...': 30655,
+    'Finished': 30656,
+    'Found servers:': 30657,
 }
