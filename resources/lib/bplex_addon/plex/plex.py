@@ -387,8 +387,13 @@ class Plex:
         progress_dialog.update(percent=100, message=i18n('Finished'))
         progress_dialog.close()
 
+        if server_names:
+            msg = i18n('Found servers:') + ' ' + server_names
+        else:
+            msg = i18n('No servers found')
+
         xbmcgui.Dialog().notification(heading=CONFIG['name'],
-                                      message=i18n('Found servers:') + ' ' + server_names,
+                                      message=msg,
                                       icon=CONFIG['icon'],
                                       sound=False)
 

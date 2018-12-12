@@ -985,3 +985,7 @@ msgstr ""
 msgctxt "#30657"
 msgid "Found servers:"
 msgstr ""
+
+msgctxt "#30658"
+msgid "No servers found"
+msgstr ""
