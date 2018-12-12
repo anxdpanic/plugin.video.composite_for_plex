@@ -96,7 +96,7 @@ class CacheControl:
             cache.close()
         return True
 
-    def check_cache(self, cache_name, life=3600):
+    def check_cache(self, cache_name, ttl=3600):
 
         if self.cache_location is None:
             return False, None
@@ -107,7 +107,7 @@ class CacheControl:
             modified = int(xbmcvfs.Stat(self.cache_location + cache_name).st_mtime())
             log_print.debug('CACHE [%s]: mod[%s] now[%s] diff[%s]' % (cache_name, modified, now, now - modified))
 
-            if (modified < 0) or (now - modified) > life:
+            if (modified < 0) or (now - modified) > ttl:
                 log_print.debug('CACHE [%s]: too old, delete' % cache_name)
 
                 if xbmcvfs.delete(self.cache_location + cache_name):
