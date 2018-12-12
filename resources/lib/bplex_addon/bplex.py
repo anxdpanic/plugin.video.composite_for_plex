@@ -981,7 +981,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
 
     server = plex_network.get_server_from_url(vids)
 
-    _id = vids.split('?')[0].split('&')[0].split('/')[-1]
+    media_id = vids.split('?')[0].split('&')[0].split('/')[-1]
 
     tree = get_xml(vids)
     if tree is None:
@@ -1021,7 +1021,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
             # if settings.get_setting('transcode_type') == '0':  # universal
             session, playurl = server.get_universal_transcode(streams['extra']['path'], transcode_profile=transcode_profile)
             # elif settings.get_setting('transcode_type') == '1':  # legacy
-            #     session, playurl = server.get_legacy_transcode(_id, url)
+            #     session, playurl = server.get_legacy_transcode(media_id, url)
             # else:
             #     playurl = ''
         else:
@@ -1085,7 +1085,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
         set_audio_subtitles(streams)
 
     if streams['type'] == 'video' or streams['type'] == 'music':
-        monitor_playback(_id, server, playurl, session)
+        monitor_playback(media_id, server, session)
 
     return
 
@@ -1206,7 +1206,7 @@ def select_media_to_play(data, server):
     return newurl
 
 
-def monitor_playback(_id, server, playurl, session=None):
+def monitor_playback(media_id, server, session=None):
     if session:
         log_print.debug('We are monitoring a transcode session')
 
@@ -1231,11 +1231,11 @@ def monitor_playback(_id, server, playurl, session=None):
 
         if played_time == current_time:
             log_print.debug('Movies paused at: %s secs of %s @ %s%%' % (current_time, total_time, progress))
-            server.report_playback_progress(_id, current_time * 1000, state='paused', duration=total_time * 1000)
+            server.report_playback_progress(media_id, current_time * 1000, state='paused', duration=total_time * 1000)
         else:
 
             log_print.debug('Movies played time: %s secs of %s @ %s%%' % (current_time, total_time, progress))
-            server.report_playback_progress(_id, current_time * 1000, state='playing', duration=total_time * 1000)
+            server.report_playback_progress(media_id, current_time * 1000, state='playing', duration=total_time * 1000)
             played_time = current_time
 
         if monitor.waitForAbort(10.0):
@@ -1243,7 +1243,7 @@ def monitor_playback(_id, server, playurl, session=None):
 
     # If we get this far, playback has stopped
     log_print.debug('Playback Stopped')
-    server.report_playback_progress(_id, played_time * 1000, state='stopped', duration=total_time * 1000)
+    server.report_playback_progress(media_id, played_time * 1000, state='stopped', duration=total_time * 1000)
 
     if session is not None:
         log_print.debug('Stopping PMS transcode job with session %s' % session)
