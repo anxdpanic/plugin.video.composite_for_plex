@@ -1215,13 +1215,6 @@ def monitor_playback(_id, server, playurl, session=None):
     # Whilst the file is playing back
     while player.isPlaying() and not monitor.abortRequested():
 
-        try:
-            if not (playurl == player.getPlayingFile()):
-                log_print.debug('File stopped being played')
-                break
-        except:
-            pass
-
         current_time = int(player.getTime())
         total_time = int(player.getTotalTime())
 
