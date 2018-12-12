@@ -12,6 +12,7 @@
     <extension point='xbmc.addon.metadata'>
         <news>
 1.3.3
+[upd] sign in/out, switch user, display servers, and refresh data menu items
 [upd] updates to playback monitoring
 
 1.3.2
