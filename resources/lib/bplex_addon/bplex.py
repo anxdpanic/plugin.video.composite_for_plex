@@ -138,6 +138,8 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
                     'Passed details: %s\n'
                     'Passed extra_data: %s' % (details.get('title', i18n('Unknown')), details, extra_data))
 
+    is_file = url.startswith('cmd:')
+
     # Create the URL to pass to the item
     if not folder and extra_data['type'] == 'image':
         link_url = url
@@ -238,6 +240,10 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
             log_print.debug('Setting transcode options to [%s&transcode=1]' % link_url)
         log_print.debug('Building Context Menus')
         liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
+
+    if is_file:
+        folder = False
+        liz.setProperty('IsPlayable', 'false')
 
     return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=link_url, listitem=liz, isFolder=folder)
 
