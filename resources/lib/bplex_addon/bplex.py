@@ -1069,7 +1069,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
     while not player.isPlaying() and not monitor.abortRequested():
         log_print.debug('Not playing yet...sleep for 0.2')
         count += 1
-        if count >= 10:
+        if count >= 25:
             return
         else:
             if monitor.waitForAbort(0.2):
@@ -1232,7 +1232,7 @@ def monitor_playback(_id, server, playurl, session=None):
             server.report_playback_progress(_id, current_time * 1000, state='playing', duration=total_time * 1000)
             played_time = current_time
 
-        if monitor.waitForAbort(2.0):
+        if monitor.waitForAbort(10.0):
             break
 
     # If we get this far, playback has stopped
@@ -1348,7 +1348,7 @@ def monitor_channel_transcode_playback(session_id, server):
     while not player.isPlaying() and not monitor.abortRequested():
         log_print.debug('Not playing yet...sleep for 2')
         count += 1
-        if count >= 20:
+        if count >= 10:
             # Waited 20 seconds and still no movie playing - assume it isn't going to..
             return
         else:
