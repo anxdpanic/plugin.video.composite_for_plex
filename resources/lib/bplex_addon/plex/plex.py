@@ -306,86 +306,88 @@ class Plex:
         progress_dialog = xbmcgui.DialogProgressBG()
         progress_dialog.create(heading=CONFIG['name'] + ' ' + i18n('Server Discovery'),
                                message=i18n('Please wait...'))
-        percent = 0
-        self.server_list = {}
-        # First discover the servers we should know about from myplex
-        if self.is_myplex_signedin():
-            log_print.debug('Adding myPlex as a server location')
-            progress_dialog.update(percent=percent, message=i18n('myPlex discovery...'))
 
-            self.server_list = self.get_myplex_servers()
+        try:
+            percent = 0
+            self.server_list = {}
+            # First discover the servers we should know about from myplex
+            if self.is_myplex_signedin():
+                log_print.debug('Adding myPlex as a server location')
+                progress_dialog.update(percent=percent, message=i18n('myPlex discovery...'))
 
-            if self.server_list:
-                log_print.debug('MyPlex discovery completed sucecssfully')
-            else:
-                log_print.debug('MyPlex discovery found no servers')
+                self.server_list = self.get_myplex_servers()
 
-        # Now grab any local devices we can find
-        if settings.get_setting('discovery') == '1':
-            log_print.debug('local GDM discovery setting enabled.')
-            log_print.debug('Attempting GDM lookup on multicast')
-            percent += 40
-            progress_dialog.update(percent=percent, message=i18n('GDM discovery...'))
-            try:
-                interface_address = get_platform_ip()
-                log_print.debug('Using interface: %s for GDM discovery' % interface_address)
-            except:
-                interface_address = None
-                log_print.debug('Using systems default interface for GDM discovery')
-
-            try:
-                gdm_client = PlexGDM(interface=interface_address)
-                gdm_client.discover()
-                gdm_server_name = gdm_client.get_server_list()
-            except Exception as e:
-                log_print.error('GDM Issue [%s]' % e)
-                traceback.print_exc()
-            else:
-                if gdm_client.discovery_complete and gdm_server_name:
-                    log_print.debug('GDM discovery completed')
-
-                    for device in gdm_server_name:
-                        new_server = PlexMediaServer(name=device['serverName'], address=device['server'], port=device['port'], discovery='discovery', server_uuid=device['uuid'])
-                        new_server.set_user(self.effective_user)
-                        new_server.set_token(self.effective_token)
-
-                        self.merge_server(new_server)
+                if self.server_list:
+                    log_print.debug('MyPlex discovery completed sucecssfully')
                 else:
-                    log_print.debug('GDM was not able to discover any servers')
+                    log_print.debug('MyPlex discovery found no servers')
 
-        # Get any manually configured servers
-        else:
-            if settings.get_setting('ipaddress'):
+            # Now grab any local devices we can find
+            if settings.get_setting('discovery') == '1':
+                log_print.debug('local GDM discovery setting enabled.')
+                log_print.debug('Attempting GDM lookup on multicast')
                 percent += 40
-                progress_dialog.update(percent=percent, message=i18n('User provided...'))
+                progress_dialog.update(percent=percent, message=i18n('GDM discovery...'))
+                try:
+                    interface_address = get_platform_ip()
+                    log_print.debug('Using interface: %s for GDM discovery' % interface_address)
+                except:
+                    interface_address = None
+                    log_print.debug('Using systems default interface for GDM discovery')
 
-                port = settings.get_setting('port')
-                if not port:
-                    log_print.debug('No port defined.  Using default of ' + DEFAULT_PORT)
-                    port = DEFAULT_PORT
-
-                log_print.debug('Settings hostname and port: %s : %s' % (settings.get_setting('ipaddress'), port))
-
-                local_server = PlexMediaServer(address=settings.get_setting('ipaddress'), port=port, discovery='local')
-                local_server.set_user(self.effective_user)
-                local_server.set_token(self.effective_token)
-                local_server.refresh()
-                if local_server.discovered:
-                    self.merge_server(local_server)
+                try:
+                    gdm_client = PlexGDM(interface=interface_address)
+                    gdm_client.discover()
+                    gdm_server_name = gdm_client.get_server_list()
+                except Exception as e:
+                    log_print.error('GDM Issue [%s]' % e)
+                    traceback.print_exc()
                 else:
-                    log_print.error('Error: Unable to discover server %s' % settings.get_setting('ipaddress'))
+                    if gdm_client.discovery_complete and gdm_server_name:
+                        log_print.debug('GDM discovery completed')
 
-        percent += 40
-        progress_dialog.update(percent=percent, message=i18n('Caching results...'))
-        self.cache.write_cache(self.server_list_cache, self.server_list)
+                        for device in gdm_server_name:
+                            new_server = PlexMediaServer(name=device['serverName'], address=device['server'], port=device['port'], discovery='discovery', server_uuid=device['uuid'])
+                            new_server.set_user(self.effective_user)
+                            new_server.set_token(self.effective_token)
 
-        servers = [(self.server_list[key].get_name(), key) for key in list(self.server_list.keys())]
-        server_names = ', '.join([server[0] for server in servers])
+                            self.merge_server(new_server)
+                    else:
+                        log_print.debug('GDM was not able to discover any servers')
 
-        log_print.debug('serverList is: %s ' % servers)
+            # Get any manually configured servers
+            else:
+                if settings.get_setting('ipaddress'):
+                    percent += 40
+                    progress_dialog.update(percent=percent, message=i18n('User provided...'))
 
-        progress_dialog.update(percent=100, message=i18n('Finished'))
-        progress_dialog.close()
+                    port = settings.get_setting('port')
+                    if not port:
+                        log_print.debug('No port defined.  Using default of ' + DEFAULT_PORT)
+                        port = DEFAULT_PORT
+
+                    log_print.debug('Settings hostname and port: %s : %s' % (settings.get_setting('ipaddress'), port))
+
+                    local_server = PlexMediaServer(address=settings.get_setting('ipaddress'), port=port, discovery='local')
+                    local_server.set_user(self.effective_user)
+                    local_server.set_token(self.effective_token)
+                    local_server.refresh()
+                    if local_server.discovered:
+                        self.merge_server(local_server)
+                    else:
+                        log_print.error('Error: Unable to discover server %s' % settings.get_setting('ipaddress'))
+
+            percent += 40
+            progress_dialog.update(percent=percent, message=i18n('Caching results...'))
+            self.cache.write_cache(self.server_list_cache, self.server_list)
+
+            servers = [(self.server_list[key].get_name(), key) for key in list(self.server_list.keys())]
+            server_names = ', '.join([server[0] for server in servers])
+
+            log_print.debug('serverList is: %s ' % servers)
+        finally:
+            progress_dialog.update(percent=100, message=i18n('Finished'))
+            progress_dialog.close()
 
         if server_names:
             msg = i18n('Found servers:') + ' ' + server_names
