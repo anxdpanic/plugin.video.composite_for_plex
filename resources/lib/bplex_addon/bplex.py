@@ -1062,15 +1062,18 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
     else:
         xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
+    monitor = xbmc.Monitor()
+    player = xbmc.Player()
     # Set a loop to wait for positive confirmation of playback
     count = 0
-    while not xbmc.Player().isPlaying():
-        log_print.debug('Not playing yet...sleep for 2')
-        count = count + 2
-        if count >= 20:
+    while not player.isPlaying() and not monitor.abortRequested():
+        log_print.debug('Not playing yet...sleep for 0.2')
+        count += 1
+        if count >= 10:
             return
         else:
-            time.sleep(2)
+            if monitor.waitForAbort(0.2):
+                return
 
     if not override:
         set_audio_subtitles(streams)
@@ -1088,12 +1091,14 @@ def set_audio_subtitles(stream):
     """
 
     # If we have decided not to collect any sub data then do not set subs
+    player = xbmc.Player()
+
     if stream['contents'] == 'type':
         log_print.debug('No audio or subtitle streams to process.')
 
         # If we have decided to force off all subs, then turn them off now and return
         if settings.get_setting('streamControl') == STREAM_CONTROL.NEVER:
-            xbmc.Player().showSubtitles(False)
+            player.showSubtitles(False)
             log_print.debug('All subs disabled')
 
         return True
@@ -1112,7 +1117,7 @@ def set_audio_subtitles(stream):
                             encode_utf8(audio.get('language', audio.get('languageCode', i18n('Unknown')))))
             log_print.debug('Found preferred language at index %s' % stream['audio_offset'])
             try:
-                xbmc.Player().setAudioStream(stream['audio_offset'])
+                player.setAudioStream(stream['audio_offset'])
                 log_print.debug('Audio set')
             except:
                 log_print.debug('Error setting audio, will use embedded default stream')
@@ -1124,21 +1129,21 @@ def set_audio_subtitles(stream):
         if subtitle:
             log_print.debug('Found preferred subtitle stream')
             try:
-                xbmc.Player().showSubtitles(False)
+                player.showSubtitles(False)
                 if subtitle.get('key'):
-                    xbmc.Player().setSubtitles(subtitle['key'])
+                    player.setSubtitles(subtitle['key'])
                 else:
                     log_print.debug('Enabling embedded subtitles at index %s' % stream['sub_offset'])
-                    xbmc.Player().setSubtitleStream(int(stream['sub_offset']))
+                    player.setSubtitleStream(int(stream['sub_offset']))
 
-                xbmc.Player().showSubtitles(True)
+                player.showSubtitles(True)
                 return True
             except:
                 log_print.debug('Error setting subtitle')
 
         else:
             log_print.debug('No preferred subtitles to set')
-            xbmc.Player().showSubtitles(False)
+            player.showSubtitles(False)
 
     return False
 
@@ -1204,19 +1209,21 @@ def monitor_playback(_id, server, playurl, session=None):
 
     played_time = 0
     total_time = 0
+    monitor = xbmc.Monitor()
+    player = xbmc.Player()
 
     # Whilst the file is playing back
-    while xbmc.Player().isPlaying():
+    while player.isPlaying() and not monitor.abortRequested():
 
         try:
-            if not (playurl == xbmc.Player().getPlayingFile()):
+            if not (playurl == player.getPlayingFile()):
                 log_print.debug('File stopped being played')
                 break
         except:
             pass
 
-        current_time = int(xbmc.Player().getTime())
-        total_time = int(xbmc.Player().getTotalTime())
+        current_time = int(player.getTime())
+        total_time = int(player.getTotalTime())
 
         try:
             progress = int((float(current_time) / float(total_time)) * 100)
@@ -1232,7 +1239,8 @@ def monitor_playback(_id, server, playurl, session=None):
             server.report_playback_progress(_id, current_time * 1000, state='playing', duration=total_time * 1000)
             played_time = current_time
 
-        xbmc.sleep(2000)
+        if monitor.waitForAbort(2.0):
+            break
 
     # If we get this far, playback has stopped
     log_print.debug('Playback Stopped')
@@ -1341,18 +1349,23 @@ def monitor_channel_transcode_playback(session_id, server):
         return
 
     count = 0
-    while not xbmc.Player().isPlaying():
+    monitor = xbmc.Monitor()
+    player = xbmc.Player()
+
+    while not player.isPlaying() and not monitor.abortRequested():
         log_print.debug('Not playing yet...sleep for 2')
-        count = count + 2
-        if count >= 40:
+        count += 1
+        if count >= 20:
             # Waited 20 seconds and still no movie playing - assume it isn't going to..
             return
         else:
-            xbmc.sleep(2000)
+            if monitor.waitForAbort(2.0):
+                return
 
-    while xbmc.Player().isPlaying():
+    while player.isPlaying() and not monitor.abortRequested():
         log_print.debug('Waiting for playback to finish')
-        xbmc.sleep(4000)
+        if monitor.waitForAbort(4.0):
+            break
 
     log_print.debug('Playback Stopped')
     log_print.debug('Stopping PMS transcode job with session: %s' % session_id)
