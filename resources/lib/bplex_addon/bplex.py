@@ -859,12 +859,13 @@ def get_audio_subtitles_from_media(server, tree, full=False):
                 resolution = 'HD 1080'
             elif int(media_details.get('videoResolution', 0)) >= 720:
                 resolution = 'HD 720'
-            elif int(media_details.get('videoResolution', 0)) < 720:
+            else:  # elif int(media_details.get('videoResolution', 0)) < 720:
                 resolution = 'SD'
         except:
             pass
 
         media_details_temp = {'bitrate': round(float(media_details.get('bitrate', 0)) / 1000, 1),
+                              'bitDepth': media_details.get('bitDepth', 8),
                               'videoResolution': resolution,
                               'container': media_details.get('container', 'unknown'),
                               'codec': media_details.get('videoCodec')
@@ -1000,10 +1001,16 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
 
     codec = streams.get('details', [{}])[0].get('codec')
     resolution = streams.get('details', [{}])[0].get('videoResolution')
+    try:
+        bit_depth = int(streams.get('details', [{}])[0].get('bitDepth', 8))
+    except ValueError:
+        bit_depth = None
 
     if codec and (settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
         override = True
     if resolution and (settings.get_setting('transcode_g1080') and resolution.lower() == '4k'):
+        override = True
+    if bit_depth and (settings.get_setting('transcode_g8bit') and bit_depth > 8):
         override = True
 
     if url is None:

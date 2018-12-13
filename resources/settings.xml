@@ -35,6 +35,7 @@
         <setting id='naspass' type='text' label='30565' option='hidden' subsetting='true' default='' visible='eq(-3,true)' enable='eq(-3,true)'/>
         <setting id='nasroot' type='text' label='30566' default='' subsetting='true' visible='eq(-4,true)' enable='eq(-4,true)'/>
         <setting id='transcode' type='bool' label='30507' default='false'/>
+        <setting id='transcode_g8bit' type='bool' label='30659' default='false'/>
         <setting id='transcode_g1080' type='bool' label='30611' default='false'/>
         <setting id='transcode_hevc' type='bool' label='30612' default='false'/>
         <!-- Start currently unused -->

@@ -1001,3 +1001,7 @@ msgstr ""
 msgctxt "#30658"
 msgid "No servers found"
 msgstr ""
+
+msgctxt "#30659"
+msgid "Transcode > 8-bit"
+msgstr ""
