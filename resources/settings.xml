@@ -38,11 +38,11 @@
         <setting id='transcode_g8bit' type='bool' label='30659' default='false'/>
         <setting id='transcode_g1080' type='bool' label='30611' default='false'/>
         <setting id='transcode_hevc' type='bool' label='30612' default='false'/>
-        <!-- Start currently unused -->
+        <!-- Start currently unused
         <setting id='transcode_type' visible='false' label='30601' type='enum' lvalues='30614|30615' default='0'/>
         <setting id='quality_leg' enable='false' visible='false' type='enum' label='30540' values='300kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p'/>
         <setting id='audiotype' visible='false' type='enum' label='30557' values='Stereo|AC3|DTS' default='0'/>
-        <!-- End currently unused -->
+        End currently unused -->
         <setting type='lsep' label='30641'/>
         <setting id='transcode_target_quality_0' type='labelenum' label='30540' values='420x420, 320Kbps|576x320, 720Kbps|720x480, 1.5Mbps|1024x768, 2Mbps|1280x720, 3Mbps|1280x720, 4Mbps|1920x1080, 8Mbps|1920x1080, 10Mbps|1920x1080, 12Mbps|1920x1080, 20Mbps|1920x1080, 40Mbps|1920x1080, unlimited' default='1280x720, 4Mbps'/>
         <setting id='transcode_target_sub_size_0' label='30568' type='slider' option='int' range='0,325' default='100'/>
