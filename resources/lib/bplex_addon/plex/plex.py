@@ -156,7 +156,13 @@ class Plex:
 
     def load(self):
         log_print.debug('Loading cached server list')
-        data_ok, self.server_list = self.cache.check_cache(self.server_list_cache)
+
+        try:
+            ttl = int(settings.get_setting('cache_ttl')) * 60
+        except ValueError:
+            ttl = 3600
+
+        data_ok, self.server_list = self.cache.check_cache(self.server_list_cache, ttl)
 
         if data_ok:
             if not self.check_server_version():

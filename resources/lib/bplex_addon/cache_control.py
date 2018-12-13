@@ -101,7 +101,7 @@ class CacheControl:
             return None
 
         if xbmcvfs.exists(self.cache_location + cache_name):
-            log_print.debug('CACHE [%s]: exists' % cache_name)
+            log_print.debug('CACHE [%s]: exists, ttl: |%s|' % (cache_name, str(ttl)))
             now = int(round(time.time(), 0))
             modified = int(xbmcvfs.Stat(self.cache_location + cache_name).st_mtime())
             log_print.debug('CACHE [%s]: mod[%s] now[%s] diff[%s]' % (cache_name, modified, now, now - modified))

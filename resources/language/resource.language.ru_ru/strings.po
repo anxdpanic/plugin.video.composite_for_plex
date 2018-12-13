@@ -985,3 +985,11 @@ msgstr ""
 msgctxt "#30660"
 msgid "Device Name"
 msgstr ""
+
+msgctxt "#30661"
+msgid "Cache"
+msgstr ""
+
+msgctxt "#30662"
+msgid "Server Cache TTL (minutes)"
+msgstr ""
