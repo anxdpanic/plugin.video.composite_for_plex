@@ -1,3 +1,8 @@
+1.5.0
+[add] add 'Cache' settings category and 'Server Cache TTL' setting
+[add] add 'Transcode > 8-bit' to 'Playback' settings
+[chg] change devicename setting label and default
+
 1.4.0
 [upd] sign in/out, switch user, display servers, and refresh data menu items
 [upd] updates to playback monitoring
