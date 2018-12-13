@@ -1237,11 +1237,11 @@ def monitor_playback(media_id, server, session=None):
             progress = 0
 
         if played_time == current_time:
-            log_print.debug('Movies paused at: %s secs of %s @ %s%%' % (current_time, total_time, progress))
+            log_print.debug('Video paused at: %s secs of %s @ %s%%' % (current_time, total_time, progress))
             server.report_playback_progress(media_id, current_time * 1000, state='paused', duration=total_time * 1000)
         else:
 
-            log_print.debug('Movies played time: %s secs of %s @ %s%%' % (current_time, total_time, progress))
+            log_print.debug('Video played time: %s secs of %s @ %s%%' % (current_time, total_time, progress))
             server.report_playback_progress(media_id, current_time * 1000, state='playing', duration=total_time * 1000)
             played_time = current_time
 
