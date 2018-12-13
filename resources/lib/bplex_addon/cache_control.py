@@ -96,10 +96,9 @@ class CacheControl:
             cache.close()
         return True
 
-    def check_cache(self, cache_name, ttl=3600):
-
+    def is_valid(self, cache_name, ttl=3600):
         if self.cache_location is None:
-            return False, None
+            return None
 
         if xbmcvfs.exists(self.cache_location + cache_name):
             log_print.debug('CACHE [%s]: exists' % cache_name)
@@ -108,18 +107,30 @@ class CacheControl:
             log_print.debug('CACHE [%s]: mod[%s] now[%s] diff[%s]' % (cache_name, modified, now, now - modified))
 
             if (modified < 0) or (now - modified) > ttl:
-                log_print.debug('CACHE [%s]: too old, delete' % cache_name)
+                return False
 
-                if xbmcvfs.delete(self.cache_location + cache_name):
-                    log_print.debug('CACHE [%s]: deleted' % cache_name)
-                else:
-                    log_print.debug('CACHE [%s]: not deleted' % cache_name)
-            else:
-                log_print.debug('CACHE [%s]: current' % cache_name)
-
-                return self.read_cache(cache_name)
+            return True
         else:
             log_print.debug('CACHE [%s]: does not exist' % cache_name)
+
+        return None
+
+    def check_cache(self, cache_name, ttl=3600):
+        if self.cache_location is None:
+            return False, None
+
+        cache_valid = self.is_valid(cache_name, ttl)
+
+        if cache_valid is False:
+            log_print.debug('CACHE [%s]: too old, delete' % cache_name)
+            if xbmcvfs.delete(self.cache_location + cache_name):
+                log_print.debug('CACHE [%s]: deleted' % cache_name)
+            else:
+                log_print.debug('CACHE [%s]: not deleted' % cache_name)
+
+        elif cache_valid:
+            log_print.debug('CACHE [%s]: current' % cache_name)
+            return self.read_cache(cache_name)
 
         return False, None
 
