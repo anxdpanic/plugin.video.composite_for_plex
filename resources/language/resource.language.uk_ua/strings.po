@@ -993,3 +993,7 @@ msgstr ""
 msgctxt "#30659"
 msgid "Transcode > 8-bit"
 msgstr ""
+
+msgctxt "#30660"
+msgid "Device Name"
+msgstr ""
