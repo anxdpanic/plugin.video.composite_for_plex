@@ -1635,18 +1635,6 @@ def item_translate(title, source, folder):
     return translated_title
 
 
-def heading2_translate(tree):
-    title = tree.get('title2')
-    translated_title = directory_item_translate(title, tree.get('thumb'))
-
-    if title.startswith('Season '):
-        translated_title = i18n('Season') + title[6:]
-    elif title.startswith('Search for \''):
-        translated_title = i18n('Search for') + title[10:]
-
-    return translated_title
-
-
 def artist(url, tree=None):
     """
         Process artist XML and display data
