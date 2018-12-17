@@ -24,6 +24,7 @@
         <source>https://github.com/anxdpanic/plugin.video.bplex</source>
         <summary lang='en_GB'>Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</summary>
         <description lang='en_GB'>Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</description>
+        <disclaimer lang='en_GB'>bPlex is NOT an official Plex add-on and is not supported or endorsed by Plex.</disclaimer>
         <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>
