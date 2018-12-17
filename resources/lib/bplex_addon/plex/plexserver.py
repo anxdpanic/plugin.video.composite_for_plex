@@ -627,14 +627,20 @@ class PlexMediaServer:
         return
 
     def report_playback_progress(self, _id, _time, state='playing', duration=0):
-
         try:
-            if state == 'stopped' and int((float(_time) / float(duration)) * 100) > 98:
+            mark_watched = False
+            if state == 'stopped' and int((float(_time) / float(duration)) * 100) >= 98:
                 _time = duration
-        except:
-            pass
+                mark_watched = True
 
-        self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, _id, _id, state, _time))
+            self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, _id, _id, state, _time))
+
+            if mark_watched:
+                self.mark_item_watched(_id)
+
+        except ZeroDivisionError:
+            return
+        
         return
 
     def mark_item_watched(self, _id):

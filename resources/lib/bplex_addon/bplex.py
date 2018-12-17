@@ -1220,37 +1220,54 @@ def monitor_playback(media_id, server, session=None):
     if settings.get_setting('monitoroff'):
         return
 
+    current_time = 0
     played_time = 0
+    progress = 0
     total_time = 0
+    wait_time = 0.5
+    waited = 0.0
+
     monitor = xbmc.Monitor()
     player = xbmc.Player()
 
     # Whilst the file is playing back
     while player.isPlaying() and not monitor.abortRequested():
 
-        current_time = int(player.getTime())
-        total_time = int(player.getTotalTime())
+        try:
+            current_time = int(player.getTime())
+            total_time = int(player.getTotalTime())
+        except RuntimeError:
+            pass
 
         try:
             progress = int((float(current_time) / float(total_time)) * 100)
-        except:
+        except ZeroDivisionError:
             progress = 0
 
-        if played_time == current_time:
-            log_print.debug('Video paused at: %s secs of %s @ %s%%' % (current_time, total_time, progress))
-            server.report_playback_progress(media_id, current_time * 1000, state='paused', duration=total_time * 1000)
-        else:
+        try:
+            report = int((float(waited) / 10.0)) >= 1
+        except ZeroDivisionError:
+            report = False
 
-            log_print.debug('Video played time: %s secs of %s @ %s%%' % (current_time, total_time, progress))
-            server.report_playback_progress(media_id, current_time * 1000, state='playing', duration=total_time * 1000)
-            played_time = current_time
+        if report:  # only report every ~10 seconds, times are updated at 0.5 seconds
+            waited = 0.0
+            if played_time == current_time:
+                log_print.debug('Video paused at: %s secs of %s @ %s%%' % (current_time, total_time, progress))
+                server.report_playback_progress(media_id, current_time * 1000, state='paused', duration=total_time * 1000)
+            else:
+                log_print.debug('Video played time: %s secs of %s @ %s%%' % (current_time, total_time, progress))
+                server.report_playback_progress(media_id, current_time * 1000, state='playing', duration=total_time * 1000)
+                played_time = current_time
 
-        if monitor.waitForAbort(10.0):
+        if monitor.waitForAbort(wait_time):
             break
 
-    # If we get this far, playback has stopped
-    log_print.debug('Playback Stopped')
-    server.report_playback_progress(media_id, played_time * 1000, state='stopped', duration=total_time * 1000)
+        waited += wait_time
+
+    if current_time != 0 and total_time != 0:
+        log_print.debug('Playback Stopped: %s secs of %s @ %s%%' % (current_time, total_time, progress))
+        # report_playback_progress state=stopped will adjust current time to match duration and mark media as watched if progress >= 98%
+        server.report_playback_progress(media_id, current_time * 1000, state='stopped', duration=total_time * 1000)
 
     if session is not None:
         log_print.debug('Stopping PMS transcode job with session %s' % session)
@@ -1358,8 +1375,8 @@ def monitor_channel_transcode_playback(session_id, server):
     monitor = xbmc.Monitor()
     player = xbmc.Player()
 
+    log_print.debug('Not playing yet...sleeping for upto 20 seconds at 2 second intervals')
     while not player.isPlaying() and not monitor.abortRequested():
-        log_print.debug('Not playing yet...sleep for 2')
         count += 1
         if count >= 10:
             # Waited 20 seconds and still no movie playing - assume it isn't going to..
@@ -1368,9 +1385,9 @@ def monitor_channel_transcode_playback(session_id, server):
             if monitor.waitForAbort(2.0):
                 return
 
+    log_print.debug('Waiting for playback to finish')
     while player.isPlaying() and not monitor.abortRequested():
-        log_print.debug('Waiting for playback to finish')
-        if monitor.waitForAbort(4.0):
+        if monitor.waitForAbort(0.5):
             break
 
     log_print.debug('Playback Stopped')
