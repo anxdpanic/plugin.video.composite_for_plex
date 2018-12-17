@@ -626,36 +626,36 @@ class PlexMediaServer:
         self.talk('/video/:/transcode/segmented/stop?session=%s' % session)
         return
 
-    def report_playback_progress(self, _id, _time, state='playing', duration=0):
+    def report_playback_progress(self, media_id, watched_time, state='playing', duration=0):
         try:
             mark_watched = False
-            if state == 'stopped' and int((float(_time) / float(duration)) * 100) >= 98:
-                _time = duration
+            if state == 'stopped' and int((float(watched_time) / float(duration)) * 100) >= 98:
+                watched_time = duration
                 mark_watched = True
 
-            self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, _id, _id, state, _time))
+            self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, media_id, media_id, state, watched_time))
 
             if mark_watched:
-                self.mark_item_watched(_id)
+                self.mark_item_watched(media_id)
 
         except ZeroDivisionError:
             return
         
         return
 
-    def mark_item_watched(self, _id):
-        self.talk('/:/scrobble?key=%s&identifier=com.plexapp.plugins.library' % _id)
+    def mark_item_watched(self, media_id):
+        self.talk('/:/scrobble?key=%s&identifier=com.plexapp.plugins.library' % media_id)
         return
 
-    def mark_item_unwatched(self, _id):
-        self.talk('/:/unscrobble?key=%s&identifier=com.plexapp.plugins.library' % _id)
+    def mark_item_unwatched(self, media_id):
+        self.talk('/:/unscrobble?key=%s&identifier=com.plexapp.plugins.library' % media_id)
         return
 
     def refresh_section(self, key):
         return self.talk('/library/sections/%s/refresh' % key)
 
-    def get_metadata(self, _id):
-        return self.processed_xml('/library/metadata/%s' % _id)
+    def get_metadata(self, media_id):
+        return self.processed_xml('/library/metadata/%s' % media_id)
 
     def set_audio_stream(self, part_id, stream_id):
         return self.tell('/library/parts/%s?audioStreamID=%s' % (part_id, stream_id))
@@ -663,8 +663,8 @@ class PlexMediaServer:
     def set_subtitle_stream(self, part_id, stream_id):
         return self.tell('/library/parts/%s?subtitleStreamID=%s' % (part_id, stream_id))
 
-    def delete_metadata(self, _id):
-        return self.talk('/library/metadata/%s' % _id, method='delete')
+    def delete_metadata(self, media_id):
+        return self.talk('/library/metadata/%s' % media_id, method='delete')
 
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
@@ -711,7 +711,7 @@ class PlexMediaServer:
 
         return session, self.get_formatted_url(full_url, options={'X-Plex-Device': 'Plex Home Theater'})
 
-    def get_legacy_transcode(self, _id, url, identifier=None):
+    def get_legacy_transcode(self, media_id, url, identifier=None):
 
         session = str(uuid.uuid4())
 
@@ -743,7 +743,7 @@ class PlexMediaServer:
                               'identifier': identifier,
                               'httpCookie': '',
                               'userAgent': '',
-                              'ratingKey': _id,
+                              'ratingKey': media_id,
                               'subtitleSize': settings.get_setting('subSize').split('.')[0],
                               'audioBoost': settings.get_setting('audioSize').split('.')[0],
                               'key': ''}
@@ -753,7 +753,7 @@ class PlexMediaServer:
             transcode_settings['webkit'] = 1
         else:
             transcode_settings['identifier'] = 'com.plexapp.plugins.library'
-            transcode_settings['key'] = quote_plus('%s/library/metadata/%s' % (self.get_url_location(), _id))
+            transcode_settings['key'] = quote_plus('%s/library/metadata/%s' % (self.get_url_location(), media_id))
             transcode_target = quote_plus('http://127.0.0.1:32400' + '/' + '/'.join(url.split('/')[3:]))
             log_print.debug('filestream URL is: %s' % transcode_target)
 
