@@ -12,6 +12,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 1.5.2
+[add] Description to file and folder items
 [chg] Make the server detection notification optional
 
 1.5.1
