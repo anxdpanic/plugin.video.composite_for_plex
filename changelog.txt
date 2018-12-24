@@ -1,3 +1,6 @@
+1.5.3
+[fix] fixup plots
+
 1.5.2
 [add] Description to file and folder items
 [chg] Make the server detection notification optional

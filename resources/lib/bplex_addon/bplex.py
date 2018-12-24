@@ -166,10 +166,11 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     # add plot to file and folders,
     if set_info_type.lower() == 'file' and (details.get('plot') or details.get('plotoutline')):
         set_info_type = 'Video'
-    elif folder or set_info_type.lower() == 'file':
+    elif set_info_type.lower() == 'folder' or set_info_type.lower() == 'file':
         set_info_type = 'Video'
-        info_labels['plot'] = title
-        info_labels['plotoutline'] = title
+        if not details.get('plot', details.get('plotoutline')):
+            info_labels['plot'] = title
+            info_labels['plotoutline'] = title
 
     # Set the properties of the item, such as summary, name, season, etc
     liz.setInfo(type=set_info_type, infoLabels=info_labels)
@@ -285,7 +286,7 @@ def display_sections(cfilter=None, display_shared=False):
                 details['title'] = '%s: %s' % (server.get_name(), details['title'])
 
             extra_data = {'fanart_image': server.get_fanart(section),
-                          'type': 'Video'}
+                          'type': 'Folder'}
 
             # Determine what we are going to do process after a link selected by the user, based on the content we find
 
@@ -341,7 +342,7 @@ def display_sections(cfilter=None, display_shared=False):
         details = {'title': i18n('myPlex Queue'),
                    'plot': i18n('myPlex Queue'),
                    'plotoutline': i18n('myPlex Queue')}
-        extra_data = {'type': 'Video', 'mode': MODES.MYPLEXQUEUE}
+        extra_data = {'type': 'Folder', 'mode': MODES.MYPLEXQUEUE}
         add_item_to_gui('http://myplexqueue', details, extra_data)
 
     for server in server_list:
@@ -363,7 +364,7 @@ def display_sections(cfilter=None, display_shared=False):
         details = {'title': prefix + i18n('Channels'),
                    'plot': plot_prefix + i18n('Channels'),
                    'plotoutline': plot_prefix + i18n('Channels')}
-        extra_data = {'type': 'Video', 'mode': MODES.CHANNELVIEW}
+        extra_data = {'type': 'Folder', 'mode': MODES.CHANNELVIEW}
 
         u = '%s/channels/all' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
@@ -372,7 +373,7 @@ def display_sections(cfilter=None, display_shared=False):
         details = {'title': prefix + i18n('Plex Online'),
                    'plot': plot_prefix + i18n('Plex Online'),
                    'plotoutline': plot_prefix + i18n('Plex Online')}
-        extra_data = {'type': 'Video', 'mode': MODES.PLEXONLINE}
+        extra_data = {'type': 'Folder', 'mode': MODES.PLEXONLINE}
 
         u = '%s/system/plexonline' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
@@ -381,7 +382,7 @@ def display_sections(cfilter=None, display_shared=False):
         details = {'title': prefix + i18n('Playlists'),
                    'plot': plot_prefix + i18n('Playlists'),
                    'plotoutline': plot_prefix + i18n('Playlists')}
-        extra_data = {'type': 'Video', 'mode': MODES.PLAYLISTS}
+        extra_data = {'type': 'Folder', 'mode': MODES.PLAYLISTS}
 
         u = '%s/playlists' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
@@ -422,8 +423,8 @@ def display_sections(cfilter=None, display_shared=False):
 
     if settings.get_setting('cache'):
         details = {'title': i18n('Refresh Data'),
-                   'plot': i18n('Display Servers'),
-                   'plotoutline': i18n('Display Servers')}
+                   'plot': i18n('Refresh Data'),
+                   'plotoutline': i18n('Refresh Data')}
         extra_data = {'type': 'file'}
         u = 'cmd:delete_refresh'
         add_item_to_gui(u, details, extra_data)
@@ -1543,11 +1544,21 @@ def get_content(url):
 def process_directory(url, tree=None):
     log_print.debug('Processing secondary menus')
     xbmcplugin.setContent(pluginhandle, '')
+
     server = plex_network.get_server_from_url(url)
+    server_name = server.get_name()
     thumb = tree.get('thumb')
+
     for directory in tree:
-        details = {'title': directory_item_translate(encode_utf8(directory.get('title', i18n('Unknown'))), thumb)}
-        extra_data = {'thumb': get_thumb_image(tree, server), 'fanart_image': get_fanart_image(tree, server), 'mode': MODES.GETCONTENT}
+        title = encode_utf8(directory.get('title', i18n('Unknown')))
+        plot = '%s: %s' % (server_name, title)
+        details = {'title': directory_item_translate(title, thumb),
+                   'plot': plot,
+                   'plotoutline': plot}
+        extra_data = {'thumb': get_thumb_image(tree, server),
+                      'fanart_image': get_fanart_image(tree, server),
+                      'mode': MODES.GETCONTENT,
+                      'type': 'Folder'}
 
         u = '%s' % (get_link_url(url, directory, server))
 
