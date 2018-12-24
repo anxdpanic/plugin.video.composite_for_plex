@@ -11,6 +11,7 @@
         <setting id='managemyplex' label='30605' type='action' action='RunScript($ID, managemyplex)' option='close'/>
         <setting id='selectMaster' label='30526' type='action' action='RunScript($ID, master)'/>
         <setting id='masterServer' label='30571' type='text' default=''/>
+        <setting id='detected_notification' label='30663' type='bool' default='false'/>
         <setting id='client_id' type='text' visible='false' option='hidden'/>
         <setting id='wolon' type='bool' label='30523' default='false'/>
         <setting id='wol1' type='text' label='30613' visible='eq(-1,true)' enable='eq(-1,true)' default=''/>

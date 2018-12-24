@@ -11,6 +11,9 @@
     </extension>
     <extension point='xbmc.addon.metadata'>
         <news>
+1.5.2
+[chg] Make the server detection notification optional
+
 1.5.1
 [upd] Improve playback monitoring and reporting
 

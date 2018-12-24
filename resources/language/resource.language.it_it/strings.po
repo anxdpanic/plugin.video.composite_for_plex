@@ -949,3 +949,7 @@ msgstr ""
 msgctxt "#30662"
 msgid "Server Cache TTL (minutes)"
 msgstr ""
+
+msgctxt "#30663"
+msgid "Server detection notification"
+msgstr ""
