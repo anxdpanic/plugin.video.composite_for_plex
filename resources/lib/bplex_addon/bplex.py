@@ -9,6 +9,7 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
+import copy
 import sys
 import time
 import random
@@ -152,13 +153,26 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
         for argument, value in extra_data.get('parameters').items():
             link_url = '%s&%s=%s' % (link_url, argument, quote(value))
 
+    title = item_translate(details.get('title', i18n('Unknown')), extra_data.get('source'), folder)
+
     log_print.debug('URL to use for listing: %s' % link_url)
     if CONFIG['kodi_version'] >= 18:
-        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n('Unknown')), extra_data.get('source'), folder), offscreen=True)
+        liz = xbmcgui.ListItem(title, offscreen=True)
     else:
-        liz = xbmcgui.ListItem(item_translate(details.get('title', i18n('Unknown')), extra_data.get('source'), folder))
+        liz = xbmcgui.ListItem(title)
+
+    set_info_type = extra_data.get('type', 'Video')
+    info_labels = copy.deepcopy(details)
+    # add plot to file and folders,
+    if set_info_type.lower() == 'file' and (details.get('plot') or details.get('plotoutline')):
+        set_info_type = 'Video'
+    elif folder or set_info_type.lower() == 'file':
+        set_info_type = 'Video'
+        info_labels['plot'] = title
+        info_labels['plotoutline'] = title
+
     # Set the properties of the item, such as summary, name, season, etc
-    liz.setInfo(type=extra_data.get('type', 'Video'), infoLabels=details)
+    liz.setInfo(type=set_info_type, infoLabels=info_labels)
 
     # Music related tags
     if extra_data.get('type', '').lower() == 'music':
@@ -263,7 +277,9 @@ def display_sections(cfilter=None, display_shared=False):
             if display_shared and server.is_owned():
                 continue
 
-            details = {'title': section.get_title()}
+            details = {'title': section.get_title(),
+                       'plot': '%s: %s' % (server.get_name(), section.get_title()),
+                       'plotoutline': '%s: %s' % (server.get_name(), section.get_title())}
 
             if len(server_list) > 1:
                 details['title'] = '%s: %s' % (server.get_name(), details['title'])
@@ -322,7 +338,11 @@ def display_sections(cfilter=None, display_shared=False):
 
     # For each of the servers we have identified            
     if plex_network.is_myplex_signedin():
-        add_item_to_gui('http://myplexqueue', {'title': i18n('myPlex Queue')}, {'type': 'Video', 'mode': MODES.MYPLEXQUEUE})
+        details = {'title': i18n('myPlex Queue'),
+                   'plot': i18n('myPlex Queue'),
+                   'plotoutline': i18n('myPlex Queue')}
+        extra_data = {'type': 'Video', 'mode': MODES.MYPLEXQUEUE}
+        add_item_to_gui('http://myplexqueue', details, extra_data)
 
     for server in server_list:
 
@@ -338,24 +358,30 @@ def display_sections(cfilter=None, display_shared=False):
         else:
             prefix = ''
 
-        details = {'title': prefix + i18n('Channels')}
+        plot_prefix = server.get_name() + ': '
+
+        details = {'title': prefix + i18n('Channels'),
+                   'plot': plot_prefix + i18n('Channels'),
+                   'plotoutline': plot_prefix + i18n('Channels')}
         extra_data = {'type': 'Video', 'mode': MODES.CHANNELVIEW}
 
         u = '%s/channels/all' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
 
         # Create plexonline link
-        details['title'] = prefix + i18n('Plex Online')
-        extra_data['type'] = 'file'
-        extra_data['mode'] = MODES.PLEXONLINE
+        details = {'title': prefix + i18n('Plex Online'),
+                   'plot': plot_prefix + i18n('Plex Online'),
+                   'plotoutline': plot_prefix + i18n('Plex Online')}
+        extra_data = {'type': 'Video', 'mode': MODES.PLEXONLINE}
 
         u = '%s/system/plexonline' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
 
         # create playlist link
-        details['title'] = prefix + i18n('Playlists')
-        extra_data['type'] = 'file'
-        extra_data['mode'] = MODES.PLAYLISTS
+        details = {'title': prefix + i18n('Playlists'),
+                   'plot': plot_prefix + i18n('Playlists'),
+                   'plotoutline': plot_prefix + i18n('Playlists')}
+        extra_data = {'type': 'Video', 'mode': MODES.PLAYLISTS}
 
         u = '%s/playlists' % server.get_url_location()
         add_item_to_gui(u, details, extra_data)
@@ -363,31 +389,41 @@ def display_sections(cfilter=None, display_shared=False):
     if plex_network.is_myplex_signedin():
 
         if plex_network.is_plexhome_enabled():
-            details = {'title': i18n('Switch User')}
+            details = {'title': i18n('Switch User'),
+                       'plot': i18n('Switch User'),
+                       'plotoutline': i18n('Switch User')}
             extra_data = {'type': 'file'}
 
             u = 'cmd:switchuser'
             add_item_to_gui(u, details, extra_data)
 
-        details = {'title': i18n('Sign Out')}
+        details = {'title': i18n('Sign Out'),
+                   'plot': i18n('Sign Out'),
+                   'plotoutline': i18n('Sign Out')}
         extra_data = {'type': 'file'}
 
         u = 'cmd:signout'
         add_item_to_gui(u, details, extra_data)
     else:
-        details = {'title': i18n('Sign In')}
+        details = {'title': i18n('Sign In'),
+                   'plot': i18n('Sign In'),
+                   'plotoutline': i18n('Sign In')}
         extra_data = {'type': 'file'}
 
         u = 'cmd:signintemp'
         add_item_to_gui(u, details, extra_data)
 
-    details = {'title': i18n('Display Servers')}
+    details = {'title': i18n('Display Servers'),
+               'plot': i18n('Display Servers'),
+               'plotoutline': i18n('Display Servers')}
     extra_data = {'type': 'file'}
     data_url = 'cmd:displayservers'
     add_item_to_gui(data_url, details, extra_data)
 
     if settings.get_setting('cache'):
-        details = {'title': i18n('Refresh Data')}
+        details = {'title': i18n('Refresh Data'),
+                   'plot': i18n('Display Servers'),
+                   'plotoutline': i18n('Display Servers')}
         extra_data = {'type': 'file'}
         u = 'cmd:delete_refresh'
         add_item_to_gui(u, details, extra_data)
