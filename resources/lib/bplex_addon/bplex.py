@@ -1823,7 +1823,7 @@ def plex_plugins(url, tree=None):
 
             if plugin.get('search') == '1':
                 extra_data['mode'] = MODES.CHANNELSEARCH
-                extra_data['parameters'] = {'prompt': encode_utf8(plugin.get('prompt', 'Enter Search Term'))}
+                extra_data['parameters'] = {'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))}
             else:
                 extra_data['mode'] = MODES.PLEXPLUGINS
 
