@@ -1551,8 +1551,9 @@ def process_directory(url, tree=None):
 
     for directory in tree:
         title = encode_utf8(directory.get('title', i18n('Unknown')))
+        title = directory_item_translate(title, thumb)
         plot = '%s: %s' % (server_name, title)
-        details = {'title': directory_item_translate(title, thumb),
+        details = {'title': title,
                    'plot': plot,
                    'plotoutline': plot}
         extra_data = {'thumb': get_thumb_image(tree, server),
