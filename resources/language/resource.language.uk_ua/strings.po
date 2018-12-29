@@ -1009,3 +1009,7 @@ msgstr ""
 msgctxt "#30663"
 msgid "Server detection notification"
 msgstr ""
+
+msgctxt "#30664"
+msgid "installed"
+msgstr ""

@@ -125,4 +125,5 @@ strings = {
     'Finished': 30656,
     'Found servers:': 30657,
     'No servers found': 30658,
+    'installed': 30664,
 }

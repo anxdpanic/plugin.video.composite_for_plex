@@ -2447,7 +2447,7 @@ def plex_online(url):
                       'mode': MODES.CHANNELINSTALL}
 
         if extra_data['installed'] == 1:
-            details['title'] = details['title'] + ' (installed)'
+            details['title'] = details['title'] + ' (%s)' % encode_utf8(i18n('installed'))
 
         elif extra_data['installed'] == 2:
             extra_data['mode'] = MODES.PLEXONLINE
