@@ -1026,3 +1026,19 @@ msgstr ""
 msgctxt "#30664"
 msgid "installed"
 msgstr ""
+
+msgctxt "#30665"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#30666"
+msgid "Music"
+msgstr ""
+
+msgctxt "#30667"
+msgid "TV Shows"
+msgstr ""
+
+msgctxt "#30668"
+msgid "Photos"
+msgstr ""

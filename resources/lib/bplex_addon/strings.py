@@ -126,4 +126,8 @@ strings = {
     'Found servers:': 30657,
     'No servers found': 30658,
     'installed': 30664,
+    'Movies': 30665,
+    'Music': 30666,
+    'TV Shows': 30667,
+    'Photos': 30668,
 }

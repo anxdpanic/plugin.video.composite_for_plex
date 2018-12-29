@@ -34,7 +34,7 @@ class PlexSection:
         if not path[0] == '/':
             path = '/library/sections/%s' % path
 
-        self.title = encode_utf8(data.get('title', i18n('Unknown')))
+        self.title = encode_utf8(self.translate(data.get('title')))
         self.sectionuuid = data.get('uuid', '')
         self.path = encode_utf8(path)
         self.key = data.get('key')
@@ -88,3 +88,20 @@ class PlexSection:
         if self.type == 'photo':
             return True
         return False
+
+    @staticmethod
+    def translate(value):
+        _i = {
+            'Movies': True,
+            'TV Shows': True,
+            'Music': True,
+            'Photos': True,
+        }
+
+        if not value:
+            return i18n('Unknown')
+
+        if _i.get(value):
+            return i18n(value)
+        else:
+            return value
