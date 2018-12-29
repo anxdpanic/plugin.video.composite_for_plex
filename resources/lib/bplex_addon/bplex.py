@@ -272,7 +272,11 @@ def display_sections(cfilter=None, display_shared=False):
             if display_shared and server.is_owned():
                 continue
 
-            details = {'title': '%s: %s' % (server.get_name(), section.get_title())}
+            if settings.get_setting('prefix_server') == '0' or \
+                (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
+                details = {'title': '%s: %s' % (server.get_name(), section.get_title())}
+            else:
+                details = {'title': section.get_title()}
 
             extra_data = {'fanart_image': server.get_fanart(section),
                           'type': 'Folder'}
@@ -341,7 +345,11 @@ def display_sections(cfilter=None, display_shared=False):
         if (cfilter is not None) and (cfilter != 'plugins'):
             continue
 
-        prefix = server.get_name() + ': '
+        if settings.get_setting('prefix_server') == '0' or \
+            (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
+            prefix = server.get_name() + ': '
+        else:
+            prefix = ''
 
         details = {'title': prefix + i18n('Channels')}
         extra_data = {'type': 'Folder', 'mode': MODES.CHANNELVIEW}

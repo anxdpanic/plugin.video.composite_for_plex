@@ -58,6 +58,7 @@
         <setting id="transcode_target_audio_size_2" visible="eq(-3,true)" label="30569" type="slider" option="int" range="0,325" default="0" subsetting="true"/>
     </category>
     <category label="30520"> <!-- Look and feel -->
+        <setting id="prefix_server" type="enum" label="30669" lvalues="30670|30671" default="1"/>
         <setting id="secondary" type="bool" label="30503" default="true"/>
         <setting id="channelview" type="bool" label="30542" default="false"/>
         <setting id="flatten" type="enum" label="30543" lvalues="30553|30558|30559" default="0"/>

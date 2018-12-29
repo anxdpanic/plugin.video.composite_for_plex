@@ -1017,3 +1017,15 @@ msgstr ""
 msgctxt "#30668"
 msgid "Photos"
 msgstr ""
+
+msgctxt "#30669"
+msgid "Server name prefix on the main menu"
+msgstr ""
+
+msgctxt "#30670"
+msgid "Always"
+msgstr ""
+
+msgctxt "#30671"
+msgid "Default"
+msgstr ""
