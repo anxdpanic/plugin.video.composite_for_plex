@@ -11,9 +11,10 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <news>
-1.6.0
-[chg] always prefix main menu items with the server name
-[upd] revert plot changes
+1.7.0
+[add] Settings - Look and Feel - Server name prefix on the main menu
+[upd] Request headers; change platform and device name
+[lang] localize section titles; Movies, TV Shows, Photos and Music
         </news>
         <assets>
             <icon>icon.png</icon>

@@ -1,3 +1,8 @@
+1.7.0
+[add] Settings - Look and Feel - Server name prefix on the main menu
+[upd] Request headers; change platform and device name
+[lang] localize section titles; Movies, TV Shows, Photos and Music
+
 1.6.0
 [chg] always prefix main menu items with server name
 [upd] revert plot changes
