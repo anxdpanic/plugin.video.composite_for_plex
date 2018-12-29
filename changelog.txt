@@ -1,4 +1,5 @@
 1.6.0
+[chg] always prefix main menu items with server name
 [upd] revert plot changes
 
 1.5.3

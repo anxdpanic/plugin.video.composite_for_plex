@@ -12,6 +12,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 1.6.0
+[chg] always prefix main menu items with the server name
 [upd] revert plot changes
         </news>
         <assets>
