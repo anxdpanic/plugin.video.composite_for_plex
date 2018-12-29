@@ -270,9 +270,9 @@ class Plex:
 
         header = {'X-Plex-Device': CONFIG['device'],
                   'X-Plex-Client-Platform': 'Kodi',
-                  'X-Plex-Device-Name': settings.get_setting('devicename') + ' (' + CONFIG['platform'] + ')',
+                  'X-Plex-Device-Name': settings.get_setting('devicename'),
                   'X-Plex-Language': 'en',
-                  'X-Plex-Platform': 'Kodi',
+                  'X-Plex-Platform': CONFIG['platform'],
                   'X-Plex-Client-Identifier': self.get_client_identifier(),
                   'X-Plex-Product': CONFIG['name'],
                   'X-Plex-Platform-Version': CONFIG['platform_version'],
