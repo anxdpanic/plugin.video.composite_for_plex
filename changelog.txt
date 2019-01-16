@@ -1,3 +1,8 @@
+1.7.1
+[fix] By Folder titles showing as Unknown
+[fix] add missing mediatypes
+[upd] icon and fanart
+
 1.7.0
 [add] Settings - Look and Feel - Server name prefix on the main menu
 [upd] Request headers; change platform and device name
