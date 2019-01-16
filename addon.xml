@@ -18,6 +18,7 @@
         </news>
         <assets>
             <icon>icon.png</icon>
+			<fanart>fanart.png</fanart>
         </assets>
         <platform>all</platform>
         <license>GPL-2.0-or-later</license>
