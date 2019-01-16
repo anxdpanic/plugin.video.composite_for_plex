@@ -225,7 +225,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     # assign artwork
     fanart = extra_data.get('fanart_image', '')
-    thumb = extra_data.get('thumb', extra_data.get('thumb', CONFIG['thumbnail']))
+    thumb = extra_data.get('thumb', extra_data.get('thumb', CONFIG['icon']))
     banner = extra_data.get('banner', '')
 
     # tvshow poster
@@ -971,7 +971,7 @@ def play_playlist(server, data):
             liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')), offscreen=True)
         else:
             liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')))
-        thumb = data['full_data'].get('thumbnailImage', CONFIG['thumbnail'])
+        thumb = data['full_data'].get('thumbnailImage', CONFIG['icon'])
         liz.setArt({'icon': thumb, 'thumb': thumb})
         liz.setInfo(type='music', infoLabels=item)
         playlist.add(url, liz)
@@ -1057,7 +1057,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
         item = xbmcgui.ListItem(path=playurl)
     if streams['full_data']:
         item.setInfo(type=streams['type'], infoLabels=streams['full_data'])
-        thumb = streams['full_data'].get('thumbnailImage', CONFIG['thumbnail'])
+        thumb = streams['full_data'].get('thumbnailImage', CONFIG['icon'])
         item.setArt({'icon': thumb, 'thumb': thumb})
 
     if force:
@@ -2303,7 +2303,7 @@ def get_thumb_image(data, server, width=720, height=720):
                                                         % (quote_plus('http://localhost:32400' + thumbnail),
                                                            width, height))
 
-    return CONFIG['thumbnail']
+    return CONFIG['icon']
 
 
 def get_banner_image(data, server, width=720, height=720):
@@ -2329,7 +2329,7 @@ def get_banner_image(data, server, width=720, height=720):
                                                         % (quote_plus('http://localhost:32400' + thumbnail),
                                                            width, height))
 
-    return CONFIG['thumbnail']
+    return CONFIG['icon']
 
 
 def get_fanart_image(data, server, width=1280, height=720):

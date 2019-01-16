@@ -196,8 +196,6 @@ try:
 except:
     CONFIG['kodi_version'] = 0
 
-CONFIG['thumbnail'] = decode_utf8(xbmc.translatePath(CONFIG['media_path'] + 'thumb.png'))
-
 settings = AddonSettings(__id)
 
 MODES = __enum(
