@@ -225,7 +225,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
 
     # assign artwork
     fanart = extra_data.get('fanart_image', '')
-    thumb = extra_data.get('thumb', extra_data.get('thumb', CONFIG['icon']))
+    thumb = extra_data.get('thumb', CONFIG['icon'])
     banner = extra_data.get('banner', '')
 
     # tvshow poster
@@ -234,7 +234,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if season_thumb:
         poster = season_thumb
     else:
-        poster = thumb
+        poster = extra_data.get('thumb', 'DefaultPoster.png')
 
     if season_thumb:
         log_print.debug('Setting season Thumb as %s' % season_thumb)
