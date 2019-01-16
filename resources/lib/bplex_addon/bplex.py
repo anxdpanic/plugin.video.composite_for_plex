@@ -1978,7 +1978,7 @@ def process_xml(url, tree=None):
 
         details = {'title': encode_utf8(plugin.get('title'))}
 
-        if details['title']:
+        if not details['title']:
             details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
 
         extra_data = {'thumb': get_thumb_image(plugin, server),
