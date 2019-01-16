@@ -1517,15 +1517,23 @@ def get_content(url):
 
 def process_directory(url, tree=None):
     log_print.debug('Processing secondary menus')
-    xbmcplugin.setContent(pluginhandle, '')
+    collections = '/collection' in url
+
+    content_type = 'files'
+    if collections:
+        content_type = 'sets'
+    xbmcplugin.setContent(pluginhandle, content_type)
 
     server = plex_network.get_server_from_url(url)
+
     thumb = tree.get('thumb')
 
     for directory in tree:
         title = encode_utf8(directory.get('title', i18n('Unknown')))
         title = directory_item_translate(title, thumb)
         details = {'title': title}
+        if collections:
+            details['mediatype'] = 'set'
         extra_data = {'thumb': get_thumb_image(tree, server),
                       'fanart_image': get_fanart_image(tree, server),
                       'mode': MODES.GETCONTENT,
@@ -1700,7 +1708,8 @@ def artist(url, tree=None):
                       'ratingKey': _artist.get('title', ''),
                       'key': _artist.get('key', ''),
                       'mode': MODES.ALBUMS,
-                      'plot': _artist.get('summary', '')}
+                      'plot': _artist.get('summary', ''),
+                      'mediatype': 'artist'}
 
         url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
@@ -1730,7 +1739,8 @@ def albums(url, tree=None):
 
         details = {'album': encode_utf8(album.get('title', '')),
                    'year': int(album.get('year', 0)),
-                   'artist': encode_utf8(tree.get('parentTitle', album.get('parentTitle', '')))}
+                   'artist': encode_utf8(tree.get('parentTitle', album.get('parentTitle', ''))),
+                   'mediatype': 'album'}
 
         if recent:
             details['title'] = '%s - %s' % (details['artist'], details['album'])
@@ -2129,7 +2139,8 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
                'rating': float(track.get('rating', 0)),
                'album': encode_utf8(track.get('parentTitle', tree.get('parentTitle', ''))),
                'artist': encode_utf8(track.get('grandparentTitle', tree.get('grandparentTitle', ''))),
-               'duration': int(track.get('duration', 0)) / 1000}
+               'duration': int(track.get('duration', 0)) / 1000,
+               'mediatype': 'song'}
 
     extra_data = {'type': 'music',
                   'fanart_image': sectionart,
@@ -2248,7 +2259,7 @@ def music(url, tree=None):
         if grapes.tag == 'Track':
             log_print.debug('Track Tag')
             xbmcplugin.setContent(pluginhandle, 'songs')
-
+            details['mediatype'] = 'song'
             details['title'] = grapes.get('track', encode_utf8(grapes.get('title', i18n('Unknown'))))
             details['duration'] = int(int(grapes.get('total_time', 0)) / 1000)
 
@@ -2260,11 +2271,13 @@ def music(url, tree=None):
             if grapes.tag == 'Artist':
                 log_print.debug('Artist Tag')
                 xbmcplugin.setContent(pluginhandle, 'artists')
+                details['mediatype'] = 'artist'
                 details['title'] = encode_utf8(grapes.get('artist', i18n('Unknown')))
 
             elif grapes.tag == 'Album':
                 log_print.debug('Album Tag')
                 xbmcplugin.setContent(pluginhandle, 'albums')
+                details['mediatype'] = 'album'
                 details['title'] = encode_utf8(grapes.get('album', i18n('Unknown')))
 
             elif grapes.tag == 'Genre':
