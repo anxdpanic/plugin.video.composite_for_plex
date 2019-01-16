@@ -1,4 +1,5 @@
-![bPlex](icon.png)
+<img src="https://raw.githubusercontent.com/anxdpanic/plugin.video.bplex/master/icon.png" width="256" height="256" alt="bPlex">
+
 # bPlex
 
 bPlex allows media and metadata stored in the Plex Media Server (PMS) to be viewed and played using the Kodi 16+ interface.
