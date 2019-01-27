@@ -3,19 +3,24 @@
 Please review the following log and address any suggestions.  
 
 {{#jobs}}
+
+<a href="{{link}}">View log</a>
+
 {{#scripts}}
+
 <details>
   <summary>
     <strong>
-     Expand here
+     {{command}}
     </strong>
   </summary>
 
 ```
 {{&contents}}
 ```
+
 </details>
-<br />
+
 {{/scripts}}
 {{/jobs}}
 
