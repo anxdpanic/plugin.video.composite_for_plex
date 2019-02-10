@@ -5,8 +5,14 @@ python:
 install:
   - pip install kodi-addon-checker
 
+before_script:
+  - |
+    rm -rf LICENSES/
+    rm -f .gitattributes
+    cd $HOME
+
 script:
-  - kodi-addon-checker . --branch=jarvis
+  - kodi-addon-checker $TRAVIS_BUILD_DIR --branch=jarvis
 
 notifications:
   webhooks: https://www.travisbuddy.com/
