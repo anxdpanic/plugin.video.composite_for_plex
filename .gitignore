@@ -131,7 +131,7 @@ Desktop.ini
 ## Python
 #############
 
-*.py[co]
+*.py[cod]
 
 # Packages
 *.egg
@@ -146,8 +146,12 @@ sdist
 develop-eggs
 .installed.cfg
 
+__pycache__/
+
 # Installer logs
 pip-log.txt
+
+*.log
 
 # Unit test / coverage reports
 .coverage
@@ -163,7 +167,7 @@ pip-log.txt
 .DS_Store
 
 ##PyCharm
-.idea
+.idea/
 
-/resources/language/append_to_languages.py
-/resources/language/new_strings.txt
+append_to_languages.py
+new_strings.txt
