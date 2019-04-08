@@ -2,6 +2,11 @@
 
 # bPlex
 
+![Build Status](https://img.shields.io/travis/anxdpanic/plugin.video.bplex/master.svg)
+![License](https://img.shields.io/badge/license-GPL--2.0--or--later-success.svg)
+![Kodi Version](https://img.shields.io/badge/kodi-jarvis%2B-success.svg)
+![Contributors](https://img.shields.io/github/contributors/anxdpanic/plugin.video.bplex.svg)
+
 bPlex allows media and metadata stored in the Plex Media Server (PMS) to be viewed and played using the Kodi 16+ interface.
 
 - Installation
