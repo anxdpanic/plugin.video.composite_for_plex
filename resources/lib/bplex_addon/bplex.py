@@ -19,6 +19,7 @@ import xbmc
 import xbmcplugin
 import xbmcgui
 
+from six.moves import cPickle as pickle
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import unquote
@@ -1084,92 +1085,17 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
         response = xbmc.executeJSONRPC(request)
         return
     else:
+        if streams['type'] == 'video' or streams['type'] == 'music':
+            monitor_dict = {
+                'media_id': media_id,
+                'playing_file': playurl,
+                'session': session,
+                'server': server,
+                'streams': streams if not override else None
+            }
+            xbmcgui.Window(10000).setProperty('bplex.monitor_dict', pickle.dumps(monitor_dict))
+
         xbmcplugin.setResolvedUrl(pluginhandle, True, item)
-
-    monitor = xbmc.Monitor()
-    player = xbmc.Player()
-    # Set a loop to wait for positive confirmation of playback
-    count = 0
-    while not player.isPlaying() and not monitor.abortRequested():
-        log_print.debug('Not playing yet...sleep for 0.2')
-        count += 1
-        if count >= 25:
-            return
-        else:
-            if monitor.waitForAbort(0.2):
-                return
-
-    if not override:
-        set_audio_subtitles(streams)
-
-    if streams['type'] == 'video' or streams['type'] == 'music':
-        monitor_playback(media_id, server, session)
-
-    return
-
-
-def set_audio_subtitles(stream):
-    """
-        Take the collected audio/sub stream data and apply to the media
-        If we do not have any subs then we switch them off
-    """
-
-    # If we have decided not to collect any sub data then do not set subs
-    player = xbmc.Player()
-
-    if stream['contents'] == 'type':
-        log_print.debug('No audio or subtitle streams to process.')
-
-        # If we have decided to force off all subs, then turn them off now and return
-        if settings.get_setting('streamControl') == STREAM_CONTROL.NEVER:
-            player.showSubtitles(False)
-            log_print.debug('All subs disabled')
-
-        return True
-
-    # Set the AUDIO component
-    if settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
-        log_print.debug('Attempting to set Audio Stream')
-
-        audio = stream['audio']
-
-        if stream['audio_count'] == 1:
-            log_print.debug('Only one audio stream present - will leave as default')
-
-        elif audio:
-            log_print.debug('Attempting to use selected language setting: %s' %
-                            encode_utf8(audio.get('language', audio.get('languageCode', i18n('Unknown')))))
-            log_print.debug('Found preferred language at index %s' % stream['audio_offset'])
-            try:
-                player.setAudioStream(stream['audio_offset'])
-                log_print.debug('Audio set')
-            except:
-                log_print.debug('Error setting audio, will use embedded default stream')
-
-    # Set the SUBTITLE component
-    if settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
-        log_print.debug('Attempting to set preferred subtitle Stream')
-        subtitle = stream['subtitle']
-        if subtitle:
-            log_print.debug('Found preferred subtitle stream')
-            try:
-                player.showSubtitles(False)
-                if subtitle.get('key'):
-                    player.setSubtitles(subtitle['key'])
-                else:
-                    log_print.debug('Enabling embedded subtitles at index %s' % stream['sub_offset'])
-                    player.setSubtitleStream(int(stream['sub_offset']))
-
-                player.showSubtitles(True)
-                return True
-            except:
-                log_print.debug('Error setting subtitle')
-
-        else:
-            log_print.debug('No preferred subtitles to set')
-            player.showSubtitles(False)
-
-    return False
 
 
 def select_media_to_play(data, server):

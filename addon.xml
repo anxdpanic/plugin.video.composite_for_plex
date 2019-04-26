@@ -9,6 +9,7 @@
     <extension point="xbmc.python.pluginsource" library="resources/lib/entry_point.py">
         <provides>video audio image</provides>
     </extension>
+    <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
 1.7.1
