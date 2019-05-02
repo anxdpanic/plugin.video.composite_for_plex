@@ -12,10 +12,8 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-1.7.1
-[fix] By Folder titles showing as Unknown
-[fix] add missing mediatypes
-[upd] icon and fanart
+1.8.0
+[fix] content not marked as watched on completion
         </news>
         <assets>
             <icon>icon.png</icon>
