@@ -1,8 +1,8 @@
 """
 
-    Copyright (C) 2019 bPlex (plugin.video.bplex)
+    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
 
-    This file is part of bPlex (plugin.video.bplex)
+    This file is part of Composite (plugin.video.composite_for_plex)
 
     SPDX-License-Identifier: GPL-2.0-or-later
     See LICENSES/GPL-2.0-or-later for more information.
@@ -96,7 +96,7 @@ class PlaybackMonitorThread(threading.Thread):
             try:
                 current_file = self.player.getPlayingFile()
                 if (current_file != self.playing_file and
-                    not (current_file.startswith('plugin://plugin.video.bplex/') and
+                    not (current_file.startswith('plugin://plugin.video.composite_for_plex/') and
                          self.media_id in current_file)) or self.stopped():
                     self.stop()
                     break
@@ -189,12 +189,12 @@ class CallbackPlayer(xbmc.Player):
 
     def onPlayBackStarted(self):
         if settings.get_setting('monitoroff'):
-            self.window.clearProperty('bplex.monitor_dict')
+            self.window.clearProperty('composite.monitor_dict')
             return
 
-        if self.window.getProperty('bplex.monitor_dict'):
-            playback_dict = pickle.loads(self.window.getProperty('bplex.monitor_dict'))
-            self.window.clearProperty('bplex.monitor_dict')
+        if self.window.getProperty('composite.monitor_dict'):
+            playback_dict = pickle.loads(self.window.getProperty('composite.monitor_dict'))
+            self.window.clearProperty('composite.monitor_dict')
             self.cleanup_threads()
             self.threads.append(PlaybackMonitorThread(playback_dict))
 

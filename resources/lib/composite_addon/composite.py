@@ -1,9 +1,9 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018 bPlex (plugin.video.bplex)
+    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
 
-    This file is part of bPlex (plugin.video.bplex)
+    This file is part of Composite (plugin.video.composite_for_plex)
 
     SPDX-License-Identifier: GPL-2.0-or-later
     See LICENSES/GPL-2.0-or-later for more information.
@@ -60,7 +60,7 @@ def select_media_type(part_data, server, dvdplayback=False):
         log_print.debug('Detected windows source file')
         ftype = 'winfile'
     else:
-        log_print.debug('Unknown file type source: %s' % file)
+        log_print.debug('Unknown file type source: %s' % f)
         ftype = None
 
     # 0 is auto select.  basically check for local file first, then stream if not found
@@ -72,7 +72,7 @@ def select_media_type(part_data, server, dvdplayback=False):
                 exists = open(f, 'r')
                 log_print.debug('Local f found, will use this')
                 exists.close()
-                return 'file:%s' % file
+                return 'file:%s' % f
             except:
                 pass
 
@@ -235,7 +235,10 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if season_thumb:
         poster = season_thumb
     else:
-        poster = extra_data.get('thumb', 'DefaultPoster.png')
+        if not folder:
+            poster = extra_data.get('thumb', 'DefaultPoster.png')
+        else:
+            poster = thumb
 
     if season_thumb:
         log_print.debug('Setting season Thumb as %s' % season_thumb)
@@ -1093,7 +1096,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
                 'server': server,
                 'streams': streams if not override else None
             }
-            xbmcgui.Window(10000).setProperty('bplex.monitor_dict', pickle.dumps(monitor_dict))
+            xbmcgui.Window(10000).setProperty('composite.monitor_dict', pickle.dumps(monitor_dict))
 
         xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
@@ -2910,7 +2913,7 @@ argv = []
 plex_network = plex.Plex(load=False)
 
 
-def start_bplex(sys_argv, start_time):
+def start_composite(sys_argv, start_time):
     global argv
     argv = sys_argv
 

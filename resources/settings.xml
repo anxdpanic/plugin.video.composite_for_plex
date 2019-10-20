@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="30516"> <!-- Media Sources -->
-        <setting id="devicename" type="text" label="30660" default="bPlex"/>
+        <setting id="devicename" type="text" label="30660" default="Composite"/>
         <setting id="discovery" type="enum" label="30504" lvalues="30594|30570" default="1"/>
         <setting id="ipaddress" type="text" label="30500" default="localhost" visible="eq(-1,0)" enable="eq(-1,0)"/>
         <setting id="port" type="text" label="30530" default="30400" visible="eq(-2,0)" enable="eq(-2,0)"/>

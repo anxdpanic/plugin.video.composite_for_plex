@@ -1,9 +1,9 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018 bPlex (plugin.video.bplex)
+    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
 
-    This file is part of bPlex (plugin.video.bplex)
+    This file is part of Composite (plugin.video.composite_for_plex)
 
     SPDX-License-Identifier: GPL-2.0-or-later
     See LICENSES/GPL-2.0-or-later for more information.
@@ -25,7 +25,7 @@ from six import string_types
 from .settings import AddonSettings
 from .strings import strings
 
-__id = 'plugin.video.bplex'
+__id = 'plugin.video.composite_for_plex'
 __addon = xbmcaddon.Addon(id=__id)
 
 
