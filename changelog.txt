@@ -1,3 +1,9 @@
+0.0.2
+[fix] playback monitoring on python 3
+
+0.0.1
+[chg] Rename and change icon, don't use 'Plex' or the Plex icon.
+
 1.8.0
 [fix] content not marked as watched on completion
 

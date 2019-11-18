@@ -12,13 +12,12 @@ import threading
 
 import xbmc
 
-from six.moves import cPickle as pickle
-
 from .common import CONFIG
 from .common import STREAM_CONTROL
 from .common import PrintDebug
 from .common import encode_utf8
 from .common import i18n
+from .common import read_pickled
 from .common import settings
 
 
@@ -189,12 +188,10 @@ class CallbackPlayer(xbmc.Player):
 
     def onPlayBackStarted(self):
         if settings.get_setting('monitoroff'):
-            self.window.clearProperty('composite.monitor_dict')
             return
 
-        if self.window.getProperty('composite.monitor_dict'):
-            playback_dict = pickle.loads(self.window.getProperty('composite.monitor_dict'))
-            self.window.clearProperty('composite.monitor_dict')
+        playback_dict = read_pickled('playback_monitor.pickle')
+        if playback_dict:
             self.cleanup_threads()
             self.threads.append(PlaybackMonitorThread(playback_dict))
 
