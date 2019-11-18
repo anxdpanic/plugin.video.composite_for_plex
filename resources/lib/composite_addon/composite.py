@@ -19,7 +19,6 @@ import xbmc
 import xbmcplugin
 import xbmcgui
 
-from six.moves import cPickle as pickle
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import unquote
@@ -35,6 +34,7 @@ from .common import encode_utf8
 from .common import i18n
 from .common import settings
 from .common import wake_servers
+from .common import write_pickled
 
 from .plex import plex
 
@@ -1096,7 +1096,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
                 'server': server,
                 'streams': streams if not override else None
             }
-            xbmcgui.Window(10000).setProperty('composite.monitor_dict', pickle.dumps(monitor_dict))
+            write_pickled('playback_monitor.pickle', monitor_dict)
 
         xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 

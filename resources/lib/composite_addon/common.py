@@ -10,6 +10,7 @@
 """
 
 import inspect
+import os
 import platform
 import re
 import socket
@@ -21,6 +22,7 @@ import xbmcaddon
 
 from six import PY3
 from six import string_types
+from six.moves import cPickle as pickle
 
 from .settings import AddonSettings
 from .strings import strings
@@ -189,6 +191,7 @@ CONFIG = {'addon': __addon,
           'platform': platform.uname()[0],
           'platform_version': platform.uname()[2],
           'media_path': 'special://home/addons/%s/resources/media/' % decode_utf8(__addon.getAddonInfo('id')),
+          'temp_path': decode_utf8(xbmc.translatePath('special://temp/%s/' % decode_utf8(__addon.getAddonInfo('id')))),
           'required_revision': '1.0.7'}
 
 try:
@@ -236,3 +239,28 @@ STREAM_CONTROL = __enum(
     PLEX='1',
     NEVER='2'
 )
+
+
+def write_pickled(filename, data):
+    try:
+        os.makedirs(CONFIG['temp_path'])
+    except:
+        pass
+    filename = os.path.join(CONFIG['temp_path'], filename)
+    pickled_data = pickle.dumps(data, protocol=2)
+    with open(filename, 'wb') as open_file:
+        open_file.write(pickled_data)
+
+
+def read_pickled(filename, delete_after=True):
+    filename = os.path.join(CONFIG['temp_path'], filename)
+    if not os.path.exists(filename):
+        return None
+    with open(filename, 'rb') as open_file:
+        pickled_data = open_file.read()
+    if delete_after:
+        try:
+            os.remove(filename)
+        except:
+            pass
+    return pickle.loads(pickled_data)

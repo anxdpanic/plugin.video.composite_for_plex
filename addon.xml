@@ -12,7 +12,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-0.0.1
+[fix] playback monitoring on python 3
         </news>
         <assets>
             <icon>icon.png</icon>
