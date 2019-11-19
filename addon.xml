@@ -14,6 +14,7 @@
         <news>
 [add] Go to ... Season X and TV Show context menu items on episodes
 [add] enable reuselanguageinvoker
+[fix] remove argv globals
         </news>
         <assets>
             <icon>icon.png</icon>
