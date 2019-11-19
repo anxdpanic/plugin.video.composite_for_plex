@@ -2981,7 +2981,7 @@ def start_composite(start_time):
     elif command == 'signout':
         if not plex_network.is_admin():
             return xbmcgui.Dialog().ok(i18n('Sign Out'),
-                                       i18n('To sign out you must be logged in as an admin user. Please switch user and try again'))
+                                       i18n('To sign out you must be logged in as an admin user. Switch user and try again'))
 
         ret = xbmcgui.Dialog().yesno(i18n('myPlex'), i18n('You are currently signed into myPlex. Are you sure you want to sign out?'))
         if ret:
@@ -3003,7 +3003,7 @@ def start_composite(start_time):
 
         if not plex_network.is_myplex_signedin():
             ret = xbmcgui.Dialog().yesno(i18n('Manage myPlex'),
-                                         i18n('You are not currently logged into myPlex.  Please continue to sign in, or cancel to return'))
+                                         i18n('You are not currently logged into myPlex. Continue to sign in, or cancel to return'))
             if ret:
                 xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signin)')
             else:
@@ -3011,7 +3011,7 @@ def start_composite(start_time):
 
         elif not plex_network.is_admin():
             return xbmcgui.Dialog().ok(i18n('Manage myPlex'),
-                                       i18n('To access these screens you must be logged in as an admin user. Please switch user and try again'))
+                                       i18n('To access these screens you must be logged in as an admin user. Switch user and try again'))
 
         from .plex import plexsignin
         manage_window = plexsignin.PlexManage(i18n('Manage myPlex'))
