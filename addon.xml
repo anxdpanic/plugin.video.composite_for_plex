@@ -13,6 +13,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [add] Go to ... Season X and TV Show context menu items on episodes
+[add] enable reuselanguageinvoker
         </news>
         <assets>
             <icon>icon.png</icon>
@@ -24,5 +25,6 @@
         <summary lang="en_GB">Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</summary>
         <description lang="en_GB">Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</description>
         <disclaimer lang="en_GB">Composite is NOT an official Plex add-on and is not supported or endorsed by Plex.</disclaimer>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>
