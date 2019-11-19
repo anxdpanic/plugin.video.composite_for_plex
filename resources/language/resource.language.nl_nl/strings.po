@@ -1053,3 +1053,7 @@ msgstr ""
 msgctxt "#30671"
 msgid "Default"
 msgstr ""
+
+msgctxt "#30672"
+msgid "Go to %s"
+msgstr ""

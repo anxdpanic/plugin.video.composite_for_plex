@@ -130,4 +130,5 @@ strings = {
     'Music': 30666,
     'TV Shows': 30667,
     'Photos': 30668,
+    'Go to': 30672,
 }

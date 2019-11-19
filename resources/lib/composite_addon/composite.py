@@ -452,9 +452,17 @@ def build_context_menu(url, item_data, server):
     context = []
     url_parts = urlparse(url)
     section = url_parts.path.split('/')[3]
-    item_id = item_data.get('ratingKey', '0')
 
-    # Mark media unwatched
+    item_id = item_data.get('ratingKey', '0')
+    parent_id = item_data.get('parentRatingKey')
+    grandparent_id = item_data.get('grandparentRatingKey')
+
+    if parent_id and item_data.get('season') is not None:
+        context.append((i18n('Go to') % (i18n('Season') + ' ' + str(item_data.get('season', 0))),
+                        'Container.Update(plugin://%s/?mode=6&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), parent_id)))
+    if grandparent_id and item_data.get('tvshowtitle'):
+        context.append((i18n('Go to') % item_data.get('tvshowtitle'),
+                        'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
     context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
     context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
     context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
@@ -548,11 +556,16 @@ def process_tvshows(url, tree=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
-def process_tvseasons(url):
-    xbmcplugin.setContent(pluginhandle, 'seasons')
+def process_tvseasons(url, rating_key=None):
+    xbmcplugin.setContent(get_handle(), 'seasons')
 
-    # Get URL, XML and parse
-    server = plex_network.get_server_from_url(url)
+    if not url.startswith(('http', 'file')) and rating_key:
+        # Get URL, XML and parse
+        server = plex_network.get_server_from_uuid(url)
+        url = server.get_url_location() + '/library/metadata/%s/children' % str(rating_key)
+    else:
+        server = plex_network.get_server_from_url(url)
+
     tree = get_xml(url)
     if tree is None:
         return
@@ -633,8 +646,13 @@ def process_tvseasons(url):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
-def process_tvepisodes(url, tree=None):
+def process_tvepisodes(url, tree=None, rating_key=None):
     xbmcplugin.setContent(get_handle(), 'episodes')
+
+    if not url.startswith(('http', 'file')) and rating_key:
+        # Get URL, XML and parse
+        server = plex_network.get_server_from_uuid(url)
+        url = server.get_url_location() + '/library/metadata/%s/children' % str(rating_key)
 
     tree = get_xml(url, tree)
     if tree is None:
@@ -730,8 +748,13 @@ def process_tvepisodes(url, tree=None):
                       'banner': banner,
                       'key': episode.get('key', ''),
                       'ratingKey': str(episode.get('ratingKey', 0)),
+                      'parentRatingKey': str(episode.get('parentRatingKey', 0)),
+                      'grandparentRatingKey': str(episode.get('grandparentRatingKey', 0)),
                       'duration': duration,
-                      'resume': int(int(view_offset) / 1000)}
+                      'resume': int(int(view_offset) / 1000),
+                      'season': details.get('season'),
+                      'tvshowtitle': details.get('tvshowtitle'),
+                      }
 
         if extra_data['fanart_image'] == '' and not settings.get_setting('skipimages'):
             extra_data['fanart_image'] = sectionart
@@ -3059,7 +3082,7 @@ def start_composite(start_time):
                 artist(param_url)
 
             elif mode == MODES.TVSEASONS:
-                process_tvseasons(param_url)
+                process_tvseasons(param_url, rating_key=params.get('rating_key'))
 
             elif mode == MODES.PLAYLIBRARY:
                 transcode_profile = 0
@@ -3068,7 +3091,7 @@ def start_composite(start_time):
                 play_library_media(param_url, force=force, override=play_transcode, transcode_profile=transcode_profile)
 
             elif mode == MODES.TVEPISODES:
-                process_tvepisodes(param_url)
+                process_tvepisodes(param_url, rating_key=params.get('rating_key'))
 
             elif mode == MODES.PLEXPLUGINS:
                 plex_plugins(param_url)
