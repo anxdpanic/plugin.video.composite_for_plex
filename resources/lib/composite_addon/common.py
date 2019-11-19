@@ -35,6 +35,17 @@ def __enum(**enums):
     return type('Enum', (), enums)
 
 
+def get_argv():
+    return sys.argv
+
+
+def get_handle():
+    try:
+        return int(get_argv()[1])
+    except (ValueError, IndexError):
+        return -1
+
+
 class PrintDebug:
 
     def __init__(self, main, sub=None):

@@ -9,7 +9,6 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
-import sys
 import time
 
 start_time = time.time()
@@ -17,4 +16,4 @@ start_time = time.time()
 # noinspection PyPep8
 from composite_addon import composite
 
-composite.start_composite(sys.argv, start_time)
+composite.start_composite(start_time)

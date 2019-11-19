@@ -30,6 +30,8 @@ from .common import CONFIG
 from .common import MODES
 from .common import STREAM_CONTROL
 from .common import PrintDebug
+from .common import get_argv
+from .common import get_handle
 from .common import encode_utf8
 from .common import i18n
 from .common import settings
@@ -146,9 +148,9 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if not folder and extra_data['type'] == 'image':
         link_url = url
     elif url.startswith('http') or url.startswith('file'):
-        link_url = '%s?url=%s&mode=%s' % (argv[0], quote(url), extra_data.get('mode', 0))
+        link_url = '%s?url=%s&mode=%s' % (get_argv()[0], quote(url), extra_data.get('mode', 0))
     else:
-        link_url = '%s?url=%s&mode=%s' % (argv[0], url, extra_data.get('mode', 0))
+        link_url = '%s?url=%s&mode=%s' % (get_argv()[0], url, extra_data.get('mode', 0))
 
     if extra_data.get('parameters'):
         for argument, value in extra_data.get('parameters').items():
@@ -258,11 +260,11 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
         folder = False
         liz.setProperty('IsPlayable', 'false')
 
-    return xbmcplugin.addDirectoryItem(handle=pluginhandle, url=link_url, listitem=liz, isFolder=folder)
+    return xbmcplugin.addDirectoryItem(handle=get_handle(), url=link_url, listitem=liz, isFolder=folder)
 
 
 def display_sections(cfilter=None, display_shared=False):
-    xbmcplugin.setContent(pluginhandle, 'files')
+    xbmcplugin.setContent(get_handle(), 'files')
 
     server_list = plex_network.get_server_list()
     log_print.debug('Using list of %s servers: %s' % (len(server_list), server_list))
@@ -277,7 +279,7 @@ def display_sections(cfilter=None, display_shared=False):
                 continue
 
             if settings.get_setting('prefix_server') == '0' or \
-                (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
+                    (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
                 details = {'title': '%s: %s' % (server.get_name(), section.get_title())}
             else:
                 details = {'title': section.get_title()}
@@ -331,7 +333,7 @@ def display_sections(cfilter=None, display_shared=False):
             add_item_to_gui(section_url, details, extra_data, context)
 
     if display_shared:
-        xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
         return
 
     # For each of the servers we have identified            
@@ -350,7 +352,7 @@ def display_sections(cfilter=None, display_shared=False):
             continue
 
         if settings.get_setting('prefix_server') == '0' or \
-            (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
+                (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
             prefix = server.get_name() + ': '
         else:
             prefix = ''
@@ -408,20 +410,20 @@ def display_sections(cfilter=None, display_shared=False):
         add_item_to_gui(u, details, extra_data)
 
     # All XML entries have been parsed and we are ready to allow the user to browse around.  So end the screen listing.
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def process_movies(url, tree=None):
-    xbmcplugin.setContent(pluginhandle, 'movies')
+    xbmcplugin.setContent(get_handle(), 'movies')
 
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATEADDED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RATING)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_MPAA_RATING)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DATEADDED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DATE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_RATING)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     # get the server name from the URL, which was passed via the on screen listing..
 
@@ -443,7 +445,7 @@ def process_movies(url, tree=None):
             count += 1
 
     log_print.debug('PROCESS: It took %s seconds to process %s items' % (time.time() - start_time, count))
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def build_context_menu(url, item_data, server):
@@ -467,13 +469,13 @@ def build_context_menu(url, item_data, server):
 
 
 def process_tvshows(url, tree=None):
-    xbmcplugin.setContent(pluginhandle, 'tvshows')
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RATING)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_MPAA_RATING)
+    xbmcplugin.setContent(get_handle(), 'tvshows')
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DATE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_RATING)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     # Get the URL and server name.  Get the XML and parse
     tree = get_xml(url, tree)
@@ -543,7 +545,7 @@ def process_tvshows(url, tree=None):
 
         add_item_to_gui(u, details, extra_data, context)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def process_tvseasons(url):
@@ -628,11 +630,11 @@ def process_tvseasons(url):
         # Build the screen directory listing
         add_item_to_gui(url, details, extra_data, context)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def process_tvepisodes(url, tree=None):
-    xbmcplugin.setContent(pluginhandle, 'episodes')
+    xbmcplugin.setContent(get_handle(), 'episodes')
 
     tree = get_xml(url, tree)
     if tree is None:
@@ -656,18 +658,18 @@ def process_tvepisodes(url, tree=None):
 
     if tree.get('mixedParents') == '1':
         log_print.debug('Setting plex sort')
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)  # maintain original plex sorted
+        xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)  # maintain original plex sorted
     else:
         log_print.debug('Setting KODI sort')
-        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)  # episode
+        xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_EPISODE)  # episode
 
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATEADDED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RATING)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_MPAA_RATING)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DATE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DATEADDED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_RATING)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     for episode in show_tags:
 
@@ -777,7 +779,7 @@ def process_tvepisodes(url, tree=None):
 
         add_item_to_gui(u, details, extra_data, context, folder=False)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def get_audio_subtitles_from_media(server, tree, full=False):
@@ -1098,7 +1100,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
             }
             write_pickled('playback_monitor.pickle', monitor_dict)
 
-        xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+        xbmcplugin.setResolvedUrl(get_handle(), True, item)
 
 
 def select_media_to_play(data, server):
@@ -1235,7 +1237,7 @@ def play_media_stream(url):
     else:
         item = xbmcgui.ListItem(path=playurl)
     resolved = playurl != ''
-    xbmcplugin.setResolvedUrl(pluginhandle, resolved, item)
+    xbmcplugin.setResolvedUrl(get_handle(), resolved, item)
 
 
 def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
@@ -1291,7 +1293,7 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         item = xbmcgui.ListItem(path=url, offscreen=True)
     else:
         item = xbmcgui.ListItem(path=url)
-    xbmcplugin.setResolvedUrl(pluginhandle, True, item)
+    xbmcplugin.setResolvedUrl(get_handle(), True, item)
 
     if transcode and session:
         try:
@@ -1337,7 +1339,9 @@ def monitor_channel_transcode_playback(session_id, server):
     return
 
 
-def get_params(paramstring):
+def get_params():
+    paramstring = get_argv()[2]
+
     param = {}
     if len(paramstring) >= 2:
         params = paramstring
@@ -1451,7 +1455,7 @@ def process_directory(url, tree=None):
     content_type = 'files'
     if collections:
         content_type = 'sets'
-    xbmcplugin.setContent(pluginhandle, content_type)
+    xbmcplugin.setContent(get_handle(), content_type)
 
     server = plex_network.get_server_from_url(url)
 
@@ -1472,7 +1476,7 @@ def process_directory(url, tree=None):
 
         add_item_to_gui(u, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def directory_item_translate(title, thumb):
@@ -1613,11 +1617,11 @@ def artist(url, tree=None):
         @input: url of XML page, or existing tree of XML page
         @return: nothing
     """
-    xbmcplugin.setContent(pluginhandle, 'artists')
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LASTPLAYED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.setContent(get_handle(), 'artists')
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_LASTPLAYED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_YEAR)
 
     # Get the URL and server name.  Get the XML and parse
     tree = get_xml(url, tree)
@@ -1644,16 +1648,16 @@ def artist(url, tree=None):
 
         add_item_to_gui(url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def albums(url, tree=None):
-    xbmcplugin.setContent(pluginhandle, 'albums')
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ALBUM_IGNORE_THE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LASTPLAYED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+    xbmcplugin.setContent(get_handle(), 'albums')
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_ALBUM_IGNORE_THE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_LASTPLAYED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_YEAR)
 
     # Get the URL and server name.  Get the XML and parse
     tree = get_xml(url, tree)
@@ -1690,16 +1694,16 @@ def albums(url, tree=None):
 
         add_item_to_gui(url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def tracks(url, tree=None):
-    xbmcplugin.setContent(pluginhandle, 'songs')
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_UNSORTED)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DURATION)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_SONG_RATING)
-    xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
+    xbmcplugin.setContent(get_handle(), 'songs')
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DURATION)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_SONG_RATING)
+    xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_TRACKNUM)
 
     tree = get_xml(url, tree)
     if tree is None:
@@ -1718,7 +1722,7 @@ def tracks(url, tree=None):
 
         track_tag(server, tree, track, sectionart, sectionthumb)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def get_xml(url, tree=None):
@@ -1740,7 +1744,7 @@ def plex_plugins(url, tree=None):
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
     """
-    xbmcplugin.setContent(pluginhandle, 'addons')
+    xbmcplugin.setContent(get_handle(), 'addons')
     server = plex_network.get_server_from_url(url)
     tree = get_xml(url, tree)
     if tree is None:
@@ -1811,7 +1815,7 @@ def plex_plugins(url, tree=None):
             extra_data['parameters'] = {'id': plugin.get('id')}
             add_item_to_gui(url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def channel_settings(url, setting_id):
@@ -1898,7 +1902,7 @@ def process_xml(url, tree=None):
         @input: plugin page URL
         @return: nothing, creates XBMC GUI listing
     """
-    xbmcplugin.setContent(pluginhandle, 'movies')
+    xbmcplugin.setContent(get_handle(), 'movies')
     server = plex_network.get_server_from_url(url)
     tree = get_xml(url, tree)
     if tree is None:
@@ -1938,7 +1942,7 @@ def process_xml(url, tree=None):
             process_tvepisodes(url, tree)
             return
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def movie_tag(url, server, movie, random_number):
@@ -2051,7 +2055,7 @@ def get_media_data(tag_dict):
 
 
 def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True):
-    xbmcplugin.setContent(pluginhandle, 'songs')
+    xbmcplugin.setContent(get_handle(), 'songs')
 
     part_details = ()
 
@@ -2112,7 +2116,7 @@ def playlist_tag(url, server, track, listing=True):
 def photo(url, tree=None):
     server = plex_network.get_server_from_url(url)
 
-    xbmcplugin.setContent(pluginhandle, 'photo')
+    xbmcplugin.setContent(get_handle(), 'photo')
 
     tree = get_xml(url, tree)
     if tree is None:
@@ -2152,11 +2156,11 @@ def photo(url, tree=None):
 
             add_item_to_gui(u, details, extra_data, folder=False)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def music(url, tree=None):
-    xbmcplugin.setContent(pluginhandle, 'artists')
+    xbmcplugin.setContent(get_handle(), 'artists')
 
     server = plex_network.get_server_from_url(url)
 
@@ -2187,7 +2191,7 @@ def music(url, tree=None):
 
         if grapes.tag == 'Track':
             log_print.debug('Track Tag')
-            xbmcplugin.setContent(pluginhandle, 'songs')
+            xbmcplugin.setContent(get_handle(), 'songs')
             details['mediatype'] = 'song'
             details['title'] = grapes.get('track', encode_utf8(grapes.get('title', i18n('Unknown'))))
             details['duration'] = int(int(grapes.get('total_time', 0)) / 1000)
@@ -2199,13 +2203,13 @@ def music(url, tree=None):
 
             if grapes.tag == 'Artist':
                 log_print.debug('Artist Tag')
-                xbmcplugin.setContent(pluginhandle, 'artists')
+                xbmcplugin.setContent(get_handle(), 'artists')
                 details['mediatype'] = 'artist'
                 details['title'] = encode_utf8(grapes.get('artist', i18n('Unknown')))
 
             elif grapes.tag == 'Album':
                 log_print.debug('Album Tag')
-                xbmcplugin.setContent(pluginhandle, 'albums')
+                xbmcplugin.setContent(get_handle(), 'albums')
                 details['mediatype'] = 'album'
                 details['title'] = encode_utf8(grapes.get('album', i18n('Unknown')))
 
@@ -2219,7 +2223,7 @@ def music(url, tree=None):
             extra_data['mode'] = MODES.MUSIC
             add_item_to_gui(u, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def get_thumb_image(data, server, width=720, height=720):
@@ -2341,7 +2345,7 @@ def get_link_url(url, path_data, server):
 
 
 def plex_online(url):
-    xbmcplugin.setContent(pluginhandle, 'addons')
+    xbmcplugin.setContent(get_handle(), 'addons')
 
     server = plex_network.get_server_from_url(url)
 
@@ -2370,7 +2374,7 @@ def plex_online(url):
 
         add_item_to_gui(u, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def install(url, name):
@@ -2457,7 +2461,7 @@ def channel_view(url):
 
         add_item_to_gui(p_url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def display_content(acceptable_level, content_level):
@@ -2828,7 +2832,7 @@ def display_plex_servers(url):
 
         add_item_to_gui(s_url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
 def switch_user():
@@ -2908,23 +2912,12 @@ log_print.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s|
                  settings.get_setting('flatten'), stream_control_setting, settings.get_setting('forcedvd'),
                  settings.get_setting('nasoverride'), settings.get_setting('nasoverrideip')))
 
-pluginhandle = 0
-argv = []
 plex_network = plex.Plex(load=False)
 
 
-def start_composite(sys_argv, start_time):
-    global argv
-    argv = sys_argv
-
-    global pluginhandle
+def start_composite(start_time):
     try:
-        pluginhandle = int(sys_argv[1])
-    except (ValueError, IndexError):
-        pass
-
-    try:
-        params = get_params(sys_argv[2])
+        params = get_params()
     except:
         params = {}
 
@@ -2947,7 +2940,7 @@ def start_composite(sys_argv, start_time):
 
     if command is None:
         try:
-            command = sys_argv[1]
+            command = get_argv()[1]
         except:
             pass
 
@@ -3013,33 +3006,33 @@ def start_composite(sys_argv, start_time):
         plex_network.load()
 
         if command == 'update':
-            server_uuid = sys_argv[2]
-            section_id = sys_argv[3]
+            server_uuid = get_argv()[2]
+            section_id = get_argv()[3]
             refresh_plex_library(server_uuid, section_id)
 
         # Mark an item as watched/unwatched in plex    
         elif command == 'watch':
-            server_uuid = sys_argv[2]
-            metadata_id = sys_argv[3]
-            watch_status = sys_argv[4]
+            server_uuid = get_argv()[2]
+            metadata_id = get_argv()[3]
+            watch_status = get_argv()[4]
             watched(server_uuid, metadata_id, watch_status)
 
         # delete media from PMS    
         elif command == 'delete':
-            server_uuid = sys_argv[2]
-            metadata_id = sys_argv[3]
+            server_uuid = get_argv()[2]
+            metadata_id = get_argv()[3]
             delete_library_media(server_uuid, metadata_id)
 
         # Display subtitle selection screen    
         elif command == 'subs':
-            server_uuid = sys_argv[2]
-            metadata_id = sys_argv[3]
+            server_uuid = get_argv()[2]
+            metadata_id = get_argv()[3]
             set_library_subtitiles(server_uuid, metadata_id)
 
         # Display audio streanm selection screen    
         elif command == 'audio':
-            server_uuid = sys_argv[2]
-            metadata_id = sys_argv[3]
+            server_uuid = get_argv()[2]
+            metadata_id = get_argv()[3]
             set_library_audio(server_uuid, metadata_id)
 
         # Allow a mastre server to be selected (for myplex queue)    
