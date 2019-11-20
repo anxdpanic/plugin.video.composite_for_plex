@@ -10,6 +10,7 @@
 """
 
 import base64
+import copy
 import hashlib
 import hmac
 import threading
@@ -384,7 +385,7 @@ class PlexMediaServer:
             self.offline = True
             log_print.debug('[%s] Server appears to be offline' % self.uuid)
 
-    def talk(self, url='/', refresh=False, method='get'):
+    def talk(self, url='/', refresh=False, method='get', extra_headers={}):
         if not self.offline or refresh:
             log_print.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
@@ -392,14 +393,16 @@ class PlexMediaServer:
             verify_cert = False if self.protocol == 'http' else settings.get_setting('verify_cert')
 
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
-
+            params = copy.deepcopy(self.plex_identification_header)
+            if params is not None:
+                params.update(extra_headers)
             try:
                 if method == 'get':
-                    response = requests.get(uri, params=self.plex_identification_header, verify=verify_cert, timeout=(2, 60))
+                    response = requests.get(uri, params=params, verify=verify_cert, timeout=(2, 60))
                 elif method == 'put':
-                    response = requests.put(uri, params=self.plex_identification_header, verify=verify_cert, timeout=(2, 60))
+                    response = requests.put(uri, params=params, verify=verify_cert, timeout=(2, 60))
                 elif method == 'delete':
-                    response = requests.delete(uri, params=self.plex_identification_header, verify=verify_cert, timeout=(2, 60))
+                    response = requests.delete(uri, params=params, verify=verify_cert, timeout=(2, 60))
                 else:
                     response = None
                 self.offline = False
@@ -433,8 +436,8 @@ class PlexMediaServer:
 
         return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
 
-    def tell(self, url, refresh=False):
-        return self.talk(url, refresh, method='put')
+    def tell(self, url, refresh=False, extra_headers={}):
+        return self.talk(url, refresh, method='put', extra_headers=extra_headers)
 
     def refresh(self):
         data = self.talk(refresh=True)
@@ -643,7 +646,7 @@ class PlexMediaServer:
 
         except ZeroDivisionError:
             return
-        
+
         return
 
     def mark_item_watched(self, media_id):
@@ -669,8 +672,12 @@ class PlexMediaServer:
     def delete_metadata(self, media_id):
         return self.talk('/library/metadata/%s' % media_id, method='delete')
 
+    def add_playlist_item(self, playlist_id, library_section_uuid, metadata_id):
+        return self.process_xml(self.tell('/playlists/%s/items' % playlist_id,
+                                          extra_headers={'uri': 'library://' + library_section_uuid + '/item/%2Flibrary%2Fmetadata%2F' + metadata_id}))
+
     def delete_playlist_item(self, playlist_item_id, path):
-        return self.talk('%s/%s' % (path, playlist_item_id), method='delete')
+        return self.process_xml(self.talk('%s/%s' % (path, playlist_item_id), method='delete'))
 
     def get_playlists(self):
         return self.processed_xml('/playlists')

@@ -2957,12 +2957,10 @@ def delete_playlist_item(server_uuid, metadata_id, playlist_title, playlist_item
     if return_value:
         log_print.debug('Deleting....')
         response = server.delete_playlist_item(playlist_item_id, path)
-        if response:
-            result = server.process_xml(response)
-            if result and not result.get('status'):
-                xbmcgui.Dialog().notification(CONFIG['name'], i18n('has been removed the playlist') % (item_title, playlist_title), item_image)
-                xbmc.executebuiltin('Container.Refresh')
-                return True
+        if response and not response.get('status'):
+            xbmcgui.Dialog().notification(CONFIG['name'], i18n('has been removed the playlist') % (item_title, playlist_title), item_image)
+            xbmc.executebuiltin('Container.Refresh')
+            return True
 
     xbmcgui.Dialog().notification(CONFIG['name'], i18n('Unable to remove from the playlist') % (item_title, playlist_title), item_image)
     return False
@@ -2981,7 +2979,7 @@ def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
             image = server.get_formatted_url(server.get_url_location() + playlist.get('composite'))
         playlists.append({
             'title': playlist.get('title'),
-            'key': playlist.get('key'),
+            'key': playlist.get('ratingKey'),
             'image': image,
             'summary': playlist.get('summary'),
         })
@@ -3014,19 +3012,16 @@ def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
     item_title = item.get('title', '')
     item_image = server.get_formatted_url(server.get_url_location() + item.get('thumb'))
 
-    server.plex_identification_header.update({'uri': 'library://' + library_section_uuid + '/item/%2Flibrary%2Fmetadata%2F' + metadata_id})
-    response = server.tell(selected.get('key'))
-    if response:
-        result = server.process_xml(response)
-        if result:
-            leaf_added = int(result.get('leafCountAdded', 0))
-            leaf_requested = int(result.get('leafCountRequested', 0))
-            if leaf_added > 0 and leaf_added == leaf_requested:
-                xbmcgui.Dialog().notification(CONFIG['name'], i18n('Added to the playlist') % (item_title, selected.get('title')), item_image)
-                return True
-            else:
-                xbmcgui.Dialog().notification(CONFIG['name'], i18n('is already in the playlist') % (item_title, selected.get('title')), item_image)
-                return False
+    response = server.add_playlist_item(selected.get('key'), library_section_uuid, metadata_id)
+    if response and not response.get('status'):
+        leaf_added = int(response.get('leafCountAdded', 0))
+        leaf_requested = int(response.get('leafCountRequested', 0))
+        if leaf_added > 0 and leaf_added == leaf_requested:
+            xbmcgui.Dialog().notification(CONFIG['name'], i18n('Added to the playlist') % (item_title, selected.get('title')), item_image)
+            return True
+        else:
+            xbmcgui.Dialog().notification(CONFIG['name'], i18n('is already in the playlist') % (item_title, selected.get('title')), item_image)
+            return False
 
     xbmcgui.Dialog().notification(CONFIG['name'], i18n('Failed to add to the playlist') % (item_title, selected.get('title')), item_image)
     return False
