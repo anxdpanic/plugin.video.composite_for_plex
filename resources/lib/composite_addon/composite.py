@@ -469,7 +469,8 @@ def build_context_menu(url, item_data, server):
                             'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
 
     if playlist_item_id:
-        context.append((i18n('Delete from playlist'), 'RunScript(' + CONFIG['id'] + ', delete_playlist_item, %s, %s, %s)' % (server.get_uuid(), playlist_item_id, url_parts.path)))
+        playlist_title = item_data.get('playlist_title')
+        context.append((i18n('Delete from playlist'), 'RunScript(' + CONFIG['id'] + ', delete_playlist_item, %s, %s, %s, %s, %s)' % (server.get_uuid(), item_id, playlist_title, playlist_item_id, url_parts.path)))
     elif library_section_uuid:
         context.append((i18n('Add to playlist'), 'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s)' % (server.get_uuid(), item_id, library_section_uuid)))
 
@@ -2034,8 +2035,9 @@ def movie_tag(url, server, tree, movie, random_number):
                   'duration': duration,
                   'resume': int(int(view_offset) / 1000)}
 
-    if movie.get('playlistItemID'):
-        extra_data.update({'playlist_item_id': movie.get('playlistItemID')})
+    if tree.get('playlistType'):
+        if movie.get('playlistItemID'):
+            extra_data.update({'playlist_item_id': movie.get('playlistItemID'), 'playlist_title': tree.get('title')})
 
     if tree.tag == 'MediaContainer':
         extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
@@ -2936,19 +2938,31 @@ def get_transcode_profile():
         return result
 
 
-def delete_playlist_item(server_uuid, playlist_item_id, path):
+def delete_playlist_item(server_uuid, metadata_id, playlist_title, playlist_item_id, path):
+
     log_print.debug('== ENTER ==')
     log_print.debug('Deleting playlist item at: %s' % playlist_item_id)
 
-    return_value = xbmcgui.Dialog().yesno(i18n('Confirm playlist item delete?'), i18n('Delete this item?'))
+    server = plex_network.get_server_from_uuid(server_uuid)
+    tree = server.get_metadata(metadata_id)
 
+    item = tree[0]
+    item_title = item.get('title', '')
+    item_image = server.get_formatted_url(server.get_url_location() + item.get('thumb'))
+
+    return_value = xbmcgui.Dialog().yesno(i18n('Confirm playlist item delete?'), i18n('Delete from the playlist?') % (item_title, playlist_title))
     if return_value:
         log_print.debug('Deleting....')
-        server = plex_network.get_server_from_uuid(server_uuid)
-        server.delete_playlist_item(playlist_item_id, path)
-        xbmc.executebuiltin('Container.Refresh')
+        response = server.delete_playlist_item(playlist_item_id, path)
+        if response:
+            result = server.process_xml(response)
+            if result and not result.get('status'):
+                xbmcgui.Dialog().notification(CONFIG['name'], i18n('has been removed the playlist') % (item_title, playlist_title), item_image)
+                xbmc.executebuiltin('Container.Refresh')
+                return True
 
-    return True
+    xbmcgui.Dialog().notification(CONFIG['name'], i18n('Unable to remove from the playlist') % (item_title, playlist_title), item_image)
+    return False
 
 
 def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
@@ -2959,20 +2973,60 @@ def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
 
     playlists = []
     for playlist in tree.getiterator('Playlist'):
-        playlists.append({'title': playlist.get('title'), 'key': playlist.get('key')})
+        image = ''
+        if playlist.get('composite'):
+            image = server.get_formatted_url(server.get_url_location() + playlist.get('composite'))
+        playlists.append({
+            'title': playlist.get('title'),
+            'key': playlist.get('key'),
+            'image': image,
+            'summary': playlist.get('summary'),
+        })
 
-    return_value = xbmcgui.Dialog().select(i18n('Select playlist'), [playlist.get('title') for playlist in playlists])
+    if CONFIG['kodi_version'] > 16:
+        select_items = []
+        for playlist in playlists:
+            list_item = xbmcgui.ListItem(label=playlist.get('title'), label2=playlist.get('summary'))
+            list_item.setArt({
+                'icon': playlist.get('image'),
+                'thumb': playlist.get('image'),
+                'poster': playlist.get('image'),
+            })
+            select_items.append(list_item)
+
+        return_value = xbmcgui.Dialog().select(i18n('Select playlist'), select_items, useDetails=True)
+    else:
+        select_items = [playlist.get('title') for playlist in playlists]
+        return_value = xbmcgui.Dialog().select(i18n('Select playlist'), select_items)
 
     if return_value == -1:
-        log_print('Dialog cancelled')
+        log_print.debug('Dialog cancelled')
         return False
 
-    log_print.debug('choosing playlist: %s' % playlists[return_value])
+    selected = playlists[return_value]
+    log_print.debug('choosing playlist: %s' % selected)
+
+    tree = server.get_metadata(metadata_id)
+    item = tree[0]
+    item_title = item.get('title', '')
+    item_image = server.get_formatted_url(server.get_url_location() + item.get('thumb'))
 
     server.plex_identification_header.update({'uri': 'library://' + library_section_uuid + '/item/%2Flibrary%2Fmetadata%2F' + metadata_id})
-    server.tell(playlists[return_value].get('key'))
+    response = server.tell(selected.get('key'))
+    if response:
+        result = server.process_xml(response)
+        if result:
+            leaf_added = int(result.get('leafCountAdded', 0))
+            leaf_requested = int(result.get('leafCountRequested', 0))
+            if leaf_added > 0 and leaf_added == leaf_requested:
+                xbmcgui.Dialog().notification(CONFIG['name'], i18n('Added to the playlist') % (item_title, selected.get('title')), item_image)
+                return True
+            else:
+                xbmcgui.Dialog().notification(CONFIG['name'], i18n('is already in the playlist') % (item_title, selected.get('title')), item_image)
+                return False
 
-    return True
+    xbmcgui.Dialog().notification(CONFIG['name'], i18n('Failed to add to the playlist') % (item_title, selected.get('title')), item_image)
+    return False
 
 
 # #So this is where we really start the addon 
@@ -3122,9 +3176,11 @@ def start_composite(start_time):
 
         elif command == 'delete_playlist_item':
             server_uuid = get_argv()[2]
-            playlist_item_id = get_argv()[3]
-            path = get_argv()[4]
-            delete_playlist_item(server_uuid, playlist_item_id, path)
+            metadata_id = get_argv()[3]
+            playlist_title = get_argv()[4]
+            playlist_item_id = get_argv()[5]
+            path = get_argv()[6]
+            delete_playlist_item(server_uuid, metadata_id, playlist_title, playlist_item_id, path)
 
         elif command == 'add_playlist_item':
             server_uuid = get_argv()[2]

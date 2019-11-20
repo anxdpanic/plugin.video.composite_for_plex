@@ -512,6 +512,12 @@ class PlexMediaServer:
     def get_channel_recentlyviewed(self):
         return self.processed_xml('/channels/recentlyViewed')
 
+    def process_xml(self, data):
+        start_time = time.time()
+        tree = ETree.fromstring(data)
+        log_print.debug('PARSE: it took %.2f seconds to parse data from %s' % ((time.time() - start_time), self.get_address()))
+        return tree
+
     def processed_xml(self, url):
         if url.startswith('http'):
             log_print.debug('We have been passed a full URL. Parsing out path')
@@ -522,10 +528,7 @@ class PlexMediaServer:
                 url = '%s?%s' % (url, url_parts.query)
 
         data = self.talk(url)
-        start_time = time.time()
-        tree = ETree.fromstring(data)
-        log_print.debug('PARSE: it took %.2f seconds to parse data from %s' % ((time.time() - start_time), self.get_address()))
-        return tree
+        return self.process_xml(data)
 
     def raw_xml(self, url):
         if url.startswith('http'):

@@ -1047,7 +1047,7 @@ msgid "Go to %s"
 msgstr ""
 
 msgctxt "#30673"
-msgid "Delete this item?"
+msgid "Delete %s from the %s playlist?"
 msgstr ""
 
 msgctxt "#30674"
@@ -1064,4 +1064,24 @@ msgstr ""
 
 msgctxt "#30677"
 msgid "Add to playlist"
+msgstr ""
+
+msgctxt "#30678"
+msgid "Added %s to the %s playlist"
+msgstr ""
+
+msgctxt "#30679"
+msgid "Failed to add %s to the %s playlist"
+msgstr ""
+
+msgctxt "#30680"
+msgid "%s is already in the %s playlist"
+msgstr ""
+
+msgctxt "#30681"
+msgid "%s has been removed the %s playlist"
+msgstr ""
+
+msgctxt "#30682"
+msgid "Unable to remove %s from the %s playlist"
 msgstr ""
