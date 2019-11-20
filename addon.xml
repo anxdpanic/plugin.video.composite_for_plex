@@ -12,10 +12,10 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] 'Add to playlist' context menu (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/05eb606)
-[add] 'Delete from playlist' context menu (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/5322def)
+[add] &#39;Add to playlist&#39; context menu (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/05eb606)
+[add] &#39;Delete from playlist&#39; context menu (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/5322def)
 [fix] universal transcoding (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/aaec498)
-[chg] limit when 'Go to' context menu is used on episodes
+[chg] limit when &#39;Go to&#39; context menu is used on episodes
         </news>
         <assets>
             <icon>icon.png</icon>
