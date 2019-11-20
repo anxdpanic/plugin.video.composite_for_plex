@@ -1,3 +1,6 @@
+0.0.4
+[chg] limit when Go to context menu is used on episodes
+
 0.0.3
 [add] Go to ... Season X and TV Show context menu items on episodes
 [add] enable reuselanguageinvoker

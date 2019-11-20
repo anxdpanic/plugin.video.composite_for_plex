@@ -453,16 +453,18 @@ def build_context_menu(url, item_data, server):
     url_parts = urlparse(url)
     section = url_parts.path.split('/')[3]
 
+    additional_context_menus = item_data.get('additional_context_menus', {})
     item_id = item_data.get('ratingKey', '0')
-    parent_id = item_data.get('parentRatingKey')
-    grandparent_id = item_data.get('grandparentRatingKey')
 
-    if parent_id and item_data.get('season') is not None:
-        context.append((i18n('Go to') % (i18n('Season') + ' ' + str(item_data.get('season', 0))),
-                        'Container.Update(plugin://%s/?mode=6&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), parent_id)))
-    if grandparent_id and item_data.get('tvshowtitle'):
-        context.append((i18n('Go to') % item_data.get('tvshowtitle'),
-                        'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
+    if additional_context_menus.get('go_to'):
+        parent_id = item_data.get('parentRatingKey')
+        grandparent_id = item_data.get('grandparentRatingKey')
+        if parent_id and item_data.get('season') is not None:
+            context.append((i18n('Go to') % (i18n('Season') + ' ' + str(item_data.get('season', 0))),
+                            'Container.Update(plugin://%s/?mode=6&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), parent_id)))
+        if grandparent_id and item_data.get('tvshowtitle'):
+            context.append((i18n('Go to') % item_data.get('tvshowtitle'),
+                            'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
     context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
     context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
     context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
@@ -654,6 +656,8 @@ def process_tvepisodes(url, tree=None, rating_key=None):
         server = plex_network.get_server_from_uuid(url)
         url = server.get_url_location() + '/library/metadata/%s/children' % str(rating_key)
 
+    use_go_to = url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
+
     tree = get_xml(url, tree)
     if tree is None:
         return
@@ -754,6 +758,7 @@ def process_tvepisodes(url, tree=None, rating_key=None):
                       'resume': int(int(view_offset) / 1000),
                       'season': details.get('season'),
                       'tvshowtitle': details.get('tvshowtitle'),
+                      'additional_context_menus': {'go_to': use_go_to},
                       }
 
         if extra_data['fanart_image'] == '' and not settings.get_setting('skipimages'):

@@ -12,9 +12,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] Go to ... Season X and TV Show context menu items on episodes
-[add] enable reuselanguageinvoker
-[fix] remove argv globals
+[chg] limit when Go to context menu is used on episodes
         </news>
         <assets>
             <icon>icon.png</icon>
