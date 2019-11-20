@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="0.0.2" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="0.0.3" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="script.module.six" version="1.11.0"/>
@@ -12,7 +12,9 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[fix] playback monitoring on python 3
+[add] Go to ... Season X and TV Show context menu items on episodes
+[add] enable reuselanguageinvoker
+[fix] remove argv globals
         </news>
         <assets>
             <icon>icon.png</icon>
@@ -24,5 +26,6 @@
         <summary lang="en_GB">Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</summary>
         <description lang="en_GB">Browse and play video, music and photo media files managed by Plex Media Server. Fork of PleXBMC by Hippojay</description>
         <disclaimer lang="en_GB">Composite is NOT an official Plex add-on and is not supported or endorsed by Plex.</disclaimer>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>

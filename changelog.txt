@@ -1,3 +1,8 @@
+0.0.3
+[add] Go to ... Season X and TV Show context menu items on episodes
+[add] enable reuselanguageinvoker
+[fix] remove argv globals
+
 0.0.2
 [fix] playback monitoring on python 3
 
