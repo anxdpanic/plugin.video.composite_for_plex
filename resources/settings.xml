@@ -72,6 +72,7 @@
         <setting id="fullres_fanart" type="bool" label="30596" default="true"/>
         <setting id="contextreplace" type="bool" label="30548" default="false"/>
         <setting id="skipcontextmenus" type="bool" label="30552" default="false"/>
+        <setting id="showdeletecontextmenu" type="bool" label="30683" default="false"/>
         <setting id="skipmetadata" type="bool" label="30549" default="false"/>
         <setting id="skipimages" type="bool" label="30550" default="false"/>
         <setting id="skipflags" type="bool" label="30551" default="false"/>

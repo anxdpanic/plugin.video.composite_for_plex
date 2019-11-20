@@ -1029,3 +1029,7 @@ msgstr ""
 msgctxt "#30682"
 msgid "Unable to remove %s from the %s playlist"
 msgstr ""
+
+msgctxt "#30683"
+msgid "Show the 'Delete' context menu"
+msgstr ""
