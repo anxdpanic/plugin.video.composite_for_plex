@@ -1058,3 +1058,15 @@ msgstr ""
 msgctxt "#30672"
 msgid "Go to %s"
 msgstr ""
+
+msgctxt "#30673"
+msgid "Delete this item?"
+msgstr ""
+
+msgctxt "#30674"
+msgid "Confirm playlist item delete?"
+msgstr ""
+
+msgctxt "#30675"
+msgid "Delete from playlist"
+msgstr ""

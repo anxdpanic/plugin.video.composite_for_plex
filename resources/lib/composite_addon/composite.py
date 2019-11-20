@@ -455,6 +455,7 @@ def build_context_menu(url, item_data, server):
 
     additional_context_menus = item_data.get('additional_context_menus', {})
     item_id = item_data.get('ratingKey', '0')
+    playlist_item_id = item_data.get('playlist_item_id')
 
     if additional_context_menus.get('go_to'):
         parent_id = item_data.get('parentRatingKey')
@@ -465,6 +466,8 @@ def build_context_menu(url, item_data, server):
         if grandparent_id and item_data.get('tvshowtitle'):
             context.append((i18n('Go to') % item_data.get('tvshowtitle'),
                             'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
+    if playlist_item_id:
+        context.append((i18n('Delete from playlist'), 'RunScript(' + CONFIG['id'] + ', delete_playlist_item, %s, %s, %s)' % (server.get_uuid(), playlist_item_id, url_parts.path)))
     context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
     context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
     context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
@@ -2026,6 +2029,9 @@ def movie_tag(url, server, movie, random_number):
                   'duration': duration,
                   'resume': int(int(view_offset) / 1000)}
 
+    if movie.get('playlistItemID'):
+        extra_data.update({'playlist_item_id': movie.get('playlistItemID')})
+
     # Determine what type of watched flag [overlay] to use
     if int(movie.get('viewCount', 0)) > 0:
         details['playcount'] = 1
@@ -2922,6 +2928,21 @@ def get_transcode_profile():
         return result
 
 
+def delete_playlist_item(server_uuid, playlist_item_id, path):
+    log_print.debug('== ENTER ==')
+    log_print.debug('Deleting playlist item at: %s' % playlist_item_id)
+
+    return_value = xbmcgui.Dialog().yesno(i18n('Confirm playlist item delete?'), i18n('Delete this item?'))
+
+    if return_value:
+        log_print.debug('Deleting....')
+        server = plex_network.get_server_from_uuid(server_uuid)
+        server.delete_playlist_item(playlist_item_id, path)
+        xbmc.executebuiltin('Container.Refresh')
+
+    return True
+
+
 # #So this is where we really start the addon 
 log_print = PrintDebug(CONFIG['name'])
 
@@ -3066,6 +3087,12 @@ def start_composite(start_time):
         # Allow a mastre server to be selected (for myplex queue)    
         elif command == 'master':
             set_master_server()
+
+        elif command == 'delete_playlist_item':
+            server_uuid = get_argv()[2]
+            playlist_item_id = get_argv()[3]
+            path = get_argv()[4]
+            delete_playlist_item(server_uuid, playlist_item_id, path)
 
         # else move to the main code    
         else:

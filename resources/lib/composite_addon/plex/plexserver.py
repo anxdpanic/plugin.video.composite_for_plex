@@ -666,6 +666,9 @@ class PlexMediaServer:
     def delete_metadata(self, media_id):
         return self.talk('/library/metadata/%s' % media_id, method='delete')
 
+    def delete_playlist_item(self, playlist_item_id, path):
+        return self.talk('%s/%s' % (path, playlist_item_id), method='delete')
+
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
         log_print.debug('incoming URL is: %s' % url)
