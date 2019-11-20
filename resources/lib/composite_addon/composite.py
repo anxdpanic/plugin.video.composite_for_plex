@@ -441,7 +441,7 @@ def process_movies(url, tree=None):
     for movie in tree:
 
         if movie.tag == 'Video':
-            movie_tag(url, server, movie, random_number)
+            movie_tag(url, server, tree, movie, random_number)
             count += 1
 
     log_print.debug('PROCESS: It took %s seconds to process %s items' % (time.time() - start_time, count))
@@ -456,6 +456,7 @@ def build_context_menu(url, item_data, server):
     additional_context_menus = item_data.get('additional_context_menus', {})
     item_id = item_data.get('ratingKey', '0')
     playlist_item_id = item_data.get('playlist_item_id')
+    library_section_uuid = item_data.get('library_section_uuid')
 
     if additional_context_menus.get('go_to'):
         parent_id = item_data.get('parentRatingKey')
@@ -466,8 +467,12 @@ def build_context_menu(url, item_data, server):
         if grandparent_id and item_data.get('tvshowtitle'):
             context.append((i18n('Go to') % item_data.get('tvshowtitle'),
                             'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
+
     if playlist_item_id:
         context.append((i18n('Delete from playlist'), 'RunScript(' + CONFIG['id'] + ', delete_playlist_item, %s, %s, %s)' % (server.get_uuid(), playlist_item_id, url_parts.path)))
+    elif library_section_uuid:
+        context.append((i18n('Add to playlist'), 'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s)' % (server.get_uuid(), item_id, library_section_uuid)))
+
     context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
     context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
     context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
@@ -1976,7 +1981,7 @@ def process_xml(url, tree=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
-def movie_tag(url, server, movie, random_number):
+def movie_tag(url, server, tree, movie, random_number):
     log_print.debug('---New Item---')
     tempgenre = []
     tempcast = []
@@ -2031,6 +2036,9 @@ def movie_tag(url, server, movie, random_number):
 
     if movie.get('playlistItemID'):
         extra_data.update({'playlist_item_id': movie.get('playlistItemID')})
+
+    if tree.tag == 'MediaContainer':
+        extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
 
     # Determine what type of watched flag [overlay] to use
     if int(movie.get('viewCount', 0)) > 0:
@@ -2943,6 +2951,30 @@ def delete_playlist_item(server_uuid, playlist_item_id, path):
     return True
 
 
+def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
+    log_print.debug('== ENTER ==')
+
+    server = plex_network.get_server_from_uuid(server_uuid)
+    tree = server.get_playlists()
+
+    playlists = []
+    for playlist in tree.getiterator('Playlist'):
+        playlists.append({'title': playlist.get('title'), 'key': playlist.get('key')})
+
+    return_value = xbmcgui.Dialog().select(i18n('Select playlist'), [playlist.get('title') for playlist in playlists])
+
+    if return_value == -1:
+        log_print('Dialog cancelled')
+        return False
+
+    log_print.debug('choosing playlist: %s' % playlists[return_value])
+
+    server.plex_identification_header.update({'uri': 'library://' + library_section_uuid + '/item/%2Flibrary%2Fmetadata%2F' + metadata_id})
+    server.tell(playlists[return_value].get('key'))
+
+    return True
+
+
 # #So this is where we really start the addon 
 log_print = PrintDebug(CONFIG['name'])
 
@@ -3093,6 +3125,12 @@ def start_composite(start_time):
             playlist_item_id = get_argv()[3]
             path = get_argv()[4]
             delete_playlist_item(server_uuid, playlist_item_id, path)
+
+        elif command == 'add_playlist_item':
+            server_uuid = get_argv()[2]
+            metadata_id = get_argv()[3]
+            library_section_uuid = get_argv()[4]
+            add_playlist_item(server_uuid, metadata_id, library_section_uuid)
 
         # else move to the main code    
         else:

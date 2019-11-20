@@ -1057,3 +1057,11 @@ msgstr ""
 msgctxt "#30675"
 msgid "Delete from playlist"
 msgstr ""
+
+msgctxt "#30676"
+msgid "Select playlist"
+msgstr ""
+
+msgctxt "#30677"
+msgid "Add to playlist"
+msgstr ""

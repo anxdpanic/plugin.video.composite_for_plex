@@ -134,4 +134,6 @@ strings = {
     'Delete this item?': 30673,
     'Confirm playlist item delete?': 30674,
     'Delete from playlist': 30675,
+    'Select playlist': 30676,
+    'Add to playlist': 30677,
 }
