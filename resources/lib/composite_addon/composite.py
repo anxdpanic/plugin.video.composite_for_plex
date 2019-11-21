@@ -444,9 +444,14 @@ def process_movies(url, tree=None):
     start_time = time.time()
     count = 0
     for movie in tree:
-
-        if movie.tag == 'Video':
+        if movie.tag.lower() == 'video':
             movie_tag(url, server, tree, movie, random_number)
+            count += 1
+        elif movie.tag.lower() == 'track':
+            sectionthumb = get_thumb_image(tree, server)
+            if movie.get('thumb'):
+                sectionthumb = get_thumb_image(movie, server)
+            track_tag(server, tree, movie, '', sectionthumb)
             count += 1
 
     log_print.debug('PROCESS: It took %s seconds to process %s items' % (time.time() - start_time, count))
@@ -460,6 +465,9 @@ def build_context_menu(url, item_data, server):
 
     additional_context_menus = item_data.get('additional_context_menus', {})
     item_id = item_data.get('ratingKey', '0')
+    item_type = item_data.get('type', '').lower()
+    item_source = item_data.get('source', '').lower()
+
     playlist_item_id = item_data.get('playlist_item_id')
     library_section_uuid = item_data.get('library_section_uuid')
 
@@ -473,20 +481,24 @@ def build_context_menu(url, item_data, server):
             context.append((i18n('Go to') % item_data.get('tvshowtitle'),
                             'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
 
-    context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
-    context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
+    if item_type == 'video':
+        context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
+        context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
 
     if playlist_item_id:
         playlist_title = item_data.get('playlist_title')
-        context.append((i18n('Delete from playlist'), 'RunScript(' + CONFIG['id'] + ', delete_playlist_item, %s, %s, %s, %s, %s)' % (server.get_uuid(), item_id, playlist_title, playlist_item_id, url_parts.path)))
+        playlist_url = item_data.get('playlist_url', url_parts.path)
+        context.append((i18n('Delete from playlist'), 'RunScript(' + CONFIG['id'] + ', delete_playlist_item, %s, %s, %s, %s, %s)' % (server.get_uuid(), item_id, playlist_title, playlist_item_id, playlist_url)))
     elif library_section_uuid:
         context.append((i18n('Add to playlist'), 'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s)' % (server.get_uuid(), item_id, library_section_uuid)))
 
     if settings.get_setting('showdeletecontextmenu'):
         context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' % (server.get_uuid(), item_id)))
 
-    context.append((i18n('Audio'), 'RunScript(' + CONFIG['id'] + ', audio, %s, %s)' % (server.get_uuid(), item_id)))
-    context.append((i18n('Subtitles'), 'RunScript(' + CONFIG['id'] + ', subs, %s, %s)' % (server.get_uuid(), item_id)))
+    if item_type == 'video' and item_source in ['tvepisodes', 'movies']:
+        context.append((i18n('Audio'), 'RunScript(' + CONFIG['id'] + ', audio, %s, %s)' % (server.get_uuid(), item_id)))
+        context.append((i18n('Subtitles'), 'RunScript(' + CONFIG['id'] + ', subs, %s, %s)' % (server.get_uuid(), item_id)))
+
     context.append((i18n('Update library'), 'RunScript(' + CONFIG['id'] + ', update, %s, %s)' % (server.get_uuid(), section)))
     context.append((i18n('Refresh'), 'RunScript(' + CONFIG['id'] + ', refresh)'))
 
@@ -2044,8 +2056,13 @@ def movie_tag(url, server, tree, movie, random_number):
                   'resume': int(int(view_offset) / 1000)}
 
     if tree.get('playlistType'):
-        if movie.get('playlistItemID'):
-            extra_data.update({'playlist_item_id': movie.get('playlistItemID'), 'playlist_title': tree.get('title')})
+        playlist_key = str(tree.get('ratingKey', 0))
+        if movie.get('playlistItemID') and playlist_key:
+            extra_data.update({
+                'playlist_item_id': movie.get('playlistItemID'),
+                'playlist_title': tree.get('title'),
+                'playlist_url': '/playlists/%s/items' % playlist_key
+            })
 
     if tree.tag == 'MediaContainer':
         extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
@@ -2131,15 +2148,34 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
                   'fanart_image': sectionart,
                   'thumb': sectionthumb,
                   'key': track.get('key', ''),
+                  'ratingKey': str(track.get('ratingKey', 0)),
                   'mode': MODES.PLAYLIBRARY}
 
+    if tree.get('playlistType'):
+        playlist_key = str(tree.get('ratingKey', 0))
+        if track.get('playlistItemID') and playlist_key:
+            extra_data.update({
+                'playlist_item_id': track.get('playlistItemID'),
+                'playlist_title': tree.get('title'),
+                'playlist_url': '/playlists/%s/items' % playlist_key
+            })
+
+    if tree.tag == 'MediaContainer':
+        extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
+
     # If we are streaming, then get the virtual location
-    u = '%s%s' % (server.get_url_location(), extra_data['key'])
+    url = '%s%s' % (server.get_url_location(), extra_data['key'])
+
+    # Build any specific context menu entries
+    if not settings.get_setting('skipcontextmenus'):
+        context = build_context_menu(url, extra_data, server)
+    else:
+        context = None
 
     if listing:
-        add_item_to_gui(u, details, extra_data, folder=False)
+        add_item_to_gui(url, details, extra_data, context, folder=False)
     else:
-        return u, details
+        return url, details
 
 
 def playlist_tag(url, server, track, listing=True):
@@ -2947,7 +2983,6 @@ def get_transcode_profile():
 
 
 def delete_playlist_item(server_uuid, metadata_id, playlist_title, playlist_item_id, path):
-
     log_print.debug('== ENTER ==')
     log_print.debug('Deleting playlist item at: %s' % playlist_item_id)
 
