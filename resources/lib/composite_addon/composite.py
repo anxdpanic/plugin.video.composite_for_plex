@@ -169,6 +169,11 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
     if set_info_type.lower() == 'folder' or set_info_type.lower() == 'file':
         set_info_type = 'Video'
 
+    if not info_labels.get('plot'):
+        info_labels['plot'] = u'\u2008'
+    if not info_labels.get('plotoutline'):
+        info_labels['plotoutline'] = u'\u2008'
+
     # Set the properties of the item, such as summary, name, season, etc
     liz.setInfo(type=set_info_type, infoLabels=info_labels)
 
