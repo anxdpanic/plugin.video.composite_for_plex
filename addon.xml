@@ -14,7 +14,6 @@
         <news>
 [add] &#39;Add to playlist&#39; context menu (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/05eb606)
 [add] &#39;Delete from playlist&#39; context menu (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/5322def)
-[fix] universal transcoding (Maven85 @ https://github.com/Maven85/plugin.video.plexbmc/commit/aaec498)
 [chg] hide the &#39;Delete&#39; context menu by default, toggled in Settings - Advanced
 [chg] limit when &#39;Go to&#39; context menu is used on episodes
         </news>
