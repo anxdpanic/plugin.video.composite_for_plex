@@ -1134,8 +1134,7 @@ def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
                               'jsonrpc': '2.0',
                               'method': 'Player.Open',
                               'params': {'item': {'file': playurl}}})
-        # noinspection PyUnusedLocal
-        response = xbmc.executeJSONRPC(request)
+        _ = xbmc.executeJSONRPC(request)
         return
     else:
         if streams['type'] == 'video' or streams['type'] == 'music':
