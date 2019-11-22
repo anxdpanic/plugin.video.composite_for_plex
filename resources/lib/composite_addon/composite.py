@@ -2993,7 +2993,7 @@ def delete_playlist_item(server_uuid, metadata_id, playlist_title, playlist_item
 
     item = tree[0]
     item_title = item.get('title', '')
-    item_image = server.get_formatted_url(server.get_url_location() + item.get('thumb'))
+    item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
 
     return_value = xbmcgui.Dialog().yesno(i18n('Confirm playlist item delete?'), i18n('Delete from the playlist?') % (item_title, playlist_title))
     if return_value:
@@ -3052,7 +3052,7 @@ def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
     tree = server.get_metadata(metadata_id)
     item = tree[0]
     item_title = item.get('title', '')
-    item_image = server.get_formatted_url(server.get_url_location() + item.get('thumb'))
+    item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
 
     response = server.add_playlist_item(selected.get('key'), library_section_uuid, metadata_id)
     if response and not response.get('status'):
