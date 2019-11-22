@@ -65,6 +65,10 @@
         <setting id="disable_all_season" type="bool" label="30603" default="false"/>
         <setting id="hide_shared" type="bool" label="30592" default="true"/>
     </category>
+    <category label="30684">
+        <setting id="use_up_next" type="bool" label="30685" default="false" enable="System.HasAddon(service.upnext)"/>
+        <setting id="up_next_settings" label="30686" type="action" action="Addon.OpenSettings(service.upnext)" option="close" enable="eq(-1,true)"/>
+    </category>
     <category label="30522"> <!-- advanced -->
         <setting id="libraryfilter" type="bool" label="30588" default="false"/>
         <setting id="monitoroff" type="bool" label="30609" default="false"/>

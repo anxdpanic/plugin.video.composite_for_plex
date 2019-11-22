@@ -9,7 +9,9 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
+from binascii import hexlify
 import inspect
+import json
 import os
 import platform
 import re
@@ -275,3 +277,14 @@ def read_pickled(filename, delete_after=True):
         except:
             pass
     return pickle.loads(pickled_data)
+
+
+def notify_all(method, data):
+    next_data = json.dumps(data)
+    if PY3:
+        next_data = next_data.encode('utf-8')
+        data = '\\"[\\"{0}\\"]\\"'.format(hexlify(next_data).decode('utf-8'))
+    else:
+        data = '\\"[\\"{0}\\"]\\"'.format(hexlify(next_data))
+    command = 'NotifyAll(%s.SIGNAL,%s,%s)' % (CONFIG['id'], method, data)
+    xbmc.executebuiltin(command)

@@ -1,4 +1,5 @@
 0.0.5
+[add] Support for Up Next (service.upnext)
 [add] Support for adding/removing music tracks from playlists
 
 0.0.4

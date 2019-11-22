@@ -1046,6 +1046,14 @@ def play_playlist(server, data):
     return
 
 
+def play_media_id_from_uuid(server_uuid, media_id, force=None,
+                            transcode=False, transcode_profile=0):
+    server = plex_network.get_server_from_uuid(server_uuid)
+    random_number = str(random.randint(1000000000, 9999999999))
+    url = server.get_formatted_url('/library/metadata/%s?%s' % (media_id, random_number))
+    play_library_media(url, force=force, transcode=transcode, transcode_profile=transcode_profile)
+
+
 def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
     session = None
 
@@ -1143,7 +1151,11 @@ def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
                 'playing_file': playurl,
                 'session': session,
                 'server': server,
-                'streams': streams
+                'streams': streams,
+                'callback_args': {
+                    'force': force,
+                    'transcode': transcode,
+                }
             }
             write_pickled('playback_monitor.pickle', monitor_dict)
 
@@ -3100,6 +3112,8 @@ def start_composite(start_time):
     param_identifier = params.get('identifier')
     param_indirect = params.get('indirect')
     force = params.get('force')
+    server_uuid = params.get('server_uuid')
+    media_id = params.get('media_id')
 
     if command is None:
         try:
@@ -3218,6 +3232,8 @@ def start_composite(start_time):
 
         # else move to the main code    
         else:
+            if server_uuid and media_id:
+                param_url = '.'
 
             # Run a function based on the mode variable that was passed in the URL
             if (mode is None) or (param_url is None) or (len(param_url) < 1):
@@ -3242,7 +3258,13 @@ def start_composite(start_time):
                 transcode_profile = 0
                 if play_transcode:
                     transcode_profile = get_transcode_profile()
-                play_library_media(param_url, force=force, transcode=play_transcode, transcode_profile=transcode_profile)
+                if server_uuid and media_id:
+                    play_media_id_from_uuid(server_uuid, media_id, force=force,
+                                            transcode=play_transcode,
+                                            transcode_profile=transcode_profile)
+                else:
+                    play_library_media(param_url, force=force, transcode=play_transcode,
+                                       transcode_profile=transcode_profile)
 
             elif mode == MODES.TVEPISODES:
                 process_tvepisodes(param_url, rating_key=params.get('rating_key'))

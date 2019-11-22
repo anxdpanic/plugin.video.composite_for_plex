@@ -12,6 +12,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
+[add] Support for Up Next (service.upnext)
 [add] Support for adding/removing music tracks from playlists
         </news>
         <assets>

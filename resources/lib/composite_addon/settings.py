@@ -18,6 +18,7 @@ from six.moves import range
 class AddonSettings:
 
     def __init__(self, addon_id):
+        self.addon_id = addon_id
         self.settings = xbmcaddon.Addon(addon_id)
         try:
             self.addon_name = self.settings.getAddonInfo('name').decode('utf-8')
@@ -29,8 +30,11 @@ class AddonSettings:
     def open_settings(self):
         return self.settings.openSettings()
 
-    def get_setting(self, name):
-        value = self.settings.getSetting(name)
+    def get_setting(self, name, fresh=False):
+        if fresh:
+            value = xbmcaddon.Addon(self.addon_id).getSetting(name)
+        else:
+            value = self.settings.getSetting(name)
 
         if value == 'true':
             return True

@@ -17,8 +17,11 @@ from .common import STREAM_CONTROL
 from .common import PrintDebug
 from .common import encode_utf8
 from .common import i18n
+from .common import notify_all
 from .common import read_pickled
 from .common import settings
+
+log = PrintDebug(CONFIG['name'], 'player')
 
 
 class PlaybackMonitorThread(threading.Thread):
@@ -187,13 +190,23 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):
-        if settings.get_setting('monitoroff'):
+        if settings.get_setting('monitoroff', fresh=True):
             return
 
         playback_dict = read_pickled('playback_monitor.pickle')
         if playback_dict:
             self.cleanup_threads()
             self.threads.append(PlaybackMonitorThread(playback_dict))
+
+        if settings.get_setting('use_up_next', fresh=True):
+            self.log('Using Up Next ...')
+            if playback_dict.get('streams', {}).get('full_data', {}) \
+                    .get('mediatype', '').lower() == 'episode':
+                next_up(server=playback_dict.get('server'),
+                        media_id=playback_dict.get('media_id'),
+                        callback_args=playback_dict.get('callback_args', {}))
+        else:
+            self.log('Up Next is disabled ...')
 
     def onPlayBackEnded(self):
         self.stop_threads()
@@ -206,6 +219,138 @@ class CallbackPlayer(xbmc.Player):
         self.onPlayBackEnded()
 
 
+def next_up(server, media_id, callback_args):
+    try:
+        current_metadata = server.get_metadata(media_id)
+        current_metadata = current_metadata[0]
+    except:
+        return
+
+    current_extended = None
+    next_metadata = None
+    next_extended = None
+
+    if current_metadata:
+        season = int(current_metadata.get('parentIndex'))
+        episode = int(current_metadata.get('index'))
+        log.debug('Found metadata for S%sE%s' % (str(season).zfill(2), str(episode).zfill(2)))
+
+        season_episodes = server.get_children(current_metadata.get('parentRatingKey'))
+        if season_episodes is not None:
+            for video in season_episodes:
+                if video.get('index'):
+                    if int(video.get('index')) == episode:
+                        log.debug('Found extended metadata for S%sE%s' % (str(season).zfill(2), str(episode).zfill(2)))
+                        current_extended = video
+                    elif int(video.get('index')) == episode + 1:
+                        log.debug('Found extended metadata for S%sE%s' % (str(season).zfill(2), str(episode + 1).zfill(2)))
+                        next_extended = video
+
+                if current_extended is not None and next_extended is not None:
+                    break
+
+            if next_extended is None:
+                log.debug('Looking for S%s' % str(season + 1).zfill(2))
+                tv_seasons = server.get_children(current_metadata.get('grandparentRatingKey'))
+                next_season = None
+
+                if tv_seasons:
+                    log.debug('Found tv show seasons')
+                    for directory in tv_seasons:
+                        if directory.get('index'):
+                            if int(directory.get('index')) == season + 1:
+                                log.debug('Found season S%s' % str(season + 1).zfill(2))
+                                next_season = directory
+                                break
+
+                    if next_season is not None:
+                        log.debug('Looking for S%s episodes' % str(season + 1).zfill(2))
+                        season_episodes = server.get_children(next_season.get('ratingKey'))
+                        if season_episodes:
+                            for video in season_episodes:
+                                if int(video.get('index')) == 1:
+                                    log.debug('Found extended metadata for S%sE01' % str(season + 1).zfill(2))
+                                    next_extended = video
+                                    break
+
+        if next_extended is not None and next_extended.get('ratingKey'):
+            try:
+                next_metadata = server.get_metadata(next_extended.get('ratingKey'))
+                next_metadata = next_metadata[0]
+            except:
+                return
+
+            log.debug('Found metadata for S%sE%s' % (next_metadata.get('parentIndex', '0').zfill(2), next_metadata.get('index', '0').zfill(2)))
+
+        if current_metadata is not None and next_metadata is not None:
+            current_episode = get_nextup_episode(server, current_metadata, current_extended)
+            if current_episode:
+                log.debug('Got current episode Up Next data')
+                next_episode = get_nextup_episode(server, next_metadata, next_extended)
+                if next_episode:
+                    log.debug('Got next episode Up Next data')
+                    next_info = {
+                        "current_episode": current_episode,
+                        "next_episode": next_episode,
+                        "play_info": {
+                            "media_id": next_metadata.get('ratingKey', '0'),
+                            "force": callback_args.get('force', None),
+                            "transcode": callback_args.get('transcode', False),
+                            "server_uuid": server.uuid
+                        }
+                    }
+                    log.debug('Notifying Up Next')
+                    notify_all('upnext_data', next_info)
+
+
+def get_nextup_episode(server, metadata, extended_metadata=None):
+    if extended_metadata is None:
+        extended_metadata = {}
+
+    fanart = ''
+    image = ''
+    grandparent_image = ''
+
+    if metadata.get('thumb'):
+        image_url = metadata.get('thumb')
+        if image_url.startswith('/'):
+            image_url = server.get_url_location() + image_url
+        image = server.get_kodi_header_formatted_url(image_url)
+    if metadata.get('grandparentThumb'):
+        image_url = metadata.get('grandparentThumb')
+        if image_url.startswith('/'):
+            image_url = server.get_url_location() + image_url
+        grandparent_image = server.get_kodi_header_formatted_url(image_url)
+    if metadata.get('art'):
+        image_url = metadata.get('art')
+        if image_url.startswith('/'):
+            image_url = server.get_url_location() + image_url
+        fanart = server.get_kodi_header_formatted_url(image_url)
+
+    episode = {
+        "episodeid": '_%s' % metadata.get('ratingKey', '-1'),
+        "tvshowid": '_%s' % metadata.get('parentRatingKey', '-1'),
+        "title": metadata.get('title', ''),
+        "art": {
+            "tvshow.poster": grandparent_image,
+            "thumb": image,
+            "tvshow.fanart": fanart,
+            "tvshow.landscape": "",
+            "tvshow.clearart": "",
+            "tvshow.clearlogo": "",
+        },
+        "plot": metadata.get('summary', ''),
+        "showtitle": metadata.get('grandparentTitle', ''),
+        "playcount": int(metadata.get('viewCount', extended_metadata.get('viewCount', 0))),
+        "season": int(metadata.get('parentIndex', 0)),
+        "episode": int(metadata.get('index', 0)),
+        "rating": float(metadata.get('rating', extended_metadata.get('rating', 0))),
+        "firstaired": metadata.get('originallyAvailableAt', '')
+    }
+
+    return episode
+
+
 def set_audio_subtitles(stream):
     """
         Take the collected audio/sub stream data and apply to the media
@@ -213,22 +358,22 @@ def set_audio_subtitles(stream):
     """
 
     # If we have decided not to collect any sub data then do not set subs
-    log = PrintDebug(CONFIG['name'], 'player')
 
     player = xbmc.Player()
+    control = settings.get_setting('streamControl', fresh=True)
 
     if stream['contents'] == 'type':
         log.debug('No audio or subtitle streams to process.')
 
         # If we have decided to force off all subs, then turn them off now and return
-        if settings.get_setting('streamControl') == STREAM_CONTROL.NEVER:
+        if control == STREAM_CONTROL.NEVER:
             player.showSubtitles(False)
             log.debug('All subs disabled')
 
         return True
 
     # Set the AUDIO component
-    if settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
+    if control == STREAM_CONTROL.PLEX:
         log.debug('Attempting to set Audio Stream')
 
         audio = stream['audio']
@@ -247,7 +392,7 @@ def set_audio_subtitles(stream):
                 log.debug('Error setting audio, will use embedded default stream')
 
     # Set the SUBTITLE component
-    if settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
+    if control == STREAM_CONTROL.PLEX:
         log.debug('Attempting to set preferred subtitle Stream')
         subtitle = stream['subtitle']
         if subtitle:

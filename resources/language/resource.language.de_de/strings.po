@@ -1102,3 +1102,15 @@ msgstr ""
 msgctxt "#30683"
 msgid "Show the 'Delete' context menu"
 msgstr ""
+
+msgctxt "#30684"
+msgid "Up Next"
+msgstr ""
+
+msgctxt "#30685"
+msgid "Enable Up Next"
+msgstr ""
+
+msgctxt "#30686"
+msgid "Open Up Next settings"
+msgstr ""
