@@ -481,7 +481,7 @@ def build_context_menu(url, item_data, server):
             context.append((i18n('Go to') % item_data.get('tvshowtitle'),
                             'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
 
-    if item_type == 'video':
+    if item_type == 'video' or item_type == 'season':
         context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
         context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
 
