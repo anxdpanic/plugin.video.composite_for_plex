@@ -198,13 +198,13 @@ class CallbackPlayer(xbmc.Player):
             self.cleanup_threads()
             self.threads.append(PlaybackMonitorThread(playback_dict))
 
-        if settings.get_setting('use_up_next', fresh=True):
+        full_data = playback_dict.get('streams', {}).get('full_data', {})
+        media_type = full_data.get('mediatype', '').lower()
+        if settings.use_up_next() and media_type == 'episode':
             self.log('Using Up Next ...')
-            if playback_dict.get('streams', {}).get('full_data', {}) \
-                    .get('mediatype', '').lower() == 'episode':
-                next_up(server=playback_dict.get('server'),
-                        media_id=playback_dict.get('media_id'),
-                        callback_args=playback_dict.get('callback_args', {}))
+            next_up(server=playback_dict.get('server'),
+                    media_id=playback_dict.get('media_id'),
+                    callback_args=playback_dict.get('callback_args', {}))
         else:
             self.log('Up Next is disabled ...')
 
