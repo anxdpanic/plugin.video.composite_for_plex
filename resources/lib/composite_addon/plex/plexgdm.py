@@ -56,12 +56,15 @@ class PlexGDM:
         self.register_t = None
 
     def client_details(self, c_id, c_name, c_post, c_product, c_version):
-        self.client_data = 'Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\nPort: %s\nProduct: %s\nVersion: %s' % (c_id, c_name, c_post, c_product, c_version)
+        self.client_data = 'Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\n' \
+                           'Port: %s\nProduct: %s\nVersion: %s' % \
+                           (c_id, c_name, c_post, c_product, c_version)
         self.client_id = c_id
 
     def get_client_details(self):
         if not self.client_data:
-            _log_print.error('Client data has not been initialised.  Please use PlexGDM.client_details()')
+            _log_print.error('Client data has not been initialised.  '
+                             'Please use PlexGDM.client_details()')
 
         return self.client_data
 
@@ -74,22 +77,28 @@ class PlexGDM:
         except:
             pass
 
-        # Attempt to bind to the socket to recieve and send data.  If we can;t do this, then we cannot send registration
+        # Attempt to bind to the socket to recieve and send data.
+        # If we can;t do this, then we cannot send registration
         try:
             update_sock.bind(('0.0.0.0', self.client_update_port))
         except:
-            _log_print.error('Error: Unable to bind to port [%s] - client will not be registered' % self.client_update_port)
+            _log_print.error('Error: Unable to bind to port [%s] - client will not be registered' %
+                             self.client_update_port)
             return
 
         update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
-        update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(self._multicast_address) + socket.inet_aton('0.0.0.0'))
+        update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
+                               socket.inet_aton(self._multicast_address) +
+                               socket.inet_aton('0.0.0.0'))
         # noinspection PyTypeChecker
         update_sock.setblocking(0)
-        _log_print.debugplus('Sending registration data: HELLO %s\n%s' % (self.client_header, self.client_data))
+        _log_print.debugplus('Sending registration data: HELLO %s\n%s' %
+                             (self.client_header, self.client_data))
 
         # Send initial client registration
         try:
-            update_sock.sendto('HELLO %s\n%s' % (self.client_header, self.client_data), self.client_register_group)
+            update_sock.sendto('HELLO %s\n%s' % (self.client_header, self.client_data),
+                               self.client_register_group)
         except:
             _log_print.debug('Error: Unable to send registration message')
 
@@ -97,27 +106,32 @@ class PlexGDM:
         while self._registration_is_running:
             try:
                 data, addr = update_sock.recvfrom(1024)
-                _log_print.debug('Received UDP packet from [%s] containing [%s]' % (addr, data.strip()))
+                _log_print.debug('Received UDP packet from [%s] containing [%s]' %
+                                 (addr, data.strip()))
             except socket.error:
                 pass
             else:
                 if 'M-SEARCH * HTTP/1.' in data:
-                    _log_print.debug('Detected client discovery request from %s.  Replying' % str(addr))
+                    _log_print.debug('Detected client discovery request from %s.  Replying' %
+                                     str(addr))
                     try:
                         update_sock.sendto('HTTP/1.0 200 OK\n%s' % self.client_data, addr)
                     except:
                         _log_print.debug('Error: Unable to send client update message')
 
-                    _log_print.debug('Sending registration data: HTTP/1.0 200 OK\n%s' % self.client_data)
+                    _log_print.debug('Sending registration data: HTTP/1.0 200 OK\n%s' %
+                                     self.client_data)
                     self.client_registered = True
             time.sleep(0.5)
 
         _log_print.debug('Client Update loop stopped')
 
         # When we are finished, then send a final goodbye message to de-register cleanly.
-        _log_print.debug('Sending registration data: BYE %s\n%s' % (self.client_header, self.client_data))
+        _log_print.debug('Sending registration data: BYE %s\n%s' %
+                         (self.client_header, self.client_data))
         try:
-            update_sock.sendto('BYE %s\n%s' % (self.client_header, self.client_data), self.client_register_group)
+            update_sock.sendto('BYE %s\n%s' % (self.client_header, self.client_data),
+                               self.client_register_group)
         except:
             _log_print.error('Error: Unable to send client update message')
 
@@ -166,14 +180,16 @@ class PlexGDM:
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
         if self.interface:
-            sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF, socket.inet_aton(self.interface))
+            sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF,
+                            socket.inet_aton(self.interface))
 
         return_data = []
         try:
             # Send data to the multicast group
             _log_print.debug('Sending discovery messages: %s' % self.discover_message)
             # noinspection PyUnusedLocal
-            sent = sock.sendto(encode_utf8(self.discover_message, py2_only=False), self.discover_group)
+            sent = sock.sendto(encode_utf8(self.discover_message, py2_only=False),
+                               self.discover_group)
             # Look for responses from all recipients
             while True:
                 try:

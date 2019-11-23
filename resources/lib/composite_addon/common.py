@@ -115,10 +115,12 @@ class PrintDebug:
         if self.level >= level or level == self.LOG_ERROR:
             log_level = xbmc.LOGERROR if level == self.LOG_ERROR else xbmc.LOGDEBUG
             try:
-                xbmc.log('%s%s -> %s : %s%s' % (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
+                xbmc.log('%s%s -> %s : %s%s' %
+                         (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
             except:
                 msg = 'Logging failure:\n%s' % traceback.format_exc()
-                xbmc.log('%s%s -> %s : %s%s' % (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
+                xbmc.log('%s%s -> %s : %s%s' %
+                         (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
 
     def __call__(self, msg, level=0):
         return self.__print_message(msg, level)
@@ -203,8 +205,10 @@ CONFIG = {'addon': __addon,
           'device': get_device(),
           'platform': platform.uname()[0],
           'platform_version': platform.uname()[2],
-          'media_path': 'special://home/addons/%s/resources/media/' % decode_utf8(__addon.getAddonInfo('id')),
-          'temp_path': decode_utf8(xbmc.translatePath('special://temp/%s/' % decode_utf8(__addon.getAddonInfo('id')))),
+          'media_path': 'special://home/addons/%s/resources/media/' %
+                        decode_utf8(__addon.getAddonInfo('id')),
+          'temp_path': decode_utf8(xbmc.translatePath('special://temp/%s/' %
+                                                      decode_utf8(__addon.getAddonInfo('id')))),
           'required_revision': '1.0.7'}
 
 try:

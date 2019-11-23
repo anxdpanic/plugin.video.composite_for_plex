@@ -64,7 +64,8 @@ class Monitor(xbmc.Monitor):
             if self.waitForAbort(3):
                 break
 
-        self.log.debug('Starting playback, waited %.2f for busy dialogs to close.' % (time.time() - start_time))
+        self.log.debug('Starting playback, waited %.2f for busy dialogs to close.' %
+                       (time.time() - start_time))
         xbmc.executebuiltin('PlayMedia(%s)' % url)
 
     def onNotification(self, sender, method, data):

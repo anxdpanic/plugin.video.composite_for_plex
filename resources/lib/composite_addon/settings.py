@@ -72,7 +72,8 @@ class AddonSettings:
         return self.__dict__
 
     def update_master_server(self, value):
-        xbmc.log(self.addon_name + '.settings -> Updating master server to %s' % value, xbmc.LOGDEBUG)
+        xbmc.log(self.addon_name + '.settings -> Updating master server to %s' %
+                 value, xbmc.LOGDEBUG)
         self.settings.setSetting('masterServer', '%s' % value)
 
     def use_up_next(self):
@@ -93,7 +94,8 @@ class AddonSettings:
                 upnext_disabled = False
 
         if s_upnext_enabled and has_upnext and upnext_disabled:
-            enable_upnext = xbmcgui.Dialog().yesno(self.addon_name, self.settings.getLocalizedString(30688))
+            enable_upnext = xbmcgui.Dialog().yesno(self.addon_name,
+                                                   self.settings.getLocalizedString(30688))
             if enable_upnext:
                 upnext_disabled = not self.enable_addon(upnext_id)
 
@@ -121,7 +123,8 @@ class AddonSettings:
                      (addon_id, 'enabled' if is_enabled else 'disabled'), xbmc.LOGDEBUG)
             return is_enabled
         except KeyError:
-            xbmc.log(self.addon_name + '.settings -> addon_status received an unexpected response', xbmc.LOGERROR)
+            xbmc.log(self.addon_name + '.settings -> addon_status received an unexpected response',
+                     xbmc.LOGERROR)
             return False
 
     def disable_addon(self, addon_id):
@@ -141,7 +144,8 @@ class AddonSettings:
         try:
             return response['result'] == 'OK'
         except KeyError:
-            xbmc.log(self.addon_name + '.settings -> disable_addon received an unexpected response', xbmc.LOGERROR)
+            xbmc.log(self.addon_name + '.settings -> disable_addon received an unexpected response',
+                     xbmc.LOGERROR)
             return False
 
     def enable_addon(self, addon_id):
@@ -162,5 +166,6 @@ class AddonSettings:
         try:
             return response['result'] == 'OK'
         except KeyError:
-            xbmc.log(self.addon_name + '.settings -> enable_addon received an unexpected response', xbmc.LOGERROR)
+            xbmc.log(self.addon_name + '.settings -> enable_addon received an unexpected response',
+                     xbmc.LOGERROR)
             return False

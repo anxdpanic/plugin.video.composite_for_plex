@@ -41,9 +41,11 @@ class CacheControl:
                 self.cache_location += delim
 
             if not xbmcvfs.exists(self.cache_location):
-                log_print.debug('CACHE [%s]: Location does not exist.  Creating' % self.cache_location)
+                log_print.debug('CACHE [%s]: Location does not exist.  Creating' %
+                                self.cache_location)
                 if not xbmcvfs.mkdirs(self.cache_location):
-                    log_print.debug('CACHE [%s]: Location cannot be created' % self.cache_location)
+                    log_print.debug('CACHE [%s]: Location cannot be created' %
+                                    self.cache_location)
                     self.cache_location = None
                     return
             log_print.debug('Running with cache location: %s' % self.cache_location)
@@ -91,7 +93,8 @@ class CacheControl:
             else:
                 cache.write(pickle.dumps(obj))
         except Exception as e:
-            log_print.debug('CACHE [%s]: Writing error [%s]' % (self.cache_location + cache_name, e))
+            log_print.debug('CACHE [%s]: Writing error [%s]' %
+                            (self.cache_location + cache_name, e))
         finally:
             cache.close()
         return True
@@ -104,7 +107,8 @@ class CacheControl:
             log_print.debug('CACHE [%s]: exists, ttl: |%s|' % (cache_name, str(ttl)))
             now = int(round(time.time(), 0))
             modified = int(xbmcvfs.Stat(self.cache_location + cache_name).st_mtime())
-            log_print.debug('CACHE [%s]: mod[%s] now[%s] diff[%s]' % (cache_name, modified, now, now - modified))
+            log_print.debug('CACHE [%s]: mod[%s] now[%s] diff[%s]' %
+                            (cache_name, modified, now, now - modified))
 
             if (modified < 0) or (now - modified) > ttl:
                 return False

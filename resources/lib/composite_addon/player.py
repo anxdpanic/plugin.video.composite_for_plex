@@ -124,11 +124,19 @@ class PlaybackMonitorThread(threading.Thread):
             if report:  # only report every ~10 seconds, times are updated at 0.5 seconds
                 waited = 0.0
                 if played_time == current_time:
-                    self.log.debug('Video paused at: %s secs of %s @ %s%%' % (current_time, total_time, progress))
-                    self.server.report_playback_progress(self.media_id, current_time * 1000, state='paused', duration=total_time * 1000)
+                    self.log.debug('Video paused at: %s secs of %s @ %s%%' %
+                                   (current_time, total_time, progress))
+                    self.server.report_playback_progress(self.media_id,
+                                                         current_time * 1000,
+                                                         state='paused',
+                                                         duration=total_time * 1000)
                 else:
-                    self.log.debug('Video played time: %s secs of %s @ %s%%' % (current_time, total_time, progress))
-                    self.server.report_playback_progress(self.media_id, current_time * 1000, state='playing', duration=total_time * 1000)
+                    self.log.debug('Video played time: %s secs of %s @ %s%%' %
+                                   (current_time, total_time, progress))
+                    self.server.report_playback_progress(self.media_id,
+                                                         current_time * 1000,
+                                                         state='playing',
+                                                         duration=total_time * 1000)
                     played_time = current_time
 
             if self.monitor.waitForAbort(wait_time):
@@ -137,9 +145,12 @@ class PlaybackMonitorThread(threading.Thread):
             waited += wait_time
 
         if current_time != 0 and total_time != 0:
-            self.log.debug('Playback Stopped: %s secs of %s @ %s%%' % (current_time, total_time, progress))
-            # report_playback_progress state=stopped will adjust current time to match duration and mark media as watched if progress >= 98%
-            self.server.report_playback_progress(self.media_id, current_time * 1000, state='stopped', duration=total_time * 1000)
+            self.log.debug('Playback Stopped: %s secs of %s @ %s%%' %
+                           (current_time, total_time, progress))
+            # report_playback_progress state=stopped will adjust current time to match duration
+            # and mark media as watched if progress >= 98%
+            self.server.report_playback_progress(self.media_id, current_time * 1000,
+                                                 state='stopped', duration=total_time * 1000)
 
         if self.session is not None:
             self.log.debug('Stopping PMS transcode job with session %s' % self.session)
@@ -186,7 +197,8 @@ class CallbackPlayer(xbmc.Player):
             except RuntimeError:
                 pass
 
-        self.log.debug('Active monitor threads: |%s|' % ', '.join([thread.media_id for thread in active_threads]))
+        self.log.debug('Active monitor threads: |%s|' %
+                       ', '.join([thread.media_id for thread in active_threads]))
         self.threads = active_threads
 
     def onPlayBackStarted(self):
@@ -240,10 +252,12 @@ def next_up(server, media_id, callback_args):
             for video in season_episodes:
                 if video.get('index'):
                     if int(video.get('index')) == episode:
-                        log.debug('Found extended metadata for S%sE%s' % (str(season).zfill(2), str(episode).zfill(2)))
+                        log.debug('Found extended metadata for S%sE%s' %
+                                  (str(season).zfill(2), str(episode).zfill(2)))
                         current_extended = video
                     elif int(video.get('index')) == episode + 1:
-                        log.debug('Found extended metadata for S%sE%s' % (str(season).zfill(2), str(episode + 1).zfill(2)))
+                        log.debug('Found extended metadata for S%sE%s' %
+                                  (str(season).zfill(2), str(episode + 1).zfill(2)))
                         next_extended = video
 
                 if current_extended is not None and next_extended is not None:
@@ -269,7 +283,8 @@ def next_up(server, media_id, callback_args):
                         if season_episodes:
                             for video in season_episodes:
                                 if int(video.get('index')) == 1:
-                                    log.debug('Found extended metadata for S%sE01' % str(season + 1).zfill(2))
+                                    log.debug('Found extended metadata for S%sE01' %
+                                              str(season + 1).zfill(2))
                                     next_extended = video
                                     break
 
@@ -280,7 +295,9 @@ def next_up(server, media_id, callback_args):
             except:
                 return
 
-            log.debug('Found metadata for S%sE%s' % (next_metadata.get('parentIndex', '0').zfill(2), next_metadata.get('index', '0').zfill(2)))
+            log.debug('Found metadata for S%sE%s' %
+                      (next_metadata.get('parentIndex', '0').zfill(2),
+                       next_metadata.get('index', '0').zfill(2)))
 
         if current_metadata is not None and next_metadata is not None:
             current_episode = get_nextup_episode(server, current_metadata, current_extended)
@@ -383,8 +400,10 @@ def set_audio_subtitles(stream):
             log.debug('Only one audio stream present - will leave as default')
 
         elif audio:
-            log.debug('Attempting to use selected language setting: %s' %
-                      encode_utf8(audio.get('language', audio.get('languageCode', i18n('Unknown')))))
+            log.debug(
+                'Attempting to use selected language setting: %s' %
+                encode_utf8(audio.get('language', audio.get('languageCode', i18n('Unknown'))))
+            )
             log.debug('Found preferred language at index %s' % stream['audio_offset'])
             try:
                 player.setAudioStream(stream['audio_offset'])

@@ -44,8 +44,10 @@ class Plex:
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl(decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/servers')),
-                                                settings.get_setting('cache'))
+        self.cache = cache_control.CacheControl(
+            decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/servers')),
+            settings.get_setting('cache')
+        )
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
@@ -118,7 +120,9 @@ class Plex:
         log_print.debugplus('Temp token is: %s' % temp_token)
 
         if temp_token:
-            response = requests.get('%s/users/account?X-Plex-Token=%s' % (self.myplex_server, temp_token), headers=self.plex_identification())
+            response = requests.get('%s/users/account?X-Plex-Token=%s' %
+                                    (self.myplex_server, temp_token),
+                                    headers=self.plex_identification())
 
             log_print.debug('Status Code: %s' % response.status_code)
 
@@ -131,7 +135,8 @@ class Plex:
                     username = xml.get('username', '')
 
                     avatar = xml.get('thumb')
-                    # Required because plex.tv doesn;t return content-length and KODI requires it for cache
+                    # Required because plex.tv doesn;t return content-length and
+                    # KODI requires it for cache
                     # fixed in KODI 15 (isengard)
                     if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
                         avatar = avatar.replace('//', '//i2.wp.com/', 1)
@@ -196,7 +201,8 @@ class Plex:
             log_print.debug('Plexhome is enabled')
 
         try:
-            self.effective_user, self.effective_token = self.plexhome_settings['plexhome_user_cache'].split('|')
+            self.effective_user, self.effective_token = \
+                self.plexhome_settings['plexhome_user_cache'].split('|')
         except:
             log_print.debug('No user set.  Will default to admin user')
             self.effective_user = self.myplex_user
@@ -296,7 +302,8 @@ class Plex:
         return self.client_id
 
     def talk_direct_to_server(self, ip='localhost', port=DEFAULT_PORT, url=None):
-        response = requests.get('http://%s:%s%s' % (ip, port, url), params=self.plex_identification(), timeout=2)
+        response = requests.get('http://%s:%s%s' % (ip, port, url),
+                                params=self.plex_identification(), timeout=2)
 
         log_print.debug('URL was: %s' % response.url)
 
@@ -353,7 +360,11 @@ class Plex:
                         log_print.debug('GDM discovery completed')
 
                         for device in gdm_server_name:
-                            new_server = PlexMediaServer(name=device['serverName'], address=device['server'], port=device['port'], discovery='discovery', server_uuid=device['uuid'])
+                            new_server = PlexMediaServer(name=device['serverName'],
+                                                         address=device['server'],
+                                                         port=device['port'],
+                                                         discovery='discovery',
+                                                         server_uuid=device['uuid'])
                             new_server.set_user(self.effective_user)
                             new_server.set_token(self.effective_token)
 
@@ -372,22 +383,26 @@ class Plex:
                         log_print.debug('No port defined.  Using default of ' + DEFAULT_PORT)
                         port = DEFAULT_PORT
 
-                    log_print.debug('Settings hostname and port: %s : %s' % (settings.get_setting('ipaddress'), port))
+                    log_print.debug('Settings hostname and port: %s : %s' %
+                                    (settings.get_setting('ipaddress'), port))
 
-                    local_server = PlexMediaServer(address=settings.get_setting('ipaddress'), port=port, discovery='local')
+                    local_server = PlexMediaServer(address=settings.get_setting('ipaddress'),
+                                                   port=port, discovery='local')
                     local_server.set_user(self.effective_user)
                     local_server.set_token(self.effective_token)
                     local_server.refresh()
                     if local_server.discovered:
                         self.merge_server(local_server)
                     else:
-                        log_print.error('Error: Unable to discover server %s' % settings.get_setting('ipaddress'))
+                        log_print.error('Error: Unable to discover server %s' %
+                                        settings.get_setting('ipaddress'))
 
             percent += 40
             progress_dialog.update(percent=percent, message=i18n('Caching results...'))
             self.cache.write_cache(self.server_list_cache, self.server_list)
 
-            servers = [(self.server_list[key].get_name(), key) for key in list(self.server_list.keys())]
+            servers = [(self.server_list[key].get_name(), key)
+                       for key in list(self.server_list.keys())]
             server_names = ', '.join([server[0] for server in servers])
 
             log_print.debug('serverList is: %s ' % servers)
@@ -431,10 +446,12 @@ class Plex:
             log_print.debug('[%s] Found device' % device.get('name'))
 
             if 'server' not in device.get('provides'):
-                log_print.debug('[%s] Skipping as not a server [%s]' % (device.get('name'), device.get('provides')))
+                log_print.debug('[%s] Skipping as not a server [%s]' %
+                                (device.get('name'), device.get('provides')))
                 continue
 
-            discovered_server = PlexMediaServer(name=encode_utf8(device.get('name')), discovery='myplex')
+            discovered_server = PlexMediaServer(name=encode_utf8(device.get('name')),
+                                                discovery='myplex')
             discovered_server.set_uuid(device.get('clientIdentifier'))
             discovered_server.set_owned(device.get('owned'))
             discovered_server.set_token(device.get('accessToken'))
@@ -444,9 +461,13 @@ class Plex:
                 log_print.debug('[%s] Found server connection' % device.get('name'))
 
                 if connection.get('local') == '0':
-                    discovered_server.add_external_connection(connection.get('address'), connection.get('port'), connection.get('uri'))
+                    discovered_server.add_external_connection(connection.get('address'),
+                                                              connection.get('port'),
+                                                              connection.get('uri'))
                 else:
-                    discovered_server.add_internal_connection(connection.get('address'), connection.get('port'), connection.get('uri'))
+                    discovered_server.add_internal_connection(connection.get('address'),
+                                                              connection.get('port'),
+                                                              connection.get('uri'))
 
                 if connection.get('protocol') == 'http':
                     log_print.debug('[%s] Dropping back to http' % device.get('name'))
@@ -455,7 +476,8 @@ class Plex:
             discovered_server.set_best_address()  # Default to external address
 
             temp_servers[discovered_server.get_uuid()] = discovered_server
-            log_print.debug('[%s] Discovered server via myPlex: %s' % (discovered_server.get_name(), discovered_server.get_uuid()))
+            log_print.debug('[%s] Discovered server via myPlex: %s' %
+                            (discovered_server.get_name(), discovered_server.get_uuid()))
 
         return temp_servers
 
@@ -465,12 +487,14 @@ class Plex:
         try:
             existing = self.get_server_from_uuid(server.get_uuid())
         except:
-            log_print.debug('Adding new server %s %s' % (server.get_name(), server.get_uuid()))
+            log_print.debug('Adding new server %s %s' %
+                            (server.get_name(), server.get_uuid()))
             server.refresh()
             if server.discovered:
                 self.server_list[server.get_uuid()] = server
         else:
-            log_print.debug('Found existing server %s %s' % (existing.get_name(), existing.get_uuid()))
+            log_print.debug('Found existing server %s %s' %
+                            (existing.get_name(), existing.get_uuid()))
 
             existing.set_best_address(server.get_access_address())
             existing.refresh()
@@ -483,16 +507,23 @@ class Plex:
 
         try:
             if method == 'get':
-                response = requests.get('%s%s' % (self.myplex_server, path), params=self.plex_identification(), verify=True, timeout=(3, 10))
+                response = requests.get('%s%s' % (self.myplex_server, path),
+                                        params=self.plex_identification(),
+                                        verify=True, timeout=(3, 10))
             elif method == 'get2':
-                response = requests.get('%s%s' % (self.myplex_server, path), headers=self.plex_identification(), verify=True, timeout=(3, 10))
+                response = requests.get('%s%s' % (self.myplex_server, path),
+                                        headers=self.plex_identification(),
+                                        verify=True, timeout=(3, 10))
             elif method == 'post':
-                response = requests.post('%s%s' % (self.myplex_server, path), data='', headers=self.plex_identification(), verify=True, timeout=(3, 10))
+                response = requests.post('%s%s' % (self.myplex_server, path), data='',
+                                         headers=self.plex_identification(),
+                                         verify=True, timeout=(3, 10))
             else:
                 log_print.error('Unknown HTTP method requested: %s' % method)
                 response = None
         except requests.exceptions.ConnectionError as e:
-            log_print.error('myPlex: %s is offline or uncontactable. error: %s' % (self.myplex_server, e))
+            log_print.error('myPlex: %s is offline or uncontactable. error: %s' %
+                            (self.myplex_server, e))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
         except requests.exceptions.ReadTimeout:
             log_print.debug('myPlex: read timeout for %s on %s ' % (self.myplex_server, path))
@@ -511,9 +542,13 @@ class Plex:
                 error = 'HTTP response error: %s' % response.status_code
                 log_print.error(error)
                 if response.status_code == 404:
-                    return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
+                    return '<?xml version="1.0" encoding="UTF-8"?>' \
+                           '<message status="unauthorized">' \
+                           '</message>'
                 else:
-                    return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
+                    return '<?xml version="1.0" encoding="UTF-8"?>' \
+                           '<message status="error">' \
+                           '</message>'
             else:
                 link = encode_utf8(response.text, py2_only=False)
                 log_print.debugplus('XML: \n%s' % link)
@@ -540,7 +575,8 @@ class Plex:
 
         myplex_headers = {'Authorization': 'Basic %s' % base64string}
 
-        response = requests.post('%s/users/sign_in.xml' % self.myplex_server, headers=dict(self.plex_identification(), **myplex_headers))
+        response = requests.post('%s/users/sign_in.xml' % self.myplex_server,
+                                 headers=dict(self.plex_identification(), **myplex_headers))
 
         if response.status_code == 201:
             try:
@@ -550,8 +586,9 @@ class Plex:
                 home = xml.get('home', '0')
 
                 avatar = xml.get('thumb')
-                # Required because plex.tv doesn;t return content-length and KODI requires it for cache
-                # Ifixed in KODI 15 (isengard)
+                # Required because plex.tv doesnst return content-length and
+                # KODI requires it for cache
+                # fixed in KODI 15 (isengard)
                 if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
                     avatar = avatar.replace('//', '//i2.wp.com/', 1)
                 self.plexhome_settings['plexhome_user_avatar'] = avatar
@@ -604,11 +641,13 @@ class Plex:
                 socket.gethostbyname(uri)
             except:
                 log_print.debug('Unable to lookup hostname: %s' % uri)
-                return PlexMediaServer(name='dummy', address='127.0.0.1', port=32400, discovery='local')
+                return PlexMediaServer(name='dummy', address='127.0.0.1',
+                                       port=32400, discovery='local')
 
         for server in self.server_list.values():
 
-            log_print.debug('[%s] - checking ip:%s against server ip %s' % (server.get_name(), uri, server.get_address()))
+            log_print.debug('[%s] - checking ip:%s against server ip %s' %
+                            (server.get_name(), uri, server.get_address()))
 
             if server.find_address_match(uri, port):
                 return server
@@ -644,10 +683,6 @@ class Plex:
         return self.cache.delete_cache(force)
 
     def set_plex_home_users(self):
-
-        # <User id="X" admin="1" restricted="0" protected="1" title="" username="" email="X" thumb="http://www.gravatar.com/avatar/918266bcdee2b60c447c6bbe2e2460ca?d=https%3A%2F%2Fplex.tv%2Fusers%2Fid%2Favatar"/>
-        # <User id="X" admin="0" restricted="1" protected="0" title="Kids" username="" email="" thumb="https://plex.tv/users/id/avatar"/>
-
         data = ETree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list = dict()
         for users in data:

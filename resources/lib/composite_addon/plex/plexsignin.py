@@ -128,7 +128,8 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         else:
             self.display_failure(False)
 
-        self.description.setText(i18n('From your computer, go to %s and enter the code below') % 'http://plex.tv/pin')
+        self.description.setText(i18n('From your computer, go to %s and enter the code below') %
+                                 'http://plex.tv/pin')
         self.name_label.setVisible(False)
         self.password_label.setVisible(False)
         self.name_field.setVisible(False)
@@ -137,9 +138,12 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.submit_button.setVisible(False)
         self.pin_button.setVisible(False)
         self.submit_pin_button.setVisible(True)
-        self.cancel_button.setNavigation(self.submit_pin_button, self.manual_button, self.manual_button, self.submit_pin_button)
-        self.submit_pin_button.setNavigation(self.manual_button, self.cancel_button, self.cancel_button, self.manual_button)
-        self.manual_button.setNavigation(self.cancel_button, self.submit_pin_button, self.submit_pin_button, self.cancel_button)
+        self.cancel_button.setNavigation(self.submit_pin_button, self.manual_button,
+                                         self.manual_button, self.submit_pin_button)
+        self.submit_pin_button.setNavigation(self.manual_button, self.cancel_button,
+                                             self.cancel_button, self.manual_button)
+        self.manual_button.setNavigation(self.cancel_button, self.submit_pin_button,
+                                         self.submit_pin_button, self.cancel_button)
 
         self.data = self.plex_network.get_signin_pin()
 
@@ -166,9 +170,12 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.manual_button.setVisible(False)
         self.submit_button.setVisible(True)
         self.pin_button.setVisible(True)
-        self.cancel_button.setNavigation(self.password_field, self.name_field, self.submit_button, self.pin_button)
-        self.pin_button.setNavigation(self.password_field, self.name_field, self.cancel_button, self.submit_button)
-        self.submit_button.setNavigation(self.password_field, self.name_field, self.pin_button, self.cancel_button)
+        self.cancel_button.setNavigation(self.password_field, self.name_field,
+                                         self.submit_button, self.pin_button)
+        self.pin_button.setNavigation(self.password_field, self.name_field,
+                                      self.cancel_button, self.submit_button)
+        self.submit_button.setNavigation(self.password_field, self.name_field,
+                                         self.pin_button, self.cancel_button)
         self.digit_one.setVisible(False)
         self.digit_two.setVisible(False)
         self.digit_three.setVisible(False)
@@ -182,7 +189,8 @@ class PlexSignin(pyxbmct.AddonFullWindow):
             self.display_failure(False)
 
     def submit(self):
-        token = self.plex_network.sign_into_myplex(self.name_field.getText(), self.password_field.getText())
+        token = self.plex_network.sign_into_myplex(self.name_field.getText(),
+                                                   self.password_field.getText())
 
         if token is not None:
             self.name_label.setVisible(False)
@@ -346,6 +354,9 @@ class PlexManage(pyxbmct.AddonFullWindow):
 
     def set_navigation(self):
         """Set up keyboard/remote navigation between controls."""
-        self.cancel_button.setNavigation(self.switch_button, self.signout_button, self.signout_button, self.switch_button)
-        self.switch_button.setNavigation(self.signout_button, self.cancel_button, self.cancel_button, self.signout_button)
-        self.signout_button.setNavigation(self.cancel_button, self.switch_button, self.switch_button, self.cancel_button)
+        self.cancel_button.setNavigation(self.switch_button, self.signout_button,
+                                         self.signout_button, self.switch_button)
+        self.switch_button.setNavigation(self.signout_button, self.cancel_button,
+                                         self.cancel_button, self.signout_button)
+        self.signout_button.setNavigation(self.cancel_button, self.switch_button,
+                                          self.switch_button, self.cancel_button)
