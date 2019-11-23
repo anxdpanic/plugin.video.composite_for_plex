@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="0.0.5" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="0.0.6" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="script.module.six" version="1.11.0"/>
@@ -12,8 +12,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] Support for Up Next (service.upnext)
-[add] Support for adding/removing music tracks from playlists
+[fix] Next Up on python 3.x &lt; 3.6
         </news>
         <assets>
             <icon>icon.png</icon>
