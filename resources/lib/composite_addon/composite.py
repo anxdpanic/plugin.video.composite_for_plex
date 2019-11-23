@@ -1094,6 +1094,11 @@ def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
     if url is None:
         return
 
+    try:
+        transcode_profile = int(transcode_profile)
+    except ValueError:
+        transcode_profile = 0
+
     protocol = url.split(':', 1)[0]
 
     if protocol == 'file':
@@ -1155,6 +1160,7 @@ def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
                 'callback_args': {
                     'force': force,
                     'transcode': transcode,
+                    'transcode_profile': transcode_profile
                 }
             }
             write_pickled('playback_monitor.pickle', monitor_dict)
@@ -3255,9 +3261,12 @@ def start_composite(start_time):
                 process_tvseasons(param_url, rating_key=params.get('rating_key'))
 
             elif mode == MODES.PLAYLIBRARY:
-                transcode_profile = 0
-                if play_transcode:
+                transcode_profile = params.get('transcode_profile')
+                if play_transcode and transcode_profile is None:
                     transcode_profile = get_transcode_profile()
+                if transcode_profile is None:
+                    transcode_profile = 0
+
                 if server_uuid and media_id:
                     play_media_id_from_uuid(server_uuid, media_id, force=force,
                                             transcode=play_transcode,

@@ -296,6 +296,7 @@ def next_up(server, media_id, callback_args):
                             "media_id": next_metadata.get('ratingKey', '0'),
                             "force": callback_args.get('force', None),
                             "transcode": callback_args.get('transcode', False),
+                            "transcode_profile": callback_args.get('transcode_profile', 0),
                             "server_uuid": server.uuid
                         }
                     }

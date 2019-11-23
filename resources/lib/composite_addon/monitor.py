@@ -40,6 +40,8 @@ class Monitor(xbmc.Monitor):
             data['transcode'] = 0
         data['transcode'] = int(data['transcode'])
 
+        data['transcode_profile'] = int(data.get('transcode_profile', 0))
+
         if data['force'] is None:
             del data['force']
 
