@@ -30,7 +30,11 @@ class Monitor(xbmc.Monitor):
     def _process_notification_data(data):
         data = json.loads(data)
         if data:
-            return json.loads(unhexlify(data[0]))
+            json_data = unhexlify(data[0])
+            if isinstance(json_data, bytes):
+                json_data = json_data.decode('utf-8')
+            return json.loads(json_data)
+        return None
 
     @staticmethod
     def _create_playback_url(data):
