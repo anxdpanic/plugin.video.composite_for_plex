@@ -682,6 +682,9 @@ class PlexMediaServer:
     def get_playlists(self):
         return self.processed_xml('/playlists')
 
+    def get_children(self, media_id):
+        return self.process_xml(self.talk('/library/metadata/%s/children' % media_id))
+
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
         log_print.debug('incoming URL is: %s' % url)

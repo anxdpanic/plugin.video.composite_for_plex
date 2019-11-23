@@ -9,4 +9,4 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
-__all__ = ['cache_control', 'common', 'plex', 'composite', 'settings', 'wol']
+__all__ = ['cache_control', 'common', 'monitor', 'player', 'plex', 'composite', 'settings', 'wol']

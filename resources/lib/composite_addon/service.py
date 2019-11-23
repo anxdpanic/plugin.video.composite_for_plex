@@ -8,11 +8,11 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
-import xbmc
 import xbmcgui
 
 from .common import CONFIG
 from .common import PrintDebug
+from .monitor import Monitor
 from .player import CallbackPlayer
 
 log = PrintDebug(CONFIG['name'], 'service')
@@ -25,7 +25,7 @@ def run():
 
     window = xbmcgui.Window(10000)
     player = CallbackPlayer(window=window)
-    monitor = xbmc.Monitor()
+    monitor = Monitor()
 
     while not monitor.abortRequested():
 

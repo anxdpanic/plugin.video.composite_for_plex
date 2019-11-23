@@ -481,7 +481,7 @@ def build_context_menu(url, item_data, server):
             context.append((i18n('Go to') % item_data.get('tvshowtitle'),
                             'Container.Update(plugin://%s/?mode=4&url=%s&rating_key=%s)' % (CONFIG['id'], server.get_uuid(), grandparent_id)))
 
-    if item_type == 'video':
+    if item_type == 'video' or item_type == 'season':
         context.append((i18n('Mark as unwatched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'unwatch')))
         context.append((i18n('Mark as watched'), 'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' % (server.get_uuid(), item_id, 'watch')))
 
@@ -1046,13 +1046,16 @@ def play_playlist(server, data):
     return
 
 
-def play_library_media(vids, override=False, force=None, full_data=False, transcode_profile=0):
-    session = None
-    if settings.get_setting('transcode'):
-        override = True
+def play_media_id_from_uuid(server_uuid, media_id, force=None,
+                            transcode=False, transcode_profile=0):
+    server = plex_network.get_server_from_uuid(server_uuid)
+    random_number = str(random.randint(1000000000, 9999999999))
+    url = server.get_formatted_url('/library/metadata/%s?%s' % (media_id, random_number))
+    play_library_media(url, force=force, transcode=transcode, transcode_profile=transcode_profile)
 
-    if override:
-        full_data = True
+
+def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
+    session = None
 
     server = plex_network.get_server_from_url(vids)
 
@@ -1062,10 +1065,11 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
     if tree is None:
         return
 
-    if force:
-        full_data = True
+    streams = get_audio_subtitles_from_media(server, tree, True)
 
-    streams = get_audio_subtitles_from_media(server, tree, full_data)
+    stream_data = streams.get('full_data', {})
+    stream_details = streams.get('details', [{}])
+    stream_media = streams.get('media', {})
 
     if force and streams['type'] == 'music':
         play_playlist(server, streams)
@@ -1073,22 +1077,27 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
 
     url = select_media_to_play(streams, server)
 
-    codec = streams.get('details', [{}])[0].get('codec')
-    resolution = streams.get('details', [{}])[0].get('videoResolution')
+    codec = stream_details[0].get('codec')
+    resolution = stream_details[0].get('videoResolution')
     try:
-        bit_depth = int(streams.get('details', [{}])[0].get('bitDepth', 8))
+        bit_depth = int(stream_details[0].get('bitDepth', 8))
     except ValueError:
         bit_depth = None
 
     if codec and (settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
-        override = True
+        transcode = True
     if resolution and (settings.get_setting('transcode_g1080') and resolution.lower() == '4k'):
-        override = True
+        transcode = True
     if bit_depth and (settings.get_setting('transcode_g8bit') and bit_depth > 8):
-        override = True
+        transcode = True
 
     if url is None:
         return
+
+    try:
+        transcode_profile = int(transcode_profile)
+    except ValueError:
+        transcode_profile = 0
 
     protocol = url.split(':', 1)[0]
 
@@ -1097,30 +1106,25 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
         playurl = url.split(':', 1)[1]
     elif protocol.startswith('http'):
         log_print.debug('We are playing a stream')
-        if override:
+        if transcode:
             log_print.debug('We will be transcoding the stream')
-            # if settings.get_setting('transcode_type') == '0':  # universal
             session, playurl = server.get_universal_transcode(streams['extra']['path'], transcode_profile=transcode_profile)
-            # elif settings.get_setting('transcode_type') == '1':  # legacy
-            #     session, playurl = server.get_legacy_transcode(media_id, url)
-            # else:
-            #     playurl = ''
         else:
             playurl = server.get_formatted_url(url)
     else:
         playurl = url
 
-    resume = int(int(streams['media']['viewOffset']) / 1000)
-    duration = int(int(streams['media']['duration']) / 1000)
+    resume = int(int(stream_media['viewOffset']) / 1000)
+    duration = int(int(stream_media['duration']) / 1000)
 
     log_print.debug('Resume has been set to %s ' % resume)
     if CONFIG['kodi_version'] >= 18:
         item = xbmcgui.ListItem(path=playurl, offscreen=True)
     else:
         item = xbmcgui.ListItem(path=playurl)
-    if streams['full_data']:
-        item.setInfo(type=streams['type'], infoLabels=streams['full_data'])
-        thumb = streams['full_data'].get('thumbnailImage', CONFIG['icon'])
+    if stream_data:
+        item.setInfo(type=streams['type'], infoLabels=stream_data)
+        thumb = stream_data.get('thumbnailImage', CONFIG['icon'])
         item.setArt({'icon': thumb, 'thumb': thumb})
 
     if force:
@@ -1143,8 +1147,7 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
                               'jsonrpc': '2.0',
                               'method': 'Player.Open',
                               'params': {'item': {'file': playurl}}})
-        # noinspection PyUnusedLocal
-        response = xbmc.executeJSONRPC(request)
+        _ = xbmc.executeJSONRPC(request)
         return
     else:
         if streams['type'] == 'video' or streams['type'] == 'music':
@@ -1153,7 +1156,12 @@ def play_library_media(vids, override=False, force=None, full_data=False, transc
                 'playing_file': playurl,
                 'session': session,
                 'server': server,
-                'streams': streams if not override else None
+                'streams': streams,
+                'callback_args': {
+                    'force': force,
+                    'transcode': transcode,
+                    'transcode_profile': transcode_profile
+                }
             }
             write_pickled('playback_monitor.pickle', monitor_dict)
 
@@ -2991,7 +2999,7 @@ def delete_playlist_item(server_uuid, metadata_id, playlist_title, playlist_item
 
     item = tree[0]
     item_title = item.get('title', '')
-    item_image = server.get_formatted_url(server.get_url_location() + item.get('thumb'))
+    item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
 
     return_value = xbmcgui.Dialog().yesno(i18n('Confirm playlist item delete?'), i18n('Delete from the playlist?') % (item_title, playlist_title))
     if return_value:
@@ -3050,7 +3058,7 @@ def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
     tree = server.get_metadata(metadata_id)
     item = tree[0]
     item_title = item.get('title', '')
-    item_image = server.get_formatted_url(server.get_url_location() + item.get('thumb'))
+    item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
 
     response = server.add_playlist_item(selected.get('key'), library_section_uuid, metadata_id)
     if response and not response.get('status'):
@@ -3110,6 +3118,8 @@ def start_composite(start_time):
     param_identifier = params.get('identifier')
     param_indirect = params.get('indirect')
     force = params.get('force')
+    server_uuid = params.get('server_uuid')
+    media_id = params.get('media_id')
 
     if command is None:
         try:
@@ -3228,6 +3238,8 @@ def start_composite(start_time):
 
         # else move to the main code    
         else:
+            if server_uuid and media_id:
+                param_url = '.'
 
             # Run a function based on the mode variable that was passed in the URL
             if (mode is None) or (param_url is None) or (len(param_url) < 1):
@@ -3249,10 +3261,19 @@ def start_composite(start_time):
                 process_tvseasons(param_url, rating_key=params.get('rating_key'))
 
             elif mode == MODES.PLAYLIBRARY:
-                transcode_profile = 0
-                if play_transcode:
+                transcode_profile = params.get('transcode_profile')
+                if play_transcode and transcode_profile is None:
                     transcode_profile = get_transcode_profile()
-                play_library_media(param_url, force=force, override=play_transcode, transcode_profile=transcode_profile)
+                if transcode_profile is None:
+                    transcode_profile = 0
+
+                if server_uuid and media_id:
+                    play_media_id_from_uuid(server_uuid, media_id, force=force,
+                                            transcode=play_transcode,
+                                            transcode_profile=transcode_profile)
+                else:
+                    play_library_media(param_url, force=force, transcode=play_transcode,
+                                       transcode_profile=transcode_profile)
 
             elif mode == MODES.TVEPISODES:
                 process_tvepisodes(param_url, rating_key=params.get('rating_key'))
@@ -3291,7 +3312,7 @@ def start_composite(start_time):
                 channel_view(param_url)
 
             elif mode == MODES.PLAYLIBRARY_TRANSCODE:
-                play_library_media(param_url, override=True)
+                play_library_media(param_url, transcode=True)
 
             elif mode == MODES.MYPLEXQUEUE:
                 myplex_queue()

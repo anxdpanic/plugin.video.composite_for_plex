@@ -1102,3 +1102,27 @@ msgstr ""
 msgctxt "#30683"
 msgid "Show the 'Delete' context menu"
 msgstr ""
+
+msgctxt "#30684"
+msgid "Up Next"
+msgstr ""
+
+msgctxt "#30685"
+msgid "Enable Up Next"
+msgstr ""
+
+msgctxt "#30686"
+msgid "Open Up Next settings"
+msgstr ""
+
+msgctxt "#30687"
+msgid "Install Up Next"
+msgstr ""
+
+msgctxt "#30688"
+msgid "Up Next is enabled in the settings, however Up Next appears to be disabled. Would you like to enable Up Next now?"
+msgstr ""
+
+msgctxt "#30689"
+msgid "Up Next requires Kodi 18 or higher"
+msgstr ""
