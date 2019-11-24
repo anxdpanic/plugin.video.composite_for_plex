@@ -29,6 +29,9 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
 
 from . import plexsection
+from .plexcommon import get_client_identifier
+from .plexcommon import get_device_name
+from .plexcommon import create_plex_identification
 from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import encode_utf8
@@ -82,8 +85,15 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods
         self.plex_identification_string = None
         self.update_identification()
 
+    def plex_identification_headers(self):
+        self.client_id = get_client_identifier(self.client_id)
+        self.device_name = get_device_name(self.device_name)
+
+        return create_plex_identification(device_name=self.device_name, client_id=self.client_id,
+                                          user=self.get_user(), token=self.get_token())
+
     def update_identification(self):
-        self.plex_identification_header = self.create_plex_identification()
+        self.plex_identification_header = self.plex_identification_headers()
         self.plex_identification_string = self.create_plex_identification_string()
 
     def get_revision(self):
@@ -114,47 +124,12 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods
                 'master': self.master,
                 'class': self.class_type}
 
-    def create_plex_identification(self):
-        headers = {'X-Plex-Device': CONFIG['device'],
-                   'X-Plex-Client-Platform': 'Kodi',
-                   'X-Plex-Device-Name': self.get_device_name(),
-                   'X-Plex-Language': 'en',
-                   'X-Plex-Platform': CONFIG['platform'],
-                   'X-Plex-Client-Identifier': self.get_client_identifier(),
-                   'X-Plex-Product': CONFIG['name'],
-                   'X-Plex-Platform-Version': CONFIG['platform_version'],
-                   'X-Plex-Version': '0.0.0a1',
-                   'X-Plex-Provides': 'player,controller'}
-
-        if self.token is not None:
-            headers['X-Plex-Token'] = self.token
-
-        if self.user is not None:
-            headers['X-Plex-User'] = self.user
-
-        return headers
-
     def create_plex_identification_string(self):
         header = []
-        for key, value in self.create_plex_identification().items():
+        for key, value in self.plex_identification_header.items():
             header.append('%s=%s' % (key, quote(value)))
 
         return '&'.join(header)
-
-    def get_client_identifier(self):
-        if self.client_id is None:
-            self.client_id = SETTINGS.get_setting('client_id')
-
-            if not self.client_id:
-                self.client_id = str(uuid.uuid4())
-                SETTINGS.set_setting('client_id', self.client_id)
-
-        return self.client_id
-
-    def get_device_name(self):
-        if self.device_name is None:
-            self.device_name = SETTINGS.get_setting('devicename')
-        return self.device_name
 
     def get_uuid(self):
         return self.uuid

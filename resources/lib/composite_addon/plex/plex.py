@@ -10,7 +10,6 @@
 """
 
 import base64
-import uuid
 import socket
 import traceback
 import xml.etree.ElementTree as ETree
@@ -34,6 +33,8 @@ from ..common import is_ip
 from ..common import SETTINGS
 
 from .. import cache_control
+from .plexcommon import get_client_identifier
+from .plexcommon import create_plex_identification
 from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
@@ -70,6 +71,10 @@ class Plex:  # pylint: disable=too-many-public-methods
         self.setup_user_token()
         if load:
             self.load()
+
+    def plex_identification_header(self):
+        self.client_id = get_client_identifier(self.client_id)
+        return create_plex_identification(client_id=self.client_id, token=self.effective_token)
 
     def is_plexhome_enabled(self):
         return self.plexhome_settings['plexhome_enabled']
@@ -124,7 +129,7 @@ class Plex:  # pylint: disable=too-many-public-methods
         if temp_token:
             response = requests.get('%s/users/account?X-Plex-Token=%s' %
                                     (self.myplex_server, temp_token),
-                                    headers=self.plex_identification())
+                                    headers=self.plex_identification_header())
 
             LOG.debug('Status Code: %s' % response.status_code)
 
@@ -274,38 +279,9 @@ class Plex:  # pylint: disable=too-many-public-methods
     def get_server_list(self):
         return self.server_list.values()
 
-    def plex_identification(self):
-
-        header = {'X-Plex-Device': CONFIG['device'],
-                  'X-Plex-Client-Platform': 'Kodi',
-                  'X-Plex-Device-Name': SETTINGS.get_setting('devicename'),
-                  'X-Plex-Language': 'en',
-                  'X-Plex-Platform': CONFIG['platform'],
-                  'X-Plex-Client-Identifier': self.get_client_identifier(),
-                  'X-Plex-Product': CONFIG['name'],
-                  'X-Plex-Platform-Version': CONFIG['platform_version'],
-                  'X-Plex-Version': '0.0.0a1',
-                  'X-Plex-Provides': 'player,controller'}
-
-        if self.effective_token is not None:
-            header['X-Plex-Token'] = self.effective_token
-
-        return header
-
-    def get_client_identifier(self):
-
-        if self.client_id is None:
-            self.client_id = SETTINGS.get_setting('client_id')
-
-            if not self.client_id:
-                self.client_id = str(uuid.uuid4())
-                SETTINGS.set_setting('client_id', self.client_id)
-
-        return self.client_id
-
     def talk_direct_to_server(self, ip_address='localhost', port=DEFAULT_PORT, url=None):
         response = requests.get('http://%s:%s%s' % (ip_address, port, url),
-                                params=self.plex_identification(), timeout=2)
+                                params=self.plex_identification_header(), timeout=2)
 
         LOG.debug('URL was: %s' % response.url)
 
@@ -508,15 +484,15 @@ class Plex:  # pylint: disable=too-many-public-methods
         try:
             if method == 'get':
                 response = requests.get('%s%s' % (self.myplex_server, path),
-                                        params=self.plex_identification(),
+                                        params=self.plex_identification_header(),
                                         verify=True, timeout=(3, 10))
             elif method == 'get2':
                 response = requests.get('%s%s' % (self.myplex_server, path),
-                                        headers=self.plex_identification(),
+                                        headers=self.plex_identification_header(),
                                         verify=True, timeout=(3, 10))
             elif method == 'post':
                 response = requests.post('%s%s' % (self.myplex_server, path), data='',
-                                         headers=self.plex_identification(),
+                                         headers=self.plex_identification_header(),
                                          verify=True, timeout=(3, 10))
             else:
                 LOG.error('Unknown HTTP method requested: %s' % method)
@@ -582,7 +558,7 @@ class Plex:  # pylint: disable=too-many-public-methods
         myplex_headers = {'Authorization': 'Basic %s' % base64string}
 
         response = requests.post('%s/users/sign_in.xml' % self.myplex_server,
-                                 headers=dict(self.plex_identification(), **myplex_headers))
+                                 headers=dict(self.plex_identification_header(), **myplex_headers))
 
         if response.status_code == 201:
             try:

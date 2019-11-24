@@ -9,4 +9,4 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
-__all__ = ['plex', 'plexgdm', 'plexsection', 'plexserver', 'plexsignin']
+__all__ = ['plex', 'plexcommon', 'plexgdm', 'plexsection', 'plexserver', 'plexsignin']
