@@ -58,6 +58,11 @@ class PrintDebug:
         LOG_ERROR: 'error'
     }
 
+    token_regex = re.compile(r'-Token=[a-z|0-9].*?[&|$]')
+    ip_regex = re.compile(r'\.\d{1,3}\.\d{1,3}\.')
+    ip_dom_regex = re.compile(r'-\d{1,3}-\d{1,3}-')
+    user_regex = re.compile(r'-User=[a-z|0-9].*?[&|$]')
+
     def __init__(self, main, sub=None):
 
         self.main = main
@@ -68,11 +73,6 @@ class PrintDebug:
 
         self.level = SETTINGS.get_debug()
         self.privacy = SETTINGS.get_setting('privacy')
-
-        self.token_regex = re.compile(r'-Token=[a-z|0-9].*?[&|$]')
-        self.ip_regex = re.compile(r'\.\d{1,3}\.\d{1,3}\.')
-        self.ip_dom_regex = re.compile(r'-\d{1,3}-\d{1,3}-')
-        self.user_regex = re.compile(r'-User=[a-z|0-9].*?[&|$]')
 
     def get_name(self, level):
         return self.DEBUG_MAP[level]
