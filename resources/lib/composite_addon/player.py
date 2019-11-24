@@ -207,13 +207,17 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
-        if SETTINGS.get_setting('monitoroff', fresh=True):
-            return
-
+        monitor_playback = SETTINGS.get_setting('monitoroff', fresh=True)
         playback_dict = read_pickled('playback_monitor.pickle')
-        if playback_dict:
+
+        if monitor_playback and playback_dict:
             self.cleanup_threads()
             self.threads.append(PlaybackMonitorThread(playback_dict))
+
+        if not monitor_playback:
+            self.log('Playback monitoring is disabled ...')
+        elif not playback_dict:
+            self.log('Playback monitoring failed to start, missing required {} ...')
 
         full_data = playback_dict.get('streams', {}).get('full_data', {})
         media_type = full_data.get('mediatype', '').lower()
