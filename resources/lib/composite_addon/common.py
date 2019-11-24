@@ -148,6 +148,8 @@ def i18n(string_id):
     try:
         core = int(string_id) < 30000
     except ValueError:
+        log_print = PrintDebug(CONFIG['name'], 'i18n')
+        log_print.debug('Failed to map translation, returning id ...')
         return string_id
 
     if core:
