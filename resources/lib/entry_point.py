@@ -11,9 +11,9 @@
 
 import time
 
-start_time = time.time()
+START_TIME = time.time()
 
 # noinspection PyPep8
-from composite_addon import composite
+from composite_addon import composite  # pylint: disable=import-error, wrong-import-position
 
-composite.start_composite(start_time)
+composite.start_composite(START_TIME)

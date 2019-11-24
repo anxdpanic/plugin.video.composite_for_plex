@@ -8,6 +8,6 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
-from composite_addon import service
+from composite_addon import service  # pylint: disable=import-error
 
 service.run()
