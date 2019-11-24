@@ -10,7 +10,7 @@
 
 import threading
 
-import xbmc
+import xbmc  # pylint: disable=import-error
 
 from .common import CONFIG
 from .common import STREAM_CONTROL
@@ -21,7 +21,7 @@ from .common import notify_all
 from .common import read_pickled
 from .common import settings
 
-log = PrintDebug(CONFIG['name'], 'player')
+LOG = PrintDebug(CONFIG['name'], 'player')
 
 
 class PlaybackMonitorThread(threading.Thread):
@@ -43,6 +43,8 @@ class PlaybackMonitorThread(threading.Thread):
         self.server = self.monitor_dict.get('server')
         self.session = self.monitor_dict.get('session')
         self.streams = self.monitor_dict.get('streams')
+
+        self.plugin_path = 'plugin://%s/' % CONFIG['id']
 
         self.daemon = True
         self.start()
@@ -97,9 +99,9 @@ class PlaybackMonitorThread(threading.Thread):
 
             try:
                 current_file = self.player.getPlayingFile()
-                if (current_file != self.playing_file and
-                    not (current_file.startswith('plugin://plugin.video.composite_for_plex/') and
-                         self.media_id in current_file)) or self.stopped():
+                if current_file != self.playing_file and \
+                        not (current_file.startswith(self.plugin_path)
+                             and self.media_id in current_file) or self.stopped():
                     self.stop()
                     break
             except RuntimeError:
@@ -159,6 +161,9 @@ class PlaybackMonitorThread(threading.Thread):
 
 class CallbackPlayer(xbmc.Player):
     def __init__(self, window, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
         self.log = PrintDebug(CONFIG['name'], 'callback_player')
         self.threads = []
         self.window = window
@@ -201,7 +206,7 @@ class CallbackPlayer(xbmc.Player):
                        ', '.join([thread.media_id for thread in active_threads]))
         self.threads = active_threads
 
-    def onPlayBackStarted(self):
+    def onPlayBackStarted(self):  # pylint: disable=invalid-name
         if settings.get_setting('monitoroff', fresh=True):
             return
 
@@ -220,14 +225,14 @@ class CallbackPlayer(xbmc.Player):
         else:
             self.log('Up Next is disabled ...')
 
-    def onPlayBackEnded(self):
+    def onPlayBackEnded(self):  # pylint: disable=invalid-name
         self.stop_threads()
         self.cleanup_threads()
 
-    def onPlayBackStopped(self):
+    def onPlayBackStopped(self):  # pylint: disable=invalid-name
         self.onPlayBackEnded()
 
-    def onPlayBackError(self):
+    def onPlayBackError(self):  # pylint: disable=invalid-name
         self.onPlayBackEnded()
 
 
@@ -235,7 +240,7 @@ def next_up(server, media_id, callback_args):
     try:
         current_metadata = server.get_metadata(media_id)
         current_metadata = current_metadata[0]
-    except:
+    except:  # pylint: disable=bare-except
         return
 
     current_extended = None
@@ -245,18 +250,18 @@ def next_up(server, media_id, callback_args):
     if current_metadata:
         season = int(current_metadata.get('parentIndex'))
         episode = int(current_metadata.get('index'))
-        log.debug('Found metadata for S%sE%s' % (str(season).zfill(2), str(episode).zfill(2)))
+        LOG.debug('Found metadata for S%sE%s' % (str(season).zfill(2), str(episode).zfill(2)))
 
         season_episodes = server.get_children(current_metadata.get('parentRatingKey'))
         if season_episodes is not None:
             for video in season_episodes:
                 if video.get('index'):
                     if int(video.get('index')) == episode:
-                        log.debug('Found extended metadata for S%sE%s' %
+                        LOG.debug('Found extended metadata for S%sE%s' %
                                   (str(season).zfill(2), str(episode).zfill(2)))
                         current_extended = video
                     elif int(video.get('index')) == episode + 1:
-                        log.debug('Found extended metadata for S%sE%s' %
+                        LOG.debug('Found extended metadata for S%sE%s' %
                                   (str(season).zfill(2), str(episode + 1).zfill(2)))
                         next_extended = video
 
@@ -264,26 +269,26 @@ def next_up(server, media_id, callback_args):
                     break
 
             if next_extended is None:
-                log.debug('Looking for S%s' % str(season + 1).zfill(2))
+                LOG.debug('Looking for S%s' % str(season + 1).zfill(2))
                 tv_seasons = server.get_children(current_metadata.get('grandparentRatingKey'))
                 next_season = None
 
                 if tv_seasons:
-                    log.debug('Found tv show seasons')
+                    LOG.debug('Found tv show seasons')
                     for directory in tv_seasons:
                         if directory.get('index'):
                             if int(directory.get('index')) == season + 1:
-                                log.debug('Found season S%s' % str(season + 1).zfill(2))
+                                LOG.debug('Found season S%s' % str(season + 1).zfill(2))
                                 next_season = directory
                                 break
 
                     if next_season is not None:
-                        log.debug('Looking for S%s episodes' % str(season + 1).zfill(2))
+                        LOG.debug('Looking for S%s episodes' % str(season + 1).zfill(2))
                         season_episodes = server.get_children(next_season.get('ratingKey'))
                         if season_episodes:
                             for video in season_episodes:
                                 if int(video.get('index')) == 1:
-                                    log.debug('Found extended metadata for S%sE01' %
+                                    LOG.debug('Found extended metadata for S%sE01' %
                                               str(season + 1).zfill(2))
                                     next_extended = video
                                     break
@@ -292,20 +297,20 @@ def next_up(server, media_id, callback_args):
             try:
                 next_metadata = server.get_metadata(next_extended.get('ratingKey'))
                 next_metadata = next_metadata[0]
-            except:
+            except:  # pylint: disable=bare-except
                 return
 
-            log.debug('Found metadata for S%sE%s' %
+            LOG.debug('Found metadata for S%sE%s' %
                       (next_metadata.get('parentIndex', '0').zfill(2),
                        next_metadata.get('index', '0').zfill(2)))
 
         if current_metadata is not None and next_metadata is not None:
             current_episode = get_nextup_episode(server, current_metadata, current_extended)
             if current_episode:
-                log.debug('Got current episode Up Next data')
+                LOG.debug('Got current episode Up Next data')
                 next_episode = get_nextup_episode(server, next_metadata, next_extended)
                 if next_episode:
-                    log.debug('Got next episode Up Next data')
+                    LOG.debug('Got next episode Up Next data')
                     next_info = {
                         "current_episode": current_episode,
                         "next_episode": next_episode,
@@ -317,7 +322,7 @@ def next_up(server, media_id, callback_args):
                             "server_uuid": server.uuid
                         }
                     }
-                    log.debug('Notifying Up Next')
+                    LOG.debug('Notifying Up Next')
                     notify_all('upnext_data', next_info)
 
 
@@ -381,55 +386,55 @@ def set_audio_subtitles(stream):
     control = settings.get_setting('streamControl', fresh=True)
 
     if stream['contents'] == 'type':
-        log.debug('No audio or subtitle streams to process.')
+        LOG.debug('No audio or subtitle streams to process.')
 
         # If we have decided to force off all subs, then turn them off now and return
         if control == STREAM_CONTROL.NEVER:
             player.showSubtitles(False)
-            log.debug('All subs disabled')
+            LOG.debug('All subs disabled')
 
-        return True
+        return
 
     # Set the AUDIO component
     if control == STREAM_CONTROL.PLEX:
-        log.debug('Attempting to set Audio Stream')
+        LOG.debug('Attempting to set Audio Stream')
 
         audio = stream['audio']
 
         if stream['audio_count'] == 1:
-            log.debug('Only one audio stream present - will leave as default')
+            LOG.debug('Only one audio stream present - will leave as default')
 
         elif audio:
-            log.debug(
+            LOG.debug(
                 'Attempting to use selected language setting: %s' %
                 encode_utf8(audio.get('language', audio.get('languageCode', i18n('Unknown'))))
             )
-            log.debug('Found preferred language at index %s' % stream['audio_offset'])
+            LOG.debug('Found preferred language at index %s' % stream['audio_offset'])
             try:
                 player.setAudioStream(stream['audio_offset'])
-                log.debug('Audio set')
-            except:
-                log.debug('Error setting audio, will use embedded default stream')
+                LOG.debug('Audio set')
+            except:  # pylint: disable=bare-except
+                LOG.debug('Error setting audio, will use embedded default stream')
 
     # Set the SUBTITLE component
     if control == STREAM_CONTROL.PLEX:
-        log.debug('Attempting to set preferred subtitle Stream')
+        LOG.debug('Attempting to set preferred subtitle Stream')
         subtitle = stream['subtitle']
         if subtitle:
-            log.debug('Found preferred subtitle stream')
+            LOG.debug('Found preferred subtitle stream')
             try:
                 player.showSubtitles(False)
                 if subtitle.get('key'):
                     player.setSubtitles(subtitle['key'])
                 else:
-                    log.debug('Enabling embedded subtitles at index %s' % stream['sub_offset'])
+                    LOG.debug('Enabling embedded subtitles at index %s' % stream['sub_offset'])
                     player.setSubtitleStream(int(stream['sub_offset']))
 
                 player.showSubtitles(True)
-                return True
-            except:
-                log.debug('Error setting subtitle')
+                return
+            except:  # pylint: disable=bare-except
+                LOG.debug('Error setting subtitle')
 
         else:
-            log.debug('No preferred subtitles to set')
+            LOG.debug('No preferred subtitles to set')
             player.showSubtitles(False)
