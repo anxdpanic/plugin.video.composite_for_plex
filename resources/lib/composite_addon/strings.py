@@ -8,7 +8,7 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
-strings = {
+STRINGS = {
     # core
     'Delete': 117,
     'Refresh': 184,

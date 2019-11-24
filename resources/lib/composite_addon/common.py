@@ -27,7 +27,7 @@ from six import string_types
 from six.moves import cPickle as pickle
 
 from .settings import AddonSettings
-from .strings import strings
+from .strings import STRINGS
 
 __id = 'plugin.video.composite_for_plex'
 __addon = xbmcaddon.Addon(id=__id)
@@ -140,7 +140,7 @@ def encode_utf8(string, py2_only=True):
 
 
 def i18n(string_id):
-    mapped_string_id = strings.get(string_id)
+    mapped_string_id = STRINGS.get(string_id)
     if mapped_string_id:
         string_id = mapped_string_id
 
