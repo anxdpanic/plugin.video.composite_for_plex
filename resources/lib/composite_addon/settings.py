@@ -11,12 +11,12 @@
 
 import json
 
-import xbmc
-import xbmcaddon
-import xbmcgui
-import xbmcvfs
-
 from six.moves import range
+
+import xbmc  # pylint: disable=import-error
+import xbmcaddon  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
+import xbmcvfs  # pylint: disable=import-error
 
 
 class AddonSettings:
@@ -42,10 +42,11 @@ class AddonSettings:
 
         if value == 'true':
             return True
-        elif value == 'false':
+
+        if value == 'false':
             return False
-        else:
-            return value
+
+        return value
 
     def get_debug(self):
         return int(self.get_setting('debug'))
