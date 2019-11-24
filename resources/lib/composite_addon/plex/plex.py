@@ -29,7 +29,7 @@ from ..common import encode_utf8
 from ..common import get_platform_ip
 from ..common import i18n
 from ..common import is_ip
-from ..common import settings
+from ..common import SETTINGS
 
 from .. import cache_control
 from .plexgdm import PlexGDM
@@ -46,7 +46,7 @@ class Plex:
         # Provide an interface into Plex
         self.cache = cache_control.CacheControl(
             decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/servers')),
-            settings.get_setting('cache')
+            SETTINGS.get_setting('cache')
         )
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
@@ -163,7 +163,7 @@ class Plex:
         log_print.debug('Loading cached server list')
 
         try:
-            ttl = int(settings.get_setting('cache_ttl')) * 60
+            ttl = int(SETTINGS.get_setting('cache_ttl')) * 60
         except ValueError:
             ttl = 3600
 
@@ -276,7 +276,7 @@ class Plex:
 
         header = {'X-Plex-Device': CONFIG['device'],
                   'X-Plex-Client-Platform': 'Kodi',
-                  'X-Plex-Device-Name': settings.get_setting('devicename'),
+                  'X-Plex-Device-Name': SETTINGS.get_setting('devicename'),
                   'X-Plex-Language': 'en',
                   'X-Plex-Platform': CONFIG['platform'],
                   'X-Plex-Client-Identifier': self.get_client_identifier(),
@@ -293,11 +293,11 @@ class Plex:
     def get_client_identifier(self):
 
         if self.client_id is None:
-            self.client_id = settings.get_setting('client_id')
+            self.client_id = SETTINGS.get_setting('client_id')
 
             if not self.client_id:
                 self.client_id = str(uuid.uuid4())
-                settings.set_setting('client_id', self.client_id)
+                SETTINGS.set_setting('client_id', self.client_id)
 
         return self.client_id
 
@@ -336,7 +336,7 @@ class Plex:
                     log_print.debug('MyPlex discovery found no servers')
 
             # Now grab any local devices we can find
-            if settings.get_setting('discovery') == '1':
+            if SETTINGS.get_setting('discovery') == '1':
                 log_print.debug('local GDM discovery setting enabled.')
                 log_print.debug('Attempting GDM lookup on multicast')
                 percent += 40
@@ -374,19 +374,19 @@ class Plex:
 
             # Get any manually configured servers
             else:
-                if settings.get_setting('ipaddress'):
+                if SETTINGS.get_setting('ipaddress'):
                     percent += 40
                     progress_dialog.update(percent=percent, message=i18n('User provided...'))
 
-                    port = settings.get_setting('port')
+                    port = SETTINGS.get_setting('port')
                     if not port:
                         log_print.debug('No port defined.  Using default of ' + DEFAULT_PORT)
                         port = DEFAULT_PORT
 
                     log_print.debug('Settings hostname and port: %s : %s' %
-                                    (settings.get_setting('ipaddress'), port))
+                                    (SETTINGS.get_setting('ipaddress'), port))
 
-                    local_server = PlexMediaServer(address=settings.get_setting('ipaddress'),
+                    local_server = PlexMediaServer(address=SETTINGS.get_setting('ipaddress'),
                                                    port=port, discovery='local')
                     local_server.set_user(self.effective_user)
                     local_server.set_token(self.effective_token)
@@ -395,7 +395,7 @@ class Plex:
                         self.merge_server(local_server)
                     else:
                         log_print.error('Error: Unable to discover server %s' %
-                                        settings.get_setting('ipaddress'))
+                                        SETTINGS.get_setting('ipaddress'))
 
             percent += 40
             progress_dialog.update(percent=percent, message=i18n('Caching results...'))
@@ -410,7 +410,7 @@ class Plex:
             progress_dialog.update(percent=100, message=i18n('Finished'))
             progress_dialog.close()
 
-        if settings.get_setting('detected_notification'):
+        if SETTINGS.get_setting('detected_notification'):
             if server_names:
                 msg = i18n('Found servers:') + ' ' + server_names
             else:

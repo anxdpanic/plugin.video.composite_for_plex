@@ -13,13 +13,13 @@ import threading
 import xbmc  # pylint: disable=import-error
 
 from .common import CONFIG
-from .common import STREAM_CONTROL
+from .common import StreamControl
 from .common import PrintDebug
 from .common import encode_utf8
 from .common import i18n
 from .common import notify_all
 from .common import read_pickled
-from .common import settings
+from .common import SETTINGS
 
 LOG = PrintDebug(CONFIG['name'], 'player')
 
@@ -207,7 +207,7 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
-        if settings.get_setting('monitoroff', fresh=True):
+        if SETTINGS.get_setting('monitoroff', fresh=True):
             return
 
         playback_dict = read_pickled('playback_monitor.pickle')
@@ -217,7 +217,7 @@ class CallbackPlayer(xbmc.Player):
 
         full_data = playback_dict.get('streams', {}).get('full_data', {})
         media_type = full_data.get('mediatype', '').lower()
-        if settings.use_up_next() and media_type == 'episode':
+        if SETTINGS.use_up_next() and media_type == 'episode':
             self.log('Using Up Next ...')
             next_up(server=playback_dict.get('server'),
                     media_id=playback_dict.get('media_id'),
@@ -383,20 +383,20 @@ def set_audio_subtitles(stream):
     # If we have decided not to collect any sub data then do not set subs
 
     player = xbmc.Player()
-    control = settings.get_setting('streamControl', fresh=True)
+    control = SETTINGS.get_setting('streamControl', fresh=True)
 
     if stream['contents'] == 'type':
         LOG.debug('No audio or subtitle streams to process.')
 
         # If we have decided to force off all subs, then turn them off now and return
-        if control == STREAM_CONTROL.NEVER:
+        if control == StreamControl.NEVER:
             player.showSubtitles(False)
             LOG.debug('All subs disabled')
 
         return
 
     # Set the AUDIO component
-    if control == STREAM_CONTROL.PLEX:
+    if control == StreamControl.PLEX:
         LOG.debug('Attempting to set Audio Stream')
 
         audio = stream['audio']
@@ -417,7 +417,7 @@ def set_audio_subtitles(stream):
                 LOG.debug('Error setting audio, will use embedded default stream')
 
     # Set the SUBTITLE component
-    if control == STREAM_CONTROL.PLEX:
+    if control == StreamControl.PLEX:
         LOG.debug('Attempting to set preferred subtitle Stream')
         subtitle = stream['subtitle']
         if subtitle:

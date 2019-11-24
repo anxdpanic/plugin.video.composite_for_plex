@@ -19,18 +19,18 @@ import socket
 import sys
 import traceback
 
-import xbmc
-import xbmcaddon
-
 from six import PY3
 from six import string_types
 from six.moves import cPickle as pickle
 
+import xbmc  # pylint: disable=import-error
+import xbmcaddon  # pylint: disable=import-error
+
 from .settings import AddonSettings
 from .strings import STRINGS
 
-__id = 'plugin.video.composite_for_plex'
-__addon = xbmcaddon.Addon(id=__id)
+__ID = 'plugin.video.composite_for_plex'
+__ADDON = xbmcaddon.Addon(id=__ID)
 
 
 def __enum(**enums):
@@ -49,6 +49,14 @@ def get_handle():
 
 
 class PrintDebug:
+    DEBUG_DEBUG = 0
+    DEBUG_DEBUGPLUS = 1
+    LOG_ERROR = 9
+    DEBUG_MAP = {
+        DEBUG_DEBUG: 'debug',
+        DEBUG_DEBUGPLUS: 'debug+',
+        LOG_ERROR: 'error'
+    }
 
     def __init__(self, main, sub=None):
 
@@ -58,20 +66,13 @@ class PrintDebug:
         else:
             self.sub = ''
 
-        self.level = settings.get_debug()
-        self.privacy = settings.get_setting('privacy')
+        self.level = SETTINGS.get_debug()
+        self.privacy = SETTINGS.get_setting('privacy')
 
-        self.DEBUG_DEBUG = 0
-        self.DEBUG_DEBUGPLUS = 1
-        self.LOG_ERROR = 9
         self.token_regex = re.compile(r'-Token=[a-z|0-9].*?[&|$]')
         self.ip_regex = re.compile(r'\.\d{1,3}\.\d{1,3}\.')
         self.ip_dom_regex = re.compile(r'-\d{1,3}-\d{1,3}-')
         self.user_regex = re.compile(r'-User=[a-z|0-9].*?[&|$]')
-
-        self.DEBUG_MAP = {self.DEBUG_DEBUG: 'debug',
-                          self.DEBUG_DEBUGPLUS: 'debug+',
-                          self.LOG_ERROR: 'error'}
 
     def get_name(self, level):
         return self.DEBUG_MAP[level]
@@ -89,7 +90,7 @@ class PrintDebug:
         if not isinstance(msg, string_types):
             try:
                 msg = str(msg)
-            except:
+            except:  # pylint: disable=bare-except
                 level = self.LOG_ERROR
                 msg = 'Logging failed to coerce \'%s\' message' % type(msg)
 
@@ -100,7 +101,7 @@ class PrintDebug:
             msg = decode_utf8(msg)
             msg = msg.encode('ascii', 'ignore')
             tag = ' [ASCII]'
-        except:
+        except:  # pylint: disable=bare-except
             tag = ' [NONUTF8]'
 
         if self.privacy and not no_privacy:
@@ -109,7 +110,7 @@ class PrintDebug:
                 msg = self.ip_regex.sub('.X.X.', msg)
                 msg = self.ip_dom_regex.sub('-X-X-', msg)
                 msg = self.user_regex.sub('X-Plex-User=XXXXXXX&', msg)
-            except:
+            except:  # pylint: disable=bare-except
                 msg = 'Logging failure:\n%s' % traceback.format_exc()
 
         if self.level >= level or level == self.LOG_ERROR:
@@ -117,7 +118,7 @@ class PrintDebug:
             try:
                 xbmc.log('%s%s -> %s : %s%s' %
                          (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
-            except:
+            except:  # pylint: disable=bare-except
                 msg = 'Logging failure:\n%s' % traceback.format_exc()
                 xbmc.log('%s%s -> %s : %s%s' %
                          (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
@@ -151,33 +152,35 @@ def i18n(string_id):
 
     if core:
         return encode_utf8(xbmc.getLocalizedString(string_id))
-    else:
-        return encode_utf8(__addon.getLocalizedString(string_id))
+
+    return encode_utf8(__ADDON.getLocalizedString(string_id))
 
 
 def get_device():
     try:
         return platform.system()
-    except:
+    except:  # pylint: disable=bare-except
         try:
             return platform.platform(terse=True)
-        except:
+        except:  # pylint: disable=bare-except
             return sys.platform
 
 
 def wake_servers():
-    if settings.get_setting('wolon'):
-        from .wol import wake_on_lan
+    if SETTINGS.get_setting('wolon'):
+
+        from .wol import wake_on_lan  # pylint: disable=import-outside-toplevel
+
         log_print = PrintDebug(CONFIG['name'], 'wake_servers')
         log_print.debug('Wake On LAN: true')
-        for mac_address in settings.get_wakeservers():
+        for mac_address in SETTINGS.get_wakeservers():
             if mac_address:
                 try:
                     log_print.debug('Waking server with MAC: %s' % mac_address)
                     wake_on_lan(mac_address)
                 except ValueError:
                     log_print.debug('Incorrect MAC address format for server %s' % mac_address)
-                except:
+                except:  # pylint: disable=bare-except
                     log_print.debug('Unknown wake on lan error')
 
 
@@ -185,38 +188,36 @@ def is_ip(address):
     """from http://www.seanelavelle.com/2012/04/16/checking-for-a-valid-ip-in-python/"""
     try:
         socket.inet_aton(address)
-        ip = True
+        return True
     except socket.error:
-        ip = False
-
-    return ip
+        return False
 
 
 def get_platform_ip():
     return xbmc.getIPAddress()
 
 
-CONFIG = {'addon': __addon,
-          'id': __id,
-          'name': decode_utf8(__addon.getAddonInfo('name')),
-          'icon': decode_utf8(__addon.getAddonInfo('icon')),
-          'data_path': decode_utf8(__addon.getAddonInfo('profile')),
-          'version': decode_utf8(__addon.getAddonInfo('version')),
+CONFIG = {'addon': __ADDON,
+          'id': __ID,
+          'name': decode_utf8(__ADDON.getAddonInfo('name')),
+          'icon': decode_utf8(__ADDON.getAddonInfo('icon')),
+          'data_path': decode_utf8(__ADDON.getAddonInfo('profile')),
+          'version': decode_utf8(__ADDON.getAddonInfo('version')),
           'device': get_device(),
           'platform': platform.uname()[0],
           'platform_version': platform.uname()[2],
           'media_path': 'special://home/addons/%s/resources/media/' %
-                        decode_utf8(__addon.getAddonInfo('id')),
+                        decode_utf8(__ADDON.getAddonInfo('id')),
           'temp_path': decode_utf8(xbmc.translatePath('special://temp/%s/' %
-                                                      decode_utf8(__addon.getAddonInfo('id')))),
+                                                      decode_utf8(__ADDON.getAddonInfo('id')))),
           'required_revision': '1.0.7'}
 
 try:
     CONFIG['kodi_version'] = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
-except:
+except:  # pylint: disable=bare-except
     CONFIG['kodi_version'] = 0
 
-settings = AddonSettings(__id)
+SETTINGS = AddonSettings(__ID)
 
 MODES = __enum(
     GETCONTENT=0,
@@ -251,7 +252,7 @@ MODES = __enum(
     PLAYLISTS=30
 )
 
-STREAM_CONTROL = __enum(
+StreamControl = __enum(
     KODI='0',
     PLEX='1',
     NEVER='2'
@@ -261,7 +262,7 @@ STREAM_CONTROL = __enum(
 def write_pickled(filename, data):
     try:
         os.makedirs(CONFIG['temp_path'])
-    except:
+    except:  # pylint: disable=bare-except
         pass
     filename = os.path.join(CONFIG['temp_path'], filename)
     pickled_data = pickle.dumps(data, protocol=2)
@@ -278,7 +279,7 @@ def read_pickled(filename, delete_after=True):
     if delete_after:
         try:
             os.remove(filename)
-        except:
+        except:  # pylint: disable=bare-except
             pass
     return pickle.loads(pickled_data)
 

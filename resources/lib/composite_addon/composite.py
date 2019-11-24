@@ -28,13 +28,13 @@ from six.moves import range
 
 from .common import CONFIG
 from .common import MODES
-from .common import STREAM_CONTROL
+from .common import StreamControl
 from .common import PrintDebug
 from .common import get_argv
 from .common import get_handle
 from .common import encode_utf8
 from .common import i18n
-from .common import settings
+from .common import SETTINGS
 from .common import wake_servers
 from .common import write_pickled
 
@@ -46,7 +46,7 @@ def select_media_type(part_data, server, dvdplayback=False):
     f = part_data['file']
     filelocation = ''
 
-    if (f is None) or (settings.get_stream() == '1'):
+    if (f is None) or (SETTINGS.get_stream() == '1'):
         log_print.debug('Selecting stream')
         return server.get_formatted_url(stream)
 
@@ -66,7 +66,7 @@ def select_media_type(part_data, server, dvdplayback=False):
         ftype = None
 
     # 0 is auto select.  basically check for local file first, then stream if not found
-    if settings.get_stream() == '0':
+    if SETTINGS.get_stream() == '0':
         # check if the file can be found locally
         if ftype == 'nixfile' or ftype == 'winfile':
             log_print.debug('Checking for local file')
@@ -81,15 +81,15 @@ def select_media_type(part_data, server, dvdplayback=False):
         log_print.debug('No local file')
         if dvdplayback:
             log_print.debug('Forcing SMB for DVD playback')
-            settings.set_stream('2')
+            SETTINGS.set_stream('2')
         else:
             return server.get_formatted_url(stream)
 
     # 2 is use SMB
-    elif settings.get_stream() == '2' or settings.get_stream() == '3':
+    elif SETTINGS.get_stream() == '2' or SETTINGS.get_stream() == '3':
 
         f = unquote(f)
-        if settings.get_stream() == '2':
+        if SETTINGS.get_stream() == '2':
             protocol = 'smb'
         else:
             protocol = 'afp'
@@ -102,16 +102,16 @@ def select_media_type(part_data, server, dvdplayback=False):
             server = server.get_location().split(':')[0]
             loginstring = ''
 
-            if settings.get_setting('nasoverride'):
-                if settings.get_setting('nasoverrideip'):
-                    server = settings.get_setting('nasoverrideip')
+            if SETTINGS.get_setting('nasoverride'):
+                if SETTINGS.get_setting('nasoverrideip'):
+                    server = SETTINGS.get_setting('nasoverrideip')
                     log_print.debug('Overriding server with: %s' % server)
 
-                if settings.get_setting('nasuserid'):
-                    loginstring = '%s:%s@' % (settings.get_setting('nasuserid'),
-                                              settings.get_setting('naspass'))
+                if SETTINGS.get_setting('nasuserid'):
+                    loginstring = '%s:%s@' % (SETTINGS.get_setting('nasuserid'),
+                                              SETTINGS.get_setting('naspass'))
                     log_print.debug('Adding AFP/SMB login info for user: %s' %
-                                    settings.get_setting('nasuserid'))
+                                    SETTINGS.get_setting('nasuserid'))
 
             if f.find('Volumes') > 0:
                 filelocation = '%s:/%s' % (protocol, f.replace('Volumes', loginstring + server))
@@ -124,13 +124,13 @@ def select_media_type(part_data, server, dvdplayback=False):
                     # Add server name to file path.
                     filelocation = '%s://%s%s%s' % (protocol, loginstring, server, f)
 
-        if settings.get_setting('nasoverride') and settings.get_setting('nasroot'):
+        if SETTINGS.get_setting('nasoverride') and SETTINGS.get_setting('nasroot'):
             # Re-root the file path
             log_print.debug('Altering path %s so root is: %s' %
-                            (filelocation, settings.get_setting('nasroot')))
-            if '/' + settings.get_setting('nasroot') + '/' in filelocation:
+                            (filelocation, SETTINGS.get_setting('nasroot')))
+            if '/' + SETTINGS.get_setting('nasroot') + '/' in filelocation:
                 components = filelocation.split('/')
-                index = components.index(settings.get_setting('nasroot'))
+                index = components.index(SETTINGS.get_setting('nasroot'))
                 for _ in list(range(3, index)):
                     components.pop(3)
                 filelocation = '/'.join(components)
@@ -197,7 +197,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
             liz.setProperty('TotalTime', str(extra_data.get('duration')))
             liz.setProperty('ResumeTime', str(extra_data.get('resume')))
 
-            if not settings.get_setting('skipflags'):
+            if not SETTINGS.get_setting('skipflags'):
                 log_print.debug('Setting VrR as : %s' % extra_data.get('VideoResolution', ''))
                 liz.setProperty('VideoResolution', extra_data.get('VideoResolution', ''))
                 liz.setProperty('VideoCodec', extra_data.get('VideoCodec', ''))
@@ -271,7 +271,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):
             context.insert(0, (i18n('Play Transcoded'), 'PlayMedia(%s&transcode=1)' % link_url,))
             log_print.debug('Setting transcode options to [%s&transcode=1]' % link_url)
         log_print.debug('Building Context Menus')
-        liz.addContextMenuItems(context, settings.get_setting('contextreplace'))
+        liz.addContextMenuItems(context, SETTINGS.get_setting('contextreplace'))
 
     if is_file:
         folder = False
@@ -296,8 +296,8 @@ def display_sections(cfilter=None, display_shared=False):
             if display_shared and server.is_owned():
                 continue
 
-            if settings.get_setting('prefix_server') == '0' or \
-                    (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
+            if SETTINGS.get_setting('prefix_server') == '0' or \
+                    (SETTINGS.get_setting('prefix_server') == '1' and len(server_list) > 1):
                 details = {'title': '%s: %s' % (server.get_name(), section.get_title())}
             else:
                 details = {'title': section.get_title()}
@@ -334,7 +334,7 @@ def display_sections(cfilter=None, display_shared=False):
                                 % (details['title'], section.get_type()))
                 continue
 
-            if settings.get_setting('secondary'):
+            if SETTINGS.get_setting('secondary'):
                 mode = MODES.GETCONTENT
             else:
                 path = path + '/all'
@@ -342,7 +342,7 @@ def display_sections(cfilter=None, display_shared=False):
             extra_data['mode'] = mode
             section_url = '%s%s' % (server.get_url_location(), path)
 
-            if not settings.get_setting('skipcontextmenus'):
+            if not SETTINGS.get_setting('skipcontextmenus'):
                 context = [(i18n('Refresh library section'),
                             'RunScript(' + CONFIG['id'] + ', update, %s, %s)' %
                             (server.get_uuid(), section.get_key()))]
@@ -353,7 +353,7 @@ def display_sections(cfilter=None, display_shared=False):
             add_item_to_gui(section_url, details, extra_data, context)
 
     if display_shared:
-        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
         return
 
     # For each of the servers we have identified            
@@ -371,8 +371,8 @@ def display_sections(cfilter=None, display_shared=False):
         if (cfilter is not None) and (cfilter != 'plugins'):
             continue
 
-        if settings.get_setting('prefix_server') == '0' or \
-                (settings.get_setting('prefix_server') == '1' and len(server_list) > 1):
+        if SETTINGS.get_setting('prefix_server') == '0' or \
+                (SETTINGS.get_setting('prefix_server') == '1' and len(server_list) > 1):
             prefix = server.get_name() + ': '
         else:
             prefix = ''
@@ -423,7 +423,7 @@ def display_sections(cfilter=None, display_shared=False):
     data_url = 'cmd:displayservers'
     add_item_to_gui(data_url, details, extra_data)
 
-    if settings.get_setting('cache'):
+    if SETTINGS.get_setting('cache'):
         details = {'title': i18n('Refresh Data')}
         extra_data = {'type': 'file'}
         u = 'cmd:delete_refresh'
@@ -431,7 +431,7 @@ def display_sections(cfilter=None, display_shared=False):
 
     # All XML entries have been parsed and we are ready to allow the user to browse around.
     # So end the screen listing.
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def process_movies(url, tree=None):
@@ -472,7 +472,7 @@ def process_movies(url, tree=None):
 
     log_print.debug('PROCESS: It took %s seconds to process %s items' %
                     (time.time() - start_time, count))
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def build_context_menu(url, item_data, server):
@@ -521,7 +521,7 @@ def build_context_menu(url, item_data, server):
                         'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s)' %
                         (server.get_uuid(), item_id, library_section_uuid)))
 
-    if settings.get_setting('showdeletecontextmenu'):
+    if SETTINGS.get_setting('showdeletecontextmenu'):
         context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' %
                         (server.get_uuid(), item_id)))
 
@@ -603,7 +603,7 @@ def process_tvshows(url, tree=None):
             extra_data['partialTV'] = 1
 
         # Create URL based on whether we are going to flatten the season view
-        if settings.get_setting('flatten') == '2':
+        if SETTINGS.get_setting('flatten') == '2':
             log_print.debug('Flattening all shows')
             extra_data['mode'] = MODES.TVEPISODES
             u = '%s%s' % (server.get_url_location(),
@@ -612,14 +612,14 @@ def process_tvshows(url, tree=None):
             extra_data['mode'] = MODES.TVSEASONS
             u = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-        if not settings.get_setting('skipcontextmenus'):
+        if not SETTINGS.get_setting('skipcontextmenus'):
             context = build_context_menu(url, extra_data, server)
         else:
             context = None
 
         add_item_to_gui(u, details, extra_data, context)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def process_tvseasons(url, rating_key=None):
@@ -637,7 +637,7 @@ def process_tvseasons(url, rating_key=None):
         return
 
     will_flatten = False
-    if settings.get_setting('flatten') == '1':
+    if SETTINGS.get_setting('flatten') == '1':
         # check for a single season
         if int(tree.get('size', 0)) == 1:
             log_print.debug('Flattening single season show')
@@ -655,7 +655,7 @@ def process_tvseasons(url, rating_key=None):
             process_tvepisodes(url)
             return
 
-        if settings.get_setting('disable_all_season') and season.get('index') is None:
+        if SETTINGS.get_setting('disable_all_season') and season.get('index') is None:
             continue
 
         _watched = int(season.get('viewedLeafCount', 0))
@@ -702,7 +702,7 @@ def process_tvseasons(url, rating_key=None):
 
         url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-        if not settings.get_setting('skipcontextmenus'):
+        if not SETTINGS.get_setting('skipcontextmenus'):
             context = build_context_menu(url, season, server)
         else:
             context = None
@@ -710,7 +710,7 @@ def process_tvseasons(url, rating_key=None):
         # Build the screen directory listing
         add_item_to_gui(url, details, extra_data, context)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def process_tvepisodes(url, tree=None, rating_key=None):
@@ -736,7 +736,7 @@ def process_tvepisodes(url, tree=None, rating_key=None):
     server = plex_network.get_server_from_url(url)
 
     sectionart = ''
-    if not settings.get_setting('skipimages'):
+    if not SETTINGS.get_setting('skipimages'):
         sectionart = get_fanart_image(tree, server)
 
     banner = get_banner_image(tree, server)
@@ -770,13 +770,13 @@ def process_tvepisodes(url, tree=None, rating_key=None):
         for child in episode:
             if child.tag == 'Media':
                 mediaarguments = dict(child.items())
-            elif child.tag == 'Genre' and not settings.get_setting('skipmetadata'):
+            elif child.tag == 'Genre' and not SETTINGS.get_setting('skipmetadata'):
                 tempgenre.append(child.get('tag'))
-            elif child.tag == 'Writer' and not settings.get_setting('skipmetadata'):
+            elif child.tag == 'Writer' and not SETTINGS.get_setting('skipmetadata'):
                 tempwriter.append(child.get('tag'))
-            elif child.tag == 'Director' and not settings.get_setting('skipmetadata'):
+            elif child.tag == 'Director' and not SETTINGS.get_setting('skipmetadata'):
                 tempdir.append(child.get('tag'))
-            elif child.tag == 'Role' and not settings.get_setting('skipmetadata'):
+            elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
                 tempcast.append(child.get('tag'))
 
         log_print.debug('Media attributes are %s' % mediaarguments)
@@ -833,10 +833,10 @@ def process_tvepisodes(url, tree=None, rating_key=None):
                       'additional_context_menus': {'go_to': use_go_to},
                       }
 
-        if extra_data['fanart_image'] == '' and not settings.get_setting('skipimages'):
+        if extra_data['fanart_image'] == '' and not SETTINGS.get_setting('skipimages'):
             extra_data['fanart_image'] = sectionart
 
-        if '-1' in extra_data['fanart_image'] and not settings.get_setting('skipimages'):
+        if '-1' in extra_data['fanart_image'] and not SETTINGS.get_setting('skipimages'):
             extra_data['fanart_image'] = sectionart
 
         if season_thumb:
@@ -857,18 +857,18 @@ def process_tvepisodes(url, tree=None, rating_key=None):
             details['playcount'] = 0
 
         # Extended Metadata
-        if not settings.get_setting('skipmetadata'):
+        if not SETTINGS.get_setting('skipmetadata'):
             details['cast'] = tempcast
             details['director'] = ' / '.join(tempdir)
             details['writer'] = ' / '.join(tempwriter)
             details['genre'] = ' / '.join(tempgenre)
 
         # Add extra media flag data
-        if not settings.get_setting('skipflags'):
+        if not SETTINGS.get_setting('skipflags'):
             extra_data.update(get_media_data(mediaarguments))
 
         # Build any specific context menu entries
-        if not settings.get_setting('skipcontextmenus'):
+        if not SETTINGS.get_setting('skipcontextmenus'):
             context = build_context_menu(url, extra_data, server)
         else:
             context = None
@@ -881,7 +881,7 @@ def process_tvepisodes(url, tree=None, rating_key=None):
 
         add_item_to_gui(u, details, extra_data, context, folder=False)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def get_audio_subtitles_from_media(server, tree, full=False):
@@ -1010,7 +1010,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):
                 pass
 
     # if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == 'video' and settings.get_setting('streamControl') == STREAM_CONTROL.PLEX:
+    if media_type == 'video' and SETTINGS.get_setting('streamControl') == StreamControl.PLEX:
 
         contents = 'all'
         tags = tree.getiterator('Stream')
@@ -1136,11 +1136,11 @@ def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
     except ValueError:
         bit_depth = None
 
-    if codec and (settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
+    if codec and (SETTINGS.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
         transcode = True
-    if resolution and (settings.get_setting('transcode_g1080') and resolution.lower() == '4k'):
+    if resolution and (SETTINGS.get_setting('transcode_g1080') and resolution.lower() == '4k'):
         transcode = True
-    if bit_depth and (settings.get_setting('transcode_g8bit') and bit_depth > 8):
+    if bit_depth and (SETTINGS.get_setting('transcode_g8bit') and bit_depth > 8):
         transcode = True
 
     if url is None:
@@ -1246,7 +1246,7 @@ def select_media_to_play(data, server):
                                          details[index_count]['videoResolution'],
                                          details[index_count]['bitrate'])
 
-            if settings.get_setting('forcedvd'):
+            if SETTINGS.get_setting('forcedvd'):
                 if '.ifo' in name.lower():
                     log_print.debug('Found IFO DVD file in ' + name)
                     name = 'DVD Image'
@@ -1266,7 +1266,7 @@ def select_media_to_play(data, server):
             dvdplayback = True
 
     else:
-        if settings.get_setting('forcedvd'):
+        if SETTINGS.get_setting('forcedvd'):
             if '.ifo' in options[result]:
                 dvdplayback = True
 
@@ -1286,7 +1286,7 @@ def monitor_playback(media_id, server, session=None):
     if session:
         log_print.debug('We are monitoring a transcode session')
 
-    if settings.get_setting('monitoroff'):
+    if SETTINGS.get_setting('monitoroff'):
         return
 
     current_time = 0
@@ -1394,9 +1394,9 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         log_print.debug('found webkit video, pass to transcoder')
         if not prefix:
             prefix = 'system'
-            # if settings.get_setting('transcode_type') == '0':
+            # if SETTINGS.get_setting('transcode_type') == '0':
             session, vids = server.get_universal_transcode(vids)
-            # elif settings.get_setting('transcode_type') == '0':
+            # elif SETTINGS.get_setting('transcode_type') == '0':
             #     session, vids = server.get_legacy_transcode(0, vids, prefix)
 
         # Workaround for Kodi HLS request limit of 1024 byts
@@ -1444,7 +1444,7 @@ def monitor_channel_transcode_playback(session_id, server):
     # Logic may appear backward, but this does allow for a failed start to be detected
     # First while loop waiting for start
 
-    if settings.get_setting('monitoroff'):
+    if SETTINGS.get_setting('monitoroff'):
         return
 
     count = 0
@@ -1610,7 +1610,7 @@ def process_directory(url, tree=None):
 
         add_item_to_gui(u, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def directory_item_translate(title, thumb):
@@ -1782,7 +1782,7 @@ def artist(url, tree=None):
 
         add_item_to_gui(url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def albums(url, tree=None):
@@ -1828,7 +1828,7 @@ def albums(url, tree=None):
 
         add_item_to_gui(url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def tracks(url, tree=None):
@@ -1856,7 +1856,7 @@ def tracks(url, tree=None):
 
         track_tag(server, tree, track, sectionart, sectionthumb)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def get_xml(url, tree=None):
@@ -1953,7 +1953,7 @@ def plex_plugins(url, tree=None):
             extra_data['parameters'] = {'id': plugin.get('id')}
             add_item_to_gui(url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def channel_settings(url, setting_id):
@@ -2080,7 +2080,7 @@ def process_xml(url, tree=None):
             process_tvepisodes(url, tree)
             return
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def movie_tag(url, server, tree, movie, random_number):
@@ -2097,13 +2097,13 @@ def movie_tag(url, server, tree, movie, random_number):
     for child in movie:
         if child.tag == 'Media':
             mediaarguments = dict(child.items())
-        elif child.tag == 'Genre' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Genre' and not SETTINGS.get_setting('skipmetadata'):
             tempgenre.append(child.get('tag'))
-        elif child.tag == 'Writer' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Writer' and not SETTINGS.get_setting('skipmetadata'):
             tempwriter.append(child.get('tag'))
-        elif child.tag == 'Director' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Director' and not SETTINGS.get_setting('skipmetadata'):
             tempdir.append(child.get('tag'))
-        elif child.tag == 'Role' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
             tempcast.append(child.get('tag'))
 
     log_print.debug('Media attributes are %s' % mediaarguments)
@@ -2156,7 +2156,7 @@ def movie_tag(url, server, tree, movie, random_number):
         details['playcount'] = 0
 
     # Extended Metadata
-    if not settings.get_setting('skipmetadata'):
+    if not SETTINGS.get_setting('skipmetadata'):
         details['cast'] = tempcast
         details['director'] = ' / '.join(tempdir)
         details['writer'] = ' / '.join(tempwriter)
@@ -2169,11 +2169,11 @@ def movie_tag(url, server, tree, movie, random_number):
         log_print.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
-    if not settings.get_setting('skipflags'):
+    if not SETTINGS.get_setting('skipflags'):
         extra_data.update(get_media_data(mediaarguments))
 
     # Build any specific context menu entries
-    if not settings.get_setting('skipcontextmenus'):
+    if not SETTINGS.get_setting('skipcontextmenus'):
         context = build_context_menu(url, extra_data, server)
     else:
         context = None
@@ -2253,7 +2253,7 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     # Build any specific context menu entries
-    if not settings.get_setting('skipcontextmenus'):
+    if not SETTINGS.get_setting('skipcontextmenus'):
         context = build_context_menu(url, extra_data, server)
     else:
         context = None
@@ -2331,7 +2331,7 @@ def photo(url, tree=None):
 
             add_item_to_gui(u, details, extra_data, folder=False)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def music(url, tree=None):
@@ -2399,7 +2399,7 @@ def music(url, tree=None):
             extra_data['mode'] = MODES.MUSIC
             add_item_to_gui(u, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def get_thumb_image(data, server, width=720, height=720):
@@ -2409,7 +2409,7 @@ def get_thumb_image(data, server, width=720, height=720):
         @ return formatted URL
     """
 
-    if settings.get_setting('skipimages'):
+    if SETTINGS.get_setting('skipimages'):
         return ''
 
     thumbnail = encode_utf8(data.get('thumb', '').split('?t')[0])
@@ -2418,7 +2418,7 @@ def get_thumb_image(data, server, width=720, height=720):
         return thumbnail
 
     elif thumbnail.startswith('/'):
-        if settings.get_setting('fullres_thumbs'):
+        if SETTINGS.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
             return server.get_kodi_header_formatted_url(
@@ -2436,7 +2436,7 @@ def get_banner_image(data, server, width=720, height=720):
         @ return formatted URL
     """
 
-    if settings.get_setting('skipimages'):
+    if SETTINGS.get_setting('skipimages'):
         return ''
 
     thumbnail = encode_utf8(data.get('banner', '').split('?t')[0])
@@ -2445,7 +2445,7 @@ def get_banner_image(data, server, width=720, height=720):
         return thumbnail
 
     elif thumbnail.startswith('/'):
-        if settings.get_setting('fullres_thumbs'):
+        if SETTINGS.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
         else:
             return server.get_kodi_header_formatted_url(
@@ -2462,7 +2462,7 @@ def get_fanart_image(data, server, width=1280, height=720):
         @ input: elementTree element, server name
         @ return formatted URL for photo resizing
     """
-    if settings.get_setting('skipimages'):
+    if SETTINGS.get_setting('skipimages'):
         return ''
 
     fanart = encode_utf8(data.get('art', ''))
@@ -2471,7 +2471,7 @@ def get_fanart_image(data, server, width=1280, height=720):
         return fanart
 
     elif fanart.startswith('/'):
-        if settings.get_setting('fullres_fanart'):
+        if SETTINGS.get_setting('fullres_fanart'):
             return server.get_kodi_header_formatted_url(fanart)
         else:
             return server.get_kodi_header_formatted_url(
@@ -2555,7 +2555,7 @@ def plex_online(url):
 
         add_item_to_gui(u, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def install(url, name):
@@ -2644,7 +2644,7 @@ def channel_view(url):
 
         add_item_to_gui(p_url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def display_content(acceptable_level, content_level):
@@ -2705,8 +2705,8 @@ def display_content(acceptable_level, content_level):
 
     if content_level is None or content_level == 'None':
         log_print.debug('Setting [None] rating as %s' %
-                        content_map[settings.get_setting('contentNone')])
-        if settings.get_setting('contentNone') <= acceptable_level:
+                        content_map[SETTINGS.get_setting('contentNone')])
+        if SETTINGS.get_setting('contentNone') <= acceptable_level:
             log_print.debug('OK to display')
             return True
     else:
@@ -2897,7 +2897,7 @@ def set_library_audio(server_uuid, metadata_id):
 
 def get_master_server(all_servers=False):
     possible_servers = []
-    current_master = settings.get_setting('masterServer')
+    current_master = SETTINGS.get_setting('masterServer')
     for serverData in plex_network.get_server_list():
         log_print.debug(str(serverData))
         if serverData.get_master() == 1:
@@ -2930,7 +2930,7 @@ def set_master_server():
     servers = get_master_server(True)
     log_print.debug(str(servers))
 
-    current_master = settings.get_setting('masterServer')
+    current_master = SETTINGS.get_setting('masterServer')
 
     display_option_list = []
     for address in servers:
@@ -2945,7 +2945,7 @@ def set_master_server():
         return False
 
     log_print.debug('Setting master server to: %s' % servers[result].get_name())
-    settings.update_master_server(servers[result].get_name())
+    SETTINGS.update_master_server(servers[result].get_name())
     return
 
 
@@ -3021,7 +3021,7 @@ def display_plex_servers(url):
 
         add_item_to_gui(s_url, details, extra_data)
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
 def switch_user():
@@ -3066,11 +3066,11 @@ def get_transcode_profile():
     profile_labels = []
 
     for m in list(range(profile_count)):
-        if m == 0 or settings.get_setting('transcode_target_enabled_%s' % str(m)):
-            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' %
+        if m == 0 or SETTINGS.get_setting('transcode_target_enabled_%s' % str(m)):
+            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_%s' %
                                                        str(m)).split(',')
-            sub_size = settings.get_setting('transcode_target_sub_size_%s' % str(m))
-            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % str(m))
+            sub_size = SETTINGS.get_setting('transcode_target_sub_size_%s' % str(m))
+            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_%s' % str(m))
             profile_labels.append('[%s] %s@%s (%s/%s)' %
                                   (str(m + 1), resolution, bitrate.strip(), sub_size, audio_boost))
 
@@ -3190,22 +3190,22 @@ log_print.debug('%s %s: Kodi %s on %s with Python %s' %
 wake_servers()
 
 stream_control_map = {
-    STREAM_CONTROL.KODI: 'Kodi',
-    STREAM_CONTROL.PLEX: 'Plex',
-    STREAM_CONTROL.NEVER: 'Never'
+    StreamControl.KODI: 'Kodi',
+    StreamControl.PLEX: 'Plex',
+    StreamControl.NEVER: 'Never'
 }
-stream_control_setting = stream_control_map.get(settings.get_setting('streamControl'))
+stream_control_setting = stream_control_map.get(SETTINGS.get_setting('streamControl'))
 
 log_print.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s| Flatten |%s|\n'
                 'Stream Control |%s| Force DVD |%s| SMB IP Override |%s| NAS IP |%s|' %
-                (settings.get_setting('fullres_thumbs'),
-                 settings.get_stream(),
-                 settings.get_setting('secondary'),
-                 settings.get_setting('flatten'),
+                (SETTINGS.get_setting('fullres_thumbs'),
+                 SETTINGS.get_stream(),
+                 SETTINGS.get_setting('secondary'),
+                 SETTINGS.get_setting('flatten'),
                  stream_control_setting,
-                 settings.get_setting('forcedvd'),
-                 settings.get_setting('nasoverride'),
-                 settings.get_setting('nasoverrideip')))
+                 SETTINGS.get_setting('forcedvd'),
+                 SETTINGS.get_setting('nasoverride'),
+                 SETTINGS.get_setting('nasoverrideip')))
 
 plex_network = plex.Plex(load=False)
 

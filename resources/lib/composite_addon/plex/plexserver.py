@@ -31,7 +31,7 @@ from . import plexsection
 from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import encode_utf8
-from ..common import settings
+from ..common import SETTINGS
 
 log_print = PrintDebug(CONFIG['name'], 'plexserver')
 
@@ -140,17 +140,17 @@ class PlexMediaServer:
 
     def get_client_identifier(self):
         if self.client_id is None:
-            self.client_id = settings.get_setting('client_id')
+            self.client_id = SETTINGS.get_setting('client_id')
 
             if not self.client_id:
                 self.client_id = str(uuid.uuid4())
-                settings.set_setting('client_id', self.client_id)
+                SETTINGS.set_setting('client_id', self.client_id)
 
         return self.client_id
 
     def get_device_name(self):
         if self.device_name is None:
-            self.device_name = settings.get_setting('devicename')
+            self.device_name = SETTINGS.get_setting('devicename')
         return self.device_name
 
     def get_uuid(self):
@@ -284,7 +284,7 @@ class PlexMediaServer:
         self.offline = False
         self.update_identification()
 
-        use_https = settings.get_setting('secureconn')
+        use_https = SETTINGS.get_setting('secureconn')
         if not use_https:
             self.set_protocol('http')
 
@@ -422,7 +422,7 @@ class PlexMediaServer:
             log_print.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = False if self.protocol == 'http' else settings.get_setting('verify_cert')
+            verify_cert = False if self.protocol == 'http' else SETTINGS.get_setting('verify_cert')
 
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
@@ -670,11 +670,11 @@ class PlexMediaServer:
 
         log_print.debug('Getting fanart for %s' % section.get_title())
 
-        if settings.get_setting('skipimages'):
+        if SETTINGS.get_setting('skipimages'):
             return ''
 
         if section.get_art().startswith('/'):
-            if settings.get_setting('fullres_fanart'):
+            if SETTINGS.get_setting('fullres_fanart'):
                 return self.get_formatted_url(section.get_art())
             else:
                 return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
@@ -751,16 +751,16 @@ class PlexMediaServer:
         log_print.debug('incoming URL is: %s' % url)
 
         try:
-            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' %
+            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_%s' %
                                                        transcode_profile).split(',')
-            subtitle_size = settings.get_setting('transcode_target_sub_size_%s' %
+            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_%s' %
                                                  transcode_profile).split('.')[0]
-            audio_boost = settings.get_setting('transcode_target_audio_size_%s' %
+            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_%s' %
                                                transcode_profile).split('.')[0]
         except ValueError:
-            resolution, bitrate = settings.get_setting('transcode_target_quality_0').split(',')
-            subtitle_size = settings.get_setting('transcode_target_sub_size_0').split('.')[0]
-            audio_boost = settings.get_setting('transcode_target_audio_size_0').split('.')[0]
+            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_0').split(',')
+            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_0').split('.')[0]
+            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_0').split('.')[0]
 
         if bitrate.endswith('Mbps'):
             max_video_bitrate = float(bitrate.strip().split('Mbps')[0]) * 1000
@@ -804,10 +804,10 @@ class PlexMediaServer:
         log_print.debug('Using preferred transcoding server: %s ' % self.get_name())
         log_print.debug('incoming URL is: %s' % url)
 
-        quality = str(float(settings.get_setting('quality_leg')) + 3)
+        quality = str(float(SETTINGS.get_setting('quality_leg')) + 3)
         log_print.debug('Transcode quality is %s' % quality)
 
-        audio_output = settings.get_setting('audiotype')
+        audio_output = SETTINGS.get_setting('audiotype')
         if audio_output == '0':
             audio = 'mp3,aac{bitrate:160000}'
         elif audio_output == '1':
@@ -832,8 +832,8 @@ class PlexMediaServer:
                               'httpCookie': '',
                               'userAgent': '',
                               'ratingKey': media_id,
-                              'subtitleSize': settings.get_setting('subSize').split('.')[0],
-                              'audioBoost': settings.get_setting('audioSize').split('.')[0],
+                              'subtitleSize': SETTINGS.get_setting('subSize').split('.')[0],
+                              'audioBoost': SETTINGS.get_setting('audioSize').split('.')[0],
                               'key': ''}
 
         if identifier:
