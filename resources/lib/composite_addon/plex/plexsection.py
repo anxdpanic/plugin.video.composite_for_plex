@@ -103,5 +103,5 @@ class PlexSection:
 
         if _i.get(value):
             return i18n(value)
-        else:
-            return value
+
+        return value
