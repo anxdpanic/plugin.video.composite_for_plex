@@ -3196,10 +3196,24 @@ def start_composite(start_time):
 
     elif command == 'signin':
         from .plex import plexsignin  # pylint: disable=import-outside-toplevel
-        signin_window = plexsignin.PlexSignin(i18n('myPlex Login'))
-        signin_window.set_authentication_target(PLEX_NETWORK)
-        signin_window.start()
-        del signin_window
+        try:
+            signin_window = plexsignin.PlexSignin(i18n('myPlex Login'))
+            signin_window.set_authentication_target(PLEX_NETWORK)
+            signin_window.start()
+            del signin_window
+        except AttributeError:
+            response = PLEX_NETWORK.get_signin_pin()
+            message = i18n('From your computer, go to [B]%s[/B] and'
+                           ' enter the following code: [B]%s[/B]') % \
+                      ('http://plex.tv/pin', ' '.join(response.get('code', [])))
+            xbmcgui.Dialog().ok(i18n('myPlex Login'), message)
+            xbmc.sleep(500)
+            result = PLEX_NETWORK.check_signin_status(response.get('id', ''))
+            if result:
+                LOG.debug('Sign in successful ...')
+            else:
+                LOG.debug('Sign in failed ...')
+            xbmc.executebuiltin('Container.Refresh')
 
     elif command == 'signintemp':
         # Awful hack to get around running a script from a listitem..
@@ -3223,11 +3237,15 @@ def start_composite(start_time):
                                          'an admin user. Switch user and try again'))
 
         if has_access:
-            from .plex import plexsignin  # pylint: disable=import-outside-toplevel
-            manage_window = plexsignin.PlexManage(i18n('Manage myPlex'))
-            manage_window.set_authentication_target(PLEX_NETWORK)
-            manage_window.start()
-            del manage_window
+            try:
+                from .plex import plexsignin  # pylint: disable=import-outside-toplevel
+                manage_window = plexsignin.PlexManage(i18n('Manage myPlex'))
+                manage_window.set_authentication_target(PLEX_NETWORK)
+                manage_window.start()
+                del manage_window
+            except AttributeError:
+                LOG.debug('Failed to load PlexManage ...')
+
     elif command == 'displayservers':
         PLEX_NETWORK.load()
         display_known_servers()
