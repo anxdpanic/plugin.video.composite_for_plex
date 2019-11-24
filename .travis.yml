@@ -10,12 +10,14 @@ before_install:
 
 install:
   - pip install $HOME/addon-check/
+  - pip install pylint
 
 before_script:
   - |
-    rm -rf LICENSES/
     rm -f .gitattributes
+    mv .pylintrc $HOME
     cd $HOME
 
 script:
   - kodi-addon-checker $TRAVIS_BUILD_DIR --branch=jarvis
+  - pylint $TRAVIS_BUILD_DIR/resources/lib/
