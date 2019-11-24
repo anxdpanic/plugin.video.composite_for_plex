@@ -9,17 +9,17 @@
     See LICENSES/GPL-2.0-or-later for more information.
 """
 
-import xbmc
+import xbmc  # pylint: disable=import-error
 
-import pyxbmct.addonwindow as pyxbmct
+import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 
 from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import decode_utf8
 from ..common import i18n
 
-log_print = PrintDebug(CONFIG['name'], 'plex_signin')
-media_path = decode_utf8(xbmc.translatePath(CONFIG['media_path']))
+LOG = PrintDebug(CONFIG['name'], 'plex_signin')
+MEDIA_PATH = decode_utf8(xbmc.translatePath(CONFIG['media_path']))
 
 
 # noinspection PyAttributeOutsideInit
@@ -38,6 +38,9 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
         self.plex_network = None
         self.identifier = None
+
+        self.data = {}
+        self.tick = pyxbmct.Image(MEDIA_PATH + 'tick.png', aspectRatio=2)
 
     def start(self):
         xbmc.executebuiltin('Dialog.Close(all,true)')
@@ -91,23 +94,23 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.placeControl(self.submit_pin_button, 5, 2, columnspan=2)
 
         # Submit button to get token
-        self.connect(self.submit_button, lambda: self.submit())
-        self.connect(self.manual_button, lambda: self.display_manual())
-        self.connect(self.pin_button, lambda: self.display_pin())
-        self.connect(self.submit_pin_button, lambda: self.submit_pin())
+        self.connect(self.submit_button, lambda: self.submit())  # pylint: disable=unnecessary-lambda
+        self.connect(self.manual_button, lambda: self.display_manual())  # pylint: disable=unnecessary-lambda
+        self.connect(self.pin_button, lambda: self.display_pin())  # pylint: disable=unnecessary-lambda
+        self.connect(self.submit_pin_button, lambda: self.submit_pin())  # pylint: disable=unnecessary-lambda
 
         # set up failure message
-        self.error_cross = pyxbmct.Image(media_path + 'error.png', aspectRatio=2)
+        self.error_cross = pyxbmct.Image(MEDIA_PATH + 'error.png', aspectRatio=2)
         self.placeControl(self.error_cross, 4, 2)
         self.error_message = pyxbmct.Label(i18n('Unable to sign in'))
         self.placeControl(self.error_message, 4, 3, columnspan=2, rowspan=2)
         self.error_cross.setVisible(False)
         self.error_message.setVisible(False)
 
-        self.digit_one = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
-        self.digit_two = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
-        self.digit_three = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
-        self.digit_four = pyxbmct.Image(media_path + '-.png', aspectRatio=2)
+        self.digit_one = pyxbmct.Image(MEDIA_PATH + '-.png', aspectRatio=2)
+        self.digit_two = pyxbmct.Image(MEDIA_PATH + '-.png', aspectRatio=2)
+        self.digit_three = pyxbmct.Image(MEDIA_PATH + '-.png', aspectRatio=2)
+        self.digit_four = pyxbmct.Image(MEDIA_PATH + '-.png', aspectRatio=2)
 
         self.placeControl(self.digit_one, 3, 1)
         self.placeControl(self.digit_two, 3, 2)
@@ -154,10 +157,10 @@ class PlexSignin(pyxbmct.AddonFullWindow):
         self.digit_three.setVisible(True)
         self.digit_four.setVisible(True)
 
-        self.digit_one.setImage(media_path + digits[0].lower() + '.png')
-        self.digit_two.setImage(media_path + digits[1].lower() + '.png')
-        self.digit_three.setImage(media_path + digits[2].lower() + '.png')
-        self.digit_four.setImage(media_path + digits[3].lower() + '.png')
+        self.digit_one.setImage(MEDIA_PATH + digits[0].lower() + '.png')
+        self.digit_two.setImage(MEDIA_PATH + digits[1].lower() + '.png')
+        self.digit_three.setImage(MEDIA_PATH + digits[2].lower() + '.png')
+        self.digit_four.setImage(MEDIA_PATH + digits[3].lower() + '.png')
 
         self.setFocus(self.submit_pin_button)
 
@@ -202,17 +205,16 @@ class PlexSignin(pyxbmct.AddonFullWindow):
             self.submit_button.setVisible(False)
             self.pin_button.setVisible(False)
             # tick mark
-            self.tick = pyxbmct.Image(media_path + 'tick.png', aspectRatio=2)
             self.placeControl(self.tick, 2, 2, columnspan=2, rowspan=2)
 
             self.description.setText(i18n('Successfully signed in'))
             xbmc.sleep(2000)
 
-            log_print.debug(i18n('Successfully signed in'))
+            LOG.debug(i18n('Successfully signed in'))
 
             self.close()
         else:
-            log_print.debug(i18n('Sign in not successful'))
+            LOG.debug(i18n('Sign in not successful'))
             self.display_manual(True)
 
     def submit_pin(self):
@@ -229,17 +231,16 @@ class PlexSignin(pyxbmct.AddonFullWindow):
             self.pin_button.setVisible(False)
             self.submit_pin_button.setVisible(False)
             # tick mark
-            self.tick = pyxbmct.Image(media_path + 'tick.png', aspectRatio=2)
             self.placeControl(self.tick, 2, 2, columnspan=2, rowspan=2)
 
             self.description.setText(i18n('Successfully signed in'))
             xbmc.sleep(2000)
 
-            log_print.debug(i18n('Successfully signed in'))
+            LOG.debug(i18n('Successfully signed in'))
 
             self.close()
         else:
-            log_print.debug(i18n('Sign in not successful'))
+            LOG.debug(i18n('Sign in not successful'))
             self.display_pin(True)
 
     def set_navigation(self):
@@ -340,8 +341,8 @@ class PlexManage(pyxbmct.AddonFullWindow):
 
         # Submit button to get token
         self.connect(self.cancel_button, self.close)
-        self.connect(self.switch_button, lambda: self.switch())
-        self.connect(self.signout_button, lambda: self.signout())
+        self.connect(self.switch_button, lambda: self.switch())  # pylint: disable=unnecessary-lambda
+        self.connect(self.signout_button, lambda: self.signout())  # pylint: disable=unnecessary-lambda
 
     def switch(self):
         xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', switchuser)')
