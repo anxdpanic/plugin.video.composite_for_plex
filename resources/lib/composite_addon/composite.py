@@ -2251,17 +2251,15 @@ def photo(url, tree=None):
             extra_data['mode'] = MODES.PHOTOS
             add_item_to_gui(item_url, details, extra_data)
 
-        elif picture.tag == 'Photo':
-
-            if tree.get('viewGroup', '') == 'photo':
-                for pics in picture:
-                    if pics.tag == 'Media':
-                        for images in pics:
-                            if images.tag == 'Part':
-                                extra_data['key'] = \
-                                    server.get_url_location() + images.get('key', '')
-                                details['size'] = int(images.get('size', 0))
-                                item_url = extra_data['key']
+        elif picture.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
+            for pics in picture:
+                if pics.tag == 'Media':
+                    parts = [img for img in pics if img.tag == 'Part']
+                    for part in parts:
+                        extra_data['key'] = \
+                            server.get_url_location() + part.get('key', '')
+                        details['size'] = int(part.get('size', 0))
+                        item_url = extra_data['key']
 
             add_item_to_gui(item_url, details, extra_data, folder=False)
 

@@ -240,6 +240,7 @@ class CallbackPlayer(xbmc.Player):
         self.onPlayBackEnded()
 
 
+# pylint: disable=too-many-nested-blocks
 def next_up(server, media_id, callback_args):
     try:
         current_metadata = server.get_metadata(media_id)
