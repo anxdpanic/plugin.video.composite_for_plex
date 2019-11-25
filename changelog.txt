@@ -7,7 +7,7 @@
 [upd] linting
 
 0.0.6
-[fix] Next Up on python 3.x < 3.6
+[fix] Up Next on python 3.x < 3.6
 
 0.0.5
 [add] Support for Up Next (service.upnext)
