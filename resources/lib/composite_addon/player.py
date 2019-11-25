@@ -208,7 +208,7 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
-        monitor_playback = SETTINGS.get_setting('monitoroff', fresh=True)
+        monitor_playback = not SETTINGS.get_setting('monitoroff', fresh=True)
         playback_dict = read_pickled('playback_monitor.pickle')
 
         if monitor_playback and playback_dict:
@@ -336,35 +336,37 @@ def get_nextup_episode(server, metadata, extended_metadata=None):
     if extended_metadata is None:
         extended_metadata = {}
 
-    fanart = ''
-    image = ''
-    grandparent_image = ''
+    use_episode_thumbs = SETTINGS.get_setting('up_next_episode_thumbs', fresh=True)
+
+    episode_image = ''
+    fanart_image = ''
+    tvshow_image = ''
 
     if metadata.get('thumb'):
         image_url = metadata.get('thumb')
         if image_url.startswith('/'):
             image_url = server.get_url_location() + image_url
-        image = server.get_kodi_header_formatted_url(image_url)
+        episode_image = server.get_kodi_header_formatted_url(image_url)
     if metadata.get('grandparentThumb'):
         image_url = metadata.get('grandparentThumb')
         if image_url.startswith('/'):
             image_url = server.get_url_location() + image_url
-        grandparent_image = server.get_kodi_header_formatted_url(image_url)
+        tvshow_image = server.get_kodi_header_formatted_url(image_url)
     if metadata.get('art'):
         image_url = metadata.get('art')
         if image_url.startswith('/'):
             image_url = server.get_url_location() + image_url
-        fanart = server.get_kodi_header_formatted_url(image_url)
+        fanart_image = server.get_kodi_header_formatted_url(image_url)
 
     episode = {
-        "episodeid": '_%s' % metadata.get('ratingKey', '-1'),
-        "tvshowid": '_%s' % metadata.get('parentRatingKey', '-1'),
+        "episodeid": metadata.get('ratingKey', -1),
+        "tvshowid": metadata.get('parentRatingKey', -1),
         "title": metadata.get('title', ''),
         "art": {
-            "tvshow.poster": grandparent_image,
-            "thumb": image,
-            "tvshow.fanart": fanart,
-            "tvshow.landscape": "",
+            "tvshow.poster": tvshow_image,
+            "thumb": episode_image,
+            "tvshow.fanart": fanart_image,
+            "tvshow.landscape": episode_image if use_episode_thumbs else fanart_image,
             "tvshow.clearart": "",
             "tvshow.clearlogo": "",
         },

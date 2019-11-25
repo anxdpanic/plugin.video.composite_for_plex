@@ -71,6 +71,7 @@
     <category label="30684">
         <setting id="use_up_next" type="bool" label="30685" default="false" enable="System.HasAddon(service.upnext)"/>
         <setting id="up_next_settings" label="30686" type="action" action="Addon.OpenSettings(service.upnext)" option="close" enable="eq(-1,true)"/>
+        <setting id="up_next_episode_thumbs" type="bool" label="30691" default="false" enable="eq(-2,true)"/>
         <setting type="lsep" label="30689"/>
         <setting id="up_next_install" label="30687" type="action" action="InstallAddon(service.upnext)" option="close" enable="!System.HasAddon(service.upnext)"/>
     </category>
