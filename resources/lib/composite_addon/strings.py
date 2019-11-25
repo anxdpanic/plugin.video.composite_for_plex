@@ -5,10 +5,10 @@
     This file is part of Composite (plugin.video.composite_for_plex)
 
     SPDX-License-Identifier: GPL-2.0-or-later
-    See LICENSES/GPL-2.0-or-later for more information.
+    See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-strings = {
+STRINGS = {
     # core
     'Delete': 117,
     'Refresh': 184,
@@ -29,7 +29,8 @@ strings = {
     'myPlex': 30008,
     'You are currently signed into myPlex. Are you sure you want to sign out?': 30009,
     'You are not currently logged into myPlex. Continue to sign in, or cancel to return': 30011,
-    'To access these screens you must be logged in as an admin user. Switch user and try again': 30012,
+    'To access these screens you must be logged in as an admin user. '
+    'Switch user and try again': 30012,
     'All': 30013,
     'Unwatched': 30014,
     'Recently Aired': 30015,
@@ -141,4 +142,5 @@ strings = {
     'is already in the playlist': 30680,
     'has been removed the playlist': 30681,
     'Unable to remove from the playlist': 30682,
+    'From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]': 30690,
 }

@@ -6,7 +6,7 @@
     This file is part of Composite (plugin.video.composite_for_plex)
 
     SPDX-License-Identifier: GPL-2.0-or-later
-    See LICENSES/GPL-2.0-or-later for more information.
+    See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
 import base64
@@ -19,6 +19,7 @@ import uuid
 import xml.etree.ElementTree as ETree
 
 import requests
+from six import PY3
 from six.moves import range
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import urlunparse
@@ -28,21 +29,25 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
 
 from . import plexsection
+from .plexcommon import get_client_identifier
+from .plexcommon import get_device_name
+from .plexcommon import create_plex_identification
 from ..common import CONFIG
 from ..common import PrintDebug
 from ..common import encode_utf8
-from ..common import settings
+from ..common import SETTINGS
 
-log_print = PrintDebug(CONFIG['name'], 'plexserver')
+LOG = PrintDebug(CONFIG['name'], 'plexserver')
 
 DEFAULT_PORT = '32400'
 
-log_print.debug('Using Requests version for HTTP: %s' % requests.__version__)
+LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)
 
 
-class PlexMediaServer:
+class PlexMediaServer:  # pylint: disable=too-many-public-methods
 
-    def __init__(self, server_uuid=None, name=None, address=None, port=32400, token=None, discovery=None, class_type='primary'):
+    def __init__(self, server_uuid=None, name=None, address=None, port=32400,  # pylint: disable=too-many-arguments
+                 token=None, discovery=None, class_type='primary'):
 
         self.__revision = CONFIG['required_revision']
         self.protocol = 'https'
@@ -80,8 +85,15 @@ class PlexMediaServer:
         self.plex_identification_string = None
         self.update_identification()
 
+    def plex_identification_headers(self):
+        self.client_id = get_client_identifier(self.client_id)
+        self.device_name = get_device_name(self.device_name)
+
+        return create_plex_identification(device_name=self.device_name, client_id=self.client_id,
+                                          user=self.get_user(), token=self.get_token())
+
     def update_identification(self):
-        self.plex_identification_header = self.create_plex_identification()
+        self.plex_identification_header = self.plex_identification_headers()
         self.plex_identification_string = self.create_plex_identification_string()
 
     def get_revision(self):
@@ -90,13 +102,15 @@ class PlexMediaServer:
     def get_status(self):
         if self.offline:
             return 'Offline'
-        elif self.access_address == self.external_address or \
+
+        if self.access_address == self.external_address or \
                 (self.external_address_uri and (self.access_address in self.external_address_uri)):
             return 'Remote'
-        elif self.access_address in self.local_address:
+
+        if self.access_address in self.local_address:
             return 'Nearby'
-        else:
-            return 'Unknown'
+
+        return 'Unknown'
 
     def get_details(self):
 
@@ -110,47 +124,12 @@ class PlexMediaServer:
                 'master': self.master,
                 'class': self.class_type}
 
-    def create_plex_identification(self):
-        headers = {'X-Plex-Device': CONFIG['device'],
-                   'X-Plex-Client-Platform': 'Kodi',
-                   'X-Plex-Device-Name': self.get_device_name(),
-                   'X-Plex-Language': 'en',
-                   'X-Plex-Platform': CONFIG['platform'],
-                   'X-Plex-Client-Identifier': self.get_client_identifier(),
-                   'X-Plex-Product': CONFIG['name'],
-                   'X-Plex-Platform-Version': CONFIG['platform_version'],
-                   'X-Plex-Version': '0.0.0a1',
-                   'X-Plex-Provides': 'player,controller'}
-
-        if self.token is not None:
-            headers['X-Plex-Token'] = self.token
-
-        if self.user is not None:
-            headers['X-Plex-User'] = self.user
-
-        return headers
-
     def create_plex_identification_string(self):
         header = []
-        for key, value in self.create_plex_identification().items():
+        for key, value in self.plex_identification_header.items():
             header.append('%s=%s' % (key, quote(value)))
 
         return '&'.join(header)
-
-    def get_client_identifier(self):
-        if self.client_id is None:
-            self.client_id = settings.get_setting('client_id')
-
-            if not self.client_id:
-                self.client_id = str(uuid.uuid4())
-                settings.set_setting('client_id', self.client_id)
-
-        return self.client_id
-
-    def get_device_name(self):
-        if self.device_name is None:
-            self.device_name = settings.get_setting('devicename')
-        return self.device_name
 
     def get_uuid(self):
         return self.uuid
@@ -185,16 +164,16 @@ class PlexMediaServer:
         return False
 
     def find_address_match(self, ipaddress, port):
-        log_print.debug('Checking [%s:%s] against [%s]' % (ipaddress, port, self.access_address))
+        LOG.debug('Checking [%s:%s] against [%s]' % (ipaddress, port, self.access_address))
         if '%s:%s' % (ipaddress, port) == self.access_address:
             return True
 
-        log_print.debug('Checking [%s:%s] against [%s]' % (ipaddress, port, self.external_address))
+        LOG.debug('Checking [%s:%s] against [%s]' % (ipaddress, port, self.external_address))
         if '%s:%s' % (ipaddress, port) == self.external_address:
             return True
 
         for test_address in self.local_address:
-            log_print.debug('Checking [%s:%s] against [%s:%s]' % (ipaddress, port, ipaddress, 32400))
+            LOG.debug('Checking [%s:%s] against [%s:%s]' % (ipaddress, port, ipaddress, 32400))
             if '%s:%s' % (ipaddress, port) == '%s:%s' % (test_address, 32400):
                 return True
 
@@ -256,20 +235,20 @@ class PlexMediaServer:
         self.local_address = address.split(',')
 
     def connection_test(self, tag, uri):
-        log_print.debug('[%s] Head request |%s|' % (self.uuid, uri))
+        LOG.debug('[%s] Head request |%s|' % (self.uuid, uri))
         url_parts = urlparse(uri)
-        status_code = requests.codes.not_found
+        status_code = requests.codes.not_found  # pylint: disable=no-member
         try:
-            response = requests.head(uri, params=self.plex_identification_header, verify=False, timeout=(2, 60))
+            response = requests.head(uri, params=self.plex_identification_header,
+                                     verify=False, timeout=(2, 60))
             status_code = response.status_code
-            log_print.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
-            if status_code == requests.codes.ok or \
-                    status_code == requests.codes.unauthorized:
+            LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
+            if status_code in [requests.codes.ok, requests.codes.unauthorized]:  # pylint: disable=no-member
                 self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, True))
                 return
-        except:
+        except:  # pylint: disable=bare-except
             pass
-        log_print.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
+        LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
         self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
 
     def set_best_address(self, address=''):
@@ -279,7 +258,7 @@ class PlexMediaServer:
         self.offline = False
         self.update_identification()
 
-        use_https = settings.get_setting('secureconn')
+        use_https = SETTINGS.get_setting('secureconn')
         if not use_https:
             self.set_protocol('http')
 
@@ -338,59 +317,89 @@ class PlexMediaServer:
                 uris.append('%s://%s/' % ('http', external_address))
                 tags.append('external')
 
-        for m in list(range(len(uris))):
-            uri = uris[m]
+        for idx in list(range(len(uris))):
+            uri = uris[idx]
             if uri in tested:
                 continue
             tested.append(uri)
-            threads.append(threading.Thread(target=self.connection_test, args=(tags[m], uri)))
+            threads.append(threading.Thread(target=self.connection_test, args=(tags[idx], uri)))
 
         _ = [thread.start() for thread in threads]
         _ = [thread.join() for thread in threads]
 
-        log_print.debug('[%s] Server connection test results |%s|' % (self.uuid, str(self.connection_test_results)))
+        LOG.debug('[%s] Server connection test results |%s|' %
+                  (self.uuid, str(self.connection_test_results)))
 
-        #  connection preference https (user provided, external uri, internal address, external address)
-        if any(c[0] == 'user' and c[1] == 'https' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'user' and c[1] == 'https' and c[3])
-            log_print.debug('[%s] Server [%s] not found in existing lists.  selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external_uri' and c[1] == 'https' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external_uri' and c[1] == 'https' and c[3])
-            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'internal' and c[1] == 'https' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'internal' and c[1] == 'https' and c[3])
-            log_print.debug('[%s] Server [%s] found on existing internal list.  Selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external' and c[1] == 'https' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external' and c[1] == 'https' and c[3])
-            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
+        #  connection preference https
+        #  (user provided, external uri, internal address, external address)
+        if any(c[0] == 'user' and c[1] == 'https' and c[3]
+               for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'user' and c[1] == 'https' and c[3])
+            LOG.debug('[%s] Server [%s] not found in existing lists.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external_uri' and c[1] == 'https' and c[3]
+                 for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'external_uri' and c[1] == 'https' and c[3])
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'internal' and c[1] == 'https' and c[3]
+                 for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'internal' and c[1] == 'https' and c[3])
+            LOG.debug('[%s] Server [%s] found on existing internal list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external' and c[1] == 'https' and c[3]
+                 for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'external' and c[1] == 'https' and c[3])
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
 
-        #  connection preference http (user provided, external uri, internal address, external address)
-        elif any(c[0] == 'user' and c[1] == 'http' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'user' and c[1] == 'http' and c[3])
+        #  connection preference http
+        #  (user provided, external uri, internal address, external address)
+        elif any(c[0] == 'user' and c[1] == 'http' and c[3]
+                 for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'user' and c[1] == 'http' and c[3])
             self.set_protocol('http')
-            log_print.debug('[%s] Server [%s] not found in existing lists.  selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external_uri' and c[1] == 'http' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external_uri' and c[1] == 'http' and c[3])
+            LOG.debug('[%s] Server [%s] not found in existing lists.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external_uri' and c[1] == 'http' and c[3]
+                 for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'external_uri' and c[1] == 'http' and c[3])
             self.set_protocol('http')
-            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'internal' and c[1] == 'http' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'internal' and c[1] == 'http' and c[3])
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'internal' and c[1] == 'http' and c[3]
+                 for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'internal' and c[1] == 'http' and c[3])
             self.set_protocol('http')
-            log_print.debug('[%s] Server [%s] found on existing internal list.  Selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external' and c[1] == 'http' and c[3] for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results if c[0] == 'external' and c[1] == 'http' and c[3])
+            LOG.debug('[%s] Server [%s] found on existing internal list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+        elif any(c[0] == 'external' and c[1] == 'http' and c[3]
+                 for c in self.connection_test_results):
+            self.access_address = next(c[2] for c in self.connection_test_results
+                                       if c[0] == 'external' and c[1] == 'http' and c[3])
             self.set_protocol('http')
-            log_print.debug('[%s] Server [%s] found in existing external list.  selecting as default' % (self.uuid, self.access_address))
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
         else:
             self.offline = True
-            log_print.debug('[%s] Server appears to be offline' % self.uuid)
+            LOG.debug('[%s] Server appears to be offline' % self.uuid)
 
-    def talk(self, url='/', refresh=False, method='get', extra_headers={}):
+    def talk(self, url='/', refresh=False, method='get', extra_headers=None):
+        if extra_headers is None:
+            extra_headers = {}
+
         if not self.offline or refresh:
-            log_print.debug('URL is: %s using %s' % (url, self.protocol))
+            LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = False if self.protocol == 'http' else settings.get_setting('verify_cert')
+            verify_cert = False if self.protocol == 'http' else SETTINGS.get_setting('verify_cert')
 
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
@@ -398,45 +407,57 @@ class PlexMediaServer:
                 params.update(extra_headers)
             try:
                 if method == 'get':
-                    response = requests.get(uri, params=params, verify=verify_cert, timeout=(2, 60))
+                    response = requests.get(uri, params=params, verify=verify_cert,
+                                            timeout=(2, 60))
                 elif method == 'put':
-                    response = requests.put(uri, params=params, verify=verify_cert, timeout=(2, 60))
+                    response = requests.put(uri, params=params, verify=verify_cert,
+                                            timeout=(2, 60))
                 elif method == 'delete':
-                    response = requests.delete(uri, params=params, verify=verify_cert, timeout=(2, 60))
+                    response = requests.delete(uri, params=params, verify=verify_cert,
+                                               timeout=(2, 60))
                 else:
                     response = None
                 self.offline = False
-            except requests.exceptions.ConnectionError as e:
-                log_print.error('Server: %s is offline or uncontactable. error: %s' % (self.get_address(), e))
+            except requests.exceptions.ConnectionError as error:
+                LOG.error('Server: %s is offline or uncontactable. error: %s' %
+                          (self.get_address(), error))
 
                 if self.protocol == 'https' and refresh:
-                    log_print.debug('Server: %s - switching to http' % self.get_address())
+                    LOG.debug('Server: %s - switching to http' % self.get_address())
                     self.set_protocol('http')
                     return self.talk(url, refresh, method)
-                else:
-                    self.offline = True
+
+                self.offline = True
 
             except requests.exceptions.ReadTimeout:
-                log_print.debug('Server: read timeout for %s on %s ' % (self.get_address(), url))
+                LOG.debug('Server: read timeout for %s on %s ' % (self.get_address(), url))
             else:
 
-                log_print.debug('URL was: %s' % response.url)
+                LOG.debug('URL was: %s' % response.url)
 
-                if response.status_code == requests.codes.ok:
-                    log_print.debug('Response: 200 OK - Encoding: %s' % response.encoding)
+                if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+                    LOG.debug('Response: 200 OK - Encoding: %s' % response.encoding)
                     data = encode_utf8(response.text, py2_only=False)
-                    log_print.debugplus('XML: \n%s' % data)
-                    log_print.debug('DOWNLOAD: It took %.2f seconds to retrieve data from %s' % ((time.time() - start_time), self.get_address()))
+                    LOG.debugplus('XML: \n%s' % data)
+                    LOG.debug('DOWNLOAD: It took %.2f seconds to retrieve data from %s' %
+                              ((time.time() - start_time), self.get_address()))
                     return data
-                elif response.status_code == requests.codes.unauthorized:
-                    log_print.debug('Response: 401 Unauthorized - Please log into myPlex or check your myPlex password')
-                    return '<?xml version="1.0" encoding="UTF-8"?><message status="unauthorized"></message>'
-                else:
-                    log_print.debug('Unexpected Response: %s ' % response.status_code)
+                if response.status_code == requests.codes.unauthorized:  # pylint: disable=no-member
+                    LOG.debug('Response: 401 Unauthorized - '
+                              'Please log into myPlex or check your myPlex password')
+                    return '<?xml version="1.0" encoding="UTF-8"?>' \
+                           '<message status="unauthorized">' \
+                           '</message>'
 
-        return '<?xml version="1.0" encoding="UTF-8"?><message status="offline"></message>'
+                LOG.debug('Unexpected Response: %s ' % response.status_code)
 
-    def tell(self, url, refresh=False, extra_headers={}):
+        return '<?xml version="1.0" encoding="UTF-8"?>' \
+               '<message status="offline">' \
+               '</message>'
+
+    def tell(self, url, refresh=False, extra_headers=None):
+        if extra_headers is None:
+            extra_headers = {}
         return self.talk(url, refresh, method='put', extra_headers=extra_headers)
 
     def refresh(self):
@@ -444,13 +465,14 @@ class PlexMediaServer:
 
         tree = ETree.fromstring(data)
 
-        if tree is not None and not (tree.get('status') == 'offline' or tree.get('status') == 'unauthorized'):
+        if (tree is not None and
+                not (tree.get('status') == 'offline' or tree.get('status') == 'unauthorized')):
             self.server_name = encode_utf8(tree.get('friendlyName'))
             self.uuid = tree.get('machineIdentifier')
             self.owned = 1
             self.master = 1
             self.class_type = tree.get('serverClass', 'primary')
-            self.plex_home_enabled = True if tree.get('multiuser') == '1' else False
+            self.plex_home_enabled = tree.get('multiuser') == '1'
             self.discovered = True
         else:
             self.discovered = False
@@ -459,13 +481,12 @@ class PlexMediaServer:
         return self.offline
 
     def get_sections(self):
-        log_print.debug('Returning sections: %s' % self.section_list)
+        LOG.debug('Returning sections: %s' % self.section_list)
         return self.section_list
 
     def discover_sections(self):
         for section in self.processed_xml('/library/sections'):
             self.section_list.append(plexsection.PlexSection(section))
-        return
 
     def get_recently_added(self, section=-1, start=0, size=0, hide_watched=True):
 
@@ -478,9 +499,11 @@ class PlexMediaServer:
             return self.processed_xml('/library/recentlyAdded%s' % arguments)
 
         if size > 0:
-            arguments = '%s&X-Plex-Container-Start=%s&X-Plex-Container-Size=%s' % (arguments, start, size)
+            arguments = '%s&X-Plex-Container-Start=%s&X-Plex-Container-Size=%s' % \
+                        (arguments, start, size)
 
-        return self.processed_xml('/library/sections/%s/recentlyAdded%s' % (section, arguments))
+        return self.processed_xml('/library/sections/%s/recentlyAdded%s' %
+                                  (section, arguments))
 
     def get_ondeck(self, section=-1, start=0, size=0):
 
@@ -490,7 +513,8 @@ class PlexMediaServer:
             return self.processed_xml('/library/onDeck%s' % arguments)
 
         if size > 0:
-            arguments = '%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s' % (arguments, start, size)
+            arguments = '%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s' % \
+                        (arguments, start, size)
 
         return self.processed_xml('/library/sections/%s/onDeck%s' % (section, arguments))
 
@@ -502,9 +526,11 @@ class PlexMediaServer:
             return self.processed_xml('/library/recentlyViewedShows%s' % arguments)
 
         if size > 0:
-            arguments = '%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s' % (arguments, start, size)
+            arguments = '%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s' % \
+                        (arguments, start, size)
 
-        return self.processed_xml('/library/sections/%s/recentlyViewedShows%s' % (section, arguments))
+        return self.processed_xml('/library/sections/%s/recentlyViewedShows%s' %
+                                  (section, arguments))
 
     def get_server_recentlyadded(self):
         return self.get_recently_added(section=-1)
@@ -518,12 +544,13 @@ class PlexMediaServer:
     def process_xml(self, data):
         start_time = time.time()
         tree = ETree.fromstring(data)
-        log_print.debug('PARSE: it took %.2f seconds to parse data from %s' % ((time.time() - start_time), self.get_address()))
+        LOG.debug('PARSE: it took %.2f seconds to parse data from %s' %
+                  ((time.time() - start_time), self.get_address()))
         return tree
 
     def processed_xml(self, url):
         if url.startswith('http'):
-            log_print.debug('We have been passed a full URL. Parsing out path')
+            LOG.debug('We have been passed a full URL. Parsing out path')
             url_parts = urlparse(url)
             url = url_parts.path
 
@@ -535,7 +562,7 @@ class PlexMediaServer:
 
     def raw_xml(self, url):
         if url.startswith('http'):
-            log_print.debug('We have been passed a full URL. Parsing out path')
+            LOG.debug('We have been passed a full URL. Parsing out path')
             url_parts = urlparse(url)
             url = url_parts.path
 
@@ -546,7 +573,8 @@ class PlexMediaServer:
 
         data = self.talk(url)
 
-        log_print.debug('PROCESSING: it took %.2f seconds to process data from %s' % ((time.time() - start_time), self.get_address()))
+        LOG.debug('PROCESSING: it took %.2f seconds to process data from %s' %
+                  ((time.time() - start_time), self.get_address()))
         return data
 
     def is_owned(self):
@@ -585,7 +613,8 @@ class PlexMediaServer:
 
         new_query_args = urlencode(query_args, True)
 
-        return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment))
+        return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path,
+                           url_parts.params, new_query_args, url_parts.fragment))
 
     def get_kodi_header_formatted_url(self, url, options=None):
 
@@ -611,26 +640,29 @@ class PlexMediaServer:
 
         new_query_args = urlencode(query_args, True)
 
-        return '%s|%s' % (urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path, url_parts.params, new_query_args, url_parts.fragment)), self.plex_identification_string)
+        return '%s|%s' % (urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path,
+                                      url_parts.params, new_query_args, url_parts.fragment)),
+                          self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
 
-        log_print.debug('Getting fanart for %s' % section.get_title())
+        LOG.debug('Getting fanart for %s' % section.get_title())
 
-        if settings.get_setting('skipimages'):
+        if SETTINGS.get_setting('skipimages'):
             return ''
 
         if section.get_art().startswith('/'):
-            if settings.get_setting('fullres_fanart'):
+            if SETTINGS.get_setting('fullres_fanart'):
                 return self.get_formatted_url(section.get_art())
-            else:
-                return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' % (quote_plus('http://localhost:32400' + section.get_art()), width, height))
+
+            return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
+                                          (quote_plus('http://localhost:32400' + section.get_art()),
+                                           width, height))
 
         return section.get_art()
 
     def stop_transcode_session(self, session):
         self.talk('/video/:/transcode/segmented/stop?session=%s' % session)
-        return
 
     def report_playback_progress(self, media_id, watched_time, state='playing', duration=0):
         try:
@@ -639,23 +671,21 @@ class PlexMediaServer:
                 watched_time = duration
                 mark_watched = True
 
-            self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' % (duration, media_id, media_id, state, watched_time))
+            self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&'
+                      'key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' %
+                      (duration, media_id, media_id, state, watched_time))
 
             if mark_watched:
                 self.mark_item_watched(media_id)
 
         except ZeroDivisionError:
-            return
-
-        return
+            pass
 
     def mark_item_watched(self, media_id):
         self.talk('/:/scrobble?key=%s&identifier=com.plexapp.plugins.library' % media_id)
-        return
 
     def mark_item_unwatched(self, media_id):
         self.talk('/:/unscrobble?key=%s&identifier=com.plexapp.plugins.library' % media_id)
-        return
 
     def refresh_section(self, key):
         return self.talk('/library/sections/%s/refresh' % key)
@@ -674,7 +704,10 @@ class PlexMediaServer:
 
     def add_playlist_item(self, playlist_id, library_section_uuid, metadata_id):
         return self.process_xml(self.tell('/playlists/%s/items' % playlist_id,
-                                          extra_headers={'uri': 'library://' + library_section_uuid + '/item/%2Flibrary%2Fmetadata%2F' + metadata_id}))
+                                          extra_headers={
+                                              'uri': 'library://' + library_section_uuid +
+                                                     '/item/%2Flibrary%2Fmetadata%2F' + metadata_id
+                                          }))
 
     def delete_playlist_item(self, playlist_item_id, path):
         return self.process_xml(self.talk('%s/%s' % (path, playlist_item_id), method='delete'))
@@ -687,16 +720,19 @@ class PlexMediaServer:
 
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
-        log_print.debug('incoming URL is: %s' % url)
+        LOG.debug('incoming URL is: %s' % url)
 
         try:
-            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' % transcode_profile).split(',')
-            subtitle_size = settings.get_setting('transcode_target_sub_size_%s' % transcode_profile).split('.')[0]
-            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % transcode_profile).split('.')[0]
+            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_%s' %
+                                                       transcode_profile).split(',')
+            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_%s' %
+                                                 transcode_profile).split('.')[0]
+            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_%s' %
+                                               transcode_profile).split('.')[0]
         except ValueError:
-            resolution, bitrate = settings.get_setting('transcode_target_quality_0').split(',')
-            subtitle_size = settings.get_setting('transcode_target_sub_size_0').split('.')[0]
-            audio_boost = settings.get_setting('transcode_target_audio_size_0').split('.')[0]
+            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_0').split(',')
+            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_0').split('.')[0]
+            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_0').split('.')[0]
 
         if bitrate.endswith('Mbps'):
             max_video_bitrate = float(bitrate.strip().split('Mbps')[0]) * 1000
@@ -725,23 +761,25 @@ class PlexMediaServer:
                               'path': 'http://127.0.0.1:32400%s' % url}
 
         full_url = '%s%s' % (transcode_request, urlencode(transcode_settings))
-        log_print.debug('\nURL: |%s|\nProfile: |[%s] %s@%s (%s/%s)|' %
-                        (full_url, str(transcode_profile + 1), resolution, bitrate.strip(), subtitle_size, audio_boost))
+        LOG.debug('\nURL: |%s|\nProfile: |[%s] %s@%s (%s/%s)|' %
+                  (full_url, str(transcode_profile + 1), resolution, bitrate.strip(),
+                   subtitle_size, audio_boost))
 
-        return session, self.get_formatted_url(full_url, options={'X-Plex-Device': 'Plex Home Theater'})
+        return session, self.get_formatted_url(full_url,
+                                               options={'X-Plex-Device': 'Plex Home Theater'})
 
     def get_legacy_transcode(self, media_id, url, identifier=None):
 
         session = str(uuid.uuid4())
 
         # Check for myplex user, which we need to alter to a master server
-        log_print.debug('Using preferred transcoding server: %s ' % self.get_name())
-        log_print.debug('incoming URL is: %s' % url)
+        LOG.debug('Using preferred transcoding server: %s ' % self.get_name())
+        LOG.debug('incoming URL is: %s' % url)
 
-        quality = str(float(settings.get_setting('quality_leg')) + 3)
-        log_print.debug('Transcode quality is %s' % quality)
+        quality = str(float(SETTINGS.get_setting('quality_leg')) + 3)
+        LOG.debug('Transcode quality is %s' % quality)
 
-        audio_output = settings.get_setting('audiotype')
+        audio_output = SETTINGS.get_setting('audiotype')
         if audio_output == '0':
             audio = 'mp3,aac{bitrate:160000}'
         elif audio_output == '1':
@@ -751,7 +789,10 @@ class PlexMediaServer:
         else:
             audio = 'mp3'
 
-        base_capability = 'http-live-streaming,http-mp4-streaming,http-streaming-video,http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;videoDecoders=h264{profile:high&resolution:1080&level:51};audioDecoders=%s' % audio
+        base_capability = 'http-live-streaming,http-mp4-streaming,http-streaming-video,' \
+                          'http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;' \
+                          'videoDecoders=h264{profile:high&resolution:1080&level:51};' \
+                          'audioDecoders=%s' % audio
         capability = 'X-Plex-Client-Capabilities=%s' % quote_plus(base_capability)
 
         transcode_request = '/video/:/transcode/segmented/start.m3u8'
@@ -763,8 +804,8 @@ class PlexMediaServer:
                               'httpCookie': '',
                               'userAgent': '',
                               'ratingKey': media_id,
-                              'subtitleSize': settings.get_setting('subSize').split('.')[0],
-                              'audioBoost': settings.get_setting('audioSize').split('.')[0],
+                              'subtitleSize': SETTINGS.get_setting('subSize').split('.')[0],
+                              'audioBoost': SETTINGS.get_setting('audioSize').split('.')[0],
                               'key': ''}
 
         if identifier:
@@ -772,36 +813,46 @@ class PlexMediaServer:
             transcode_settings['webkit'] = 1
         else:
             transcode_settings['identifier'] = 'com.plexapp.plugins.library'
-            transcode_settings['key'] = quote_plus('%s/library/metadata/%s' % (self.get_url_location(), media_id))
-            transcode_target = quote_plus('http://127.0.0.1:32400' + '/' + '/'.join(url.split('/')[3:]))
-            log_print.debug('filestream URL is: %s' % transcode_target)
+            transcode_settings['key'] = quote_plus('%s/library/metadata/%s' %
+                                                   (self.get_url_location(), media_id))
+            transcode_target = quote_plus('http://127.0.0.1:32400' + '/' +
+                                          '/'.join(url.split('/')[3:]))
+            LOG.debug('filestream URL is: %s' % transcode_target)
 
         transcode_request = '%s?url=%s' % (transcode_request, transcode_target)
 
         for argument, value in transcode_settings.items():
             transcode_request = '%s&%s=%s' % (transcode_request, argument, value)
 
-        log_print.debug('new transcode request is: %s' % transcode_request)
+        LOG.debug('new transcode request is: %s' % transcode_request)
 
         now = str(float(round(time.time(), 0)))
 
         msg = transcode_request + '@' + now
-        log_print.debug('Message to hash is %s' % msg)
+        LOG.debug('Message to hash is %s' % msg)
 
         # These are the DEV API keys - may need to change them on release
         public_key = 'KQMIY6GATPC63AIMC4R2'
-        private_key = base64.decodestring('k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0=')
+        _private_key = 'k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0='
+        if PY3:
+            _private_key = _private_key.encode('utf-8')
+            _private_key = base64.decodebytes(_private_key)
+            private_key = _private_key.decode('utf-8')
+        else:
+            private_key = base64.decodestring(_private_key)  # pylint: disable=deprecated-method
 
         sha256_hash = hmac.new(private_key, msg, digestmod=hashlib.sha256)
 
-        log_print.debug('HMAC after hash is %s' % sha256_hash.hexdigest())
+        LOG.debug('HMAC after hash is %s' % sha256_hash.hexdigest())
 
         # Encode the binary hash in base64 for transmission
         token = base64.b64encode(sha256_hash.digest())
 
         # Send as part of URL to avoid the case sensitive header issue.
-        full_url = '%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s' % (self.get_url_location(), transcode_request, public_key, now, quote_plus(token), capability)
+        full_url = '%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s' % \
+                   (self.get_url_location(), transcode_request, public_key,
+                    now, quote_plus(token), capability)
 
-        log_print.debug('Transcoded media location URL: %s' % full_url)
+        LOG.debug('Transcoded media location URL: %s' % full_url)
 
         return session, full_url

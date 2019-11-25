@@ -6,17 +6,17 @@
     This file is part of Composite (plugin.video.composite_for_plex)
 
     SPDX-License-Identifier: GPL-2.0-or-later
-    See LICENSES/GPL-2.0-or-later for more information.
+    See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
 from binascii import unhexlify
 import json
 import time
 
-import xbmc
-import xbmcgui
-
 from six.moves.urllib_parse import urlencode
+
+import xbmc  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from .common import CONFIG
 from .common import PrintDebug
@@ -27,7 +27,7 @@ class Monitor(xbmc.Monitor):
         self.log = PrintDebug(CONFIG['name'], 'Monitor')
 
     @staticmethod
-    def _process_notification_data(data):
+    def process_notification_data(data):
         data = json.loads(data)
         if data:
             json_data = unhexlify(data[0])
@@ -37,7 +37,7 @@ class Monitor(xbmc.Monitor):
         return None
 
     @staticmethod
-    def _create_playback_url(data):
+    def create_playback_url(data):
         data['mode'] = '5'
 
         if data['transcode'] is None:
@@ -51,7 +51,7 @@ class Monitor(xbmc.Monitor):
 
         return 'plugin://%s/?%s' % (CONFIG['id'], urlencode(data))
 
-    def _play_media(self, url):
+    def play_media(self, url):
         if xbmc.Player().isPlaying():
             xbmc.Player().stop()
 
@@ -64,14 +64,15 @@ class Monitor(xbmc.Monitor):
             if self.waitForAbort(3):
                 break
 
-        self.log.debug('Starting playback, waited %.2f for busy dialogs to close.' % (time.time() - start_time))
+        self.log.debug('Starting playback, waited %.2f for busy dialogs to close.' %
+                       (time.time() - start_time))
         xbmc.executebuiltin('PlayMedia(%s)' % url)
 
-    def onNotification(self, sender, method, data):
+    def onNotification(self, sender, method, data):  # pylint: disable=invalid-name
         if not sender[-7:] == '.SIGNAL':
             return
 
         if (sender.startswith('upnextprovider') and
                 method.endswith('_play_action') and
                 CONFIG['id'] in method):
-            self._play_media(self._create_playback_url(self._process_notification_data(data)))
+            self.play_media(self.create_playback_url(self.process_notification_data(data)))

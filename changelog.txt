@@ -1,3 +1,7 @@
+0.0.7
+[add] text based fallback to pin based login if gui fails (py3)
+[upd] linting
+
 0.0.6
 [fix] Next Up on python 3.x < 3.6
 
