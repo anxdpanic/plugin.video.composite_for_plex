@@ -208,7 +208,7 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
-        monitor_playback = SETTINGS.get_setting('monitoroff', fresh=True)
+        monitor_playback = not SETTINGS.get_setting('monitoroff', fresh=True)
         playback_dict = read_pickled('playback_monitor.pickle')
 
         if monitor_playback and playback_dict:
