@@ -1117,3 +1117,7 @@ msgstr ""
 msgctxt "#30690"
 msgid "From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]"
 msgstr ""
+
+msgctxt "#30691"
+msgid "Use episode thumbnails"
+msgstr ""

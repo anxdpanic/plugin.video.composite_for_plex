@@ -12,6 +12,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
+[add] Settings - Up Next - Use episode thumbs, default is to use landscape/fanart
 [fix] playback monitoring logic issue introduced in 0.0.7
         </news>
         <assets>

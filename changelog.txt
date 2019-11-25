@@ -1,4 +1,5 @@
 0.0.8
+[add] Settings - Up Next - Use episode thumbs, default is to use landscape/fanart
 [fix] playback monitoring logic issue introduced in 0.0.7
 
 0.0.7
