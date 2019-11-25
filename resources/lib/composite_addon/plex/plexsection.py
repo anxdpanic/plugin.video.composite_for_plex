@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)

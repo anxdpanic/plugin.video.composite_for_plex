@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 
     This class implements the Plex GDM (G'Day Mate) protocol to discover
