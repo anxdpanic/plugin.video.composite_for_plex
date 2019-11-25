@@ -357,8 +357,8 @@ def get_nextup_episode(server, metadata, extended_metadata=None):
         fanart = server.get_kodi_header_formatted_url(image_url)
 
     episode = {
-        "episodeid": '_%s' % metadata.get('ratingKey', '-1'),
-        "tvshowid": '_%s' % metadata.get('parentRatingKey', '-1'),
+        "episodeid": metadata.get('ratingKey', -1),
+        "tvshowid": metadata.get('parentRatingKey', -1),
         "title": metadata.get('title', ''),
         "art": {
             "tvshow.poster": grandparent_image,
