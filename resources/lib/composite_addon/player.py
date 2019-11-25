@@ -18,9 +18,9 @@ from .common import StreamControl
 from .common import PrintDebug
 from .common import encode_utf8
 from .common import i18n
-from .common import notify_all
 from .common import read_pickled
 from .common import SETTINGS
+from .up_next import UpNext
 
 LOG = PrintDebug(CONFIG['name'], 'player')
 
@@ -224,9 +224,9 @@ class CallbackPlayer(xbmc.Player):
         media_type = full_data.get('mediatype', '').lower()
         if SETTINGS.use_up_next() and media_type == 'episode':
             self.log('Using Up Next ...')
-            next_up(server=playback_dict.get('server'),
-                    media_id=playback_dict.get('media_id'),
-                    callback_args=playback_dict.get('callback_args', {}))
+            UpNext(server=playback_dict.get('server'),
+                   media_id=playback_dict.get('media_id'),
+                   callback_args=playback_dict.get('callback_args', {})).run()
         else:
             self.log('Up Next is disabled ...')
 
@@ -239,147 +239,6 @@ class CallbackPlayer(xbmc.Player):
 
     def onPlayBackError(self):  # pylint: disable=invalid-name
         self.onPlayBackEnded()
-
-
-# pylint: disable=too-many-nested-blocks
-def next_up(server, media_id, callback_args):
-    try:
-        current_metadata = server.get_metadata(media_id)
-        current_metadata = current_metadata[0]
-    except:  # pylint: disable=bare-except
-        return
-
-    current_extended = None
-    next_metadata = None
-    next_extended = None
-
-    if current_metadata:
-        season = int(current_metadata.get('parentIndex'))
-        episode = int(current_metadata.get('index'))
-        LOG.debug('Found metadata for S%sE%s' % (str(season).zfill(2), str(episode).zfill(2)))
-
-        season_episodes = server.get_children(current_metadata.get('parentRatingKey'))
-        if season_episodes is not None:
-            for video in season_episodes:
-                if video.get('index'):
-                    if int(video.get('index')) == episode:
-                        LOG.debug('Found extended metadata for S%sE%s' %
-                                  (str(season).zfill(2), str(episode).zfill(2)))
-                        current_extended = video
-                    elif int(video.get('index')) == episode + 1:
-                        LOG.debug('Found extended metadata for S%sE%s' %
-                                  (str(season).zfill(2), str(episode + 1).zfill(2)))
-                        next_extended = video
-
-                if current_extended is not None and next_extended is not None:
-                    break
-
-            if next_extended is None:
-                LOG.debug('Looking for S%s' % str(season + 1).zfill(2))
-                tv_seasons = server.get_children(current_metadata.get('grandparentRatingKey'))
-                next_season = None
-
-                if tv_seasons:
-                    LOG.debug('Found tv show seasons')
-                    for directory in tv_seasons:
-                        if directory.get('index'):
-                            if int(directory.get('index')) == season + 1:
-                                LOG.debug('Found season S%s' % str(season + 1).zfill(2))
-                                next_season = directory
-                                break
-
-                    if next_season is not None:
-                        LOG.debug('Looking for S%s episodes' % str(season + 1).zfill(2))
-                        season_episodes = server.get_children(next_season.get('ratingKey'))
-                        if season_episodes:
-                            for video in season_episodes:
-                                if int(video.get('index')) == 1:
-                                    LOG.debug('Found extended metadata for S%sE01' %
-                                              str(season + 1).zfill(2))
-                                    next_extended = video
-                                    break
-
-        if next_extended is not None and next_extended.get('ratingKey'):
-            try:
-                next_metadata = server.get_metadata(next_extended.get('ratingKey'))
-                next_metadata = next_metadata[0]
-            except:  # pylint: disable=bare-except
-                return
-
-            LOG.debug('Found metadata for S%sE%s' %
-                      (next_metadata.get('parentIndex', '0').zfill(2),
-                       next_metadata.get('index', '0').zfill(2)))
-
-        if current_metadata is not None and next_metadata is not None:
-            current_episode = get_nextup_episode(server, current_metadata, current_extended)
-            if current_episode:
-                LOG.debug('Got current episode Up Next data')
-                next_episode = get_nextup_episode(server, next_metadata, next_extended)
-                if next_episode:
-                    LOG.debug('Got next episode Up Next data')
-                    next_info = {
-                        "current_episode": current_episode,
-                        "next_episode": next_episode,
-                        "play_info": {
-                            "media_id": next_metadata.get('ratingKey', '0'),
-                            "force": callback_args.get('force', None),
-                            "transcode": callback_args.get('transcode', False),
-                            "transcode_profile": callback_args.get('transcode_profile', 0),
-                            "server_uuid": server.uuid
-                        }
-                    }
-                    LOG.debug('Notifying Up Next')
-                    notify_all('upnext_data', next_info)
-
-
-def get_nextup_episode(server, metadata, extended_metadata=None):
-    if extended_metadata is None:
-        extended_metadata = {}
-
-    use_episode_thumbs = SETTINGS.get_setting('up_next_episode_thumbs', fresh=True)
-
-    episode_image = ''
-    fanart_image = ''
-    tvshow_image = ''
-
-    if metadata.get('thumb'):
-        image_url = metadata.get('thumb')
-        if image_url.startswith('/'):
-            image_url = server.get_url_location() + image_url
-        episode_image = server.get_kodi_header_formatted_url(image_url)
-    if metadata.get('grandparentThumb'):
-        image_url = metadata.get('grandparentThumb')
-        if image_url.startswith('/'):
-            image_url = server.get_url_location() + image_url
-        tvshow_image = server.get_kodi_header_formatted_url(image_url)
-    if metadata.get('art'):
-        image_url = metadata.get('art')
-        if image_url.startswith('/'):
-            image_url = server.get_url_location() + image_url
-        fanart_image = server.get_kodi_header_formatted_url(image_url)
-
-    episode = {
-        "episodeid": metadata.get('ratingKey', -1),
-        "tvshowid": metadata.get('parentRatingKey', -1),
-        "title": metadata.get('title', ''),
-        "art": {
-            "tvshow.poster": tvshow_image,
-            "thumb": episode_image,
-            "tvshow.fanart": fanart_image,
-            "tvshow.landscape": episode_image if use_episode_thumbs else fanart_image,
-            "tvshow.clearart": "",
-            "tvshow.clearlogo": "",
-        },
-        "plot": metadata.get('summary', ''),
-        "showtitle": metadata.get('grandparentTitle', ''),
-        "playcount": int(metadata.get('viewCount', extended_metadata.get('viewCount', 0))),
-        "season": int(metadata.get('parentIndex', 0)),
-        "episode": int(metadata.get('index', 0)),
-        "rating": float(metadata.get('rating', extended_metadata.get('rating', 0))),
-        "firstaired": metadata.get('originallyAvailableAt', '')
-    }
-
-    return episode
 
 
 def set_audio_subtitles(stream):
