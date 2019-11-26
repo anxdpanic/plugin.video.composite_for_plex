@@ -10,7 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from binascii import hexlify
+import base64
 import inspect
 import json
 import os
@@ -289,10 +289,13 @@ def read_pickled(filename, delete_after=True):
 
 def notify_all(method, data):
     next_data = json.dumps(data)
-    if PY3:
+    if not isinstance(next_data, bytes):
         next_data = next_data.encode('utf-8')
-        data = '\\"[\\"{0}\\"]\\"'.format(hexlify(next_data).decode('utf-8'))
-    else:
-        data = '\\"[\\"{0}\\"]\\"'.format(hexlify(next_data))
+
+    data = base64.b64encode(next_data)
+    if PY3:
+        data = data.decode('ascii')
+    data = '\\"[\\"{0}\\"]\\"'.format(data)
+
     command = 'NotifyAll(%s.SIGNAL,%s,%s)' % (CONFIG['id'], method, data)
     xbmc.executebuiltin(command)
