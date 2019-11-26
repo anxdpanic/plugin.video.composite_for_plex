@@ -164,7 +164,7 @@ class PlexGDM:
     def get_server_list(self):
         return self.server_list
 
-    def discover(self):
+    def discover(self):  # pylint: disable=too-many-statements
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Set a timeout so the socket does not block indefinitely

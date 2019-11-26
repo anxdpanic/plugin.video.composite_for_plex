@@ -248,7 +248,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods
         LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
         self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
 
-    def set_best_address(self, address=''):
+    def set_best_address(self, address=''):  # pylint: disable=too-many-statements
         if not address:
             self.connection_test_results = []
 
