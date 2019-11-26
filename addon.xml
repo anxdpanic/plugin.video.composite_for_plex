@@ -13,6 +13,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [upd] refactor Up Next support
+[upd] use base64 encoding instead of hex for Up Next
         </news>
         <assets>
             <icon>icon.png</icon>

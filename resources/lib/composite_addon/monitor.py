@@ -9,7 +9,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from binascii import unhexlify
+import base64
 import json
 import time
 
@@ -30,7 +30,7 @@ class Monitor(xbmc.Monitor):
     def process_notification_data(data):
         data = json.loads(data)
         if data:
-            json_data = unhexlify(data[0])
+            json_data = base64.b64decode(data[0])
             if isinstance(json_data, bytes):
                 json_data = json_data.decode('utf-8')
             return json.loads(json_data)

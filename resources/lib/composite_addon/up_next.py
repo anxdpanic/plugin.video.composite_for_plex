@@ -98,7 +98,7 @@ class UpNext:
                 if episodes:
                     for video in episodes:
                         if int(video.get('index')) == 1:
-                            self.LOG.debug('Found extended metadata for S%sE01' %
+                            self.LOG.debug('Found metadata for S%sE01' %
                                            str(season + 1).zfill(2))
                             next_episode = video
                             break
