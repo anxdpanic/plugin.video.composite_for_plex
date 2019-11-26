@@ -144,8 +144,8 @@ class UpNext:
             "plot": metadata.get('summary', ''),
             "showtitle": metadata.get('grandparentTitle', ''),
             "playcount": int(metadata.get('viewCount', 0)),
-            "season": int(metadata.get('parentIndex', 0)),
-            "episode": int(metadata.get('index', 0)),
+            "season": str(metadata.get('parentIndex', 0)).zfill(2),
+            "episode": str(metadata.get('index', 0)).zfill(2),
             "rating": float(metadata.get('rating', 0)),
             "firstaired": metadata.get('originallyAvailableAt', '')
         }
