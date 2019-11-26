@@ -117,26 +117,17 @@ class UpNext:
             }
         }
 
-    def _up_next_episode(self, metadata):
-        episode_image = ''
-        fanart_image = ''
-        tvshow_image = ''
+    def get_image(self, url):
+        if not url:
+            return ''
+        if url.startswith('/'):
+            url = self.server.get_url_location() + url
+        return self.server.get_kodi_header_formatted_url(url)
 
-        if metadata.get('thumb'):
-            image_url = metadata.get('thumb')
-            if image_url.startswith('/'):
-                image_url = self.server.get_url_location() + image_url
-            episode_image = self.server.get_kodi_header_formatted_url(image_url)
-        if metadata.get('grandparentThumb'):
-            image_url = metadata.get('grandparentThumb')
-            if image_url.startswith('/'):
-                image_url = self.server.get_url_location() + image_url
-            tvshow_image = self.server.get_kodi_header_formatted_url(image_url)
-        if metadata.get('art'):
-            image_url = metadata.get('art')
-            if image_url.startswith('/'):
-                image_url = self.server.get_url_location() + image_url
-            fanart_image = self.server.get_kodi_header_formatted_url(image_url)
+    def _up_next_episode(self, metadata):
+        episode_image = self.get_image(metadata.get('thumb'))
+        fanart_image = self.get_image(metadata.get('art'))
+        tvshow_image = self.get_image(metadata.get('grandparentThumb'))
 
         episode = {
             "episodeid": metadata.get('ratingKey', -1),
