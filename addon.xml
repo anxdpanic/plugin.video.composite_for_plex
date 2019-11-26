@@ -12,9 +12,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[upd] refactor Up Next support
-[upd] use base64 encoding instead of hex for Up Next
-[rem] removed legacy transcode
+[upd] update Sign In and Manage myPlex dialog layouts
         </news>
         <assets>
             <icon>icon.png</icon>
