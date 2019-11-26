@@ -149,7 +149,7 @@ def select_media_type(part_data, server, dvdplayback=False):
     return filelocation
 
 
-def add_item_to_gui(url, details, extra_data, context=None, folder=True):
+def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pylint: disable=too-many-locals
     LOG.debug('Adding [%s]\n'
               'Passed details: %s\n'
               'Passed extra_data: %s' %
@@ -492,9 +492,6 @@ def build_context_menu(url, item_data, server):
     item_type = item_data.get('type', '').lower()
     item_source = item_data.get('source', '').lower()
 
-    playlist_item_id = item_data.get('playlist_item_id')
-    library_section_uuid = item_data.get('library_section_uuid')
-
     if additional_context_menus.get('go_to'):
         parent_id = item_data.get('parentRatingKey')
         grandparent_id = item_data.get('grandparentRatingKey')
@@ -516,17 +513,17 @@ def build_context_menu(url, item_data, server):
                         'RunScript(' + CONFIG['id'] + ', watch, %s, %s, %s)' %
                         (server.get_uuid(), item_id, 'watch')))
 
-    if playlist_item_id:
+    if item_data.get('playlist_item_id'):
         playlist_title = item_data.get('playlist_title')
         playlist_url = item_data.get('playlist_url', url_parts.path)
         context.append((i18n('Delete from playlist'),
                         'RunScript(' + CONFIG['id'] + ', delete_playlist_item, %s, %s, %s, %s, %s)'
                         % (server.get_uuid(), item_id, playlist_title,
-                           playlist_item_id, playlist_url)))
-    elif library_section_uuid:
+                           item_data.get('playlist_item_id'), playlist_url)))
+    elif item_data.get('library_section_uuid'):
         context.append((i18n('Add to playlist'),
                         'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s)' %
-                        (server.get_uuid(), item_id, library_section_uuid)))
+                        (server.get_uuid(), item_id, item_data.get('library_section_uuid'))))
 
     if SETTINGS.get_setting('showdeletecontextmenu'):
         context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' %
@@ -720,7 +717,7 @@ def process_tvseasons(url, rating_key=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def process_tvepisodes(url, tree=None, rating_key=None):
+def process_tvepisodes(url, tree=None, rating_key=None):  # pylint: disable=too-many-locals
     xbmcplugin.setContent(get_handle(), 'episodes')
 
     if not url.startswith(('http', 'file')) and rating_key:
@@ -892,7 +889,7 @@ def process_tvepisodes(url, tree=None, rating_key=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def get_audio_subtitles_from_media(server, tree, full=False):
+def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable=too-many-locals
     """
         Cycle through the Parts sections to find all 'selected' audio and subtitle streams
         If a stream is marked as selected=1 then we will record it in the dict
@@ -1114,7 +1111,7 @@ def play_media_id_from_uuid(server_uuid, media_id, force=None,
     play_library_media(url, force=force, transcode=transcode, transcode_profile=transcode_profile)
 
 
-def play_library_media(vids, force=None, transcode=False, transcode_profile=0):
+def play_library_media(vids, force=None, transcode=False, transcode_profile=0):  # pylint: disable=too-many-locals
     session = None
 
     server = PLEX_NETWORK.get_server_from_url(vids)
@@ -2014,7 +2011,7 @@ def process_xml(url, tree=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def movie_tag(url, server, tree, movie, random_number):
+def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-many-locals
     LOG.debug('---New Item---')
     tempgenre = []
     tempcast = []
@@ -2757,7 +2754,7 @@ def set_library_subtitiles(server_uuid, metadata_id):
     return True
 
 
-def set_library_audio(server_uuid, metadata_id):
+def set_library_audio(server_uuid, metadata_id):  # pylint: disable=too-many-locals
     """
         Display a list of available audio streams and allow a user to select one.
         The currently selected stream will be annotated with a *
@@ -3039,7 +3036,7 @@ def delete_playlist_item(server_uuid, metadata_id, playlist_title, playlist_item
     return False
 
 
-def add_playlist_item(server_uuid, metadata_id, library_section_uuid):
+def add_playlist_item(server_uuid, metadata_id, library_section_uuid):  # pylint: disable=too-many-locals
     LOG.debug('== ENTER ==')
 
     server = PLEX_NETWORK.get_server_from_uuid(server_uuid)
@@ -3135,7 +3132,7 @@ LOG.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s| Flatt
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def start_composite(start_time):
+def start_composite(start_time):  # pylint: disable=too-many-locals
     try:
         params = get_params()
     except:  # pylint: disable=bare-except
