@@ -46,7 +46,7 @@ from .common import write_pickled
 from .plex import plex
 
 
-def select_media_type(part_data, server, dvdplayback=False):  # pylint: disable=too-many-statements
+def select_media_type(part_data, server, dvdplayback=False):  # pylint: disable=too-many-statements, too-many-branches
     stream = part_data['key']
     filename = part_data['file']
     filelocation = ''
@@ -149,7 +149,7 @@ def select_media_type(part_data, server, dvdplayback=False):  # pylint: disable=
     return filelocation
 
 
-def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pylint: disable=too-many-locals, too-many-statements
+def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     LOG.debug('Adding [%s]\n'
               'Passed details: %s\n'
               'Passed extra_data: %s' %
@@ -288,7 +288,7 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pyl
                                        listitem=liz, isFolder=folder)
 
 
-def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too-many-statements
+def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too-many-statements, too-many-branches
     xbmcplugin.setContent(get_handle(), 'files')
 
     server_list = PLEX_NETWORK.get_server_list()
@@ -626,7 +626,7 @@ def process_tvshows(url, tree=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def process_tvseasons(url, rating_key=None):
+def process_tvseasons(url, rating_key=None):  # pylint: disable=too-many-branches
     xbmcplugin.setContent(get_handle(), 'seasons')
 
     if not url.startswith(('http', 'file')) and rating_key:
@@ -717,7 +717,7 @@ def process_tvseasons(url, rating_key=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def process_tvepisodes(url, tree=None, rating_key=None):  # pylint: disable=too-many-locals, too-many-statements
+def process_tvepisodes(url, tree=None, rating_key=None):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     xbmcplugin.setContent(get_handle(), 'episodes')
 
     if not url.startswith(('http', 'file')) and rating_key:
@@ -889,7 +889,7 @@ def process_tvepisodes(url, tree=None, rating_key=None):  # pylint: disable=too-
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements
+def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     """
         Cycle through the Parts sections to find all 'selected' audio and subtitle streams
         If a stream is marked as selected=1 then we will record it in the dict
@@ -1111,7 +1111,7 @@ def play_media_id_from_uuid(server_uuid, media_id, force=None,
     play_library_media(url, force=force, transcode=transcode, transcode_profile=transcode_profile)
 
 
-def play_library_media(vids, force=None, transcode=False, transcode_profile=0):  # pylint: disable=too-many-locals, too-many-statements
+def play_library_media(vids, force=None, transcode=False, transcode_profile=0):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     session = None
 
     server = PLEX_NETWORK.get_server_from_url(vids)
@@ -1307,7 +1307,7 @@ def play_media_stream(url):
     xbmcplugin.setResolvedUrl(get_handle(), resolved, item)
 
 
-def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
+def play_video_channel(vids, prefix=None, indirect=None, transcode=False):  # pylint: disable=too-many-branches
     server = PLEX_NETWORK.get_server_from_url(vids)
     if 'node.plexapp.com' in vids:
         server = get_master_server()
@@ -1541,7 +1541,7 @@ def process_directory(url, tree=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def directory_item_translate(title, thumb):  # pylint: disable=too-many-statements
+def directory_item_translate(title, thumb):  # pylint: disable=too-many-statements, too-many-branches
     translated_title = title
 
     if thumb.endswith('show.png'):
@@ -1798,7 +1798,7 @@ def get_xml(url, tree=None):
     return tree
 
 
-def plex_plugins(url, tree=None):
+def plex_plugins(url, tree=None):  # pylint: disable=too-many-branches
     """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -1884,7 +1884,7 @@ def plex_plugins(url, tree=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def channel_settings(url, setting_id):
+def channel_settings(url, setting_id):  # pylint: disable=too-many-branches
     """
         Take the setting XML and parse it to create an updated
         string with the new settings.  For the selected value, create
@@ -2011,7 +2011,7 @@ def process_xml(url, tree=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-many-locals, too-many-statements
+def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     LOG.debug('---New Item---')
     tempgenre = []
     tempcast = []
@@ -3132,7 +3132,7 @@ LOG.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s| Flatt
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def start_composite(start_time):  # pylint: disable=too-many-locals, too-many-statements
+def start_composite(start_time):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     try:
         params = get_params()
     except:  # pylint: disable=bare-except

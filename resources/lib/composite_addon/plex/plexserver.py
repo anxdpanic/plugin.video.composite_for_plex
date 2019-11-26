@@ -248,7 +248,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods
         LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
         self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
 
-    def set_best_address(self, address=''):  # pylint: disable=too-many-statements
+    def set_best_address(self, address=''):  # pylint: disable=too-many-statements, too-many-branches
         if not address:
             self.connection_test_results = []
 
@@ -388,7 +388,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods
             self.offline = True
             LOG.debug('[%s] Server appears to be offline' % self.uuid)
 
-    def talk(self, url='/', refresh=False, method='get', extra_headers=None):
+    def talk(self, url='/', refresh=False, method='get', extra_headers=None):  # pylint: disable=too-many-branches
         if extra_headers is None:
             extra_headers = {}
 

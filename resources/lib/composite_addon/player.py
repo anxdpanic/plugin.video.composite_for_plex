@@ -67,7 +67,7 @@ class PlaybackMonitorThread(threading.Thread):
     def abort_now(self):
         return not self.player.isPlaying() or self.monitor.abortRequested() or self.stopped()
 
-    def run(self):  # pylint: disable=too-many-statements
+    def run(self):  # pylint: disable=too-many-statements, too-many-branches
         current_time = 0
         played_time = 0
         progress = 0
