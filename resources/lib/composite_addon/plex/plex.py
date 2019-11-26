@@ -43,7 +43,7 @@ LOG = PrintDebug(CONFIG['name'], 'plex')
 DEFAULT_PORT = '32400'
 
 
-class Plex:  # pylint: disable=too-many-public-methods
+class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
 
     def __init__(self, load=False):
 
@@ -296,7 +296,7 @@ class Plex:  # pylint: disable=too-many-public-methods
         data = self.talk_to_myplex(url)
         return ETree.fromstring(data)
 
-    def discover_all_servers(self):
+    def discover_all_servers(self):  # pylint: disable=too-many-statements, too-many-branches
         progress_dialog = xbmcgui.DialogProgressBG()
         progress_dialog.create(heading=CONFIG['name'] + ' ' + i18n('Server Discovery'),
                                message=i18n('Please wait...'))

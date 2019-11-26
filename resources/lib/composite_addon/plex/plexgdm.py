@@ -28,7 +28,7 @@ from ..common import encode_utf8
 LOG = PrintDebug(CONFIG['name'], 'PlexGDM')
 
 
-class PlexGDM:
+class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self, interface=None):
 
@@ -164,7 +164,7 @@ class PlexGDM:
     def get_server_list(self):
         return self.server_list
 
-    def discover(self):
+    def discover(self):  # pylint: disable=too-many-statements, too-many-branches
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Set a timeout so the socket does not block indefinitely

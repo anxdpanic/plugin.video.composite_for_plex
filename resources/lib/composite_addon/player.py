@@ -25,7 +25,7 @@ from .up_next import UpNext
 LOG = PrintDebug(CONFIG['name'], 'player')
 
 
-class PlaybackMonitorThread(threading.Thread):
+class PlaybackMonitorThread(threading.Thread):  # pylint: disable=too-many-instance-attributes
     def __init__(self, monitor_dict):
         super(PlaybackMonitorThread, self).__init__()
 
@@ -67,7 +67,7 @@ class PlaybackMonitorThread(threading.Thread):
     def abort_now(self):
         return not self.player.isPlaying() or self.monitor.abortRequested() or self.stopped()
 
-    def run(self):
+    def run(self):  # pylint: disable=too-many-statements, too-many-branches
         current_time = 0
         played_time = 0
         progress = 0

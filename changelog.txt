@@ -1,6 +1,7 @@
 0.0.9
 [upd] refactor Up Next support
 [upd] use base64 encoding instead of hex for Up Next
+[rem] removed legacy transcode
 
 0.0.8
 [add] Settings - Up Next - Use episode thumbs, default is to use landscape/fanart
