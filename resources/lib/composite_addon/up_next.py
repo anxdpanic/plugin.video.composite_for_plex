@@ -84,7 +84,7 @@ class UpNext:
 
         seasons = self.server.get_children(media_id)
 
-        if seasons:
+        if seasons is not None:
             self.LOG.debug('Found tv show seasons')
             for directory in seasons:
                 if directory.get('index') and (int(directory.get('index')) == season + 1):
@@ -95,11 +95,10 @@ class UpNext:
             if next_season is not None:
                 self.LOG.debug('Looking for S%s episodes' % str(season + 1).zfill(2))
                 episodes = self.server.get_children(next_season.get('ratingKey'))
-                if episodes:
+                if episodes is not None:
                     for video in episodes:
                         if int(video.get('index')) == 1:
-                            self.LOG.debug('Found metadata for S%sE01' %
-                                           str(season + 1).zfill(2))
+                            self.LOG.debug('Found metadata for S%sE01' % str(season + 1).zfill(2))
                             next_episode = video
                             break
 
@@ -118,26 +117,17 @@ class UpNext:
             }
         }
 
-    def _up_next_episode(self, metadata):
-        episode_image = ''
-        fanart_image = ''
-        tvshow_image = ''
+    def get_image(self, url):
+        if not url:
+            return ''
+        if url.startswith('/'):
+            url = self.server.get_url_location() + url
+        return self.server.get_kodi_header_formatted_url(url)
 
-        if metadata.get('thumb'):
-            image_url = metadata.get('thumb')
-            if image_url.startswith('/'):
-                image_url = self.server.get_url_location() + image_url
-            episode_image = self.server.get_kodi_header_formatted_url(image_url)
-        if metadata.get('grandparentThumb'):
-            image_url = metadata.get('grandparentThumb')
-            if image_url.startswith('/'):
-                image_url = self.server.get_url_location() + image_url
-            tvshow_image = self.server.get_kodi_header_formatted_url(image_url)
-        if metadata.get('art'):
-            image_url = metadata.get('art')
-            if image_url.startswith('/'):
-                image_url = self.server.get_url_location() + image_url
-            fanart_image = self.server.get_kodi_header_formatted_url(image_url)
+    def _up_next_episode(self, metadata):
+        episode_image = self.get_image(metadata.get('thumb'))
+        fanart_image = self.get_image(metadata.get('art'))
+        tvshow_image = self.get_image(metadata.get('grandparentThumb'))
 
         episode = {
             "episodeid": metadata.get('ratingKey', -1),
@@ -154,8 +144,8 @@ class UpNext:
             "plot": metadata.get('summary', ''),
             "showtitle": metadata.get('grandparentTitle', ''),
             "playcount": int(metadata.get('viewCount', 0)),
-            "season": int(metadata.get('parentIndex', 0)),
-            "episode": int(metadata.get('index', 0)),
+            "season": str(metadata.get('parentIndex', 0)).zfill(2),
+            "episode": str(metadata.get('index', 0)).zfill(2),
             "rating": float(metadata.get('rating', 0)),
             "firstaired": metadata.get('originallyAvailableAt', '')
         }
