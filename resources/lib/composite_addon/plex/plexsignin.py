@@ -260,7 +260,7 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         # Call the base class' constructor.
         super(PlexManage, self).__init__(title)
         # Set width, height and the grid parameters
-        self.setGeometry(600, 400, 6, 6)
+        self.setGeometry(800, 400, 9, 21)
         # Call set controls method
         self.set_controls()
         # Call set navigation method.
@@ -278,10 +278,10 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
     def gather_plex_information(self):
         user = self.plex_network.get_myplex_information()
 
-        self.name_field.setText(user['username'])
-        self.email_field.setText(user['email'])
-        self.plexpass_field.setText(user['plexpass'])
-        self.membersince_field.setText(user['membersince'])
+        self.name_field.addLabel(user['username'])
+        self.email_field.addLabel(user['email'])
+        self.plexpass_field.addLabel(user['plexpass'])
+        self.membersince_field.addLabel(user['membersince'])
         if user['thumb']:
             self.thumb.setImage(user['thumb'])
 
@@ -295,50 +295,49 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.placeControl(self.description, 2, 0, columnspan=4)
 
         # Username label
-        self.name_label = pyxbmct.Label(i18n('Username:'))
-        self.placeControl(self.name_label, 1, 1)
-
-        # username text box
-        self.name_field = pyxbmct.TextBox()
-        self.placeControl(self.name_field, 1, 2, columnspan=2)
+        self.name_label = pyxbmct.Label('[B]%s[/B]' % i18n('Username:'), alignment=1)
+        self.placeControl(self.name_label, 1, 3, columnspan=4)
+        # username fade label
+        self.name_field = pyxbmct.FadeLabel()
+        self.placeControl(self.name_field, 1, 7, columnspan=8)
 
         # thumb label
         self.thumb = pyxbmct.Image('', aspectRatio=2)
-        self.placeControl(self.thumb, 1, 4)
+        self.placeControl(self.thumb, 1, 15, rowspan=2, columnspan=2)
 
         # Email Label
-        self.email_label = pyxbmct.Label(i18n('Email:'))
-        self.placeControl(self.email_label, 2, 1)
-        # Email text box
-        self.email_field = pyxbmct.TextBox()
-        self.placeControl(self.email_field, 2, 2, columnspan=2)
+        self.email_label = pyxbmct.Label('[B]%s[/B]' % i18n('Email:'), alignment=1)
+        self.placeControl(self.email_label, 2, 3, columnspan=4)
+        # Email fade label
+        self.email_field = pyxbmct.FadeLabel()
+        self.placeControl(self.email_field, 2, 7, columnspan=8)
 
         # plexpass Label
-        self.plexpass_label = pyxbmct.Label(i18n('Plex Pass:'))
-        self.placeControl(self.plexpass_label, 3, 1)
-        # Password entry box
-        self.plexpass_field = pyxbmct.TextBox()
-        self.placeControl(self.plexpass_field, 3, 2, columnspan=2)
+        self.plexpass_label = pyxbmct.Label('[B]%s[/B]' % i18n('Plex Pass:'), alignment=1)
+        self.placeControl(self.plexpass_label, 3, 3, columnspan=4)
+        # Password columnspan=4
+        self.plexpass_field = pyxbmct.FadeLabel()
+        self.placeControl(self.plexpass_field, 3, 7, columnspan=8)
 
         # membersince Label
-        self.membersince_label = pyxbmct.Label(i18n('Joined:'))
-        self.placeControl(self.membersince_label, 4, 1)
-        # Membersince text box
-        self.membersince_field = pyxbmct.TextBox()
-        self.placeControl(self.membersince_field, 4, 2, columnspan=2)
+        self.membersince_label = pyxbmct.Label('[B]%s[/B]' % i18n('Joined:'), alignment=1)
+        self.placeControl(self.membersince_label, 4, 3, columnspan=4)
+        # Membersince fade label
+        self.membersince_field = pyxbmct.FadeLabel()
+        self.placeControl(self.membersince_field, 4, 7, columnspan=8)
 
         # Cancel button
         self.cancel_button = pyxbmct.Button(i18n('Exit'))
-        self.placeControl(self.cancel_button, 5, 1)
+        self.placeControl(self.cancel_button, 6, 4, columnspan=4, rowspan=2)
         # Cancel button closes window
 
         # Switch button
         self.switch_button = pyxbmct.Button(i18n('Switch User'))
-        self.placeControl(self.switch_button, 5, 2, columnspan=2)
+        self.placeControl(self.switch_button, 6, 8, columnspan=5, rowspan=2)
 
         # Signout button
         self.signout_button = pyxbmct.Button(i18n('Sign Out'))
-        self.placeControl(self.signout_button, 5, 4)
+        self.placeControl(self.signout_button, 6, 13, columnspan=4, rowspan=2)
 
         # Submit button to get token
         self.connect(self.cancel_button, self.close)
