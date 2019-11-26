@@ -1330,10 +1330,7 @@ def play_video_channel(vids, prefix=None, indirect=None, transcode=False):
         LOG.debug('found webkit video, pass to transcoder')
         if not prefix:
             prefix = 'system'
-            # if SETTINGS.get_setting('transcode_type') == '0':
             session, vids = server.get_universal_transcode(vids)
-            # elif SETTINGS.get_setting('transcode_type') == '0':
-            #     session, vids = server.get_legacy_transcode(0, vids, prefix)
 
         # Workaround for Kodi HLS request limit of 1024 byts
         if len(vids) > 1000:

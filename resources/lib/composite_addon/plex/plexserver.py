@@ -10,17 +10,13 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import base64
 import copy
-import hashlib
-import hmac
 import threading
 import time
 import uuid
 import xml.etree.ElementTree as ETree
 
 import requests
-from six import PY3
 from six.moves import range
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import urlunparse
@@ -768,92 +764,3 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods
 
         return session, self.get_formatted_url(full_url,
                                                options={'X-Plex-Device': 'Plex Home Theater'})
-
-    def get_legacy_transcode(self, media_id, url, identifier=None):
-
-        session = str(uuid.uuid4())
-
-        # Check for myplex user, which we need to alter to a master server
-        LOG.debug('Using preferred transcoding server: %s ' % self.get_name())
-        LOG.debug('incoming URL is: %s' % url)
-
-        quality = str(float(SETTINGS.get_setting('quality_leg')) + 3)
-        LOG.debug('Transcode quality is %s' % quality)
-
-        audio_output = SETTINGS.get_setting('audiotype')
-        if audio_output == '0':
-            audio = 'mp3,aac{bitrate:160000}'
-        elif audio_output == '1':
-            audio = 'ac3{channels:6}'
-        elif audio_output == '2':
-            audio = 'dts{channels:6}'
-        else:
-            audio = 'mp3'
-
-        base_capability = 'http-live-streaming,http-mp4-streaming,http-streaming-video,' \
-                          'http-streaming-video-1080p,http-mp4-video,http-mp4-video-1080p;' \
-                          'videoDecoders=h264{profile:high&resolution:1080&level:51};' \
-                          'audioDecoders=%s' % audio
-        capability = 'X-Plex-Client-Capabilities=%s' % quote_plus(base_capability)
-
-        transcode_request = '/video/:/transcode/segmented/start.m3u8'
-        transcode_settings = {'3g': 0,
-                              'offset': 0,
-                              'quality': quality,
-                              'session': session,
-                              'identifier': identifier,
-                              'httpCookie': '',
-                              'userAgent': '',
-                              'ratingKey': media_id,
-                              'subtitleSize': SETTINGS.get_setting('subSize').split('.')[0],
-                              'audioBoost': SETTINGS.get_setting('audioSize').split('.')[0],
-                              'key': ''}
-
-        if identifier:
-            transcode_target = url.split('url=')[1]
-            transcode_settings['webkit'] = 1
-        else:
-            transcode_settings['identifier'] = 'com.plexapp.plugins.library'
-            transcode_settings['key'] = quote_plus('%s/library/metadata/%s' %
-                                                   (self.get_url_location(), media_id))
-            transcode_target = quote_plus('http://127.0.0.1:32400' + '/' +
-                                          '/'.join(url.split('/')[3:]))
-            LOG.debug('filestream URL is: %s' % transcode_target)
-
-        transcode_request = '%s?url=%s' % (transcode_request, transcode_target)
-
-        for argument, value in transcode_settings.items():
-            transcode_request = '%s&%s=%s' % (transcode_request, argument, value)
-
-        LOG.debug('new transcode request is: %s' % transcode_request)
-
-        now = str(float(round(time.time(), 0)))
-
-        msg = transcode_request + '@' + now
-        LOG.debug('Message to hash is %s' % msg)
-
-        # These are the DEV API keys - may need to change them on release
-        public_key = 'KQMIY6GATPC63AIMC4R2'
-        _private_key = 'k3U6GLkZOoNIoSgjDshPErvqMIFdE0xMTx8kgsrhnC0='
-        if PY3:
-            _private_key = _private_key.encode('utf-8')
-            _private_key = base64.decodebytes(_private_key)
-            private_key = _private_key.decode('utf-8')
-        else:
-            private_key = base64.decodestring(_private_key)  # pylint: disable=deprecated-method
-
-        sha256_hash = hmac.new(private_key, msg, digestmod=hashlib.sha256)
-
-        LOG.debug('HMAC after hash is %s' % sha256_hash.hexdigest())
-
-        # Encode the binary hash in base64 for transmission
-        token = base64.b64encode(sha256_hash.digest())
-
-        # Send as part of URL to avoid the case sensitive header issue.
-        full_url = '%s%s&X-Plex-Access-Key=%s&X-Plex-Access-Time=%s&X-Plex-Access-Code=%s&%s' % \
-                   (self.get_url_location(), transcode_request, public_key,
-                    now, quote_plus(token), capability)
-
-        LOG.debug('Transcoded media location URL: %s' % full_url)
-
-        return session, full_url
