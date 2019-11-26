@@ -84,7 +84,7 @@ class UpNext:
 
         seasons = self.server.get_children(media_id)
 
-        if seasons:
+        if seasons is not None:
             self.LOG.debug('Found tv show seasons')
             for directory in seasons:
                 if directory.get('index') and (int(directory.get('index')) == season + 1):
@@ -95,7 +95,7 @@ class UpNext:
             if next_season is not None:
                 self.LOG.debug('Looking for S%s episodes' % str(season + 1).zfill(2))
                 episodes = self.server.get_children(next_season.get('ratingKey'))
-                if episodes:
+                if episodes is not None:
                     for video in episodes:
                         if int(video.get('index')) == 1:
                             self.LOG.debug('Found metadata for S%sE01' %
