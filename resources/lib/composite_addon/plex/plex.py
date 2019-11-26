@@ -43,7 +43,7 @@ LOG = PrintDebug(CONFIG['name'], 'plex')
 DEFAULT_PORT = '32400'
 
 
-class Plex:  # pylint: disable=too-many-public-methods
+class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
 
     def __init__(self, load=False):
 

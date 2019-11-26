@@ -25,7 +25,7 @@ from .up_next import UpNext
 LOG = PrintDebug(CONFIG['name'], 'player')
 
 
-class PlaybackMonitorThread(threading.Thread):
+class PlaybackMonitorThread(threading.Thread):  # pylint: disable=too-many-instance-attributes
     def __init__(self, monitor_dict):
         super(PlaybackMonitorThread, self).__init__()
 

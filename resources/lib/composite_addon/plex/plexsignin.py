@@ -24,7 +24,7 @@ MEDIA_PATH = decode_utf8(xbmc.translatePath(CONFIG['media_path']))
 
 
 # noinspection PyAttributeOutsideInit
-class PlexSignin(pyxbmct.AddonFullWindow):
+class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-attributes
     def __init__(self, title=''):
         """Class constructor"""
         # Call the base class' constructor.
@@ -254,7 +254,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):
 
 
 # noinspection PyAttributeOutsideInit
-class PlexManage(pyxbmct.AddonFullWindow):
+class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-attributes
     def __init__(self, title=''):
         """Class constructor"""
         # Call the base class' constructor.

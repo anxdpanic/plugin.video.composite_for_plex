@@ -28,7 +28,7 @@ from ..common import encode_utf8
 LOG = PrintDebug(CONFIG['name'], 'PlexGDM')
 
 
-class PlexGDM:
+class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self, interface=None):
 
