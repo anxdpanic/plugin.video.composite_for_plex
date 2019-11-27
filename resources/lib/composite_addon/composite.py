@@ -2542,6 +2542,9 @@ def channel_view(url):
         if channels.get('local', '') == '0':
             continue
 
+        if channels.get('size', '0') == '0':
+            continue
+
         # arguments = dict(channels.items())
 
         extra_data = {'fanart_image': get_fanart_image(channels, server),
