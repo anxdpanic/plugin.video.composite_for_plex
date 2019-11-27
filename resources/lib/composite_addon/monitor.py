@@ -23,11 +23,17 @@ from .common import PrintDebug
 
 
 class Monitor(xbmc.Monitor):
+    LOG = PrintDebug(CONFIG['name'], 'Monitor')
+
     def __init__(self):
-        self.log = PrintDebug(CONFIG['name'], 'Monitor')
+        """
+        """
 
     @staticmethod
-    def process_notification_data(data):
+    def _decode_up_next_notification(data):
+        """
+        Decode data received from Up Next notification
+        """
         data = json.loads(data)
         if data:
             json_data = base64.b64decode(data[0])
@@ -37,7 +43,10 @@ class Monitor(xbmc.Monitor):
         return None
 
     @staticmethod
-    def create_playback_url(data):
+    def _up_next_playback_url(data):
+        """
+        Create a playback url from Up Next 'play_info'
+        """
         data['mode'] = '5'
 
         if data['transcode'] is None:
@@ -52,27 +61,41 @@ class Monitor(xbmc.Monitor):
         return 'plugin://%s/?%s' % (CONFIG['id'], urlencode(data))
 
     def play_media(self, url):
+        """
+        Use PlayMedia to start playback after busy dialogs are closed
+        """
         if xbmc.Player().isPlaying():
             xbmc.Player().stop()
 
+        play = self.wait_for_busy_dialog()
+        if play:
+            xbmc.executebuiltin('PlayMedia(%s)' % url)
+
+    def wait_for_busy_dialog(self):
+        """
+        Wait for busy dialogs to close, starting playback while the busy dialog is active
+        could crash Kodi 18 / 19 (pre-alpha)
+        """
+        start_time = time.time()
         xbmc.sleep(500)
 
-        start_time = time.time()
-        # need to wait here for busy dialogs to close or it will crash Kodi 18 / 19 (pre-alpha)
-        self.log.debug('Playback is waiting for busy dialogs to close ...')
-        while xbmcgui.getCurrentWindowDialogId() in [10138, 10160] and not self.abortRequested():
+        self.LOG.debug('Waiting for busy dialogs to close ...')
+        while (xbmcgui.getCurrentWindowDialogId() in [10138, 10160] and
+               not self.abortRequested()):
             if self.waitForAbort(3):
                 break
 
-        self.log.debug('Starting playback, waited %.2f for busy dialogs to close.' %
-                       (time.time() - start_time))
-        xbmc.executebuiltin('PlayMedia(%s)' % url)
+        self.LOG.debug('Waited %.2f for busy dialogs to close.' % (time.time() - start_time))
+        return (not self.abortRequested() and
+                xbmcgui.getCurrentWindowDialogId() not in [10138, 10160])
 
     def onNotification(self, sender, method, data):  # pylint: disable=invalid-name
-        if not sender[-7:] == '.SIGNAL':
+        """
+        Handle any notifications directed to this add-on
+        """
+        if CONFIG['id'] not in method:
             return
 
-        if (sender.startswith('upnextprovider') and
-                method.endswith('_play_action') and
-                CONFIG['id'] in method):
-            self.play_media(self.create_playback_url(self.process_notification_data(data)))
+        if sender.startswith('upnextprovider') and method.endswith('_play_action'):
+            # received a play notification from Up Next
+            self.play_media(self._up_next_playback_url(self._decode_up_next_notification(data)))
