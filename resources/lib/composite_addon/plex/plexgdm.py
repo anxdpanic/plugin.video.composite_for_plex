@@ -32,7 +32,6 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self, interface=None):
 
-        self.discover_message = 'M-SEARCH * HTTP/1.0'
         self.client_header = '* HTTP/1.0'
         self.client_data = None
         self.client_id = None
@@ -68,6 +67,21 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
         return self.client_data
 
+    @staticmethod
+    def _discover_message():
+        return b'M-SEARCH * HTTP/1.0'
+
+    def _hello_message(self):
+        return b'HELLO %s\n%s' % (encode_utf8(self.client_header, py2_only=False),
+                                  encode_utf8(self.client_data, py2_only=False))
+
+    def _goodbye_message(self):
+        return b'BYE %s\n%s' % (encode_utf8(self.client_header, py2_only=False),
+                                encode_utf8(self.client_data, py2_only=False))
+
+    def _ok_message(self):
+        return b'HTTP/1.0 200 OK\n%s' % encode_utf8(self.client_data, py2_only=False)
+
     def client_update(self):
         update_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
@@ -97,8 +111,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
         # Send initial client registration
         try:
-            update_sock.sendto('HELLO %s\n%s' % (self.client_header, self.client_data),
-                               self.client_register_group)
+            update_sock.sendto(self._hello_message(), self.client_register_group)
         except:  # pylint: disable=bare-except
             LOG.debug('Error: Unable to send registration message')
 
@@ -110,10 +123,10 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
             except socket.error:
                 pass
             else:
-                if 'M-SEARCH * HTTP/1.' in data:
+                if b'M-SEARCH * HTTP/1.' in data:
                     LOG.debug('Detected client discovery request from %s.  Replying' % str(addr))
                     try:
-                        update_sock.sendto('HTTP/1.0 200 OK\n%s' % self.client_data, addr)
+                        update_sock.sendto(self._ok_message(), addr)
                     except:  # pylint: disable=bare-except
                         LOG.debug('Error: Unable to send client update message')
 
@@ -126,8 +139,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         # When we are finished, then send a final goodbye message to de-register cleanly.
         LOG.debug('Sending registration data: BYE %s\n%s' % (self.client_header, self.client_data))
         try:
-            update_sock.sendto('BYE %s\n%s' % (self.client_header, self.client_data),
-                               self.client_register_group)
+            update_sock.sendto(self._goodbye_message(), self.client_register_group)
         except:  # pylint: disable=bare-except
             LOG.error('Error: Unable to send client update message')
 
@@ -181,9 +193,9 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         return_data = []
         try:
             # Send data to the multicast group
-            LOG.debug('Sending discovery messages: %s' % self.discover_message)
+            LOG.debug('Sending discovery messages ...')
             # noinspection PyUnusedLocal
-            _ = sock.sendto(encode_utf8(self.discover_message, py2_only=False), self.discover_group)
+            _ = sock.sendto(self._discover_message(), self.discover_group)
             # Look for responses from all recipients
             while True:
                 try:
@@ -206,7 +218,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                 update = {'server': response.get('from')[0]}
 
                 # Check if we had a positive HTTP response
-                if '200 OK' in response.get('data'):
+                if b'200 OK' in response.get('data'):
 
                     update['discovery'] = 'auto'
                     update['owned'] = '1'
@@ -214,24 +226,24 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                     update['role'] = 'master'
                     update['class'] = None
 
-                    for each in response.get('data').split('\n'):
+                    for each in response.get('data').split(b'\n'):
 
-                        if 'Content-Type:' in each:
-                            update['content-type'] = each.split(':')[1].strip()
-                        elif 'Resource-Identifier:' in each:
-                            update['uuid'] = each.split(':')[1].strip()
-                        elif 'Name:' in each:
-                            update['serverName'] = each.split(':')[1].strip()
-                        elif 'Port:' in each:
-                            update['port'] = each.split(':')[1].strip()
-                        elif 'Updated-At:' in each:
-                            update['updated'] = each.split(':')[1].strip()
-                        elif 'Version:' in each:
-                            update['version'] = each.split(':')[1].strip()
-                        elif 'Server-Class:' in each:
-                            update['class'] = each.split(':')[1].strip()
-                        elif 'Host:' in each:
-                            update['host'] = each.split(':')[1].strip()
+                        if b'Content-Type:' in each:
+                            update['content-type'] = each.split(b':')[1].strip()
+                        elif b'Resource-Identifier:' in each:
+                            update['uuid'] = each.split(b':')[1].strip()
+                        elif b'Name:' in each:
+                            update['serverName'] = each.split(b':')[1].strip()
+                        elif b'Port:' in each:
+                            update['port'] = each.split(b':')[1].strip()
+                        elif b'Updated-At:' in each:
+                            update['updated'] = each.split(b':')[1].strip()
+                        elif b'Version:' in each:
+                            update['version'] = each.split(b':')[1].strip()
+                        elif b'Server-Class:' in each:
+                            update['class'] = each.split(b':')[1].strip()
+                        elif b'Host:' in each:
+                            update['host'] = each.split(b':')[1].strip()
 
                 discovered_servers.append(update)
 
