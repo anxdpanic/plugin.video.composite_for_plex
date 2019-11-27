@@ -1,3 +1,6 @@
+0.0.10
+[upd] update Sign In and Manage myPlex dialog layouts
+
 0.0.9
 [upd] refactor Up Next support
 [upd] use base64 encoding instead of hex for Up Next
