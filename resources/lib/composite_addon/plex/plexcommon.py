@@ -11,8 +11,8 @@
 
 import uuid
 
-from ..common import CONFIG
-from ..common import SETTINGS
+from ..addon.common import CONFIG
+from ..addon.common import SETTINGS
 
 
 def get_device_name(device_name):

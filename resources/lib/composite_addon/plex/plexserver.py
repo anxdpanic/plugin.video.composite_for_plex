@@ -29,10 +29,10 @@ from . import plexsection
 from .plexcommon import get_client_identifier
 from .plexcommon import get_device_name
 from .plexcommon import create_plex_identification
-from ..common import CONFIG
-from ..common import PrintDebug
-from ..common import encode_utf8
-from ..common import SETTINGS
+from ..addon.common import CONFIG
+from ..addon.common import PrintDebug
+from ..addon.common import encode_utf8
+from ..addon.common import SETTINGS
 
 LOG = PrintDebug(CONFIG['name'], 'plexserver')
 
@@ -478,6 +478,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.offline
 
     def get_sections(self):
+        if not self.section_list:
+            self.discover_sections()
         LOG.debug('Returning sections: %s' % self.section_list)
         return self.section_list
 

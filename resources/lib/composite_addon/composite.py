@@ -31,17 +31,17 @@ import xbmc  # pylint: disable=import-error
 import xbmcplugin  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import MODES
-from .common import StreamControl
-from .common import PrintDebug
-from .common import get_argv
-from .common import get_handle
-from .common import encode_utf8
-from .common import i18n
-from .common import SETTINGS
-from .common import wake_servers
-from .common import write_pickled
+from .addon.common import CONFIG
+from .addon.common import MODES
+from .addon.common import StreamControl
+from .addon.common import PrintDebug
+from .addon.common import get_argv
+from .addon.common import get_handle
+from .addon.common import encode_utf8
+from .addon.common import i18n
+from .addon.common import SETTINGS
+from .addon.common import wake_servers
+from .addon.common import write_pickled
 
 from .plex import plex
 
@@ -296,15 +296,20 @@ def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too
 
     for server in server_list:
 
-        server.discover_sections()
+        sections = server.get_sections()
 
-        for section in server.get_sections():
+        for section in sections:
 
-            if display_shared and server.is_owned():
+            if ((display_shared and server.is_owned()) or
+                    (cfilter is not None and section.content_type() != cfilter)):
                 continue
 
-            if SETTINGS.get_setting('prefix_server') == '0' or \
-                    (SETTINGS.get_setting('prefix_server') == '1' and len(server_list) > 1):
+            if section.content_type() is None:
+                LOG.debug('Ignoring section %s: %s of type %s as unable to process'
+                          % (server.get_name(), section.get_title(), section.get_type()))
+                continue
+
+            if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
                 details = {'title': '%s: %s' % (server.get_name(), section.get_title())}
             else:
                 details = {'title': section.get_title()}
@@ -312,38 +317,12 @@ def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too
             extra_data = {'fanart_image': server.get_fanart(section),
                           'type': 'Folder'}
 
-            # Determine what we are going to do process after a link selected by the user,
-            # based on the content we find
-
             path = section.get_path()
-
-            if section.is_show():
-                mode = MODES.TVSHOWS
-                if (cfilter is not None) and (cfilter != 'tvshows'):
-                    continue
-
-            elif section.is_movie():
-                mode = MODES.MOVIES
-                if (cfilter is not None) and (cfilter != 'movies'):
-                    continue
-
-            elif section.is_artist():
-                mode = MODES.ARTISTS
-                if (cfilter is not None) and (cfilter != 'music'):
-                    continue
-
-            elif section.is_photo():
-                mode = MODES.PHOTOS
-                if (cfilter is not None) and (cfilter != 'photos'):
-                    continue
-            else:
-                LOG.debug('Ignoring section %s of type %s as unable to process'
-                          % (details['title'], section.get_type()))
-                continue
 
             if SETTINGS.get_setting('secondary'):
                 mode = MODES.GETCONTENT
             else:
+                mode = section.mode()
                 path = path + '/all'
 
             extra_data['mode'] = mode
@@ -378,8 +357,7 @@ def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too
         if (cfilter is not None) and (cfilter != 'plugins'):
             continue
 
-        if SETTINGS.get_setting('prefix_server') == '0' or \
-                (SETTINGS.get_setting('prefix_server') == '1' and len(server_list) > 1):
+        if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
             prefix = server.get_name() + ': '
         else:
             prefix = ''
@@ -2542,6 +2520,9 @@ def channel_view(url):
     for channels in tree_iter:
 
         if channels.get('local', '') == '0':
+            continue
+
+        if channels.get('size', '0') == '0':
             continue
 
         # arguments = dict(channels.items())

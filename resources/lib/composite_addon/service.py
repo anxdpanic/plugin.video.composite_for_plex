@@ -11,10 +11,10 @@
 
 import xbmcgui  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import PrintDebug
-from .monitor import Monitor
-from .player import CallbackPlayer
+from .addon.common import CONFIG
+from .addon.common import PrintDebug
+from .addon.monitor import Monitor
+from .addon.player import CallbackPlayer
 
 LOG = PrintDebug(CONFIG['name'], 'service')
 

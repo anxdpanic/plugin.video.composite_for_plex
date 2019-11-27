@@ -10,8 +10,9 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ..common import encode_utf8
-from ..common import i18n
+from ..addon.common import encode_utf8
+from ..addon.common import i18n
+from ..addon.common import MODES
 
 
 class PlexSection:
@@ -42,15 +43,41 @@ class PlexSection:
         self.art = encode_utf8(data.get('art', ''))
         self.type = data.get('type', '')
 
+    def content_type(self):
+        if self.type == 'show':
+            return 'tvshows'
+        if self.type == 'movie':
+            return 'movies'
+        if self.type == 'artist':
+            return 'music'
+        if self.type == 'photo':
+            return 'photos'
+        return None
+
+    def mode(self):
+        if self.type == 'show':
+            return MODES.TVSHOWS
+        if self.type == 'movie':
+            return MODES.MOVIES
+        if self.type == 'artist':
+            return MODES.ARTISTS
+        if self.type == 'photo':
+            return MODES.PHOTOS
+        return None
+
     def get_details(self):
 
-        return {'title': self.title,
-                'sectionuuid': self.sectionuuid,
-                'path': self.path,
-                'key': self.key,
-                'location': self.location,
-                'art': self.art,
-                'type': self.type}
+        return {
+            'title': self.title,
+            'sectionuuid': self.sectionuuid,
+            'path': self.path,
+            'key': self.key,
+            'location': self.location,
+            'art': self.art,
+            'type': self.type,
+            'content_type': self.content_type(),
+            'mode': self.mode(),
+        }
 
     def get_title(self):
         return self.title
