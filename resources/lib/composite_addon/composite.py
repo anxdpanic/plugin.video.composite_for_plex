@@ -296,11 +296,17 @@ def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too
 
     for server in server_list:
 
-        server.discover_sections()
+        sections = server.get_sections()
 
-        for section in server.get_sections():
+        for section in sections:
 
-            if display_shared and server.is_owned():
+            if ((display_shared and server.is_owned()) or
+                    (cfilter is not None and section.content_type() != cfilter)):
+                continue
+
+            if section.content_type() is None:
+                LOG.debug('Ignoring section %s: %s of type %s as unable to process'
+                          % (server.get_name(), section.get_title(), section.get_type()))
                 continue
 
             if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
@@ -311,38 +317,12 @@ def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too
             extra_data = {'fanart_image': server.get_fanart(section),
                           'type': 'Folder'}
 
-            # Determine what we are going to do process after a link selected by the user,
-            # based on the content we find
-
             path = section.get_path()
-
-            if section.is_show():
-                mode = MODES.TVSHOWS
-                if (cfilter is not None) and (cfilter != 'tvshows'):
-                    continue
-
-            elif section.is_movie():
-                mode = MODES.MOVIES
-                if (cfilter is not None) and (cfilter != 'movies'):
-                    continue
-
-            elif section.is_artist():
-                mode = MODES.ARTISTS
-                if (cfilter is not None) and (cfilter != 'music'):
-                    continue
-
-            elif section.is_photo():
-                mode = MODES.PHOTOS
-                if (cfilter is not None) and (cfilter != 'photos'):
-                    continue
-            else:
-                LOG.debug('Ignoring section %s of type %s as unable to process'
-                          % (details['title'], section.get_type()))
-                continue
 
             if SETTINGS.get_setting('secondary'):
                 mode = MODES.GETCONTENT
             else:
+                mode = section.mode()
                 path = path + '/all'
 
             extra_data['mode'] = mode

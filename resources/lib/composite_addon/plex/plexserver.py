@@ -478,6 +478,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.offline
 
     def get_sections(self):
+        if not self.section_list:
+            self.discover_sections()
         LOG.debug('Returning sections: %s' % self.section_list)
         return self.section_list
 
