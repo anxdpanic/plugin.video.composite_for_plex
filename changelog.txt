@@ -1,5 +1,6 @@
 0.0.10
 [upd] update Sign In and Manage myPlex dialog layouts
+[fix] playback monitoring threads not being cleaned up
 
 0.0.9
 [upd] refactor Up Next support

@@ -13,6 +13,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [upd] update Sign In and Manage myPlex dialog layouts
+[fix] playback monitoring threads not being cleaned up
         </news>
         <assets>
             <icon>icon.png</icon>

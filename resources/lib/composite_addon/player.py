@@ -25,92 +25,128 @@ from .up_next import UpNext
 LOG = PrintDebug(CONFIG['name'], 'player')
 
 
-class PlaybackMonitorThread(threading.Thread):  # pylint: disable=too-many-instance-attributes
+class PlaybackMonitorThread(threading.Thread):
+    LOG = PrintDebug(CONFIG['name'], 'PlaybackMonitorThread')
+    MONITOR = xbmc.Monitor()
+    PLAYER = xbmc.Player()
+
     def __init__(self, monitor_dict):
         super(PlaybackMonitorThread, self).__init__()
-
         self._stopped = threading.Event()
         self._ended = threading.Event()
 
-        self.log = PrintDebug(CONFIG['name'], 'monitor_thread')
-
-        self.player = xbmc.Player()
-        self.monitor = xbmc.Monitor()
-
-        self.monitor_dict = monitor_dict
-
-        self.media_id = self.monitor_dict.get('media_id')
-        self.playing_file = self.monitor_dict.get('playing_file')
-        self.server = self.monitor_dict.get('server')
-        self.session = self.monitor_dict.get('session')
-        self.streams = self.monitor_dict.get('streams')
-
-        self.plugin_path = 'plugin://%s/' % CONFIG['id']
+        self._monitor_dict = monitor_dict
 
         self.daemon = True
         self.start()
 
+    def media_id(self):
+        return self._monitor_dict.get('media_id')
+
+    def playing_file(self):
+        return self._monitor_dict.get('playing_file')
+
+    @staticmethod
+    def plugin_path():
+        return 'plugin://%s/' % CONFIG['id']
+
+    def server(self):
+        return self._monitor_dict.get('server')
+
+    def session(self):
+        return self._monitor_dict.get('session')
+
+    def streams(self):
+        return self._monitor_dict.get('streams')
+
     def stop(self):
-        self.log.debug('[%s]: Stop event set...' % self.media_id)
+        self.LOG.debug('[%s]: Stop event set...' % self.media_id())
         self._stopped.set()
 
     def stopped(self):
         return self._stopped.is_set()
 
     def end(self):
-        self.log.debug('[%s]: End event set...' % self.media_id)
+        self.LOG.debug('[%s]: End event set...' % self.media_id())
         self._ended.set()
 
     def ended(self):
         return self._ended.is_set()
 
-    def abort_now(self):
-        return not self.player.isPlaying() or self.monitor.abortRequested() or self.stopped()
+    def _wait_for_playback(self):
+        np_wait_time = 0.5
+        np_waited = 0.0
 
-    def run(self):  # pylint: disable=too-many-statements, too-many-branches
+        while not self.PLAYER.isPlaying() and not self.MONITOR.abortRequested():
+            self.LOG.debug('Waiting for playback to start')
+
+            xbmc.sleep(int(np_wait_time * 1000))
+            if np_waited >= 5:
+                self.stop()
+                return
+
+            np_waited += np_wait_time
+
+    def report_playback_progress(self, current_time, total_time,
+                                 progress, played_time=-1):
+        if played_time > -1:
+            if played_time == current_time:
+                self.LOG.debug('Video paused at: %s secs of %s @ %s%%' %
+                               (current_time, total_time, progress))
+                self.server().report_playback_progress(self.media_id(),
+                                                       current_time * 1000,
+                                                       state='paused',
+                                                       duration=total_time * 1000)
+            else:
+                self.LOG.debug('Video played time: %s secs of %s @ %s%%' %
+                               (current_time, total_time, progress))
+                self.server().report_playback_progress(self.media_id(),
+                                                       current_time * 1000,
+                                                       state='playing',
+                                                       duration=total_time * 1000)
+                played_time = current_time
+        else:
+            self.LOG.debug('Playback Stopped: %s secs of %s @ %s%%' %
+                           (current_time, total_time, progress))
+            # report_playback_progress state=stopped will adjust current time to match duration
+            # and mark media as watched if progress >= 98%
+            self.server().report_playback_progress(self.media_id(), current_time * 1000,
+                                                   state='stopped', duration=total_time * 1000)
+        return played_time
+
+    def run(self):
         current_time = 0
         played_time = 0
         progress = 0
         total_time = 0
 
-        if self.session:
-            self.log.debug('We are monitoring a transcode session')
+        if self.session():
+            self.LOG.debug('We are monitoring a transcode session')
 
-        np_wait_time = 0.5
-        np_waited = 0.0
+        self._wait_for_playback()
 
-        while not self.player.isPlaying() and not self.monitor.abortRequested():
-            self.log.debug('Waiting for playback to start')
-
-            xbmc.sleep(int(np_wait_time * 1000))
-            if np_waited >= 5:
-                self.end()
-                return
-
-            np_waited += np_wait_time
-
-        if self.streams:
-            set_audio_subtitles(self.streams)
+        if self.streams():
+            set_audio_subtitles(self.streams())
 
         wait_time = 0.5
         waited = 0.0
 
         # Whilst the file is playing back
-        while self.player.isPlaying() and not self.monitor.abortRequested():
+        while self.PLAYER.isPlaying() and not self.MONITOR.abortRequested():
 
             try:
-                current_file = self.player.getPlayingFile()
-                if current_file != self.playing_file and \
-                        not (current_file.startswith(self.plugin_path)
-                             and self.media_id in current_file) or self.stopped():
+                current_file = self.PLAYER.getPlayingFile()
+                if current_file != self.playing_file() and \
+                        not (current_file.startswith(self.plugin_path())
+                             and self.media_id() in current_file) or self.stopped():
                     self.stop()
                     break
             except RuntimeError:
                 pass
 
             try:
-                current_time = int(self.player.getTime())
-                total_time = int(self.player.getTotalTime())
+                current_time = int(self.PLAYER.getTime())
+                total_time = int(self.PLAYER.getTotalTime())
             except RuntimeError:
                 pass
 
@@ -126,46 +162,29 @@ class PlaybackMonitorThread(threading.Thread):  # pylint: disable=too-many-insta
 
             if report:  # only report every ~10 seconds, times are updated at 0.5 seconds
                 waited = 0.0
-                if played_time == current_time:
-                    self.log.debug('Video paused at: %s secs of %s @ %s%%' %
-                                   (current_time, total_time, progress))
-                    self.server.report_playback_progress(self.media_id,
-                                                         current_time * 1000,
-                                                         state='paused',
-                                                         duration=total_time * 1000)
-                else:
-                    self.log.debug('Video played time: %s secs of %s @ %s%%' %
-                                   (current_time, total_time, progress))
-                    self.server.report_playback_progress(self.media_id,
-                                                         current_time * 1000,
-                                                         state='playing',
-                                                         duration=total_time * 1000)
-                    played_time = current_time
+                played_time = self.report_playback_progress(current_time, total_time,
+                                                            progress, played_time)
 
-            if self.monitor.waitForAbort(wait_time):
+            if self.MONITOR.waitForAbort(wait_time):
                 break
 
             waited += wait_time
 
         if current_time != 0 and total_time != 0:
-            self.log.debug('Playback Stopped: %s secs of %s @ %s%%' %
-                           (current_time, total_time, progress))
-            # report_playback_progress state=stopped will adjust current time to match duration
-            # and mark media as watched if progress >= 98%
-            self.server.report_playback_progress(self.media_id, current_time * 1000,
-                                                 state='stopped', duration=total_time * 1000)
+            _ = self.report_playback_progress(current_time, total_time, progress)
 
-        if self.session is not None:
-            self.log.debug('Stopping PMS transcode job with session %s' % self.session)
-            self.server.stop_transcode_session(self.session)
+        if self.session() is not None:
+            self.LOG.debug('Stopping PMS transcode job with session %s' % self.session())
+            self.server().stop_transcode_session(self.session())
 
 
 class CallbackPlayer(xbmc.Player):
+    LOG = PrintDebug(CONFIG['name'], 'CallbackPlayer')
+
     def __init__(self, window, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
 
-        self.log = PrintDebug(CONFIG['name'], 'callback_player')
         self.threads = []
         self.window = window
 
@@ -175,7 +194,7 @@ class CallbackPlayer(xbmc.Player):
                 continue
 
             if not thread.stopped():
-                self.log.debug('[%s]: stopping...' % thread.media_id)
+                self.LOG.debug('[%s]: stopping...' % thread.media_id())
                 thread.stop()
 
         for thread in self.threads:
@@ -185,7 +204,7 @@ class CallbackPlayer(xbmc.Player):
                 except RuntimeError:
                     pass
 
-    def cleanup_threads(self, only_ended=True):
+    def cleanup_threads(self, only_ended=False):
         active_threads = []
         for thread in self.threads:
             if only_ended and not thread.ended():
@@ -193,42 +212,41 @@ class CallbackPlayer(xbmc.Player):
                 continue
 
             if thread.ended():
-                self.log.debug('[%s]: clean up...' % thread.media_id)
+                self.LOG.debug('[%s]: clean up...' % thread.media_id())
             else:
-                self.log.debug('[%s]: stopping...' % thread.media_id)
+                self.LOG.debug('[%s]: stopping...' % thread.media_id())
                 if not thread.stopped():
                     thread.stop()
             try:
                 thread.join()
             except RuntimeError:
                 pass
-
-        self.log.debug('Active monitor threads: |%s|' %
-                       ', '.join([thread.media_id for thread in active_threads]))
+        self.LOG.debug('Active monitor threads: |%s|' %
+                       ', '.join([thread.media_id() for thread in active_threads]))
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
         monitor_playback = not SETTINGS.get_setting('monitoroff', fresh=True)
         playback_dict = read_pickled('playback_monitor.pickle')
 
+        self.cleanup_threads()
         if monitor_playback and playback_dict:
-            self.cleanup_threads()
             self.threads.append(PlaybackMonitorThread(playback_dict))
 
         if not monitor_playback:
-            self.log('Playback monitoring is disabled ...')
+            self.LOG('Playback monitoring is disabled ...')
         elif not playback_dict:
-            self.log('Playback monitoring failed to start, missing required {} ...')
+            self.LOG('Playback monitoring failed to start, missing required {} ...')
 
         full_data = playback_dict.get('streams', {}).get('full_data', {})
         media_type = full_data.get('mediatype', '').lower()
         if SETTINGS.use_up_next() and media_type == 'episode':
-            self.log('Using Up Next ...')
+            self.LOG('Using Up Next ...')
             UpNext(server=playback_dict.get('server'),
                    media_id=playback_dict.get('media_id'),
                    callback_args=playback_dict.get('callback_args', {})).run()
         else:
-            self.log('Up Next is disabled ...')
+            self.LOG('Up Next is disabled ...')
 
     def onPlayBackEnded(self):  # pylint: disable=invalid-name
         self.stop_threads()
