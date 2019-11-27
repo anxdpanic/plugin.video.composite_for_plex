@@ -78,6 +78,9 @@ class AddonSettings:
                  value, xbmc.LOGDEBUG)
         self.settings.setSetting('masterServer', '%s' % value)
 
+    def prefix_server(self):
+        return self.get_setting('prefix_server') == '1'
+
     def use_up_next(self):
         upnext_id = 'service.upnext'
         s_upnext_enabled = self.get_setting('use_up_next', fresh=True)

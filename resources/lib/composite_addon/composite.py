@@ -303,8 +303,7 @@ def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too
             if display_shared and server.is_owned():
                 continue
 
-            if SETTINGS.get_setting('prefix_server') == '0' or \
-                    (SETTINGS.get_setting('prefix_server') == '1' and len(server_list) > 1):
+            if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
                 details = {'title': '%s: %s' % (server.get_name(), section.get_title())}
             else:
                 details = {'title': section.get_title()}
@@ -378,8 +377,7 @@ def display_sections(cfilter=None, display_shared=False):  # pylint: disable=too
         if (cfilter is not None) and (cfilter != 'plugins'):
             continue
 
-        if SETTINGS.get_setting('prefix_server') == '0' or \
-                (SETTINGS.get_setting('prefix_server') == '1' and len(server_list) > 1):
+        if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
             prefix = server.get_name() + ': '
         else:
             prefix = ''
