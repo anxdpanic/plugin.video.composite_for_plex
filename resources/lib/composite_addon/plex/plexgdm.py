@@ -21,9 +21,9 @@ import time
 
 from six.moves.urllib_request import urlopen
 
-from ..common import CONFIG
-from ..common import PrintDebug
-from ..common import encode_utf8
+from ..addon.common import CONFIG
+from ..addon.common import PrintDebug
+from ..addon.common import encode_utf8
 
 LOG = PrintDebug(CONFIG['name'], 'PlexGDM')
 

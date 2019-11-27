@@ -10,8 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ..common import encode_utf8
-from ..common import i18n
+from ..addon.common import encode_utf8
+from ..addon.common import i18n
 
 
 class PlexSection:

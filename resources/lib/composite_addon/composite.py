@@ -31,17 +31,17 @@ import xbmc  # pylint: disable=import-error
 import xbmcplugin  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import MODES
-from .common import StreamControl
-from .common import PrintDebug
-from .common import get_argv
-from .common import get_handle
-from .common import encode_utf8
-from .common import i18n
-from .common import SETTINGS
-from .common import wake_servers
-from .common import write_pickled
+from .addon.common import CONFIG
+from .addon.common import MODES
+from .addon.common import StreamControl
+from .addon.common import PrintDebug
+from .addon.common import get_argv
+from .addon.common import get_handle
+from .addon.common import encode_utf8
+from .addon.common import i18n
+from .addon.common import SETTINGS
+from .addon.common import wake_servers
+from .addon.common import write_pickled
 
 from .plex import plex
 

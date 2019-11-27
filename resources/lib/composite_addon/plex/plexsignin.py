@@ -14,10 +14,10 @@ import xbmc  # pylint: disable=import-error
 
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 
-from ..common import CONFIG
-from ..common import PrintDebug
-from ..common import decode_utf8
-from ..common import i18n
+from ..addon.common import CONFIG
+from ..addon.common import PrintDebug
+from ..addon.common import decode_utf8
+from ..addon.common import i18n
 
 LOG = PrintDebug(CONFIG['name'], 'plex_signin')
 MEDIA_PATH = decode_utf8(xbmc.translatePath(CONFIG['media_path']))
