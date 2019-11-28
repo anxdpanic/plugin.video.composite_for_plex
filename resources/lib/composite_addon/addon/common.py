@@ -22,7 +22,9 @@ import traceback
 
 from six import PY3
 from six import string_types
+from six.moves.urllib_parse import unquote
 from six.moves import cPickle as pickle
+from six.moves import range
 
 import xbmc  # pylint: disable=import-error
 import xbmcaddon  # pylint: disable=import-error
@@ -47,6 +49,46 @@ def get_handle():
         return int(get_argv()[1])
     except (ValueError, IndexError):
         return -1
+
+
+def get_params():
+    try:
+        param_string = get_argv()[2]
+    except IndexError:
+        param_string = ''
+
+    params = {}
+    if len(param_string) >= 2:
+        _params = param_string
+
+        pairs_of_params = _params.lstrip('?').split('&')
+        for idx in list(range(len(pairs_of_params))):
+            split_params = pairs_of_params[idx].split('=')
+
+            if (len(split_params)) == 2:
+                params[split_params[0]] = split_params[1]
+            elif (len(split_params)) == 3:
+                params[split_params[0]] = split_params[1] + '=' + split_params[2]
+
+    command = None
+    url = params.get('url')
+    if url:
+        if url.startswith('http') or url.startswith('file'):
+            url = unquote(url)
+        elif url.startswith('cmd'):
+            command = unquote(url).split(':')[1]
+
+    if command is None:
+        try:
+            command = get_argv()[1]
+        except:  # pylint: disable=bare-except
+            pass
+
+    params['url'] = url
+    params['command'] = command
+
+    LOG.debug('Parameters |%s| -> |%s|' % (param_string, str(params)))
+    return params
 
 
 class PrintDebug:
@@ -149,8 +191,7 @@ def i18n(string_id):
     try:
         core = int(string_id) < 30000
     except ValueError:
-        log_print = PrintDebug(CONFIG['name'], 'i18n')
-        log_print.debug('Failed to map translation, returning id ...')
+        LOG.debug('Failed to map translation, returning id ...')
         return string_id
 
     if core:
@@ -174,17 +215,16 @@ def wake_servers():
 
         from .wol import wake_on_lan  # pylint: disable=import-outside-toplevel
 
-        log_print = PrintDebug(CONFIG['name'], 'wake_servers')
-        log_print.debug('Wake On LAN: true')
+        LOG.debug('Wake On LAN: true')
         for mac_address in SETTINGS.get_wakeservers():
             if mac_address:
                 try:
-                    log_print.debug('Waking server with MAC: %s' % mac_address)
+                    LOG.debug('Waking server with MAC: %s' % mac_address)
                     wake_on_lan(mac_address)
                 except ValueError:
-                    log_print.debug('Incorrect MAC address format for server %s' % mac_address)
+                    LOG.debug('Incorrect MAC address format for server %s' % mac_address)
                 except:  # pylint: disable=bare-except
-                    log_print.debug('Unknown wake on lan error')
+                    LOG.debug('Unknown wake on lan error')
 
 
 def is_ip(address):
@@ -221,6 +261,7 @@ except:  # pylint: disable=bare-except
     CONFIG['kodi_version'] = 0
 
 SETTINGS = AddonSettings(__ID)
+LOG = PrintDebug(CONFIG['name'])
 
 MODES = __enum(
     GETCONTENT=0,
@@ -260,6 +301,14 @@ StreamControl = __enum(
     PLEX='1',
     NEVER='2'
 )
+
+STREAM_CONTROL_MAP = {
+    StreamControl().KODI: 'Kodi',
+    StreamControl().PLEX: 'Plex',
+    StreamControl().NEVER: 'Never'
+}
+
+STREAM_CONTROL_SETTING = STREAM_CONTROL_MAP.get(SETTINGS.get_setting('streamControl'))
 
 
 def write_pickled(filename, data):

@@ -10,4 +10,12 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['addon', 'plex', 'routes', 'composite', 'service']
+from ..addon.processing import process_tvepisodes
+from ..plex import plex
+
+PLEX_NETWORK = plex.Plex(load=False)
+
+
+def run(url, rating_key=None):
+    PLEX_NETWORK.load()
+    process_tvepisodes(url, rating_key=rating_key, plex_network=PLEX_NETWORK)

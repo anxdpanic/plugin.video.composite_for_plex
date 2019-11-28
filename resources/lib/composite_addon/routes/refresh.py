@@ -10,4 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['addon', 'plex', 'routes', 'composite', 'service']
+import xbmc  # pylint: disable=import-error
+
+
+def run():
+    xbmc.executebuiltin('Container.Refresh')

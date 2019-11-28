@@ -10,4 +10,13 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['addon', 'plex', 'routes', 'composite', 'service']
+import xbmc  # pylint: disable=import-error
+
+from ..plex import plex
+
+PLEX_NETWORK = plex.Plex(load=False)
+
+
+def run():
+    PLEX_NETWORK.delete_cache()
+    xbmc.executebuiltin('Container.Refresh')
