@@ -10,4 +10,11 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['addon', 'plex', 'routes', 'composite', 'service']
+import xbmc  # pylint: disable=import-error
+
+from ..addon.common import CONFIG
+
+
+def run():
+    # Awful hack to get around running a script from a listitem..
+    xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signin)')

@@ -12,9 +12,7 @@
 
 import time
 
-START_TIME = time.time()
-
 # noinspection PyPep8
-from composite_addon import composite  # pylint: disable=import-error, wrong-import-position
+from composite_addon import composite  # pylint: disable=import-error
 
-composite.start_composite(START_TIME)
+composite.run(time.time())
