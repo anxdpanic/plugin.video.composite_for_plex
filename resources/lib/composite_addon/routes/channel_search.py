@@ -18,7 +18,7 @@ import xbmc  # pylint: disable=import-error
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import i18n
-from ..addon.processing import plex_plugins
+from ..addon.processing import process_plex_plugins
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
@@ -45,4 +45,4 @@ def run(url, prompt):
         text = keyboard.getText()
         LOG.debug('Search term input: %s' % text)
         url = url + '&query=' + quote(text)
-        plex_plugins(url, plex_network=PLEX_NETWORK)
+        process_plex_plugins(url, plex_network=PLEX_NETWORK)

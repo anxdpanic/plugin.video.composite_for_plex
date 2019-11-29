@@ -17,10 +17,10 @@ from ..addon.common import MODES
 from ..addon.common import SETTINGS
 from ..addon.common import PrintDebug
 from ..addon.common import get_handle
-from ..addon.processing import music
-from ..addon.processing import photo
-from ..addon.processing import plex_online
-from ..addon.processing import plex_plugins
+from ..addon.processing import process_music
+from ..addon.processing import process_photos
+from ..addon.processing import process_plex_online
+from ..addon.processing import process_plex_plugins
 from ..addon.utils import add_item_to_gui
 from ..plex import plex
 
@@ -49,28 +49,28 @@ def run(url):
             extra_data['mode'] = MODES.PLEXPLUGINS
             s_url = '%s%s' % (mediaserver.get_url_location(), '/video')
             if servers_list == 1:
-                plex_plugins(s_url)
+                process_plex_plugins(s_url, plex_network=PLEX_NETWORK)
                 return
 
         elif ctype == 'online':
             extra_data['mode'] = MODES.PLEXONLINE
             s_url = '%s%s' % (mediaserver.get_url_location(), '/system/plexonline')
             if servers_list == 1:
-                plex_online(s_url)
+                process_plex_online(s_url, plex_network=PLEX_NETWORK)
                 return
 
         elif ctype == 'music':
             extra_data['mode'] = MODES.MUSIC
             s_url = '%s%s' % (mediaserver.get_url_location(), '/music')
             if servers_list == 1:
-                music(s_url)
+                process_music(s_url, plex_network=PLEX_NETWORK)
                 return
 
         elif ctype == 'photo':
             extra_data['mode'] = MODES.PHOTOS
             s_url = '%s%s' % (mediaserver.get_url_location(), '/photos')
             if servers_list == 1:
-                photo(s_url)
+                process_photos(s_url, plex_network=PLEX_NETWORK)
                 return
         else:
             s_url = None

@@ -32,7 +32,6 @@ LOG = PrintDebug(CONFIG['name'])
 
 
 def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
-    LOG.debug('---New Item---')
     tempgenre = []
     tempcast = []
     tempdir = []
@@ -61,29 +60,32 @@ def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-m
     duration = int(mediaarguments.get('duration', movie.get('duration', 0))) / 1000
 
     # Required listItem entries for XBMC
-    details = {'plot': encode_utf8(movie.get('summary', '')),
-               'title': encode_utf8(movie.get('title', i18n('Unknown'))),
-               'sorttitle': encode_utf8(movie.get('titleSort',
-                                                  movie.get('title', i18n('Unknown')))),
-               'rating': float(movie.get('rating', 0)),
-               'studio': encode_utf8(movie.get('studio', '')),
-               'mpaa': encode_utf8(movie.get('contentRating', '')),
-               'year': int(movie.get('year', 0)),
-               'date': movie.get('originallyAvailableAt', '1970-01-01'),
-               'premiered': movie.get('originallyAvailableAt', '1970-01-01'),
-               'tagline': movie.get('tagline', ''),
-               'dateAdded': str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0)))),
-               'mediatype': 'movie'}
+    details = {
+        'plot': encode_utf8(movie.get('summary', '')),
+        'title': encode_utf8(movie.get('title', i18n('Unknown'))),
+        'sorttitle': encode_utf8(movie.get('titleSort', movie.get('title', i18n('Unknown')))),
+        'rating': float(movie.get('rating', 0)),
+        'studio': encode_utf8(movie.get('studio', '')),
+        'mpaa': encode_utf8(movie.get('contentRating', '')),
+        'year': int(movie.get('year', 0)),
+        'date': movie.get('originallyAvailableAt', '1970-01-01'),
+        'premiered': movie.get('originallyAvailableAt', '1970-01-01'),
+        'tagline': movie.get('tagline', ''),
+        'dateAdded': str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0)))),
+        'mediatype': 'movie'
+    }
 
     # Extra data required to manage other properties
-    extra_data = {'type': 'Video',
-                  'source': 'movies',
-                  'thumb': get_thumb_image(movie, server),
-                  'fanart_image': get_fanart_image(movie, server),
-                  'key': movie.get('key', ''),
-                  'ratingKey': str(movie.get('ratingKey', 0)),
-                  'duration': duration,
-                  'resume': int(int(view_offset) / 1000)}
+    extra_data = {
+        'type': 'Video',
+        'source': 'movies',
+        'thumb': get_thumb_image(movie, server),
+        'fanart_image': get_fanart_image(movie, server),
+        'key': movie.get('key', ''),
+        'ratingKey': str(movie.get('ratingKey', 0)),
+        'duration': duration,
+        'resume': int(int(view_offset) / 1000)
+    }
 
     if tree.get('playlistType'):
         playlist_key = str(tree.get('ratingKey', 0))
@@ -148,23 +150,27 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
 
     LOG.debug('Part is %s' % str(part_details))
 
-    details = {'TrackNumber': int(track.get('index', 0)),
-               'discnumber': int(track.get('parentIndex', 0)),
-               'title': str(track.get('index', 0)).zfill(2) + '. ' +
-                        encode_utf8(track.get('title', i18n('Unknown'))),
-               'rating': float(track.get('rating', 0)),
-               'album': encode_utf8(track.get('parentTitle', tree.get('parentTitle', ''))),
-               'artist': encode_utf8(track.get('grandparentTitle',
-                                               tree.get('grandparentTitle', ''))),
-               'duration': int(track.get('duration', 0)) / 1000,
-               'mediatype': 'song'}
+    details = {
+        'TrackNumber': int(track.get('index', 0)),
+        'discnumber': int(track.get('parentIndex', 0)),
+        'title': str(track.get('index', 0)).zfill(2) + '. ' +
+                 encode_utf8(track.get('title', i18n('Unknown'))),
+        'rating': float(track.get('rating', 0)),
+        'album': encode_utf8(track.get('parentTitle', tree.get('parentTitle', ''))),
+        'artist': encode_utf8(track.get('grandparentTitle',
+                                        tree.get('grandparentTitle', ''))),
+        'duration': int(track.get('duration', 0)) / 1000,
+        'mediatype': 'song'
+    }
 
-    extra_data = {'type': 'music',
-                  'fanart_image': sectionart,
-                  'thumb': sectionthumb,
-                  'key': track.get('key', ''),
-                  'ratingKey': str(track.get('ratingKey', 0)),
-                  'mode': MODES.PLAYLIBRARY}
+    extra_data = {
+        'type': 'music',
+        'fanart_image': sectionart,
+        'thumb': sectionthumb,
+        'key': track.get('key', ''),
+        'ratingKey': str(track.get('ratingKey', 0)),
+        'mode': MODES.PLAYLIBRARY
+    }
 
     if tree.get('playlistType'):
         playlist_key = str(tree.get('ratingKey', 0))
@@ -199,8 +205,10 @@ def playlist_tag(url, server, track, listing=True):
         'duration': int(track.get('duration', 0)) / 1000
     }
 
-    extra_data = {'type': track.get('playlistType', ''),
-                  'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server)}
+    extra_data = {
+        'type': track.get('playlistType', ''),
+        'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server)
+    }
 
     if extra_data['type'] == 'video':
         extra_data['mode'] = MODES.MOVIES
