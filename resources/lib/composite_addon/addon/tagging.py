@@ -32,7 +32,6 @@ LOG = PrintDebug(CONFIG['name'])
 
 
 def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
-    LOG.debug('---New Item---')
     tempgenre = []
     tempcast = []
     tempdir = []

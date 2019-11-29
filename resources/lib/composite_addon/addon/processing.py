@@ -231,8 +231,6 @@ def process_tvepisodes(url, tree=None, rating_key=None, plex_network=None):  # p
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     for episode in show_tags:
-
-        LOG.debug('---New Item---')
         tempgenre = []
         tempcast = []
         tempdir = []
