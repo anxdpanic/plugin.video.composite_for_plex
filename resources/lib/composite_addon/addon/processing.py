@@ -258,21 +258,23 @@ def process_tvepisodes(url, tree=None, rating_key=None, plex_network=None):  # p
         duration = int(mediaarguments.get('duration', episode.get('duration', 0))) / 1000
 
         # Required listItem entries for XBMC
-        details = {'plot': encode_utf8(episode.get('summary', '')),
-                   'title': encode_utf8(episode.get('title', i18n('Unknown'))),
-                   'sorttitle': encode_utf8(episode.get('titleSort',
-                                                        episode.get('title', i18n('Unknown')))),
-                   'rating': float(episode.get('rating', 0)),
-                   'studio': encode_utf8(episode.get('studio', tree.get('studio', ''))),
-                   'mpaa': episode.get('contentRating', tree.get('grandparentContentRating', '')),
-                   'year': int(episode.get('year', 0)),
-                   'tagline': encode_utf8(episode.get('tagline', '')),
-                   'episode': int(episode.get('index', 0)),
-                   'aired': episode.get('originallyAvailableAt', ''),
-                   'tvshowtitle': encode_utf8(episode.get('grandparentTitle',
-                                                          tree.get('grandparentTitle', ''))),
-                   'season': int(episode.get('parentIndex', tree.get('parentIndex', 0))),
-                   'mediatype': 'episode'}
+        details = {
+            'plot': encode_utf8(episode.get('summary', '')),
+            'title': encode_utf8(episode.get('title', i18n('Unknown'))),
+            'sorttitle': encode_utf8(episode.get('titleSort',
+                                                 episode.get('title', i18n('Unknown')))),
+            'rating': float(episode.get('rating', 0)),
+            'studio': encode_utf8(episode.get('studio', tree.get('studio', ''))),
+            'mpaa': episode.get('contentRating', tree.get('grandparentContentRating', '')),
+            'year': int(episode.get('year', 0)),
+            'tagline': encode_utf8(episode.get('tagline', '')),
+            'episode': int(episode.get('index', 0)),
+            'aired': episode.get('originallyAvailableAt', ''),
+            'tvshowtitle': encode_utf8(episode.get('grandparentTitle',
+                                                   tree.get('grandparentTitle', ''))),
+            'season': int(episode.get('parentIndex', tree.get('parentIndex', 0))),
+            'mediatype': 'episode'
+        }
 
         if episode.get('sorttitle'):
             details['sorttitle'] = encode_utf8(episode.get('sorttitle'))
@@ -289,21 +291,22 @@ def process_tvepisodes(url, tree=None, rating_key=None, plex_network=None):  # p
                                                       details['title'])
 
         # Extra data required to manage other properties
-        extra_data = {'type': 'Video',
-                      'source': 'tvepisodes',
-                      'thumb': get_thumb_image(episode, server),
-                      'fanart_image': get_fanart_image(episode, server),
-                      'banner': banner,
-                      'key': episode.get('key', ''),
-                      'ratingKey': str(episode.get('ratingKey', 0)),
-                      'parentRatingKey': str(episode.get('parentRatingKey', 0)),
-                      'grandparentRatingKey': str(episode.get('grandparentRatingKey', 0)),
-                      'duration': duration,
-                      'resume': int(int(view_offset) / 1000),
-                      'season': details.get('season'),
-                      'tvshowtitle': details.get('tvshowtitle'),
-                      'additional_context_menus': {'go_to': use_go_to},
-                      }
+        extra_data = {
+            'type': 'Video',
+            'source': 'tvepisodes',
+            'thumb': get_thumb_image(episode, server),
+            'fanart_image': get_fanart_image(episode, server),
+            'banner': banner,
+            'key': episode.get('key', ''),
+            'ratingKey': str(episode.get('ratingKey', 0)),
+            'parentRatingKey': str(episode.get('parentRatingKey', 0)),
+            'grandparentRatingKey': str(episode.get('grandparentRatingKey', 0)),
+            'duration': duration,
+            'resume': int(int(view_offset) / 1000),
+            'season': details.get('season'),
+            'tvshowtitle': details.get('tvshowtitle'),
+            'additional_context_menus': {'go_to': use_go_to},
+        }
 
         if extra_data['fanart_image'] == '' and not SETTINGS.get_setting('skipimages'):
             extra_data['fanart_image'] = sectionart
@@ -390,30 +393,34 @@ def process_tvshows(url, tree=None, plex_network=None):
         _watched = int(show.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details = {'title': encode_utf8(show.get('title', i18n('Unknown'))),
-                   'sorttitle': encode_utf8(show.get('titleSort',
-                                                     show.get('title', i18n('Unknown')))),
-                   'TVShowTitle': encode_utf8(show.get('title', i18n('Unknown'))),
-                   'studio': encode_utf8(show.get('studio', '')),
-                   'plot': encode_utf8(show.get('summary', '')),
-                   'season': 0,
-                   'episode': int(show.get('leafCount', 0)),
-                   'mpaa': show.get('contentRating', ''),
-                   'rating': float(show.get('rating', 0)),
-                   'aired': show.get('originallyAvailableAt', ''),
-                   'genre': ' / '.join(tempgenre),
-                   'mediatype': 'tvshow'}
+        details = {
+            'title': encode_utf8(show.get('title', i18n('Unknown'))),
+            'sorttitle': encode_utf8(show.get('titleSort',
+                                              show.get('title', i18n('Unknown')))),
+            'TVShowTitle': encode_utf8(show.get('title', i18n('Unknown'))),
+            'studio': encode_utf8(show.get('studio', '')),
+            'plot': encode_utf8(show.get('summary', '')),
+            'season': 0,
+            'episode': int(show.get('leafCount', 0)),
+            'mpaa': show.get('contentRating', ''),
+            'rating': float(show.get('rating', 0)),
+            'aired': show.get('originallyAvailableAt', ''),
+            'genre': ' / '.join(tempgenre),
+            'mediatype': 'tvshow'
+        }
 
-        extra_data = {'type': 'video',
-                      'source': 'tvshows',
-                      'UnWatchedEpisodes': int(details['episode']) - _watched,
-                      'WatchedEpisodes': _watched,
-                      'TotalEpisodes': details['episode'],
-                      'thumb': get_thumb_image(show, server),
-                      'fanart_image': get_fanart_image(show, server),
-                      'banner': get_banner_image(show, server),
-                      'key': show.get('key', ''),
-                      'ratingKey': str(show.get('ratingKey', 0))}
+        extra_data = {
+            'type': 'video',
+            'source': 'tvshows',
+            'UnWatchedEpisodes': int(details['episode']) - _watched,
+            'WatchedEpisodes': _watched,
+            'TotalEpisodes': details['episode'],
+            'thumb': get_thumb_image(show, server),
+            'fanart_image': get_fanart_image(show, server),
+            'banner': get_banner_image(show, server),
+            'key': show.get('key', ''),
+            'ratingKey': str(show.get('ratingKey', 0))
+        }
 
         # Set up overlays for watched and unwatched episodes
         if extra_data['WatchedEpisodes'] == 0:
@@ -471,14 +478,16 @@ def process_artists(url, tree=None, plex_network=None):
 
         details['title'] = details['artist']
 
-        extra_data = {'type': 'Music',
-                      'thumb': get_thumb_image(_artist, server),
-                      'fanart_image': get_fanart_image(_artist, server),
-                      'ratingKey': _artist.get('title', ''),
-                      'key': _artist.get('key', ''),
-                      'mode': MODES.ALBUMS,
-                      'plot': _artist.get('summary', ''),
-                      'mediatype': 'artist'}
+        extra_data = {
+            'type': 'Music',
+            'thumb': get_thumb_image(_artist, server),
+            'fanart_image': get_fanart_image(_artist, server),
+            'ratingKey': _artist.get('title', ''),
+            'key': _artist.get('key', ''),
+            'mode': MODES.ALBUMS,
+            'plot': _artist.get('summary', ''),
+            'mediatype': 'artist'
+        }
 
         url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
@@ -510,22 +519,26 @@ def process_albums(url, tree=None, plex_network=None):
     recent = 'recentlyAdded' in url
     for album in album_tags:
 
-        details = {'album': encode_utf8(album.get('title', '')),
-                   'year': int(album.get('year', 0)),
-                   'artist': encode_utf8(tree.get('parentTitle', album.get('parentTitle', ''))),
-                   'mediatype': 'album'}
+        details = {
+            'album': encode_utf8(album.get('title', '')),
+            'year': int(album.get('year', 0)),
+            'artist': encode_utf8(tree.get('parentTitle', album.get('parentTitle', ''))),
+            'mediatype': 'album'
+        }
 
         if recent:
             details['title'] = '%s - %s' % (details['artist'], details['album'])
         else:
             details['title'] = details['album']
 
-        extra_data = {'type': 'Music',
-                      'thumb': get_thumb_image(album, server),
-                      'fanart_image': get_fanart_image(album, server),
-                      'key': album.get('key', ''),
-                      'mode': MODES.TRACKS,
-                      'plot': album.get('summary', '')}
+        extra_data = {
+            'type': 'Music',
+            'thumb': get_thumb_image(album, server),
+            'fanart_image': get_fanart_image(album, server),
+            'key': album.get('key', ''),
+            'mode': MODES.TRACKS,
+            'plot': album.get('summary', '')
+        }
 
         if extra_data['fanart_image'] == '':
             extra_data['fanart_image'] = sectionart
@@ -589,9 +602,11 @@ def process_photos(url, tree=None, plex_network=None):
         if not details['title']:
             details['title'] = i18n('Unknown')
 
-        extra_data = {'thumb': get_thumb_image(picture, server),
-                      'fanart_image': get_fanart_image(picture, server),
-                      'type': 'image'}
+        extra_data = {
+            'thumb': get_thumb_image(picture, server),
+            'fanart_image': get_fanart_image(picture, server),
+            'type': 'image'
+        }
 
         if extra_data['fanart_image'] == '':
             extra_data['fanart_image'] = section_art
@@ -659,33 +674,36 @@ def process_tvseasons(url, rating_key=None, plex_network=None):  # pylint: disab
         _watched = int(season.get('viewedLeafCount', 0))
 
         # Create the basic data structures to pass up
-        details = {'title': encode_utf8(season.get('title', i18n('Unknown'))),
-                   'TVShowTitle': encode_utf8(season.get('parentTitle', i18n('Unknown'))),
-                   'sorttitle': encode_utf8(season.get('titleSort',
-                                                       season.get('title', i18n('Unknown')))),
-                   'studio': encode_utf8(season.get('studio', '')),
-                   'plot': plot,
-                   'season': season.get('index', 0),
-                   'episode': int(season.get('leafCount', 0)),
-                   'mpaa': season.get('contentRating', ''),
-                   'aired': season.get('originallyAvailableAt', ''),
-                   'mediatype': 'season'
-                   }
+        details = {
+            'title': encode_utf8(season.get('title', i18n('Unknown'))),
+            'TVShowTitle': encode_utf8(season.get('parentTitle', i18n('Unknown'))),
+            'sorttitle': encode_utf8(season.get('titleSort',
+                                                season.get('title', i18n('Unknown')))),
+            'studio': encode_utf8(season.get('studio', '')),
+            'plot': plot,
+            'season': season.get('index', 0),
+            'episode': int(season.get('leafCount', 0)),
+            'mpaa': season.get('contentRating', ''),
+            'aired': season.get('originallyAvailableAt', ''),
+            'mediatype': 'season'
+        }
 
         if season.get('sorttitle'):
             details['sorttitle'] = season.get('sorttitle')
 
-        extra_data = {'type': 'video',
-                      'source': 'tvseasons',
-                      'TotalEpisodes': details['episode'],
-                      'WatchedEpisodes': _watched,
-                      'UnWatchedEpisodes': details['episode'] - _watched,
-                      'thumb': get_thumb_image(season, server),
-                      'fanart_image': get_fanart_image(season, server),
-                      'banner': banner,
-                      'key': season.get('key', ''),
-                      'ratingKey': str(season.get('ratingKey', 0)),
-                      'mode': MODES.TVEPISODES}
+        extra_data = {
+            'type': 'video',
+            'source': 'tvseasons',
+            'TotalEpisodes': details['episode'],
+            'WatchedEpisodes': _watched,
+            'UnWatchedEpisodes': details['episode'] - _watched,
+            'thumb': get_thumb_image(season, server),
+            'fanart_image': get_fanart_image(season, server),
+            'banner': banner,
+            'key': season.get('key', ''),
+            'ratingKey': str(season.get('ratingKey', 0)),
+            'mode': MODES.TVEPISODES
+        }
 
         if extra_data['fanart_image'] == '':
             extra_data['fanart_image'] = sectionart
@@ -745,11 +763,13 @@ def process_plex_plugins(url, tree=None, plex_network=None):  # pylint: disable=
         if plugin.get('summary'):
             details['plot'] = plugin.get('summary')
 
-        extra_data = {'thumb': get_thumb_image(plugin, server),
-                      'fanart_image': get_fanart_image(plugin, server),
-                      'identifier': tree.get('identifier', ''),
-                      'type': 'Video',
-                      'key': plugin.get('key', '')}
+        extra_data = {
+            'thumb': get_thumb_image(plugin, server),
+            'fanart_image': get_fanart_image(plugin, server),
+            'identifier': tree.get('identifier', ''),
+            'type': 'Video',
+            'key': plugin.get('key', '')
+        }
 
         if myplex_url:
             extra_data['key'] = extra_data['key'].replace('node.plexapp.com:32400',
@@ -818,16 +838,20 @@ def process_music(url, tree=None, plex_network=None):
         if grapes.get('key') is None:
             continue
 
-        details = {'genre': encode_utf8(grapes.get('genre', '')),
-                   'artist': encode_utf8(grapes.get('artist', '')),
-                   'year': int(grapes.get('year', 0)),
-                   'album': encode_utf8(grapes.get('album', '')),
-                   'tracknumber': int(grapes.get('index', 0)),
-                   'title': i18n('Unknown')}
+        details = {
+            'genre': encode_utf8(grapes.get('genre', '')),
+            'artist': encode_utf8(grapes.get('artist', '')),
+            'year': int(grapes.get('year', 0)),
+            'album': encode_utf8(grapes.get('album', '')),
+            'tracknumber': int(grapes.get('index', 0)),
+            'title': i18n('Unknown')
+        }
 
-        extra_data = {'type': 'Music',
-                      'thumb': get_thumb_image(grapes, server),
-                      'fanart_image': get_fanart_image(grapes, server)}
+        extra_data = {
+            'type': 'Music',
+            'thumb': get_thumb_image(grapes, server),
+            'fanart_image': get_fanart_image(grapes, server)
+        }
 
         if extra_data['fanart_image'] == '':
             extra_data['fanart_image'] = get_fanart_image(tree, server)
@@ -887,11 +911,13 @@ def process_plex_online(url, plex_network=None):
     for plugin in tree:
 
         details = {'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))}
-        extra_data = {'type': 'Video',
-                      'installed': int(plugin.get('installed', 2)),
-                      'key': plugin.get('key', ''),
-                      'thumb': get_thumb_image(plugin, server),
-                      'mode': MODES.CHANNELINSTALL}
+        extra_data = {
+            'type': 'Video',
+            'installed': int(plugin.get('installed', 2)),
+            'key': plugin.get('key', ''),
+            'thumb': get_thumb_image(plugin, server),
+            'mode': MODES.CHANNELINSTALL
+        }
 
         if extra_data['installed'] == 1:
             details['title'] = details['title'] + ' (%s)' % encode_utf8(i18n('installed'))
