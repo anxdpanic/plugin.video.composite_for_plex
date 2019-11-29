@@ -69,7 +69,7 @@ def run(url):
 
     if view_group == 'movie':
         LOG.debug('This is movie XML, passing to Movies')
-        process_movies(url, tree)
+        process_movies(url, tree, plex_network=PLEX_NETWORK)
     elif view_group == 'show':
         LOG.debug('This is tv show XML')
         process_tvshows(url, tree, plex_network=PLEX_NETWORK)
