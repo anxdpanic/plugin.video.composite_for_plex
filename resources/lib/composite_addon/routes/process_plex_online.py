@@ -10,7 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ..addon.processing import plex_online
+from ..addon.processing import process_plex_online
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
@@ -18,4 +18,4 @@ PLEX_NETWORK = plex.Plex(load=False)
 
 def run(url):
     PLEX_NETWORK.load()
-    plex_online(url, plex_network=PLEX_NETWORK)
+    process_plex_online(url, plex_network=PLEX_NETWORK)

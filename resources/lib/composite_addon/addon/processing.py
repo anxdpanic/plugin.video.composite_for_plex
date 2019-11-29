@@ -42,7 +42,7 @@ from ..plex import plex
 LOG = PrintDebug(CONFIG['name'])
 
 
-def process_directory(url, tree=None, plex_network=None):
+def process_directories(url, tree=None, plex_network=None):
     LOG.debug('Processing secondary menus')
 
     if plex_network is None:
@@ -443,7 +443,7 @@ def process_tvshows(url, tree=None, plex_network=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def artist(url, tree=None, plex_network=None):
+def process_artists(url, tree=None, plex_network=None):
     """
         Process artist XML and display data
         @input: url of XML page, or existing tree of XML page
@@ -487,7 +487,7 @@ def artist(url, tree=None, plex_network=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def albums(url, tree=None, plex_network=None):
+def process_albums(url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -537,7 +537,7 @@ def albums(url, tree=None, plex_network=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def tracks(url, tree=None, plex_network=None):
+def process_tracks(url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -569,7 +569,7 @@ def tracks(url, tree=None, plex_network=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def photo(url, tree=None, plex_network=None):
+def process_photos(url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -711,7 +711,7 @@ def process_tvseasons(url, rating_key=None, plex_network=None):  # pylint: disab
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def plex_plugins(url, tree=None, plex_network=None):  # pylint: disable=too-many-branches
+def process_plex_plugins(url, tree=None, plex_network=None):  # pylint: disable=too-many-branches
     """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -801,7 +801,7 @@ def plex_plugins(url, tree=None, plex_network=None):  # pylint: disable=too-many
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def music(url, tree=None, plex_network=None):
+def process_music(url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -872,7 +872,7 @@ def music(url, tree=None, plex_network=None):
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
-def plex_online(url, plex_network=None):
+def process_plex_online(url, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 

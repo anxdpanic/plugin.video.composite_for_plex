@@ -17,11 +17,11 @@ import xbmc  # pylint: disable=import-error
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import i18n
-from ..addon.processing import artist
-from ..addon.processing import albums
-from ..addon.processing import tracks
-from ..addon.processing import photo
-from ..addon.processing import process_directory
+from ..addon.processing import process_artists
+from ..addon.processing import process_albums
+from ..addon.processing import process_tracks
+from ..addon.processing import process_photos
+from ..addon.processing import process_directories
 from ..addon.processing import process_tvepisodes
 from ..addon.processing import process_movies
 from ..addon.processing import process_tvshows
@@ -78,14 +78,14 @@ def run(url):
         process_tvepisodes(url, tree, plex_network=PLEX_NETWORK)
     elif view_group == 'artist':
         LOG.debug('This is music XML')
-        artist(url, tree, plex_network=PLEX_NETWORK)
+        process_artists(url, tree, plex_network=PLEX_NETWORK)
     elif view_group in ['album', 'albums']:
-        albums(url, tree, plex_network=PLEX_NETWORK)
+        process_albums(url, tree, plex_network=PLEX_NETWORK)
     elif view_group == 'track':
         LOG.debug('This is track XML')
-        tracks(url, tree, plex_network=PLEX_NETWORK)  # sorthing is handled here
+        process_tracks(url, tree, plex_network=PLEX_NETWORK)  # sorthing is handled here
     elif view_group == 'photo':
         LOG.debug('This is a photo XML')
-        photo(url, tree, plex_network=PLEX_NETWORK)
+        process_photos(url, tree, plex_network=PLEX_NETWORK)
     else:
-        process_directory(url, tree, plex_network=PLEX_NETWORK)
+        process_directories(url, tree, plex_network=PLEX_NETWORK)
