@@ -264,6 +264,7 @@ SETTINGS = AddonSettings(__ID)
 LOG = PrintDebug(CONFIG['name'])
 
 MODES = __enum(
+    UNSET=-1,
     GETCONTENT=0,
     TVSHOWS=1,
     MOVIES=2,

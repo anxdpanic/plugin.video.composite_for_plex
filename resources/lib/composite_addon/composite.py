@@ -29,9 +29,13 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     params = get_params()
 
+    try:
+        mode = int(params.get('mode', MODES.UNSET))
+    except ValueError:
+        mode = params.get('mode')
+
     command = params.get('command')
     media_id = params.get('media_id')
-    mode = int(params.get('mode', -1))
     server_uuid = params.get('server_uuid')
     url = params.get('url')
 
@@ -140,7 +144,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         return _finished(start_time)
 
     # Run a function based on the mode variable that was passed in the URL
-    if mode < 0 or (not url and (not server_uuid and not media_id)):
+    if (isinstance(mode, int) and mode < 0) or (not url and (not server_uuid and not media_id)):
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
         display_sections.run()
         return _finished(start_time)
