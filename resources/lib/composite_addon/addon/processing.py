@@ -10,7 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import random
 import time
 
 import xbmc  # pylint: disable=import-error
@@ -24,7 +23,6 @@ from ..addon.common import encode_utf8
 from ..addon.common import get_handle
 from ..addon.common import i18n
 from ..addon.utils import add_item_to_gui
-from ..addon.utils import get_banner_image
 from ..addon.utils import get_link_url
 from ..addon.utils import get_master_server
 from ..addon.utils import get_thumb_image
@@ -54,17 +52,16 @@ def process_directories(url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
-    collections = '/collection' in url
-
     content_type = 'files'
-    if collections:
+    if '/collection' in url:
         content_type = 'sets'
+
     xbmcplugin.setContent(get_handle(), content_type)
 
     server = plex_network.get_server_from_url(url)
 
     for directory in tree:
-        directory_tag(server, tree, url, directory, collections)
+        directory_tag(server, tree, url, directory)
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
@@ -151,20 +148,15 @@ def process_movies(url, tree=None, plex_network=None):
     if tree is None:
         return
 
-    random_number = str(random.randint(1000000000, 9999999999))
-
     # Find all the video tags, as they contain the data we need to link to a file.
     start_time = time.time()
     count = 0
     for movie in tree:
         if movie.tag.lower() == 'video':
-            movie_tag(url, server, tree, movie, random_number)
+            movie_tag(url, server, tree, movie)
             count += 1
         elif movie.tag.lower() == 'track':
-            sectionthumb = get_thumb_image(tree, server)
-            if movie.get('thumb'):
-                sectionthumb = get_thumb_image(movie, server)
-            track_tag(server, tree, movie, '', sectionthumb)
+            track_tag(server, tree, movie)
             count += 1
 
     LOG.debug('PROCESS: It took %s seconds to process %s items' %
@@ -189,21 +181,6 @@ def process_tvepisodes(url, tree=None, rating_key=None, plex_network=None):
     if tree is None:
         return
 
-    art = {
-        'banner': get_banner_image(tree, server),
-        'season_thumb': tree.get('thumb', ''),
-        'sectionart': '',
-    }
-
-    # get season thumb for SEASON NODE
-    if art['season_thumb'] == '/:/resources/show.png':
-        art['season_thumb'] = ''
-
-    if not SETTINGS.get_setting('skipimages'):
-        art['sectionart'] = get_fanart_image(tree, server)
-
-    random_number = str(random.randint(1000000000, 9999999999))
-
     if tree.get('mixedParents') == '1':
         LOG.debug('Setting plex sort')
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
@@ -220,9 +197,8 @@ def process_tvepisodes(url, tree=None, rating_key=None, plex_network=None):
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     show_tags = tree.findall('Video')
-
     for episode in show_tags:
-        episode_tag(server, tree, url, episode, art, random_number)
+        episode_tag(server, tree, url, episode)
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
@@ -304,12 +280,9 @@ def process_albums(url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
-    sectionart = get_fanart_image(tree, server)
-    recent = 'recentlyAdded' in url
-
     album_tags = tree.findall('Directory')
     for album in album_tags:
-        album_tag(server, tree, album, sectionart, recent)
+        album_tag(server, tree, url, album)
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
@@ -335,15 +308,9 @@ def process_tracks(url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
-    sectionart = get_fanart_image(tree, server)
-    sectionthumb = get_thumb_image(tree, server)
-
     track_tags = tree.findall('Track')
     for track in track_tags:
-        if track.get('thumb'):
-            sectionthumb = get_thumb_image(track, server)
-
-        track_tag(server, tree, track, sectionart, sectionthumb)
+        track_tag(server, tree, track)
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
@@ -457,14 +424,12 @@ def process_plex_plugins(url, tree=None, plex_network=None):
     if tree is None:
         return
 
-    is_myplex_url = False
     if (tree.get('identifier') != 'com.plexapp.plugins.myplex') and ('node.plexapp.com' in url):
-        is_myplex_url = True
         LOG.debug('This is a myPlex URL, attempting to locate master server')
         server = get_master_server()
 
     for plugin in tree:
-        plex_plugin_tag(server, tree, url, plugin, is_myplex_url)
+        plex_plugin_tag(server, tree, url, plugin)
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 

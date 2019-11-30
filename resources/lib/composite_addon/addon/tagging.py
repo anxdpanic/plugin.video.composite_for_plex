@@ -11,6 +11,7 @@
 """
 
 import datetime
+import random
 
 from ..addon.common import CONFIG
 from ..addon.common import MODES
@@ -30,13 +31,14 @@ from ..addon.utils import get_media_data
 LOG = PrintDebug(CONFIG['name'])
 
 
-def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def movie_tag(url, server, tree, movie):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     tempgenre = []
     tempcast = []
     tempdir = []
     tempwriter = []
 
     mediaarguments = {}
+    random_number = str(random.randint(1000000000, 9999999999))
 
     # Lets grab all the info we can quickly through either a dictionary, or assignment to a list
     # We'll process it later
@@ -137,7 +139,7 @@ def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-m
     add_item_to_gui(final_url, details, extra_data, context, folder=False)
 
 
-def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True):  # pylint: disable=too-many-arguments
+def track_tag(server, tree, track, listing=True):
     part_details = ()
 
     for child in track:
@@ -158,6 +160,12 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
         'duration': int(track.get('duration', 0)) / 1000,
         'mediatype': 'song'
     }
+
+    sectionart = get_fanart_image(tree, server)
+    if track.get('thumb'):
+        sectionthumb = get_thumb_image(track, server)
+    else:
+        sectionthumb = get_thumb_image(tree, server)
 
     extra_data = {
         'type': 'music',
@@ -221,12 +229,15 @@ def playlist_tag(url, server, track, listing=True):
     return url, details
 
 
-def directory_tag(server, tree, url, directory, collections):
+def directory_tag(server, tree, url, directory):
     title = encode_utf8(directory.get('title', i18n('Unknown')))
     title = directory_item_translate(title, tree.get('thumb'))
+
     details = {'title': title}
-    if collections:
+
+    if '/collection' in url:
         details['mediatype'] = 'set'
+
     extra_data = {
         'thumb': get_thumb_image(tree, server),
         'fanart_image': get_fanart_image(tree, server),
@@ -239,15 +250,14 @@ def directory_tag(server, tree, url, directory, collections):
     add_item_to_gui(item_url, details, extra_data)
 
 
-def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disable=too-many-arguments, too-many-locals, too-many-branches, too-many-statements
-    if not isinstance(art, dict):
-        art = {}
-
+def episode_tag(server, tree, url, episode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     tempgenre = []
     tempcast = []
     tempdir = []
     tempwriter = []
     mediaarguments = {}
+
+    random_number = str(random.randint(1000000000, 9999999999))
 
     use_go_to = url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
 
@@ -301,6 +311,19 @@ def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disa
                                                   details['season'],
                                                   str(details['episode']).zfill(2),
                                                   details['title'])
+
+    art = {
+        'banner': get_banner_image(tree, server),
+        'season_thumb': tree.get('thumb', ''),
+        'sectionart': '',
+    }
+
+    # get season thumb for SEASON NODE
+    if art['season_thumb'] == '/:/resources/show.png':
+        art['season_thumb'] = ''
+
+    if not SETTINGS.get_setting('skipimages'):
+        art['sectionart'] = get_fanart_image(tree, server)
 
     # Extra data required to manage other properties
     extra_data = {
@@ -455,7 +478,7 @@ def artist_tag(server, artist):
     add_item_to_gui(url, details, extra_data)
 
 
-def album_tag(server, tree, album, sectionart, recent):
+def album_tag(server, tree, url, album):
     details = {
         'album': encode_utf8(album.get('title', '')),
         'year': int(album.get('year', 0)),
@@ -463,7 +486,7 @@ def album_tag(server, tree, album, sectionart, recent):
         'mediatype': 'album'
     }
 
-    if recent:
+    if 'recentlyAdded' in url:
         details['title'] = '%s - %s' % (details['artist'], details['album'])
     else:
         details['title'] = details['album']
@@ -478,7 +501,7 @@ def album_tag(server, tree, album, sectionart, recent):
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = sectionart
+        extra_data['fanart_image'] = get_fanart_image(tree, server)
 
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
@@ -543,7 +566,7 @@ def season_tag(server, tree, season):
     add_item_to_gui(item_url, details, extra_data, context)
 
 
-def plex_plugin_tag(server, tree, url, plugin, is_myplex_url):  # pylint: disable=too-many-branches
+def plex_plugin_tag(server, tree, url, plugin):  # pylint: disable=too-many-branches
     details = {'title': encode_utf8(plugin.get('title'))}
 
     if details['title']:
@@ -560,7 +583,7 @@ def plex_plugin_tag(server, tree, url, plugin, is_myplex_url):  # pylint: disabl
         'key': plugin.get('key', '')
     }
 
-    if is_myplex_url:
+    if (tree.get('identifier') != 'com.plexapp.plugins.myplex') and ('node.plexapp.com' in url):
         extra_data['key'] = extra_data['key'].replace('node.plexapp.com:32400',
                                                       server.get_location())
 
