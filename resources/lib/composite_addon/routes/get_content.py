@@ -43,11 +43,11 @@ def run(url):
     PLEX_NETWORK.load()
 
     server = PLEX_NETWORK.get_server_from_url(url)
-    lastbit = url.split('/')[-1]
-    LOG.debug('URL suffix: %s' % lastbit)
+    last_bit = url.split('/')[-1]
+    LOG.debug('URL suffix: %s' % last_bit)
 
     # Catch search requests, as we need to process input before getting results.
-    if lastbit.startswith('search'):
+    if last_bit.startswith('search'):
         LOG.debug('This is a search URL.  Bringing up keyboard')
         keyboard = xbmc.Keyboard('', i18n('Search...'))
         keyboard.setHeading(i18n('Enter search term'))
@@ -55,13 +55,13 @@ def run(url):
         if keyboard.isConfirmed():
             text = keyboard.getText()
             LOG.debug('Search term input: %s' % text)
-            url = url + '&query=' + quote(text)
+            url += '&query=' + quote(text)
         else:
             return
 
     tree = server.processed_xml(url)
 
-    if lastbit in ['folder', 'playlists']:
+    if last_bit in ['folder', 'playlists']:
         process_xml(url, tree, plex_network=PLEX_NETWORK)
         return
 
@@ -83,7 +83,7 @@ def run(url):
         process_albums(url, tree, plex_network=PLEX_NETWORK)
     elif view_group == 'track':
         LOG.debug('This is track XML')
-        process_tracks(url, tree, plex_network=PLEX_NETWORK)  # sorthing is handled here
+        process_tracks(url, tree, plex_network=PLEX_NETWORK)  # sorting is handled here
     elif view_group == 'photo':
         LOG.debug('This is a photo XML')
         process_photos(url, tree, plex_network=PLEX_NETWORK)

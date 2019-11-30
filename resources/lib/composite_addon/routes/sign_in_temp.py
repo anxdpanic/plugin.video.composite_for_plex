@@ -16,5 +16,5 @@ from ..addon.common import CONFIG
 
 
 def run():
-    # Awful hack to get around running a script from a listitem..
+    # Awful hack to get around running a script from a list item..
     xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signin)')

@@ -64,11 +64,13 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         self.plexhome_cache = 'plexhome_user.pcache'
         self.client_id = None
         self.user_list = dict()
-        self.plexhome_settings = {'myplex_signedin': False,
-                                  'plexhome_enabled': False,
-                                  'myplex_user_cache': '',
-                                  'plexhome_user_cache': '',
-                                  'plexhome_user_avatar': ''}
+        self.plexhome_settings = {
+            'myplex_signedin': False,
+            'plexhome_enabled': False,
+            'myplex_user_cache': '',
+            'plexhome_user_cache': '',
+            'plexhome_user_avatar': ''
+        }
 
         self.setup_user_token()
         if load:
@@ -91,11 +93,13 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         return self.plexhome_settings['plexhome_user_avatar']
 
     def signout(self):
-        self.plexhome_settings = {'myplex_signedin': False,
-                                  'plexhome_enabled': False,
-                                  'myplex_user_cache': '',
-                                  'plexhome_user_cache': '',
-                                  'plexhome_user_avatar': ''}
+        self.plexhome_settings = {
+            'myplex_signedin': False,
+            'plexhome_enabled': False,
+            'myplex_user_cache': '',
+            'plexhome_user_cache': '',
+            'plexhome_user_avatar': ''
+        }
 
         self.delete_cache(True)
         LOG.debug('Signed out from myPlex')
@@ -144,7 +148,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                     username = xml.get('username', '')
 
                     avatar = xml.get('thumb')
-                    # Required because plex.tv doesn;t return content-length and
+                    # Required because plex.tv doesn't return content-length and
                     # KODI requires it for cache
                     # fixed in KODI 15 (isengard)
                     if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
@@ -218,8 +222,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             self.effective_token = self.myplex_token
             self.save_tokencache()
 
-        LOG.debug('myPlex userid: %s' % self.myplex_user)
-        LOG.debug('effective userid: %s' % self.effective_user)
+        LOG.debug('myPlex user id: %s' % self.myplex_user)
+        LOG.debug('effective user id: %s' % self.effective_user)
 
     def load_tokencache(self):
 
@@ -313,7 +317,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 self.server_list = self.get_myplex_servers()
 
                 if self.server_list:
-                    LOG.debug('MyPlex discovery completed sucecssfully')
+                    LOG.debug('MyPlex discovery completed successfully')
                 else:
                     LOG.debug('MyPlex discovery found no servers')
 
@@ -500,7 +504,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 LOG.error('Unknown HTTP method requested: %s' % method)
                 response = None
         except requests.exceptions.ConnectionError as error:
-            LOG.error('myPlex: %s is offline or uncontactable. error: %s' %
+            LOG.error('myPlex: %s is offline or unreachable. error: %s' %
                       (self.myplex_server, error))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
         except requests.exceptions.ReadTimeout:
@@ -511,7 +515,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
             LOG.debugplus('Full URL was: %s' % response.url)
             LOG.debugplus('Full header sent was: %s' % response.request.headers)
-            LOG.debugplus('Full header recieved was: %s' % response.headers)
+            LOG.debugplus('Full header received was: %s' % response.headers)
 
             if response.status_code == 401 and not renew:
                 return self.talk_to_myplex(path, True)
@@ -570,7 +574,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 home = xml.get('home', '0')
 
                 avatar = xml.get('thumb')
-                # Required because plex.tv doesnst return content-length and
+                # Required because plex.tv doesn't return content-length and
                 # KODI requires it for cache
                 # fixed in KODI 15 (isengard)
                 if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
@@ -669,28 +673,32 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         data = ETree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list = dict()
         for users in data:
-            add = {'id': users.get('id'),
-                   'admin': users.get('admin'),
-                   'restricted': users.get('restricted'),
-                   'protected': users.get('protected'),
-                   'title': users.get('title'),
-                   'username': users.get('username'),
-                   'email': users.get('email'),
-                   'thumb': users.get('thumb')}
+            add = {
+                'id': users.get('id'),
+                'admin': users.get('admin'),
+                'restricted': users.get('restricted'),
+                'protected': users.get('protected'),
+                'title': users.get('title'),
+                'username': users.get('username'),
+                'email': users.get('email'),
+                'thumb': users.get('thumb')
+            }
             self.user_list[users.get('id')] = add
 
     def get_plex_home_users(self):
         data = ETree.fromstring(self.talk_to_myplex('/api/home/users'))
         self.user_list = dict()
         for users in data:
-            add = {'id': users.get('id'),
-                   'admin': users.get('admin'),
-                   'restricted': users.get('restricted'),
-                   'protected': users.get('protected'),
-                   'title': users.get('title'),
-                   'username': users.get('username'),
-                   'email': users.get('email'),
-                   'thumb': users.get('thumb')}
+            add = {
+                'id': users.get('id'),
+                'admin': users.get('admin'),
+                'restricted': users.get('restricted'),
+                'protected': users.get('protected'),
+                'title': users.get('title'),
+                'username': users.get('username'),
+                'email': users.get('email'),
+                'thumb': users.get('thumb')
+            }
             self.user_list[users.get('title')] = add
 
         return self.user_list
@@ -717,7 +725,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 break
 
         avatar = tree.get('thumb')
-        # Required because plex.tv doesn;t return content-length and KODI requires it for cache
+        # Required because plex.tv doesn't return content-length and KODI requires it for cache
         # fixed in KODI 15 (isengard)
         if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
             avatar = avatar.replace('//', '//i2.wp.com/', 1)

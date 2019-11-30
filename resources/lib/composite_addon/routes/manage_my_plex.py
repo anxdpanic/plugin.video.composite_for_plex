@@ -26,10 +26,10 @@ PLEX_NETWORK = plex.Plex(load=False)
 def run():
     has_access = True
     if not PLEX_NETWORK.is_myplex_signedin():
-        ret = xbmcgui.Dialog().yesno(i18n('Manage myPlex'),
-                                     i18n('You are not currently logged into myPlex. '
-                                          'Continue to sign in, or cancel to return'))
-        if ret:
+        result = xbmcgui.Dialog().yesno(i18n('Manage myPlex'),
+                                        i18n('You are not currently logged into myPlex. '
+                                             'Continue to sign in, or cancel to return'))
+        if result:
             xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signin)')
         else:
             has_access = False

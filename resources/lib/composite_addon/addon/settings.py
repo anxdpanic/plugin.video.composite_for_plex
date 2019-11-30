@@ -59,10 +59,10 @@ class AddonSettings:
         self.settings.setSetting(name, value)
 
     def get_wakeservers(self):
-        wakeserver = []
-        for servers in list(range(1, 12)):
-            wakeserver.append(self.settings.getSetting('wol%s' % servers))
-        return wakeserver
+        servers = []
+        for server in list(range(1, 12)):
+            servers.append(self.settings.getSetting('wol%s' % server))
+        return servers
 
     def get_stream(self):
         return self.stream

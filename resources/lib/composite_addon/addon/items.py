@@ -32,33 +32,33 @@ LOG = PrintDebug(CONFIG['name'])
 
 
 def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
-    tempgenre = []
-    tempcast = []
-    tempdir = []
-    tempwriter = []
+    temp_genre = []
+    temp_cast = []
+    temp_director = []
+    temp_writer = []
 
-    mediaarguments = {}
+    media_arguments = {}
     random_number = str(random.randint(1000000000, 9999999999))
 
     # Lets grab all the info we can quickly through either a dictionary, or assignment to a list
     # We'll process it later
     for child in movie:
         if child.tag == 'Media':
-            mediaarguments = dict(child.items())
+            media_arguments = dict(child.items())
         elif child.tag == 'Genre' and not SETTINGS.get_setting('skipmetadata'):
-            tempgenre.append(child.get('tag'))
+            temp_genre.append(child.get('tag'))
         elif child.tag == 'Writer' and not SETTINGS.get_setting('skipmetadata'):
-            tempwriter.append(child.get('tag'))
+            temp_writer.append(child.get('tag'))
         elif child.tag == 'Director' and not SETTINGS.get_setting('skipmetadata'):
-            tempdir.append(child.get('tag'))
+            temp_director.append(child.get('tag'))
         elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
-            tempcast.append(child.get('tag'))
+            temp_cast.append(child.get('tag'))
 
-    LOG.debug('Media attributes are %s' % mediaarguments)
+    LOG.debug('Media attributes are %s' % media_arguments)
 
     # Gather some data
     view_offset = movie.get('viewOffset', 0)
-    duration = int(mediaarguments.get('duration', movie.get('duration', 0))) / 1000
+    duration = int(media_arguments.get('duration', movie.get('duration', 0))) / 1000
 
     # Required listItem entries for XBMC
     details = {
@@ -108,10 +108,10 @@ def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-loc
 
     # Extended Metadata
     if not SETTINGS.get_setting('skipmetadata'):
-        details['cast'] = tempcast
-        details['director'] = ' / '.join(tempdir)
-        details['writer'] = ' / '.join(tempwriter)
-        details['genre'] = ' / '.join(tempgenre)
+        details['cast'] = temp_cast
+        details['director'] = ' / '.join(temp_director)
+        details['writer'] = ' / '.join(temp_writer)
+        details['genre'] = ' / '.join(temp_genre)
 
     if movie.get('primaryExtraKey') is not None:
         details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?t=%s&mode=%s' % \
@@ -121,7 +121,7 @@ def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-loc
 
     # Add extra media flag data
     if not SETTINGS.get_setting('skipflags'):
-        extra_data.update(get_media_data(mediaarguments))
+        extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
     if not SETTINGS.get_setting('skipcontextmenus'):
@@ -161,16 +161,16 @@ def create_track_item(server, tree, track, listing=True):
         'mediatype': 'song'
     }
 
-    sectionart = get_fanart_image(tree, server)
+    section_art = get_fanart_image(tree, server)
     if track.get('thumb'):
-        sectionthumb = get_thumb_image(track, server)
+        section_thumb = get_thumb_image(track, server)
     else:
-        sectionthumb = get_thumb_image(tree, server)
+        section_thumb = get_thumb_image(tree, server)
 
     extra_data = {
         'type': 'music',
-        'fanart_image': sectionart,
-        'thumb': sectionthumb,
+        'fanart_image': section_art,
+        'thumb': section_thumb,
         'key': track.get('key', ''),
         'ratingKey': str(track.get('ratingKey', 0)),
         'mode': MODES.PLAYLIBRARY
@@ -251,11 +251,11 @@ def create_directory_item(server, tree, url, directory):
 
 
 def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
-    tempgenre = []
-    tempcast = []
-    tempdir = []
-    tempwriter = []
-    mediaarguments = {}
+    temp_genre = []
+    temp_cast = []
+    temp_director = []
+    temp_writer = []
+    media_arguments = {}
 
     random_number = str(random.randint(1000000000, 9999999999))
 
@@ -263,21 +263,21 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
 
     for child in episode:
         if child.tag == 'Media':
-            mediaarguments = dict(child.items())
+            media_arguments = dict(child.items())
         elif child.tag == 'Genre' and not SETTINGS.get_setting('skipmetadata'):
-            tempgenre.append(child.get('tag'))
+            temp_genre.append(child.get('tag'))
         elif child.tag == 'Writer' and not SETTINGS.get_setting('skipmetadata'):
-            tempwriter.append(child.get('tag'))
+            temp_writer.append(child.get('tag'))
         elif child.tag == 'Director' and not SETTINGS.get_setting('skipmetadata'):
-            tempdir.append(child.get('tag'))
+            temp_director.append(child.get('tag'))
         elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
-            tempcast.append(child.get('tag'))
+            temp_cast.append(child.get('tag'))
 
-    LOG.debug('Media attributes are %s' % mediaarguments)
+    LOG.debug('Media attributes are %s' % media_arguments)
 
     # Gather some data
     view_offset = episode.get('viewOffset', 0)
-    duration = int(mediaarguments.get('duration', episode.get('duration', 0))) / 1000
+    duration = int(media_arguments.get('duration', episode.get('duration', 0))) / 1000
 
     # Required listItem entries for XBMC
     details = {
@@ -315,7 +315,7 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
     art = {
         'banner': get_banner_image(tree, server),
         'season_thumb': tree.get('thumb', ''),
-        'sectionart': '',
+        'section_art': '',
     }
 
     # get season thumb for SEASON NODE
@@ -323,7 +323,7 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
         art['season_thumb'] = ''
 
     if not SETTINGS.get_setting('skipimages'):
-        art['sectionart'] = get_fanart_image(tree, server)
+        art['section_art'] = get_fanart_image(tree, server)
 
     # Extra data required to manage other properties
     extra_data = {
@@ -344,10 +344,10 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
     }
 
     if extra_data['fanart_image'] == '' and not SETTINGS.get_setting('skipimages'):
-        extra_data['fanart_image'] = art.get('sectionart', '')
+        extra_data['fanart_image'] = art.get('section_art', '')
 
     if '-1' in extra_data['fanart_image'] and not SETTINGS.get_setting('skipimages'):
-        extra_data['fanart_image'] = art.get('sectionart', '')
+        extra_data['fanart_image'] = art.get('section_art', '')
 
     if art.get('season_thumb', ''):
         extra_data['season_thumb'] = server.get_url_location() + art.get('season_thumb', '')
@@ -360,7 +360,7 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
         extra_data['season_thumb'] = '%s%s' % (server.get_url_location(),
                                                episode.get('grandparentThumb', ''))
 
-    # Determine what tupe of watched flag [overlay] to use
+    # Determine what type of watched flag [overlay] to use
     if int(episode.get('viewCount', 0)) > 0:
         details['playcount'] = 1
     else:
@@ -368,14 +368,14 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
 
     # Extended Metadata
     if not SETTINGS.get_setting('skipmetadata'):
-        details['cast'] = tempcast
-        details['director'] = ' / '.join(tempdir)
-        details['writer'] = ' / '.join(tempwriter)
-        details['genre'] = ' / '.join(tempgenre)
+        details['cast'] = temp_cast
+        details['director'] = ' / '.join(temp_director)
+        details['writer'] = ' / '.join(temp_writer)
+        details['genre'] = ' / '.join(temp_genre)
 
     # Add extra media flag data
     if not SETTINGS.get_setting('skipflags'):
-        extra_data.update(get_media_data(mediaarguments))
+        extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
     if not SETTINGS.get_setting('skipcontextmenus'):
@@ -394,11 +394,11 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
 
 
 def create_tvshow_item(server, url, show):
-    tempgenre = []
+    temp_genre = []
 
     for child in show:
         if child.tag == 'Genre':
-            tempgenre.append(child.get('tag', ''))
+            temp_genre.append(child.get('tag', ''))
 
     _watched = int(show.get('viewedLeafCount', 0))
 
@@ -414,7 +414,7 @@ def create_tvshow_item(server, url, show):
         'mpaa': show.get('contentRating', ''),
         'rating': float(show.get('rating', 0)),
         'aired': show.get('originallyAvailableAt', ''),
-        'genre': ' / '.join(tempgenre),
+        'genre': ' / '.join(temp_genre),
         'mediatype': 'tvshow'
     }
 

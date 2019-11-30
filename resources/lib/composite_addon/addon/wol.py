@@ -16,28 +16,26 @@ import struct
 from six.moves import range
 
 
-def wake_on_lan(macaddress):
+def wake_on_lan(mac_address):
     """ Switches on remote computers using WOL. """
 
-    macaddress = macaddress.strip()
+    mac_address = mac_address.strip()
 
-    # Check macaddress format and try to compensate.
-    if len(macaddress) == 12:
+    # Check mac_address format and try to compensate.
+    if len(mac_address) == 12:
         pass
-    elif len(macaddress) == 12 + 5:
-        sep = macaddress[2]
-        macaddress = macaddress.replace(sep, '')
+    elif len(mac_address) == 12 + 5:
+        mac_address = mac_address.replace(mac_address[2], '')
     else:
         raise ValueError('Incorrect MAC address format')
 
     # Pad the synchronization stream.
-    data = ''.join(['FFFFFFFFFFFF', macaddress * 20])
+    data = ''.join(['FFFFFFFFFFFF', mac_address * 20])
     send_data = ''
 
     # Split up the hex values and pack.
     for i in list(range(0, len(data), 2)):
-        send_data = ''.join([send_data,
-                             struct.pack('B', int(data[i: i + 2], 16))])
+        send_data = ''.join([send_data, struct.pack('B', int(data[i: i + 2], 16))])
 
     # Broadcast it to the LAN.
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

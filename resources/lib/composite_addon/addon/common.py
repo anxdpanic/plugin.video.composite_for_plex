@@ -240,20 +240,22 @@ def get_platform_ip():
     return xbmc.getIPAddress()
 
 
-CONFIG = {'addon': __ADDON,
-          'id': __ID,
-          'name': decode_utf8(__ADDON.getAddonInfo('name')),
-          'icon': decode_utf8(__ADDON.getAddonInfo('icon')),
-          'data_path': decode_utf8(__ADDON.getAddonInfo('profile')),
-          'version': decode_utf8(__ADDON.getAddonInfo('version')),
-          'device': get_device(),
-          'platform': platform.uname()[0],
-          'platform_version': platform.uname()[2],
-          'media_path': 'special://home/addons/%s/resources/media/' %
-                        decode_utf8(__ADDON.getAddonInfo('id')),
-          'temp_path': decode_utf8(xbmc.translatePath('special://temp/%s/' %
-                                                      decode_utf8(__ADDON.getAddonInfo('id')))),
-          'required_revision': '1.0.7'}
+CONFIG = {
+    'addon': __ADDON,
+    'id': __ID,
+    'name': decode_utf8(__ADDON.getAddonInfo('name')),
+    'icon': decode_utf8(__ADDON.getAddonInfo('icon')),
+    'data_path': decode_utf8(__ADDON.getAddonInfo('profile')),
+    'version': decode_utf8(__ADDON.getAddonInfo('version')),
+    'device': get_device(),
+    'platform': platform.uname()[0],
+    'platform_version': platform.uname()[2],
+    'media_path': 'special://home/addons/%s/resources/media/' %
+                  decode_utf8(__ADDON.getAddonInfo('id')),
+    'temp_path': decode_utf8(xbmc.translatePath('special://temp/%s/' %
+                                                decode_utf8(__ADDON.getAddonInfo('id')))),
+    'required_revision': '1.0.7'
+}
 
 try:
     CONFIG['kodi_version'] = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
