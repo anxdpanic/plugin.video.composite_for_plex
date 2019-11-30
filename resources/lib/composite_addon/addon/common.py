@@ -87,6 +87,14 @@ def get_params():
     params['url'] = url
     params['command'] = command
 
+    if not params.get('mode') and not params.get('server_uuid'):
+        plugin_url = get_argv()[0]
+        path_args = plugin_url.replace('plugin://%s/' % CONFIG['id'], '')
+        path_args = path_args.rstrip('/').split('/')
+        if len(path_args) == 2:
+            params['server_uuid'] = path_args[0]
+            params['mode'] = path_args[1]
+
     LOG.debug('Parameters |%s| -> |%s|' % (param_string, str(params)))
     return params
 
