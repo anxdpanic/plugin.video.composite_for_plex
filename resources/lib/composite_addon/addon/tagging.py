@@ -712,3 +712,37 @@ def plex_online_tag(server, url, plugin):
     extra_data['parameters'] = {'name': details['title']}
 
     add_item_to_gui(item_url, details, extra_data)
+
+
+def photo_tag(server, tree, url, photo):
+    details = {'title': encode_utf8(photo.get('title', photo.get('name', i18n('Unknown'))))}
+
+    if not details['title']:
+        details['title'] = i18n('Unknown')
+
+    extra_data = {
+        'thumb': get_thumb_image(photo, server),
+        'fanart_image': get_fanart_image(photo, server),
+        'type': 'image'
+    }
+
+    if extra_data['fanart_image'] == '':
+        extra_data['fanart_image'] = get_fanart_image(tree, server)
+
+    item_url = get_link_url(url, photo, server)
+
+    if photo.tag == 'Directory':
+        extra_data['mode'] = MODES.PHOTOS
+        add_item_to_gui(item_url, details, extra_data)
+
+    elif photo.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
+        for pics in photo:
+            if pics.tag == 'Media':
+                parts = [img for img in pics if img.tag == 'Part']
+                for part in parts:
+                    extra_data['key'] = \
+                        server.get_url_location() + part.get('key', '')
+                    details['size'] = int(part.get('size', 0))
+                    item_url = extra_data['key']
+
+        add_item_to_gui(item_url, details, extra_data, folder=False)

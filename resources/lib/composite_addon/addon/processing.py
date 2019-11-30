@@ -34,6 +34,7 @@ from ..addon.tagging import directory_tag
 from ..addon.tagging import episode_tag
 from ..addon.tagging import movie_tag
 from ..addon.tagging import music_tag
+from ..addon.tagging import photo_tag
 from ..addon.tagging import playlist_tag
 from ..addon.tagging import plex_online_tag
 from ..addon.tagging import plex_plugin_tag
@@ -327,40 +328,8 @@ def process_photos(url, tree=None, plex_network=None):
     if tree is None:
         return
 
-    section_art = get_fanart_image(tree, server)
-    for picture in tree:
-
-        details = {'title': encode_utf8(picture.get('title', picture.get('name', i18n('Unknown'))))}
-
-        if not details['title']:
-            details['title'] = i18n('Unknown')
-
-        extra_data = {
-            'thumb': get_thumb_image(picture, server),
-            'fanart_image': get_fanart_image(picture, server),
-            'type': 'image'
-        }
-
-        if extra_data['fanart_image'] == '':
-            extra_data['fanart_image'] = section_art
-
-        item_url = get_link_url(url, picture, server)
-
-        if picture.tag == 'Directory':
-            extra_data['mode'] = MODES.PHOTOS
-            add_item_to_gui(item_url, details, extra_data)
-
-        elif picture.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
-            for pics in picture:
-                if pics.tag == 'Media':
-                    parts = [img for img in pics if img.tag == 'Part']
-                    for part in parts:
-                        extra_data['key'] = \
-                            server.get_url_location() + part.get('key', '')
-                        details['size'] = int(part.get('size', 0))
-                        item_url = extra_data['key']
-
-            add_item_to_gui(item_url, details, extra_data, folder=False)
+    for photo in tree:
+        photo_tag(server, tree, url, photo)
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
