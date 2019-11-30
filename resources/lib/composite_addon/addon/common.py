@@ -263,7 +263,28 @@ except:  # pylint: disable=bare-except
 SETTINGS = AddonSettings(__ID)
 LOG = PrintDebug(CONFIG['name'])
 
+COMMANDS = __enum(
+    UNSET=None,
+    ADDTOPLAYLIST='add_playlist_item',
+    AUDIO='audio',
+    DELETE='delete',
+    DELETEFROMPLAYLIST='delete_playlist_item',
+    DELETEREFRESH='delete_refresh',
+    DISPLAYSERVER='displayservers',
+    MANAGEMYPLEX='managemyplex',
+    MASTER='master',
+    REFRESH='refresh',
+    SIGNIN='signin',
+    SIGNINTEMP='signintemp',
+    SIGNOUT='signout',
+    SUBS='subs',
+    SWITCHUSER='switchuser',
+    UPDATE='update',
+    WATCH='watch',
+)
+
 MODES = __enum(
+    UNSET=-1,
     GETCONTENT=0,
     TVSHOWS=1,
     MOVIES=2,
