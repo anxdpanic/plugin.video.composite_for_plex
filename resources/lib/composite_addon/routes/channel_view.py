@@ -42,16 +42,13 @@ def run(url):
 
     for channels in tree_iter:
 
-        if channels.get('local', '') == '0':
+        if channels.get('local', '') == '0' or channels.get('size', '0') == '0':
             continue
 
-        if channels.get('size', '0') == '0':
-            continue
-
-        # arguments = dict(channels.items())
-
-        extra_data = {'fanart_image': get_fanart_image(channels, server),
-                      'thumb': get_thumb_image(channels, server)}
+        extra_data = {
+            'fanart_image': get_fanart_image(channels, server),
+            'thumb': get_thumb_image(channels, server)
+        }
 
         details = {'title': channels.get('title', i18n('Unknown'))}
 
@@ -60,7 +57,7 @@ def run(url):
         if channels.get('unique', '') == '0':
             details['title'] = '%s (%s)' % (details['title'], suffix)
 
-        # Alter data sent into getlinkurl, as channels use path rather than key
+        # Alter data sent into get_link_url, as channels use path rather than key
         p_url = get_link_url(url,
                              {'key': channels.get('key'), 'identifier': channels.get('key')},
                              server)

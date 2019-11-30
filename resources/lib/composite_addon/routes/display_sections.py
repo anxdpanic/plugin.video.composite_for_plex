@@ -25,7 +25,7 @@ LOG = PrintDebug(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(cfilter=None, display_shared=False):  # pylint: disable=too-many-branches, too-many-statements
+def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-branches, too-many-statements
     PLEX_NETWORK.load()
     xbmcplugin.setContent(get_handle(), 'files')
 
@@ -39,7 +39,7 @@ def run(cfilter=None, display_shared=False):  # pylint: disable=too-many-branche
         for section in sections:
 
             if ((display_shared and server.is_owned()) or
-                    (cfilter is not None and section.content_type() != cfilter)):
+                    (content_filter is not None and section.content_type() != content_filter)):
                 continue
 
             if section.content_type() is None:
@@ -52,8 +52,10 @@ def run(cfilter=None, display_shared=False):  # pylint: disable=too-many-branche
             else:
                 details = {'title': section.get_title()}
 
-            extra_data = {'fanart_image': server.get_fanart(section),
-                          'type': 'Folder'}
+            extra_data = {
+                'fanart_image': server.get_fanart(section),
+                'type': 'Folder'
+            }
 
             path = section.get_path()
 
@@ -83,7 +85,10 @@ def run(cfilter=None, display_shared=False):  # pylint: disable=too-many-branche
     # For each of the servers we have identified
     if PLEX_NETWORK.is_myplex_signedin():
         details = {'title': i18n('myPlex Queue')}
-        extra_data = {'type': 'Folder', 'mode': MODES.MYPLEXQUEUE}
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.MYPLEXQUEUE
+        }
         add_item_to_gui('http://myplexqueue', details, extra_data)
 
     for server in server_list:
@@ -92,7 +97,7 @@ def run(cfilter=None, display_shared=False):  # pylint: disable=too-many-branche
             continue
 
         # Plex plugin handling
-        if (cfilter is not None) and (cfilter != 'plugins'):
+        if (content_filter is not None) and (content_filter != 'plugins'):
             continue
 
         if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
@@ -101,7 +106,10 @@ def run(cfilter=None, display_shared=False):  # pylint: disable=too-many-branche
             prefix = ''
 
         details = {'title': prefix + i18n('Channels')}
-        extra_data = {'type': 'Folder', 'mode': MODES.CHANNELVIEW}
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.CHANNELVIEW
+        }
 
         item_url = '%s/channels/all' % server.get_url_location()
         add_item_to_gui(item_url, details, extra_data)

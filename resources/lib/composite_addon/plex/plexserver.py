@@ -111,15 +111,17 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def get_details(self):
 
-        return {'serverName': self.server_name,
-                'server': self.get_address(),
-                'port': self.get_port(),
-                'discovery': self.discovery,
-                'token': self.token,
-                'uuid': self.uuid,
-                'owned': self.owned,
-                'master': self.master,
-                'class': self.class_type}
+        return {
+            'serverName': self.server_name,
+            'server': self.get_address(),
+            'port': self.get_port(),
+            'discovery': self.discovery,
+            'token': self.token,
+            'uuid': self.uuid,
+            'owned': self.owned,
+            'master': self.master,
+            'class': self.class_type
+        }
 
     def create_plex_identification_string(self):
         header = []
@@ -416,7 +418,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                     response = None
                 self.offline = False
             except requests.exceptions.ConnectionError as error:
-                LOG.error('Server: %s is offline or uncontactable. error: %s' %
+                LOG.error('Server: %s is offline or unreachable. error: %s' %
                           (self.get_address(), error))
 
                 if self.protocol == 'https' and refresh:
@@ -745,19 +747,21 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         transcode_request = '/video/:/transcode/universal/start.m3u8?'
         session = str(uuid.uuid4())
         quality = '100'
-        transcode_settings = {'protocol': 'hls',
-                              'container': 'mpegts',
-                              'session': session,
-                              'offset': 0,
-                              'videoResolution': resolution,
-                              'maxVideoBitrate': max_video_bitrate,
-                              'videoQuality': quality,
-                              'directStream': '1',
-                              'directPlay': '0',
-                              'subtitleSize': subtitle_size,
-                              'audioBoost': audio_boost,
-                              'fastSeek': '1',
-                              'path': 'http://127.0.0.1:32400%s' % url}
+        transcode_settings = {
+            'protocol': 'hls',
+            'container': 'mpegts',
+            'session': session,
+            'offset': 0,
+            'videoResolution': resolution,
+            'maxVideoBitrate': max_video_bitrate,
+            'videoQuality': quality,
+            'directStream': '1',
+            'directPlay': '0',
+            'subtitleSize': subtitle_size,
+            'audioBoost': audio_boost,
+            'fastSeek': '1',
+            'path': 'http://127.0.0.1:32400%s' % url
+        }
 
         full_url = '%s%s' % (transcode_request, urlencode(transcode_settings))
         LOG.debug('\nURL: |%s|\nProfile: |[%s] %s@%s (%s/%s)|' %

@@ -330,10 +330,10 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.plexpass_field = pyxbmct.FadeLabel()
         self.placeControl(self.plexpass_field, 3, 7, columnspan=8)
 
-        # membersince Label
+        # Member since Label
         self.membersince_label = pyxbmct.Label('[B]%s[/B]' % i18n('Joined:'), alignment=1)
         self.placeControl(self.membersince_label, 4, 3, columnspan=4)
-        # Membersince fade label
+        # Member since fade label
         self.membersince_field = pyxbmct.FadeLabel()
         self.placeControl(self.membersince_field, 4, 7, columnspan=8)
 

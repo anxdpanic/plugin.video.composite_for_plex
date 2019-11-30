@@ -30,51 +30,50 @@ PLEX_NETWORK = plex.Plex(load=False)
 
 def run(url):
     PLEX_NETWORK.load()
-    ctype = url.split('/')[2]
-    LOG.debug('Displaying entries for %s' % ctype)
+    content_type = url.split('/')[2]
+    LOG.debug('Displaying entries for %s' % content_type)
     servers = PLEX_NETWORK.get_server_list()
     servers_list = len(servers)
 
     # For each of the servers we have identified
-    for mediaserver in servers:
+    for media_server in servers:
 
-        if mediaserver.is_secondary():
+        if media_server.is_secondary():
             continue
 
-        details = {'title': mediaserver.get_name()}
-
+        details = {'title': media_server.get_name()}
         extra_data = {}
+        url = None
 
-        if ctype == 'video':
+        if content_type == 'video':
             extra_data['mode'] = MODES.PLEXPLUGINS
-            s_url = '%s%s' % (mediaserver.get_url_location(), '/video')
+            url = '%s%s' % (media_server.get_url_location(), '/video')
             if servers_list == 1:
-                process_plex_plugins(s_url, plex_network=PLEX_NETWORK)
+                process_plex_plugins(url, plex_network=PLEX_NETWORK)
                 return
 
-        elif ctype == 'online':
+        elif content_type == 'online':
             extra_data['mode'] = MODES.PLEXONLINE
-            s_url = '%s%s' % (mediaserver.get_url_location(), '/system/plexonline')
+            url = '%s%s' % (media_server.get_url_location(), '/system/plexonline')
             if servers_list == 1:
-                process_plex_online(s_url, plex_network=PLEX_NETWORK)
+                process_plex_online(url, plex_network=PLEX_NETWORK)
                 return
 
-        elif ctype == 'music':
+        elif content_type == 'music':
             extra_data['mode'] = MODES.MUSIC
-            s_url = '%s%s' % (mediaserver.get_url_location(), '/music')
+            url = '%s%s' % (media_server.get_url_location(), '/music')
             if servers_list == 1:
-                process_music(s_url, plex_network=PLEX_NETWORK)
+                process_music(url, plex_network=PLEX_NETWORK)
                 return
 
-        elif ctype == 'photo':
+        elif content_type == 'photo':
             extra_data['mode'] = MODES.PHOTOS
-            s_url = '%s%s' % (mediaserver.get_url_location(), '/photos')
+            url = '%s%s' % (media_server.get_url_location(), '/photos')
             if servers_list == 1:
-                process_photos(s_url, plex_network=PLEX_NETWORK)
+                process_photos(url, plex_network=PLEX_NETWORK)
                 return
-        else:
-            s_url = None
 
-        add_item_to_gui(s_url, details, extra_data)
+        if url:
+            add_item_to_gui(url, details, extra_data)
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

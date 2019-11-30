@@ -124,7 +124,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         set_subtitles.run()
         return _finished(start_time)
 
-    # Display audio streanm selection screen
+    # Display audio stream selection screen
     if command == COMMANDS.AUDIO:
         from .routes import set_audio  # pylint: disable=import-outside-toplevel
         set_audio.run()
@@ -266,22 +266,22 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.SHARED_MOVIES:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(cfilter='movies', display_shared=True)
+        display_sections.run(content_filter='movies', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_SHOWS:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(cfilter='tvshows', display_shared=True)
+        display_sections.run(content_filter='tvshows', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_PHOTOS:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(cfilter='photos', display_shared=True)
+        display_sections.run(content_filter='photos', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_MUSIC:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(cfilter='music', display_shared=True)
+        display_sections.run(content_filter='music', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_ALL:

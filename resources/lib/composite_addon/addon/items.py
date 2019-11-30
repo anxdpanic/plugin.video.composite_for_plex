@@ -11,6 +11,7 @@
 """
 
 import datetime
+import random
 
 from ..addon.common import CONFIG
 from ..addon.common import MODES
@@ -30,33 +31,34 @@ from ..addon.utils import get_media_data
 LOG = PrintDebug(CONFIG['name'])
 
 
-def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
-    tempgenre = []
-    tempcast = []
-    tempdir = []
-    tempwriter = []
+def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+    temp_genre = []
+    temp_cast = []
+    temp_director = []
+    temp_writer = []
 
-    mediaarguments = {}
+    media_arguments = {}
+    random_number = str(random.randint(1000000000, 9999999999))
 
     # Lets grab all the info we can quickly through either a dictionary, or assignment to a list
     # We'll process it later
     for child in movie:
         if child.tag == 'Media':
-            mediaarguments = dict(child.items())
+            media_arguments = dict(child.items())
         elif child.tag == 'Genre' and not SETTINGS.get_setting('skipmetadata'):
-            tempgenre.append(child.get('tag'))
+            temp_genre.append(child.get('tag'))
         elif child.tag == 'Writer' and not SETTINGS.get_setting('skipmetadata'):
-            tempwriter.append(child.get('tag'))
+            temp_writer.append(child.get('tag'))
         elif child.tag == 'Director' and not SETTINGS.get_setting('skipmetadata'):
-            tempdir.append(child.get('tag'))
+            temp_director.append(child.get('tag'))
         elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
-            tempcast.append(child.get('tag'))
+            temp_cast.append(child.get('tag'))
 
-    LOG.debug('Media attributes are %s' % mediaarguments)
+    LOG.debug('Media attributes are %s' % media_arguments)
 
     # Gather some data
     view_offset = movie.get('viewOffset', 0)
-    duration = int(mediaarguments.get('duration', movie.get('duration', 0))) / 1000
+    duration = int(media_arguments.get('duration', movie.get('duration', 0))) / 1000
 
     # Required listItem entries for XBMC
     details = {
@@ -106,10 +108,10 @@ def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-m
 
     # Extended Metadata
     if not SETTINGS.get_setting('skipmetadata'):
-        details['cast'] = tempcast
-        details['director'] = ' / '.join(tempdir)
-        details['writer'] = ' / '.join(tempwriter)
-        details['genre'] = ' / '.join(tempgenre)
+        details['cast'] = temp_cast
+        details['director'] = ' / '.join(temp_director)
+        details['writer'] = ' / '.join(temp_writer)
+        details['genre'] = ' / '.join(temp_genre)
 
     if movie.get('primaryExtraKey') is not None:
         details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?t=%s&mode=%s' % \
@@ -119,7 +121,7 @@ def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-m
 
     # Add extra media flag data
     if not SETTINGS.get_setting('skipflags'):
-        extra_data.update(get_media_data(mediaarguments))
+        extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
     if not SETTINGS.get_setting('skipcontextmenus'):
@@ -137,7 +139,7 @@ def movie_tag(url, server, tree, movie, random_number):  # pylint: disable=too-m
     add_item_to_gui(final_url, details, extra_data, context, folder=False)
 
 
-def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True):  # pylint: disable=too-many-arguments
+def create_track_item(server, tree, track, listing=True):
     part_details = ()
 
     for child in track:
@@ -159,10 +161,16 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
         'mediatype': 'song'
     }
 
+    section_art = get_fanart_image(tree, server)
+    if track.get('thumb'):
+        section_thumb = get_thumb_image(track, server)
+    else:
+        section_thumb = get_thumb_image(tree, server)
+
     extra_data = {
         'type': 'music',
-        'fanart_image': sectionart,
-        'thumb': sectionthumb,
+        'fanart_image': section_art,
+        'thumb': section_thumb,
         'key': track.get('key', ''),
         'ratingKey': str(track.get('ratingKey', 0)),
         'mode': MODES.PLAYLIBRARY
@@ -195,7 +203,7 @@ def track_tag(server, tree, track, sectionart='', sectionthumb='', listing=True)
     return url, details
 
 
-def playlist_tag(url, server, track, listing=True):
+def create_playlist_item(url, server, track, listing=True):
     details = {
         'title': encode_utf8(track.get('title', i18n('Unknown'))),
         'duration': int(track.get('duration', 0)) / 1000
@@ -221,12 +229,15 @@ def playlist_tag(url, server, track, listing=True):
     return url, details
 
 
-def directory_tag(server, tree, url, directory, collections):
+def create_directory_item(server, tree, url, directory):
     title = encode_utf8(directory.get('title', i18n('Unknown')))
     title = directory_item_translate(title, tree.get('thumb'))
+
     details = {'title': title}
-    if collections:
+
+    if '/collection' in url:
         details['mediatype'] = 'set'
+
     extra_data = {
         'thumb': get_thumb_image(tree, server),
         'fanart_image': get_fanart_image(tree, server),
@@ -239,35 +250,34 @@ def directory_tag(server, tree, url, directory, collections):
     add_item_to_gui(item_url, details, extra_data)
 
 
-def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disable=too-many-arguments, too-many-locals, too-many-branches, too-many-statements
-    if not isinstance(art, dict):
-        art = {}
+def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+    temp_genre = []
+    temp_cast = []
+    temp_director = []
+    temp_writer = []
+    media_arguments = {}
 
-    tempgenre = []
-    tempcast = []
-    tempdir = []
-    tempwriter = []
-    mediaarguments = {}
+    random_number = str(random.randint(1000000000, 9999999999))
 
     use_go_to = url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
 
     for child in episode:
         if child.tag == 'Media':
-            mediaarguments = dict(child.items())
+            media_arguments = dict(child.items())
         elif child.tag == 'Genre' and not SETTINGS.get_setting('skipmetadata'):
-            tempgenre.append(child.get('tag'))
+            temp_genre.append(child.get('tag'))
         elif child.tag == 'Writer' and not SETTINGS.get_setting('skipmetadata'):
-            tempwriter.append(child.get('tag'))
+            temp_writer.append(child.get('tag'))
         elif child.tag == 'Director' and not SETTINGS.get_setting('skipmetadata'):
-            tempdir.append(child.get('tag'))
+            temp_director.append(child.get('tag'))
         elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
-            tempcast.append(child.get('tag'))
+            temp_cast.append(child.get('tag'))
 
-    LOG.debug('Media attributes are %s' % mediaarguments)
+    LOG.debug('Media attributes are %s' % media_arguments)
 
     # Gather some data
     view_offset = episode.get('viewOffset', 0)
-    duration = int(mediaarguments.get('duration', episode.get('duration', 0))) / 1000
+    duration = int(media_arguments.get('duration', episode.get('duration', 0))) / 1000
 
     # Required listItem entries for XBMC
     details = {
@@ -302,6 +312,19 @@ def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disa
                                                   str(details['episode']).zfill(2),
                                                   details['title'])
 
+    art = {
+        'banner': get_banner_image(tree, server),
+        'season_thumb': tree.get('thumb', ''),
+        'section_art': '',
+    }
+
+    # get season thumb for SEASON NODE
+    if art['season_thumb'] == '/:/resources/show.png':
+        art['season_thumb'] = ''
+
+    if not SETTINGS.get_setting('skipimages'):
+        art['section_art'] = get_fanart_image(tree, server)
+
     # Extra data required to manage other properties
     extra_data = {
         'type': 'Video',
@@ -321,10 +344,10 @@ def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disa
     }
 
     if extra_data['fanart_image'] == '' and not SETTINGS.get_setting('skipimages'):
-        extra_data['fanart_image'] = art.get('sectionart', '')
+        extra_data['fanart_image'] = art.get('section_art', '')
 
     if '-1' in extra_data['fanart_image'] and not SETTINGS.get_setting('skipimages'):
-        extra_data['fanart_image'] = art.get('sectionart', '')
+        extra_data['fanart_image'] = art.get('section_art', '')
 
     if art.get('season_thumb', ''):
         extra_data['season_thumb'] = server.get_url_location() + art.get('season_thumb', '')
@@ -337,7 +360,7 @@ def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disa
         extra_data['season_thumb'] = '%s%s' % (server.get_url_location(),
                                                episode.get('grandparentThumb', ''))
 
-    # Determine what tupe of watched flag [overlay] to use
+    # Determine what type of watched flag [overlay] to use
     if int(episode.get('viewCount', 0)) > 0:
         details['playcount'] = 1
     else:
@@ -345,14 +368,14 @@ def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disa
 
     # Extended Metadata
     if not SETTINGS.get_setting('skipmetadata'):
-        details['cast'] = tempcast
-        details['director'] = ' / '.join(tempdir)
-        details['writer'] = ' / '.join(tempwriter)
-        details['genre'] = ' / '.join(tempgenre)
+        details['cast'] = temp_cast
+        details['director'] = ' / '.join(temp_director)
+        details['writer'] = ' / '.join(temp_writer)
+        details['genre'] = ' / '.join(temp_genre)
 
     # Add extra media flag data
     if not SETTINGS.get_setting('skipflags'):
-        extra_data.update(get_media_data(mediaarguments))
+        extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
     if not SETTINGS.get_setting('skipcontextmenus'):
@@ -370,12 +393,12 @@ def episode_tag(server, tree, url, episode, art, random_number):  # pylint: disa
     add_item_to_gui(item_url, details, extra_data, context, folder=False)
 
 
-def tvshow_tag(server, url, show):
-    tempgenre = []
+def create_tvshow_item(server, url, show):
+    temp_genre = []
 
     for child in show:
         if child.tag == 'Genre':
-            tempgenre.append(child.get('tag', ''))
+            temp_genre.append(child.get('tag', ''))
 
     _watched = int(show.get('viewedLeafCount', 0))
 
@@ -391,7 +414,7 @@ def tvshow_tag(server, url, show):
         'mpaa': show.get('contentRating', ''),
         'rating': float(show.get('rating', 0)),
         'aired': show.get('originallyAvailableAt', ''),
-        'genre': ' / '.join(tempgenre),
+        'genre': ' / '.join(temp_genre),
         'mediatype': 'tvshow'
     }
 
@@ -434,7 +457,7 @@ def tvshow_tag(server, url, show):
     add_item_to_gui(item_url, details, extra_data, context)
 
 
-def artist_tag(server, artist):
+def create_artist_item(server, artist):
     details = {'artist': encode_utf8(artist.get('title', ''))}
 
     details['title'] = details['artist']
@@ -455,7 +478,7 @@ def artist_tag(server, artist):
     add_item_to_gui(url, details, extra_data)
 
 
-def album_tag(server, tree, album, sectionart, recent):
+def create_album_item(server, tree, url, album):
     details = {
         'album': encode_utf8(album.get('title', '')),
         'year': int(album.get('year', 0)),
@@ -463,7 +486,7 @@ def album_tag(server, tree, album, sectionart, recent):
         'mediatype': 'album'
     }
 
-    if recent:
+    if 'recentlyAdded' in url:
         details['title'] = '%s - %s' % (details['artist'], details['album'])
     else:
         details['title'] = details['album']
@@ -478,14 +501,14 @@ def album_tag(server, tree, album, sectionart, recent):
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = sectionart
+        extra_data['fanart_image'] = get_fanart_image(tree, server)
 
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     add_item_to_gui(url, details, extra_data)
 
 
-def season_tag(server, tree, season):
+def create_season_item(server, tree, season):
     plot = encode_utf8(tree.get('summary', ''))
 
     _watched = int(season.get('viewedLeafCount', 0))
@@ -543,7 +566,7 @@ def season_tag(server, tree, season):
     add_item_to_gui(item_url, details, extra_data, context)
 
 
-def plex_plugin_tag(server, tree, url, plugin, is_myplex_url):  # pylint: disable=too-many-branches
+def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-many-branches
     details = {'title': encode_utf8(plugin.get('title'))}
 
     if details['title']:
@@ -560,7 +583,7 @@ def plex_plugin_tag(server, tree, url, plugin, is_myplex_url):  # pylint: disabl
         'key': plugin.get('key', '')
     }
 
-    if is_myplex_url:
+    if (tree.get('identifier') != 'com.plexapp.plugins.myplex') and ('node.plexapp.com' in url):
         extra_data['key'] = extra_data['key'].replace('node.plexapp.com:32400',
                                                       server.get_location())
 
@@ -607,7 +630,7 @@ def plex_plugin_tag(server, tree, url, plugin, is_myplex_url):  # pylint: disabl
         add_item_to_gui(url, details, extra_data)
 
 
-def music_tag(server, tree, url, music):
+def create_music_item(server, tree, url, music):
     details = {
         'genre': encode_utf8(music.get('genre', '')),
         'artist': encode_utf8(music.get('artist', '')),
@@ -668,7 +691,7 @@ def music_tag(server, tree, url, music):
     return content_type
 
 
-def plex_online_tag(server, url, plugin):
+def create_plex_online_item(server, url, plugin):
     details = {'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))}
     extra_data = {
         'type': 'Video',
@@ -689,3 +712,37 @@ def plex_online_tag(server, url, plugin):
     extra_data['parameters'] = {'name': details['title']}
 
     add_item_to_gui(item_url, details, extra_data)
+
+
+def create_photo_item(server, tree, url, photo):
+    details = {'title': encode_utf8(photo.get('title', photo.get('name', i18n('Unknown'))))}
+
+    if not details['title']:
+        details['title'] = i18n('Unknown')
+
+    extra_data = {
+        'thumb': get_thumb_image(photo, server),
+        'fanart_image': get_fanart_image(photo, server),
+        'type': 'image'
+    }
+
+    if extra_data['fanart_image'] == '':
+        extra_data['fanart_image'] = get_fanart_image(tree, server)
+
+    item_url = get_link_url(url, photo, server)
+
+    if photo.tag == 'Directory':
+        extra_data['mode'] = MODES.PHOTOS
+        add_item_to_gui(item_url, details, extra_data)
+
+    elif photo.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
+        for pics in photo:
+            if pics.tag == 'Media':
+                parts = [img for img in pics if img.tag == 'Part']
+                for part in parts:
+                    extra_data['key'] = \
+                        server.get_url_location() + part.get('key', '')
+                    details['size'] = int(part.get('size', 0))
+                    item_url = extra_data['key']
+
+        add_item_to_gui(item_url, details, extra_data, folder=False)

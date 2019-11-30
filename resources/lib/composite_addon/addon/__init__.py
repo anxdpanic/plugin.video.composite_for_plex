@@ -9,5 +9,5 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['cache_control', 'common', 'monitor', 'playback', 'player', 'processing', 'settings',
-           'strings', 'tagging', 'up_next', 'utils', 'wol']
+__all__ = ['cache_control', 'common', 'items', 'monitor', 'playback', 'player', 'processing',
+           'settings', 'strings', 'up_next', 'utils', 'wol']

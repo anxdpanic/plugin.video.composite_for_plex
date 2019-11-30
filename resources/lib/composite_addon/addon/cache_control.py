@@ -37,9 +37,9 @@ class CacheControl:
 
         if self.enabled:
 
-            delim = '/' if self.cache_location.find('/') > -1 else '\\'
-            if self.cache_location[-1] != delim:
-                self.cache_location += delim
+            delimiter = '/' if self.cache_location.find('/') > -1 else '\\'
+            if self.cache_location[-1] != delimiter:
+                self.cache_location += delimiter
 
             if not xbmcvfs.exists(self.cache_location):
                 LOG.debug('CACHE [%s]: Location does not exist.  Creating' %
@@ -63,20 +63,20 @@ class CacheControl:
         cache = xbmcvfs.File(self.cache_location + cache_name)
         try:
             if PY3:
-                cachedata = cache.readBytes()
+                cache_data = cache.readBytes()
             else:
-                cachedata = cache.read()
+                cache_data = cache.read()
         except Exception as error:  # pylint: disable=broad-except
             LOG.debug('CACHE [%s]: read error [%s]' % (cache_name, error))
-            cachedata = False
+            cache_data = False
         finally:
             cache.close()
 
-        if cachedata:
+        if cache_data:
             LOG.debug('CACHE [%s]: read' % cache_name)
-            LOG.debugplus('CACHE [%s]: data: [%s]' % (cache_name, cachedata))
-            cacheobject = pickle.loads(cachedata)
-            return True, cacheobject
+            LOG.debugplus('CACHE [%s]: data: [%s]' % (cache_name, cache_data))
+            cache_object = pickle.loads(cache_data)
+            return True, cache_object
 
         LOG.debug('CACHE [%s]: empty' % cache_name)
         return False, None
@@ -140,7 +140,7 @@ class CacheControl:
 
     def delete_cache(self, force=False):
         cache_suffix = '.cache'
-        persistant_cache_suffix = '.pcache'
+        persistent_cache_suffix = '.pcache'
         dirs, file_list = xbmcvfs.listdir(self.cache_location)
 
         LOG.debug('List of file: [%s]' % file_list)
@@ -148,7 +148,7 @@ class CacheControl:
 
         for cache_file in file_list:
 
-            if force and persistant_cache_suffix in cache_file:
+            if force and persistent_cache_suffix in cache_file:
                 LOG.debug('Force deletion of persistent cache file')
             elif cache_suffix not in cache_file:
                 continue
@@ -156,4 +156,4 @@ class CacheControl:
             if xbmcvfs.delete(self.cache_location + cache_file):
                 LOG.debug('SUCCESSFUL: removed %s' % cache_file)
             else:
-                LOG.debug('UNSUCESSFUL: did not remove %s' % cache_file)
+                LOG.debug('UNSUCCESSFUL: did not remove %s' % cache_file)

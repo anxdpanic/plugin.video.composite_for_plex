@@ -48,10 +48,10 @@ def run():
         pin = xbmcgui.Dialog().input(i18n('Enter PIN'), type=xbmcgui.INPUT_NUMERIC,
                                      option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
-    success, msg = PLEX_NETWORK.switch_plex_home_user(user['id'], pin)
+    success, message = PLEX_NETWORK.switch_plex_home_user(user['id'], pin)
 
     if not success:
-        xbmcgui.Dialog().ok(i18n('Switch Failed'), msg)
+        xbmcgui.Dialog().ok(i18n('Switch Failed'), message)
         LOG.debug('Switch User Failed')
     else:
         xbmc.executebuiltin('Container.Refresh')

@@ -90,9 +90,9 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pyl
 
     LOG.debug('URL to use for listing: %s' % link_url)
     if CONFIG['kodi_version'] >= 18:
-        liz = xbmcgui.ListItem(title, offscreen=True)
+        list_item = xbmcgui.ListItem(title, offscreen=True)
     else:
-        liz = xbmcgui.ListItem(title)
+        list_item = xbmcgui.ListItem(title)
 
     set_info_type = extra_data.get('type', 'Video')
     info_labels = copy.deepcopy(details)
@@ -105,29 +105,29 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pyl
         info_labels['plotoutline'] = u'\u2008'
 
     # Set the properties of the item, such as summary, name, season, etc
-    liz.setInfo(type=set_info_type, infoLabels=info_labels)
+    list_item.setInfo(type=set_info_type, infoLabels=info_labels)
 
     # Music related tags
     if extra_data.get('type', '').lower() == 'music':
-        liz.setProperty('Artist_Genre', details.get('genre', ''))
-        liz.setProperty('Artist_Description', extra_data.get('plot', ''))
-        liz.setProperty('Album_Description', extra_data.get('plot', ''))
+        list_item.setProperty('Artist_Genre', details.get('genre', ''))
+        list_item.setProperty('Artist_Description', extra_data.get('plot', ''))
+        list_item.setProperty('Album_Description', extra_data.get('plot', ''))
 
     # For all end items
     if not folder:
-        liz.setProperty('IsPlayable', 'true')
+        list_item.setProperty('IsPlayable', 'true')
 
         if extra_data.get('type', 'video').lower() == 'video':
-            liz.setProperty('TotalTime', str(extra_data.get('duration')))
-            liz.setProperty('ResumeTime', str(extra_data.get('resume')))
+            list_item.setProperty('TotalTime', str(extra_data.get('duration')))
+            list_item.setProperty('ResumeTime', str(extra_data.get('resume')))
 
             if not SETTINGS.get_setting('skipflags'):
                 LOG.debug('Setting VrR as : %s' % extra_data.get('VideoResolution', ''))
-                liz.setProperty('VideoResolution', extra_data.get('VideoResolution', ''))
-                liz.setProperty('VideoCodec', extra_data.get('VideoCodec', ''))
-                liz.setProperty('AudioCodec', extra_data.get('AudioCodec', ''))
-                liz.setProperty('AudioChannels', extra_data.get('AudioChannels', ''))
-                liz.setProperty('VideoAspect', extra_data.get('VideoAspect', ''))
+                list_item.setProperty('VideoResolution', extra_data.get('VideoResolution', ''))
+                list_item.setProperty('VideoCodec', extra_data.get('VideoCodec', ''))
+                list_item.setProperty('AudioCodec', extra_data.get('AudioCodec', ''))
+                list_item.setProperty('AudioChannels', extra_data.get('AudioChannels', ''))
+                list_item.setProperty('VideoAspect', extra_data.get('VideoAspect', ''))
 
                 video_codec = {}
                 if extra_data.get('xbmc_VideoCodec'):
@@ -147,19 +147,19 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pyl
                 if extra_data.get('xbmc_AudioChannels'):
                     audio_codec['channels'] = int(extra_data.get('xbmc_AudioChannels'))
 
-                liz.addStreamInfo('video', video_codec)
-                liz.addStreamInfo('audio', audio_codec)
+                list_item.addStreamInfo('video', video_codec)
+                list_item.addStreamInfo('audio', audio_codec)
 
     if extra_data.get('source') == 'tvshows' or extra_data.get('source') == 'tvseasons':
         # Then set the number of watched and unwatched, which will be displayed per season
-        liz.setProperty('TotalEpisodes', str(extra_data['TotalEpisodes']))
-        liz.setProperty('WatchedEpisodes', str(extra_data['WatchedEpisodes']))
-        liz.setProperty('UnWatchedEpisodes', str(extra_data['UnWatchedEpisodes']))
+        list_item.setProperty('TotalEpisodes', str(extra_data['TotalEpisodes']))
+        list_item.setProperty('WatchedEpisodes', str(extra_data['WatchedEpisodes']))
+        list_item.setProperty('UnWatchedEpisodes', str(extra_data['UnWatchedEpisodes']))
 
         # Hack to show partial flag for TV shows and seasons
         if extra_data.get('partialTV') == 1:
-            liz.setProperty('TotalTime', '100')
-            liz.setProperty('ResumeTime', '50')
+            list_item.setProperty('TotalTime', '100')
+            list_item.setProperty('ResumeTime', '50')
 
     # assign artwork
     fanart = extra_data.get('fanart_image', '')
@@ -179,9 +179,9 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pyl
 
     if season_thumb:
         LOG.debug('Setting season Thumb as %s' % season_thumb)
-        liz.setProperty('seasonThumb', '%s' % season_thumb)
+        list_item.setProperty('seasonThumb', '%s' % season_thumb)
 
-    liz.setArt({
+    list_item.setArt({
         'fanart': fanart,
         'poster': poster,
         'banner': banner,
@@ -195,14 +195,14 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pyl
             context.insert(0, (i18n('Play Transcoded'), 'PlayMedia(%s&transcode=1)' % link_url,))
             LOG.debug('Setting transcode options to [%s&transcode=1]' % link_url)
         LOG.debug('Building Context Menus')
-        liz.addContextMenuItems(context, SETTINGS.get_setting('contextreplace'))
+        list_item.addContextMenuItems(context, SETTINGS.get_setting('contextreplace'))
 
     if is_file:
         folder = False
-        liz.setProperty('IsPlayable', 'false')
+        list_item.setProperty('IsPlayable', 'false')
 
     return xbmcplugin.addDirectoryItem(handle=get_handle(), url=link_url,
-                                       listitem=liz, isFolder=folder)
+                                       listitem=list_item, isFolder=folder)
 
 
 def directory_item_translate(title, thumb):  # pylint: disable=too-many-statements, too-many-branches

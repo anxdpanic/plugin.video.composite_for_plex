@@ -31,11 +31,11 @@ def run():
 
     LOG.debug('Deleting media at: %s' % metadata_id)
 
-    return_value = xbmcgui.Dialog().yesno(i18n('Confirm file delete?'),
-                                          i18n('Delete this item? This action will delete media '
-                                               'and associated data files.'))
+    result = xbmcgui.Dialog().yesno(i18n('Confirm file delete?'),
+                                    i18n('Delete this item? This action will delete media '
+                                         'and associated data files.'))
 
-    if return_value:
+    if result:
         LOG.debug('Deleting....')
         server = PLEX_NETWORK.get_server_from_uuid(server_uuid)
         server.delete_metadata(metadata_id)

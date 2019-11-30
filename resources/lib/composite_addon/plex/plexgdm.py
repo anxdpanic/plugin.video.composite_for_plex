@@ -91,7 +91,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         except:  # pylint: disable=bare-except
             pass
 
-        # Attempt to bind to the socket to recieve and send data.
+        # Attempt to bind to the socket to receive and send data.
         # If we can;t do this, then we cannot send registration
         try:
             update_sock.bind(('0.0.0.0', self.client_update_port))
@@ -118,15 +118,15 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         # Now, listen for client discovery requests and respond.
         while self._registration_is_running:
             try:
-                data, addr = update_sock.recvfrom(1024)
-                LOG.debug('Received UDP packet from [%s] containing [%s]' % (addr, data.strip()))
+                data, address = update_sock.recvfrom(1024)
+                LOG.debug('Received UDP packet from [%s] containing [%s]' % (address, data.strip()))
             except socket.error:
                 pass
             else:
                 if b'M-SEARCH * HTTP/1.' in data:
-                    LOG.debug('Detected client discovery request from %s.  Replying' % str(addr))
+                    LOG.debug('Detected client discovery request from %s.  Replying' % str(address))
                     try:
-                        update_sock.sendto(self._ok_message(), addr)
+                        update_sock.sendto(self._ok_message(), address)
                     except:  # pylint: disable=bare-except
                         LOG.debug('Error: Unable to send client update message')
 

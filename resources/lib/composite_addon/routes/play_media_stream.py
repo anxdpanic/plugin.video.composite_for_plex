@@ -27,19 +27,21 @@ def run(url):
     if url.startswith('file'):
         LOG.debug('We are playing a local file')
         # Split out the path from the URL
-        playurl = url.split(':', 1)[1]
+        playback_url = url.split(':', 1)[1]
     elif url.startswith('http'):
         LOG.debug('We are playing a stream')
         if '?' in url:
             server = PLEX_NETWORK.get_server_from_url(url)
-            playurl = server.get_formatted_url(url)
+            playback_url = server.get_formatted_url(url)
         else:
-            playurl = ''
+            playback_url = ''
     else:
-        playurl = url
+        playback_url = url
+
     if CONFIG['kodi_version'] >= 18:
-        item = xbmcgui.ListItem(path=playurl, offscreen=True)
+        list_item = xbmcgui.ListItem(path=playback_url, offscreen=True)
     else:
-        item = xbmcgui.ListItem(path=playurl)
-    resolved = playurl != ''
-    xbmcplugin.setResolvedUrl(get_handle(), resolved, item)
+        list_item = xbmcgui.ListItem(path=playback_url)
+
+    resolved = playback_url != ''
+    xbmcplugin.setResolvedUrl(get_handle(), resolved, list_item)
