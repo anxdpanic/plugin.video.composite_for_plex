@@ -15,6 +15,7 @@ from six.moves.urllib_parse import quote
 import xbmc  # pylint: disable=import-error
 
 from ..addon.common import CONFIG
+from ..addon.common import MODES
 from ..addon.common import PrintDebug
 from ..addon.common import i18n
 from ..addon.processing import process_artists
@@ -32,7 +33,7 @@ LOG = PrintDebug(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(url):
+def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-branches, too-many-statements
     """
         This function takes teh URL, gets the XML and determines what the content is
         This XML is then redirected to the best processing function.
@@ -42,7 +43,19 @@ def run(url):
     """
     PLEX_NETWORK.load()
 
-    server = PLEX_NETWORK.get_server_from_url(url)
+    if server_uuid and mode:
+        server = PLEX_NETWORK.get_server_from_uuid(server_uuid)
+        sections = server.get_sections()
+        for section in sections:
+            if mode == section.content_type():
+                path = ''
+                if mode in [MODES.TXT_TVSHOWS, MODES.TXT_MOVIES]:
+                    path = '/all'
+                url = server.get_url_location() + section.get_path() + path
+                break
+    else:
+        server = PLEX_NETWORK.get_server_from_url(url)
+
     last_bit = url.split('/')[-1]
     LOG.debug('URL suffix: %s' % last_bit)
 
