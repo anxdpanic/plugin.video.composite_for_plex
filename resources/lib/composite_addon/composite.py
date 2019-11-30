@@ -13,6 +13,7 @@
 import sys
 import time
 
+from .addon.common import COMMANDS
 from .addon.common import CONFIG
 from .addon.common import MODES
 from .addon.common import SETTINGS
@@ -34,9 +35,11 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
     except ValueError:
         mode = params.get('mode')
 
-    command = params.get('command')
+    command = params.get('command', COMMANDS.UNSET)
+
     media_id = params.get('media_id')
     server_uuid = params.get('server_uuid')
+
     url = params.get('url')
 
     LOG.debug('%s %s: Kodi %s on %s with Python %s' %
@@ -58,87 +61,87 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
                SETTINGS.get_setting('nasoverride'),
                SETTINGS.get_setting('nasoverrideip')))
 
-    if command == 'refresh':
+    if command == COMMANDS.REFRESH:
         from .routes import refresh  # pylint: disable=import-outside-toplevel
         refresh.run()
         return _finished(start_time)
 
-    if command == 'switchuser':
+    if command == COMMANDS.SWITCHUSER:
         from .routes import switch_user  # pylint: disable=import-outside-toplevel
         switch_user.run()
         return _finished(start_time)
 
-    if command == 'signout':
+    if command == COMMANDS.SIGNOUT:
         from .routes import sign_out  # pylint: disable=import-outside-toplevel
         sign_out.run()
         return _finished(start_time)
 
-    if command == 'signin':
+    if command == COMMANDS.SIGNIN:
         from .routes import sign_in  # pylint: disable=import-outside-toplevel
         sign_in.run()
         return _finished(start_time)
 
-    if command == 'signintemp':
+    if command == COMMANDS.SIGNINTEMP:
         from .routes import sign_in_temp  # pylint: disable=import-outside-toplevel
         sign_in_temp.run()
         return _finished(start_time)
 
-    if command == 'managemyplex':
+    if command == COMMANDS.MANAGEMYPLEX:
         from .routes import manage_my_plex  # pylint: disable=import-outside-toplevel
         manage_my_plex.run()
         return _finished(start_time)
 
-    if command == 'displayservers':
+    if command == COMMANDS.DISPLAYSERVER:
         from .routes import display_known_servers  # pylint: disable=import-outside-toplevel
         display_known_servers.run()
         return _finished(start_time)
 
-    if command == 'delete_refresh':
+    if command == COMMANDS.DELETEREFRESH:
         from .routes import delete_refresh  # pylint: disable=import-outside-toplevel
         delete_refresh.run()
         return _finished(start_time)
 
-    if command == 'update':
+    if command == COMMANDS.UPDATE:
         from .routes import refresh_library  # pylint: disable=import-outside-toplevel
         refresh_library.run()
         return _finished(start_time)
 
     # Mark an item as watched/unwatched in plex
-    if command == 'watch':
+    if command == COMMANDS.WATCH:
         from .routes import watch_status  # pylint: disable=import-outside-toplevel
         watch_status.run()
         return _finished(start_time)
 
     # delete media from PMS
-    if command == 'delete':
+    if command == COMMANDS.DELETE:
         from .routes import delete_media  # pylint: disable=import-outside-toplevel
         delete_media.run()
         return _finished(start_time)
 
     # Display subtitle selection screen
-    if command == 'subs':
+    if command == COMMANDS.SUBS:
         from .routes import set_subtitles  # pylint: disable=import-outside-toplevel
         set_subtitles.run()
         return _finished(start_time)
 
     # Display audio streanm selection screen
-    if command == 'audio':
+    if command == COMMANDS.AUDIO:
         from .routes import set_audio  # pylint: disable=import-outside-toplevel
         set_audio.run()
         return _finished(start_time)
 
     # Allow a master server to be selected (for myPlex Queue)
-    if command == 'master':
+    if command == COMMANDS.MASTER:
         from .routes import set_master_server  # pylint: disable=import-outside-toplevel
         set_master_server.run()
         return _finished(start_time)
 
-    if command == 'delete_playlist_item':
+    if command == COMMANDS.DELETEFROMPLAYLIST:
         from .routes import delete_playlist_item  # pylint: disable=import-outside-toplevel
         delete_playlist_item.run()
         return _finished(start_time)
 
-    if command == 'add_playlist_item':
+    if command == COMMANDS.ADDTOPLAYLIST:
         from .routes import add_playlist_item  # pylint: disable=import-outside-toplevel
         add_playlist_item.run()
         return _finished(start_time)
