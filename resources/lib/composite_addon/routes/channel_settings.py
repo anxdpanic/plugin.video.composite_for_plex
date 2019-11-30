@@ -10,6 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from six.moves.urllib_parse import urlencode
+
 import xbmc  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
 
@@ -23,7 +25,7 @@ LOG = PrintDebug(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(url, setting_id):  # pylint: disable=too-many-branches
+def run(url, setting_id):
     """
         Take the setting XML and parse it to create an updated
         string with the new settings.  For the selected value, create
@@ -44,7 +46,8 @@ def run(url, setting_id):  # pylint: disable=too-many-branches
     if tree is None:
         return
 
-    set_string = None
+    set_url = '%s/set?' % url
+    set_params = {}
     for plugin in tree:
 
         if plugin.get('id') == setting_id:
@@ -59,11 +62,7 @@ def run(url, setting_id):  # pylint: disable=too-many-branches
                 LOG.debug('Setting up a text entry screen')
                 keyboard = xbmc.Keyboard(value, i18n('Enter value'))
                 keyboard.setHeading(label)
-
-                if option == 'hidden':
-                    keyboard.setHiddenInput(True)
-                else:
-                    keyboard.setHiddenInput(False)
+                keyboard.setHiddenInput(option == 'hidden')
 
                 keyboard.doModal()
                 if keyboard.isConfirmed():
@@ -90,11 +89,10 @@ def run(url, setting_id):  # pylint: disable=too-many-branches
             value = plugin.get('value')
             sid = plugin.get('id')
 
-        if set_string is None:
-            set_string = '%s/set?%s=%s' % (url, sid, value)
-        else:
-            set_string = '%s&%s=%s' % (set_string, sid, value)
+        set_params[sid] = value
 
-    LOG.debug('Settings URL: %s' % set_string)
-    PLEX_NETWORK.talk_to_server(set_string)
+    set_url += urlencode(set_params)
+
+    LOG.debug('Settings URL: %s' % set_url)
+    PLEX_NETWORK.talk_to_server(set_url)
     xbmc.executebuiltin('Container.Refresh')
