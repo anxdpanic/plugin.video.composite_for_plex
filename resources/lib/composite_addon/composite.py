@@ -152,9 +152,9 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         display_sections.run()
         return _finished(start_time)
 
-    if mode == MODES.GETCONTENT:
+    if mode in [MODES.GETCONTENT, MODES.TXT_TVSHOWS, MODES.TXT_MOVIES]:
         from .routes import get_content  # pylint: disable=import-outside-toplevel
-        get_content.run(url)
+        get_content.run(url, server_uuid, mode)
         return _finished(start_time)
 
     if mode == MODES.TVSHOWS:
