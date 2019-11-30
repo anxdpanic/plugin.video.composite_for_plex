@@ -31,7 +31,7 @@ from ..addon.utils import get_media_data
 LOG = PrintDebug(CONFIG['name'])
 
 
-def movie_tag(url, server, tree, movie):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     tempgenre = []
     tempcast = []
     tempdir = []
@@ -139,7 +139,7 @@ def movie_tag(url, server, tree, movie):  # pylint: disable=too-many-locals, too
     add_item_to_gui(final_url, details, extra_data, context, folder=False)
 
 
-def track_tag(server, tree, track, listing=True):
+def create_track_item(server, tree, track, listing=True):
     part_details = ()
 
     for child in track:
@@ -203,7 +203,7 @@ def track_tag(server, tree, track, listing=True):
     return url, details
 
 
-def playlist_tag(url, server, track, listing=True):
+def create_playlist_item(url, server, track, listing=True):
     details = {
         'title': encode_utf8(track.get('title', i18n('Unknown'))),
         'duration': int(track.get('duration', 0)) / 1000
@@ -229,7 +229,7 @@ def playlist_tag(url, server, track, listing=True):
     return url, details
 
 
-def directory_tag(server, tree, url, directory):
+def create_directory_item(server, tree, url, directory):
     title = encode_utf8(directory.get('title', i18n('Unknown')))
     title = directory_item_translate(title, tree.get('thumb'))
 
@@ -250,7 +250,7 @@ def directory_tag(server, tree, url, directory):
     add_item_to_gui(item_url, details, extra_data)
 
 
-def episode_tag(server, tree, url, episode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     tempgenre = []
     tempcast = []
     tempdir = []
@@ -393,7 +393,7 @@ def episode_tag(server, tree, url, episode):  # pylint: disable=too-many-locals,
     add_item_to_gui(item_url, details, extra_data, context, folder=False)
 
 
-def tvshow_tag(server, url, show):
+def create_tvshow_item(server, url, show):
     tempgenre = []
 
     for child in show:
@@ -457,7 +457,7 @@ def tvshow_tag(server, url, show):
     add_item_to_gui(item_url, details, extra_data, context)
 
 
-def artist_tag(server, artist):
+def create_artist_item(server, artist):
     details = {'artist': encode_utf8(artist.get('title', ''))}
 
     details['title'] = details['artist']
@@ -478,7 +478,7 @@ def artist_tag(server, artist):
     add_item_to_gui(url, details, extra_data)
 
 
-def album_tag(server, tree, url, album):
+def create_album_item(server, tree, url, album):
     details = {
         'album': encode_utf8(album.get('title', '')),
         'year': int(album.get('year', 0)),
@@ -508,7 +508,7 @@ def album_tag(server, tree, url, album):
     add_item_to_gui(url, details, extra_data)
 
 
-def season_tag(server, tree, season):
+def create_season_item(server, tree, season):
     plot = encode_utf8(tree.get('summary', ''))
 
     _watched = int(season.get('viewedLeafCount', 0))
@@ -566,7 +566,7 @@ def season_tag(server, tree, season):
     add_item_to_gui(item_url, details, extra_data, context)
 
 
-def plex_plugin_tag(server, tree, url, plugin):  # pylint: disable=too-many-branches
+def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-many-branches
     details = {'title': encode_utf8(plugin.get('title'))}
 
     if details['title']:
@@ -630,7 +630,7 @@ def plex_plugin_tag(server, tree, url, plugin):  # pylint: disable=too-many-bran
         add_item_to_gui(url, details, extra_data)
 
 
-def music_tag(server, tree, url, music):
+def create_music_item(server, tree, url, music):
     details = {
         'genre': encode_utf8(music.get('genre', '')),
         'artist': encode_utf8(music.get('artist', '')),
@@ -691,7 +691,7 @@ def music_tag(server, tree, url, music):
     return content_type
 
 
-def plex_online_tag(server, url, plugin):
+def create_plex_online_item(server, url, plugin):
     details = {'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))}
     extra_data = {
         'type': 'Video',
@@ -714,7 +714,7 @@ def plex_online_tag(server, url, plugin):
     add_item_to_gui(item_url, details, extra_data)
 
 
-def photo_tag(server, tree, url, photo):
+def create_photo_item(server, tree, url, photo):
     details = {'title': encode_utf8(photo.get('title', photo.get('name', i18n('Unknown'))))}
 
     if not details['title']:

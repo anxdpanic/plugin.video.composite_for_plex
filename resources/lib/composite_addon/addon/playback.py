@@ -28,7 +28,7 @@ from ..addon.common import encode_utf8
 from ..addon.common import get_handle
 from ..addon.common import i18n
 from ..addon.common import write_pickled
-from ..addon.tagging import track_tag
+from ..addon.items import create_track_item
 from ..addon.utils import get_xml
 from ..addon.utils import get_thumb_image
 from ..plex import plex
@@ -553,14 +553,14 @@ def play_playlist(server, data):
     for track in track_tags:
         LOG.debug('Adding playlist item')
 
-        url, item = track_tag(server, tree, track, listing=False)
+        url, details = create_track_item(server, tree, track, listing=False)
         if CONFIG['kodi_version'] >= 18:
-            liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')), offscreen=True)
+            liz = xbmcgui.ListItem(details.get('title', i18n('Unknown')), offscreen=True)
         else:
-            liz = xbmcgui.ListItem(item.get('title', i18n('Unknown')))
+            liz = xbmcgui.ListItem(details.get('title', i18n('Unknown')))
         thumb = data['full_data'].get('thumbnailImage', CONFIG['icon'])
         liz.setArt({'icon': thumb, 'thumb': thumb})
-        liz.setInfo(type='music', infoLabels=item)
+        liz.setInfo(type='music', infoLabels=details)
         playlist.add(url, liz)
 
     index = int(data['extra'].get('index', 0)) - 1
