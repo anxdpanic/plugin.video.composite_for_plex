@@ -11,6 +11,7 @@
 """
 
 from six.moves.urllib_parse import quote
+from six.moves.urllib_parse import unquote
 
 import xbmc  # pylint: disable=import-error
 
@@ -45,15 +46,10 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
 
     if server_uuid and mode:
         server = PLEX_NETWORK.get_server_from_uuid(server_uuid)
-        sections = server.get_sections()
-        for section in sections:
-            if mode == section.content_type():
-                path = ''
-                if mode in [MODES.TXT_TVSHOWS, MODES.TXT_MOVIES]:
-                    path = '/all'
-                url = server.get_url_location() + section.get_path() + path
-                break
+        url = _get_url(server, mode, url)
     else:
+        if not url:
+            return
         server = PLEX_NETWORK.get_server_from_url(url)
 
     last_bit = url.split('/')[-1]
@@ -102,3 +98,23 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
         process_photos(url, tree, plex_network=PLEX_NETWORK)
     else:
         process_directories(url, tree, plex_network=PLEX_NETWORK)
+
+
+def _get_url(server, mode, url):
+    sections = server.get_sections()
+    for section in sections:
+        is_video = section.is_movie() or section.is_show()
+        if is_video:
+            if mode in [MODES.TXT_TVSHOWS, MODES.TXT_MOVIES]:
+                url = server.get_url_location() + section.get_path() + '/all'
+                break
+            if mode in [MODES.TXT_MOVIES_ON_DECK, MODES.TXT_TVSHOWS_ON_DECK]:
+                url = server.get_url_location() + unquote(url) + '/onDeck'
+                break
+            if mode in [MODES.TXT_MOVIES_RECENT_ADDED, MODES.TXT_TVSHOWS_RECENT_ADDED]:
+                url = server.get_url_location() + unquote(url) + '/recentlyAdded'
+                break
+            if mode in [MODES.TXT_MOVIES_RECENT_RELEASE, MODES.TXT_TVSHOWS_RECENT_AIRED]:
+                url = server.get_url_location() + unquote(url) + '/newest'
+                break
+    return url

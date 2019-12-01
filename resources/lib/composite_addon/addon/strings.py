@@ -144,4 +144,5 @@ STRINGS = {
     'has been removed the playlist': 30681,
     'Unable to remove from the playlist': 30682,
     'From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]': 30690,
+    'Widgets': 30692,
 }

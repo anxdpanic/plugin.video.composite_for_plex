@@ -62,6 +62,7 @@
     </category>
     <category label="30520"> <!-- Look and feel -->
         <setting id="prefix_server" type="enum" label="30669" lvalues="30670|30671" default="1"/>
+        <setting id="show_widget_menu" type="bool" label="30693" default="true"/>
         <setting id="secondary" type="bool" label="30503" default="true"/>
         <setting id="channelview" type="bool" label="30542" default="false"/>
         <setting id="flatten" type="enum" label="30543" lvalues="30553|30558|30559" default="0"/>
