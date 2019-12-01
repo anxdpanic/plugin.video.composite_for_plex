@@ -12,8 +12,8 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[upd] refactor routing and add-on
-[upd] cosmetics
+[add] Widgets
+[fix] Episode artwork
         </news>
         <assets>
             <icon>icon.png</icon>
