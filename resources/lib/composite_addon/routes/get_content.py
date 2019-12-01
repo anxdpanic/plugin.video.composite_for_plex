@@ -14,10 +14,12 @@ from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import unquote
 
 import xbmc  # pylint: disable=import-error
+import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import CONFIG
 from ..addon.common import MODES
 from ..addon.common import PrintDebug
+from ..addon.common import get_handle
 from ..addon.common import i18n
 from ..addon.processing import process_artists
 from ..addon.processing import process_albums
@@ -68,36 +70,44 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
         else:
             return
 
-    tree = server.processed_xml(url)
+    try:
+        tree = server.processed_xml(url)
+        view_group = tree.get('viewGroup')
 
-    if last_bit in ['folder', 'playlists']:
-        process_xml(url, tree, plex_network=PLEX_NETWORK)
-        return
+        if last_bit in ['folder', 'playlists']:
+            process_xml(url, tree, plex_network=PLEX_NETWORK)
+        elif view_group == 'movie':
+            LOG.debug('This is movie XML, passing to Movies')
+            process_movies(url, tree, plex_network=PLEX_NETWORK)
+        elif view_group == 'show':
+            LOG.debug('This is tv show XML')
+            process_tvshows(url, tree, plex_network=PLEX_NETWORK)
+        elif view_group == 'episode':
+            LOG.debug('This is TV episode XML')
+            process_tvepisodes(url, tree, plex_network=PLEX_NETWORK)
+        elif view_group == 'artist':
+            LOG.debug('This is music XML')
+            process_artists(url, tree, plex_network=PLEX_NETWORK)
+        elif view_group in ['album', 'albums']:
+            process_albums(url, tree, plex_network=PLEX_NETWORK)
+        elif view_group == 'track':
+            LOG.debug('This is track XML')
+            process_tracks(url, tree, plex_network=PLEX_NETWORK)  # sorting is handled here
+        elif view_group == 'photo':
+            LOG.debug('This is a photo XML')
+            process_photos(url, tree, plex_network=PLEX_NETWORK)
+        else:
+            process_directories(url, tree, plex_network=PLEX_NETWORK)
 
-    view_group = tree.get('viewGroup')
+    except:  # pylint: disable=bare-except
+        if mode not in [MODES.TXT_TVSHOWS, MODES.TXT_MOVIES, MODES.TXT_MOVIES_ON_DECK,
+                        MODES.TXT_TVSHOWS_ON_DECK, MODES.TXT_MOVIES_RECENT_ADDED,
+                        MODES.TXT_TVSHOWS_RECENT_ADDED, MODES.TXT_MOVIES_RECENT_RELEASE,
+                        MODES.TXT_TVSHOWS_RECENT_AIRED]:
+            raise
 
-    if view_group == 'movie':
-        LOG.debug('This is movie XML, passing to Movies')
-        process_movies(url, tree, plex_network=PLEX_NETWORK)
-    elif view_group == 'show':
-        LOG.debug('This is tv show XML')
-        process_tvshows(url, tree, plex_network=PLEX_NETWORK)
-    elif view_group == 'episode':
-        LOG.debug('This is TV episode XML')
-        process_tvepisodes(url, tree, plex_network=PLEX_NETWORK)
-    elif view_group == 'artist':
-        LOG.debug('This is music XML')
-        process_artists(url, tree, plex_network=PLEX_NETWORK)
-    elif view_group in ['album', 'albums']:
-        process_albums(url, tree, plex_network=PLEX_NETWORK)
-    elif view_group == 'track':
-        LOG.debug('This is track XML')
-        process_tracks(url, tree, plex_network=PLEX_NETWORK)  # sorting is handled here
-    elif view_group == 'photo':
-        LOG.debug('This is a photo XML')
-        process_photos(url, tree, plex_network=PLEX_NETWORK)
-    else:
-        process_directories(url, tree, plex_network=PLEX_NETWORK)
+        # this was a widget, don't raise error, return empty directory
+        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
 
 def _get_url(server, mode, url):
