@@ -1,3 +1,7 @@
+0.1.1
+[add] Widgets
+[fix] Episode artwork
+
 0.1.0
 [upd] refactor routing and add-on
 [upd] cosmetics

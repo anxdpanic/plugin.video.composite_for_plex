@@ -313,24 +313,30 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
                                                   details['title'])
 
     art = {
-        'banner': get_banner_image(tree, server),
-        'season_thumb': tree.get('thumb', ''),
+        'banner': '',
+        'fanart': '',
+        'season_thumb': '',
         'section_art': '',
+        'thumb': '',
     }
-
-    # get season thumb for SEASON NODE
-    if art['season_thumb'] == '/:/resources/show.png':
-        art['season_thumb'] = ''
-
     if not SETTINGS.get_setting('skipimages'):
-        art['section_art'] = get_fanart_image(tree, server)
+        art.update({
+            'banner': get_banner_image(tree, server),
+            'fanart': get_fanart_image(episode, server),
+            'season_thumb': '',
+            'section_art': get_fanart_image(tree, server),
+            'thumb': get_thumb_image(episode, server),
+        })
+
+        if '/:/resources/show-fanart.jpg' in art['section_art']:
+            art['section_art'] = art.get('fanart', '')
 
     # Extra data required to manage other properties
     extra_data = {
         'type': 'Video',
         'source': 'tvepisodes',
-        'thumb': get_thumb_image(episode, server),
-        'fanart_image': get_fanart_image(episode, server),
+        'thumb': art.get('thumb', ''),
+        'fanart_image': art.get('fanart', ''),
         'banner': art.get('banner', ''),
         'key': episode.get('key', ''),
         'ratingKey': str(episode.get('ratingKey', 0)),
@@ -343,22 +349,27 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
         'additional_context_menus': {'go_to': use_go_to},
     }
 
-    if extra_data['fanart_image'] == '' and not SETTINGS.get_setting('skipimages'):
-        extra_data['fanart_image'] = art.get('section_art', '')
+    if not SETTINGS.get_setting('skipimages'):
+        if extra_data['fanart_image'] == '':
+            extra_data['fanart_image'] = art.get('section_art', '')
 
-    if '-1' in extra_data['fanart_image'] and not SETTINGS.get_setting('skipimages'):
-        extra_data['fanart_image'] = art.get('section_art', '')
+        if '-1' in extra_data['fanart_image']:
+            extra_data['fanart_image'] = art.get('section_art', '')
 
-    if art.get('season_thumb', ''):
-        extra_data['season_thumb'] = server.get_url_location() + art.get('season_thumb', '')
+        if (art.get('season_thumb', '') and
+                '/:/resources/show.png' not in art.get('season_thumb', '')):
+            extra_data['season_thumb'] = get_thumb_image({'thumb': art.get('season_thumb')}, server)
 
-    # get ALL SEASONS or TVSHOW thumb
-    if not art.get('season_thumb', '') and episode.get('parentThumb', ''):
-        extra_data['season_thumb'] = '%s%s' % (server.get_url_location(),
-                                               episode.get('parentThumb', ''))
-    elif not art.get('season_thumb', '') and episode.get('grandparentThumb', ''):
-        extra_data['season_thumb'] = '%s%s' % (server.get_url_location(),
-                                               episode.get('grandparentThumb', ''))
+        # get ALL SEASONS or TVSHOW thumb
+        if (not art.get('season_thumb', '') and episode.get('parentThumb', '') and
+                '/:/resources/show.png' not in episode.get('parentThumb', '')):
+            extra_data['season_thumb'] = \
+                get_thumb_image({'thumb': episode.get('parentThumb', '')}, server)
+
+        elif (not art.get('season_thumb', '') and episode.get('grandparentThumb', '') and
+              '/:/resources/show.png' not in episode.get('grandparentThumb', '')):
+            extra_data['season_thumb'] = \
+                get_thumb_image({'thumb': episode.get('grandparentThumb', '')}, server)
 
     # Determine what type of watched flag [overlay] to use
     if int(episode.get('viewCount', 0)) > 0:
