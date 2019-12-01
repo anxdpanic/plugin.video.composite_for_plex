@@ -325,8 +325,15 @@ MODES = __enum(
     SHARED_PHOTOS=27,
     SHARED_ALL=29,
     PLAYLISTS=30,
+    WIDGETS=31,
     TXT_MOVIES='movies',
+    TXT_MOVIES_ON_DECK='movies_on_deck',
+    TXT_MOVIES_RECENT_ADDED='movies_recent_added',
+    TXT_MOVIES_RECENT_RELEASE='movies_recent_release',
     TXT_TVSHOWS='tvshows',
+    TXT_TVSHOWS_ON_DECK='tvshows_on_deck',
+    TXT_TVSHOWS_RECENT_ADDED='tvshows_recent_added',
+    TXT_TVSHOWS_RECENT_AIRED='tvshows_recent_aired',
 )
 
 StreamControl = __enum(

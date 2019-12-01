@@ -152,7 +152,10 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         display_sections.run()
         return _finished(start_time)
 
-    if mode in [MODES.GETCONTENT, MODES.TXT_TVSHOWS, MODES.TXT_MOVIES]:
+    if mode in [MODES.GETCONTENT, MODES.TXT_TVSHOWS, MODES.TXT_MOVIES,
+                MODES.TXT_MOVIES_ON_DECK, MODES.TXT_MOVIES_RECENT_ADDED,
+                MODES.TXT_MOVIES_RECENT_RELEASE, MODES.TXT_TVSHOWS_ON_DECK,
+                MODES.TXT_TVSHOWS_RECENT_ADDED, MODES.TXT_TVSHOWS_RECENT_AIRED]:
         from .routes import get_content  # pylint: disable=import-outside-toplevel
         get_content.run(url, server_uuid, mode)
         return _finished(start_time)
@@ -297,6 +300,11 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
     if mode == MODES.DISPLAYSERVERS:
         from .routes import display_plex_servers  # pylint: disable=import-outside-toplevel
         display_plex_servers.run(url)
+        return _finished(start_time)
+
+    if mode == MODES.WIDGETS:
+        from .routes import widgets  # pylint: disable=import-outside-toplevel
+        widgets.run(url)
         return _finished(start_time)
 
     return _finished(start_time)

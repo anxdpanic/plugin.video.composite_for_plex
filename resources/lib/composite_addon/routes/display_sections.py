@@ -128,6 +128,14 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
         item_url = '%s/playlists' % server.get_url_location()
         add_item_to_gui(item_url, details, extra_data)
 
+        if SETTINGS.get_setting('show_widget_menu'):
+            # create Widgets link
+            details = {'title': prefix + i18n('Widgets')}
+            extra_data = {'type': 'Folder', 'mode': MODES.WIDGETS}
+
+            item_url = '%s' % server.get_url_location()
+            add_item_to_gui(item_url, details, extra_data)
+
     if PLEX_NETWORK.is_myplex_signedin():
 
         if PLEX_NETWORK.is_plexhome_enabled():

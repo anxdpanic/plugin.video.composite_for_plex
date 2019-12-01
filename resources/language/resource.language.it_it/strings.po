@@ -1065,3 +1065,11 @@ msgstr ""
 msgctxt "#30691"
 msgid "Use episode thumbnails"
 msgstr ""
+
+msgctxt "#30692"
+msgid "Widgets"
+msgstr ""
+
+msgctxt "#30693"
+msgid "Show Widgets menu"
+msgstr ""
