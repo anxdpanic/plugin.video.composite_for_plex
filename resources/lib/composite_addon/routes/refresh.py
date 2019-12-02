@@ -12,11 +12,17 @@
 
 import xbmc  # pylint: disable=import-error
 
-from ..addon.common import CACHE
+from ..addon import cache_control
+from ..addon.common import CONFIG
 from ..addon.common import SETTINGS
+from ..addon.common import decode_utf8
 
 
 def run():
     if SETTINGS.get_setting('clear_data_cache_refresh'):
-        CACHE.delete('%')
+        cache = cache_control.CacheControl(
+            decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/data')),
+            SETTINGS.get_setting('cache')
+        )
+        cache.delete_cache(True)
     xbmc.executebuiltin('Container.Refresh')

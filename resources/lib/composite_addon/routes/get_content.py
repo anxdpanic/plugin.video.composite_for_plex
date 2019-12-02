@@ -72,7 +72,10 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
 
     try:
         tree = server.processed_xml(url)
-        view_group = tree.get('viewGroup')
+
+        view_group = None
+        if tree:
+            view_group = tree.get('viewGroup')
 
         if last_bit in ['folder', 'playlists']:
             process_xml(url, tree, plex_network=PLEX_NETWORK)

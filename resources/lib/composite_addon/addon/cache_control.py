@@ -74,7 +74,8 @@ class CacheControl:
 
         if cache_data:
             LOG.debug('CACHE [%s]: read' % cache_name)
-            LOG.debugplus('CACHE [%s]: data: [%s]' % (cache_name, cache_data))
+            LOG.debugplus('CACHE [%s]: data: [%s]' %
+                          (cache_name, cache_data.decode('utf-8', 'ignore')))
             cache_object = pickle.loads(cache_data)
             return True, cache_object
 
