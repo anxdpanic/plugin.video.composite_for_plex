@@ -32,11 +32,6 @@ import xbmcaddon  # pylint: disable=import-error
 from .settings import AddonSettings
 from .strings import STRINGS
 
-try:
-    import StorageServer
-except ImportError:
-    import storageserverdummy as StorageServer
-
 __ID = 'plugin.video.composite_for_plex'
 __ADDON = xbmcaddon.Addon(id=__ID)
 
@@ -276,8 +271,6 @@ except:  # pylint: disable=bare-except
     CONFIG['kodi_version'] = 0
 
 SETTINGS = AddonSettings(__ID)
-CACHE = StorageServer.StorageServer('%sDataCache' % CONFIG['name'],
-                                    ((int(SETTINGS.get_setting('data_cache_ttl')) * 60) / 3600))
 LOG = PrintDebug(CONFIG['name'])
 
 COMMANDS = __enum(

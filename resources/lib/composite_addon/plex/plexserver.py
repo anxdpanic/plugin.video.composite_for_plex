@@ -10,6 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import hashlib
 import copy
 import threading
 import time
@@ -17,6 +18,7 @@ import uuid
 import xml.etree.ElementTree as ETree
 
 import requests
+from six import PY3
 from six.moves import range
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import urlunparse
@@ -25,13 +27,16 @@ from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
 
+import xbmc  # pylint: disable=import-error
+
 from . import plexsection
 from .plexcommon import get_client_identifier
 from .plexcommon import get_device_name
 from .plexcommon import create_plex_identification
-from ..addon.common import CACHE
+from ..addon import cache_control
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
+from ..addon.common import decode_utf8
 from ..addon.common import encode_utf8
 from ..addon.common import SETTINGS
 
@@ -46,6 +51,11 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def __init__(self, server_uuid=None, name=None, address=None, port=32400,  # pylint: disable=too-many-arguments
                  token=None, discovery=None, class_type='primary'):
+
+        self.cache = cache_control.CacheControl(
+            decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/data')),
+            SETTINGS.get_setting('cache')
+        )
 
         self.__revision = CONFIG['required_revision']
         self.protocol = 'https'
@@ -391,10 +401,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             self.offline = True
             LOG.debug('[%s] Server appears to be offline' % self.uuid)
 
-    def talk(self, url='/', refresh=False, method='get', extra_headers=None):
-        return CACHE.cacheFunction(self._talk, url, refresh, method, extra_headers)
-
-    def _talk(self, url='/', refresh=False, method='get', extra_headers=None):  # pylint: disable=too-many-branches
+    def talk(self, url='/', refresh=False, method='get', extra_headers=None):  # pylint: disable=too-many-branches
         if extra_headers is None:
             extra_headers = {}
 
@@ -550,20 +557,44 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def get_channel_recentlyviewed(self):
         return self.processed_xml('/channels/recentlyViewed')
 
-    def process_xml(self, data):
-        return CACHE.cacheFunction(self._process_xml, data)
+    def _cache_name(self, name, data):
+        cache_uuid = self.get_uuid()
+        if PY3:
+            if not isinstance(name, bytes):
+                name = name.encode('utf-8')
+            if not isinstance(cache_uuid, bytes):
+                cache_uuid = cache_uuid.encode('utf-8')
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
 
-    def _process_xml(self, data):
+        name_hash = hashlib.sha512()
+        name_hash.update(name + cache_uuid + data)
+        cache_name = name_hash.hexdigest()
+
+        if isinstance(cache_name, bytes):
+            cache_name = cache_name.decode('utf-8')
+
+        return cache_name + '.cache'
+
+    def process_xml(self, data):
+        cache_name = self._cache_name('process_xml', data)
+        is_valid, result = self.cache.check_cache(cache_name, self.cache_ttl)
+        if is_valid:
+            return result
+
         start_time = time.time()
         tree = ETree.fromstring(data)
         LOG.debug('PARSE: it took %.2f seconds to parse data from %s' %
                   ((time.time() - start_time), self.get_address()))
+        self.cache.write_cache(cache_name, tree)
         return tree
 
     def processed_xml(self, url):
-        return CACHE.cacheFunction(self._processed_xml, url)
+        cache_name = self._cache_name('processed_xml', url)
+        is_valid, result = self.cache.check_cache(cache_name, self.cache_ttl)
+        if is_valid:
+            return result
 
-    def _processed_xml(self, url):
         if url.startswith('http'):
             LOG.debug('We have been passed a full URL. Parsing out path')
             url_parts = urlparse(url)
@@ -573,7 +604,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 url = '%s?%s' % (url, url_parts.query)
 
         data = self.talk(url)
-        return self.process_xml(data)
+        tree = self.process_xml(data)
+        self.cache.write_cache(cache_name, tree)
+        return tree
 
     def raw_xml(self, url):
         if url.startswith('http'):
@@ -784,3 +817,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         return session, self.get_formatted_url(full_url,
                                                options={'X-Plex-Device': 'Plex Home Theater'})
+
+    @property
+    def cache_ttl(self):
+        return int(SETTINGS.get_setting('data_cache_ttl')) * 60

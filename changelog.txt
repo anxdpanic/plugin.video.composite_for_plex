@@ -1,3 +1,11 @@
+0.1.3
+[chg] use same caching mechanism for data caching as server cache
+    - [fix] widget caching
+[rem] dependency on script.common.plugin.cache
+
+0.1.2
+[fixup] wrong minimum dependency version
+
 0.1.1
 [add] Widgets
 [add] Data caching using script.common.plugin.cache
