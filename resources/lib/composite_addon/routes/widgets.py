@@ -30,7 +30,9 @@ def run(url):
 
     for section in sections:
         if section.is_movie():
-            details = {'title': i18n('Movies') + ': ' + i18n('On Deck')}
+            details = {
+                'title': '%s: %s' % (server.get_name(), i18n('Movies on Deck'))
+            }
             extra_data = {
                 'mode': MODES.TXT_MOVIES_ON_DECK,
                 'parameters': {
@@ -39,7 +41,9 @@ def run(url):
             }
             add_item_to_gui(section.get_path(), details, extra_data)
 
-            details = {'title': i18n('Movies') + ': ' + i18n('Recently Added')}
+            details = {
+                'title': '%s: %s' % (server.get_name(), i18n('Recently Added Movies'))
+            }
             extra_data = {
                 'mode': MODES.TXT_MOVIES_RECENT_ADDED,
                 'parameters': {
@@ -48,7 +52,9 @@ def run(url):
             }
             add_item_to_gui(section.get_path(), details, extra_data)
 
-            details = {'title': i18n('Movies') + ': ' + i18n('Recently Released')}
+            details = {
+                'title': '%s: %s' % (server.get_name(), i18n('Recently Released Movies'))
+            }
             extra_data = {
                 'mode': MODES.TXT_MOVIES_RECENT_RELEASE,
                 'parameters': {
@@ -58,7 +64,9 @@ def run(url):
             add_item_to_gui(section.get_path(), details, extra_data)
 
         if section.is_show():
-            details = {'title': i18n('TV Shows') + ': ' + i18n('On Deck')}
+            details = {
+                'title': '%s: %s' % (server.get_name(), i18n('TV Shows on Deck'))
+            }
             extra_data = {
                 'mode': MODES.TXT_TVSHOWS_ON_DECK,
                 'parameters': {
@@ -67,7 +75,9 @@ def run(url):
             }
             add_item_to_gui(section.get_path(), details, extra_data)
 
-            details = {'title': i18n('TV Shows') + ': ' + i18n('Recently Added')}
+            details = {
+                'title': '%s: %s' % (server.get_name(), i18n('Recently Added TV Shows'))
+            }
             extra_data = {
                 'mode': MODES.TXT_TVSHOWS_RECENT_ADDED,
                 'parameters': {
@@ -76,7 +86,9 @@ def run(url):
             }
             add_item_to_gui(section.get_path(), details, extra_data)
 
-            details = {'title': i18n('TV Shows') + ': ' + i18n('Recently Aired')}
+            details = {
+                'title': '%s: %s' % (server.get_name(), i18n('Recently Aired TV Shows'))
+            }
             extra_data = {
                 'mode': MODES.TXT_TVSHOWS_RECENT_AIRED,
                 'parameters': {
