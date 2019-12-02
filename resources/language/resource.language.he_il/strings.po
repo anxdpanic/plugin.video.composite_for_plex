@@ -1141,3 +1141,15 @@ msgstr ""
 msgctxt "#30693"
 msgid "Show Widgets menu"
 msgstr ""
+
+msgctxt "#30694"
+msgid "Clear Caches"
+msgstr ""
+
+msgctxt "#30695"
+msgid "Data Cache TTL (minutes)"
+msgstr ""
+
+msgctxt "#30696"
+msgid "Clear data cache on refresh"
+msgstr ""

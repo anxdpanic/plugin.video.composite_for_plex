@@ -1,5 +1,6 @@
 0.1.1
 [add] Widgets
+[add] Data caching using script.common.plugin.cache
 [fix] Episode artwork
 
 0.1.0
