@@ -91,9 +91,11 @@
     <category label="30661"> <!-- cache -->
         <setting id="cache" type="bool" label="30593" default="true" visible="false"/>
         <setting id="cache_ttl" label="30662" type="slider" option="int" range="60,720" default="60"/>
+        <setting id="data_cache_ttl" label="30695" type="slider" option="int" range="1,120" default="15"/>
+        <setting id="clear_data_cache_refresh" type="bool" label="30696" default="true"/>
         <setting id="kodicache" type="bool" label="30604" default="false"/>
         <setting type="sep"/>
-        <setting id="refresh_data" label="30083" type="action" action="RunScript($ID, delete_refresh)" option="close"/>
+        <setting id="refresh_data" label="30694" type="action" action="RunScript($ID, delete_refresh)" option="close"/>
     </category>
     <category label="30599"> <!-- debug -->
         <setting id="debug" type="enum" label="30514" lvalues="30599|30600" default="0"/>

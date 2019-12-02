@@ -145,4 +145,5 @@ STRINGS = {
     'Unable to remove from the playlist': 30682,
     'From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]': 30690,
     'Widgets': 30692,
+    'Clear Caches': 30694,
 }

@@ -163,7 +163,7 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
     add_item_to_gui(data_url, details, extra_data)
 
     if SETTINGS.get_setting('cache'):
-        details = {'title': i18n('Refresh Data')}
+        details = {'title': i18n('Clear Caches')}
         extra_data = {'type': 'file'}
         item_url = 'cmd:delete_refresh'
         add_item_to_gui(item_url, details, extra_data)

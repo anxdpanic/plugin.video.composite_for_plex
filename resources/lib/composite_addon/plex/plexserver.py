@@ -29,6 +29,7 @@ from . import plexsection
 from .plexcommon import get_client_identifier
 from .plexcommon import get_device_name
 from .plexcommon import create_plex_identification
+from ..addon.common import CACHE
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import encode_utf8
@@ -390,7 +391,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             self.offline = True
             LOG.debug('[%s] Server appears to be offline' % self.uuid)
 
-    def talk(self, url='/', refresh=False, method='get', extra_headers=None):  # pylint: disable=too-many-branches
+    def talk(self, url='/', refresh=False, method='get', extra_headers=None):
+        return CACHE.cacheFunction(self._talk, url, refresh, method, extra_headers)
+
+    def _talk(self, url='/', refresh=False, method='get', extra_headers=None):  # pylint: disable=too-many-branches
         if extra_headers is None:
             extra_headers = {}
 
@@ -416,6 +420,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                                                timeout=(2, 60))
                 else:
                     response = None
+
+                if response:
+                    response.encoding = 'utf-8'
+
                 self.offline = False
             except requests.exceptions.ConnectionError as error:
                 LOG.error('Server: %s is offline or unreachable. error: %s' %
@@ -543,6 +551,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.processed_xml('/channels/recentlyViewed')
 
     def process_xml(self, data):
+        return CACHE.cacheFunction(self._process_xml, data)
+
+    def _process_xml(self, data):
         start_time = time.time()
         tree = ETree.fromstring(data)
         LOG.debug('PARSE: it took %.2f seconds to parse data from %s' %
@@ -550,6 +561,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return tree
 
     def processed_xml(self, url):
+        return CACHE.cacheFunction(self._processed_xml, url)
+
+    def _processed_xml(self, url):
         if url.startswith('http'):
             LOG.debug('We have been passed a full URL. Parsing out path')
             url_parts = urlparse(url)

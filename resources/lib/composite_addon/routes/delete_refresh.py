@@ -12,6 +12,7 @@
 
 import xbmc  # pylint: disable=import-error
 
+from ..addon.common import CACHE
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
@@ -19,4 +20,5 @@ PLEX_NETWORK = plex.Plex(load=False)
 
 def run():
     PLEX_NETWORK.delete_cache()
+    CACHE.delete('%')
     xbmc.executebuiltin('Container.Refresh')

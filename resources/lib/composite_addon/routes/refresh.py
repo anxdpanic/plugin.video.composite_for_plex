@@ -12,6 +12,11 @@
 
 import xbmc  # pylint: disable=import-error
 
+from ..addon.common import CACHE
+from ..addon.common import SETTINGS
+
 
 def run():
+    if SETTINGS.get_setting('clear_data_cache_refresh'):
+        CACHE.delete('%')
     xbmc.executebuiltin('Container.Refresh')
