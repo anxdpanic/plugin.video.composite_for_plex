@@ -420,6 +420,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                                                timeout=(2, 60))
                 else:
                     response = None
+
+                if response:
+                    response.encoding = 'utf-8'
+
                 self.offline = False
             except requests.exceptions.ConnectionError as error:
                 LOG.error('Server: %s is offline or unreachable. error: %s' %
