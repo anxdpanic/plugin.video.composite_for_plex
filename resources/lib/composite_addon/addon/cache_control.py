@@ -14,6 +14,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import hashlib
 import time
 
 from six import PY3
@@ -158,3 +159,22 @@ class CacheControl:
                 LOG.debug('SUCCESSFUL: removed %s' % cache_file)
             else:
                 LOG.debug('UNSUCCESSFUL: did not remove %s' % cache_file)
+
+    @staticmethod
+    def sha512_cache_name(name, unique_id, data):
+        if PY3:
+            if not isinstance(name, bytes):
+                name = name.encode('utf-8')
+            if not isinstance(unique_id, bytes):
+                unique_id = unique_id.encode('utf-8')
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
+
+        name_hash = hashlib.sha512()
+        name_hash.update(name + unique_id + data)
+        cache_name = name_hash.hexdigest()
+
+        if isinstance(cache_name, bytes):
+            cache_name = cache_name.decode('utf-8')
+
+        return cache_name + '.cache'

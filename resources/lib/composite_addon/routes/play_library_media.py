@@ -10,6 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from ..addon.data_cache import DATA_CACHE
 from ..addon.playback import play_media_id_from_uuid
 from ..addon.playback import play_library_media
 from ..addon.utils import get_transcode_profile
@@ -31,8 +32,10 @@ def run(url=None, server_uuid=None, media_id=None, force=None, transcode=False, 
         play_media_id_from_uuid(server_uuid=server_uuid, media_id=media_id, force=force,
                                 transcode=transcode, transcode_profile=transcode_profile,
                                 plex_network=PLEX_NETWORK)
+        DATA_CACHE.delete_cache(True)
         return
 
     if url:
         play_library_media(url=url, force=force, transcode=transcode,
                            transcode_profile=transcode_profile, plex_network=PLEX_NETWORK)
+        DATA_CACHE.delete_cache(True)

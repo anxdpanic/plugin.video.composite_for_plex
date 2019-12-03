@@ -10,7 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import hashlib
 import copy
 import threading
 import time
@@ -18,7 +17,6 @@ import uuid
 import xml.etree.ElementTree as ETree
 
 import requests
-from six import PY3
 from six.moves import range
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import urlunparse
@@ -27,18 +25,15 @@ from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
 
-import xbmc  # pylint: disable=import-error
-
 from . import plexsection
 from .plexcommon import get_client_identifier
 from .plexcommon import get_device_name
 from .plexcommon import create_plex_identification
-from ..addon import cache_control
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
-from ..addon.common import decode_utf8
 from ..addon.common import encode_utf8
 from ..addon.common import SETTINGS
+from ..addon.data_cache import DATA_CACHE
 
 LOG = PrintDebug(CONFIG['name'], 'plexserver')
 
@@ -51,11 +46,6 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def __init__(self, server_uuid=None, name=None, address=None, port=32400,  # pylint: disable=too-many-arguments
                  token=None, discovery=None, class_type='primary'):
-
-        self.cache = cache_control.CacheControl(
-            decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/data')),
-            SETTINGS.get_setting('cache')
-        )
 
         self.__revision = CONFIG['required_revision']
         self.protocol = 'https'
@@ -557,28 +547,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def get_channel_recentlyviewed(self):
         return self.processed_xml('/channels/recentlyViewed')
 
-    def _cache_name(self, name, data):
-        cache_uuid = self.get_uuid()
-        if PY3:
-            if not isinstance(name, bytes):
-                name = name.encode('utf-8')
-            if not isinstance(cache_uuid, bytes):
-                cache_uuid = cache_uuid.encode('utf-8')
-            if not isinstance(data, bytes):
-                data = data.encode('utf-8')
-
-        name_hash = hashlib.sha512()
-        name_hash.update(name + cache_uuid + data)
-        cache_name = name_hash.hexdigest()
-
-        if isinstance(cache_name, bytes):
-            cache_name = cache_name.decode('utf-8')
-
-        return cache_name + '.cache'
-
     def process_xml(self, data):
-        cache_name = self._cache_name('process_xml', data)
-        is_valid, result = self.cache.check_cache(cache_name, self.cache_ttl)
+        cache_name = DATA_CACHE.sha512_cache_name('process_xml', self.get_uuid(), data)
+        is_valid, result = DATA_CACHE.check_cache(cache_name, SETTINGS.data_cache_ttl())
         if is_valid:
             return result
 
@@ -586,12 +557,12 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         tree = ETree.fromstring(data)
         LOG.debug('PARSE: it took %.2f seconds to parse data from %s' %
                   ((time.time() - start_time), self.get_address()))
-        self.cache.write_cache(cache_name, tree)
+        DATA_CACHE.write_cache(cache_name, tree)
         return tree
 
     def processed_xml(self, url):
-        cache_name = self._cache_name('processed_xml', url)
-        is_valid, result = self.cache.check_cache(cache_name, self.cache_ttl)
+        cache_name = DATA_CACHE.sha512_cache_name('processed_xml', self.get_uuid(), url)
+        is_valid, result = DATA_CACHE.check_cache(cache_name, SETTINGS.data_cache_ttl())
         if is_valid:
             return result
 
@@ -605,7 +576,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         data = self.talk(url)
         tree = self.process_xml(data)
-        self.cache.write_cache(cache_name, tree)
+        DATA_CACHE.write_cache(cache_name, tree)
         return tree
 
     def raw_xml(self, url):
@@ -817,7 +788,3 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         return session, self.get_formatted_url(full_url,
                                                options={'X-Plex-Device': 'Plex Home Theater'})
-
-    @property
-    def cache_ttl(self):
-        return int(SETTINGS.get_setting('data_cache_ttl')) * 60

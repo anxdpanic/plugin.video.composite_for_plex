@@ -16,6 +16,7 @@ import xbmcplugin  # pylint: disable=import-error
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import get_handle
+from ..addon.data_cache import DATA_CACHE
 from ..addon.utils import get_master_server
 from ..addon.utils import get_xml
 from ..addon.playback import monitor_channel_transcode_playback
@@ -75,6 +76,7 @@ def run(url, prefix=None, indirect=None, transcode=False):  # pylint: disable=to
         item = xbmcgui.ListItem(path=url, offscreen=True)
     else:
         item = xbmcgui.ListItem(path=url)
+
     xbmcplugin.setResolvedUrl(get_handle(), True, item)
 
     if transcode and session:
@@ -84,3 +86,5 @@ def run(url, prefix=None, indirect=None, transcode=False):  # pylint: disable=to
             LOG.debug('Unable to start transcode monitor')
     else:
         LOG.debug('Not starting monitor')
+
+    DATA_CACHE.delete_cache(True)

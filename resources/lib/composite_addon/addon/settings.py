@@ -110,6 +110,9 @@ class AddonSettings:
 
         return s_upnext_enabled and has_upnext and not upnext_disabled
 
+    def data_cache_ttl(self):
+        return int(self.get_setting('data_cache_ttl', fresh=True)) * 60
+
     def addon_status(self, addon_id):
         request = {
             "jsonrpc": "2.0",
