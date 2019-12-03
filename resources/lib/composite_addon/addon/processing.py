@@ -473,7 +473,7 @@ def process_plex_online(url, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
-    tree = server.processed_xml(url)
+    tree = get_xml(url)
     if tree is None:
         return
 

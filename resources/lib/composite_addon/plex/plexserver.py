@@ -548,16 +548,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.processed_xml('/channels/recentlyViewed')
 
     def process_xml(self, data):
-        cache_name = DATA_CACHE.sha512_cache_name('process_xml', self.get_uuid(), data)
-        is_valid, result = DATA_CACHE.check_cache(cache_name, SETTINGS.data_cache_ttl())
-        if is_valid:
-            return result
-
         start_time = time.time()
         tree = ETree.fromstring(data)
         LOG.debug('PARSE: it took %.2f seconds to parse data from %s' %
                   ((time.time() - start_time), self.get_address()))
-        DATA_CACHE.write_cache(cache_name, tree)
         return tree
 
     def processed_xml(self, url):
@@ -735,7 +729,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.processed_xml('/playlists')
 
     def get_children(self, media_id):
-        return self.process_xml(self.talk('/library/metadata/%s/children' % media_id))
+        return self.processed_xml('/library/metadata/%s/children' % media_id)
 
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server

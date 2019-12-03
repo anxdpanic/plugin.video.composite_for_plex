@@ -30,6 +30,7 @@ from ..addon.processing import process_tvepisodes
 from ..addon.processing import process_movies
 from ..addon.processing import process_tvshows
 from ..addon.processing import process_xml
+from ..addon.utils import get_xml
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
@@ -52,7 +53,6 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
     else:
         if not url:
             return
-        server = PLEX_NETWORK.get_server_from_url(url)
 
     last_bit = url.split('/')[-1]
     LOG.debug('URL suffix: %s' % last_bit)
@@ -71,7 +71,7 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
             return
 
     try:
-        tree = server.processed_xml(url)
+        tree = get_xml(url, plex_network=PLEX_NETWORK)
 
         view_group = None
         if tree:

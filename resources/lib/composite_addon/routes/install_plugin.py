@@ -18,6 +18,7 @@ import xbmcgui  # pylint: disable=import-error
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import i18n
+from ..addon.utils import get_xml
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
@@ -27,8 +28,7 @@ PLEX_NETWORK = plex.Plex(load=False)
 def run(url, name):
     PLEX_NETWORK.load()
 
-    server = PLEX_NETWORK.get_server_from_url(url)
-    tree = server.processed_xml(url)
+    tree = get_xml(url, plex_network=PLEX_NETWORK)
     if tree is None:
         return
 
@@ -38,8 +38,7 @@ def run(url, name):
         pass
 
     operations = {}
-    idx = 0
-    for plugins in tree.findall('Directory'):
+    for idx, plugins in enumerate(tree.findall('Directory')):
         operations[idx] = plugins.get('title')
 
         # If we find an install option, switch to a yes/no dialog box
@@ -50,14 +49,9 @@ def run(url, name):
 
             if result:
                 LOG.debug('Installing....')
-                tree = server.processed_xml(url + '/install')
+                _ = get_xml(url + '/install', plex_network=PLEX_NETWORK)
 
-                message = tree.get('message', '(' + i18n('blank') + ')')
-                LOG.debug(message)
-                xbmcgui.Dialog().ok(i18n('Plex Online'), message)
             return
-
-        idx += 1
 
     # Else continue to a selection dialog box
     result = xbmcgui.Dialog().select(i18n('This plugin is already installed'),
@@ -68,10 +62,8 @@ def run(url, name):
         return
 
     LOG.debug('Option %s selected.  Operation is %s' % (result, operations[result]))
-    item_url = url + '/' + operations[result].lower()
-    tree = server.processed_xml(item_url)
 
-    message = tree.get('message')
-    LOG.debug(message)
-    xbmcgui.Dialog().ok(i18n('Plex Online'), message)
+    item_url = url + '/' + operations[result].lower()
+    _ = get_xml(item_url, plex_network=PLEX_NETWORK)
+
     xbmc.executebuiltin('Container.Refresh')
