@@ -21,7 +21,7 @@ from ..addon.processing import process_music
 from ..addon.processing import process_photos
 from ..addon.processing import process_plex_online
 from ..addon.processing import process_plex_plugins
-from ..addon.utils import add_item_to_gui
+from ..addon.utils import create_gui_item
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
@@ -35,6 +35,7 @@ def run(url):
     servers = PLEX_NETWORK.get_server_list()
     servers_list = len(servers)
 
+    items = []
     # For each of the servers we have identified
     for media_server in servers:
 
@@ -74,6 +75,8 @@ def run(url):
                 return
 
         if url:
-            add_item_to_gui(url, details, extra_data)
+            items.append(create_gui_item(url, details, extra_data))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

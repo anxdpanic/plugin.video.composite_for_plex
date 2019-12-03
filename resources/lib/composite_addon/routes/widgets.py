@@ -15,7 +15,7 @@ from ..addon.common import MODES
 from ..addon.common import SETTINGS
 from ..addon.common import get_handle
 from ..addon.common import i18n
-from ..addon.utils import add_item_to_gui
+from ..addon.utils import create_gui_item
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
@@ -28,6 +28,7 @@ def run(url):
 
     sections = server.get_sections()
 
+    items = []
     for section in sections:
         if section.is_movie():
             details = {
@@ -39,7 +40,7 @@ def run(url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            add_item_to_gui(section.get_path(), details, extra_data)
+            items.append(create_gui_item(section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added Movies'))
@@ -50,7 +51,7 @@ def run(url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            add_item_to_gui(section.get_path(), details, extra_data)
+            items.append(create_gui_item(section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Released Movies'))
@@ -61,7 +62,7 @@ def run(url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            add_item_to_gui(section.get_path(), details, extra_data)
+            items.append(create_gui_item(section.get_path(), details, extra_data))
 
         if section.is_show():
             details = {
@@ -73,7 +74,7 @@ def run(url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            add_item_to_gui(section.get_path(), details, extra_data)
+            items.append(create_gui_item(section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added TV Shows'))
@@ -84,7 +85,7 @@ def run(url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            add_item_to_gui(section.get_path(), details, extra_data)
+            items.append(create_gui_item(section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Aired TV Shows'))
@@ -95,6 +96,8 @@ def run(url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            add_item_to_gui(section.get_path(), details, extra_data)
+            items.append(create_gui_item(section.get_path(), details, extra_data))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

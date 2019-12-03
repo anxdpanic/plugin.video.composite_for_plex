@@ -35,7 +35,7 @@ from ..addon.items import create_plex_plugin_item
 from ..addon.items import create_season_item
 from ..addon.items import create_track_item
 from ..addon.items import create_tvshow_item
-from ..addon.utils import add_item_to_gui
+from ..addon.utils import create_gui_item
 from ..addon.utils import get_link_url
 from ..addon.utils import get_master_server
 from ..addon.utils import get_thumb_image
@@ -61,9 +61,12 @@ def process_directories(url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
+    items = []
     for directory in tree:
-        create_directory_item(server, tree, url, directory)
+        items.append(create_directory_item(server, tree, url, directory))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -86,6 +89,7 @@ def process_xml(url, tree=None, plex_network=None):
     if tree is None:
         return
 
+    items = []
     for plugin in tree:
 
         details = {'title': encode_utf8(plugin.get('title'))}
@@ -107,13 +111,13 @@ def process_xml(url, tree=None, plex_network=None):
 
         if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
             extra_data['mode'] = MODES.PROCESSXML
-            add_item_to_gui(_url, details, extra_data)
+            items.append(create_gui_item(_url, details, extra_data))
 
         elif plugin.tag == 'Track':
-            create_track_item(server, tree, plugin)
+            items.append(create_track_item(server, tree, plugin))
 
         elif plugin.tag == 'Playlist':
-            create_playlist_item(url, server, plugin)
+            items.append(create_playlist_item(url, server, plugin))
 
         elif tree.get('viewGroup') == 'movie':
             process_movies(url, tree, plex_network=plex_network)
@@ -123,6 +127,8 @@ def process_xml(url, tree=None, plex_network=None):
             process_tvepisodes(url, tree, plex_network=plex_network)
             return
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -151,17 +157,17 @@ def process_movies(url, tree=None, plex_network=None):
 
     # Find all the video tags, as they contain the data we need to link to a file.
     start_time = time.time()
-    count = 0
+    items = []
     for movie in tree:
         if movie.tag.lower() == 'video':
-            create_movie_item(url, server, tree, movie)
-            count += 1
+            items.append(create_movie_item(url, server, tree, movie))
         elif movie.tag.lower() == 'track':
-            create_track_item(server, tree, movie)
-            count += 1
+            items.append(create_track_item(server, tree, movie))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     LOG.debug('PROCESS: It took %s seconds to process %s items' %
-              (time.time() - start_time, count))
+              (time.time() - start_time, len(items)))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -197,10 +203,13 @@ def process_tvepisodes(url, tree=None, rating_key=None, plex_network=None):
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
+    items = []
     show_tags = tree.findall('Video')
     for episode in show_tags:
-        create_episode_item(server, tree, url, episode)
+        items.append(create_episode_item(server, tree, url, episode))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -224,11 +233,14 @@ def process_tvshows(url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
+    items = []
     # For each directory tag we find
     show_tags = tree.findall('Directory')
     for show in show_tags:
-        create_tvshow_item(server, url, show)
+        items.append(create_tvshow_item(server, url, show))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -255,10 +267,13 @@ def process_artists(url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
+    items = []
     artist_tags = tree.findall('Directory')
     for artist in artist_tags:
-        create_artist_item(server, artist)
+        items.append(create_artist_item(server, artist))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -281,10 +296,13 @@ def process_albums(url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
+    items = []
     album_tags = tree.findall('Directory')
     for album in album_tags:
-        create_album_item(server, tree, url, album)
+        items.append(create_album_item(server, tree, url, album))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -309,10 +327,13 @@ def process_tracks(url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
+    items = []
     track_tags = tree.findall('Track')
     for track in track_tags:
-        create_track_item(server, tree, track)
+        items.append(create_track_item(server, tree, track))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -328,9 +349,14 @@ def process_photos(url, tree=None, plex_network=None):
     if tree is None:
         return
 
+    items = []
     for photo in tree:
-        create_photo_item(server, tree, url, photo)
+        item = create_photo_item(server, tree, url, photo)
+        if item:
+            items.append(item)
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -358,6 +384,7 @@ def process_tvseasons(url, rating_key=None, plex_network=None):
             LOG.debug('Flattening single season show')
             will_flatten = True
 
+    items = []
     # For all the directory tags
     season_tags = tree.findall('Directory')
     for season in season_tags:
@@ -370,8 +397,10 @@ def process_tvseasons(url, rating_key=None, plex_network=None):
         if SETTINGS.get_setting('disable_all_season') and season.get('index') is None:
             continue
 
-        create_season_item(server, tree, season)
+        items.append(create_season_item(server, tree, season))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -397,9 +426,14 @@ def process_plex_plugins(url, tree=None, plex_network=None):
         LOG.debug('This is a myPlex URL, attempting to locate master server')
         server = get_master_server()
 
+    items = []
     for plugin in tree:
-        create_plex_plugin_item(server, tree, url, plugin)
+        item = create_plex_plugin_item(server, tree, url, plugin)
+        if item:
+            items.append(item)
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -413,16 +447,21 @@ def process_music(url, tree=None, plex_network=None):
     if tree is None:
         return
 
-    content_type = 'artists'
+    items = []
     for music in tree:
 
         if music.get('key') is None:
             continue
 
-        content_type = create_music_item(server, tree, url, music)
+        items.append(create_music_item(server, tree, url, music))
 
-    xbmcplugin.setContent(get_handle(), content_type)
+    if items:
+        content_type = items[-1][1].getProperty('content_type')
+        if not content_type:
+            content_type = 'artists'
+        xbmcplugin.setContent(get_handle(), content_type)
 
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
 
 
@@ -438,7 +477,10 @@ def process_plex_online(url, plex_network=None):
     if tree is None:
         return
 
+    items = []
     for plugin in tree:
-        create_plex_online_item(server, url, plugin)
+        items.append(create_plex_online_item(server, url, plugin))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

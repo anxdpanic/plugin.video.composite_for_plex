@@ -18,7 +18,7 @@ from ..addon.common import MODES
 from ..addon.common import SETTINGS
 from ..addon.common import get_handle
 from ..addon.common import i18n
-from ..addon.utils import add_item_to_gui
+from ..addon.utils import create_gui_item
 from ..addon.utils import get_link_url
 from ..addon.utils import get_fanart_image
 from ..addon.utils import get_thumb_image
@@ -40,6 +40,7 @@ def run(url):
     else:
         tree_iter = tree.getiterator('Directory')  # pylint: disable=deprecated-method
 
+    items = []
     for channels in tree_iter:
 
         if channels.get('local', '') == '0' or channels.get('size', '0') == '0':
@@ -71,6 +72,8 @@ def run(url):
         else:
             extra_data['mode'] = MODES.GETCONTENT
 
-        add_item_to_gui(p_url, details, extra_data)
+        items.append(create_gui_item(p_url, details, extra_data))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

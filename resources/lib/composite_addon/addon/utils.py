@@ -18,14 +18,12 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlparse
 
 import xbmcgui  # pylint: disable=import-error
-import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import CONFIG
 from ..addon.common import SETTINGS
 from ..addon.common import PrintDebug
 from ..addon.common import encode_utf8
 from ..addon.common import get_argv
-from ..addon.common import get_handle
 from ..addon.common import i18n
 from ..plex import plex
 
@@ -66,7 +64,7 @@ def get_master_server(all_servers=False, plex_network=None):
     return possible_servers[0]
 
 
-def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def create_gui_item(url, details, extra_data, context=None, folder=True):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     LOG.debug('Adding [%s]\n'
               'Passed details: %s\n'
               'Passed extra_data: %s' %
@@ -201,8 +199,11 @@ def add_item_to_gui(url, details, extra_data, context=None, folder=True):  # pyl
         folder = False
         list_item.setProperty('IsPlayable', 'false')
 
-    return xbmcplugin.addDirectoryItem(handle=get_handle(), url=link_url,
-                                       listitem=list_item, isFolder=folder)
+    mediatype = details.get('mediatype')
+    if mediatype:
+        list_item.setProperty('content_type', mediatype + 's')
+
+    return link_url, list_item, folder
 
 
 def directory_item_translate(title, thumb):  # pylint: disable=too-many-statements, too-many-branches
