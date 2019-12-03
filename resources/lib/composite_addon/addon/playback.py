@@ -20,17 +20,17 @@ import xbmc  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
 import xbmcplugin  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import SETTINGS
-from ..addon.common import PrintDebug
-from ..addon.common import StreamControl
-from ..addon.common import encode_utf8
-from ..addon.common import get_handle
-from ..addon.common import i18n
-from ..addon.common import write_pickled
-from ..addon.items import create_track_item
-from ..addon.utils import get_xml
-from ..addon.utils import get_thumb_image
+from .common import CONFIG
+from .common import SETTINGS
+from .common import PrintDebug
+from .common import StreamControl
+from .common import encode_utf8
+from .common import get_handle
+from .common import i18n
+from .common import write_pickled
+from .items import create_track_item
+from .utils import get_xml
+from .utils import get_thumb_image
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
