@@ -12,9 +12,11 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[chg] use same caching mechanism for data caching as server cache
-    - [fix] widget caching
-[rem] dependency on script.common.plugin.cache
+[add] translations for widget titles
+[fix] data cache not updated on mark (un)watched, and playback
+[upd] improve data caching, less cached data required
+[upd] refactor data caching
+[upd] refactor list item creation
         </news>
         <assets>
             <icon>icon.png</icon>
