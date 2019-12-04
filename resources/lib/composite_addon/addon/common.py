@@ -149,6 +149,13 @@ def get_params():
             pass
 
     params['url'] = url
+
+    try:
+        _ = int(command)
+        command = COMMANDS.UNSET
+    except ValueError:
+        pass
+
     params['command'] = command
 
     if not params.get('mode') and not params.get('server_uuid'):
