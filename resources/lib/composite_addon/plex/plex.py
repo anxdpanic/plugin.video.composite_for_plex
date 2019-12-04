@@ -11,6 +11,7 @@
 """
 
 import base64
+import os
 import socket
 import traceback
 import xml.etree.ElementTree as ETree
@@ -50,7 +51,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
         # Provide an interface into Plex
         self.cache = cache_control.CacheControl(
-            decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/servers')),
+            decode_utf8(xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'servers'))),
             SETTINGS.get_setting('cache')
         )
         self.myplex_server = 'https://plex.tv'

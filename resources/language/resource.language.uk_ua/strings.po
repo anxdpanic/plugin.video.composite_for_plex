@@ -1141,3 +1141,27 @@ msgstr ""
 msgctxt "#30696"
 msgid "Clear data cache on refresh"
 msgstr ""
+
+msgctxt "#30697"
+msgid "Movies on Deck"
+msgstr ""
+
+msgctxt "#30698"
+msgid "TV Shows on Deck"
+msgstr ""
+
+msgctxt "#30699"
+msgid "Recently Released Movies"
+msgstr ""
+
+msgctxt "#30700"
+msgid "Recently Aired TV Shows"
+msgstr ""
+
+msgctxt "#30701"
+msgid "Recently Added Movies"
+msgstr ""
+
+msgctxt "#30702"
+msgid "Recently Added TV Shows"
+msgstr ""

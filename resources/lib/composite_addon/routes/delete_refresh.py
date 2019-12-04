@@ -12,10 +12,7 @@
 
 import xbmc  # pylint: disable=import-error
 
-from ..addon import cache_control
-from ..addon.common import CONFIG
-from ..addon.common import SETTINGS
-from ..addon.common import decode_utf8
+from ..addon.data_cache import DATA_CACHE
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
@@ -23,9 +20,5 @@ PLEX_NETWORK = plex.Plex(load=False)
 
 def run():
     PLEX_NETWORK.delete_cache()
-    cache = cache_control.CacheControl(
-        decode_utf8(xbmc.translatePath(CONFIG['data_path'] + 'cache/data')),
-        SETTINGS.get_setting('cache')
-    )
-    cache.delete_cache(True)
+    DATA_CACHE.delete_cache(True)
     xbmc.executebuiltin('Container.Refresh')

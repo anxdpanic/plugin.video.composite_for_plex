@@ -16,6 +16,7 @@ import xbmcplugin  # pylint: disable=import-error
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import get_handle
+from ..addon.data_cache import DATA_CACHE
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
@@ -43,5 +44,5 @@ def run(url):
     else:
         list_item = xbmcgui.ListItem(path=playback_url)
 
-    resolved = playback_url != ''
-    xbmcplugin.setResolvedUrl(get_handle(), resolved, list_item)
+    xbmcplugin.setResolvedUrl(get_handle(), playback_url != '', list_item)
+    DATA_CACHE.delete_cache(True)

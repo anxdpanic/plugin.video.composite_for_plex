@@ -15,6 +15,7 @@ import xbmc  # pylint: disable=import-error
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import get_argv
+from ..addon.data_cache import DATA_CACHE
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
@@ -39,5 +40,7 @@ def run():
     else:
         LOG.debug('Marking %s as unwatched' % metadata_id)
         server.mark_item_unwatched(metadata_id)
+
+    DATA_CACHE.delete_cache(True)
 
     xbmc.executebuiltin('Container.Refresh')

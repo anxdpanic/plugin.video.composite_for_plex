@@ -18,20 +18,21 @@ from ..addon.common import SETTINGS
 from ..addon.common import PrintDebug
 from ..addon.common import get_handle
 from ..addon.common import i18n
-from ..addon.utils import add_item_to_gui
+from ..addon.utils import create_gui_item
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-branches, too-many-statements
+def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-branches, too-many-statements, too-many-locals
     PLEX_NETWORK.load()
     xbmcplugin.setContent(get_handle(), 'files')
 
     server_list = PLEX_NETWORK.get_server_list()
     LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 
+    items = []
     for server in server_list:
 
         sections = server.get_sections()
@@ -76,9 +77,11 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
                 context = None
 
             # Build that listing..
-            add_item_to_gui(section_url, details, extra_data, context)
+            items.append(create_gui_item(section_url, details, extra_data, context))
 
     if display_shared:
+        if items:
+            xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
         return
 
@@ -89,7 +92,7 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
             'type': 'Folder',
             'mode': MODES.MYPLEXQUEUE
         }
-        add_item_to_gui('http://myplexqueue', details, extra_data)
+        items.append(create_gui_item('http://myplexqueue', details, extra_data))
 
     for server in server_list:
 
@@ -112,21 +115,21 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
         }
 
         item_url = '%s/channels/all' % server.get_url_location()
-        add_item_to_gui(item_url, details, extra_data)
+        items.append(create_gui_item(item_url, details, extra_data))
 
         # Create plexonline link
         details = {'title': prefix + i18n('Plex Online')}
         extra_data = {'type': 'Folder', 'mode': MODES.PLEXONLINE}
 
         item_url = '%s/system/plexonline' % server.get_url_location()
-        add_item_to_gui(item_url, details, extra_data)
+        items.append(create_gui_item(item_url, details, extra_data))
 
         # create playlist link
         details = {'title': prefix + i18n('Playlists')}
         extra_data = {'type': 'Folder', 'mode': MODES.PLAYLISTS}
 
         item_url = '%s/playlists' % server.get_url_location()
-        add_item_to_gui(item_url, details, extra_data)
+        items.append(create_gui_item(item_url, details, extra_data))
 
         if SETTINGS.get_setting('show_widget_menu'):
             # create Widgets link
@@ -134,7 +137,7 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
             extra_data = {'type': 'Folder', 'mode': MODES.WIDGETS}
 
             item_url = '%s' % server.get_url_location()
-            add_item_to_gui(item_url, details, extra_data)
+            items.append(create_gui_item(item_url, details, extra_data))
 
     if PLEX_NETWORK.is_myplex_signedin():
 
@@ -143,31 +146,33 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
             extra_data = {'type': 'file'}
 
             item_url = 'cmd:switchuser'
-            add_item_to_gui(item_url, details, extra_data)
+            items.append(create_gui_item(item_url, details, extra_data))
 
         details = {'title': i18n('Sign Out')}
         extra_data = {'type': 'file'}
 
         item_url = 'cmd:signout'
-        add_item_to_gui(item_url, details, extra_data)
+        items.append(create_gui_item(item_url, details, extra_data))
     else:
         details = {'title': i18n('Sign In')}
         extra_data = {'type': 'file'}
 
         item_url = 'cmd:signintemp'
-        add_item_to_gui(item_url, details, extra_data)
+        items.append(create_gui_item(item_url, details, extra_data))
 
     details = {'title': i18n('Display Servers')}
     extra_data = {'type': 'file'}
     data_url = 'cmd:displayservers'
-    add_item_to_gui(data_url, details, extra_data)
+    items.append(create_gui_item(data_url, details, extra_data))
 
     if SETTINGS.get_setting('cache'):
         details = {'title': i18n('Clear Caches')}
         extra_data = {'type': 'file'}
         item_url = 'cmd:delete_refresh'
-        add_item_to_gui(item_url, details, extra_data)
+        items.append(create_gui_item(item_url, details, extra_data))
 
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     # All XML entries have been parsed and we are ready to allow the user to browse around.
     # So end the screen listing.
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

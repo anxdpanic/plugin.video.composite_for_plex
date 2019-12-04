@@ -19,7 +19,7 @@ from ..addon.common import SETTINGS
 from ..addon.common import PrintDebug
 from ..addon.common import encode_utf8
 from ..addon.common import i18n
-from ..addon.utils import add_item_to_gui
+from ..addon.utils import create_gui_item
 from ..addon.utils import build_context_menu
 from ..addon.utils import directory_item_translate
 from ..addon.utils import get_banner_image
@@ -136,7 +136,7 @@ def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-loc
     final_url = '%s%s%st=%s' % \
                 (server.get_url_location(), extra_data['key'], separator, random_number)
 
-    add_item_to_gui(final_url, details, extra_data, context, folder=False)
+    return create_gui_item(final_url, details, extra_data, context, folder=False)
 
 
 def create_track_item(server, tree, track, listing=True):
@@ -198,7 +198,7 @@ def create_track_item(server, tree, track, listing=True):
         context = None
 
     if listing:
-        add_item_to_gui(url, details, extra_data, context, folder=False)
+        return create_gui_item(url, details, extra_data, context, folder=False)
 
     return url, details
 
@@ -224,7 +224,7 @@ def create_playlist_item(url, server, track, listing=True):
     item_url = get_link_url(url, track, server)
 
     if listing:
-        add_item_to_gui(item_url, details, extra_data, folder=True)
+        return create_gui_item(item_url, details, extra_data, folder=True)
 
     return url, details
 
@@ -247,7 +247,7 @@ def create_directory_item(server, tree, url, directory):
 
     item_url = '%s' % (get_link_url(url, directory, server))
 
-    add_item_to_gui(item_url, details, extra_data)
+    return create_gui_item(item_url, details, extra_data)
 
 
 def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
@@ -401,7 +401,7 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
     item_url = '%s%s%st=%s' % \
                (server.get_url_location(), extra_data['key'], separator, random_number)
 
-    add_item_to_gui(item_url, details, extra_data, context, folder=False)
+    return create_gui_item(item_url, details, extra_data, context, folder=False)
 
 
 def create_tvshow_item(server, url, show):
@@ -465,7 +465,7 @@ def create_tvshow_item(server, url, show):
     else:
         context = None
 
-    add_item_to_gui(item_url, details, extra_data, context)
+    return create_gui_item(item_url, details, extra_data, context)
 
 
 def create_artist_item(server, artist):
@@ -486,7 +486,7 @@ def create_artist_item(server, artist):
 
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    add_item_to_gui(url, details, extra_data)
+    return create_gui_item(url, details, extra_data)
 
 
 def create_album_item(server, tree, url, album):
@@ -516,7 +516,7 @@ def create_album_item(server, tree, url, album):
 
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    add_item_to_gui(url, details, extra_data)
+    return create_gui_item(url, details, extra_data)
 
 
 def create_season_item(server, tree, season):
@@ -574,7 +574,7 @@ def create_season_item(server, tree, season):
         context = None
 
     # Build the screen directory listing
-    add_item_to_gui(item_url, details, extra_data, context)
+    return create_gui_item(item_url, details, extra_data, context)
 
 
 def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-many-branches
@@ -613,18 +613,18 @@ def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-m
         else:
             extra_data['mode'] = MODES.PLEXPLUGINS
 
-        add_item_to_gui(p_url, details, extra_data)
+        return create_gui_item(p_url, details, extra_data)
 
-    elif plugin.tag == 'Video':
+    if plugin.tag == 'Video':
         extra_data['mode'] = MODES.VIDEOPLUGINPLAY
 
         for child in plugin:
             if child.tag == 'Media':
                 extra_data['parameters'] = {'indirect': child.get('indirect', '0')}
 
-        add_item_to_gui(p_url, details, extra_data, folder=False)
+        return create_gui_item(p_url, details, extra_data, folder=False)
 
-    elif plugin.tag == 'Setting':
+    if plugin.tag == 'Setting':
 
         if plugin.get('option') == 'hidden':
             value = '********'
@@ -638,7 +638,10 @@ def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-m
         details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n('Unknown'))), value)
         extra_data['mode'] = MODES.CHANNELPREFS
         extra_data['parameters'] = {'id': plugin.get('id')}
-        add_item_to_gui(url, details, extra_data)
+
+        return create_gui_item(url, details, extra_data)
+
+    return None
 
 
 def create_music_item(server, tree, url, music):
@@ -669,37 +672,30 @@ def create_music_item(server, tree, url, music):
         details['duration'] = int(int(music.get('total_time', 0)) / 1000)
 
         extra_data['mode'] = MODES.BASICPLAY
-        add_item_to_gui(item_url, details, extra_data, folder=False)
+        return create_gui_item(item_url, details, extra_data, folder=False)
+
+    details['mediatype'] = 'artist'
+
+    if music.tag == 'Artist':
+        LOG.debug('Artist Tag')
+        details['mediatype'] = 'artist'
+        details['title'] = encode_utf8(music.get('artist', i18n('Unknown')))
+
+    elif music.tag == 'Album':
+        LOG.debug('Album Tag')
+        details['mediatype'] = 'album'
+        details['title'] = encode_utf8(music.get('album', i18n('Unknown')))
+
+    elif music.tag == 'Genre':
+        details['title'] = encode_utf8(music.get('genre', i18n('Unknown')))
 
     else:
+        LOG.debug('Generic Tag: %s' % music.tag)
+        details['title'] = encode_utf8(music.get('title', i18n('Unknown')))
 
-        if music.tag == 'Artist':
-            LOG.debug('Artist Tag')
-            details['mediatype'] = 'artist'
-            details['title'] = encode_utf8(music.get('artist', i18n('Unknown')))
+    extra_data['mode'] = MODES.MUSIC
 
-        elif music.tag == 'Album':
-            LOG.debug('Album Tag')
-            details['mediatype'] = 'album'
-            details['title'] = encode_utf8(music.get('album', i18n('Unknown')))
-
-        elif music.tag == 'Genre':
-            details['title'] = encode_utf8(music.get('genre', i18n('Unknown')))
-
-        else:
-            LOG.debug('Generic Tag: %s' % music.tag)
-            details['title'] = encode_utf8(music.get('title', i18n('Unknown')))
-
-        extra_data['mode'] = MODES.MUSIC
-        add_item_to_gui(item_url, details, extra_data)
-
-    content_type = details.get('mediatype')
-    if content_type:
-        content_type += 's'
-    else:
-        content_type = 'artists'
-
-    return content_type
+    return create_gui_item(item_url, details, extra_data)
 
 
 def create_plex_online_item(server, url, plugin):
@@ -722,7 +718,7 @@ def create_plex_online_item(server, url, plugin):
 
     extra_data['parameters'] = {'name': details['title']}
 
-    add_item_to_gui(item_url, details, extra_data)
+    return create_gui_item(item_url, details, extra_data)
 
 
 def create_photo_item(server, tree, url, photo):
@@ -744,9 +740,9 @@ def create_photo_item(server, tree, url, photo):
 
     if photo.tag == 'Directory':
         extra_data['mode'] = MODES.PHOTOS
-        add_item_to_gui(item_url, details, extra_data)
+        return create_gui_item(item_url, details, extra_data)
 
-    elif photo.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
+    if photo.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
         for pics in photo:
             if pics.tag == 'Media':
                 parts = [img for img in pics if img.tag == 'Part']
@@ -756,4 +752,6 @@ def create_photo_item(server, tree, url, photo):
                     details['size'] = int(part.get('size', 0))
                     item_url = extra_data['key']
 
-        add_item_to_gui(item_url, details, extra_data, folder=False)
+        return create_gui_item(item_url, details, extra_data, folder=False)
+
+    return None

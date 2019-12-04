@@ -146,4 +146,10 @@ STRINGS = {
     'From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]': 30690,
     'Widgets': 30692,
     'Clear Caches': 30694,
+    'Movies on Deck': 30697,
+    'TV Shows on Deck': 30698,
+    'Recently Released Movies': 30699,
+    'Recently Aired TV Shows': 30700,
+    'Recently Added Movies': 30701,
+    'Recently Added TV Shows': 30702,
 }
