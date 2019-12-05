@@ -50,10 +50,10 @@ def run(params):
     LOG.debug('Found search results: %s' % '\n\n'.join(log_results))
 
     server_uuid, media_id = get_server_uuid_and_media_id(params, search_results)
-    LOG.debug('Found a server with the requested content @ server_uuid=%s w/ media_id=%s' %
-              (server_uuid, media_id))
-
     if server_uuid and media_id:
+        LOG.debug('Found a server with the requested content @ server_uuid=%s w/ media_id=%s' %
+                  (server_uuid, media_id))
+
         if params.get('video_type') in ['show', 'season']:
             if params.get('video_type') == 'show':
                 process_tvseasons(server_uuid, rating_key=media_id,
@@ -73,6 +73,11 @@ def run(params):
             play = wait_for_busy_dialog()
             if play:
                 play_media_id_from_uuid(server_uuid, media_id, player=True)
+                return
+
+        LOG.debug('Failed to execute TraktToKodi action')
+    else:
+        LOG.debug('Content not found on any server')
 
 
 def _is_not_none(item):
