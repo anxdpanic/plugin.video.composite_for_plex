@@ -18,6 +18,7 @@ import platform
 import re
 import socket
 import sys
+import time
 import traceback
 
 from six import PY3
@@ -28,6 +29,7 @@ from six.moves import range
 
 import xbmc  # pylint: disable=import-error
 import xbmcaddon  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from .settings import AddonSettings
 from .strings import STRINGS
@@ -101,6 +103,8 @@ MODES = __enum(
     TXT_TVSHOWS_ON_DECK='tvshows_on_deck',
     TXT_TVSHOWS_RECENT_ADDED='tvshows_recent_added',
     TXT_TVSHOWS_RECENT_AIRED='tvshows_recent_aired',
+    TXT_OPEN='open',
+    TXT_PLAY='play',
 )
 
 
@@ -396,3 +400,23 @@ def notify_all(method, data):
 
     command = 'NotifyAll(%s.SIGNAL,%s,%s)' % (CONFIG['id'], method, data)
     xbmc.executebuiltin(command)
+
+
+def wait_for_busy_dialog():
+    """
+    Wait for busy dialogs to close, starting playback while the busy dialog is active
+    could crash Kodi 18 / 19 (pre-alpha)
+    """
+    monitor = xbmc.Monitor()
+    start_time = time.time()
+    xbmc.sleep(500)
+
+    LOG.debug('Waiting for busy dialogs to close ...')
+    while (xbmcgui.getCurrentWindowDialogId() in [10138, 10160] and
+           not monitor.abortRequested()):
+        if monitor.waitForAbort(3):
+            break
+
+    LOG.debug('Waited %.2f for busy dialogs to close.' % (time.time() - start_time))
+    return (not monitor.abortRequested() and
+            xbmcgui.getCurrentWindowDialogId() not in [10138, 10160])

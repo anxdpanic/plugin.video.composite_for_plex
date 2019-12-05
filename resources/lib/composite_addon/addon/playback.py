@@ -67,17 +67,19 @@ def monitor_channel_transcode_playback(session_id, server):
 
 
 def play_media_id_from_uuid(server_uuid, media_id, force=None, transcode=False,  # pylint: disable=too-many-arguments
-                            transcode_profile=0, plex_network=None):
+                            transcode_profile=0, plex_network=None, player=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
     server = plex_network.get_server_from_uuid(server_uuid)
     random_number = str(random.randint(1000000000, 9999999999))
     url = server.get_formatted_url('/library/metadata/%s?%s' % (media_id, random_number))
-    play_library_media(url, force=force, transcode=transcode, transcode_profile=transcode_profile)
+    play_library_media(url, force=force, transcode=transcode,
+                       transcode_profile=transcode_profile, player=player)
 
 
-def play_library_media(url, force=None, transcode=False, transcode_profile=0, plex_network=None):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def play_library_media(url, force=None, transcode=False, transcode_profile=0,
+                       plex_network=None, player=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -197,7 +199,10 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0, pl
             }
             write_pickled('playback_monitor.pickle', monitor_dict)
 
-        xbmcplugin.setResolvedUrl(get_handle(), True, list_item)
+        if get_handle() == -1 or player:
+            xbmc.Player().play(playback_url, list_item)
+        else:
+            xbmcplugin.setResolvedUrl(get_handle(), True, list_item)
 
 
 def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches

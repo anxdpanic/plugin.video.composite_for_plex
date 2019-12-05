@@ -12,11 +12,9 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] translations for widget titles
-[fix] data cache not updated on mark (un)watched, and playback
-[upd] improve data caching, less cached data required
-[upd] refactor data caching
-[upd] refactor list item creation
+[add] support for TraktToKodi browser extension
+    - https://chrome.google.com/webstore/detail/trakttokodi/jongfgkokmlpdekeljpegeldjofbageo
+    - https://addons.mozilla.org/en-US/firefox/addon/trakttokodi/
         </news>
         <assets>
             <icon>icon.png</icon>
