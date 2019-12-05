@@ -25,6 +25,21 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
     If you are watching remotely, or on a bandwidth limited network, switch on Transcoding to reduce the media quality
     to one that works best for you.
 
+- TraktToKodi
+    -
+    
+    This add-on can be paired with the TraktToKodi web browser extension. <br/>
+    
+    In your TraktToKodi profile, set the `Add-on ID` to `plugin.video.composite_for_plex`
+
+    **Chrome:**
+    - Install from [Chrome Web Store](https://chrome.google.com/webstore/detail/trakttokodi/jongfgkokmlpdekeljpegeldjofbageo) <br/>
+    - https://github.com/anxdpanic/TraktToKodi-Extension/tree/chrome
+    
+    **Firefox:**
+    - Install from [AMO Gallery](https://addons.mozilla.org/en-US/firefox/addon/trakttokodi/)
+    - https://github.com/anxdpanic/TraktToKodi-Extension/tree/firefox
+
 - Support
     -
 
