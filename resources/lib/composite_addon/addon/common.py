@@ -119,7 +119,7 @@ def get_handle():
         return -1
 
 
-def get_params():
+def get_params():  # pylint: disable=too-many-branches
     try:
         param_string = get_argv()[2]
     except IndexError:

@@ -78,8 +78,8 @@ def play_media_id_from_uuid(server_uuid, media_id, force=None, transcode=False, 
                        transcode_profile=transcode_profile, player=player)
 
 
-def play_library_media(url, force=None, transcode=False, transcode_profile=0,
-                       plex_network=None, player=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def play_library_media(url, force=None, transcode=False, transcode_profile=0,  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
+                       plex_network=None, player=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 

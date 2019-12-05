@@ -108,7 +108,7 @@ def _get_episode(params, server, season_id):
     return None
 
 
-def search(params):
+def search(params):  # pylint: disable=too-many-branches, too-many-nested-blocks
     results = []
 
     if params.get('video_type') == 'movie':
@@ -128,7 +128,7 @@ def search(params):
 
     server_list = PLEX_NETWORK.get_server_list()
 
-    for server in server_list:
+    for server in server_list:  # pylint: disable=too-many-nested-blocks
 
         sections = server.get_sections()
         for section in sections:
