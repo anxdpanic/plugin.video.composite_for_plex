@@ -9,8 +9,10 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import string
 import xml.etree.ElementTree as ETree
 
+from six import PY3
 from six.moves.urllib_parse import unquote
 
 import xbmc  # pylint: disable=import-error
@@ -88,7 +90,7 @@ def _is_not_none(item):
 
 def _get_show(params, response):
     for show in response:
-        title = show.get('title') == unquote(params.get('title'))
+        title = _compare_titles(show.get('title'), params.get('title'))
         year = show.get('year') == params.get('year')
         if title and year:
             return show
@@ -186,15 +188,20 @@ def search(params):  # pylint: disable=too-many-branches, too-many-nested-blocks
 
 
 def _compare_titles(plex_title, trakt_title):
-    def get_lower_stripped(string):
-        string = string.lower()
-        string = string.replace('  ', ' ')
-        string = string.strip()
-        return string
+    def _translate(_string):
+        _string = _string.lower()
+        _string = _string.replace('  ', ' ')
+        _string = _string.strip()
+        if PY3:
+            _string = _string.translate(str.maketrans('', '', string.punctuation))
+        else:
+            _string = _string.translate(None, string.punctuation)
+        return _string
 
-    plex_title = get_lower_stripped(plex_title)
-    trakt_title = get_lower_stripped(unquote(trakt_title))
+    plex_title = _translate(plex_title)
+    trakt_title = _translate(unquote(trakt_title))
 
+    LOG.debug('Comparing titles: %s -> %s' % (plex_title, trakt_title))
     return plex_title == trakt_title
 
 
