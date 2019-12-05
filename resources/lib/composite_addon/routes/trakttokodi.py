@@ -37,9 +37,10 @@ def run(params):
 
     # possible params ['video_type', 'title', 'year', 'trakt_id', 'episode_id', 'season_id',
     # 'season', 'episode', 'ep_title', 'imdb_id', 'tmdb_id', 'tvdb_id']
-    del params['mode']
-    del params['url']
-    del params['command']
+
+    del params['mode']  # remove unrelated param
+    del params['url']  # remove unrelated param
+    del params['command']  # remove unrelated param
 
     LOG.debug('Running with params: %s' % params)
 
