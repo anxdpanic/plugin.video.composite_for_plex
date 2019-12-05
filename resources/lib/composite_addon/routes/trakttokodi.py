@@ -9,8 +9,10 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import string
 import xml.etree.ElementTree as ETree
 
+from six import PY3
 from six.moves.urllib_parse import unquote
 
 import xbmc  # pylint: disable=import-error
@@ -37,9 +39,10 @@ def run(params):
 
     # possible params ['video_type', 'title', 'year', 'trakt_id', 'episode_id', 'season_id',
     # 'season', 'episode', 'ep_title', 'imdb_id', 'tmdb_id', 'tvdb_id']
-    del params['mode']
-    del params['url']
-    del params['command']
+
+    del params['mode']  # remove unrelated param
+    del params['url']  # remove unrelated param
+    del params['command']  # remove unrelated param
 
     LOG.debug('Running with params: %s' % params)
 
@@ -49,10 +52,10 @@ def run(params):
     LOG.debug('Found search results: %s' % '\n\n'.join(log_results))
 
     server_uuid, media_id = get_server_uuid_and_media_id(params, search_results)
-    LOG.debug('Found a server with the requested content @ server_uuid=%s w/ media_id=%s' %
-              (server_uuid, media_id))
-
     if server_uuid and media_id:
+        LOG.debug('Found a server with the requested content @ server_uuid=%s w/ media_id=%s' %
+                  (server_uuid, media_id))
+
         if params.get('video_type') in ['show', 'season']:
             if params.get('video_type') == 'show':
                 process_tvseasons(server_uuid, rating_key=media_id,
@@ -72,6 +75,11 @@ def run(params):
             play = wait_for_busy_dialog()
             if play:
                 play_media_id_from_uuid(server_uuid, media_id, player=True)
+                return
+
+        LOG.debug('Failed to execute TraktToKodi action')
+    else:
+        LOG.debug('Content not found on any server')
 
 
 def _is_not_none(item):
@@ -82,7 +90,7 @@ def _is_not_none(item):
 
 def _get_show(params, response):
     for show in response:
-        title = show.get('title') == unquote(params.get('title'))
+        title = _compare_titles(show.get('title'), params.get('title'))
         year = show.get('year') == params.get('year')
         if title and year:
             return show
@@ -98,8 +106,14 @@ def _get_season(params, server, show_id):
     return None
 
 
-def _get_episode(params, server, season_id):
-    episodes = server.get_children(season_id)
+def _get_episode(params, server, season_id=None, processed=None):
+    if not season_id and not processed:
+        return None
+
+    episodes = processed
+    if season_id and not episodes:
+        episodes = server.get_children(season_id)
+
     if _is_not_none(episodes):
         for episode in episodes:
             if (episode.get('parentIndex') == params.get('season') and
@@ -144,17 +158,28 @@ def search(params):  # pylint: disable=too-many-branches, too-many-nested-blocks
                     processed = server.processed_xml(url)
 
                 if _is_not_none(processed):
+                    if params.get('video_type') == 'episode':
+                        episode = _get_episode(params, server, processed=processed)
+
+                        if episode is not None:
+                            results.append((server.get_uuid(), episode))
+                            continue
+
                     if params.get('video_type') in ['episode', 'season']:
                         show = _get_show(params, processed)
                         if show is not None:
+
                             season = _get_season(params, server, show.get('ratingKey'))
                             if season is not None:
                                 if params.get('video_type') == 'season':
                                     results.append((server.get_uuid(), season))
-                                elif params.get('video_type') == 'episode':
+                                    continue
+
+                                if params.get('video_type') == 'episode':
                                     episode = _get_episode(params, server, season.get('ratingKey'))
                                     if episode is not None:
                                         results.append((server.get_uuid(), episode))
+                                        continue
                     else:
                         for result in processed:
                             results.append((server.get_uuid(), result))
@@ -163,15 +188,20 @@ def search(params):  # pylint: disable=too-many-branches, too-many-nested-blocks
 
 
 def _compare_titles(plex_title, trakt_title):
-    def get_lower_stripped(string):
-        string = string.lower()
-        string = string.replace('  ', ' ')
-        string = string.strip()
-        return string
+    def _translate(_string):
+        _string = _string.lower()
+        _string = _string.replace('  ', ' ')
+        _string = _string.strip()
+        if PY3:
+            _string = _string.translate(str.maketrans('', '', string.punctuation))
+        else:
+            _string = _string.translate(None, string.punctuation)
+        return _string
 
-    plex_title = get_lower_stripped(plex_title)
-    trakt_title = get_lower_stripped(unquote(trakt_title))
+    plex_title = _translate(plex_title)
+    trakt_title = _translate(unquote(trakt_title))
 
+    LOG.debug('Comparing titles: %s -> %s' % (plex_title, trakt_title))
     return plex_title == trakt_title
 
 
