@@ -11,15 +11,14 @@
 
 import base64
 import json
-import time
 
 from six.moves.urllib_parse import urlencode
 
 import xbmc  # pylint: disable=import-error
-import xbmcgui  # pylint: disable=import-error
 
 from .common import CONFIG
 from .common import PrintDebug
+from .common import wait_for_busy_dialog
 
 
 class Monitor(xbmc.Monitor):
@@ -60,34 +59,17 @@ class Monitor(xbmc.Monitor):
 
         return 'plugin://%s/?%s' % (CONFIG['id'], urlencode(data))
 
-    def play_media(self, url):
+    @staticmethod
+    def play_media(url):
         """
         Use PlayMedia to start playback after busy dialogs are closed
         """
         if xbmc.Player().isPlaying():
             xbmc.Player().stop()
 
-        play = self.wait_for_busy_dialog()
+        play = wait_for_busy_dialog()
         if play:
             xbmc.executebuiltin('PlayMedia(%s)' % url)
-
-    def wait_for_busy_dialog(self):
-        """
-        Wait for busy dialogs to close, starting playback while the busy dialog is active
-        could crash Kodi 18 / 19 (pre-alpha)
-        """
-        start_time = time.time()
-        xbmc.sleep(500)
-
-        self.LOG.debug('Waiting for busy dialogs to close ...')
-        while (xbmcgui.getCurrentWindowDialogId() in [10138, 10160] and
-               not self.abortRequested()):
-            if self.waitForAbort(3):
-                break
-
-        self.LOG.debug('Waited %.2f for busy dialogs to close.' % (time.time() - start_time))
-        return (not self.abortRequested() and
-                xbmcgui.getCurrentWindowDialogId() not in [10138, 10160])
 
     def onNotification(self, sender, method, data):  # pylint: disable=invalid-name
         """

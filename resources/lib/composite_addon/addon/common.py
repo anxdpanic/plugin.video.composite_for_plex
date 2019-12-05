@@ -18,6 +18,7 @@ import platform
 import re
 import socket
 import sys
+import time
 import traceback
 
 from six import PY3
@@ -28,6 +29,7 @@ from six.moves import range
 
 import xbmc  # pylint: disable=import-error
 import xbmcaddon  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from .settings import AddonSettings
 from .strings import STRINGS
@@ -38,6 +40,72 @@ __ADDON = xbmcaddon.Addon(id=__ID)
 
 def __enum(**enums):
     return type('Enum', (), enums)
+
+
+COMMANDS = __enum(
+    UNSET=None,
+    ADDTOPLAYLIST='add_playlist_item',
+    AUDIO='audio',
+    DELETE='delete',
+    DELETEFROMPLAYLIST='delete_playlist_item',
+    DELETEREFRESH='delete_refresh',
+    DISPLAYSERVER='displayservers',
+    MANAGEMYPLEX='managemyplex',
+    MASTER='master',
+    REFRESH='refresh',
+    SIGNIN='signin',
+    SIGNINTEMP='signintemp',
+    SIGNOUT='signout',
+    SUBS='subs',
+    SWITCHUSER='switchuser',
+    UPDATE='update',
+    WATCH='watch',
+)
+
+MODES = __enum(
+    UNSET=-1,
+    GETCONTENT=0,
+    TVSHOWS=1,
+    MOVIES=2,
+    ARTISTS=3,
+    TVSEASONS=4,
+    PLAYLIBRARY=5,
+    TVEPISODES=6,
+    PLEXPLUGINS=7,
+    PROCESSXML=8,
+    CHANNELSEARCH=9,
+    CHANNELPREFS=10,
+    PLAYSHELF=11,
+    BASICPLAY=12,
+    SHARED_MOVIES=13,
+    ALBUMS=14,
+    TRACKS=15,
+    PHOTOS=16,
+    MUSIC=17,
+    VIDEOPLUGINPLAY=18,
+    PLEXONLINE=19,
+    CHANNELINSTALL=20,
+    CHANNELVIEW=21,
+    PLAYLIBRARY_TRANSCODE=23,
+    DISPLAYSERVERS=22,
+    MYPLEXQUEUE=24,
+    SHARED_SHOWS=25,
+    SHARED_MUSIC=26,
+    SHARED_PHOTOS=27,
+    SHARED_ALL=29,
+    PLAYLISTS=30,
+    WIDGETS=31,
+    TXT_MOVIES='movies',
+    TXT_MOVIES_ON_DECK='movies_on_deck',
+    TXT_MOVIES_RECENT_ADDED='movies_recent_added',
+    TXT_MOVIES_RECENT_RELEASE='movies_recent_release',
+    TXT_TVSHOWS='tvshows',
+    TXT_TVSHOWS_ON_DECK='tvshows_on_deck',
+    TXT_TVSHOWS_RECENT_ADDED='tvshows_recent_added',
+    TXT_TVSHOWS_RECENT_AIRED='tvshows_recent_aired',
+    TXT_OPEN='open',
+    TXT_PLAY='play',
+)
 
 
 def get_argv():
@@ -51,7 +119,7 @@ def get_handle():
         return -1
 
 
-def get_params():
+def get_params():  # pylint: disable=too-many-branches
     try:
         param_string = get_argv()[2]
     except IndexError:
@@ -85,6 +153,13 @@ def get_params():
             pass
 
     params['url'] = url
+
+    try:
+        _ = int(command)
+        command = COMMANDS.UNSET
+    except ValueError:
+        pass
+
     params['command'] = command
 
     if not params.get('mode') and not params.get('server_uuid'):
@@ -273,69 +348,6 @@ except:  # pylint: disable=bare-except
 SETTINGS = AddonSettings(__ID)
 LOG = PrintDebug(CONFIG['name'])
 
-COMMANDS = __enum(
-    UNSET=None,
-    ADDTOPLAYLIST='add_playlist_item',
-    AUDIO='audio',
-    DELETE='delete',
-    DELETEFROMPLAYLIST='delete_playlist_item',
-    DELETEREFRESH='delete_refresh',
-    DISPLAYSERVER='displayservers',
-    MANAGEMYPLEX='managemyplex',
-    MASTER='master',
-    REFRESH='refresh',
-    SIGNIN='signin',
-    SIGNINTEMP='signintemp',
-    SIGNOUT='signout',
-    SUBS='subs',
-    SWITCHUSER='switchuser',
-    UPDATE='update',
-    WATCH='watch',
-)
-
-MODES = __enum(
-    UNSET=-1,
-    GETCONTENT=0,
-    TVSHOWS=1,
-    MOVIES=2,
-    ARTISTS=3,
-    TVSEASONS=4,
-    PLAYLIBRARY=5,
-    TVEPISODES=6,
-    PLEXPLUGINS=7,
-    PROCESSXML=8,
-    CHANNELSEARCH=9,
-    CHANNELPREFS=10,
-    PLAYSHELF=11,
-    BASICPLAY=12,
-    SHARED_MOVIES=13,
-    ALBUMS=14,
-    TRACKS=15,
-    PHOTOS=16,
-    MUSIC=17,
-    VIDEOPLUGINPLAY=18,
-    PLEXONLINE=19,
-    CHANNELINSTALL=20,
-    CHANNELVIEW=21,
-    PLAYLIBRARY_TRANSCODE=23,
-    DISPLAYSERVERS=22,
-    MYPLEXQUEUE=24,
-    SHARED_SHOWS=25,
-    SHARED_MUSIC=26,
-    SHARED_PHOTOS=27,
-    SHARED_ALL=29,
-    PLAYLISTS=30,
-    WIDGETS=31,
-    TXT_MOVIES='movies',
-    TXT_MOVIES_ON_DECK='movies_on_deck',
-    TXT_MOVIES_RECENT_ADDED='movies_recent_added',
-    TXT_MOVIES_RECENT_RELEASE='movies_recent_release',
-    TXT_TVSHOWS='tvshows',
-    TXT_TVSHOWS_ON_DECK='tvshows_on_deck',
-    TXT_TVSHOWS_RECENT_ADDED='tvshows_recent_added',
-    TXT_TVSHOWS_RECENT_AIRED='tvshows_recent_aired',
-)
-
 StreamControl = __enum(
     KODI='0',
     PLEX='1',
@@ -388,3 +400,23 @@ def notify_all(method, data):
 
     command = 'NotifyAll(%s.SIGNAL,%s,%s)' % (CONFIG['id'], method, data)
     xbmc.executebuiltin(command)
+
+
+def wait_for_busy_dialog():
+    """
+    Wait for busy dialogs to close, starting playback while the busy dialog is active
+    could crash Kodi 18 / 19 (pre-alpha)
+    """
+    monitor = xbmc.Monitor()
+    start_time = time.time()
+    xbmc.sleep(500)
+
+    LOG.debug('Waiting for busy dialogs to close ...')
+    while (xbmcgui.getCurrentWindowDialogId() in [10138, 10160] and
+           not monitor.abortRequested()):
+        if monitor.waitForAbort(3):
+            break
+
+    LOG.debug('Waited %.2f for busy dialogs to close.' % (time.time() - start_time))
+    return (not monitor.abortRequested() and
+            xbmcgui.getCurrentWindowDialogId() not in [10138, 10160])
