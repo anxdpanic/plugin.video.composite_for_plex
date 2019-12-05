@@ -99,8 +99,14 @@ def _get_season(params, server, show_id):
     return None
 
 
-def _get_episode(params, server, season_id):
-    episodes = server.get_children(season_id)
+def _get_episode(params, server, season_id=None, processed=None):
+    if not season_id and not processed:
+        return None
+
+    episodes = processed
+    if season_id and not episodes:
+        episodes = server.get_children(season_id)
+
     if _is_not_none(episodes):
         for episode in episodes:
             if (episode.get('parentIndex') == params.get('season') and
@@ -145,17 +151,28 @@ def search(params):  # pylint: disable=too-many-branches, too-many-nested-blocks
                     processed = server.processed_xml(url)
 
                 if _is_not_none(processed):
+                    if params.get('video_type') == 'episode':
+                        episode = _get_episode(params, server, processed=processed)
+
+                        if episode is not None:
+                            results.append((server.get_uuid(), episode))
+                            continue
+
                     if params.get('video_type') in ['episode', 'season']:
                         show = _get_show(params, processed)
                         if show is not None:
+
                             season = _get_season(params, server, show.get('ratingKey'))
                             if season is not None:
                                 if params.get('video_type') == 'season':
                                     results.append((server.get_uuid(), season))
-                                elif params.get('video_type') == 'episode':
+                                    continue
+
+                                if params.get('video_type') == 'episode':
                                     episode = _get_episode(params, server, season.get('ratingKey'))
                                     if episode is not None:
                                         results.append((server.get_uuid(), episode))
+                                        continue
                     else:
                         for result in processed:
                             results.append((server.get_uuid(), result))
