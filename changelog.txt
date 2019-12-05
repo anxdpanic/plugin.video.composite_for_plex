@@ -1,3 +1,7 @@
+0.2.1
+[fix] TraktToKodi not starting playback of some episodes
+[upd] TraktToKodi title comparisons
+
 0.2.0
 [add] support for TraktToKodi browser extension
     - https://chrome.google.com/webstore/detail/trakttokodi/jongfgkokmlpdekeljpegeldjofbageo
