@@ -10,7 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ..addon.processing import process_tracks
+from ..addon.processing.tracks import process_tracks
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)

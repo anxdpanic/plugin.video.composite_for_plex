@@ -10,12 +10,12 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ..addon.processing import process_tvshows
+from ..addon.processing.episodes import process_episodes
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(url):
+def run(url, rating_key=None):
     PLEX_NETWORK.load()
-    process_tvshows(url, plex_network=PLEX_NETWORK)
+    process_episodes(url, rating_key=rating_key, plex_network=PLEX_NETWORK)

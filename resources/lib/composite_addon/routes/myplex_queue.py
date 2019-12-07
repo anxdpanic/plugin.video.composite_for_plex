@@ -14,7 +14,7 @@ import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import CONFIG
 from ..addon.common import i18n
-from ..addon.processing import process_plex_plugins
+from ..addon.processing.plex_plugins import process_plex_plugins
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)

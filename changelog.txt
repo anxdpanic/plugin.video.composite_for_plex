@@ -5,6 +5,7 @@
     *** https://kodi.wiki/view/Adding_video_sources
     *** Will not have support for most Plex features
     *** Watched status is not imported to Kodi's library, Plex's watched status will still be updated on playback
+[upd] refactor items and processing into smaller pieces
 
 0.2.1
 [fix] TraktToKodi not starting playback of some episodes
