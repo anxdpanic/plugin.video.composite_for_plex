@@ -11,7 +11,9 @@
 """
 
 import datetime
-import random
+import hashlib
+
+from six.moves.urllib_parse import quote_plus
 
 from ..addon.common import CONFIG
 from ..addon.common import MODES
@@ -38,7 +40,6 @@ def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-loc
     temp_writer = []
 
     media_arguments = {}
-    random_number = str(random.randint(1000000000, 9999999999))
 
     # Lets grab all the info we can quickly through either a dictionary, or assignment to a list
     # We'll process it later
@@ -114,9 +115,9 @@ def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-loc
         details['genre'] = ' / '.join(temp_genre)
 
     if movie.get('primaryExtraKey') is not None:
-        details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?t=%s&mode=%s' % \
+        details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
                              (server.get_url_location(), movie.get('primaryExtraKey', ''),
-                              random_number, MODES.PLAYLIBRARY)
+                              MODES.PLAYLIBRARY)
         LOG.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
@@ -130,11 +131,7 @@ def create_movie_item(url, server, tree, movie):  # pylint: disable=too-many-loc
         context = None
     # http:// <server> <path> &mode=<mode> &t=<rnd>
     extra_data['mode'] = MODES.PLAYLIBRARY
-    separator = '?'
-    if '?' in extra_data['key']:
-        separator = '&'
-    final_url = '%s%s%st=%s' % \
-                (server.get_url_location(), extra_data['key'], separator, random_number)
+    final_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     return create_gui_item(final_url, details, extra_data, context, folder=False)
 
@@ -256,8 +253,6 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
     temp_director = []
     temp_writer = []
     media_arguments = {}
-
-    random_number = str(random.randint(1000000000, 9999999999))
 
     use_go_to = url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
 
@@ -395,16 +390,12 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
         context = None
 
     extra_data['mode'] = MODES.PLAYLIBRARY
-    separator = '?'
-    if '?' in extra_data['key']:
-        separator = '&'
-    item_url = '%s%s%st=%s' % \
-               (server.get_url_location(), extra_data['key'], separator, random_number)
+    item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     return create_gui_item(item_url, details, extra_data, context, folder=False)
 
 
-def create_tvshow_item(server, url, show):
+def create_tvshow_item(server, url, show, md5_hash=False):
     temp_genre = []
 
     for child in show:
@@ -465,7 +456,38 @@ def create_tvshow_item(server, url, show):
     else:
         context = None
 
+    if md5_hash:
+        extra_data['hash'] = \
+            _md5_all_episodes(server, extra_data['key'], details.get('TVShowTitle', ''))
+
     return create_gui_item(item_url, details, extra_data, context)
+
+
+def _md5_all_episodes(server, url, title):
+    url = '%s%s' % (server.get_url_location(), url.replace('children', 'allLeaves'))
+
+    tree = server.processed_xml(url)
+    if tree is None:
+        return None
+
+    show_hash = hashlib.md5()
+
+    hash_title = title
+    if not isinstance(hash_title, bytes):
+        hash_title = hash_title.encode('utf-8')
+    hash_title = quote_plus(hash_title).encode('utf-8')
+
+    show_hash.update(hash_title)
+
+    for episode in tree:
+        hash_title = episode.get('title')
+        if not isinstance(hash_title, bytes):
+            hash_title = hash_title.encode('utf-8')
+        hash_title = quote_plus(hash_title).encode('utf-8')
+
+        show_hash.update(hash_title)
+
+    return show_hash.hexdigest().upper()
 
 
 def create_artist_item(server, artist):

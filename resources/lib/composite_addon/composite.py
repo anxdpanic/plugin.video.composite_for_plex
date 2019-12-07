@@ -151,6 +151,11 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         trakttokodi.run(params)
         return _finished(start_time)
 
+    if mode in [MODES.TXT_MOVIES_LIBRARY, MODES.TXT_TVSHOWS_LIBRARY] or params.get('kodi_action'):
+        from .routes import kodi_library  # pylint: disable=import-outside-toplevel
+        kodi_library.run(params)
+        return _finished(start_time)
+
     # Run a function based on the mode variable that was passed in the URL
     if (isinstance(mode, int) and mode < 0) or (not url and (not server_uuid and not media_id)):
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
