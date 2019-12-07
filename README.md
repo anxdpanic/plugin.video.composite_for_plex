@@ -25,6 +25,22 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
     If you are watching remotely, or on a bandwidth limited network, switch on Transcoding to reduce the media quality
     to one that works best for you.
 
+- Kodi 18+ Library
+    -
+    
+    To add Composite (Plex) media to your library, add a video source for movies/tv shows.
+ 
+    - Will not have support for most Plex features.
+    - Watched status is not imported to your library, Plex's watched status will still be updated on playback.
+    
+    #### Sources
+   
+    - **Movies:** `plugin://plugin.video.composite_for_plex/library/movies/`
+    - **TV Shows:** `plugin://plugin.video.composite_for_plex/library/tvshows/`
+
+    **Wiki:** https://kodi.wiki/view/Adding_video_sources <br/>
+    Instead of Steps 4-5 add the appropriate `plugin://` url from the sources above
+
 - TraktToKodi
     -
     

@@ -8,12 +8,18 @@
     </requires>
     <extension point="xbmc.python.pluginsource" library="resources/lib/entry_point.py">
         <provides>video audio image</provides>
+        <medialibraryscanpath content="movies">library/movies/</medialibraryscanpath>
+        <medialibraryscanpath content="tvshows">library/tvshows/</medialibraryscanpath>
     </extension>
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[fix] TraktToKodi not starting playback of some episodes
-[upd] TraktToKodi title comparisons
+[add] Kodi 18+ library integration support
+    - Movies: add video source - plugin://plugin.video.composite_for_plex/library/movies/
+    - TV Shows: add video source - plugin://plugin.video.composite_for_plex/library/tvshows/
+    *** https://kodi.wiki/view/Adding_video_sources
+    *** Will not have support for most Plex features
+    *** Watched status is not imported to Kodi's library, Plex's watched status will still be updated on playback
         </news>
         <assets>
             <icon>icon.png</icon>

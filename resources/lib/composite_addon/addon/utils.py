@@ -203,6 +203,9 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
     if mediatype:
         list_item.setProperty('content_type', mediatype + 's')
 
+    if extra_data.get('hash'):
+        list_item.setProperty('hash', extra_data['hash'])
+
     return link_url, list_item, folder
 
 

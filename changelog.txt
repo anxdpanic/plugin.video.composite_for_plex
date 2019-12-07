@@ -1,3 +1,11 @@
+0.3.0
+[add] Kodi 18+ library integration support
+    - Movies: add video source - plugin://plugin.video.composite_for_plex/library/movies/
+    - TV Shows: add video source - plugin://plugin.video.composite_for_plex/library/tvshows/
+    *** https://kodi.wiki/view/Adding_video_sources
+    *** Will not have support for most Plex features
+    *** Watched status is not imported to Kodi's library, Plex's watched status will still be updated on playback
+
 0.2.1
 [fix] TraktToKodi not starting playback of some episodes
 [upd] TraktToKodi title comparisons

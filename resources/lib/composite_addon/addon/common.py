@@ -105,6 +105,8 @@ MODES = __enum(
     TXT_TVSHOWS_RECENT_AIRED='tvshows_recent_aired',
     TXT_OPEN='open',
     TXT_PLAY='play',
+    TXT_MOVIES_LIBRARY='library/movies',
+    TXT_TVSHOWS_LIBRARY='library/tvshows',
 )
 
 
@@ -162,13 +164,11 @@ def get_params():  # pylint: disable=too-many-branches
 
     params['command'] = command
 
-    if not params.get('mode') and not params.get('server_uuid'):
+    if params.get('mode') is None and not params.get('server_uuid'):
         plugin_url = get_argv()[0]
-        path_args = plugin_url.replace('plugin://%s/' % CONFIG['id'], '')
-        path_args = path_args.rstrip('/').split('/')
-        if len(path_args) == 2:
-            params['server_uuid'] = path_args[0]
-            params['mode'] = path_args[1]
+        path_mode = plugin_url.replace('plugin://%s/' % CONFIG['id'], '').rstrip('/')
+        if path_mode:
+            params['mode'] = path_mode
 
     LOG.debug('Parameters |%s| -> |%s|' % (param_string, str(params)))
     return params
