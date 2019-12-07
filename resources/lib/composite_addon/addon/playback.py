@@ -28,7 +28,7 @@ from .common import encode_utf8
 from .common import get_handle
 from .common import i18n
 from .common import write_pickled
-from .items import create_track_item
+from .items.track import create_track_item
 from .utils import get_xml
 from .utils import get_thumb_image
 from ..plex import plex

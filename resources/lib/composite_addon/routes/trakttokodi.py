@@ -24,8 +24,8 @@ from ..addon.common import decode_utf8
 from ..addon.common import get_handle
 from ..addon.common import wait_for_busy_dialog
 from ..addon.playback import play_media_id_from_uuid
-from ..addon.processing import process_tvepisodes
-from ..addon.processing import process_tvseasons
+from ..addon.processing.episodes import process_episodes
+from ..addon.processing.seasons import process_seasons
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
@@ -58,13 +58,13 @@ def run(params):
 
         if params.get('video_type') in ['show', 'season']:
             if params.get('video_type') == 'show':
-                process_tvseasons(server_uuid, rating_key=media_id,
-                                  plex_network=PLEX_NETWORK)
+                process_seasons(server_uuid, rating_key=media_id,
+                                plex_network=PLEX_NETWORK)
                 return
 
             if params.get('video_type') == 'season':
-                process_tvepisodes(server_uuid, rating_key=media_id,
-                                   plex_network=PLEX_NETWORK)
+                process_episodes(server_uuid, rating_key=media_id,
+                                 plex_network=PLEX_NETWORK)
                 return
 
         if params.get('video_type') in ['movie', 'episode']:

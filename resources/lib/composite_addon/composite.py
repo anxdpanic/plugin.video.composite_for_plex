@@ -171,8 +171,8 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         return _finished(start_time)
 
     if mode == MODES.TVSHOWS:
-        from .routes import process_tvshows  # pylint: disable=import-outside-toplevel
-        process_tvshows.run(url)
+        from .routes import process_shows  # pylint: disable=import-outside-toplevel
+        process_shows.run(url)
         return _finished(start_time)
 
     if mode == MODES.MOVIES:
@@ -186,8 +186,8 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         return _finished(start_time)
 
     if mode == MODES.TVSEASONS:
-        from .routes import process_tvseasons  # pylint: disable=import-outside-toplevel
-        process_tvseasons.run(url, rating_key=params.get('rating_key'))
+        from .routes import process_seasons  # pylint: disable=import-outside-toplevel
+        process_seasons.run(url, rating_key=params.get('rating_key'))
         return _finished(start_time)
 
     if mode == MODES.PLAYLIBRARY:
@@ -198,8 +198,8 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         return _finished(start_time)
 
     if mode == MODES.TVEPISODES:
-        from .routes import process_tvepisodes  # pylint: disable=import-outside-toplevel
-        process_tvepisodes.run(url, rating_key=params.get('rating_key'))
+        from .routes import process_episodes  # pylint: disable=import-outside-toplevel
+        process_episodes.run(url, rating_key=params.get('rating_key'))
         return _finished(start_time)
 
     if mode == MODES.PLEXPLUGINS:

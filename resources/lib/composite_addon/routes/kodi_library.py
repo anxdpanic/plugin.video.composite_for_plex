@@ -15,10 +15,10 @@ import xbmcplugin  # pylint: disable=import-error
 from ..addon.common import CONFIG
 from ..addon.common import PrintDebug
 from ..addon.common import get_handle
-from ..addon.items import create_episode_item
-from ..addon.items import create_movie_item
-from ..addon.items import create_season_item
-from ..addon.items import create_tvshow_item
+from ..addon.items.episode import create_episode_item
+from ..addon.items.movie import create_movie_item
+from ..addon.items.season import create_season_item
+from ..addon.items.show import create_show_item
 
 from ..plex import plex
 
@@ -86,13 +86,13 @@ def _list_content(server, url):
 
     for content in tags:
         if content.get('type') == 'show':
-            items.append(create_tvshow_item(server, url, content, md5_hash=True))
+            items.append(create_show_item(server, url, content, md5_hash=True))
         elif content.get('type') == 'season':
             items.append(create_season_item(server, tree, content))
         elif content.get('type') == 'episode':
             items.append(create_episode_item(server, tree, url, content))
         elif content.get('type') == 'movie':
-            items.append(create_movie_item(url, server, tree, content))
+            items.append(create_movie_item(server, tree, url, content))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

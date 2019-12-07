@@ -21,15 +21,15 @@ from ..addon.common import MODES
 from ..addon.common import PrintDebug
 from ..addon.common import get_handle
 from ..addon.common import i18n
-from ..addon.processing import process_artists
-from ..addon.processing import process_albums
-from ..addon.processing import process_tracks
-from ..addon.processing import process_photos
-from ..addon.processing import process_directories
-from ..addon.processing import process_tvepisodes
-from ..addon.processing import process_movies
-from ..addon.processing import process_tvshows
-from ..addon.processing import process_xml
+from ..addon.processing.artists import process_artists
+from ..addon.processing.albums import process_albums
+from ..addon.processing.tracks import process_tracks
+from ..addon.processing.photos import process_photos
+from ..addon.processing.directories import process_directories
+from ..addon.processing.episodes import process_episodes
+from ..addon.processing.movies import process_movies
+from ..addon.processing.shows import process_shows
+from ..addon.processing.xml import process_xml
 from ..addon.utils import get_xml
 from ..plex import plex
 
@@ -84,10 +84,10 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
             process_movies(url, tree, plex_network=PLEX_NETWORK)
         elif view_group == 'show':
             LOG.debug('This is tv show XML')
-            process_tvshows(url, tree, plex_network=PLEX_NETWORK)
+            process_shows(url, tree, plex_network=PLEX_NETWORK)
         elif view_group == 'episode':
             LOG.debug('This is TV episode XML')
-            process_tvepisodes(url, tree, plex_network=PLEX_NETWORK)
+            process_episodes(url, tree, plex_network=PLEX_NETWORK)
         elif view_group == 'artist':
             LOG.debug('This is music XML')
             process_artists(url, tree, plex_network=PLEX_NETWORK)
