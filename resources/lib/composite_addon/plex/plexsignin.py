@@ -19,7 +19,7 @@ from ..addon.logger import PrintDebug
 from ..addon.strings import i18n
 
 LOG = PrintDebug(CONFIG['name'], 'plex_signin')
-MEDIA_PATH = xbmc.translatePath(CONFIG['media_path'])
+MEDIA_PATH = xbmc.translatePath(CONFIG['media_path'] + 'dialogs/')
 
 
 # noinspection PyAttributeOutsideInit
