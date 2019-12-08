@@ -79,7 +79,7 @@
     <category label="30522"> <!-- advanced -->
         <setting id="libraryfilter" type="bool" label="30588" default="false"/>
         <setting id="monitoroff" type="bool" label="30609" default="false"/>
-        <setting id="fullres_thumbs" type="bool" label="30595" default="false"/>
+        <setting id="fullres_thumbs" type="bool" label="30595" default="true"/>
         <setting id="fullres_fanart" type="bool" label="30596" default="true"/>
         <setting id="contextreplace" type="bool" label="30548" default="false"/>
         <setting id="skipcontextmenus" type="bool" label="30552" default="false"/>
