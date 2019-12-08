@@ -108,9 +108,9 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
 
         # set up failure message
         self.error_cross = pyxbmct.Image(MEDIA_PATH + 'error.png', aspectRatio=2)
-        self.placeControl(self.error_cross, 4, 2)
+        self.placeControl(self.error_cross, 5, 6)
         self.error_message = pyxbmct.Label(i18n('Unable to sign in'))
-        self.placeControl(self.error_message, 4, 3, columnspan=2, rowspan=2)
+        self.placeControl(self.error_message, 5, 7, columnspan=7, rowspan=1)
         self.error_cross.setVisible(False)
         self.error_message.setVisible(False)
 
@@ -207,6 +207,8 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
                                                    self.password_field.getText())
 
         if token is not None:
+            self.display_failure(False)
+
             self.description.setVisible(False)
             self.name_label.setVisible(False)
             self.password_label.setVisible(False)
@@ -232,6 +234,8 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         result = self.plex_network.check_signin_status(self.identifier)
 
         if result:
+            self.display_failure(False)
+
             self.description.setVisible(False)
             self.digit_one.setVisible(False)
             self.digit_two.setVisible(False)
