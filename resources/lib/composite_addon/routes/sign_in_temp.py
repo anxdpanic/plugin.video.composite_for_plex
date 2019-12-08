@@ -10,9 +10,9 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
+from ..addon.constants import CONFIG
 
 
 def run():

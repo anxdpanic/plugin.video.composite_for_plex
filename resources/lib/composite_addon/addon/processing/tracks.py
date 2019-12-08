@@ -10,10 +10,10 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmc  # pylint: disable=import-error
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ...addon.common import SETTINGS
+from . import SETTINGS
 from ...addon.common import get_handle
 from ...addon.items.track import create_track_item
 from ...addon.utils import get_xml

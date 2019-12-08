@@ -18,13 +18,15 @@ import hashlib
 import time
 
 from six import PY3
+from six import text_type
 # noinspection PyPep8Naming
 from six.moves import cPickle as pickle
 
+# don't use kodi_six xbmcvfs
 import xbmcvfs  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import PrintDebug
+from .constants import CONFIG
+from .logger import PrintDebug
 
 LOG = PrintDebug(CONFIG['name'], 'cachecontrol')
 
@@ -74,6 +76,8 @@ class CacheControl:
             cache.close()
 
         if cache_data:
+            if isinstance(cache_data, text_type):
+                cache_data = cache_data.encode('utf-8')
             LOG.debug('CACHE [%s]: read' % cache_name)
             LOG.debugplus('CACHE [%s]: data: [%s]' %
                           (cache_name, cache_data.decode('utf-8', 'ignore')))

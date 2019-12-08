@@ -10,23 +10,26 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import platform
 import sys
 import time
 
-from .addon.common import COMMANDS
-from .addon.common import CONFIG
-from .addon.common import MODES
-from .addon.common import SETTINGS
-from .addon.common import STREAM_CONTROL_SETTING
-from .addon.common import PrintDebug
 from .addon.common import get_params
-from .addon.common import wake_servers
+from .addon.constants import COMMANDS
+from .addon.constants import CONFIG
+from .addon.constants import MODES
+from .addon.constants import STREAM_CONTROL_SETTING
+from .addon.logger import PrintDebug
+from .addon.settings import AddonSettings
 
 LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-return-statements
-    wake_servers()
+    if SETTINGS.get_setting('wolon'):
+        from .addon.wol import wake_servers  # pylint: disable=import-outside-toplevel
+        wake_servers()
 
     params = get_params()
 
@@ -44,7 +47,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     LOG.debug('%s %s: Kodi %s on %s with Python %s' %
               (CONFIG['name'], CONFIG['version'], CONFIG['kodi_version'],
-               CONFIG['platform'], '.'.join([str(i) for i in sys.version_info])),
+               platform.uname()[0], '.'.join([str(i) for i in sys.version_info])),
               no_privacy=True)  # force no privacy to avoid redacting version strings
 
     LOG.debug('Mode |%s| Command |%s| Url |%s| Parameters |%s| Server UUID |%s| Media Id |%s|'

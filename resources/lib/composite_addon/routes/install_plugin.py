@@ -12,12 +12,12 @@
 
 from six.moves.urllib_parse import unquote_plus
 
-import xbmc  # pylint: disable=import-error
-import xbmcgui  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import PrintDebug
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
+from ..addon.strings import i18n
 from ..addon.utils import get_xml
 from ..plex import plex
 

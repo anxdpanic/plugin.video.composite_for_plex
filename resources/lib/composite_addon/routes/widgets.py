@@ -9,16 +9,18 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ..addon.common import MODES
-from ..addon.common import SETTINGS
 from ..addon.common import get_handle
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.constants import MODES
+from ..addon.settings import AddonSettings
+from ..addon.strings import i18n
 from ..addon.utils import create_gui_item
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def run(url):

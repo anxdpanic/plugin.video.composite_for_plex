@@ -10,14 +10,14 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
+from . import SETTINGS
 from .episodes import process_episodes
-from ...addon.common import CONFIG
-from ...addon.common import SETTINGS
-from ...addon.common import PrintDebug
 from ...addon.common import get_handle
+from ...addon.constants import CONFIG
 from ...addon.items.season import create_season_item
+from ...addon.logger import PrintDebug
 from ...addon.utils import get_xml
 from ...plex import plex
 

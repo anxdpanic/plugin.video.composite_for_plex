@@ -16,24 +16,25 @@ import random
 from six.moves import range
 from six.moves.urllib_parse import unquote
 
-import xbmc  # pylint: disable=import-error
-import xbmcgui  # pylint: disable=import-error
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import SETTINGS
-from .common import PrintDebug
-from .common import StreamControl
-from .common import encode_utf8
 from .common import get_handle
-from .common import i18n
 from .common import write_pickled
+from .constants import CONFIG
+from .constants import StreamControl
+from .logger import PrintDebug
+from .settings import AddonSettings
+from .strings import encode_utf8
+from .strings import i18n
 from .items.track import create_track_item
 from .utils import get_xml
 from .utils import get_thumb_image
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def monitor_channel_transcode_playback(session_id, server):

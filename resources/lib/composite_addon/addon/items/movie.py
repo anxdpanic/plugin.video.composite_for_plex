@@ -12,12 +12,12 @@
 
 import datetime
 
-from ...addon.common import CONFIG
-from ...addon.common import MODES
-from ...addon.common import SETTINGS
-from ...addon.common import PrintDebug
-from ...addon.common import encode_utf8
-from ...addon.common import i18n
+from ...addon.constants import CONFIG
+from ...addon.constants import MODES
+from ...addon.logger import PrintDebug
+from ...addon.settings import AddonSettings
+from ...addon.strings import encode_utf8
+from ...addon.strings import i18n
 from ...addon.utils import create_gui_item
 from ...addon.utils import build_context_menu
 from ...addon.utils import get_thumb_image
@@ -25,6 +25,7 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_media_data
 
 LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def create_movie_item(server, tree, url, movie):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches

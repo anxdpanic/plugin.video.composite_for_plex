@@ -17,17 +17,18 @@ from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlparse
 
-import xbmcgui  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import SETTINGS
-from ..addon.common import PrintDebug
-from ..addon.common import encode_utf8
 from ..addon.common import get_argv
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
+from ..addon.settings import AddonSettings
+from ..addon.strings import encode_utf8
+from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def get_master_server(all_servers=False, plex_network=None):

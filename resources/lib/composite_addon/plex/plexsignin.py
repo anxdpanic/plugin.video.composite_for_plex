@@ -10,17 +10,16 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import PrintDebug
-from ..addon.common import decode_utf8
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
+from ..addon.strings import i18n
 
 LOG = PrintDebug(CONFIG['name'], 'plex_signin')
-MEDIA_PATH = decode_utf8(xbmc.translatePath(CONFIG['media_path']))
+MEDIA_PATH = xbmc.translatePath(CONFIG['media_path'])
 
 
 # noinspection PyAttributeOutsideInit

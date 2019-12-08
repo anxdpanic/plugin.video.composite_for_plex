@@ -11,14 +11,15 @@
 
 import os
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
 from . import cache_control
-from .common import CONFIG
-from .common import SETTINGS
-from .common import decode_utf8
+from .constants import CONFIG
+from .settings import AddonSettings
+
+__SETTINGS = AddonSettings(CONFIG['id'])
 
 DATA_CACHE = cache_control.CacheControl(
-    decode_utf8(xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'data'))),
-    SETTINGS.get_setting('cache')
+    xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'data')),
+    __SETTINGS.get_setting('cache')
 )

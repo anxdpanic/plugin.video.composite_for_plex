@@ -12,14 +12,14 @@
 
 import time
 
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ...addon.common import CONFIG
-from ...addon.common import SETTINGS
-from ...addon.common import PrintDebug
+from . import SETTINGS
 from ...addon.common import get_handle
+from ...addon.constants import CONFIG
 from ...addon.items.movie import create_movie_item
 from ...addon.items.track import create_track_item
+from ...addon.logger import PrintDebug
 from ...addon.utils import get_xml
 from ...plex import plex
 

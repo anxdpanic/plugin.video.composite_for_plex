@@ -11,18 +11,19 @@
 
 import threading
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import StreamControl
-from .common import PrintDebug
-from .common import encode_utf8
-from .common import i18n
 from .common import read_pickled
-from .common import SETTINGS
+from .constants import CONFIG
+from .constants import StreamControl
+from .logger import PrintDebug
+from .settings import AddonSettings
+from .strings import encode_utf8
+from .strings import i18n
 from .up_next import UpNext
 
 LOG = PrintDebug(CONFIG['name'], 'player')
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 class PlaybackMonitorThread(threading.Thread):
