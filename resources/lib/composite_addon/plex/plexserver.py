@@ -557,7 +557,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def processed_xml(self, url):
         cache_name = DATA_CACHE.sha512_cache_name('processed_xml', self.get_uuid(), url)
         is_valid, result = DATA_CACHE.check_cache(cache_name, SETTINGS.data_cache_ttl())
-        if is_valid and result:
+        if is_valid and result is not None:
             return result
 
         if url.startswith('http'):
