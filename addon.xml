@@ -21,6 +21,7 @@
     *** https://kodi.wiki/view/Adding_video_sources
     *** Will not have support for most Plex features
     *** Watched status is not imported to Kodi's library, Plex's watched status will still be updated on playback
+[add] Settings - Cache - Data Cache, to enable or disable the use of data caching
 [upd] refactor items and processing into smaller pieces
 [upd] refactor common, constants, and logging
         </news>

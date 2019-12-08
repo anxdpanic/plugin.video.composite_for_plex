@@ -21,5 +21,5 @@ __SETTINGS = AddonSettings(CONFIG['id'])
 
 DATA_CACHE = cache_control.CacheControl(
     xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'data')),
-    __SETTINGS.get_setting('cache')
+    __SETTINGS.get_setting('data_cache')
 )
