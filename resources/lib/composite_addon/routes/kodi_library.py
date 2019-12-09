@@ -26,7 +26,6 @@ from ..addon.items.show import create_show_item
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run(params):  # pylint: disable=too-many-branches
@@ -41,8 +40,6 @@ def run(params):  # pylint: disable=too-many-branches
 
     kodi_action = params.get('kodi_action')
 
-    PLEX_NETWORK.load()
-
     if kodi_action == 'check_exists' and params.get('url'):
         exists = False
         if not _has_source(content_type):
@@ -50,7 +47,8 @@ def run(params):  # pylint: disable=too-many-branches
             xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
             return
 
-        server = PLEX_NETWORK.get_server_from_url(params.get('url'))
+        plex_network = plex.Plex(load=True)
+        server = plex_network.get_server_from_url(params.get('url'))
         if server:
             tree = server.processed_xml(params.get('url'))
             exists = tree is not None and not tree.get('message') and tree.get('size', '0') != '0'
@@ -64,12 +62,14 @@ def run(params):  # pylint: disable=too-many-branches
 
     elif kodi_action == 'refresh_info' and params.get('url'):
         LOG.debug('refresh info for %s' % params.get('url'))
-        server = PLEX_NETWORK.get_server_from_url(params.get('url'))
+        plex_network = plex.Plex(load=True)
+        server = plex_network.get_server_from_url(params.get('url'))
         _list_content(server, params.get('url'))
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
     else:
-        server_list = PLEX_NETWORK.get_server_list()
+        plex_network = plex.Plex(load=True)
+        server_list = plex_network.get_server_list()
         LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 
         for server in server_list:
