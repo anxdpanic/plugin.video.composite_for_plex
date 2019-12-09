@@ -16,6 +16,6 @@ from ..plex import plex
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(url, rating_key=None):
+def run(url, rating_key=None, library=False):
     PLEX_NETWORK.load()
-    process_episodes(url, rating_key=rating_key, plex_network=PLEX_NETWORK)
+    process_episodes(url, rating_key=rating_key, plex_network=PLEX_NETWORK, library=library)

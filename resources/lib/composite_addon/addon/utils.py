@@ -73,13 +73,20 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
 
     is_file = url.startswith('cmd:')
 
+    path_mode = extra_data.get('path_mode')
+    plugin_url = get_argv()[0]
+    url_parts = urlparse(plugin_url)
+    plugin_url = 'plugin://%s/' % url_parts.netloc
+    if path_mode and '/' in path_mode:
+        plugin_url += path_mode.rstrip('/') + '/'
+
     # Create the URL to pass to the item
     if not folder and extra_data['type'] == 'image':
         link_url = url
     elif url.startswith('http') or url.startswith('file'):
-        link_url = '%s?url=%s&mode=%s' % (get_argv()[0], quote(url), extra_data.get('mode', 0))
+        link_url = '%s?url=%s&mode=%s' % (plugin_url, quote(url), extra_data.get('mode', 0))
     else:
-        link_url = '%s?url=%s&mode=%s' % (get_argv()[0], url, extra_data.get('mode', 0))
+        link_url = '%s?url=%s&mode=%s' % (plugin_url, url, extra_data.get('mode', 0))
 
     if extra_data.get('parameters'):
         for argument, value in extra_data.get('parameters').items():

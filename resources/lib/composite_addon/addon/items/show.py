@@ -30,7 +30,7 @@ LOG = PrintDebug(CONFIG['name'])
 SETTINGS = AddonSettings(CONFIG['id'])
 
 
-def create_show_item(server, url, show, md5_hash=False):
+def create_show_item(server, url, show, library=False):
     temp_genre = []
 
     for child in show:
@@ -91,9 +91,10 @@ def create_show_item(server, url, show, md5_hash=False):
     else:
         context = None
 
-    if md5_hash:
+    if library:
         extra_data['hash'] = \
             _md5_all_episodes(server, extra_data['key'], details.get('TVShowTitle', ''))
+        extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     return create_gui_item(item_url, details, extra_data, context)
 

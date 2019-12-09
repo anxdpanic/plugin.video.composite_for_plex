@@ -23,7 +23,7 @@ from ...plex import plex
 LOG = PrintDebug(CONFIG['name'])
 
 
-def process_episodes(url, tree=None, rating_key=None, plex_network=None):
+def process_episodes(url, tree=None, rating_key=None, plex_network=None, library=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -58,7 +58,7 @@ def process_episodes(url, tree=None, rating_key=None, plex_network=None):
     items = []
     show_tags = tree.findall('Video')
     for episode in show_tags:
-        items.append(create_episode_item(server, tree, url, episode))
+        items.append(create_episode_item(server, tree, url, episode, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

@@ -27,7 +27,7 @@ LOG = PrintDebug(CONFIG['name'])
 SETTINGS = AddonSettings(CONFIG['id'])
 
 
-def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+def create_episode_item(server, tree, url, episode, library=False):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     temp_genre = []
     temp_cast = []
     temp_director = []
@@ -170,6 +170,9 @@ def create_episode_item(server, tree, url, episode):  # pylint: disable=too-many
         context = None
 
     extra_data['mode'] = MODES.PLAYLIBRARY
+    if library:
+        extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
+
     item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     return create_gui_item(item_url, details, extra_data, context, folder=False)

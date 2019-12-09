@@ -9,15 +9,18 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from xml.etree import ElementTree
+
+from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmcvfs  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import CONFIG
+from ..addon.constants import MODES
 from ..addon.logger import PrintDebug
-from ..addon.items.episode import create_episode_item
 from ..addon.items.movie import create_movie_item
-from ..addon.items.season import create_season_item
 from ..addon.items.show import create_show_item
 
 from ..plex import plex
@@ -26,14 +29,15 @@ LOG = PrintDebug(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(params):
+def run(params):  # pylint: disable=too-many-branches
     del params['command']  # remove unrelated param
 
     content_type = None
-    if params['mode'].endswith('movies'):
-        content_type = 'movie'
-    elif params['mode'].endswith('tvshows'):
-        content_type = 'show'
+    if params.get('path_mode'):
+        if params['path_mode'].endswith('movies'):
+            content_type = 'movie'
+        elif params['path_mode'].endswith('tvshows'):
+            content_type = 'show'
 
     kodi_action = params.get('kodi_action')
 
@@ -41,6 +45,11 @@ def run(params):
 
     if kodi_action == 'check_exists' and params.get('url'):
         exists = False
+        if not _has_source(content_type):
+            LOG.debug('check_exists for %s -> %s, path removed' % (params.get('url'), exists))
+            xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
+            return
+
         server = PLEX_NETWORK.get_server_from_url(params.get('url'))
         if server:
             tree = server.processed_xml(params.get('url'))
@@ -49,8 +58,9 @@ def run(params):
         xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
 
     elif kodi_action == 'check_exists':
-        LOG.debug('check_exists for %s' % content_type)
-        xbmcplugin.setResolvedUrl(get_handle(), True, xbmcgui.ListItem())
+        exists = _has_source(content_type)
+        LOG.debug('check_exists for %s -> %s' % (content_type, exists))
+        xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
 
     elif kodi_action == 'refresh_info' and params.get('url'):
         LOG.debug('refresh info for %s' % params.get('url'))
@@ -86,13 +96,37 @@ def _list_content(server, url):
 
     for content in tags:
         if content.get('type') == 'show':
-            items.append(create_show_item(server, url, content, md5_hash=True))
-        elif content.get('type') == 'season':
-            items.append(create_season_item(server, tree, content))
-        elif content.get('type') == 'episode':
-            items.append(create_episode_item(server, tree, url, content))
+            items.append(create_show_item(server, url, content, library=True))
         elif content.get('type') == 'movie':
-            items.append(create_movie_item(server, tree, url, content))
+            items.append(create_movie_item(server, tree, url, content, library=True))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
+
+
+def _has_source(content_type):
+    if xbmcvfs.exists('special://userdata/sources.xml'):
+        movie_path = 'plugin://%s/%s' % (CONFIG['id'], MODES.TXT_MOVIES_LIBRARY)
+        show_path = 'plugin://%s/%s' % (CONFIG['id'], MODES.TXT_TVSHOWS_LIBRARY)
+
+        sources = []
+        video_tree = None
+
+        tree = ElementTree.parse(xbmc.translatePath('special://userdata/sources.xml'))
+        if tree is not None:
+            root = tree.getroot()
+            video_tree = root.find('video')
+
+        if video_tree is not None:
+            sources = video_tree.findall('source')
+
+        if sources:
+            for source in sources:
+                path = source.find('path')
+                if path is not None:
+                    if content_type == 'movie' and path.text.rstrip('/') == movie_path:
+                        return True
+                    if content_type == 'show' and path.text.rstrip('/') == show_path:
+                        return True
+
+    return False

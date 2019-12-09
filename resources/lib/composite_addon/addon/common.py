@@ -90,11 +90,11 @@ def get_params():  # pylint: disable=too-many-branches
 
     params['command'] = command
 
-    if params.get('mode') is None and not params.get('server_uuid'):
-        plugin_url = get_argv()[0]
-        path_mode = plugin_url.replace('plugin://%s/' % CONFIG['id'], '').rstrip('/')
-        if path_mode:
-            params['mode'] = path_mode
+    params['path_mode'] = None
+    plugin_url = get_argv()[0]
+    path_mode = plugin_url.replace('plugin://%s/' % CONFIG['id'], '').rstrip('/')
+    if path_mode:
+        params['path_mode'] = path_mode
 
     LOG.debug('Parameters |%s| -> |%s|' % (param_string, str(params)))
     return params
