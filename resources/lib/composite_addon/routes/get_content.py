@@ -13,14 +13,14 @@
 from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import unquote
 
-import xbmc  # pylint: disable=import-error
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import MODES
-from ..addon.common import PrintDebug
 from ..addon.common import get_handle
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.constants import MODES
+from ..addon.logger import PrintDebug
+from ..addon.strings import i18n
 from ..addon.processing.artists import process_artists
 from ..addon.processing.albums import process_albums
 from ..addon.processing.tracks import process_tracks

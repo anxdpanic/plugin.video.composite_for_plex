@@ -22,27 +22,25 @@ from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
 
-import xbmc  # pylint: disable=import-error
-import xbmcgui  # pylint: disable=import-error
-
-from ..addon.common import CONFIG
-from ..addon.common import PrintDebug
-from ..addon.common import decode_utf8
-from ..addon.common import encode_utf8
-from ..addon.common import get_platform_ip
-from ..addon.common import i18n
-from ..addon.common import is_ip
-from ..addon.common import SETTINGS
+from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon import cache_control
-
+from ..addon.common import get_platform_ip
+from ..addon.common import is_ip
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
+from ..addon.settings import AddonSettings
+from ..addon.strings import encode_utf8
+from ..addon.strings import i18n
 from .plexcommon import get_client_identifier
 from .plexcommon import create_plex_identification
 from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
-LOG = PrintDebug(CONFIG['name'], 'plex')
 DEFAULT_PORT = '32400'
+LOG = PrintDebug(CONFIG['name'], 'plex')
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
@@ -51,7 +49,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
         # Provide an interface into Plex
         self.cache = cache_control.CacheControl(
-            decode_utf8(xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'servers'))),
+            xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'servers')),
             SETTINGS.get_setting('cache')
         )
         self.myplex_server = 'https://plex.tv'

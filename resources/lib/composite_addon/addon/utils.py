@@ -17,17 +17,18 @@ from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlparse
 
-import xbmcgui  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import SETTINGS
-from ..addon.common import PrintDebug
-from ..addon.common import encode_utf8
 from ..addon.common import get_argv
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
+from ..addon.settings import AddonSettings
+from ..addon.strings import encode_utf8
+from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def get_master_server(all_servers=False, plex_network=None):
@@ -72,13 +73,20 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
 
     is_file = url.startswith('cmd:')
 
+    path_mode = extra_data.get('path_mode')
+    plugin_url = get_argv()[0]
+    url_parts = urlparse(plugin_url)
+    plugin_url = 'plugin://%s/' % url_parts.netloc
+    if path_mode and '/' in path_mode:
+        plugin_url += path_mode.rstrip('/') + '/'
+
     # Create the URL to pass to the item
     if not folder and extra_data['type'] == 'image':
         link_url = url
     elif url.startswith('http') or url.startswith('file'):
-        link_url = '%s?url=%s&mode=%s' % (get_argv()[0], quote(url), extra_data.get('mode', 0))
+        link_url = '%s?url=%s&mode=%s' % (plugin_url, quote(url), extra_data.get('mode', 0))
     else:
-        link_url = '%s?url=%s&mode=%s' % (get_argv()[0], url, extra_data.get('mode', 0))
+        link_url = '%s?url=%s&mode=%s' % (plugin_url, url, extra_data.get('mode', 0))
 
     if extra_data.get('parameters'):
         for argument, value in extra_data.get('parameters').items():

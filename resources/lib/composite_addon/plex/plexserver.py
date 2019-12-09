@@ -29,15 +29,15 @@ from . import plexsection
 from .plexcommon import get_client_identifier
 from .plexcommon import get_device_name
 from .plexcommon import create_plex_identification
-from ..addon.common import CONFIG
-from ..addon.common import PrintDebug
-from ..addon.common import encode_utf8
-from ..addon.common import SETTINGS
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
+from ..addon.settings import AddonSettings
+from ..addon.strings import encode_utf8
 from ..addon.data_cache import DATA_CACHE
 
-LOG = PrintDebug(CONFIG['name'], 'plexserver')
-
 DEFAULT_PORT = '32400'
+LOG = PrintDebug(CONFIG['name'], 'plexserver')
+SETTINGS = AddonSettings(CONFIG['id'])
 
 LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)
 
@@ -557,7 +557,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def processed_xml(self, url):
         cache_name = DATA_CACHE.sha512_cache_name('processed_xml', self.get_uuid(), url)
         is_valid, result = DATA_CACHE.check_cache(cache_name, SETTINGS.data_cache_ttl())
-        if is_valid and result:
+        if is_valid and result is not None:
             return result
 
         if url.startswith('http'):

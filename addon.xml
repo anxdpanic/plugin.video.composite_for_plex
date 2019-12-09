@@ -2,6 +2,7 @@
 <addon id="plugin.video.composite_for_plex" name="Composite" version="0.2.1" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
+        <import addon="script.module.kodi-six" version="0.0.2"/>
         <import addon="script.module.six" version="1.11.0"/>
         <import addon="script.module.requests" version="2.12.4"/>
         <import addon="script.module.pyxbmct" version="1.2.0"/>
@@ -19,12 +20,13 @@
     - TV Shows: add video source - plugin://plugin.video.composite_for_plex/library/tvshows/
     *** https://kodi.wiki/view/Adding_video_sources
     *** Will not have support for most Plex features
-    *** Watched status is not imported to Kodi's library, Plex's watched status will still be updated on playback
+[add] Settings - Cache - Data Cache, to enable or disable the use of data caching
 [upd] refactor items and processing into smaller pieces
+[upd] refactor common, constants, and logging
         </news>
         <assets>
-            <icon>icon.png</icon>
-            <fanart>fanart.png</fanart>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.png</fanart>
         </assets>
         <platform>all</platform>
         <license>GPL-2.0-or-later</license>

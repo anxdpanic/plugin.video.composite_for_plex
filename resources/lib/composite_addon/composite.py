@@ -10,23 +10,26 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import platform
 import sys
 import time
 
-from .addon.common import COMMANDS
-from .addon.common import CONFIG
-from .addon.common import MODES
-from .addon.common import SETTINGS
-from .addon.common import STREAM_CONTROL_SETTING
-from .addon.common import PrintDebug
 from .addon.common import get_params
-from .addon.common import wake_servers
+from .addon.constants import COMMANDS
+from .addon.constants import CONFIG
+from .addon.constants import MODES
+from .addon.constants import STREAM_CONTROL_SETTING
+from .addon.logger import PrintDebug
+from .addon.settings import AddonSettings
 
 LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-return-statements
-    wake_servers()
+    if SETTINGS.get_setting('wolon'):
+        from .addon.wol import wake_servers  # pylint: disable=import-outside-toplevel
+        wake_servers()
 
     params = get_params()
 
@@ -36,7 +39,9 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         mode = params.get('mode')
 
     command = params.get('command', COMMANDS.UNSET)
+    path_mode = params.get('path_mode')
 
+    library = path_mode is not None and path_mode.startswith('library/')
     media_id = params.get('media_id')
     server_uuid = params.get('server_uuid')
 
@@ -44,7 +49,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     LOG.debug('%s %s: Kodi %s on %s with Python %s' %
               (CONFIG['name'], CONFIG['version'], CONFIG['kodi_version'],
-               CONFIG['platform'], '.'.join([str(i) for i in sys.version_info])),
+               platform.uname()[0], '.'.join([str(i) for i in sys.version_info])),
               no_privacy=True)  # force no privacy to avoid redacting version strings
 
     LOG.debug('Mode |%s| Command |%s| Url |%s| Parameters |%s| Server UUID |%s| Media Id |%s|'
@@ -151,7 +156,8 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         trakttokodi.run(params)
         return _finished(start_time)
 
-    if mode in [MODES.TXT_MOVIES_LIBRARY, MODES.TXT_TVSHOWS_LIBRARY] or params.get('kodi_action'):
+    if ((path_mode in [MODES.TXT_MOVIES_LIBRARY, MODES.TXT_TVSHOWS_LIBRARY] and
+         (mode is None or mode == MODES.UNSET)) or params.get('kodi_action')):
         from .routes import kodi_library  # pylint: disable=import-outside-toplevel
         kodi_library.run(params)
         return _finished(start_time)
@@ -187,7 +193,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.TVSEASONS:
         from .routes import process_seasons  # pylint: disable=import-outside-toplevel
-        process_seasons.run(url, rating_key=params.get('rating_key'))
+        process_seasons.run(url, rating_key=params.get('rating_key'), library=library)
         return _finished(start_time)
 
     if mode == MODES.PLAYLIBRARY:
@@ -199,7 +205,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.TVEPISODES:
         from .routes import process_episodes  # pylint: disable=import-outside-toplevel
-        process_episodes.run(url, rating_key=params.get('rating_key'))
+        process_episodes.run(url, rating_key=params.get('rating_key'), library=library)
         return _finished(start_time)
 
     if mode == MODES.PLEXPLUGINS:

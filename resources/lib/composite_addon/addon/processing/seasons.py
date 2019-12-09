@@ -10,21 +10,21 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
+from . import SETTINGS
 from .episodes import process_episodes
-from ...addon.common import CONFIG
-from ...addon.common import SETTINGS
-from ...addon.common import PrintDebug
 from ...addon.common import get_handle
+from ...addon.constants import CONFIG
 from ...addon.items.season import create_season_item
+from ...addon.logger import PrintDebug
 from ...addon.utils import get_xml
 from ...plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
 
 
-def process_seasons(url, rating_key=None, plex_network=None):
+def process_seasons(url, rating_key=None, plex_network=None, library=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -61,7 +61,7 @@ def process_seasons(url, rating_key=None, plex_network=None):
         if SETTINGS.get_setting('disable_all_season') and season.get('index') is None:
             continue
 
-        items.append(create_season_item(server, tree, season))
+        items.append(create_season_item(server, tree, season, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

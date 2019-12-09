@@ -15,6 +15,27 @@ import struct
 
 from six.moves import range
 
+from .constants import CONFIG
+from .settings import AddonSettings
+from .logger import PrintDebug
+
+LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
+
+
+def wake_servers():
+    if SETTINGS.get_setting('wolon'):
+        LOG.debug('Wake On LAN: true')
+        for mac_address in SETTINGS.get_wakeservers():
+            if mac_address:
+                try:
+                    LOG.debug('Waking server with MAC: %s' % mac_address)
+                    wake_on_lan(mac_address)
+                except ValueError:
+                    LOG.debug('Incorrect MAC address format for server %s' % mac_address)
+                except:  # pylint: disable=bare-except
+                    LOG.debug('Unknown wake on lan error')
+
 
 def wake_on_lan(mac_address):
     """ Switches on remote computers using WOL. """

@@ -9,6 +9,15 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from six import PY3
+
+from kodi_six import xbmc  # pylint: disable=import-error
+
+from .constants import CONFIG
+from .logger import PrintDebug
+
+__LOG = PrintDebug(CONFIG['name'])
+
 STRINGS = {
     # core
     'Delete': 117,
@@ -153,3 +162,33 @@ STRINGS = {
     'Recently Added Movies': 30701,
     'Recently Added TV Shows': 30702,
 }
+
+
+def decode_utf8(string):
+    try:
+        return string.decode('utf-8')
+    except AttributeError:
+        return string
+
+
+def encode_utf8(string, py2_only=True):
+    if py2_only and PY3:
+        return string
+    return string.encode('utf-8')
+
+
+def i18n(string_id):
+    mapped_string_id = STRINGS.get(string_id)
+    if mapped_string_id:
+        string_id = mapped_string_id
+
+    try:
+        core = int(string_id) < 30000
+    except ValueError:
+        __LOG.debug('Failed to map translation, returning id ...')
+        return string_id
+
+    if core:
+        return encode_utf8(xbmc.getLocalizedString(string_id))
+
+    return encode_utf8(CONFIG['addon'].getLocalizedString(string_id))

@@ -14,10 +14,10 @@ import json
 
 from six.moves.urllib_parse import urlencode
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import PrintDebug
+from .constants import CONFIG
+from .logger import PrintDebug
 from .common import wait_for_busy_dialog
 
 

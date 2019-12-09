@@ -14,10 +14,10 @@ import json
 
 from six.moves import range
 
-import xbmc  # pylint: disable=import-error
-import xbmcaddon  # pylint: disable=import-error
-import xbmcgui  # pylint: disable=import-error
-import xbmcvfs  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcaddon  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
+from kodi_six import xbmcvfs  # pylint: disable=import-error
 
 
 class AddonSettings:

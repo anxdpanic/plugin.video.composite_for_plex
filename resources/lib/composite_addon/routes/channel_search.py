@@ -13,12 +13,12 @@
 from six.moves.urllib_parse import unquote
 from six.moves.urllib_parse import quote
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import PrintDebug
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
 from ..addon.processing.plex_plugins import process_plex_plugins
+from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])

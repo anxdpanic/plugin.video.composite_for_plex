@@ -15,17 +15,17 @@ import xml.etree.ElementTree as ETree
 from six import PY3
 from six.moves.urllib_parse import unquote
 
-import xbmc  # pylint: disable=import-error
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import PrintDebug
-from ..addon.common import decode_utf8
 from ..addon.common import get_handle
 from ..addon.common import wait_for_busy_dialog
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
 from ..addon.playback import play_media_id_from_uuid
 from ..addon.processing.episodes import process_episodes
 from ..addon.processing.seasons import process_seasons
+from ..addon.strings import decode_utf8
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])

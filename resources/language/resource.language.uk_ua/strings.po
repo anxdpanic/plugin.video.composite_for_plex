@@ -1165,3 +1165,7 @@ msgstr ""
 msgctxt "#30702"
 msgid "Recently Added TV Shows"
 msgstr ""
+
+msgctxt "#30703"
+msgid "Data Cache"
+msgstr ""

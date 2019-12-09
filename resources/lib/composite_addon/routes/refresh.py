@@ -10,10 +10,13 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
+from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
-from ..addon.common import SETTINGS
+from ..addon.settings import AddonSettings
+
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def run():

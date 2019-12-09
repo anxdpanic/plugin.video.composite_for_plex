@@ -10,17 +10,17 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmcplugin  # pylint: disable=import-error
 
+from . import SETTINGS
 from .episodes import process_episodes
 from .movies import process_movies
-from ...addon.common import MODES
-from ...addon.common import SETTINGS
-from ...addon.common import encode_utf8
 from ...addon.common import get_handle
-from ...addon.common import i18n
+from ...addon.constants import MODES
 from ...addon.items.playlist import create_playlist_item
 from ...addon.items.track import create_track_item
+from ...addon.strings import encode_utf8
+from ...addon.strings import i18n
 from ...addon.utils import create_gui_item
 from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image

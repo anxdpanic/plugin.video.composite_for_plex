@@ -9,10 +9,12 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from .common import CONFIG
-from .common import SETTINGS
-from .common import PrintDebug
 from .common import notify_all
+from .constants import CONFIG
+from .logger import PrintDebug
+from .settings import AddonSettings
+
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 class UpNext:

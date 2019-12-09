@@ -10,18 +10,21 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ...addon.common import MODES
-from ...addon.common import SETTINGS
-from ...addon.common import encode_utf8
-from ...addon.common import i18n
+from ...addon.constants import CONFIG
+from ...addon.constants import MODES
+from ...addon.settings import AddonSettings
+from ...addon.strings import encode_utf8
+from ...addon.strings import i18n
 from ...addon.utils import create_gui_item
 from ...addon.utils import build_context_menu
 from ...addon.utils import get_banner_image
 from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
+SETTINGS = AddonSettings(CONFIG['id'])
 
-def create_season_item(server, tree, season):
+
+def create_season_item(server, tree, season, library=False):
     plot = encode_utf8(tree.get('summary', ''))
 
     _watched = int(season.get('viewedLeafCount', 0))
@@ -74,6 +77,9 @@ def create_season_item(server, tree, season):
         context = build_context_menu(item_url, season, server)
     else:
         context = None
+
+    if library:
+        extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     # Build the screen directory listing
     return create_gui_item(item_url, details, extra_data, context)

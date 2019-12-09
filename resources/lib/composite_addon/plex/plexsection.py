@@ -10,9 +10,9 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ..addon.common import encode_utf8
-from ..addon.common import i18n
-from ..addon.common import MODES
+from ..addon.constants import MODES
+from ..addon.strings import encode_utf8
+from ..addon.strings import i18n
 
 
 class PlexSection:

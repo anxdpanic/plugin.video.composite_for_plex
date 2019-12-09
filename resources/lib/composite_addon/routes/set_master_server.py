@@ -10,17 +10,18 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import xbmcgui  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from ..addon.common import CONFIG
-from ..addon.common import SETTINGS
-from ..addon.common import PrintDebug
-from ..addon.common import i18n
+from ..addon.constants import CONFIG
+from ..addon.logger import PrintDebug
+from ..addon.settings import AddonSettings
+from ..addon.strings import i18n
 from ..addon.utils import get_master_server
 from ..plex import plex
 
 LOG = PrintDebug(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def run():

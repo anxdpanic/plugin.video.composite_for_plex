@@ -14,12 +14,12 @@ import hashlib
 
 from six.moves.urllib_parse import quote_plus
 
-from ...addon.common import CONFIG
-from ...addon.common import MODES
-from ...addon.common import SETTINGS
-from ...addon.common import PrintDebug
-from ...addon.common import encode_utf8
-from ...addon.common import i18n
+from ...addon.constants import CONFIG
+from ...addon.constants import MODES
+from ...addon.logger import PrintDebug
+from ...addon.settings import AddonSettings
+from ...addon.strings import encode_utf8
+from ...addon.strings import i18n
 from ...addon.utils import create_gui_item
 from ...addon.utils import build_context_menu
 from ...addon.utils import get_banner_image
@@ -27,9 +27,10 @@ from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
 LOG = PrintDebug(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
-def create_show_item(server, url, show, md5_hash=False):
+def create_show_item(server, url, show, library=False):
     temp_genre = []
 
     for child in show:
@@ -90,9 +91,10 @@ def create_show_item(server, url, show, md5_hash=False):
     else:
         context = None
 
-    if md5_hash:
+    if library:
         extra_data['hash'] = \
             _md5_all_episodes(server, extra_data['key'], details.get('TVShowTitle', ''))
+        extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     return create_gui_item(item_url, details, extra_data, context)
 

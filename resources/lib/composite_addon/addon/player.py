@@ -11,18 +11,19 @@
 
 import threading
 
-import xbmc  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
-from .common import CONFIG
-from .common import StreamControl
-from .common import PrintDebug
-from .common import encode_utf8
-from .common import i18n
 from .common import read_pickled
-from .common import SETTINGS
+from .constants import CONFIG
+from .constants import StreamControl
+from .logger import PrintDebug
+from .settings import AddonSettings
+from .strings import encode_utf8
+from .strings import i18n
 from .up_next import UpNext
 
 LOG = PrintDebug(CONFIG['name'], 'player')
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 class PlaybackMonitorThread(threading.Thread):
@@ -238,15 +239,16 @@ class CallbackPlayer(xbmc.Player):
         elif not playback_dict:
             self.LOG('Playback monitoring failed to start, missing required {} ...')
 
-        full_data = playback_dict.get('streams', {}).get('full_data', {})
-        media_type = full_data.get('mediatype', '').lower()
-        if SETTINGS.use_up_next() and media_type == 'episode':
-            self.LOG('Using Up Next ...')
-            UpNext(server=playback_dict.get('server'),
-                   media_id=playback_dict.get('media_id'),
-                   callback_args=playback_dict.get('callback_args', {})).run()
-        else:
-            self.LOG('Up Next is disabled ...')
+        if playback_dict:
+            full_data = playback_dict.get('streams', {}).get('full_data', {})
+            media_type = full_data.get('mediatype', '').lower()
+            if SETTINGS.use_up_next() and media_type == 'episode':
+                self.LOG('Using Up Next ...')
+                UpNext(server=playback_dict.get('server'),
+                       media_id=playback_dict.get('media_id'),
+                       callback_args=playback_dict.get('callback_args', {})).run()
+            else:
+                self.LOG('Up Next is disabled ...')
 
     def onPlayBackEnded(self):  # pylint: disable=invalid-name
         self.stop_threads()
