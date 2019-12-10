@@ -13,13 +13,13 @@
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
-from ..addon.logger import PrintDebug
+from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import i18n
 from ..addon.utils import get_master_server
 from ..plex import plex
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 SETTINGS = AddonSettings(CONFIG['id'])
 

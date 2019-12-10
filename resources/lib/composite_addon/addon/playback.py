@@ -24,7 +24,7 @@ from .common import jsonrpc_play
 from .common import write_pickled
 from .constants import CONFIG
 from .constants import StreamControl
-from .logger import PrintDebug
+from .logger import Logger
 from .settings import AddonSettings
 from .strings import encode_utf8
 from .strings import i18n
@@ -33,7 +33,7 @@ from .utils import get_xml
 from .utils import get_thumb_image
 from ..plex import plex
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 SETTINGS = AddonSettings(CONFIG['id'])
 
 

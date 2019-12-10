@@ -19,11 +19,11 @@ from ...addon.common import get_handle
 from ...addon.constants import CONFIG
 from ...addon.items.movie import create_movie_item
 from ...addon.items.track import create_track_item
-from ...addon.logger import PrintDebug
+from ...addon.logger import Logger
 from ...addon.utils import get_xml
 from ...plex import plex
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 
 
 def process_movies(url, tree=None, plex_network=None):

@@ -30,13 +30,13 @@ from .plexcommon import get_client_identifier
 from .plexcommon import get_device_name
 from .plexcommon import create_plex_identification
 from ..addon.constants import CONFIG
-from ..addon.logger import PrintDebug
+from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
 from ..addon.data_cache import DATA_CACHE
 
 DEFAULT_PORT = '32400'
-LOG = PrintDebug(CONFIG['name'], 'plexserver')
+LOG = Logger(CONFIG['name'], 'plexserver')
 SETTINGS = AddonSettings(CONFIG['id'])
 
 LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)

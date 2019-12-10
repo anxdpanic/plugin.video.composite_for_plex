@@ -19,10 +19,10 @@ from .addon.constants import COMMANDS
 from .addon.constants import CONFIG
 from .addon.constants import MODES
 from .addon.constants import STREAM_CONTROL_SETTING
-from .addon.logger import PrintDebug
+from .addon.logger import Logger
 from .addon.settings import AddonSettings
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 SETTINGS = AddonSettings(CONFIG['id'])
 
 

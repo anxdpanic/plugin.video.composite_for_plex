@@ -17,9 +17,9 @@ from six.moves import range
 
 from .constants import CONFIG
 from .settings import AddonSettings
-from .logger import PrintDebug
+from .logger import Logger
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 SETTINGS = AddonSettings(CONFIG['id'])
 
 

@@ -22,10 +22,10 @@ import time
 from six.moves.urllib_request import urlopen
 
 from ..addon.constants import CONFIG
-from ..addon.logger import PrintDebug
+from ..addon.logger import Logger
 from ..addon.strings import encode_utf8
 
-LOG = PrintDebug(CONFIG['name'], 'PlexGDM')
+LOG = Logger(CONFIG['name'], 'PlexGDM')
 
 
 class PlexGDM:  # pylint: disable=too-many-instance-attributes

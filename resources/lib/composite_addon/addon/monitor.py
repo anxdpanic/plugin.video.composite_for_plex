@@ -18,11 +18,11 @@ from kodi_six import xbmc  # pylint: disable=import-error
 
 from .common import jsonrpc_play
 from .constants import CONFIG
-from .logger import PrintDebug
+from .logger import Logger
 
 
 class Monitor(xbmc.Monitor):
-    LOG = PrintDebug(CONFIG['name'], 'Monitor')
+    LOG = Logger(CONFIG['name'], 'Monitor')
 
     def __init__(self):
         """

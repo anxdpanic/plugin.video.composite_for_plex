@@ -28,12 +28,12 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from .constants import COMMANDS
 from .constants import CONFIG
-from .logger import PrintDebug
+from .logger import Logger
 
 __ID = 'plugin.video.composite_for_plex'
 __ADDON = xbmcaddon.Addon(id=__ID)
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 
 
 def get_argv():

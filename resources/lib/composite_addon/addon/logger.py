@@ -24,7 +24,7 @@ from .settings import AddonSettings
 SETTINGS = AddonSettings('plugin.video.composite_for_plex')
 
 
-class PrintDebug:
+class Logger:
     DEBUG_DEBUG = 0
     DEBUG_DEBUGPLUS = 1
     LOG_ERROR = 9

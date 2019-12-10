@@ -16,10 +16,10 @@ from . import SETTINGS
 from ...addon.common import get_handle
 from ...addon.constants import CONFIG
 from ...addon.items.directory import create_directory_item
-from ...addon.logger import PrintDebug
+from ...addon.logger import Logger
 from ...plex import plex
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 
 
 def process_directories(url, tree=None, plex_network=None):

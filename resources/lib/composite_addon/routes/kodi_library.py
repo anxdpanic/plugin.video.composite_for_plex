@@ -19,13 +19,13 @@ from kodi_six import xbmcvfs  # pylint: disable=import-error
 from ..addon.common import get_handle
 from ..addon.constants import CONFIG
 from ..addon.constants import MODES
-from ..addon.logger import PrintDebug
+from ..addon.logger import Logger
 from ..addon.items.movie import create_movie_item
 from ..addon.items.show import create_show_item
 
 from ..plex import plex
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 
 
 def run(params):  # pylint: disable=too-many-branches

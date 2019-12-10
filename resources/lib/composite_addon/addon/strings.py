@@ -14,9 +14,9 @@ from six import PY3
 from kodi_six import xbmc  # pylint: disable=import-error
 
 from .constants import CONFIG
-from .logger import PrintDebug
+from .logger import Logger
 
-__LOG = PrintDebug(CONFIG['name'])
+__LOG = Logger(CONFIG['name'])
 
 STRINGS = {
     # core

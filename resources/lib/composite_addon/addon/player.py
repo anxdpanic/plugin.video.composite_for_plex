@@ -16,18 +16,18 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from .common import read_pickled
 from .constants import CONFIG
 from .constants import StreamControl
-from .logger import PrintDebug
+from .logger import Logger
 from .settings import AddonSettings
 from .strings import encode_utf8
 from .strings import i18n
 from .up_next import UpNext
 
-LOG = PrintDebug(CONFIG['name'], 'player')
+LOG = Logger(CONFIG['name'], 'player')
 SETTINGS = AddonSettings(CONFIG['id'])
 
 
 class PlaybackMonitorThread(threading.Thread):
-    LOG = PrintDebug(CONFIG['name'], 'PlaybackMonitorThread')
+    LOG = Logger(CONFIG['name'], 'PlaybackMonitorThread')
     MONITOR = xbmc.Monitor()
     PLAYER = xbmc.Player()
 
@@ -180,7 +180,7 @@ class PlaybackMonitorThread(threading.Thread):
 
 
 class CallbackPlayer(xbmc.Player):
-    LOG = PrintDebug(CONFIG['name'], 'CallbackPlayer')
+    LOG = Logger(CONFIG['name'], 'CallbackPlayer')
 
     def __init__(self, window, *args, **kwargs):
         self.args = args
