@@ -137,26 +137,9 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
                 item_properties['AudioChannels'] = extra_data.get('AudioChannels', '')
                 item_properties['VideoAspect'] = extra_data.get('VideoAspect', '')
 
-                video_codec = {}
-                if extra_data.get('xbmc_VideoCodec'):
-                    video_codec['codec'] = extra_data.get('xbmc_VideoCodec')
-                if extra_data.get('xbmc_VideoAspect'):
-                    video_codec['aspect'] = float(extra_data.get('xbmc_VideoAspect'))
-                if extra_data.get('xbmc_height'):
-                    video_codec['height'] = int(extra_data.get('xbmc_height'))
-                if extra_data.get('xbmc_width'):
-                    video_codec['width'] = int(extra_data.get('xbmc_width'))
-                if extra_data.get('duration'):
-                    video_codec['duration'] = int(extra_data.get('duration'))
-
-                audio_codec = {}
-                if extra_data.get('xbmc_AudioCodec'):
-                    audio_codec['codec'] = extra_data.get('xbmc_AudioCodec')
-                if extra_data.get('xbmc_AudioChannels'):
-                    audio_codec['channels'] = int(extra_data.get('xbmc_AudioChannels'))
-
-                list_item.addStreamInfo('video', video_codec)
-                list_item.addStreamInfo('audio', audio_codec)
+                stream_info = extra_data.get('stream_info', {})
+                list_item.addStreamInfo('video', stream_info.get('video', {}))
+                list_item.addStreamInfo('audio', stream_info.get('audio', {}))
 
     if extra_data.get('source') == 'tvshows' or extra_data.get('source') == 'tvseasons':
         # Then set the number of watched and unwatched, which will be displayed per season
@@ -426,18 +409,28 @@ def get_media_data(tag_dict):
         @input: dict of <media /> tag attributes
         @output: dict of required values
     """
+    stream_info_video = {
+        'codec': tag_dict.get('videoCodec', ''),
+        'aspect': float(tag_dict.get('aspectRatio', '1.78')),
+        'height': int(tag_dict.get('height', 0)),
+        'width': int(tag_dict.get('width', 0)),
+        'duration': int(tag_dict.get('duration', 0)) / 1000
+    }
+    stream_info_audio = {
+        'codec': tag_dict.get('audioCodec', ''),
+        'channels': int(tag_dict.get('audioChannels', '2'))
+    }
+
     return {
         'VideoResolution': tag_dict.get('videoResolution', ''),
         'VideoCodec': tag_dict.get('videoCodec', ''),
         'AudioCodec': tag_dict.get('audioCodec', ''),
         'AudioChannels': tag_dict.get('audioChannels', ''),
         'VideoAspect': tag_dict.get('aspectRatio', ''),
-        'xbmc_height': tag_dict.get('height'),
-        'xbmc_width': tag_dict.get('width'),
-        'xbmc_VideoCodec': tag_dict.get('videoCodec'),
-        'xbmc_AudioCodec': tag_dict.get('audioCodec'),
-        'xbmc_AudioChannels': tag_dict.get('audioChannels'),
-        'xbmc_VideoAspect': tag_dict.get('aspectRatio')
+        'stream_info': {
+            'video': stream_info_video,
+            'audio': stream_info_audio,
+        },
     }
 
 
