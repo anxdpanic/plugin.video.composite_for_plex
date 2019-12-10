@@ -113,27 +113,28 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
     # Set the properties of the item, such as summary, name, season, etc
     list_item.setInfo(type=set_info_type, infoLabels=info_labels)
 
+    item_properties = {}
     # Music related tags
     if extra_data.get('type', '').lower() == 'music':
-        list_item.setProperty('Artist_Genre', details.get('genre', ''))
-        list_item.setProperty('Artist_Description', extra_data.get('plot', ''))
-        list_item.setProperty('Album_Description', extra_data.get('plot', ''))
+        item_properties['Artist_Genre'] = details.get('genre', '')
+        item_properties['Artist_Description'] = extra_data.get('plot', '')
+        item_properties['Album_Description'] = extra_data.get('plot', '')
 
     # For all end items
     if not folder:
-        list_item.setProperty('IsPlayable', 'true')
+        item_properties['IsPlayable'] = 'true'
 
         if extra_data.get('type', 'video').lower() == 'video':
-            list_item.setProperty('TotalTime', str(extra_data.get('duration')))
-            list_item.setProperty('ResumeTime', str(extra_data.get('resume')))
+            item_properties['TotalTime'] = str(extra_data.get('duration'))
+            item_properties['ResumeTime'] = str(extra_data.get('resume'))
 
             if not SETTINGS.get_setting('skipflags'):
                 LOG.debug('Setting VrR as : %s' % extra_data.get('VideoResolution', ''))
-                list_item.setProperty('VideoResolution', extra_data.get('VideoResolution', ''))
-                list_item.setProperty('VideoCodec', extra_data.get('VideoCodec', ''))
-                list_item.setProperty('AudioCodec', extra_data.get('AudioCodec', ''))
-                list_item.setProperty('AudioChannels', extra_data.get('AudioChannels', ''))
-                list_item.setProperty('VideoAspect', extra_data.get('VideoAspect', ''))
+                item_properties['VideoResolution'] = extra_data.get('VideoResolution', '')
+                item_properties['VideoCodec'] = extra_data.get('VideoCodec', '')
+                item_properties['AudioCodec'] = extra_data.get('AudioCodec', '')
+                item_properties['AudioChannels'] = extra_data.get('AudioChannels', '')
+                item_properties['VideoAspect'] = extra_data.get('VideoAspect', '')
 
                 video_codec = {}
                 if extra_data.get('xbmc_VideoCodec'):
@@ -158,14 +159,14 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
 
     if extra_data.get('source') == 'tvshows' or extra_data.get('source') == 'tvseasons':
         # Then set the number of watched and unwatched, which will be displayed per season
-        list_item.setProperty('TotalEpisodes', str(extra_data['TotalEpisodes']))
-        list_item.setProperty('WatchedEpisodes', str(extra_data['WatchedEpisodes']))
-        list_item.setProperty('UnWatchedEpisodes', str(extra_data['UnWatchedEpisodes']))
+        item_properties['TotalEpisodes'] = str(extra_data['TotalEpisodes'])
+        item_properties['WatchedEpisodes'] = str(extra_data['WatchedEpisodes'])
+        item_properties['UnWatchedEpisodes'] = str(extra_data['UnWatchedEpisodes'])
 
         # Hack to show partial flag for TV shows and seasons
         if extra_data.get('partialTV') == 1:
-            list_item.setProperty('TotalTime', '100')
-            list_item.setProperty('ResumeTime', '50')
+            item_properties['TotalTime'] = '100'
+            item_properties['ResumeTime'] = '50'
 
     # assign artwork
     fanart = extra_data.get('fanart_image', '')
@@ -185,7 +186,7 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
 
     if season_thumb:
         LOG.debug('Setting season Thumb as %s' % season_thumb)
-        list_item.setProperty('seasonThumb', '%s' % season_thumb)
+        item_properties['seasonThumb'] = '%s' % season_thumb
 
     list_item.setArt({
         'fanart': fanart,
@@ -205,14 +206,20 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
 
     if is_file:
         folder = False
-        list_item.setProperty('IsPlayable', 'false')
+        item_properties['IsPlayable'] = 'false'
 
     mediatype = details.get('mediatype')
     if mediatype:
-        list_item.setProperty('content_type', mediatype + 's')
+        item_properties['content_type'] = mediatype + 's'
 
     if extra_data.get('hash'):
-        list_item.setProperty('hash', extra_data['hash'])
+        item_properties['hash'] = extra_data['hash']
+
+    if CONFIG['kodi_version'] >= 18:
+        list_item.setProperties(item_properties)
+    else:
+        for key, value in item_properties.items():
+            list_item.setProperty(key, value)
 
     return link_url, list_item, folder
 
