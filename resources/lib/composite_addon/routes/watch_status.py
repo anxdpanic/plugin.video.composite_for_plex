@@ -15,10 +15,10 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from ..addon.common import get_argv
 from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
-from ..addon.logger import PrintDebug
+from ..addon.logger import Logger
 from ..plex import plex
 
-LOG = PrintDebug(CONFIG['name'])
+LOG = Logger(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 

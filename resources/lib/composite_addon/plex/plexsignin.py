@@ -15,10 +15,10 @@ from kodi_six import xbmc  # pylint: disable=import-error
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
-from ..addon.logger import PrintDebug
+from ..addon.logger import Logger
 from ..addon.strings import i18n
 
-LOG = PrintDebug(CONFIG['name'], 'plex_signin')
+LOG = Logger(CONFIG['name'], 'plex_signin')
 MEDIA_PATH = xbmc.translatePath(CONFIG['media_path'] + 'dialogs/')
 
 

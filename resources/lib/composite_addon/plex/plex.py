@@ -29,7 +29,7 @@ from ..addon import cache_control
 from ..addon.common import get_platform_ip
 from ..addon.common import is_ip
 from ..addon.constants import CONFIG
-from ..addon.logger import PrintDebug
+from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
@@ -39,7 +39,7 @@ from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
 DEFAULT_PORT = '32400'
-LOG = PrintDebug(CONFIG['name'], 'plex')
+LOG = Logger(CONFIG['name'], 'plex')
 SETTINGS = AddonSettings(CONFIG['id'])
 
 

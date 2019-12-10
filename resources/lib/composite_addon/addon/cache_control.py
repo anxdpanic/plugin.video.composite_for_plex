@@ -26,9 +26,9 @@ from six.moves import cPickle as pickle
 import xbmcvfs  # pylint: disable=import-error
 
 from .constants import CONFIG
-from .logger import PrintDebug
+from .logger import Logger
 
-LOG = PrintDebug(CONFIG['name'], 'cachecontrol')
+LOG = Logger(CONFIG['name'], 'cachecontrol')
 
 
 class CacheControl:
