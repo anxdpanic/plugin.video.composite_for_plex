@@ -83,7 +83,7 @@ class CacheControl:
                           (cache_name, cache_data.decode('utf-8', 'ignore')))
             try:
                 cache_object = pickle.loads(cache_data)
-            except TypeError:
+            except (ValueError, TypeError):
                 return False, None
             return True, cache_object
 
