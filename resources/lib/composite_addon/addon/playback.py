@@ -10,7 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import json
 import random
 
 from six.moves import range
@@ -21,6 +20,7 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from .common import get_handle
+from .common import jsonrpc_play
 from .common import write_pickled
 from .constants import CONFIG
 from .constants import StreamControl
@@ -173,17 +173,7 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
             LOG.debug('Playback from resume point: %s' % resume)
 
     if streams['type'] == 'picture':
-        request = json.dumps({
-            'id': 1,
-            'jsonrpc': '2.0',
-            'method': 'Player.Open',
-            'params': {
-                'item': {
-                    'file': playback_url
-                }
-            }
-        })
-        _ = xbmc.executeJSONRPC(request)
+        jsonrpc_play(playback_url)
     else:
         if streams['type'] == 'video' or streams['type'] == 'music':
             monitor_dict = {
