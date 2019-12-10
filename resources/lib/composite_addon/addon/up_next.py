@@ -133,7 +133,7 @@ class UpNext:
 
         episode = {
             "episodeid": metadata.get('ratingKey', -1),
-            "tvshowid": metadata.get('parentRatingKey', -1),
+            "tvshowid": metadata.get('grandparentRatingKey', -1),
             "title": metadata.get('title', ''),
             "art": {
                 "tvshow.poster": tvshow_image,

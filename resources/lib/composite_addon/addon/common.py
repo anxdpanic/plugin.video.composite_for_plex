@@ -152,6 +152,20 @@ def notify_all(method, data):
     xbmc.executebuiltin(command)
 
 
+def jsonrpc_play(url):
+    jsonrpc_request = {
+        "jsonrpc": "2.0",
+        "method": "player.open",
+        "params": {
+            "item": {
+                "file": url
+            }
+        }
+    }
+
+    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
+
+
 def wait_for_busy_dialog():
     """
     Wait for busy dialogs to close, starting playback while the busy dialog is active

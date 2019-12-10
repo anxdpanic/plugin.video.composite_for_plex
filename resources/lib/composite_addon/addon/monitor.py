@@ -16,9 +16,9 @@ from six.moves.urllib_parse import urlencode
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
+from .common import jsonrpc_play
 from .constants import CONFIG
 from .logger import PrintDebug
-from .common import wait_for_busy_dialog
 
 
 class Monitor(xbmc.Monitor):
@@ -29,7 +29,7 @@ class Monitor(xbmc.Monitor):
         """
 
     @staticmethod
-    def _decode_up_next_notification(data):
+    def decode_up_next_notification(data):
         """
         Decode data received from Up Next notification
         """
@@ -42,7 +42,7 @@ class Monitor(xbmc.Monitor):
         return None
 
     @staticmethod
-    def _up_next_playback_url(data):
+    def up_next_playback_url(data):
         """
         Create a playback url from Up Next 'play_info'
         """
@@ -59,18 +59,6 @@ class Monitor(xbmc.Monitor):
 
         return 'plugin://%s/?%s' % (CONFIG['id'], urlencode(data))
 
-    @staticmethod
-    def play_media(url):
-        """
-        Use PlayMedia to start playback after busy dialogs are closed
-        """
-        if xbmc.Player().isPlaying():
-            xbmc.Player().stop()
-
-        play = wait_for_busy_dialog()
-        if play:
-            xbmc.executebuiltin('PlayMedia(%s)' % url)
-
     def onNotification(self, sender, method, data):  # pylint: disable=invalid-name
         """
         Handle any notifications directed to this add-on
@@ -80,4 +68,4 @@ class Monitor(xbmc.Monitor):
 
         if sender.startswith('upnextprovider') and method.endswith('_play_action'):
             # received a play notification from Up Next
-            self.play_media(self._up_next_playback_url(self._decode_up_next_notification(data)))
+            jsonrpc_play(self.up_next_playback_url(self.decode_up_next_notification(data)))
