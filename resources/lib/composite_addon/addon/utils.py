@@ -25,6 +25,7 @@ from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
+from ..addon.strings import item_translate
 from ..plex import plex
 
 LOG = Logger(CONFIG['name'])
@@ -222,138 +223,6 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
             list_item.setProperty(key, value)
 
     return link_url, list_item, folder
-
-
-def directory_item_translate(title, thumb):  # pylint: disable=too-many-statements, too-many-branches
-    translated_title = title
-
-    if thumb.endswith('show.png'):
-        if title == 'All Shows':
-            translated_title = i18n('All')
-        elif title == 'Unwatched':
-            translated_title = i18n('Unwatched')
-        elif title == 'Recently Aired':
-            translated_title = i18n('Recently Aired')
-        elif title == 'Recently Added':
-            translated_title = i18n('Recently Added')
-        elif title == 'Recently Viewed Episodes':
-            translated_title = i18n('Recently Viewed Episodes')
-        elif title == 'Recently Viewed Shows':
-            translated_title = i18n('Recently Viewed Shows')
-        elif title == 'On Deck':
-            translated_title = i18n('On Deck')
-        elif title == 'By Collection':
-            translated_title = i18n('By Collection')
-        elif title == 'By First Letter':
-            translated_title = i18n('By First Letter')
-        elif title == 'By Genre':
-            translated_title = i18n('By Genre')
-        elif title == 'By Year':
-            translated_title = i18n('By Year')
-        elif title == 'By Content Rating':
-            translated_title = i18n('By Content Rating')
-        elif title == 'By Folder':
-            translated_title = i18n('By Folder')
-        elif title == 'Search Shows...':
-            translated_title = i18n('Search Shows...')
-        elif title == 'Search Episodes...':
-            translated_title = i18n('Search Episodes...')
-
-    if thumb.endswith('artist.png'):
-        if title == 'All Artists':
-            translated_title = i18n('All')
-        elif title == 'By Album':
-            translated_title = i18n('By Album')
-        elif title == 'By Genre':
-            translated_title = i18n('By Genre')
-        elif title == 'By Year':
-            translated_title = i18n('By Year')
-        elif title == 'By Collection':
-            translated_title = i18n('By Collection')
-        elif title == 'Recently Added':
-            translated_title = i18n('Recently Added')
-        elif title == 'By Folder':
-            translated_title = i18n('By Folder')
-        elif title == 'Search Artists...':
-            translated_title = i18n('Search Artists...')
-        elif title == 'Search Albums...':
-            translated_title = i18n('Search Albums...')
-        elif title == 'Search Tracks...':
-            translated_title = i18n('Search Tracks...')
-
-    if thumb.endswith('movie.png') or thumb.endswith('video.png'):
-        if title.startswith('All '):
-            translated_title = i18n('All')
-        elif title == 'Unwatched':
-            translated_title = i18n('Unwatched')
-        elif title == 'Recently Released':
-            translated_title = i18n('Recently Released')
-        elif title == 'Recently Added':
-            translated_title = i18n('Recently Added')
-        elif title == 'Recently Viewed':
-            translated_title = i18n('Recently Viewed')
-        elif title == 'On Deck':
-            translated_title = i18n('On Deck')
-        elif title == 'By Collection':
-            translated_title = i18n('By Collection')
-        elif title == 'By Genre':
-            translated_title = i18n('By Genre')
-        elif title == 'By Year':
-            translated_title = i18n('By Year')
-        elif title == 'By Decade':
-            translated_title = i18n('By Decade')
-        elif title == 'By Director':
-            translated_title = i18n('By Director')
-        elif title == 'By Starring Actor':
-            translated_title = i18n('By Starring Actor')
-        elif title == 'By Country':
-            translated_title = i18n('By Country')
-        elif title == 'By Content Rating':
-            translated_title = i18n('By Content Rating')
-        elif title == 'By Rating':
-            translated_title = i18n('By Rating')
-        elif title == 'By Resolution':
-            translated_title = i18n('By Resolution')
-        elif title == 'By First Letter':
-            translated_title = i18n('By First Letter')
-        elif title == 'By Folder':
-            translated_title = i18n('By Folder')
-        elif title == 'Search...':
-            translated_title = i18n('Search...')
-
-    if thumb.endswith('photo.png'):
-        if title == 'All Photos':
-            translated_title = i18n('All')
-        elif title == 'By Year':
-            translated_title = i18n('By Year')
-        elif title == 'Recently Added':
-            translated_title = i18n('Recently Added')
-        elif title == 'Camera Make':
-            translated_title = i18n('Camera Make')
-        elif title == 'Camera Model':
-            translated_title = i18n('Camera Model')
-        elif title == 'Aperture':
-            translated_title = i18n('Aperture')
-        elif title == 'Shutter Speed':
-            translated_title = i18n('Shutter Speed')
-        elif title == 'ISO':
-            translated_title = i18n('ISO')
-        elif title == 'Lens':
-            translated_title = i18n('Lens')
-
-    return translated_title
-
-
-def item_translate(title, source, folder):
-    translated_title = title
-
-    if folder and source in ['tvshows', 'tvseasons']:
-        if title == 'All episodes':
-            translated_title = i18n('All episodes')
-        elif title.startswith('Season '):
-            translated_title = i18n('Season') + title[6:]
-
-    return translated_title
 
 
 def get_link_url(url, path_data, server):
