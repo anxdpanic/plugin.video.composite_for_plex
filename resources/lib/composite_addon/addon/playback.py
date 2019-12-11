@@ -258,13 +258,21 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
                 'mediatype': 'video'
             }
 
-            if timings.get('type') == 'episode':
+            if timings.get('type') == 'movie':
+                full_data['mediatype'] = 'movie'
+            elif timings.get('type') == 'episode':
                 full_data['episode'] = int(timings.get('index', 0))
                 full_data['aired'] = timings.get('originallyAvailableAt', '')
                 full_data['tvshowtitle'] = \
                     encode_utf8(timings.get('grandparentTitle', tree.get('grandparentTitle', '')))
                 full_data['season'] = int(timings.get('parentIndex', tree.get('parentIndex', 0)))
                 full_data['mediatype'] = 'episode'
+
+            if not SETTINGS.get_setting('skipmetadata'):
+                tree_genres = timings.findall('Genre')
+                if tree_genres is not None:
+                    full_data['genre'] = [encode_utf8(tree_genre.get('tag', '')) \
+                                          for tree_genre in tree_genres]
 
         elif media_type == 'music':
 
