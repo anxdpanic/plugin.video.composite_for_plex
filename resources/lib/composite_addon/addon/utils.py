@@ -109,10 +109,11 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
     if set_info_type.lower() == 'folder' or set_info_type.lower() == 'file':
         set_info_type = 'Video'
 
-    if not info_labels.get('plot'):
-        info_labels['plot'] = u'\u2008'
-    if not info_labels.get('plotoutline'):
-        info_labels['plotoutline'] = u'\u2008'
+    if set_info_type == 'Video':
+        if not info_labels.get('plot'):
+            info_labels['plot'] = u'\u2008'
+        if not info_labels.get('plotoutline'):
+            info_labels['plotoutline'] = u'\u2008'
 
     # Set the properties of the item, such as summary, name, season, etc
     list_item.setInfo(type=set_info_type, infoLabels=info_labels)
