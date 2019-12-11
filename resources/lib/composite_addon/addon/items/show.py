@@ -86,10 +86,9 @@ def create_show_item(server, url, show, library=False):
         extra_data['mode'] = MODES.TVSEASONS
         item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
+    context = None
     if not SETTINGS.get_setting('skipcontextmenus'):
         context = build_context_menu(url, extra_data, server)
-    else:
-        context = None
 
     if library:
         extra_data['hash'] = \

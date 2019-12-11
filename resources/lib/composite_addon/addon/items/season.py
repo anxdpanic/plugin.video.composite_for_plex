@@ -73,10 +73,9 @@ def create_season_item(server, tree, season, library=False):
 
     item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
+    context = None
     if not SETTINGS.get_setting('skipcontextmenus'):
         context = build_context_menu(item_url, season, server)
-    else:
-        context = None
 
     if library:
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY

@@ -26,15 +26,14 @@ def create_playlist_item(url, server, track, listing=True):
 
     extra_data = {
         'type': track.get('playlistType', ''),
-        'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server)
+        'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server),
+        'mode': MODES.GETCONTENT
     }
 
     if extra_data['type'] == 'video':
         extra_data['mode'] = MODES.MOVIES
     elif extra_data['type'] == 'audio':
         extra_data['mode'] = MODES.TRACKS
-    else:
-        extra_data['mode'] = MODES.GETCONTENT
 
     item_url = get_link_url(url, track, server)
 

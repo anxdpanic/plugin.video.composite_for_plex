@@ -166,10 +166,9 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
         extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
+    context = None
     if not SETTINGS.get_setting('skipcontextmenus'):
         context = build_context_menu(url, extra_data, server)
-    else:
-        context = None
 
     extra_data['mode'] = MODES.PLAYLIBRARY
     if library:

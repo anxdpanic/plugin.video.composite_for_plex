@@ -24,7 +24,9 @@ def create_directory_item(server, tree, url, directory):
     title = encode_utf8(directory.get('title', i18n('Unknown')))
     title = directory_item_translate(title, tree.get('thumb'))
 
-    details = {'title': title}
+    details = {
+        'title': title
+    }
 
     if '/collection' in url:
         details['mediatype'] = 'set'

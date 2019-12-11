@@ -70,17 +70,17 @@ def get_device():
     if xbmc.getCondVisibility('system.platform.windows'):
         device = 'Windows'
     if xbmc.getCondVisibility('system.platform.linux') \
-       and not xbmc.getCondVisibility('system.platform.android'):
+            and not xbmc.getCondVisibility('system.platform.android'):
         device = 'Linux'
     if xbmc.getCondVisibility('system.platform.osx'):
         device = 'Darwin'
     if xbmc.getCondVisibility('system.platform.android'):
         device = 'Android'
     if xbmcvfs.exists('/etc/os-release') \
-       and 'libreelec' in xbmcvfs.File('/etc/os-release').read():
+            and 'libreelec' in xbmcvfs.File('/etc/os-release').read():
         device = 'LibreELEC'
     if xbmcvfs.exists('/proc/device-tree/model') \
-       and 'Raspberry Pi' in xbmcvfs.File('/proc/device-tree/model').read():
+            and 'Raspberry Pi' in xbmcvfs.File('/proc/device-tree/model').read():
         device = 'Raspberry Pi'
     if device is None:
         try:

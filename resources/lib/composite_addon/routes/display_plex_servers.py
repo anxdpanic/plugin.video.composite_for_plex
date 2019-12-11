@@ -43,7 +43,9 @@ def run(url):
         if media_server.is_secondary():
             continue
 
-        details = {'title': media_server.get_name()}
+        details = {
+            'title': media_server.get_name()
+        }
         extra_data = {}
         url = None
 
@@ -80,4 +82,5 @@ def run(url):
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
+
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

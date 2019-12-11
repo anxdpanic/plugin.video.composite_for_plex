@@ -80,10 +80,9 @@ def create_track_item(server, tree, track, listing=True):
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     # Build any specific context menu entries
+    context = None
     if not SETTINGS.get_setting('skipcontextmenus'):
         context = build_context_menu(url, extra_data, server)
-    else:
-        context = None
 
     if listing:
         return create_gui_item(url, details, extra_data, context, folder=False)

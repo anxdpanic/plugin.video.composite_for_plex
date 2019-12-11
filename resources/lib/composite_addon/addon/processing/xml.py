@@ -51,7 +51,9 @@ def process_xml(url, tree=None, plex_network=None):
     items = []
     for plugin in tree:
 
-        details = {'title': encode_utf8(plugin.get('title'))}
+        details = {
+            'title': encode_utf8(plugin.get('title'))
+        }
 
         if not details['title']:
             details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))

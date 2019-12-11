@@ -121,11 +121,11 @@ def create_movie_item(server, tree, url, movie, library=False):  # pylint: disab
         extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
+    context = None
     if not SETTINGS.get_setting('skipcontextmenus'):
         context = build_context_menu(url, extra_data, server)
-    else:
-        context = None
-    # http:// <server> <path> &mode=<mode> &t=<rnd>
+
+    # http:// <server> <path> &mode=<mode>
     extra_data['mode'] = MODES.PLAYLIBRARY
     if library:
         extra_data['path_mode'] = MODES.TXT_MOVIES_LIBRARY
