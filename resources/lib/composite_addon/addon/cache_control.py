@@ -15,6 +15,8 @@
 """
 
 import hashlib
+import os
+import shutil
 import time
 
 from six import PY3
@@ -22,6 +24,7 @@ from six import text_type
 # noinspection PyPep8Naming
 from six.moves import cPickle as pickle
 
+from kodi_six import xbmc  # pylint: disable=import-error
 # don't use kodi_six xbmcvfs
 import xbmcvfs  # pylint: disable=import-error
 
@@ -35,7 +38,7 @@ class CacheControl:
 
     def __init__(self, cache_location, enabled=True):
 
-        self.cache_location = cache_location
+        self.cache_location = xbmc.translatePath(os.path.join(CONFIG['cache_path'], cache_location))
         self.enabled = enabled
 
         if self.enabled:
@@ -148,24 +151,55 @@ class CacheControl:
         return False, None
 
     def delete_cache(self, force=False):
-        cache_suffix = '.cache'
+        start_time = time.time()
+
         persistent_cache_suffix = '.pcache'
+
+        if force:
+            folder_deleted = self.delete_cache_folder()
+            if folder_deleted:
+                LOG.debug('Deleted cache in |%.3fs|' % (time.time() - start_time))
+                return
+
         dirs, file_list = xbmcvfs.listdir(self.cache_location)
 
         LOG.debug('List of file: [%s]' % file_list)
         LOG.debug('List of dirs: [%s]' % dirs)
-
+        cache_files = []
+        has_persistent = False
         for cache_file in file_list:
+            if cache_file.endswith(persistent_cache_suffix):
+                has_persistent = True
 
-            if force and persistent_cache_suffix in cache_file:
-                LOG.debug('Force deletion of persistent cache file')
-            elif cache_suffix not in cache_file:
+            if not force and cache_file.endswith(persistent_cache_suffix):
                 continue
 
-            if xbmcvfs.delete(self.cache_location + cache_file):
-                LOG.debug('SUCCESSFUL: removed %s' % cache_file)
-            else:
-                LOG.debug('UNSUCCESSFUL: did not remove %s' % cache_file)
+            cache_files.append(os.path.join(self.cache_location, cache_file))
+
+        folder_deleted = False
+        if not has_persistent:
+            folder_deleted = self.delete_cache_folder()
+
+        if not folder_deleted:
+            for cache_file in cache_files:
+                if xbmcvfs.delete(cache_file):
+                    LOG.debug('SUCCESSFUL: removed %s' % cache_file)
+                else:
+                    LOG.debug('UNSUCCESSFUL: did not remove %s' % cache_file)
+
+        LOG.debug('Deleted cache in |%.3fs|' % (time.time() - start_time))
+
+    def delete_cache_folder(self):
+        if xbmcvfs.exists(self.cache_location):
+            shutil.rmtree(self.cache_location)
+
+        if not xbmcvfs.exists(self.cache_location):
+            LOG.debug('SUCCESSFUL: removed %s' % self.cache_location)
+            xbmcvfs.mkdirs(self.cache_location)
+            return True
+
+        LOG.debug('UNSUCCESSFUL: did not remove %s' % self.cache_location)
+        return False
 
     @staticmethod
     def sha512_cache_name(name, unique_id, data):

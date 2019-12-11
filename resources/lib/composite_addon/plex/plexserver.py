@@ -651,7 +651,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         query_args += options.items()
 
         if self.token is not None:
-            query_args += {'X-Plex-Token': self.token}.items()
+            query_args += {
+                'X-Plex-Token': self.token
+            }.items()
 
         new_query_args = urlencode(query_args, True)
 
@@ -783,4 +785,6 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                    subtitle_size, audio_boost))
 
         return session, self.get_formatted_url(full_url,
-                                               options={'X-Plex-Device': 'Plex Home Theater'})
+                                               options={
+                                                   'X-Plex-Device': 'Plex Home Theater'
+                                               })

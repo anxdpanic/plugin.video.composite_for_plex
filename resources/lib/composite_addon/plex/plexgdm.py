@@ -202,7 +202,10 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                     data, server = sock.recvfrom(1024)
                     LOG.debug('Received data from %s:%s' % (server[0], server[1]))
                     LOG.debug('Data received is:\n %s' % data)
-                    return_data.append({'from': server, 'data': data})
+                    return_data.append({
+                        'from': server,
+                        'data': data
+                    })
                 except socket.timeout:
                     break
         finally:
@@ -215,7 +218,9 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         if return_data:
 
             for response in return_data:
-                update = {'server': response.get('from')[0]}
+                update = {
+                    'server': response.get('from')[0]
+                }
 
                 # Check if we had a positive HTTP response
                 if b'200 OK' in response.get('data'):

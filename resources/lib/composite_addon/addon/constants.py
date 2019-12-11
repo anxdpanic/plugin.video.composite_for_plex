@@ -10,6 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import os
+
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcaddon  # pylint: disable=import-error
 
@@ -96,7 +98,7 @@ CONFIG = {
     'id': __ID,
     'name': __ADDON.getAddonInfo('name'),
     'icon': __ADDON.getAddonInfo('icon'),
-    'data_path': __ADDON.getAddonInfo('profile'),
+    'cache_path': os.path.join(__ADDON.getAddonInfo('profile'), 'cache'),
     'version': __ADDON.getAddonInfo('version'),
     'media_path': 'special://home/addons/%s/resources/media/' % __ADDON.getAddonInfo('id'),
     'temp_path': xbmc.translatePath('special://temp/%s/' % __ADDON.getAddonInfo('id')),

@@ -22,7 +22,7 @@ LOG = Logger(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run():  # pylint: disable=too-many-locals
+def run():
     PLEX_NETWORK.load()
 
     server_uuid = get_argv()[2]
@@ -30,9 +30,37 @@ def run():  # pylint: disable=too-many-locals
     library_section_uuid = get_argv()[4]
 
     server = PLEX_NETWORK.get_server_from_uuid(server_uuid)
-    tree = server.get_playlists()
 
+    selected = playlist_user_select(server)
+    if selected is None:
+        return
+
+    LOG.debug('choosing playlist: %s' % selected)
+
+    item = server.get_metadata(metadata_id)[0]
+    item_title = item.get('title', '')
+    item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
+
+    response = server.add_playlist_item(selected.get('key'), library_section_uuid, metadata_id)
+    if response and not response.get('status'):
+        leaf_added = int(response.get('leafCountAdded', 0))
+        leaf_requested = int(response.get('leafCountRequested', 0))
+        if leaf_added > 0 and leaf_added == leaf_requested:
+            xbmcgui.Dialog().notification(CONFIG['name'], i18n('Added to the playlist') %
+                                          (item_title, selected.get('title')), item_image)
+            return
+
+        xbmcgui.Dialog().notification(CONFIG['name'], i18n('is already in the playlist') %
+                                      (item_title, selected.get('title')), item_image)
+        return
+
+    xbmcgui.Dialog().notification(CONFIG['name'], i18n('Failed to add to the playlist') %
+                                  (item_title, selected.get('title')), item_image)
+
+
+def playlist_user_select(server):
     playlists = []
+    tree = server.get_playlists()
     for playlist in tree.getiterator('Playlist'):
         image = ''
         if playlist.get('composite'):
@@ -64,27 +92,6 @@ def run():  # pylint: disable=too-many-locals
 
     if return_value == -1:
         LOG.debug('Dialog cancelled')
-        return
+        return None
 
-    selected = playlists[return_value]
-    LOG.debug('choosing playlist: %s' % selected)
-
-    item = server.get_metadata(metadata_id)[0]
-    item_title = item.get('title', '')
-    item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
-
-    response = server.add_playlist_item(selected.get('key'), library_section_uuid, metadata_id)
-    if response and not response.get('status'):
-        leaf_added = int(response.get('leafCountAdded', 0))
-        leaf_requested = int(response.get('leafCountRequested', 0))
-        if leaf_added > 0 and leaf_added == leaf_requested:
-            xbmcgui.Dialog().notification(CONFIG['name'], i18n('Added to the playlist') %
-                                          (item_title, selected.get('title')), item_image)
-            return
-
-        xbmcgui.Dialog().notification(CONFIG['name'], i18n('is already in the playlist') %
-                                      (item_title, selected.get('title')), item_image)
-        return
-
-    xbmcgui.Dialog().notification(CONFIG['name'], i18n('Failed to add to the playlist') %
-                                  (item_title, selected.get('title')), item_image)
+    return playlists[return_value]

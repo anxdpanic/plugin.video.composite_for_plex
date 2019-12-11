@@ -18,7 +18,9 @@ from ...addon.utils import get_fanart_image
 
 
 def create_artist_item(server, artist):
-    details = {'artist': encode_utf8(artist.get('title', ''))}
+    details = {
+        'artist': encode_utf8(artist.get('title', ''))
+    }
 
     details['title'] = details['artist']
 

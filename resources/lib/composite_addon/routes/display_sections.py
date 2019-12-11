@@ -26,13 +26,44 @@ PLEX_NETWORK = plex.Plex(load=False)
 SETTINGS = AddonSettings(CONFIG['id'])
 
 
-def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-branches, too-many-statements, too-many-locals
+def run(content_filter=None, display_shared=False):
     PLEX_NETWORK.load()
     xbmcplugin.setContent(get_handle(), 'files')
 
     server_list = PLEX_NETWORK.get_server_list()
     LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 
+    items = []
+    items += server_section_menus_items(server_list, content_filter, display_shared)
+
+    if display_shared:
+        if items:
+            xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
+
+        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+        return
+
+    # For each of the servers we have identified
+    if PLEX_NETWORK.is_myplex_signedin():
+        details = {
+            'title': i18n('myPlex Queue')
+        }
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.MYPLEXQUEUE
+        }
+        items.append(create_gui_item('http://myplexqueue', details, extra_data))
+
+    items += server_additional_menu_items(server_list, content_filter)
+    items += action_menu_items()
+
+    if items:
+        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
+
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+
+
+def server_section_menus_items(server_list, content_filter, display_shared):
     items = []
     for server in server_list:
 
@@ -50,9 +81,13 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
                 continue
 
             if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
-                details = {'title': '%s: %s' % (server.get_name(), section.get_title())}
+                details = {
+                    'title': '%s: %s' % (server.get_name(), section.get_title())
+                }
             else:
-                details = {'title': section.get_title()}
+                details = {
+                    'title': section.get_title()
+                }
 
             extra_data = {
                 'fanart_image': server.get_fanart(section),
@@ -70,31 +105,20 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
             extra_data['mode'] = mode
             section_url = '%s%s' % (server.get_url_location(), path)
 
+            context = None
             if not SETTINGS.get_setting('skipcontextmenus'):
                 context = [(i18n('Refresh library section'),
                             'RunScript(' + CONFIG['id'] + ', update, %s, %s)' %
                             (server.get_uuid(), section.get_key()))]
-            else:
-                context = None
 
             # Build that listing..
             items.append(create_gui_item(section_url, details, extra_data, context))
 
-    if display_shared:
-        if items:
-            xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
-        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
-        return
+    return items
 
-    # For each of the servers we have identified
-    if PLEX_NETWORK.is_myplex_signedin():
-        details = {'title': i18n('myPlex Queue')}
-        extra_data = {
-            'type': 'Folder',
-            'mode': MODES.MYPLEXQUEUE
-        }
-        items.append(create_gui_item('http://myplexqueue', details, extra_data))
 
+def server_additional_menu_items(server_list, content_filter):
+    items = []
     for server in server_list:
 
         if server.is_offline() or server.is_secondary():
@@ -109,7 +133,9 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
         else:
             prefix = ''
 
-        details = {'title': prefix + i18n('Channels')}
+        details = {
+            'title': prefix + i18n('Channels')
+        }
         extra_data = {
             'type': 'Folder',
             'mode': MODES.CHANNELVIEW
@@ -119,61 +145,97 @@ def run(content_filter=None, display_shared=False):  # pylint: disable=too-many-
         items.append(create_gui_item(item_url, details, extra_data))
 
         # Create plexonline link
-        details = {'title': prefix + i18n('Plex Online')}
-        extra_data = {'type': 'Folder', 'mode': MODES.PLEXONLINE}
+        details = {
+            'title': prefix + i18n('Plex Online')
+        }
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.PLEXONLINE
+        }
 
         item_url = '%s/system/plexonline' % server.get_url_location()
         items.append(create_gui_item(item_url, details, extra_data))
 
         # create playlist link
-        details = {'title': prefix + i18n('Playlists')}
-        extra_data = {'type': 'Folder', 'mode': MODES.PLAYLISTS}
+        details = {
+            'title': prefix + i18n('Playlists')
+        }
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.PLAYLISTS
+        }
 
         item_url = '%s/playlists' % server.get_url_location()
         items.append(create_gui_item(item_url, details, extra_data))
 
         if SETTINGS.get_setting('show_widget_menu'):
             # create Widgets link
-            details = {'title': prefix + i18n('Widgets')}
-            extra_data = {'type': 'Folder', 'mode': MODES.WIDGETS}
+            details = {
+                'title': prefix + i18n('Widgets')
+            }
+            extra_data = {
+                'type': 'Folder',
+                'mode': MODES.WIDGETS
+            }
 
             item_url = '%s' % server.get_url_location()
             items.append(create_gui_item(item_url, details, extra_data))
 
+    return items
+
+
+def action_menu_items():
+    items = []
     if PLEX_NETWORK.is_myplex_signedin():
 
         if PLEX_NETWORK.is_plexhome_enabled():
-            details = {'title': i18n('Switch User')}
-            extra_data = {'type': 'file'}
+            details = {
+                'title': i18n('Switch User')
+            }
+            extra_data = {
+                'type': 'file'
+            }
 
             item_url = 'cmd:switchuser'
             items.append(create_gui_item(item_url, details, extra_data))
 
-        details = {'title': i18n('Sign Out')}
-        extra_data = {'type': 'file'}
+        details = {
+            'title': i18n('Sign Out')
+        }
+        extra_data = {
+            'type': 'file'
+        }
 
         item_url = 'cmd:signout'
         items.append(create_gui_item(item_url, details, extra_data))
     else:
-        details = {'title': i18n('Sign In')}
-        extra_data = {'type': 'file'}
+        details = {
+            'title': i18n('Sign In')
+        }
+        extra_data = {
+            'type': 'file'
+        }
 
         item_url = 'cmd:signintemp'
         items.append(create_gui_item(item_url, details, extra_data))
 
-    details = {'title': i18n('Display Servers')}
-    extra_data = {'type': 'file'}
+    details = {
+        'title': i18n('Display Servers')
+    }
+    extra_data = {
+        'type': 'file'
+    }
     data_url = 'cmd:displayservers'
     items.append(create_gui_item(data_url, details, extra_data))
 
     if SETTINGS.get_setting('cache'):
-        details = {'title': i18n('Clear Caches')}
-        extra_data = {'type': 'file'}
+        details = {
+            'title': i18n('Clear Caches')
+        }
+        extra_data = {
+            'type': 'file'
+        }
         item_url = 'cmd:delete_refresh'
         items.append(create_gui_item(item_url, details, extra_data))
 
-    if items:
-        xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
-    # All XML entries have been parsed and we are ready to allow the user to browse around.
-    # So end the screen listing.
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    return items

@@ -20,7 +20,9 @@ from ...addon.utils import get_fanart_image
 
 
 def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-many-branches
-    details = {'title': encode_utf8(plugin.get('title'))}
+    details = {
+        'title': encode_utf8(plugin.get('title'))
+    }
 
     if details['title']:
         details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
@@ -47,13 +49,12 @@ def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-m
 
     if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
 
+        extra_data['mode'] = MODES.PLEXPLUGINS
         if plugin.get('search') == '1':
             extra_data['mode'] = MODES.CHANNELSEARCH
             extra_data['parameters'] = {
                 'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))
             }
-        else:
-            extra_data['mode'] = MODES.PLEXPLUGINS
 
         return create_gui_item(p_url, details, extra_data)
 
@@ -68,14 +69,13 @@ def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-m
 
     if plugin.tag == 'Setting':
 
+        value = plugin.get('value')
         if plugin.get('option') == 'hidden':
             value = '********'
         elif plugin.get('type') == 'text':
             value = plugin.get('value')
         elif plugin.get('type') == 'enum':
             value = plugin.get('values').split('|')[int(plugin.get('value', 0))]
-        else:
-            value = plugin.get('value')
 
         details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n('Unknown'))), value)
         extra_data['mode'] = MODES.CHANNELPREFS

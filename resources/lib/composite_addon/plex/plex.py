@@ -11,7 +11,6 @@
 """
 
 import base64
-import os
 import socket
 import traceback
 import xml.etree.ElementTree as ETree
@@ -22,7 +21,6 @@ from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
 
-from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon import cache_control
@@ -48,10 +46,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl(
-            xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'servers')),
-            SETTINGS.get_setting('cache')
-        )
+        self.cache = cache_control.CacheControl('servers', SETTINGS.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
@@ -121,8 +116,10 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('code is: %s' % code)
         LOG.debug('id   is: %s' % identifier)
 
-        return {'id': identifier,
-                'code': list(code)}
+        return {
+            'id': identifier,
+            'code': list(code)
+        }
 
     def check_signin_status(self, identifier):
         data = self.talk_to_myplex('/pins/%s.xml' % identifier, method='get2')
@@ -539,7 +536,9 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
     def get_myplex_token(self):
 
         if self.plexhome_settings['myplex_signedin']:
-            return {'X-Plex-Token': self.effective_token}
+            return {
+                'X-Plex-Token': self.effective_token
+            }
 
         LOG.debug('Myplex not in use')
         return {}
@@ -560,7 +559,9 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             base64string = base64.encodestring(credentials).replace('\n', '')  # pylint: disable=deprecated-method
 
         token = False
-        myplex_headers = {'Authorization': 'Basic %s' % base64string}
+        myplex_headers = {
+            'Authorization': 'Basic %s' % base64string
+        }
 
         response = requests.post('%s/users/sign_in.xml' % self.myplex_server,
                                  headers=dict(self.plex_identification_header(), **myplex_headers))

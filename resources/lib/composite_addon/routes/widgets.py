@@ -102,4 +102,5 @@ def run(url):
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
+
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))

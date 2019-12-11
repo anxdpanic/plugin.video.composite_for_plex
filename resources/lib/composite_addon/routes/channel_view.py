@@ -54,7 +54,9 @@ def run(url):
             'thumb': get_thumb_image(channels, server)
         }
 
-        details = {'title': channels.get('title', i18n('Unknown'))}
+        details = {
+            'title': channels.get('title', i18n('Unknown'))
+        }
 
         suffix = channels.get('key').split('/')[1]
 
@@ -62,21 +64,23 @@ def run(url):
             details['title'] = '%s (%s)' % (details['title'], suffix)
 
         # Alter data sent into get_link_url, as channels use path rather than key
-        p_url = get_link_url(url,
-                             {'key': channels.get('key'), 'identifier': channels.get('key')},
-                             server)
+        path_data = {
+            'key': channels.get('key'),
+            'identifier': channels.get('key')
+        }
+        p_url = get_link_url(url, path_data, server)
 
+        extra_data['mode'] = MODES.GETCONTENT
         if suffix == 'photos':
             extra_data['mode'] = MODES.PHOTOS
         elif suffix == 'video':
             extra_data['mode'] = MODES.PLEXPLUGINS
         elif suffix == 'music':
             extra_data['mode'] = MODES.MUSIC
-        else:
-            extra_data['mode'] = MODES.GETCONTENT
 
         items.append(create_gui_item(p_url, details, extra_data))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
+
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
