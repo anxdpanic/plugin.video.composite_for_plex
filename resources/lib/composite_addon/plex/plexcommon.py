@@ -13,7 +13,9 @@ import platform
 import sys
 import uuid
 
+from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcaddon  # pylint: disable=import-error
+from kodi_six import xbmcvfs  # pylint: disable=import-error
 
 from ..addon.settings import AddonSettings
 
@@ -64,10 +66,29 @@ def create_plex_identification(device_name=None, client_id=None, user=None, toke
 
 
 def get_device():
-    try:
-        return platform.system()
-    except:  # pylint: disable=bare-except
+    device = None
+    if xbmc.getCondVisibility('system.platform.windows'):
+        device = 'Windows'
+    if xbmc.getCondVisibility('system.platform.linux') \
+       and not xbmc.getCondVisibility('system.platform.android'):
+        device = 'Linux'
+    if xbmc.getCondVisibility('system.platform.osx'):
+        device = 'Darwin'
+    if xbmc.getCondVisibility('system.platform.android'):
+        device = 'Android'
+    if xbmcvfs.exists('/etc/os-release') \
+       and 'libreelec' in xbmcvfs.File('/etc/os-release').read():
+        device = 'LibreELEC'
+    if xbmcvfs.exists('/proc/device-tree/model') \
+       and 'Raspberry Pi' in xbmcvfs.File('/proc/device-tree/model').read():
+        device = 'Raspberry Pi'
+    if device is None:
         try:
-            return platform.platform(terse=True)
+            device = platform.system()
         except:  # pylint: disable=bare-except
-            return sys.platform
+            try:
+                device = platform.platform(terse=True)
+            except:  # pylint: disable=bare-except
+                device = sys.platform
+
+    return device
