@@ -11,6 +11,7 @@
 """
 
 import copy
+import json
 
 from six.moves import range
 from six.moves.urllib_parse import quote
@@ -67,10 +68,12 @@ def get_master_server(all_servers=False, plex_network=None):
 
 
 def create_gui_item(url, details, extra_data, context=None, folder=True):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
-    LOG.debug('Adding [%s]\n'
-              'Passed details: %s\n'
-              'Passed extra_data: %s' %
-              (details.get('title', i18n('Unknown')), details, extra_data))
+    LOG.debug('Adding %s\n'
+              'Details: %s\n'
+              'Extra_data: %s' %
+              (details.get('title', i18n('Unknown')),
+               json.dumps(details, indent=4),
+               json.dumps(extra_data, indent=4)))
 
     is_file = url.startswith('cmd:')
 
@@ -106,10 +109,11 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
     if set_info_type.lower() == 'folder' or set_info_type.lower() == 'file':
         set_info_type = 'Video'
 
-    if not info_labels.get('plot'):
-        info_labels['plot'] = u'\u2008'
-    if not info_labels.get('plotoutline'):
-        info_labels['plotoutline'] = u'\u2008'
+    if set_info_type == 'Video':
+        if not info_labels.get('plot'):
+            info_labels['plot'] = u'\u2008'
+        if not info_labels.get('plotoutline'):
+            info_labels['plotoutline'] = u'\u2008'
 
     # Set the properties of the item, such as summary, name, season, etc
     list_item.setInfo(type=set_info_type, infoLabels=info_labels)
@@ -398,7 +402,7 @@ def build_context_menu(url, item_data, server):
                     (server.get_uuid(), section)))
     context.append((i18n('Refresh'), 'RunScript(' + CONFIG['id'] + ', refresh)'))
 
-    LOG.debug('Using context menus: %s' % context)
+    LOG.debug('Using context menus:\n%s' % '\n'.join(str(menu) for menu in context))
 
     return context
 

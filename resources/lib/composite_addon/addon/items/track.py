@@ -10,6 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import json
+
 from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.logger import Logger
@@ -33,7 +35,7 @@ def create_track_item(server, tree, track, listing=True):
             if babies.tag == 'Part':
                 part_details = (dict(babies.items()))
 
-    LOG.debug('Part is %s' % str(part_details))
+    LOG.debug('Part: %s' % json.dumps(part_details, indent=4))
 
     details = {
         'TrackNumber': int(track.get('index', 0)),

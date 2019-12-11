@@ -11,6 +11,7 @@
 """
 
 import datetime
+import json
 
 from ...addon.constants import CONFIG
 from ...addon.constants import MODES
@@ -50,7 +51,7 @@ def create_movie_item(server, tree, url, movie, library=False):  # pylint: disab
         elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
             temp_cast.append(child.get('tag'))
 
-    LOG.debug('Media attributes are %s' % media_arguments)
+    LOG.debug('Media attributes are %s' % json.dumps(media_arguments, indent=4))
 
     # Gather some data
     view_offset = movie.get('viewOffset', 0)

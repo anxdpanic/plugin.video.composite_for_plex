@@ -153,9 +153,13 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
         list_item = xbmcgui.ListItem(path=playback_url, offscreen=True)
     else:
         list_item = xbmcgui.ListItem(path=playback_url)
+
     if stream_data:
+        thumb = stream_data.get('thumbnail', CONFIG['icon'])
+        if 'thumbnail' in stream_data:
+            del stream_data['thumbnail']  # not a valid info label
+
         list_item.setInfo(type=streams['type'], infoLabels=stream_data)
-        thumb = stream_data.get('thumbnailImage', CONFIG['icon'])
         list_item.setArt({'icon': thumb, 'thumb': thumb})
 
     if force:
@@ -254,7 +258,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
                 'mpaa': encode_utf8(timings.get('contentRating', '')),
                 'year': int(timings.get('year', 0)),
                 'tagline': timings.get('tagline', ''),
-                'thumbnailImage': get_thumb_image(timings, server),
+                'thumbnail': get_thumb_image(timings, server),
                 'mediatype': 'video'
             }
 
@@ -287,7 +291,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
                 'artist': encode_utf8(timings.get('grandparentTitle',
                                                   tree.get('grandparentTitle', ''))),
                 'duration': int(timings.get('duration', 0)) / 1000,
-                'thumbnailImage': get_thumb_image(timings, server)
+                'thumbnail': get_thumb_image(timings, server)
             }
 
             extra['album'] = timings.get('parentKey')
@@ -575,7 +579,11 @@ def play_playlist(server, data):
             list_item = xbmcgui.ListItem(details.get('title', i18n('Unknown')), offscreen=True)
         else:
             list_item = xbmcgui.ListItem(details.get('title', i18n('Unknown')))
-        thumb = data['full_data'].get('thumbnailImage', CONFIG['icon'])
+
+        thumb = data['full_data'].get('thumbnail', CONFIG['icon'])
+        if 'thumbnail' in data['full_data']:
+            del data['full_data']['thumbnail']  # not a valid info label
+
         list_item.setArt({'icon': thumb, 'thumb': thumb})
         list_item.setInfo(type='music', infoLabels=details)
         playlist.add(url, list_item)
