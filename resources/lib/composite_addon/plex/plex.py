@@ -11,7 +11,6 @@
 """
 
 import base64
-import os
 import socket
 import traceback
 import xml.etree.ElementTree as ETree
@@ -22,7 +21,6 @@ from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
 
-from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon import cache_control
@@ -48,10 +46,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
     def __init__(self, load=False):
 
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl(
-            xbmc.translatePath(os.path.join(CONFIG['data_path'], 'cache', 'servers')),
-            SETTINGS.get_setting('cache')
-        )
+        self.cache = cache_control.CacheControl('servers', SETTINGS.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
