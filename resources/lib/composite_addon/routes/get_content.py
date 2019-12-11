@@ -37,7 +37,7 @@ LOG = Logger(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-branches, too-many-statements
+def run(url=None, server_uuid=None, mode=None):
     """
         This function takes teh URL, gets the XML and determines what the content is
         This XML is then redirected to the best processing function.
@@ -60,47 +60,14 @@ def run(url=None, server_uuid=None, mode=None):  # pylint: disable=too-many-bran
     # Catch search requests, as we need to process input before getting results.
     if last_bit.startswith('search'):
         LOG.debug('This is a search URL.  Bringing up keyboard')
-        keyboard = xbmc.Keyboard('', i18n('Search...'))
-        keyboard.setHeading(i18n('Enter search term'))
-        keyboard.doModal()
-        if keyboard.isConfirmed():
-            text = keyboard.getText()
-            LOG.debug('Search term input: %s' % text)
-            url += '&query=' + quote(text)
-        else:
+        search_url = search(url)
+        if not search_url:
             return
+        url = search_url
 
     try:
         tree = get_xml(url, plex_network=PLEX_NETWORK)
-
-        view_group = None
-        if tree:
-            view_group = tree.get('viewGroup')
-
-        if last_bit in ['folder', 'playlists']:
-            process_xml(url, tree, plex_network=PLEX_NETWORK)
-        elif view_group == 'movie':
-            LOG.debug('This is movie XML, passing to Movies')
-            process_movies(url, tree, plex_network=PLEX_NETWORK)
-        elif view_group == 'show':
-            LOG.debug('This is tv show XML')
-            process_shows(url, tree, plex_network=PLEX_NETWORK)
-        elif view_group == 'episode':
-            LOG.debug('This is TV episode XML')
-            process_episodes(url, tree, plex_network=PLEX_NETWORK)
-        elif view_group == 'artist':
-            LOG.debug('This is music XML')
-            process_artists(url, tree, plex_network=PLEX_NETWORK)
-        elif view_group in ['album', 'albums']:
-            process_albums(url, tree, plex_network=PLEX_NETWORK)
-        elif view_group == 'track':
-            LOG.debug('This is track XML')
-            process_tracks(url, tree, plex_network=PLEX_NETWORK)  # sorting is handled here
-        elif view_group == 'photo':
-            LOG.debug('This is a photo XML')
-            process_photos(url, tree, plex_network=PLEX_NETWORK)
-        else:
-            process_directories(url, tree, plex_network=PLEX_NETWORK)
+        process(url, tree, last_bit)
 
     except:  # pylint: disable=bare-except
         if mode not in [MODES.TXT_TVSHOWS, MODES.TXT_MOVIES, MODES.TXT_MOVIES_ON_DECK,
@@ -131,3 +98,46 @@ def _get_url(server, mode, url):
                 url = server.get_url_location() + unquote(url) + '/newest'
                 break
     return url
+
+
+def search(url):
+    keyboard = xbmc.Keyboard('', i18n('Search...'))
+    keyboard.setHeading(i18n('Enter search term'))
+    keyboard.doModal()
+    if keyboard.isConfirmed():
+        text = keyboard.getText()
+        LOG.debug('Search term input: %s' % text)
+        return url + '&query=' + quote(text)
+
+    return None
+
+
+def process(url, tree, last_bit):
+    view_group = None
+    if tree:
+        view_group = tree.get('viewGroup')
+
+    if last_bit in ['folder', 'playlists']:
+        process_xml(url, tree, plex_network=PLEX_NETWORK)
+    elif view_group == 'movie':
+        LOG.debug('This is movie XML, passing to Movies')
+        process_movies(url, tree, plex_network=PLEX_NETWORK)
+    elif view_group == 'show':
+        LOG.debug('This is tv show XML')
+        process_shows(url, tree, plex_network=PLEX_NETWORK)
+    elif view_group == 'episode':
+        LOG.debug('This is TV episode XML')
+        process_episodes(url, tree, plex_network=PLEX_NETWORK)
+    elif view_group == 'artist':
+        LOG.debug('This is music XML')
+        process_artists(url, tree, plex_network=PLEX_NETWORK)
+    elif view_group in ['album', 'albums']:
+        process_albums(url, tree, plex_network=PLEX_NETWORK)
+    elif view_group == 'track':
+        LOG.debug('This is track XML')
+        process_tracks(url, tree, plex_network=PLEX_NETWORK)  # sorting is handled here
+    elif view_group == 'photo':
+        LOG.debug('This is a photo XML')
+        process_photos(url, tree, plex_network=PLEX_NETWORK)
+    else:
+        process_directories(url, tree, plex_network=PLEX_NETWORK)
