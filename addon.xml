@@ -21,8 +21,11 @@
     *** https://kodi.wiki/view/Adding_video_sources
     *** Will not have support for most Plex features
 [add] Settings - Cache - Data Cache, to enable or disable the use of data caching
+[upd] Improve device identification |contrib: Maven85|
+[upd] Additional list item information at playback |contrib: Maven85|
 [upd] refactor items and processing into smaller pieces
 [upd] refactor common, constants, and logging
+[lang] German (de_DE) |contrib: Maven85|
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
