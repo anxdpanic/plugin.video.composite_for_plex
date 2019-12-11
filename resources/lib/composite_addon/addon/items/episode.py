@@ -10,6 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import json
+
 from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.logger import Logger
@@ -48,7 +50,7 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
         elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
             temp_cast.append(child.get('tag'))
 
-    LOG.debug('Media attributes are %s' % media_arguments)
+    LOG.debug('Media attributes are %s' % json.dumps(media_arguments, indent=4))
 
     # Gather some data
     view_offset = episode.get('viewOffset', 0)

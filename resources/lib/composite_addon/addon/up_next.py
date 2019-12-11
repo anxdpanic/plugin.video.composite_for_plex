@@ -9,6 +9,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import json
+
 from .common import notify_all
 from .constants import CONFIG
 from .logger import Logger
@@ -63,7 +65,8 @@ class UpNext:
                             ne_metadata.get('index', '0').zfill(2)))
             up_next_data = self.get_up_next_data(ce_metadata, ne_metadata)
 
-            self.LOG.debug('Notifying Up Next')
+            self.LOG.debug('Notifying service.upnext with upnext_data:\n%s' %
+                           json.dumps(up_next_data, indent=4))
             notify_all('upnext_data', up_next_data)
 
     def get_metadata(self, media_id):
