@@ -239,8 +239,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         url_parts = urlparse(uri)
         status_code = requests.codes.not_found  # pylint: disable=no-member
         try:
+            verify_cert = uri.startswith('https') and SETTINGS.get_setting('verify_cert')
             response = requests.head(uri, params=self.plex_identification_header,
-                                     verify=False, timeout=(2, 60))
+                                     verify=verify_cert, timeout=(2, 60))
             status_code = response.status_code
             LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
             if status_code in [requests.codes.ok, requests.codes.unauthorized]:  # pylint: disable=no-member
