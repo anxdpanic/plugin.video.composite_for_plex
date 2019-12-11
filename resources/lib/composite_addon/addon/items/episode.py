@@ -56,7 +56,7 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
     view_offset = episode.get('viewOffset', 0)
     duration = int(media_arguments.get('duration', episode.get('duration', 0))) / 1000
 
-    # Required listItem entries for XBMC
+    # Required listItem entries for Kodi
     details = {
         'plot': encode_utf8(episode.get('summary', '')),
         'title': encode_utf8(episode.get('title', i18n('Unknown'))),

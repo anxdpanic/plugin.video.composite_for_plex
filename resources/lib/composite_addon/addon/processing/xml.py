@@ -35,7 +35,7 @@ def process_xml(url, tree=None, plex_network=None):
         Will create dir or item links depending on what the
         main tag is.
         @input: plugin page URL
-        @return: nothing, creates XBMC GUI listing
+        @return: nothing, creates Kodi GUI listing
     """
     if plex_network is None:
         plex_network = plex.Plex(load=True)

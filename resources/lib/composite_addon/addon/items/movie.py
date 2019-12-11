@@ -57,7 +57,7 @@ def create_movie_item(server, tree, url, movie, library=False):  # pylint: disab
     view_offset = movie.get('viewOffset', 0)
     duration = int(media_arguments.get('duration', movie.get('duration', 0))) / 1000
 
-    # Required listItem entries for XBMC
+    # Required listItem entries for Kodi
     details = {
         'plot': encode_utf8(movie.get('summary', '')),
         'title': encode_utf8(movie.get('title', i18n('Unknown'))),
