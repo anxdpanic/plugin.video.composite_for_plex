@@ -22,11 +22,22 @@ class UpNext:
     USE_EP_THUMBS = SETTINGS.get_setting('up_next_episode_thumbs', fresh=True)
 
     def __init__(self, server, media_id, callback_args):
+        """
+        Contain the code required for using service.upnext
+
+        :param server: plex server that has requested media id
+        :param media_id: media id of the current episode
+        :param callback_args: dict of arguments required for service.upnext `play_info`
+        """
         self.server = server
         self.media_id = media_id
         self.callback_args = callback_args
 
     def run(self):
+        """
+        Main entry point
+        Gather the required metadata and notify service.upnext
+        """
         ne_metadata = None
         ce_metadata = self.get_metadata(self.media_id)
 
@@ -56,6 +67,11 @@ class UpNext:
             notify_all('upnext_data', up_next_data)
 
     def get_metadata(self, media_id):
+        """
+        Get the metadata for media_id
+
+        :param media_id: id of the media on the plex server
+        """
         metadata = None
         try:
             metadata = self.server.get_metadata(media_id)
@@ -65,6 +81,13 @@ class UpNext:
         return metadata
 
     def get_next_episode_this_season(self, media_id, season, episode):
+        """
+        Get the metadata for the next episode of this season
+
+        :param media_id: id of the season on the plex server
+        :param season: season of `current_episode`
+        :param episode: episode of `current_episode`
+        """
         self.LOG.debug('Looking for S%sE%s' % (str(season).zfill(2), str(episode + 1).zfill(2)))
         next_episode = None
 
@@ -80,6 +103,12 @@ class UpNext:
         return next_episode
 
     def get_next_season_episode_one(self, media_id, season):
+        """
+        Get the metadata for the first episode of the next season
+
+        :param media_id: id of the tv show on the plex server
+        :param season: season of `current_episode`
+        """
         self.LOG.debug('Looking for S%sE01' % str(season + 1).zfill(2))
         next_episode = None
         next_season = None
@@ -107,6 +136,12 @@ class UpNext:
         return next_episode
 
     def get_up_next_data(self, current_metadata, next_metadata):
+        """
+        Get `upnext_data` that is required for service.upnext notification
+
+        :param current_metadata: metadata for the `current_episode`
+        :param next_metadata: metadata for the `next_episode`
+        """
         return {
             "current_episode": self._up_next_episode(current_metadata),
             "next_episode": self._up_next_episode(next_metadata),
@@ -120,6 +155,9 @@ class UpNext:
         }
 
     def get_image(self, url):
+        """
+        Get formatted image urls
+        """
         if not url:
             return ''
         if url.startswith('/'):
@@ -127,6 +165,10 @@ class UpNext:
         return self.server.get_kodi_header_formatted_url(url)
 
     def _up_next_episode(self, metadata):
+        """
+        Create an episode dict from the provided metadata, this will either be
+        `current_episode` or `next_episode`
+        """
         episode_image = self.get_image(metadata.get('thumb'))
         fanart_image = self.get_image(metadata.get('art'))
         tvshow_image = self.get_image(metadata.get('grandparentThumb'))
