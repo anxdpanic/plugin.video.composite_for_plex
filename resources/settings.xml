@@ -76,6 +76,14 @@
         <setting type="lsep" label="30689"/>
         <setting id="up_next_install" label="30687" type="action" action="InstallAddon(service.upnext)" option="close" enable="!System.HasAddon(service.upnext)"/>
     </category>
+    <category label="30707">
+        <setting type="lsep" label="30711"/>
+        <setting id="use_companion_receiver" type="bool" label="30708" default="false"/>
+        <setting id="use_kodi_devicename" type="bool" label="30710" default="false" enable="eq(-1,true)"/>
+        <setting id="receiver_port" type="number" label="30709" default="3005" enable="eq(-2,true)"/>
+        <setting id="receiver_uuid" type="text" visible="false" option="hidden"/>
+        <setting id="replacement" type="bool" visible="false" default="false" />
+    </category>
     <category label="30522"> <!-- advanced -->
         <setting id="libraryfilter" type="bool" label="30588" default="false"/>
         <setting id="monitoroff" type="bool" label="30609" default="false"/>

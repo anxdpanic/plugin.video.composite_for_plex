@@ -1,3 +1,6 @@
+0.4.0
+[add] Plex Companion receiver *experimental
+
 0.3.0
 [add] Kodi 18+ library integration support
     - Movies: add video source - plugin://plugin.video.composite_for_plex/library/movies/

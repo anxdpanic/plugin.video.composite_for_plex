@@ -15,8 +15,12 @@ from .addon.constants import CONFIG
 from .addon.logger import Logger
 from .addon.monitor import Monitor
 from .addon.player import CallbackPlayer
+from .addon.settings import AddonSettings
+from .companion import companion
+from .companion.client import get_client
 
 LOG = Logger(CONFIG['name'], 'service')
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def run():
@@ -28,9 +32,14 @@ def run():
     player = CallbackPlayer(window=window)
     monitor = Monitor()
 
+    companion_thread = None
+    if SETTINGS.use_companion():
+        companion_thread = companion.CompanionReceiverThread(get_client())
+
     while not monitor.abortRequested():
 
         if monitor.waitForAbort(sleep_time):
             break
 
+    companion.shutdown(companion_thread)
     player.cleanup_threads(only_ended=False)  # clean up any/all playback monitoring threads

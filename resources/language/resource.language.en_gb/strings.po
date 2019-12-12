@@ -1185,3 +1185,35 @@ msgstr ""
 msgctxt "#30703"
 msgid "Data Cache"
 msgstr ""
+
+msgctxt "#30704"
+msgid "Companion receiver is unable to start due to a port conflict"
+msgstr ""
+
+msgctxt "#30705"
+msgid "Companion receiver has started"
+msgstr ""
+
+msgctxt "#30706"
+msgid "Companion receiver has been stopped"
+msgstr ""
+
+msgctxt "#30707"
+msgid "Companion Receiver"
+msgstr ""
+
+msgctxt "#30708"
+msgid "Enabled"
+msgstr ""
+
+msgctxt "#30709"
+msgid "Port"
+msgstr ""
+
+msgctxt "#30710"
+msgid "Use Kodi's device name"
+msgstr ""
+
+msgctxt "#30711"
+msgid "[COLOR=red]EXPERIMENTAL[/COLOR] - This feature is experimental[CR]Any changes to these settings will require a restart to take effect"
+msgstr ""
