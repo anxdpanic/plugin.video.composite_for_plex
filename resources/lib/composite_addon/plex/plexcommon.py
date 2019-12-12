@@ -9,6 +9,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from contextlib import closing
 import platform
 import sys
 import uuid
@@ -76,12 +77,20 @@ def get_device():
         device = 'Darwin'
     if xbmc.getCondVisibility('system.platform.android'):
         device = 'Android'
-    if xbmcvfs.exists('/etc/os-release') \
-            and 'libreelec' in xbmcvfs.File('/etc/os-release').read():
-        device = 'LibreELEC'
-    if xbmcvfs.exists('/proc/device-tree/model') \
-            and 'Raspberry Pi' in xbmcvfs.File('/proc/device-tree/model').read():
-        device = 'Raspberry Pi'
+
+    if xbmcvfs.exists('/proc/device-tree/model'):
+        with closing(xbmcvfs.File('/proc/device-tree/model')) as open_file:
+            if 'Raspberry Pi' in open_file.read():
+                device = 'Raspberry Pi'
+
+    if xbmcvfs.exists('/etc/os-release'):
+        with closing(xbmcvfs.File('/etc/os-release')) as open_file:
+            contents = open_file.read()
+            if 'libreelec' in contents:
+                device = 'LibreELEC'
+            if 'osmc' in contents:
+                device = 'OSMC'
+
     if device is None:
         try:
             device = platform.system()
