@@ -26,7 +26,7 @@ LOG = Logger(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run(url, prefix=None, indirect=None, transcode=False):  # pylint: disable=too-many-branches
+def run(url, prefix=None, indirect=None, transcode=False):
     PLEX_NETWORK.load()
 
     server = PLEX_NETWORK.get_server_from_url(url)
@@ -52,7 +52,7 @@ def run(url, prefix=None, indirect=None, transcode=False):  # pylint: disable=to
 
         # Workaround for Kodi HLS request limit of 1024 byts
         if len(url) > 1000:
-            LOG.debug('Kodi HSL limit detected, will pre-fetch m3u8 playlist')
+            LOG.debug('Kodi HLS limit detected, will pre-fetch m3u8 playlist')
 
             playlist = get_xml(url)
 
@@ -72,19 +72,23 @@ def run(url, prefix=None, indirect=None, transcode=False):  # pylint: disable=to
         url = url + '|User-Agent=QuickTime/7.6.9 (qtver=7.6.9;os=Windows NT 6.1Service Pack 1)'
 
     LOG.debug('Final URL is: %s' % url)
+    xbmcplugin.setResolvedUrl(get_handle(), True, _list_item(url))
+
+    _monitor_transcode(server, session, transcode)
+    DATA_CACHE.delete_cache(True)
+
+
+def _list_item(url):
     if CONFIG['kodi_version'] >= 18:
-        item = xbmcgui.ListItem(path=url, offscreen=True)
-    else:
-        item = xbmcgui.ListItem(path=url)
+        return xbmcgui.ListItem(path=url, offscreen=True)
+    return xbmcgui.ListItem(path=url)
 
-    xbmcplugin.setResolvedUrl(get_handle(), True, item)
 
-    if transcode and session:
+def _monitor_transcode(server, session, transcode):
+    if session and transcode:
         try:
             monitor_channel_transcode_playback(session, server)
         except:  # pylint: disable=bare-except
             LOG.debug('Unable to start transcode monitor')
     else:
         LOG.debug('Not starting monitor')
-
-    DATA_CACHE.delete_cache(True)
