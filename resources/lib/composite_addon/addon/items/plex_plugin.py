@@ -19,7 +19,7 @@ from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
 
-def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-many-branches
+def create_plex_plugin_item(server, tree, url, plugin):
     details = {
         'title': encode_utf8(plugin.get('title'))
     }
@@ -47,40 +47,54 @@ def create_plex_plugin_item(server, tree, url, plugin):  # pylint: disable=too-m
 
     p_url = get_link_url(url, extra_data, server)
 
-    if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
-
-        extra_data['mode'] = MODES.PLEXPLUGINS
-        if plugin.get('search') == '1':
-            extra_data['mode'] = MODES.CHANNELSEARCH
-            extra_data['parameters'] = {
-                'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))
-            }
-
-        return create_gui_item(p_url, details, extra_data)
-
-    if plugin.tag == 'Video':
-        extra_data['mode'] = MODES.VIDEOPLUGINPLAY
-
-        for child in plugin:
-            if child.tag == 'Media':
-                extra_data['parameters'] = {'indirect': child.get('indirect', '0')}
-
-        return create_gui_item(p_url, details, extra_data, folder=False)
+    if plugin.tag in ['Directory', 'Podcast']:
+        return get_directory_item(plugin, p_url, details, extra_data)
 
     if plugin.tag == 'Setting':
+        return get_setting_item(plugin, url, details, extra_data)
 
-        value = plugin.get('value')
-        if plugin.get('option') == 'hidden':
-            value = '********'
-        elif plugin.get('type') == 'text':
-            value = plugin.get('value')
-        elif plugin.get('type') == 'enum':
-            value = plugin.get('values').split('|')[int(plugin.get('value', 0))]
-
-        details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n('Unknown'))), value)
-        extra_data['mode'] = MODES.CHANNELPREFS
-        extra_data['parameters'] = {'id': plugin.get('id')}
-
-        return create_gui_item(url, details, extra_data)
+    if plugin.tag == 'Video':
+        return get_video_item(plugin, p_url, details, extra_data)
 
     return None
+
+
+def get_directory_item(plugin, url, details, extra_data):
+    extra_data['mode'] = MODES.PLEXPLUGINS
+    if plugin.get('search') == '1':
+        extra_data['mode'] = MODES.CHANNELSEARCH
+        extra_data['parameters'] = {
+            'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))
+        }
+
+    return create_gui_item(url, details, extra_data)
+
+
+def get_setting_item(plugin, url, details, extra_data):
+    value = plugin.get('value')
+    if plugin.get('option') == 'hidden':
+        value = '********'
+    elif plugin.get('type') == 'text':
+        value = plugin.get('value')
+    elif plugin.get('type') == 'enum':
+        value = plugin.get('values').split('|')[int(plugin.get('value', 0))]
+
+    details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n('Unknown'))), value)
+    extra_data['mode'] = MODES.CHANNELPREFS
+    extra_data['parameters'] = {
+        'id': plugin.get('id')
+    }
+
+    return create_gui_item(url, details, extra_data)
+
+
+def get_video_item(plugin, url, details, extra_data):
+    extra_data['mode'] = MODES.VIDEOPLUGINPLAY
+
+    for child in plugin:
+        if child.tag == 'Media':
+            extra_data['parameters'] = {
+                'indirect': child.get('indirect', '0')
+            }
+
+    return create_gui_item(url, details, extra_data, folder=False)
