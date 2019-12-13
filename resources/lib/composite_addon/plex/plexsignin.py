@@ -141,7 +141,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.success_message.setVisible(False)
         self.tick.setVisible(False)
         self.description.setText(i18n('From your computer, go to %s and enter the code below') %
-                                 '[B]http://plex.tv/pin[/B]')
+                                 '[B]https://www.plex.tv/link/[/B]')
         self.name_label.setVisible(False)
         self.password_label.setVisible(False)
         self.name_field.setVisible(False)

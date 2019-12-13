@@ -37,6 +37,8 @@
         <source>https://github.com/anxdpanic/plugin.video.composite_for_plex</source>
         <description lang="en_GB">Browse and play video, music and photo media files managed by Plex Media Server.[CR][CR]Fork of PleXBMC by Hippojay</description>
         <disclaimer lang="en_GB">Composite is NOT an official Plex add-on and is not supported or endorsed by Plex.</disclaimer>
+        <description lang="de_DE">Durchsuchen und Abspielen von Videos, Musik und Fotos, die vom Plex Media Server verwaltet werden.[CR][CR]Fork von Hippojay's PleXBMC</description>
+        <disclaimer lang="de_DE">Composite ist KEIN offizielles Plex Add-on und wird von Plex weder unterstützt noch gebilligt.</disclaimer>
         <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>
