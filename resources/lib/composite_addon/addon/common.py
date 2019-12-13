@@ -47,7 +47,7 @@ def get_handle():
         return -1
 
 
-def get_params():  # pylint: disable=too-many-branches
+def get_params():
     try:
         param_string = get_argv()[2]
     except IndexError:
@@ -66,13 +66,23 @@ def get_params():  # pylint: disable=too-many-branches
             elif (len(split_params)) == 3:
                 params[split_params[0]] = split_params[1] + '=' + split_params[2]
 
-    command = None
     url = params.get('url')
     if url:
         if url.startswith('http') or url.startswith('file'):
             url = unquote(url)
-        elif url.startswith('cmd'):
-            command = unquote(url).split(':')[1]
+
+    params['url'] = url
+    params['command'] = _get_command_parameter(url)
+    params['path_mode'] = get_plugin_url_path()
+
+    LOG.debug('Parameters |%s| -> |%s|' % (param_string, str(params)))
+    return params
+
+
+def _get_command_parameter(url):
+    command = None
+    if url and url.startswith('cmd'):
+        command = url.split(':')[1]
 
     if command is None:
         try:
@@ -80,24 +90,21 @@ def get_params():  # pylint: disable=too-many-branches
         except:  # pylint: disable=bare-except
             pass
 
-    params['url'] = url
-
     try:
         _ = int(command)
         command = COMMANDS.UNSET
     except ValueError:
         pass
 
-    params['command'] = command
+    return command
 
-    params['path_mode'] = None
+
+def get_plugin_url_path():
     plugin_url = get_argv()[0]
-    path_mode = plugin_url.replace('plugin://%s/' % CONFIG['id'], '').rstrip('/')
-    if path_mode:
-        params['path_mode'] = path_mode
-
-    LOG.debug('Parameters |%s| -> |%s|' % (param_string, str(params)))
-    return params
+    path = plugin_url.replace('plugin://%s/' % CONFIG['id'], '').rstrip('/')
+    if not path or (path and path.endswith('.py')):
+        return None
+    return path
 
 
 def is_ip(address):
