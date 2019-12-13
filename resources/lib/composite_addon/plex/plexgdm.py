@@ -23,6 +23,7 @@ from six.moves.urllib_request import urlopen
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
+from ..addon.strings import decode_utf8
 from ..addon.strings import encode_utf8
 
 LOG = Logger(CONFIG['name'], 'PlexGDM')
@@ -204,7 +205,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                     LOG.debug('Data received is:\n %s' % data)
                     return_data.append({
                         'from': server,
-                        'data': data
+                        'data': decode_utf8(data.decode)
                     })
                 except socket.timeout:
                     break
@@ -223,7 +224,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                 }
 
                 # Check if we had a positive HTTP response
-                if b'200 OK' in response.get('data'):
+                if '200 OK' in response.get('data'):
 
                     update['discovery'] = 'auto'
                     update['owned'] = '1'
@@ -231,24 +232,24 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                     update['role'] = 'master'
                     update['class'] = None
 
-                    for each in response.get('data').split(b'\n'):
+                    for each in response.get('data').split('\n'):
 
-                        if b'Content-Type:' in each:
-                            update['content-type'] = each.split(b':')[1].strip()
-                        elif b'Resource-Identifier:' in each:
-                            update['uuid'] = each.split(b':')[1].strip()
-                        elif b'Name:' in each:
-                            update['serverName'] = each.split(b':')[1].strip()
-                        elif b'Port:' in each:
-                            update['port'] = each.split(b':')[1].strip()
-                        elif b'Updated-At:' in each:
-                            update['updated'] = each.split(b':')[1].strip()
-                        elif b'Version:' in each:
-                            update['version'] = each.split(b':')[1].strip()
-                        elif b'Server-Class:' in each:
-                            update['class'] = each.split(b':')[1].strip()
-                        elif b'Host:' in each:
-                            update['host'] = each.split(b':')[1].strip()
+                        if 'Content-Type:' in each:
+                            update['content-type'] = each.split(':')[1].strip()
+                        elif 'Resource-Identifier:' in each:
+                            update['uuid'] = each.split(':')[1].strip()
+                        elif 'Name:' in each:
+                            update['serverName'] = each.split(':')[1].strip()
+                        elif 'Port:' in each:
+                            update['port'] = each.split(':')[1].strip()
+                        elif 'Updated-At:' in each:
+                            update['updated'] = each.split(':')[1].strip()
+                        elif 'Version:' in each:
+                            update['version'] = each.split(':')[1].strip()
+                        elif 'Server-Class:' in each:
+                            update['class'] = each.split(':')[1].strip()
+                        elif 'Host:' in each:
+                            update['host'] = each.split(':')[1].strip()
 
                 discovered_servers.append(update)
 
