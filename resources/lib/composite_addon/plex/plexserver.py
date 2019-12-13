@@ -400,8 +400,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = False if self.protocol == 'http' else SETTINGS.get_setting('verify_cert')
-
+            verify_cert = self.protocol == 'https' and SETTINGS.get_setting('verify_cert')
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:

@@ -484,18 +484,20 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('url = %s%s' % (self.myplex_server, path))
 
         try:
+            verify_cert = self.myplex_server.startswith('https') \
+                          and SETTINGS.get_setting('verify_cert')
             if method == 'get':
                 response = requests.get('%s%s' % (self.myplex_server, path),
                                         params=self.plex_identification_header(),
-                                        verify=True, timeout=(3, 10))
+                                        verify=verify_cert, timeout=(3, 10))
             elif method == 'get2':
                 response = requests.get('%s%s' % (self.myplex_server, path),
                                         headers=self.plex_identification_header(),
-                                        verify=True, timeout=(3, 10))
+                                        verify=verify_cert, timeout=(3, 10))
             elif method == 'post':
                 response = requests.post('%s%s' % (self.myplex_server, path), data='',
                                          headers=self.plex_identification_header(),
-                                         verify=True, timeout=(3, 10))
+                                         verify=verify_cert, timeout=(3, 10))
             else:
                 LOG.error('Unknown HTTP method requested: %s' % method)
                 response = None
