@@ -205,7 +205,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                     LOG.debug('Data received is:\n %s' % data)
                     return_data.append({
                         'from': server,
-                        'data': decode_utf8(data.decode)
+                        'data': decode_utf8(data)
                     })
                 except socket.timeout:
                     break
