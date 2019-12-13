@@ -28,16 +28,10 @@ from ..plex import plex
 LOG = Logger(CONFIG['name'])
 
 
-def run(params):  # pylint: disable=too-many-branches
+def run(params):
     del params['command']  # remove unrelated param
 
-    content_type = None
-    if params.get('path_mode'):
-        if params['path_mode'].endswith('movies'):
-            content_type = 'movie'
-        elif params['path_mode'].endswith('tvshows'):
-            content_type = 'show'
-
+    content_type = _get_content_type(params.get('path_mode'))
     kodi_action = params.get('kodi_action')
 
     if kodi_action == 'check_exists' and params.get('url'):
@@ -81,6 +75,16 @@ def run(params):  # pylint: disable=too-many-branches
                                       (server.get_url_location(), section.get_path()))
 
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
+
+
+def _get_content_type(path_mode):
+    content_type = None
+    if path_mode:
+        if path_mode.endswith('movies'):
+            content_type = 'movie'
+        elif path_mode.endswith('tvshows'):
+            content_type = 'show'
+    return content_type
 
 
 def _list_content(server, url):
