@@ -94,6 +94,7 @@ STRINGS = {
     'All episodes': 30087,
     'Season': 30088,
     'Search for': 30089,
+    'Unplayed': 30090,
     'Kids': 30589,
     'Teens': 30590,
     'Adults': 30591,
@@ -200,6 +201,8 @@ def directory_item_translate(title, thumb):  # pylint: disable=too-many-statemen
     if thumb.endswith('show.png'):
         if title == 'All Shows':
             translated_title = i18n('All')
+        elif title == 'Unplayed':
+            translated_title = i18n('Unplayed')
         elif title == 'Unwatched':
             translated_title = i18n('Unwatched')
         elif title == 'Recently Aired':
@@ -254,6 +257,8 @@ def directory_item_translate(title, thumb):  # pylint: disable=too-many-statemen
     if thumb.endswith('movie.png') or thumb.endswith('video.png'):
         if title.startswith('All '):
             translated_title = i18n('All')
+        elif title == 'Unplayed':
+            translated_title = i18n('Unplayed')
         elif title == 'Unwatched':
             translated_title = i18n('Unwatched')
         elif title == 'Recently Released':

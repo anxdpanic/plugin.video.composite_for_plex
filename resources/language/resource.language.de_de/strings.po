@@ -31,11 +31,11 @@ msgstr "Plex Online"
 
 msgctxt "#30003"
 msgid "About to install"
-msgstr "Über zu installieren"
+msgstr "Installiere"
 
 msgctxt "#30004"
 msgid "This plugin is already installed"
-msgstr "Das Addon ist bereits installiert"
+msgstr "Das Add-on ist bereits installiert"
 
 msgctxt "#30005"
 msgid "Switch Failed"
@@ -113,7 +113,7 @@ msgstr "Nach Jahr"
 
 msgctxt "#30024"
 msgid "By Content Rating"
-msgstr "Nach Inhaltsbewertung"
+msgstr "Nach Altersfreigabe"
 
 msgctxt "#30025"
 msgid "By Folder"
@@ -209,11 +209,11 @@ msgstr "Nach Jahrzehnt"
 
 msgctxt "#30048"
 msgid "By Director"
-msgstr "Nach Regie"
+msgstr "Nach Regisseur"
 
 msgctxt "#30049"
 msgid "By Starring Actor"
-msgstr "Nach Hauptdarsteller"
+msgstr "Nach Schauspieler"
 
 msgctxt "#30050"
 msgid "By Country"
@@ -221,7 +221,7 @@ msgstr "Nach Land"
 
 msgctxt "#30051"
 msgid "By Content Rating"
-msgstr "Nach Inhaltsbewertung"
+msgstr "Nach Altersfreigabe"
 
 msgctxt "#30052"
 msgid "By Rating"
@@ -374,6 +374,10 @@ msgstr "Staffel"
 msgctxt "#30089"
 msgid "Search for"
 msgstr "Suche nach"
+
+msgctxt "#30090"
+msgid "Unplayed"
+msgstr "Ungespielt"
 
 ###### SETTINGS
 
@@ -575,7 +579,7 @@ msgstr "Kontextmenü säubern"
 
 msgctxt "#30549"
 msgid "Skip Genre/director/writer metadata"
-msgstr "Genre-/Regie-/Author-Metadaten überspringen"
+msgstr "Genre-/Regisseur-/Author-Metadaten überspringen"
 
 msgctxt "#30550"
 msgid "Skip images (thumbs, fanart)"
@@ -879,7 +883,7 @@ msgstr "Rufe die Webseite %s auf und gib folgenden Code ein"
 
 msgctxt "#30626"
 msgid "Successfully signed in"
-msgstr "Erfolgrecih angemeldet"
+msgstr "Erfolgreich angemeldet"
 
 msgctxt "#30627"
 msgid "Sign in not successful"
@@ -929,11 +933,11 @@ msgstr "Wert"
 
 msgctxt "#30640"
 msgid "Transcode Profile"
-msgstr "Transcode-Profil"
+msgstr "Transcoding-Profil"
 
 msgctxt "#30641"
 msgid "Transcode Profiles"
-msgstr "Transcode-Profile"
+msgstr "Transcoding-Profile"
 
 msgctxt "#30642"
 msgid "Offline"

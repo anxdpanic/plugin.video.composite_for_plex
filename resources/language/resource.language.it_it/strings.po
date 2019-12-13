@@ -374,6 +374,10 @@ msgctxt "#30089"
 msgid "Search for"
 msgstr "Ricerca per"
 
+msgctxt "#30090"
+msgid "Unplayed"
+msgstr ""
+
 ###### SETTINGS
 
 msgctxt "#30500"

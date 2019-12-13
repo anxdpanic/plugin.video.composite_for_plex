@@ -375,6 +375,10 @@ msgctxt "#30089"
 msgid "Search for"
 msgstr "חפש את"
 
+msgctxt "#30090"
+msgid "Unplayed"
+msgstr ""
+
 # ##### SETTINGS
 msgctxt "#30500"
 msgid "Primary Server Address"

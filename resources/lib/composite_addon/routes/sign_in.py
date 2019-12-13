@@ -33,7 +33,7 @@ def run():
         response = PLEX_NETWORK.get_signin_pin()
         message = i18n('From your computer, go to [B]%s[/B] and'
                        ' enter the following code: [B]%s[/B]') % \
-                  ('http://plex.tv/pin', ' '.join(response.get('code', [])))
+                  ('https://www.plex.tv/link/', ' '.join(response.get('code', [])))
         xbmcgui.Dialog().ok(i18n('myPlex Login'), message)
         xbmc.sleep(500)
         result = PLEX_NETWORK.check_signin_status(response.get('id', ''))
