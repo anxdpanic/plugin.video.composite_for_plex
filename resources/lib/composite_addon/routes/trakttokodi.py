@@ -122,27 +122,74 @@ def _get_episode(params, server, season_id=None, processed=None):
     return None
 
 
-def search(params):  # pylint: disable=too-many-branches, too-many-nested-blocks
+def _get_content_type(video_type):
+    content_type = None
+    if video_type == 'movie':
+        content_type = 'movie'
+    elif video_type == 'show':
+        content_type = 'show'
+    elif video_type == 'season':
+        content_type = 'show'
+    elif video_type == 'episode':
+        content_type = 'show'
+    return content_type
+
+
+def _get_search_type(video_type):
+    search_type = None
+    if video_type == 'movie':
+        search_type = '1'
+    elif video_type == 'show':
+        search_type = '2'
+    elif video_type == 'season':
+        search_type = '2'
+    elif video_type == 'episode':
+        search_type = '4'
+    return search_type
+
+
+def _get_search_results(server, processed, params):
+    results = []
+    if params.get('video_type') == 'episode':
+        episode = _get_episode(params, server, processed=processed)
+
+        if episode is not None:
+            results.append((server.get_uuid(), episode))
+            return results
+
+    if params.get('video_type') in ['episode', 'season']:
+        show = _get_show(params, processed)
+        if show is not None:
+
+            season = _get_season(params, server, show.get('ratingKey'))
+            if season is not None:
+                if params.get('video_type') == 'season':
+                    results.append((server.get_uuid(), season))
+                    return results
+
+                if params.get('video_type') == 'episode':
+                    episode = _get_episode(params, server, season.get('ratingKey'))
+                    if episode is not None:
+                        results.append((server.get_uuid(), episode))
+                        return results
+    else:
+        for result in processed:
+            results.append((server.get_uuid(), result))
+
+    return results
+
+
+def search(params):
     results = []
 
-    if params.get('video_type') == 'movie':
-        content_type = 'movie'
-        search_type = '1'
-    elif params.get('video_type') == 'show':
-        content_type = 'show'
-        search_type = '2'
-    elif params.get('video_type') == 'season':
-        content_type = 'show'
-        search_type = '2'
-    elif params.get('video_type') == 'episode':
-        content_type = 'show'
-        search_type = '4'
-    else:
-        return results
+    content_type = _get_content_type(params.get('video_type'))
+    search_type = _get_search_type(params.get('video_type'))
+    if not content_type or not search_type:
+        return []
 
     server_list = PLEX_NETWORK.get_server_list()
 
-    for server in server_list:  # pylint: disable=too-many-nested-blocks
+    for server in server_list:
 
         sections = server.get_sections()
         for section in sections:
@@ -158,31 +205,7 @@ def search(params):  # pylint: disable=too-many-branches, too-many-nested-blocks
                     processed = server.processed_xml(url)
 
                 if _is_not_none(processed):
-                    if params.get('video_type') == 'episode':
-                        episode = _get_episode(params, server, processed=processed)
-
-                        if episode is not None:
-                            results.append((server.get_uuid(), episode))
-                            continue
-
-                    if params.get('video_type') in ['episode', 'season']:
-                        show = _get_show(params, processed)
-                        if show is not None:
-
-                            season = _get_season(params, server, show.get('ratingKey'))
-                            if season is not None:
-                                if params.get('video_type') == 'season':
-                                    results.append((server.get_uuid(), season))
-                                    continue
-
-                                if params.get('video_type') == 'episode':
-                                    episode = _get_episode(params, server, season.get('ratingKey'))
-                                    if episode is not None:
-                                        results.append((server.get_uuid(), episode))
-                                        continue
-                    else:
-                        for result in processed:
-                            results.append((server.get_uuid(), result))
+                    results += _get_search_results(server, processed, params)
 
     return results
 
