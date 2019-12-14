@@ -44,7 +44,8 @@ def run(content_filter=None, display_shared=False):
         return
 
     # For each of the servers we have identified
-    if PLEX_NETWORK.is_myplex_signedin():
+    if (SETTINGS.get_setting('show_myplex_queue_menu', fresh=True) and
+            PLEX_NETWORK.is_myplex_signedin()):
         details = {
             'title': i18n('myPlex Queue')
         }
@@ -133,42 +134,45 @@ def server_additional_menu_items(server_list, content_filter):
         else:
             prefix = ''
 
-        details = {
-            'title': prefix + i18n('Channels')
-        }
-        extra_data = {
-            'type': 'Folder',
-            'mode': MODES.CHANNELVIEW
-        }
+        if SETTINGS.get_setting('show_channels_menu', fresh=True):
+            details = {
+                'title': prefix + i18n('Channels')
+            }
+            extra_data = {
+                'type': 'Folder',
+                'mode': MODES.CHANNELVIEW
+            }
 
-        item_url = '%s/channels/all' % server.get_url_location()
-        items.append(create_gui_item(item_url, details, extra_data))
+            item_url = '%s/channels/all' % server.get_url_location()
+            items.append(create_gui_item(item_url, details, extra_data))
 
-        # Create plexonline link
-        details = {
-            'title': prefix + i18n('Plex Online')
-        }
-        extra_data = {
-            'type': 'Folder',
-            'mode': MODES.PLEXONLINE
-        }
+        if SETTINGS.get_setting('show_plex_online_menu', fresh=True):
+            # Create plexonline link
+            details = {
+                'title': prefix + i18n('Plex Online')
+            }
+            extra_data = {
+                'type': 'Folder',
+                'mode': MODES.PLEXONLINE
+            }
 
-        item_url = '%s/system/plexonline' % server.get_url_location()
-        items.append(create_gui_item(item_url, details, extra_data))
+            item_url = '%s/system/plexonline' % server.get_url_location()
+            items.append(create_gui_item(item_url, details, extra_data))
 
-        # create playlist link
-        details = {
-            'title': prefix + i18n('Playlists')
-        }
-        extra_data = {
-            'type': 'Folder',
-            'mode': MODES.PLAYLISTS
-        }
+        if SETTINGS.get_setting('show_playlists_menu', fresh=True):
+            # create playlist link
+            details = {
+                'title': prefix + i18n('Playlists')
+            }
+            extra_data = {
+                'type': 'Folder',
+                'mode': MODES.PLAYLISTS
+            }
 
-        item_url = '%s/playlists' % server.get_url_location()
-        items.append(create_gui_item(item_url, details, extra_data))
+            item_url = '%s/playlists' % server.get_url_location()
+            items.append(create_gui_item(item_url, details, extra_data))
 
-        if SETTINGS.get_setting('show_widget_menu'):
+        if SETTINGS.get_setting('show_widget_menu', fresh=True):
             # create Widgets link
             details = {
                 'title': prefix + i18n('Widgets')
