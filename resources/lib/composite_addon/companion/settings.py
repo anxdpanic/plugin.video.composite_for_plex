@@ -44,8 +44,12 @@ class GUISettings:
             value = ''
             settings = self.settings.getElementsByTagName('setting')
             for setting in settings:
-                if setting.getAttribute('id') == name and setting.firstChild:
+                setting_id = setting.getAttribute('id')
+                if setting_id == name and setting.firstChild:
                     value = setting.firstChild.nodeValue
+
+                if setting_id == name:
+                    break
 
         if value == 'false':
             return False
