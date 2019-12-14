@@ -21,7 +21,6 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from .http_persist import RequestManager
 from .listener import PlexCompanionHandler
 from .listener import ThreadedHTTPServer
-from .settings import SETTINGS
 from .subscribers import SubscriptionManager
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
@@ -33,6 +32,7 @@ class CompanionReceiverThread(threading.Thread):
     LOG = Logger(CONFIG['name'], 'CompanionReceiverThread')
     MONITOR = xbmc.Monitor()
     SETTINGS = AddonSettings(CONFIG['id'])
+    CLIENT_DETAILS = SETTINGS.companion_receiver()
 
     def __init__(self, gdm_client):
         super(CompanionReceiverThread, self).__init__()
@@ -62,7 +62,8 @@ class CompanionReceiverThread(threading.Thread):
 
     def _get_httpd(self):
         self.httpd = ThreadedHTTPServer(self.client, self.subscription_manager,
-                                        ('', SETTINGS['receiver_port']), PlexCompanionHandler)
+                                        ('', self.CLIENT_DETAILS['port']),
+                                        PlexCompanionHandler)
         self.httpd.timeout = 0.95
 
     def run(self):
@@ -112,7 +113,7 @@ class CompanionReceiverThread(threading.Thread):
                         else:
                             self.LOG.debug('Client is no longer registered')
                         self.LOG.debug('Receiver still running on port %s' %
-                                       SETTINGS['receiver_port'])
+                                       self.CLIENT_DETAILS['port'])
                         count = 0
 
                     if not running:

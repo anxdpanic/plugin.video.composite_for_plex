@@ -1212,9 +1212,17 @@ msgid "Port"
 msgstr ""
 
 msgctxt "#30710"
-msgid "Use Kodi's device name"
+msgid "Kodi's Web Server Settings"
 msgstr ""
 
 msgctxt "#30711"
 msgid "[COLOR=red]EXPERIMENTAL[/COLOR] - This feature is experimental[CR]Any changes to these settings will require a restart to take effect"
+msgstr ""
+
+msgctxt "#30712"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30713"
+msgid "Password"
 msgstr ""

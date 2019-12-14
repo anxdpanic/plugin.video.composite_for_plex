@@ -9,16 +9,11 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from xml.etree import ElementTree
-
-from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
-from kodi_six import xbmcvfs  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import CONFIG
-from ..addon.constants import MODES
 from ..addon.logger import Logger
 from ..addon.items.movie import create_movie_item
 from ..addon.items.show import create_show_item
@@ -36,11 +31,6 @@ def run(params):
 
     if kodi_action == 'check_exists' and params.get('url'):
         exists = False
-        if not _has_source(content_type):
-            LOG.debug('check_exists for %s -> %s, path removed' % (params.get('url'), exists))
-            xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
-            return
-
         plex_network = plex.Plex(load=True)
         server = plex_network.get_server_from_url(params.get('url'))
         if server:
@@ -50,7 +40,7 @@ def run(params):
         xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
 
     elif kodi_action == 'check_exists':
-        exists = _has_source(content_type)
+        exists = True
         LOG.debug('check_exists for %s -> %s' % (content_type, exists))
         xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
 
@@ -106,31 +96,3 @@ def _list_content(server, url):
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
-
-
-def _has_source(content_type):
-    if xbmcvfs.exists('special://userdata/sources.xml'):
-        movie_path = 'plugin://%s/%s' % (CONFIG['id'], MODES.TXT_MOVIES_LIBRARY)
-        show_path = 'plugin://%s/%s' % (CONFIG['id'], MODES.TXT_TVSHOWS_LIBRARY)
-
-        sources = []
-        video_tree = None
-
-        tree = ElementTree.parse(xbmc.translatePath('special://userdata/sources.xml'))
-        if tree is not None:
-            root = tree.getroot()
-            video_tree = root.find('video')
-
-        if video_tree is not None:
-            sources = video_tree.findall('source')
-
-        if sources:
-            for source in sources:
-                path = source.find('path')
-                if path is not None:
-                    if content_type == 'movie' and path.text.rstrip('/') == movie_path:
-                        return True
-                    if content_type == 'show' and path.text.rstrip('/') == show_path:
-                        return True
-
-    return False

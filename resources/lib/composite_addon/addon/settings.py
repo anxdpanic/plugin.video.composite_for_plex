@@ -11,6 +11,7 @@
 """
 
 import json
+import uuid
 
 from six.moves import range
 
@@ -115,6 +116,37 @@ class AddonSettings:
 
     def use_companion(self):
         return self.get_setting('use_companion_receiver')
+
+    def companion_receiver(self):
+        receiver_uuid = str(self.get_setting('receiver_uuid')) or str(uuid.uuid4())
+        self.set_setting('receiver_uuid', receiver_uuid)
+
+        port = self.get_setting('receiver_port')
+        try:
+            port = int(port)
+        except ValueError:
+            port = 3005
+
+        return {
+            'name': self.get_setting('receiver_name'),
+            'port': port,
+            'uuid': receiver_uuid,
+
+        }
+
+    def kodi_web_server(self):
+        port = self.get_setting('web_server_port')
+        try:
+            port = int(port)
+        except ValueError:
+            port = 8080
+
+        return {
+            'name': self.get_setting('web_server_username'),
+            'password': self.get_setting('web_server_password'),
+            'port': port,
+
+        }
 
     def addon_status(self, addon_id):
         request = {

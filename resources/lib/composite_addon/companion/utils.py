@@ -19,11 +19,12 @@ from six import PY3
 from kodi_six import xbmc  # pylint: disable=import-error
 
 from .http_persist import RequestManager
-from .settings import SETTINGS
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
+from ..addon.settings import AddonSettings
 
 LOG = Logger(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 def kodi_photo():
@@ -131,23 +132,26 @@ def jsonrpc(action, arguments=None):
     LOG.debugplus('Sending request to Kodi without network stack: %s' % request)
     result = parse_jsonrpc(xbmc.executeJSONRPC(request))
 
-    if not result and SETTINGS['webserver_enabled']:
-        # xbmc.executeJSONRPC appears to fail on the login screen, but going
-        # through the network stack works, so let's try the request again
-        credentials = '%s:%s' % (SETTINGS['webserver_user'], SETTINGS['webserver_passwd'])
-        if PY3:
-            credentials = credentials.encode('utf-8')
-            base64bytes = base64.encodebytes(credentials)
-            base64string = base64bytes.decode('utf-8').replace('\n', '')
-        else:
-            base64string = base64.encodestring(credentials).replace('\n', '')  # pylint: disable=deprecated-method
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + base64string,
-        }
-        protocol = 'https' if SETTINGS['webserver_ssl'] else 'http'
-        result = parse_jsonrpc(RequestManager().post('127.0.0.1', SETTINGS['webserver_port'],
-                                                     '/jsonrpc', request, headers, protocol))
+    if not result:
+        web_server = SETTINGS.kodi_web_server()
+        make_web_request = web_server['name'] and web_server['password'] and web_server['port']
+
+        if make_web_request:
+            # xbmc.executeJSONRPC appears to fail on the login screen, but going
+            # through the network stack works, so let's try the request again
+            credentials = '%s:%s' % (web_server['name'], web_server['password'])
+            if PY3:
+                credentials = credentials.encode('utf-8')
+                base64bytes = base64.encodebytes(credentials)
+                base64string = base64bytes.decode('utf-8').replace('\n', '')
+            else:
+                base64string = base64.encodestring(credentials).replace('\n', '')  # pylint: disable=deprecated-method
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + base64string,
+            }
+            result = parse_jsonrpc(RequestManager().post('127.0.0.1', web_server['port'],
+                                                         '/jsonrpc', request, headers))
 
     return result
 
@@ -173,20 +177,22 @@ def get_ok_message():
 
 
 def get_plex_headers():
+    client_details = SETTINGS.companion_receiver()
     headers = {
         'Content-type': 'application/x-www-form-urlencoded',
         'Access-Control-Allow-Origin': '*',
         'X-Plex-Version': CONFIG['version'],
-        'X-Plex-Client-Identifier': SETTINGS['receiver_uuid'],
+        'X-Plex-Client-Identifier': client_details['uuid'],
         'X-Plex-Provides': 'player',
         'X-Plex-Product': CONFIG['name'],
-        'X-Plex-Device-Name': SETTINGS['client_name'],
+        'X-Plex-Device-Name': client_details['name'],
         'X-Plex-Platform': 'Kodi',
         'X-Plex-Model': get_platform(),
         'X-Plex-Device': 'PC',
     }
-    if SETTINGS['myplex_user']:
-        headers['X-Plex-Username'] = SETTINGS['myplex_user']
+    myplex_user = SETTINGS.get_setting('myplex_user')
+    if myplex_user:
+        headers['X-Plex-Username'] = myplex_user
     return headers
 
 

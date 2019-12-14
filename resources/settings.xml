@@ -79,8 +79,12 @@
     <category label="30707">
         <setting type="lsep" label="30711"/>
         <setting id="use_companion_receiver" type="bool" label="30708" default="false"/>
-        <setting id="use_kodi_devicename" type="bool" label="30710" default="false" enable="eq(-1,true)"/>
+        <setting id="receiver_name" type="text" label="30660" default="Kodi-Composite" enable="eq(-1,true)"/>
         <setting id="receiver_port" type="number" label="30709" default="3005" enable="eq(-2,true)"/>
+        <setting type="lsep" label="30710"/>
+        <setting id="web_server_username" type="text" label="30712" default="kodi" enable="eq(-4,true)"/>
+        <setting id="web_server_password" type="text" option="hidden" label="30713" default="" enable="eq(-5,true)"/>
+        <setting id="web_server_port" type="number" label="30709" default="8080" enable="eq(-6,true)"/>
         <setting id="receiver_uuid" type="text" visible="false" option="hidden"/>
         <setting id="replacement" type="bool" visible="false" default="false" />
     </category>
