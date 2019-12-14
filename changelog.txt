@@ -1,5 +1,7 @@
 0.4.0
 [add] Plex Companion receiver *experimental
+[fix] Only verify cert for secure connections, and honor the Certificate Verification setting |contrib: Maven85|
+[lang] German (de_DE) |contrib: Maven85|
 
 0.3.0
 [add] Kodi 18+ library integration support
