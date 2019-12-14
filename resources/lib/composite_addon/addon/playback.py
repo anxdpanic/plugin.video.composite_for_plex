@@ -10,8 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import random
-
 from six.moves import range
 from six.moves.urllib_parse import unquote
 
@@ -73,8 +71,7 @@ def play_media_id_from_uuid(server_uuid, media_id, force=None, transcode=False, 
         plex_network = plex.Plex(load=True)
 
     server = plex_network.get_server_from_uuid(server_uuid)
-    random_number = str(random.randint(1000000000, 9999999999))
-    url = server.get_formatted_url('/library/metadata/%s?%s' % (media_id, random_number))
+    url = server.get_formatted_url('/library/metadata/%s' % media_id)
     play_library_media(url, force=force, transcode=transcode,
                        transcode_profile=transcode_profile, player=player)
 
