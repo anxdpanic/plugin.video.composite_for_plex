@@ -11,19 +11,21 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from .settings import SETTINGS
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
+from ..addon.settings import AddonSettings
 from ..plex.plexgdm import PlexGDM
 
 LOG = Logger(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 # Start GDM for server/client discovery
 def get_client():
     client = PlexGDM()
-    client.client_details(SETTINGS['receiver_uuid'], SETTINGS['client_name'],
-                          SETTINGS['receiver_port'], CONFIG['name'], CONFIG['version'])
+    details = SETTINGS.companion_receiver()
+    client.client_details(details['uuid'], details['name'], details['port'],
+                          CONFIG['name'], CONFIG['version'])
 
     LOG.debug('Registration string is: %s' % client.get_client_details())
     return client

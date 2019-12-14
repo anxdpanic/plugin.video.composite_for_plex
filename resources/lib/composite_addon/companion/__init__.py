@@ -9,4 +9,4 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['client', 'companion', 'http_persist', 'listener', 'settings', 'subscribers', 'utils']
+__all__ = ['client', 'companion', 'http_persist', 'listener', 'subscribers', 'utils']

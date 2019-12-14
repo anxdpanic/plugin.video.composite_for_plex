@@ -24,7 +24,7 @@ from kodi_six import xbmc  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
-from .settings import SETTINGS
+from ..addon.settings import AddonSettings
 from .utils import get_ok_message
 from .utils import get_platform
 from .utils import get_player_ids
@@ -35,6 +35,7 @@ from .utils import jsonrpc
 from .utils import millis_to_time
 
 LOG = Logger(CONFIG['name'])
+SETTINGS = AddonSettings(CONFIG['id'])
 
 
 class PlexCompanionHandler(BaseHTTPRequestHandler):
@@ -42,6 +43,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
 
     def __init__(self, *args, **kwargs):
         self.server_list = []
+        self.client_details = SETTINGS.companion_receiver()
         BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def log_message(self, format, *args):  # pylint: disable=redefined-builtin, unused-argument, no-self-use
@@ -60,7 +62,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):  # pylint: disable=invalid-name
         self.send_response(200)
         self.send_header('Content-Length', '0')
-        self.send_header('X-Plex-Client-Identifier', SETTINGS['receiver_uuid'])
+        self.send_header('X-Plex-Client-Identifier', self.client_details['uuid'])
         self.send_header('Content-Type', 'text/plain')
         self.send_header('Connection', 'close')
         self.send_header('Access-Control-Max-Age', '1209600')
@@ -121,11 +123,11 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                 response = get_xml_header()
                 response += '<MediaContainer>'
                 response += '<Player'
-                response += ' title="%s"' % SETTINGS['client_name']
+                response += ' title="%s"' % self.client_details['name']
                 response += ' protocol="plex"'
                 response += ' protocolVersion="1"'
                 response += ' protocolCapabilities="navigation,playback,timeline"'
-                response += ' machineIdentifier="%s"' % SETTINGS['receiver_uuid']
+                response += ' machineIdentifier="%s"' % self.client_details['uuid']
                 response += ' product="%s"' % CONFIG['name']
                 response += ' platform="%s"' % get_platform()
                 response += ' platformVersion="%s"' % CONFIG['version']
@@ -150,7 +152,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                 self.response(re.sub(r'INSERTCOMMANDID', str(command_id),
                                      self.server.subscription_manager.msg(get_players())),
                               {
-                                  'X-Plex-Client-Identifier': SETTINGS['receiver_uuid'],
+                                  'X-Plex-Client-Identifier': self.client_details['uuid'],
                                   'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
                                   'Access-Control-Allow-Origin': '*',
                                   'Content-Type': 'text/xml'
