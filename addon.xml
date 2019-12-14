@@ -16,6 +16,8 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [add] Plex Companion receiver *experimental
+[fix] Only verify cert for secure connections, and honor the Certificate Verification setting |contrib: Maven85|
+[lang] German (de_DE) |contrib: Maven85|
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
