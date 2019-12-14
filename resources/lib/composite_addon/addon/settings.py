@@ -113,6 +113,9 @@ class AddonSettings:
     def data_cache_ttl(self):
         return int(self.get_setting('data_cache_ttl', fresh=True)) * 60
 
+    def use_companion(self):
+        return self.get_setting('use_companion_receiver')
+
     def addon_status(self, addon_id):
         request = {
             "jsonrpc": "2.0",

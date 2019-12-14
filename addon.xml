@@ -15,18 +15,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] Kodi 18+ library integration support
-    - Movies: add video source - plugin://plugin.video.composite_for_plex/library/movies/
-    - TV Shows: add video source - plugin://plugin.video.composite_for_plex/library/tvshows/
-    *** https://kodi.wiki/view/Adding_video_sources
-    *** Will not have support for most Plex features
-[add] Settings - Cache - Data Cache, to enable or disable the use of data caching
-[upd] Improve device identification |contrib: Maven85|
-[upd] Additional list item information at playback |contrib: Maven85|
-[upd] Improve the speed of cache deletion
-[upd] refactor items and processing into smaller pieces
-[upd] refactor common, constants, and logging
-[lang] German (de_DE) |contrib: Maven85|
+[add] Plex Companion receiver *experimental
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>

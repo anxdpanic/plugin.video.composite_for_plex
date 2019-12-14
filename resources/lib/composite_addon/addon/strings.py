@@ -162,6 +162,9 @@ STRINGS = {
     'Recently Aired TV Shows': 30700,
     'Recently Added Movies': 30701,
     'Recently Added TV Shows': 30702,
+    'Companion receiver is unable to start due to a port conflict': 30704,
+    'Companion receiver has started': 30705,
+    'Companion receiver has been stopped': 30706,
 }
 
 

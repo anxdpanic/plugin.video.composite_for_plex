@@ -160,7 +160,10 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
             del stream_data['thumbnail']  # not a valid info label
 
         list_item.setInfo(type=streams['type'], infoLabels=stream_data)
-        list_item.setArt({'icon': thumb, 'thumb': thumb})
+        list_item.setArt({
+            'icon': thumb,
+            'thumb': thumb
+        })
 
     if force:
 
@@ -198,6 +201,10 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
             xbmc.Player().play(playback_url, list_item)
         else:
             xbmcplugin.setResolvedUrl(get_handle(), True, list_item)
+
+    window = xbmcgui.Window(10000)
+    window.setProperty('plugin.video.composite-nowplaying.server', server.get_location())
+    window.setProperty('plugin.video.composite-nowplaying.id', media_id)
 
 
 def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
@@ -584,7 +591,10 @@ def play_playlist(server, data):
         if 'thumbnail' in data['full_data']:
             del data['full_data']['thumbnail']  # not a valid info label
 
-        list_item.setArt({'icon': thumb, 'thumb': thumb})
+        list_item.setArt({
+            'icon': thumb,
+            'thumb': thumb
+        })
         list_item.setInfo(type='music', infoLabels=details)
         playlist.add(url, list_item)
 
