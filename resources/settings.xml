@@ -86,7 +86,7 @@
         <setting id="web_server_password" type="text" option="hidden" label="30713" default="" enable="eq(-5,true)"/>
         <setting id="web_server_port" type="number" label="30709" default="8080" enable="eq(-6,true)"/>
         <setting id="receiver_uuid" type="text" visible="false" option="hidden"/>
-        <setting id="replacement" type="bool" visible="false" default="false" />
+        <setting id="replacement" type="bool" visible="false" default="false"/>
     </category>
     <category label="30522"> <!-- advanced -->
         <setting id="libraryfilter" type="bool" label="30588" default="false"/>
