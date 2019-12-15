@@ -18,10 +18,10 @@ from six import PY3
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
-from .http_persist import RequestManager
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
+from .http_persist import RequestManager
 
 LOG = Logger()
 SETTINGS = AddonSettings()

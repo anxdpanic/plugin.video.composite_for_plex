@@ -17,12 +17,12 @@ from ...addon.logger import Logger
 from ...addon.settings import AddonSettings
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
-from ...addon.utils import create_gui_item
 from ...addon.utils import build_context_menu
+from ...addon.utils import create_gui_item
 from ...addon.utils import get_banner_image
-from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 from ...addon.utils import get_media_data
+from ...addon.utils import get_thumb_image
 
 LOG = Logger()
 SETTINGS = AddonSettings()

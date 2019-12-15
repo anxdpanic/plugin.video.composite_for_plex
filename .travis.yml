@@ -9,8 +9,9 @@ before_install:
     cd $TRAVIS_BUILD_DIR
 
 install:
-  - pip install $HOME/addon-check/
+  - pip install isort
   - pip install pylint
+  - pip install $HOME/addon-check/
 
 before_script:
   - |
@@ -21,3 +22,4 @@ before_script:
 script:
   - kodi-addon-checker $TRAVIS_BUILD_DIR --branch=jarvis
   - pylint $TRAVIS_BUILD_DIR/resources/lib/
+  - isort -sl -rc $TRAVIS_BUILD_DIR/resources/lib/ --diff

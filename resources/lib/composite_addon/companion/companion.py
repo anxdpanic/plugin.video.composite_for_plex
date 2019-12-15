@@ -18,14 +18,14 @@ import traceback
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from .http_persist import RequestManager
-from .listener import PlexCompanionHandler
-from .listener import ThreadedHTTPServer
-from .subscribers import SubscriptionManager
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import i18n
+from .http_persist import RequestManager
+from .listener import PlexCompanionHandler
+from .listener import ThreadedHTTPServer
+from .subscribers import SubscriptionManager
 
 
 class CompanionReceiverThread(threading.Thread):

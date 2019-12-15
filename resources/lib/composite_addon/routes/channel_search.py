@@ -10,8 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from six.moves.urllib_parse import unquote
 from six.moves.urllib_parse import quote
+from six.moves.urllib_parse import unquote
 
 from kodi_six import xbmc  # pylint: disable=import-error
 

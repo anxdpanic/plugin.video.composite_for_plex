@@ -31,8 +31,8 @@ from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
-from .plexcommon import get_client_identifier
 from .plexcommon import create_plex_identification
+from .plexcommon import get_client_identifier
 from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
@@ -484,8 +484,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('url = %s%s' % (self.myplex_server, path))
 
         try:
-            verify_cert = self.myplex_server.startswith('https') \
-                          and SETTINGS.get_setting('verify_cert')
+            verify_cert = \
+                self.myplex_server.startswith('https') and SETTINGS.get_setting('verify_cert')
             if method == 'get':
                 response = requests.get('%s%s' % (self.myplex_server, path),
                                         params=self.plex_identification_header(),

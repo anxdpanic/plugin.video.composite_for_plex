@@ -16,6 +16,7 @@ import threading
 
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
+from ..addon.logger import Logger
 from .utils import get_audio_player_id
 from .utils import get_photo_player_id
 from .utils import get_players
@@ -24,13 +25,12 @@ from .utils import get_video_player_id
 from .utils import get_volume
 from .utils import get_xml_header
 from .utils import jsonrpc
+from .utils import kodi_photo
+from .utils import kodi_video
 from .utils import plex_audio
 from .utils import plex_photo
 from .utils import plex_video
 from .utils import time_to_millis
-from .utils import kodi_photo
-from .utils import kodi_video
-from ..addon.logger import Logger
 
 LOG = Logger()
 WINDOW = xbmcgui.Window(10000)

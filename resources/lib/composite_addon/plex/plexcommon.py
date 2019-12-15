@@ -9,10 +9,10 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from contextlib import closing
 import platform
 import sys
 import uuid
+from contextlib import closing
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcvfs  # pylint: disable=import-error

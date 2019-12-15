@@ -24,9 +24,9 @@ from six import text_type
 # noinspection PyPep8Naming
 from six.moves import cPickle as pickle
 
-from kodi_six import xbmc  # pylint: disable=import-error
 # don't use kodi_six xbmcvfs
 import xbmcvfs  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
 from .constants import CONFIG
 from .logger import Logger
@@ -37,6 +37,9 @@ LOG = Logger('cachecontrol')
 class CacheControl:
 
     def __init__(self, cache_location, enabled=True):
+        if CONFIG['addon'].getAddonInfo('profile') not in CONFIG['cache_path']:
+            LOG.debug('CACHE: Cache is disabled, cache path has invalid parent')
+            enabled = False
 
         self.cache_location = xbmc.translatePath(os.path.join(CONFIG['cache_path'], cache_location))
         self.enabled = enabled

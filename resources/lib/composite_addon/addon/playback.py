@@ -17,19 +17,19 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
+from ..plex import plex
 from .common import get_handle
 from .common import jsonrpc_play
 from .common import write_pickled
 from .constants import CONFIG
 from .constants import StreamControl
+from .items.track import create_track_item
 from .logger import Logger
 from .settings import AddonSettings
 from .strings import encode_utf8
 from .strings import i18n
-from .items.track import create_track_item
-from .utils import get_xml
 from .utils import get_thumb_image
-from ..plex import plex
+from .utils import get_xml
 
 LOG = Logger()
 SETTINGS = AddonSettings()
@@ -279,16 +279,17 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
             if not SETTINGS.get_setting('skipmetadata'):
                 tree_genres = timings.findall('Genre')
                 if tree_genres is not None:
-                    full_data['genre'] = [encode_utf8(tree_genre.get('tag', '')) \
+                    full_data['genre'] = [encode_utf8(tree_genre.get('tag', ''))
                                           for tree_genre in tree_genres]
 
         elif media_type == 'music':
-
+            track_title = '%s. %s' % \
+                          (str(timings.get('index', 0)).zfill(2),
+                           encode_utf8(timings.get('title', i18n('Unknown'))))
             full_data = {
                 'TrackNumber': int(timings.get('index', 0)),
                 'discnumber': int(timings.get('parentIndex', 0)),
-                'title': str(timings.get('index', 0)).zfill(2) + '. ' +
-                         encode_utf8(timings.get('title', i18n('Unknown'))),
+                'title': track_title,
                 'rating': float(timings.get('rating', 0)),
                 'album': encode_utf8(timings.get('parentTitle',
                                                  tree.get('parentTitle', ''))),

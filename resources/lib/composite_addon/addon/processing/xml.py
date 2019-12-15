@@ -12,9 +12,6 @@
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from . import SETTINGS
-from .episodes import process_episodes
-from .movies import process_movies
 from ...addon.common import get_handle
 from ...addon.constants import MODES
 from ...addon.items.playlist import create_playlist_item
@@ -22,11 +19,14 @@ from ...addon.items.track import create_track_item
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
 from ...addon.utils import create_gui_item
+from ...addon.utils import get_fanart_image
 from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
-from ...addon.utils import get_fanart_image
 from ...addon.utils import get_xml
 from ...plex import plex
+from . import SETTINGS
+from .episodes import process_episodes
+from .movies import process_movies
 
 
 def process_xml(url, tree=None, plex_network=None):

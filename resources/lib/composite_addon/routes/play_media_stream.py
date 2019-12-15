@@ -15,8 +15,8 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import CONFIG
-from ..addon.logger import Logger
 from ..addon.data_cache import DATA_CACHE
+from ..addon.logger import Logger
 from ..plex import plex
 
 LOG = Logger()
