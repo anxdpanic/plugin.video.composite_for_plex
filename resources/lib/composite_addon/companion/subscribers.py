@@ -30,7 +30,6 @@ from .utils import plex_video
 from .utils import time_to_millis
 from .utils import kodi_photo
 from .utils import kodi_video
-from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 
 LOG = Logger()

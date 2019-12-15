@@ -10,7 +10,6 @@
 """
 
 from . import cache_control
-from .constants import CONFIG
 from .settings import AddonSettings
 
 __SETTINGS = AddonSettings()

@@ -12,7 +12,6 @@
 
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import i18n

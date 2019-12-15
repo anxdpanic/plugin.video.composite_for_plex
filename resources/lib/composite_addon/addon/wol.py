@@ -15,7 +15,6 @@ import struct
 
 from six.moves import range
 
-from .constants import CONFIG
 from .settings import AddonSettings
 from .logger import Logger
 

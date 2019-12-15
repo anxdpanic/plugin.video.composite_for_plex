@@ -14,7 +14,6 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from . import SETTINGS
 from ...addon.common import get_handle
-from ...addon.constants import CONFIG
 from ...addon.items.episode import create_episode_item
 from ...addon.logger import Logger
 from ...addon.utils import get_xml

@@ -13,7 +13,6 @@
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import get_argv
-from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n

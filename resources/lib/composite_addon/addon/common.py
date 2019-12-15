@@ -23,15 +23,11 @@ from six.moves import cPickle as pickle
 from six.moves import range
 
 from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcaddon  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from .constants import COMMANDS
 from .constants import CONFIG
 from .logger import Logger
-
-__ID = 'plugin.video.composite_for_plex'
-__ADDON = xbmcaddon.Addon(id=__ID)
 
 LOG = Logger()
 

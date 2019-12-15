@@ -15,7 +15,6 @@ from six import PY3
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
-from ..addon.constants import CONFIG
 from ..addon.constants import MODES
 from ..addon.settings import AddonSettings
 from ..addon.strings import i18n

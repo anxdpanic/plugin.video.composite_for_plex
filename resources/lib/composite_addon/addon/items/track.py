@@ -12,7 +12,6 @@
 
 import json
 
-from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.logger import Logger
 from ...addon.settings import AddonSettings

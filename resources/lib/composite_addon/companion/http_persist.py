@@ -16,7 +16,6 @@ import traceback
 
 from six.moves import http_client
 
-from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 
 LOG = Logger()

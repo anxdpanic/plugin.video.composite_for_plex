@@ -14,7 +14,6 @@ import hashlib
 
 from six.moves.urllib_parse import quote_plus
 
-from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.logger import Logger
 from ...addon.settings import AddonSettings

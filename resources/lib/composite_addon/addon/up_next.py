@@ -12,7 +12,6 @@
 import json
 
 from .common import notify_all
-from .constants import CONFIG
 from .logger import Logger
 from .settings import AddonSettings
 

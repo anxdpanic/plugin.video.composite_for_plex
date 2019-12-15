@@ -11,7 +11,6 @@
 
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from .addon.constants import CONFIG
 from .addon.logger import Logger
 from .addon.monitor import Monitor
 from .addon.player import CallbackPlayer

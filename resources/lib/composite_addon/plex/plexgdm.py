@@ -21,7 +21,6 @@ import time
 
 from six.moves.urllib_request import urlopen
 
-from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.strings import decode_utf8
 from ..addon.strings import encode_utf8

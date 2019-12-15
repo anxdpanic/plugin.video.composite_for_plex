@@ -12,7 +12,6 @@
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
-from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
 from ..addon.settings import AddonSettings
 

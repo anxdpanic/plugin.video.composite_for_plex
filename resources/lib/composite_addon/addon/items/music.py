@@ -10,7 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.logger import Logger
 from ...addon.strings import encode_utf8

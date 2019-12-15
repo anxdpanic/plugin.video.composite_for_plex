@@ -15,7 +15,6 @@ from six.moves.urllib_parse import quote
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
-from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.processing.plex_plugins import process_plex_plugins
 from ..addon.strings import i18n

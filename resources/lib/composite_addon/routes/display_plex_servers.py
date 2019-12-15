@@ -13,7 +13,6 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
-from ..addon.constants import CONFIG
 from ..addon.constants import MODES
 from ..addon.logger import Logger
 from ..addon.processing.music import process_music
