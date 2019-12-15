@@ -20,7 +20,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 
 
 def create_music_item(server, tree, url, music):

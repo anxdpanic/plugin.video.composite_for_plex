@@ -18,7 +18,7 @@ from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.strings import i18n
 
-LOG = Logger(CONFIG['name'], 'plex_signin')
+LOG = Logger('plex_signin')
 MEDIA_PATH = xbmc.translatePath(CONFIG['media_path'] + 'dialogs/')
 
 

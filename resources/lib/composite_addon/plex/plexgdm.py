@@ -26,7 +26,7 @@ from ..addon.logger import Logger
 from ..addon.strings import decode_utf8
 from ..addon.strings import encode_utf8
 
-LOG = Logger(CONFIG['name'], 'PlexGDM')
+LOG = Logger('PlexGDM')
 
 
 class PlexGDM:  # pylint: disable=too-many-instance-attributes

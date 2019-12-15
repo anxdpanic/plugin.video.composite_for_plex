@@ -16,7 +16,7 @@ from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..plex.plexgdm import PlexGDM
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

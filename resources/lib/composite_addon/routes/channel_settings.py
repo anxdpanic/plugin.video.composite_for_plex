@@ -21,7 +21,7 @@ from ..addon.strings import i18n
 from ..addon.utils import get_xml
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
 
 

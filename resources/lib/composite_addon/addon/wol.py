@@ -19,7 +19,7 @@ from .constants import CONFIG
 from .settings import AddonSettings
 from .logger import Logger
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

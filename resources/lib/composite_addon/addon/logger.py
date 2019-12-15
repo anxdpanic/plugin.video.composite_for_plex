@@ -19,6 +19,7 @@ from six import string_types
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
+from .constants import CONFIG
 from .settings import AddonSettings
 
 SETTINGS = AddonSettings()
@@ -39,9 +40,9 @@ class Logger:
     ip_dom_regex = re.compile(r'-\d{1,3}-\d{1,3}-')
     user_regex = re.compile(r'-User=[a-z|0-9].*?[&|$]')
 
-    def __init__(self, main, sub=None):
+    def __init__(self, sub=None):
 
-        self.main = main
+        self.main = CONFIG['name']
         if sub:
             self.sub = '.' + sub
         else:

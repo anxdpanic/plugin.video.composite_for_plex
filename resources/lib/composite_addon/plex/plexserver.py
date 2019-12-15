@@ -36,7 +36,7 @@ from ..addon.strings import encode_utf8
 from ..addon.data_cache import DATA_CACHE
 
 DEFAULT_PORT = '32400'
-LOG = Logger(CONFIG['name'], 'plexserver')
+LOG = Logger('plexserver')
 SETTINGS = AddonSettings()
 
 LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)

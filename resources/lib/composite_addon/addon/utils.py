@@ -29,7 +29,7 @@ from ..addon.strings import i18n
 from ..addon.strings import item_translate
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

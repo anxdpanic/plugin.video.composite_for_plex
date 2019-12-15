@@ -19,7 +19,7 @@ from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
 
 

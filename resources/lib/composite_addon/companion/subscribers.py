@@ -33,7 +33,7 @@ from .utils import kodi_video
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 WINDOW = xbmcgui.Window(10000)
 
 

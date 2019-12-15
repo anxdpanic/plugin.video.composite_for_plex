@@ -23,7 +23,7 @@ from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

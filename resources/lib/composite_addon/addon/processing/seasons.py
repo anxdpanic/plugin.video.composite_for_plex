@@ -21,7 +21,7 @@ from ...addon.logger import Logger
 from ...addon.utils import get_xml
 from ...plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 
 
 def process_seasons(url, rating_key=None, plex_network=None, library=False):

@@ -19,7 +19,7 @@ from ...addon.items.directory import create_directory_item
 from ...addon.logger import Logger
 from ...plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 
 
 def process_directories(url, tree=None, plex_network=None):

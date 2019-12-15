@@ -28,7 +28,7 @@ from ..addon.processing.seasons import process_seasons
 from ..addon.strings import decode_utf8
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=True)
 
 

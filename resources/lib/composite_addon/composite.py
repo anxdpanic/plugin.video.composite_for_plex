@@ -22,7 +22,7 @@ from .addon.constants import STREAM_CONTROL_MAP
 from .addon.logger import Logger
 from .addon.settings import AddonSettings
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

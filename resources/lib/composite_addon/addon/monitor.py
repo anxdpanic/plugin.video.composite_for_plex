@@ -22,7 +22,7 @@ from .logger import Logger
 
 
 class Monitor(xbmc.Monitor):
-    LOG = Logger(CONFIG['name'], 'Monitor')
+    LOG = Logger('Monitor')
 
     def __init__(self):
         """

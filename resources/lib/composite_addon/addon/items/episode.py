@@ -25,7 +25,7 @@ from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 from ...addon.utils import get_media_data
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

@@ -31,7 +31,7 @@ from .utils import get_xml
 from .utils import get_thumb_image
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

@@ -22,7 +22,7 @@ from ..addon.utils import get_xml
 from ..addon.playback import monitor_channel_transcode_playback
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
 
 

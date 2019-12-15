@@ -21,7 +21,7 @@ from ..addon.processing.plex_plugins import process_plex_plugins
 from ..addon.strings import i18n
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
 
 

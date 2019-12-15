@@ -20,7 +20,7 @@ SETTINGS = AddonSettings()
 
 
 class UpNext:
-    LOG = Logger(CONFIG['name'], 'UpNext')
+    LOG = Logger('UpNext')
     USE_EP_THUMBS = SETTINGS.get_setting('up_next_episode_thumbs', fresh=True)
 
     def __init__(self, server, media_id, callback_args):

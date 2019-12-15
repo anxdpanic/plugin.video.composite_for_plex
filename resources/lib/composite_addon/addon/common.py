@@ -33,7 +33,7 @@ from .logger import Logger
 __ID = 'plugin.video.composite_for_plex'
 __ADDON = xbmcaddon.Addon(id=__ID)
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 
 
 def get_argv():

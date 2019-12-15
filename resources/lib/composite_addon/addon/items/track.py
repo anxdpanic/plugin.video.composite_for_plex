@@ -23,7 +23,7 @@ from ...addon.utils import build_context_menu
 from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 SETTINGS = AddonSettings()
 
 

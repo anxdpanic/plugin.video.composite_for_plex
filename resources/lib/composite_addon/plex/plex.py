@@ -37,7 +37,7 @@ from .plexgdm import PlexGDM
 from .plexserver import PlexMediaServer
 
 DEFAULT_PORT = '32400'
-LOG = Logger(CONFIG['name'], 'plex')
+LOG = Logger('plex')
 SETTINGS = AddonSettings()
 
 

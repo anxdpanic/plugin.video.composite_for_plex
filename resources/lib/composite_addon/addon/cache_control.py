@@ -31,7 +31,7 @@ import xbmcvfs  # pylint: disable=import-error
 from .constants import CONFIG
 from .logger import Logger
 
-LOG = Logger(CONFIG['name'], 'cachecontrol')
+LOG = Logger('cachecontrol')
 
 
 class CacheControl:

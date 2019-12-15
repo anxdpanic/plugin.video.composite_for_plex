@@ -19,7 +19,7 @@ from .addon.settings import AddonSettings
 from .companion import companion
 from .companion.client import get_client
 
-LOG = Logger(CONFIG['name'], 'service')
+LOG = Logger('service')
 SETTINGS = AddonSettings()
 
 

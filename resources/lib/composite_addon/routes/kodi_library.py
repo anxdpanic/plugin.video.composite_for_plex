@@ -20,7 +20,7 @@ from ..addon.items.show import create_show_item
 
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 
 
 def run(params):

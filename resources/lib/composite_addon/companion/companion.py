@@ -29,7 +29,7 @@ from ..addon.strings import i18n
 
 
 class CompanionReceiverThread(threading.Thread):
-    LOG = Logger(CONFIG['name'], 'CompanionReceiverThread')
+    LOG = Logger('CompanionReceiverThread')
     MONITOR = xbmc.Monitor()
     SETTINGS = AddonSettings()
     CLIENT_DETAILS = SETTINGS.companion_receiver()
