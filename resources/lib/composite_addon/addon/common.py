@@ -149,10 +149,19 @@ def notify_all(method, data):
     data = base64.b64encode(next_data)
     if PY3:
         data = data.decode('ascii')
-    data = '\\"[\\"{0}\\"]\\"'.format(data)
 
-    command = 'NotifyAll(%s.SIGNAL,%s,%s)' % (CONFIG['id'], method, data)
-    xbmc.executebuiltin(command)
+    jsonrpc_request = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "JSONRPC.NotifyAll",
+        "params": {
+            "sender": "%s.SIGNAL" % CONFIG['id'],
+            "message": method,
+            "data": [data],
+        }
+    }
+
+    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
 
 
 def jsonrpc_play(url):
