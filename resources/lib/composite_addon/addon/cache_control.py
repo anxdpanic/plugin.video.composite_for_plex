@@ -37,6 +37,9 @@ LOG = Logger('cachecontrol')
 class CacheControl:
 
     def __init__(self, cache_location, enabled=True):
+        if CONFIG['addon'].getAddonInfo('profile') not in CONFIG['cache_path']:
+            LOG.debug('CACHE: Cache is disabled, cache path has invalid parent')
+            enabled = False
 
         self.cache_location = xbmc.translatePath(os.path.join(CONFIG['cache_path'], cache_location))
         self.enabled = enabled
