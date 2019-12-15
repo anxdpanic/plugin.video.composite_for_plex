@@ -18,9 +18,9 @@ import sys
 import time
 
 from six import PY3
-from six.moves.urllib_parse import unquote
 from six.moves import cPickle as pickle
 from six.moves import range
+from six.moves.urllib_parse import unquote
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error

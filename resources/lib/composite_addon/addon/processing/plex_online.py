@@ -12,11 +12,11 @@
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from . import SETTINGS
 from ...addon.common import get_handle
 from ...addon.items.plex_online import create_plex_online_item
 from ...addon.utils import get_xml
 from ...plex import plex
+from . import SETTINGS
 
 
 def process_plex_online(url, plex_network=None):

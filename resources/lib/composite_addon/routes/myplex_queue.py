@@ -13,8 +13,8 @@
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
-from ..addon.strings import i18n
 from ..addon.processing.plex_plugins import process_plex_plugins
+from ..addon.strings import i18n
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)

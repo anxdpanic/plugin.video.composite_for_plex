@@ -19,16 +19,16 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ..addon.common import get_handle
 from ..addon.constants import MODES
 from ..addon.logger import Logger
-from ..addon.strings import i18n
-from ..addon.processing.artists import process_artists
 from ..addon.processing.albums import process_albums
-from ..addon.processing.tracks import process_tracks
-from ..addon.processing.photos import process_photos
+from ..addon.processing.artists import process_artists
 from ..addon.processing.directories import process_directories
 from ..addon.processing.episodes import process_episodes
 from ..addon.processing.movies import process_movies
+from ..addon.processing.photos import process_photos
 from ..addon.processing.shows import process_shows
+from ..addon.processing.tracks import process_tracks
 from ..addon.processing.xml import process_xml
+from ..addon.strings import i18n
 from ..addon.utils import get_xml
 from ..plex import plex
 

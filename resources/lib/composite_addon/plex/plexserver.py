@@ -18,22 +18,22 @@ import xml.etree.ElementTree as ETree
 
 import requests
 from six.moves import range
-from six.moves.urllib_parse import urlparse
-from six.moves.urllib_parse import urlunparse
 from six.moves.urllib_parse import parse_qsl
 from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
+from six.moves.urllib_parse import urlparse
+from six.moves.urllib_parse import urlunparse
 
-from . import plexsection
-from .plexcommon import get_client_identifier
-from .plexcommon import get_device_name
-from .plexcommon import create_plex_identification
 from ..addon.constants import CONFIG
+from ..addon.data_cache import DATA_CACHE
 from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
-from ..addon.data_cache import DATA_CACHE
+from . import plexsection
+from .plexcommon import create_plex_identification
+from .plexcommon import get_client_identifier
+from .plexcommon import get_device_name
 
 DEFAULT_PORT = '32400'
 LOG = Logger('plexserver')

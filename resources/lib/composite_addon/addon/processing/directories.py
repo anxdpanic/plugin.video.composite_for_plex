@@ -12,11 +12,11 @@
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from . import SETTINGS
 from ...addon.common import get_handle
 from ...addon.items.directory import create_directory_item
 from ...addon.logger import Logger
 from ...plex import plex
+from . import SETTINGS
 
 LOG = Logger()
 

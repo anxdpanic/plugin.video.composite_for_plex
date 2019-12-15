@@ -24,9 +24,9 @@ from six import text_type
 # noinspection PyPep8Naming
 from six.moves import cPickle as pickle
 
-from kodi_six import xbmc  # pylint: disable=import-error
 # don't use kodi_six xbmcvfs
 import xbmcvfs  # pylint: disable=import-error
+from kodi_six import xbmc  # pylint: disable=import-error
 
 from .constants import CONFIG
 from .logger import Logger

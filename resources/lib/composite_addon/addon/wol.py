@@ -15,8 +15,8 @@ import struct
 
 from six.moves import range
 
-from .settings import AddonSettings
 from .logger import Logger
+from .settings import AddonSettings
 
 LOG = Logger()
 SETTINGS = AddonSettings()

@@ -11,8 +11,8 @@
 """
 
 from ..addon.data_cache import DATA_CACHE
-from ..addon.playback import play_media_id_from_uuid
 from ..addon.playback import play_library_media
+from ..addon.playback import play_media_id_from_uuid
 from ..addon.utils import get_transcode_profile
 from ..plex import plex
 

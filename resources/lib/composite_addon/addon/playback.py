@@ -17,19 +17,19 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
+from ..plex import plex
 from .common import get_handle
 from .common import jsonrpc_play
 from .common import write_pickled
 from .constants import CONFIG
 from .constants import StreamControl
+from .items.track import create_track_item
 from .logger import Logger
 from .settings import AddonSettings
 from .strings import encode_utf8
 from .strings import i18n
-from .items.track import create_track_item
-from .utils import get_xml
 from .utils import get_thumb_image
-from ..plex import plex
+from .utils import get_xml
 
 LOG = Logger()
 SETTINGS = AddonSettings()

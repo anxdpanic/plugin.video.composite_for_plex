@@ -13,11 +13,11 @@
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from . import SETTINGS
 from ...addon.common import get_handle
 from ...addon.items.track import create_track_item
 from ...addon.utils import get_xml
 from ...plex import plex
+from . import SETTINGS
 
 
 def process_tracks(url, tree=None, plex_network=None):
