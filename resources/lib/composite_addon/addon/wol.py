@@ -12,6 +12,7 @@
 
 import socket
 import struct
+from contextlib import closing
 
 from six.moves import range
 
@@ -58,6 +59,6 @@ def wake_on_lan(mac_address):
         send_data = ''.join([send_data, struct.pack('B', int(data[i: i + 2], 16))])
 
     # Broadcast it to the LAN.
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sock.sendto(bytes(send_data), ('<broadcast>', 7))
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_DGRAM)) as open_socket:
+        open_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        open_socket.sendto(bytes(send_data), ('<broadcast>', 7))

@@ -18,6 +18,7 @@ import socket
 import struct
 import threading
 import time
+from contextlib import closing
 
 from six.moves.urllib_request import urlopen
 
@@ -83,67 +84,72 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         return b'HTTP/1.0 200 OK\n%s' % encode_utf8(self.client_data, py2_only=False)
 
     def client_update(self):
-        update_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        _socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        with closing(_socket) as open_socket:
 
-        # Set socket reuse, may not work on all OSs.
-        try:
-            update_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        except:  # pylint: disable=bare-except
-            pass
-
-        # Attempt to bind to the socket to receive and send data.
-        # If we can;t do this, then we cannot send registration
-        try:
-            update_sock.bind(('0.0.0.0', self.client_update_port))
-        except:  # pylint: disable=bare-except
-            LOG.error('Error: Unable to bind to port [%s] - client will not be registered' %
-                      self.client_update_port)
-            return
-
-        update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
-        update_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
-                               socket.inet_aton(self._multicast_address) +
-                               socket.inet_aton('0.0.0.0'))
-        # noinspection PyTypeChecker
-        update_sock.setblocking(0)
-        LOG.debugplus('Sending registration data: HELLO %s\n%s' %
-                      (self.client_header, self.client_data))
-
-        # Send initial client registration
-        try:
-            update_sock.sendto(self._hello_message(), self.client_register_group)
-        except:  # pylint: disable=bare-except
-            LOG.debug('Error: Unable to send registration message')
-
-        # Now, listen for client discovery requests and respond.
-        while self._registration_is_running:
+            # Set socket reuse, may not work on all OSs.
             try:
-                data, address = update_sock.recvfrom(1024)
-                LOG.debug('Received UDP packet from [%s] containing [%s]' % (address, data.strip()))
-            except socket.error:
+                open_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            except:  # pylint: disable=bare-except
                 pass
-            else:
-                if b'M-SEARCH * HTTP/1.' in data:
-                    LOG.debug('Detected client discovery request from %s.  Replying' % str(address))
-                    try:
-                        update_sock.sendto(self._ok_message(), address)
-                    except:  # pylint: disable=bare-except
-                        LOG.debug('Error: Unable to send client update message')
 
-                    LOG.debug('Sending registration data: HTTP/1.0 200 OK\n%s' % self.client_data)
-                    self.client_registered = True
-            time.sleep(0.5)
+            # Attempt to bind to the socket to receive and send data.
+            # If we can;t do this, then we cannot send registration
+            try:
+                open_socket.bind(('0.0.0.0', self.client_update_port))
+            except:  # pylint: disable=bare-except
+                LOG.error('Error: Unable to bind to port [%s] - client will not be registered' %
+                          self.client_update_port)
+                return
 
-        LOG.debug('Client Update loop stopped')
+            open_socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 255)
+            open_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
+                                   socket.inet_aton(self._multicast_address) +
+                                   socket.inet_aton('0.0.0.0'))
+            # noinspection PyTypeChecker
+            open_socket.setblocking(0)
+            LOG.debugplus('Sending registration data: HELLO %s\n%s' %
+                          (self.client_header, self.client_data))
 
-        # When we are finished, then send a final goodbye message to de-register cleanly.
-        LOG.debug('Sending registration data: BYE %s\n%s' % (self.client_header, self.client_data))
-        try:
-            update_sock.sendto(self._goodbye_message(), self.client_register_group)
-        except:  # pylint: disable=bare-except
-            LOG.error('Error: Unable to send client update message')
+            # Send initial client registration
+            try:
+                open_socket.sendto(self._hello_message(), self.client_register_group)
+            except:  # pylint: disable=bare-except
+                LOG.debug('Error: Unable to send registration message')
 
-        self.client_registered = False
+            # Now, listen for client discovery requests and respond.
+            while self._registration_is_running:
+                try:
+                    data, address = open_socket.recvfrom(1024)
+                    LOG.debug('Received UDP packet from [%s] containing [%s]' %
+                              (address, data.strip()))
+                except socket.error:
+                    pass
+                else:
+                    if b'M-SEARCH * HTTP/1.' in data:
+                        LOG.debug('Detected client discovery request from %s.  Replying' %
+                                  str(address))
+                        try:
+                            open_socket.sendto(self._ok_message(), address)
+                        except:  # pylint: disable=bare-except
+                            LOG.debug('Error: Unable to send client update message')
+
+                        LOG.debug('Sending registration data: HTTP/1.0 200 OK\n%s' %
+                                  self.client_data)
+                        self.client_registered = True
+                time.sleep(0.5)
+
+            LOG.debug('Client Update loop stopped')
+
+            # When we are finished, then send a final goodbye message to de-register cleanly.
+            LOG.debug('Sending registration data: BYE %s\n%s' %
+                      (self.client_header, self.client_data))
+            try:
+                open_socket.sendto(self._goodbye_message(), self.client_register_group)
+            except:  # pylint: disable=bare-except
+                LOG.error('Error: Unable to send client update message')
+
+            self.client_registered = False
 
     def check_client_registration(self):
 
@@ -177,29 +183,29 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         return self.server_list
 
     def discover(self):  # pylint: disable=too-many-statements, too-many-branches
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        _socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        with closing(_socket) as open_socket:
+            # Set a timeout so the socket does not block indefinitely
+            open_socket.settimeout(0.6)
 
-        # Set a timeout so the socket does not block indefinitely
-        sock.settimeout(0.6)
+            # Set the time-to-live for messages to 1 for local network
+            ttl = struct.pack('b', 1)
+            open_socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
-        # Set the time-to-live for messages to 1 for local network
-        ttl = struct.pack('b', 1)
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+            if self.interface:
+                open_socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF,
+                                       socket.inet_aton(self.interface))
 
-        if self.interface:
-            sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF,
-                            socket.inet_aton(self.interface))
+            return_data = []
 
-        return_data = []
-        try:
             # Send data to the multicast group
             LOG.debug('Sending discovery messages ...')
             # noinspection PyUnusedLocal
-            _ = sock.sendto(self._discover_message(), self.discover_group)
+            _ = open_socket.sendto(self._discover_message(), self.discover_group)
             # Look for responses from all recipients
             while True:
                 try:
-                    data, server = sock.recvfrom(1024)
+                    data, server = open_socket.recvfrom(1024)
                     LOG.debug('Received data from %s:%s' % (server[0], server[1]))
                     LOG.debug('Data received is:\n %s' % data)
                     return_data.append({
@@ -208,8 +214,6 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                     })
                 except socket.timeout:
                     break
-        finally:
-            sock.close()
 
         self.discovery_complete = True
 
