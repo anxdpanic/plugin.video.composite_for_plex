@@ -279,16 +279,17 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
             if not SETTINGS.get_setting('skipmetadata'):
                 tree_genres = timings.findall('Genre')
                 if tree_genres is not None:
-                    full_data['genre'] = [encode_utf8(tree_genre.get('tag', '')) \
+                    full_data['genre'] = [encode_utf8(tree_genre.get('tag', ''))
                                           for tree_genre in tree_genres]
 
         elif media_type == 'music':
-
+            track_title = '%s. %s' % \
+                          (str(timings.get('index', 0)).zfill(2),
+                           encode_utf8(timings.get('title', i18n('Unknown'))))
             full_data = {
                 'TrackNumber': int(timings.get('index', 0)),
                 'discnumber': int(timings.get('parentIndex', 0)),
-                'title': str(timings.get('index', 0)).zfill(2) + '. ' +
-                         encode_utf8(timings.get('title', i18n('Unknown'))),
+                'title': track_title,
                 'rating': float(timings.get('rating', 0)),
                 'album': encode_utf8(timings.get('parentTitle',
                                                  tree.get('parentTitle', ''))),

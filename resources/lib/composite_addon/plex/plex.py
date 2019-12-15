@@ -484,8 +484,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('url = %s%s' % (self.myplex_server, path))
 
         try:
-            verify_cert = self.myplex_server.startswith('https') \
-                          and SETTINGS.get_setting('verify_cert')
+            verify_cert = \
+                self.myplex_server.startswith('https') and SETTINGS.get_setting('verify_cert')
             if method == 'get':
                 response = requests.get('%s%s' % (self.myplex_server, path),
                                         params=self.plex_identification_header(),

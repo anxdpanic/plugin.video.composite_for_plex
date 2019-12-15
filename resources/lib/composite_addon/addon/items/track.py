@@ -39,8 +39,7 @@ def create_track_item(server, tree, track, listing=True):
     details = {
         'TrackNumber': int(track.get('index', 0)),
         'discnumber': int(track.get('parentIndex', 0)),
-        'title': str(track.get('index', 0)).zfill(2) + '. ' +
-                 encode_utf8(track.get('title', i18n('Unknown'))),
+        'title': str(track.get('index', 0)).zfill(2) + '. ' + (track.get('title', i18n('Unknown'))),
         'rating': float(track.get('rating', 0)),
         'album': encode_utf8(track.get('parentTitle', tree.get('parentTitle', ''))),
         'artist': encode_utf8(track.get('grandparentTitle', tree.get('grandparentTitle', ''))),

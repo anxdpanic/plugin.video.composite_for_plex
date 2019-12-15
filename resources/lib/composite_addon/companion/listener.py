@@ -149,14 +149,16 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                 if params.get('wait', False) == '1':
                     xbmc.sleep(950)
                 command_id = params.get('commandID', 0)
-                self.response(re.sub(r'INSERTCOMMANDID', str(command_id),
-                                     self.server.subscription_manager.msg(get_players())),
-                              {
-                                  'X-Plex-Client-Identifier': self.client_details['uuid'],
-                                  'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
-                                  'Access-Control-Allow-Origin': '*',
-                                  'Content-Type': 'text/xml'
-                              })
+                self.response(
+                    re.sub(r'INSERTCOMMANDID', str(command_id),
+                           self.server.subscription_manager.msg(get_players())),
+                    {
+                        'X-Plex-Client-Identifier': self.client_details['uuid'],
+                        'Access-Control-Expose-Headers': 'X-Plex-Client-Identifier',
+                        'Access-Control-Allow-Origin': '*',
+                        'Content-Type': 'text/xml'
+                    }
+                )
             elif '/unsubscribe' in request_path:
                 self.response(get_ok_message(), get_plex_headers())
                 uuid = self.headers.get('X-Plex-Client-Identifier', False) or self.client_address[0]
