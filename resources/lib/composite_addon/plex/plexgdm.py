@@ -325,20 +325,3 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
     def start_all(self, daemon=False):
         self.start_discovery(daemon)
         self.start_registration(daemon)
-
-
-# Example usage
-if __name__ == '__main__':
-    CLIENT = PlexGDM()
-    CLIENT.client_details('Test-Name', 'Test Client', '3003', 'Test-App', '1.2.3')
-    CLIENT.start_all()
-    while not CLIENT.discovery_complete:
-        LOG.debug('Waiting for results')
-        time.sleep(1)
-    time.sleep(20)
-    LOG.debug(CLIENT.get_server_list())
-    if CLIENT.check_client_registration():
-        LOG.debug('Successfully registered')
-    else:
-        LOG.debug('Unsuccessfully registered')
-    CLIENT.stop_all()
