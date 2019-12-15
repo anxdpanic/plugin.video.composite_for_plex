@@ -19,7 +19,7 @@ from ..addon.logger import Logger
 from ..addon.data_cache import DATA_CACHE
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
 
 

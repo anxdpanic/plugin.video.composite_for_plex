@@ -22,12 +22,12 @@ from .strings import encode_utf8
 from .strings import i18n
 from .up_next import UpNext
 
-LOG = Logger(CONFIG['name'], 'player')
-SETTINGS = AddonSettings(CONFIG['id'])
+LOG = Logger('player')
+SETTINGS = AddonSettings()
 
 
 class PlaybackMonitorThread(threading.Thread):
-    LOG = Logger(CONFIG['name'], 'PlaybackMonitorThread')
+    LOG = Logger('PlaybackMonitorThread')
     MONITOR = xbmc.Monitor()
     PLAYER = xbmc.Player()
 
@@ -180,7 +180,7 @@ class PlaybackMonitorThread(threading.Thread):
 
 
 class CallbackPlayer(xbmc.Player):
-    LOG = Logger(CONFIG['name'], 'CallbackPlayer')
+    LOG = Logger('CallbackPlayer')
 
     def __init__(self, window, *args, **kwargs):
         self.args = args

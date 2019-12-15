@@ -16,7 +16,7 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from .constants import CONFIG
 from .logger import Logger
 
-__LOG = Logger(CONFIG['name'])
+__LOG = Logger()
 
 STRINGS = {
     # core

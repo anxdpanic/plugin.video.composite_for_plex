@@ -12,7 +12,6 @@
 
 import json
 
-from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.logger import Logger
 from ...addon.settings import AddonSettings
@@ -23,8 +22,8 @@ from ...addon.utils import build_context_menu
 from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
-LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+LOG = Logger()
+SETTINGS = AddonSettings()
 
 
 def create_track_item(server, tree, track, listing=True):
@@ -74,7 +73,9 @@ def create_track_item(server, tree, track, listing=True):
             })
 
     if tree.tag == 'MediaContainer':
-        extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
+        extra_data.update({
+            'library_section_uuid': tree.get('librarySectionUUID')
+        })
 
     # If we are streaming, then get the virtual location
     url = '%s%s' % (server.get_url_location(), extra_data['key'])

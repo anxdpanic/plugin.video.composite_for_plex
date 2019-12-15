@@ -61,13 +61,17 @@
         <setting id="transcode_target_audio_size_2" visible="eq(-3,true)" label="30569" type="slider" option="int" range="0,325" default="0" subsetting="true"/>
     </category>
     <category label="30520"> <!-- Look and feel -->
-        <setting id="prefix_server" type="enum" label="30669" lvalues="30670|30671" default="1"/>
-        <setting id="show_widget_menu" type="bool" label="30693" default="true"/>
         <setting id="secondary" type="bool" label="30503" default="true"/>
         <setting id="channelview" type="bool" label="30542" default="false"/>
         <setting id="flatten" type="enum" label="30543" lvalues="30553|30558|30559" default="0"/>
         <setting id="disable_all_season" type="bool" label="30603" default="false"/>
-        <setting id="hide_shared" type="bool" label="30592" default="true"/>
+        <setting type="lsep" label="30714"/>
+        <setting id="prefix_server" type="enum" label="30669" lvalues="30670|30671" default="1"/>
+        <setting id="show_myplex_queue_menu" type="bool" label="30715" default="true"/>
+        <setting id="show_channels_menu" type="bool" label="30716" default="true"/>
+        <setting id="show_plex_online_menu" type="bool" label="30717" default="true"/>
+        <setting id="show_playlists_menu" type="bool" label="30718" default="true"/>
+        <setting id="show_widget_menu" type="bool" label="30693" default="true"/>
     </category>
     <category label="30684">
         <setting id="use_up_next" type="bool" label="30685" default="false" enable="System.HasAddon(service.upnext)"/>
@@ -86,7 +90,7 @@
         <setting id="web_server_password" type="text" option="hidden" label="30713" default="" enable="eq(-5,true)"/>
         <setting id="web_server_port" type="number" label="30709" default="8080" enable="eq(-6,true)"/>
         <setting id="receiver_uuid" type="text" visible="false" option="hidden"/>
-        <setting id="replacement" type="bool" visible="false" default="false" />
+        <setting id="replacement" type="bool" visible="false" default="false"/>
     </category>
     <category label="30522"> <!-- advanced -->
         <setting id="libraryfilter" type="bool" label="30588" default="false"/>

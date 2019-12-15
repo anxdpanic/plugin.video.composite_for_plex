@@ -20,16 +20,14 @@ from kodi_six import xbmcaddon  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcvfs  # pylint: disable=import-error
 
+from .constants import CONFIG
+
 
 class AddonSettings:
 
-    def __init__(self, addon_id):
-        self.addon_id = addon_id
-        self.settings = xbmcaddon.Addon(addon_id)
-        try:
-            self.addon_name = self.settings.getAddonInfo('name').decode('utf-8')
-        except AttributeError:
-            self.addon_name = self.settings.getAddonInfo('name')
+    def __init__(self):
+        self.settings = CONFIG['addon']
+        self.addon_name = CONFIG['name']
         xbmc.log(self.addon_name + '.settings -> Reading settings configuration', xbmc.LOGDEBUG)
         self.stream = self.settings.getSetting('streaming')
 
@@ -38,7 +36,7 @@ class AddonSettings:
 
     def get_setting(self, name, fresh=False):
         if fresh:
-            value = xbmcaddon.Addon(self.addon_id).getSetting(name)
+            value = xbmcaddon.Addon(CONFIG['id']).getSetting(name)
         else:
             value = self.settings.getSetting(name)
 

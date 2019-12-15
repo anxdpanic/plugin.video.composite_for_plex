@@ -13,12 +13,11 @@
 from kodi_six import xbmc  # pylint: disable=import-error
 
 from ..addon.common import get_argv
-from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
 from ..addon.logger import Logger
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
 
 

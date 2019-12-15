@@ -14,14 +14,13 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from . import SETTINGS
 from ...addon.common import get_handle
-from ...addon.constants import CONFIG
 from ...addon.items.plex_plugin import create_plex_plugin_item
 from ...addon.logger import Logger
 from ...addon.utils import get_master_server
 from ...addon.utils import get_xml
 from ...plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 
 
 def process_plex_plugins(url, tree=None, plex_network=None):

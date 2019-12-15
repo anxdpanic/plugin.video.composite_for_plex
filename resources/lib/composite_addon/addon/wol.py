@@ -15,12 +15,11 @@ import struct
 
 from six.moves import range
 
-from .constants import CONFIG
 from .settings import AddonSettings
 from .logger import Logger
 
-LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+LOG = Logger()
+SETTINGS = AddonSettings()
 
 
 def wake_servers():

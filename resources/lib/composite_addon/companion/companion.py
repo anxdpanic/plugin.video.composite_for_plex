@@ -29,9 +29,9 @@ from ..addon.strings import i18n
 
 
 class CompanionReceiverThread(threading.Thread):
-    LOG = Logger(CONFIG['name'], 'CompanionReceiverThread')
+    LOG = Logger('CompanionReceiverThread')
     MONITOR = xbmc.Monitor()
-    SETTINGS = AddonSettings(CONFIG['id'])
+    SETTINGS = AddonSettings()
     CLIENT_DETAILS = SETTINGS.companion_receiver()
 
     def __init__(self, gdm_client):

@@ -17,7 +17,6 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
-from ..addon.constants import CONFIG
 from ..addon.constants import MODES
 from ..addon.logger import Logger
 from ..addon.strings import i18n
@@ -33,7 +32,7 @@ from ..addon.processing.xml import process_xml
 from ..addon.utils import get_xml
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
 
 

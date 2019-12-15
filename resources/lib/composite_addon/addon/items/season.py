@@ -10,7 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.settings import AddonSettings
 from ...addon.strings import encode_utf8
@@ -21,7 +20,7 @@ from ...addon.utils import get_banner_image
 from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def create_season_item(server, tree, season, library=False):

@@ -14,12 +14,11 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from . import SETTINGS
 from ...addon.common import get_handle
-from ...addon.constants import CONFIG
 from ...addon.items.directory import create_directory_item
 from ...addon.logger import Logger
 from ...plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 
 
 def process_directories(url, tree=None, plex_network=None):

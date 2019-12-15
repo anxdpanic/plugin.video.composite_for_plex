@@ -25,8 +25,8 @@ from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 from ...addon.utils import get_media_data
 
-LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+LOG = Logger()
+SETTINGS = AddonSettings()
 
 
 def create_movie_item(server, tree, url, movie, library=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
@@ -95,7 +95,9 @@ def create_movie_item(server, tree, url, movie, library=False):  # pylint: disab
             })
 
     if tree.tag == 'MediaContainer':
-        extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
+        extra_data.update({
+            'library_section_uuid': tree.get('librarySectionUUID')
+        })
 
     # Determine what type of watched flag [overlay] to use
     if int(movie.get('viewCount', 0)) > 0:

@@ -23,8 +23,8 @@ from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
 
-LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+LOG = Logger()
+SETTINGS = AddonSettings()
 
 
 def kodi_photo():

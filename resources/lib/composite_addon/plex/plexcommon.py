@@ -15,15 +15,12 @@ import sys
 import uuid
 
 from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcaddon  # pylint: disable=import-error
 from kodi_six import xbmcvfs  # pylint: disable=import-error
 
+from ..addon.constants import CONFIG
 from ..addon.settings import AddonSettings
 
-__ID = 'plugin.video.composite_for_plex'
-__ADDON = xbmcaddon.Addon(id=__ID)
-
-SETTINGS = AddonSettings(__ID)
+SETTINGS = AddonSettings()
 
 
 def get_device_name(device_name):
@@ -51,7 +48,7 @@ def create_plex_identification(device_name=None, client_id=None, user=None, toke
         'X-Plex-Language': 'en',
         'X-Plex-Platform': platform.uname()[0],
         'X-Plex-Client-Identifier': get_client_identifier(client_id),
-        'X-Plex-Product': __ADDON.getAddonInfo('name'),
+        'X-Plex-Product': CONFIG['name'],
         'X-Plex-Platform-Version': platform.uname()[2],
         'X-Plex-Version': '0.0.0a1',
         'X-Plex-Provides': 'player,controller'

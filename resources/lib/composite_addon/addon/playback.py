@@ -31,8 +31,8 @@ from .utils import get_xml
 from .utils import get_thumb_image
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+LOG = Logger()
+SETTINGS = AddonSettings()
 
 
 def monitor_channel_transcode_playback(session_id, server):

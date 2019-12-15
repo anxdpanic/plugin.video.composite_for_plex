@@ -13,7 +13,6 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
-from ..addon.constants import CONFIG
 from ..addon.constants import MODES
 from ..addon.logger import Logger
 from ..addon.processing.music import process_music
@@ -24,9 +23,9 @@ from ..addon.settings import AddonSettings
 from ..addon.utils import create_gui_item
 from ..plex import plex
 
-LOG = Logger(CONFIG['name'])
+LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def run(url):

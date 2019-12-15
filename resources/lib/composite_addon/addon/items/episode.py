@@ -12,7 +12,6 @@
 
 import json
 
-from ...addon.constants import CONFIG
 from ...addon.constants import MODES
 from ...addon.logger import Logger
 from ...addon.settings import AddonSettings
@@ -25,8 +24,8 @@ from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 from ...addon.utils import get_media_data
 
-LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+LOG = Logger()
+SETTINGS = AddonSettings()
 
 
 def create_episode_item(server, tree, url, episode, library=False):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
@@ -123,7 +122,9 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
         'resume': int(int(view_offset) / 1000),
         'season': details.get('season'),
         'tvshowtitle': details.get('tvshowtitle'),
-        'additional_context_menus': {'go_to': use_go_to},
+        'additional_context_menus': {
+            'go_to': use_go_to
+        },
     }
 
     if not SETTINGS.get_setting('skipimages'):
@@ -135,18 +136,24 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
 
         if (art.get('season_thumb', '') and
                 '/:/resources/show.png' not in art.get('season_thumb', '')):
-            extra_data['season_thumb'] = get_thumb_image({'thumb': art.get('season_thumb')}, server)
+            extra_data['season_thumb'] = get_thumb_image({
+                'thumb': art.get('season_thumb')
+            }, server)
 
         # get ALL SEASONS or TVSHOW thumb
         if (not art.get('season_thumb', '') and episode.get('parentThumb', '') and
                 '/:/resources/show.png' not in episode.get('parentThumb', '')):
             extra_data['season_thumb'] = \
-                get_thumb_image({'thumb': episode.get('parentThumb', '')}, server)
+                get_thumb_image({
+                    'thumb': episode.get('parentThumb', '')
+                }, server)
 
         elif (not art.get('season_thumb', '') and episode.get('grandparentThumb', '') and
               '/:/resources/show.png' not in episode.get('grandparentThumb', '')):
             extra_data['season_thumb'] = \
-                get_thumb_image({'thumb': episode.get('grandparentThumb', '')}, server)
+                get_thumb_image({
+                    'thumb': episode.get('grandparentThumb', '')
+                }, server)
 
     # Determine what type of watched flag [overlay] to use
     if int(episode.get('viewCount', 0)) > 0:

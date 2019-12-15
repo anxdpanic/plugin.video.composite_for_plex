@@ -19,7 +19,9 @@ from ...addon.utils import get_thumb_image
 
 
 def create_plex_online_item(server, url, plugin):
-    details = {'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))}
+    details = {
+        'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))
+    }
     extra_data = {
         'type': 'Video',
         'installed': int(plugin.get('installed', 2)),
@@ -36,6 +38,8 @@ def create_plex_online_item(server, url, plugin):
 
     item_url = get_link_url(url, plugin, server)
 
-    extra_data['parameters'] = {'name': details['title']}
+    extra_data['parameters'] = {
+        'name': details['title']
+    }
 
     return create_gui_item(item_url, details, extra_data)
