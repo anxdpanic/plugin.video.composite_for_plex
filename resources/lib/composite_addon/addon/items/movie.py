@@ -32,6 +32,7 @@ SETTINGS = AddonSettings()
 def create_movie_item(server, tree, url, movie, library=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     temp_genre = []
     temp_cast = []
+    temp_collections = []
     temp_director = []
     temp_writer = []
 
@@ -50,6 +51,8 @@ def create_movie_item(server, tree, url, movie, library=False):  # pylint: disab
             temp_director.append(child.get('tag'))
         elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
             temp_cast.append(child.get('tag'))
+        elif child.tag == 'Collection' and not SETTINGS.get_setting('skipmetadata'):
+            temp_collections.append(child.get('tag'))
 
     LOG.debug('Media attributes are %s' % json.dumps(media_arguments, indent=4))
 
@@ -111,6 +114,8 @@ def create_movie_item(server, tree, url, movie, library=False):  # pylint: disab
         details['director'] = ' / '.join(temp_director)
         details['writer'] = ' / '.join(temp_writer)
         details['genre'] = ' / '.join(temp_genre)
+        if temp_collections:
+            details['set'] = ' / '.join(temp_collections)
 
     if movie.get('primaryExtraKey') is not None:
         details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
