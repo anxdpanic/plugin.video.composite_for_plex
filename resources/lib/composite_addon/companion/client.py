@@ -17,7 +17,7 @@ from ..addon.settings import AddonSettings
 from ..plex.plexgdm import PlexGDM
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 # Start GDM for server/client discovery

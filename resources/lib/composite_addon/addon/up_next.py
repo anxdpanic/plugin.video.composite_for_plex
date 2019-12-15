@@ -16,7 +16,7 @@ from .constants import CONFIG
 from .logger import Logger
 from .settings import AddonSettings
 
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 class UpNext:

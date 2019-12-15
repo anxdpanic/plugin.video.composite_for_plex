@@ -38,7 +38,7 @@ from .plexserver import PlexMediaServer
 
 DEFAULT_PORT = '32400'
 LOG = Logger(CONFIG['name'], 'plex')
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes

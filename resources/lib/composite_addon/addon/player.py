@@ -23,7 +23,7 @@ from .strings import i18n
 from .up_next import UpNext
 
 LOG = Logger(CONFIG['name'], 'player')
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 class PlaybackMonitorThread(threading.Thread):

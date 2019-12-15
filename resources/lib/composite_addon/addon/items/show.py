@@ -27,7 +27,7 @@ from ...addon.utils import get_thumb_image
 from ...addon.utils import get_fanart_image
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def create_show_item(server, url, show, library=False):

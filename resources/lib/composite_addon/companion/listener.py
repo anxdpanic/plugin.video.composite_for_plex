@@ -35,7 +35,7 @@ from .utils import jsonrpc
 from .utils import millis_to_time
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 class PlexCompanionHandler(BaseHTTPRequestHandler):

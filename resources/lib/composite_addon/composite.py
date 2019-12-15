@@ -18,12 +18,12 @@ from .addon.common import get_params
 from .addon.constants import COMMANDS
 from .addon.constants import CONFIG
 from .addon.constants import MODES
-from .addon.constants import STREAM_CONTROL_SETTING
+from .addon.constants import STREAM_CONTROL_MAP
 from .addon.logger import Logger
 from .addon.settings import AddonSettings
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-return-statements
@@ -61,7 +61,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
                SETTINGS.get_stream(),
                SETTINGS.get_setting('secondary'),
                SETTINGS.get_setting('flatten'),
-               STREAM_CONTROL_SETTING,
+               STREAM_CONTROL_MAP.get(SETTINGS.get_setting('streamControl')),
                SETTINGS.get_setting('forcedvd'),
                SETTINGS.get_setting('nasoverride'),
                SETTINGS.get_setting('nasoverrideip')))

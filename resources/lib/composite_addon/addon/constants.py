@@ -15,11 +15,8 @@ import os
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcaddon  # pylint: disable=import-error
 
-from .settings import AddonSettings
-
 __ID = 'plugin.video.composite_for_plex'
 __ADDON = xbmcaddon.Addon(id=__ID)
-__SETTINGS = AddonSettings(__ID)
 
 
 def __enum(**enums):
@@ -121,5 +118,3 @@ STREAM_CONTROL_MAP = {
     StreamControl().PLEX: 'Plex',
     StreamControl().NEVER: 'Never'
 }
-
-STREAM_CONTROL_SETTING = STREAM_CONTROL_MAP.get(__SETTINGS.get_setting('streamControl'))

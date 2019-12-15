@@ -20,7 +20,7 @@ from .settings import AddonSettings
 from .logger import Logger
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def wake_servers():

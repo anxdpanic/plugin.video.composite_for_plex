@@ -30,7 +30,7 @@ from ..addon.strings import item_translate
 from ..plex import plex
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def get_master_server(all_servers=False, plex_network=None):

@@ -27,7 +27,7 @@ from ..addon.utils import get_xml
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def run(url):

@@ -20,7 +20,7 @@ from ..addon.utils import create_gui_item
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def run(url):

@@ -20,7 +20,7 @@ from .companion import companion
 from .companion.client import get_client
 
 LOG = Logger(CONFIG['name'], 'service')
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def run():

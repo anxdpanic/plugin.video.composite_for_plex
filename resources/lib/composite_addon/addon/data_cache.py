@@ -13,6 +13,6 @@ from . import cache_control
 from .constants import CONFIG
 from .settings import AddonSettings
 
-__SETTINGS = AddonSettings(CONFIG['id'])
+__SETTINGS = AddonSettings()
 
 DATA_CACHE = cache_control.CacheControl('data', __SETTINGS.get_setting('data_cache'))

@@ -26,7 +26,7 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_media_data
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def create_episode_item(server, tree, url, episode, library=False):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements

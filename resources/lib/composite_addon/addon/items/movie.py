@@ -26,7 +26,7 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_media_data
 
 LOG = Logger(CONFIG['name'])
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def create_movie_item(server, tree, url, movie, library=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches

@@ -26,7 +26,7 @@ from ..plex import plex
 
 LOG = Logger(CONFIG['name'])
 PLEX_NETWORK = plex.Plex(load=False)
-SETTINGS = AddonSettings(CONFIG['id'])
+SETTINGS = AddonSettings()
 
 
 def run(url):

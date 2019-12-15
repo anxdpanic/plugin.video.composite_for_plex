@@ -21,7 +21,7 @@ from kodi_six import xbmc  # pylint: disable=import-error
 
 from .settings import AddonSettings
 
-SETTINGS = AddonSettings('plugin.video.composite_for_plex')
+SETTINGS = AddonSettings()
 
 
 class Logger:

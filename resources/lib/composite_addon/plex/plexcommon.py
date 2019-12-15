@@ -23,7 +23,7 @@ from ..addon.settings import AddonSettings
 __ID = 'plugin.video.composite_for_plex'
 __ADDON = xbmcaddon.Addon(id=__ID)
 
-SETTINGS = AddonSettings(__ID)
+SETTINGS = AddonSettings()
 
 
 def get_device_name(device_name):
