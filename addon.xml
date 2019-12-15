@@ -19,6 +19,7 @@
 [add] Settings - Look and Feel - Main Menu - Show [menu item]
     - show or hide some main menu items
 [fix] Only verify cert for secure connections, and honor the Certificate Verification setting |contrib: Maven85|
+[fix] Some sockets not being closed after use
 [lang] German (de_DE) |contrib: Maven85|
         </news>
         <assets>
