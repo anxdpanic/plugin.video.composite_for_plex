@@ -158,6 +158,7 @@ def notify_all(method, data):
 def jsonrpc_play(url):
     jsonrpc_request = {
         "jsonrpc": "2.0",
+        "id": 1,
         "method": "player.open",
         "params": {
             "item": {
