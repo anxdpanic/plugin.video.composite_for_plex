@@ -73,7 +73,9 @@ def create_track_item(server, tree, track, listing=True):
             })
 
     if tree.tag == 'MediaContainer':
-        extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
+        extra_data.update({
+            'library_section_uuid': tree.get('librarySectionUUID')
+        })
 
     # If we are streaming, then get the virtual location
     url = '%s%s' % (server.get_url_location(), extra_data['key'])

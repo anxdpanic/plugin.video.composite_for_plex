@@ -95,7 +95,9 @@ def create_movie_item(server, tree, url, movie, library=False):  # pylint: disab
             })
 
     if tree.tag == 'MediaContainer':
-        extra_data.update({'library_section_uuid': tree.get('librarySectionUUID')})
+        extra_data.update({
+            'library_section_uuid': tree.get('librarySectionUUID')
+        })
 
     # Determine what type of watched flag [overlay] to use
     if int(movie.get('viewCount', 0)) > 0:

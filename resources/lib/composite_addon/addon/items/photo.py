@@ -20,7 +20,9 @@ from ...addon.utils import get_fanart_image
 
 
 def create_photo_item(server, tree, url, photo):
-    details = {'title': encode_utf8(photo.get('title', photo.get('name', i18n('Unknown'))))}
+    details = {
+        'title': encode_utf8(photo.get('title', photo.get('name', i18n('Unknown'))))
+    }
 
     if not details['title']:
         details['title'] = i18n('Unknown')

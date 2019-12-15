@@ -26,7 +26,9 @@ def create_playlist_item(url, server, track, listing=True):
 
     extra_data = {
         'type': track.get('playlistType', ''),
-        'thumb': get_thumb_image({'thumb': track.get('composite', '')}, server),
+        'thumb': get_thumb_image({
+            'thumb': track.get('composite', '')
+        }, server),
         'mode': MODES.GETCONTENT
     }
 
