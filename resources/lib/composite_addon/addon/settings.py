@@ -129,7 +129,6 @@ class AddonSettings:
             'name': self.get_setting('receiver_name'),
             'port': port,
             'uuid': receiver_uuid,
-
         }
 
     def kodi_web_server(self):
@@ -143,7 +142,6 @@ class AddonSettings:
             'name': self.get_setting('web_server_username'),
             'password': self.get_setting('web_server_password'),
             'port': port,
-
         }
 
     def addon_status(self, addon_id):
