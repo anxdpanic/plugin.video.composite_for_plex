@@ -572,9 +572,7 @@ msgctxt "#30547"
 msgid "Use WOL?"
 msgstr ""
 
-msgctxt "#30548"
-msgid "Clean context menus"
-msgstr ""
+# 30548
 
 msgctxt "#30549"
 msgid "Skip Genre/director/writer metadata"

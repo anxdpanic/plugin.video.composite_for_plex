@@ -532,9 +532,7 @@ msgctxt "#30546"
 msgid "Windows Media Server?"
 msgstr ""
 
-msgctxt "#30548"
-msgid "Clean context menus"
-msgstr "Pulisci i menu contestuali"
+# 30548
 
 msgctxt "#30549"
 msgid "Skip Genre/director/writer metadata"

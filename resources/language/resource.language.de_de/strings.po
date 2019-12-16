@@ -573,9 +573,7 @@ msgctxt "#30547"
 msgid "Use WOL?"
 msgstr "Verwende Wake on LAN?"
 
-msgctxt "#30548"
-msgid "Clean context menus"
-msgstr "Kontextmenü säubern"
+# 30548
 
 msgctxt "#30549"
 msgid "Skip Genre/director/writer metadata"

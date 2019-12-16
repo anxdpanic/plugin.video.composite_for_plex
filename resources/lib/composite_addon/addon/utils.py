@@ -190,7 +190,7 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
             context.insert(0, (i18n('Play Transcoded'), 'PlayMedia(%s&transcode=1)' % link_url,))
             LOG.debug('Setting transcode options to [%s&transcode=1]' % link_url)
         LOG.debug('Building Context Menus')
-        list_item.addContextMenuItems(context, SETTINGS.get_setting('contextreplace'))
+        list_item.addContextMenuItems(context)
 
     if is_file:
         folder = False

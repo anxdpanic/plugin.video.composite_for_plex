@@ -564,9 +564,7 @@ msgctxt "#30547"
 msgid "Use WOL?"
 msgstr "Использовать WOL?"
 
-msgctxt "#30548"
-msgid "Clean context menus"
-msgstr "Очистить контекстные меню"
+# 30548
 
 msgctxt "#30549"
 msgid "Skip Genre/director/writer metadata"
