@@ -33,10 +33,17 @@ def run():
     monitor = Monitor()
 
     companion_thread = None
-    if settings.use_companion():
-        companion_thread = companion.CompanionReceiverThread(get_client(settings), settings)
 
     while not monitor.abortRequested():
+
+        if not companion_thread and settings.use_companion():
+            _fresh_settings = AddonSettings()
+            companion_thread = companion.CompanionReceiverThread(get_client(_fresh_settings),
+                                                                 _fresh_settings)
+            del _fresh_settings
+        elif companion_thread and not settings.use_companion():
+            companion.shutdown(companion_thread)
+            companion_thread = None
 
         if monitor.waitForAbort(sleep_time):
             break

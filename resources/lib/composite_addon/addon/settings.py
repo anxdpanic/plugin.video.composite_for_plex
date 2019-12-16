@@ -117,7 +117,7 @@ class AddonSettings:
         return int(self.get_setting('data_cache_ttl', fresh=True)) * 60
 
     def use_companion(self):
-        return self.get_setting('use_companion_receiver')
+        return self.get_setting('use_companion_receiver', fresh=True)
 
     def companion_receiver(self):
         receiver_uuid = str(self.get_setting('receiver_uuid')) or str(uuid.uuid4())
