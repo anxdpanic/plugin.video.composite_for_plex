@@ -35,7 +35,7 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(url=None, server_uuid=None, mode=None):
+def run(settings, url=None, server_uuid=None, mode=None):
     """
         This function takes teh URL, gets the XML and determines what the content is
         This XML is then redirected to the best processing function.
@@ -65,7 +65,7 @@ def run(url=None, server_uuid=None, mode=None):
 
     try:
         tree = get_xml(url, plex_network=plex_network)
-        process(plex_network, url, tree, last_bit)
+        process(plex_network, settings, url, tree, last_bit)
 
     except:  # pylint: disable=bare-except
         if mode not in [MODES.TXT_TVSHOWS, MODES.TXT_MOVIES, MODES.TXT_MOVIES_ON_DECK,
@@ -110,32 +110,32 @@ def search(url):
     return None
 
 
-def process(plex_network, url, tree, last_bit):
+def process(plex_network, settings, url, tree, last_bit):
     view_group = None
     if tree:
         view_group = tree.get('viewGroup')
 
     if last_bit in ['folder', 'playlists']:
-        process_xml(url, tree, plex_network=plex_network)
+        process_xml(settings, url, tree, plex_network=plex_network)
     elif view_group == 'movie':
         LOG.debug('This is movie XML, passing to Movies')
-        process_movies(url, tree, plex_network=plex_network)
+        process_movies(settings, url, tree, plex_network=plex_network)
     elif view_group == 'show':
         LOG.debug('This is tv show XML')
-        process_shows(url, tree, plex_network=plex_network)
+        process_shows(settings, url, tree, plex_network=plex_network)
     elif view_group == 'episode':
         LOG.debug('This is TV episode XML')
-        process_episodes(url, tree, plex_network=plex_network)
+        process_episodes(settings, url, tree, plex_network=plex_network)
     elif view_group == 'artist':
         LOG.debug('This is music XML')
-        process_artists(url, tree, plex_network=plex_network)
+        process_artists(settings, url, tree, plex_network=plex_network)
     elif view_group in ['album', 'albums']:
-        process_albums(url, tree, plex_network=plex_network)
+        process_albums(settings, url, tree, plex_network=plex_network)
     elif view_group == 'track':
         LOG.debug('This is track XML')
-        process_tracks(url, tree, plex_network=plex_network)  # sorting is handled here
+        process_tracks(settings, url, tree, plex_network=plex_network)  # sorting is handled here
     elif view_group == 'photo':
         LOG.debug('This is a photo XML')
-        process_photos(url, tree, plex_network=plex_network)
+        process_photos(settings, url, tree, plex_network=plex_network)
     else:
-        process_directories(url, tree, plex_network=plex_network)
+        process_directories(settings, url, tree, plex_network=plex_network)

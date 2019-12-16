@@ -14,6 +14,6 @@ from ..addon.processing.music import process_music
 from ..plex import plex
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    process_music(url, plex_network=plex_network)
+    process_music(settings, url, plex_network=plex_network)

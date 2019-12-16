@@ -17,7 +17,6 @@ from .common import read_pickled
 from .constants import CONFIG
 from .constants import StreamControl
 from .logger import Logger
-from .settings import AddonSettings
 from .strings import encode_utf8
 from .strings import i18n
 from .up_next import UpNext
@@ -30,11 +29,12 @@ class PlaybackMonitorThread(threading.Thread):
     MONITOR = xbmc.Monitor()
     PLAYER = xbmc.Player()
 
-    def __init__(self, monitor_dict):
+    def __init__(self, settings, monitor_dict):
         super(PlaybackMonitorThread, self).__init__()
         self._stopped = threading.Event()
         self._ended = threading.Event()
 
+        self.settings = settings
         self._monitor_dict = monitor_dict
 
         self.daemon = True
@@ -126,7 +126,7 @@ class PlaybackMonitorThread(threading.Thread):
         self._wait_for_playback()
 
         if self.streams():
-            set_audio_subtitles(self.streams())
+            set_audio_subtitles(self.settings, self.streams())
 
         wait_time = 0.5
         waited = 0.0
@@ -181,10 +181,11 @@ class PlaybackMonitorThread(threading.Thread):
 class CallbackPlayer(xbmc.Player):
     LOG = Logger('CallbackPlayer')
 
-    def __init__(self, window, *args, **kwargs):
+    def __init__(self, window, settings, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
 
+        self.settings = settings
         self.threads = []
         self.window = window
 
@@ -226,14 +227,12 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
-        settings = AddonSettings()
-
-        monitor_playback = not settings.get_setting('monitoroff', fresh=True)
+        monitor_playback = not self.settings.get_setting('monitoroff', fresh=True)
         playback_dict = read_pickled('playback_monitor.pickle')
 
         self.cleanup_threads()
         if monitor_playback and playback_dict:
-            self.threads.append(PlaybackMonitorThread(playback_dict))
+            self.threads.append(PlaybackMonitorThread(self.settings, playback_dict))
 
         if not monitor_playback:
             self.LOG('Playback monitoring is disabled ...')
@@ -243,9 +242,9 @@ class CallbackPlayer(xbmc.Player):
         if playback_dict:
             full_data = playback_dict.get('streams', {}).get('full_data', {})
             media_type = full_data.get('mediatype', '').lower()
-            if settings.use_up_next() and media_type == 'episode':
+            if self.settings.use_up_next() and media_type == 'episode':
                 self.LOG('Using Up Next ...')
-                UpNext(server=playback_dict.get('server'),
+                UpNext(self.settings, server=playback_dict.get('server'),
                        media_id=playback_dict.get('media_id'),
                        callback_args=playback_dict.get('callback_args', {})).run()
             else:
@@ -262,14 +261,13 @@ class CallbackPlayer(xbmc.Player):
         self.onPlayBackEnded()
 
 
-def set_audio_subtitles(stream):
+def set_audio_subtitles(settings, stream):
     """
         Take the collected audio/sub stream data and apply to the media
         If we do not have any subs then we switch them off
     """
 
     # If we have decided not to collect any sub data then do not set subs
-    settings = AddonSettings()
     player = xbmc.Player()
     control = settings.get_setting('streamControl', fresh=True)
 

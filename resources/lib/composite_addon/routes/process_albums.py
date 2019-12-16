@@ -14,6 +14,6 @@ from ..addon.processing.albums import process_albums
 from ..plex import plex
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    process_albums(url, plex_network=plex_network)
+    process_albums(settings, url, plex_network=plex_network)

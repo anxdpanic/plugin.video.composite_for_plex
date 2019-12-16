@@ -14,6 +14,6 @@ from ..addon.processing.shows import process_shows
 from ..plex import plex
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    process_shows(url, plex_network=plex_network)
+    process_shows(settings, url, plex_network=plex_network)

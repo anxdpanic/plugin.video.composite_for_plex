@@ -14,13 +14,13 @@
 import socket
 import threading
 import traceback
+from functools import partial
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..addon.strings import i18n
 from .http_persist import RequestManager
 from .listener import PlexCompanionHandler
@@ -28,18 +28,18 @@ from .listener import ThreadedHTTPServer
 from .subscribers import SubscriptionManager
 
 
-class CompanionReceiverThread(threading.Thread):
+class CompanionReceiverThread(threading.Thread):  # pylint: disable=too-many-instance-attributes
     LOG = Logger('CompanionReceiverThread')
     MONITOR = xbmc.Monitor()
-    SETTINGS = AddonSettings()
-    CLIENT_DETAILS = SETTINGS.companion_receiver()
 
-    def __init__(self, gdm_client):
+    def __init__(self, gdm_client, settings):
         super(CompanionReceiverThread, self).__init__()
         self._stopped = threading.Event()
         self._ended = threading.Event()
 
+        self.settings = settings
         self.client = gdm_client
+        self.client_details = self.settings.companion_receiver()
         self.httpd = None
         self.request_manager = None
         self.subscription_manager = None
@@ -62,14 +62,14 @@ class CompanionReceiverThread(threading.Thread):
 
     def _get_httpd(self):
         self.httpd = ThreadedHTTPServer(self.client, self.subscription_manager,
-                                        ('', self.CLIENT_DETAILS['port']),
-                                        PlexCompanionHandler)
+                                        ('', self.client_details['port']),
+                                        partial(PlexCompanionHandler, self.settings))
         self.httpd.timeout = 0.95
 
     def run(self):
         count = 0
         self.request_manager = RequestManager()
-        self.subscription_manager = SubscriptionManager(self.request_manager)
+        self.subscription_manager = SubscriptionManager(self.settings, self.request_manager)
 
         while not self.MONITOR.abortRequested():
             try:
@@ -77,7 +77,7 @@ class CompanionReceiverThread(threading.Thread):
                 break
             except:  # pylint: disable=bare-except
                 self.LOG.debug('Unable to start receiver. Sleep and Retry...')
-                self.SETTINGS.set_setting('replacement', True)
+                self.settings.set_setting('replacement', True)
 
             self.MONITOR.waitForAbort(3)
 
@@ -94,13 +94,13 @@ class CompanionReceiverThread(threading.Thread):
 
         if self.httpd:
             self.client.start_all()
-            self.SETTINGS.set_setting('replacement', False)
+            self.settings.set_setting('replacement', False)
 
             count = 0
             running = False
 
             while (not xbmc.Monitor().abortRequested() and
-                   not self.SETTINGS.get_setting('replacement') and
+                   not self.settings.get_setting('replacement') and
                    not self.stopped()):
                 try:
 
@@ -113,7 +113,7 @@ class CompanionReceiverThread(threading.Thread):
                         else:
                             self.LOG.debug('Client is no longer registered')
                         self.LOG.debug('Receiver still running on port %s' %
-                                       self.CLIENT_DETAILS['port'])
+                                       self.client_details['port'])
                         count = 0
 
                     if not running:

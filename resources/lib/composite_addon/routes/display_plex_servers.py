@@ -19,16 +19,14 @@ from ..addon.processing.music import process_music
 from ..addon.processing.photos import process_photos
 from ..addon.processing.plex_online import process_plex_online
 from ..addon.processing.plex_plugins import process_plex_plugins
-from ..addon.settings import AddonSettings
 from ..addon.utils import create_gui_item
 from ..plex import plex
 
 LOG = Logger()
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
     content_type = url.split('/')[2]
     LOG.debug('Displaying entries for %s' % content_type)
     servers = plex_network.get_server_list()
@@ -51,28 +49,28 @@ def run(url):
             extra_data['mode'] = MODES.PLEXPLUGINS
             url = '%s%s' % (media_server.get_url_location(), '/video')
             if servers_list == 1:
-                process_plex_plugins(url, plex_network=plex_network)
+                process_plex_plugins(settings, url, plex_network=plex_network)
                 return
 
         elif content_type == 'online':
             extra_data['mode'] = MODES.PLEXONLINE
             url = '%s%s' % (media_server.get_url_location(), '/system/plexonline')
             if servers_list == 1:
-                process_plex_online(url, plex_network=plex_network)
+                process_plex_online(settings, url, plex_network=plex_network)
                 return
 
         elif content_type == 'music':
             extra_data['mode'] = MODES.MUSIC
             url = '%s%s' % (media_server.get_url_location(), '/music')
             if servers_list == 1:
-                process_music(url, plex_network=plex_network)
+                process_music(settings, url, plex_network=plex_network)
                 return
 
         elif content_type == 'photo':
             extra_data['mode'] = MODES.PHOTOS
             url = '%s%s' % (media_server.get_url_location(), '/photos')
             if servers_list == 1:
-                process_photos(url, plex_network=plex_network)
+                process_photos(settings, url, plex_network=plex_network)
                 return
 
         if url:

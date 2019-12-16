@@ -30,7 +30,7 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(params):
+def run(settings, params):
     plex_network = plex.Plex(load=True)
 
     for param in ['video_type', 'title', 'year']:  # check for expected common parameters
@@ -58,12 +58,12 @@ def run(params):
 
         if params.get('video_type') in ['show', 'season']:
             if params.get('video_type') == 'show':
-                process_seasons(server_uuid, rating_key=media_id,
+                process_seasons(settings, server_uuid, rating_key=media_id,
                                 plex_network=plex_network)
                 return
 
             if params.get('video_type') == 'season':
-                process_episodes(server_uuid, rating_key=media_id,
+                process_episodes(settings, server_uuid, rating_key=media_id,
                                  plex_network=plex_network)
                 return
 
@@ -74,7 +74,7 @@ def run(params):
 
             play = wait_for_busy_dialog()
             if play:
-                play_media_id_from_uuid(server_uuid, media_id, player=True)
+                play_media_id_from_uuid(settings, server_uuid, media_id, player=True)
                 return
 
         LOG.debug('Failed to execute TraktToKodi action')

@@ -24,7 +24,6 @@ from kodi_six import xbmc  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from .utils import get_ok_message
 from .utils import get_platform
 from .utils import get_player_ids
@@ -40,9 +39,10 @@ LOG = Logger()
 class PlexCompanionHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, settings, *args, **kwargs):
+        self.settings = settings
         self.server_list = []
-        self.client_details = AddonSettings().companion_receiver()
+        self.client_details = self.settings.companion_receiver()
         BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def log_message(self, format, *args):  # pylint: disable=redefined-builtin, unused-argument, no-self-use
@@ -134,9 +134,9 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                 response += '/>'
                 response += '</MediaContainer>'
                 LOG.debug('crafted resources response: %s' % response)
-                self.response(response, get_plex_headers())
+                self.response(response, get_plex_headers(self.settings))
             elif '/subscribe' in request_path:
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 protocol = params.get('protocol', False)
                 host = self.client_address[0]
                 port = params.get('port', False)
@@ -159,11 +159,11 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                     }
                 )
             elif '/unsubscribe' in request_path:
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 uuid = self.headers.get('X-Plex-Client-Identifier', False) or self.client_address[0]
                 self.server.subscription_manager.remove_subscriber(uuid)
             elif request_path == 'player/playback/setParameters':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 if 'volume' in params:
                     volume = int(params['volume'])
                     LOG.debug('adjusting the volume to %s%%' % volume)
@@ -171,7 +171,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                         'volume': volume
                     })
             elif '/playMedia' in request_path:
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 resume = params.get('viewOffset', params.get('offset', '0'))
                 protocol = params.get('protocol', 'http')
                 address = params.get('address', self.client_address[0])
@@ -186,27 +186,27 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                 self.server.subscription_manager.protocol = protocol
                 self.server.subscription_manager.notify()
             elif request_path == 'player/playback/play':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.PlayPause', {
                         'playerid': player_id,
                         'play': True
                     })
             elif request_path == 'player/playback/pause':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.PlayPause', {
                         'playerid': player_id,
                         'play': False
                     })
             elif request_path == 'player/playback/stop':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.Stop', {
                         'playerid': player_id
                     })
             elif request_path == 'player/playback/seekTo':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.Seek', {
                         'playerid': player_id,
@@ -214,7 +214,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                     })
                 self.server.subscription_manager.notify()
             elif request_path == 'player/playback/stepForward':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.Seek', {
                         'playerid': player_id,
@@ -222,7 +222,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                     })
                 self.server.subscription_manager.notify()
             elif request_path == 'player/playback/stepBack':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.Seek', {
                         'playerid': player_id,
@@ -230,7 +230,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                     })
                 self.server.subscription_manager.notify()
             elif request_path == 'player/playback/skipNext':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.Seek', {
                         'playerid': player_id,
@@ -238,7 +238,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                     })
                 self.server.subscription_manager.notify()
             elif request_path == 'player/playback/skipPrevious':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 for player_id in get_player_ids():
                     jsonrpc('Player.Seek', {
                         'playerid': player_id,
@@ -246,25 +246,25 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                     })
                 self.server.subscription_manager.notify()
             elif request_path == 'player/navigation/moveUp':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 jsonrpc('Input.Up')
             elif request_path == 'player/navigation/moveDown':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 jsonrpc('Input.Down')
             elif request_path == 'player/navigation/moveLeft':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 jsonrpc('Input.Left')
             elif request_path == 'player/navigation/moveRight':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 jsonrpc('Input.Right')
             elif request_path == 'player/navigation/select':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 jsonrpc('Input.Select')
             elif request_path == 'player/navigation/home':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 jsonrpc('Input.Home')
             elif request_path == 'player/navigation/back':
-                self.response(get_ok_message(), get_plex_headers())
+                self.response(get_ok_message(), get_plex_headers(self.settings))
                 jsonrpc('Input.Back')
         except:  # pylint: disable=bare-except
             LOG.debug(traceback.print_exc())

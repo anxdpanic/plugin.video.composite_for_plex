@@ -175,9 +175,7 @@ def get_ok_message():
     return get_xml_header() + '<Response code="200" status="OK" />'
 
 
-def get_plex_headers():
-    settings = AddonSettings()
-
+def get_plex_headers(settings):
     client_details = settings.companion_receiver()
     headers = {
         'Content-type': 'application/x-www-form-urlencoded',

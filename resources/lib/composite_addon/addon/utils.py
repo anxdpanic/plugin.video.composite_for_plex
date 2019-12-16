@@ -23,7 +23,6 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from ..addon.common import get_argv
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
 from ..addon.strings import item_translate
@@ -32,10 +31,9 @@ from ..plex import plex
 LOG = Logger()
 
 
-def get_master_server(all_servers=False, plex_network=None):
+def get_master_server(settings, all_servers=False, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     possible_servers = []
     current_master = settings.get_setting('masterServer')
@@ -436,9 +434,7 @@ def get_media_data(tag_dict):
     }
 
 
-def get_transcode_profile():
-    settings = AddonSettings()
-
+def get_transcode_profile(settings):
     profile_count = 3
     profile_labels = []
 

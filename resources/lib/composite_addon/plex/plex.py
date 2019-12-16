@@ -70,8 +70,9 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             self.load()
 
     def plex_identification_header(self):
-        self.client_id = get_client_identifier(self.client_id)
-        return create_plex_identification(client_id=self.client_id, token=self.effective_token)
+        self.client_id = get_client_identifier(self.settings, self.client_id)
+        return create_plex_identification(self.settings, client_id=self.client_id,
+                                          token=self.effective_token)
 
     def is_plexhome_enabled(self):
         return self.plexhome_settings['plexhome_enabled']
@@ -380,6 +381,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
             percent += 40
             progress_dialog.update(percent=percent, message=i18n('Caching results...'))
+            for server_uuid in list(self.server_list.keys()):
+                self.server_list[server_uuid].settings = None  # can't pickle xbmcaddon.Addon()
             self.cache.write_cache(self.server_list_cache, self.server_list)
 
             servers = [(self.server_list[key].get_name(), key)

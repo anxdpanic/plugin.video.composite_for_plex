@@ -14,12 +14,11 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ...addon.common import get_handle
 from ...addon.items.artist import create_artist_item
-from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
 
 
-def process_artists(url, tree=None, plex_network=None):
+def process_artists(settings, url, tree=None, plex_network=None):
     """
         Process artist XML and display data
         @input: url of XML page, or existing tree of XML page
@@ -27,7 +26,6 @@ def process_artists(url, tree=None, plex_network=None):
     """
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'artists')
 

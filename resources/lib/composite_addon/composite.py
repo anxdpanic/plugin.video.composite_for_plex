@@ -30,7 +30,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if settings.get_setting('wolon'):
         from .addon.wol import wake_servers  # pylint: disable=import-outside-toplevel
-        wake_servers()
+        wake_servers(settings)
 
     params = get_params()
 
@@ -69,7 +69,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if command == COMMANDS.REFRESH:
         from .routes import refresh  # pylint: disable=import-outside-toplevel
-        refresh.run()
+        refresh.run(settings)
         return _finished(start_time)
 
     if command == COMMANDS.SWITCHUSER:
@@ -139,7 +139,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
     # Allow a master server to be selected (for myPlex Queue)
     if command == COMMANDS.MASTER:
         from .routes import set_master_server  # pylint: disable=import-outside-toplevel
-        set_master_server.run()
+        set_master_server.run(settings)
         return _finished(start_time)
 
     if command == COMMANDS.DELETEFROMPLAYLIST:
@@ -154,19 +154,19 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode in [MODES.TXT_OPEN, MODES.TXT_PLAY]:
         from .routes import trakttokodi  # pylint: disable=import-outside-toplevel
-        trakttokodi.run(params)
+        trakttokodi.run(settings, params)
         return _finished(start_time)
 
     if ((path_mode in [MODES.TXT_MOVIES_LIBRARY, MODES.TXT_TVSHOWS_LIBRARY] and
          (mode is None or mode == MODES.UNSET)) or params.get('kodi_action')):
         from .routes import kodi_library  # pylint: disable=import-outside-toplevel
-        kodi_library.run(params)
+        kodi_library.run(settings, params)
         return _finished(start_time)
 
     # Run a function based on the mode variable that was passed in the URL
     if (isinstance(mode, int) and mode < 0) or (not url and (not server_uuid and not media_id)):
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run()
+        display_sections.run(settings)
         return _finished(start_time)
 
     if mode in [MODES.GETCONTENT, MODES.TXT_TVSHOWS, MODES.TXT_MOVIES,
@@ -174,49 +174,49 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
                 MODES.TXT_MOVIES_RECENT_RELEASE, MODES.TXT_TVSHOWS_ON_DECK,
                 MODES.TXT_TVSHOWS_RECENT_ADDED, MODES.TXT_TVSHOWS_RECENT_AIRED]:
         from .routes import get_content  # pylint: disable=import-outside-toplevel
-        get_content.run(url, server_uuid, mode)
+        get_content.run(settings, url, server_uuid, mode)
         return _finished(start_time)
 
     if mode == MODES.TVSHOWS:
         from .routes import process_shows  # pylint: disable=import-outside-toplevel
-        process_shows.run(url)
+        process_shows.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.MOVIES:
         from .routes import process_movies  # pylint: disable=import-outside-toplevel
-        process_movies.run(url)
+        process_movies.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.ARTISTS:
         from .routes import process_artists  # pylint: disable=import-outside-toplevel
-        process_artists.run(url)
+        process_artists.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.TVSEASONS:
         from .routes import process_seasons  # pylint: disable=import-outside-toplevel
-        process_seasons.run(url, rating_key=params.get('rating_key'), library=library)
+        process_seasons.run(settings, url, rating_key=params.get('rating_key'), library=library)
         return _finished(start_time)
 
     if mode == MODES.PLAYLIBRARY:
         from .routes import play_library_media  # pylint: disable=import-outside-toplevel
-        play_library_media.run(url=url, server_uuid=server_uuid, media_id=media_id,
+        play_library_media.run(settings, url=url, server_uuid=server_uuid, media_id=media_id,
                                transcode=int(params.get('transcode', 0)) == 1,
                                transcode_profile=params.get('transcode_profile'))
         return _finished(start_time)
 
     if mode == MODES.TVEPISODES:
         from .routes import process_episodes  # pylint: disable=import-outside-toplevel
-        process_episodes.run(url, rating_key=params.get('rating_key'), library=library)
+        process_episodes.run(settings, url, rating_key=params.get('rating_key'), library=library)
         return _finished(start_time)
 
     if mode == MODES.PLEXPLUGINS:
         from .routes import process_plex_plugins  # pylint: disable=import-outside-toplevel
-        process_plex_plugins.run(url)
+        process_plex_plugins.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.PROCESSXML:
         from .routes import process_xml  # pylint: disable=import-outside-toplevel
-        process_xml.run(url)
+        process_xml.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.BASICPLAY:
@@ -226,32 +226,32 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.ALBUMS:
         from .routes import process_albums  # pylint: disable=import-outside-toplevel
-        process_albums.run(url)
+        process_albums.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.TRACKS:
         from .routes import process_tracks  # pylint: disable=import-outside-toplevel
-        process_tracks.run(url)
+        process_tracks.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.PHOTOS:
         from .routes import process_photos  # pylint: disable=import-outside-toplevel
-        process_photos.run(url)
+        process_photos.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.MUSIC:
         from .routes import process_music  # pylint: disable=import-outside-toplevel
-        process_music.run(url)
+        process_music.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.VIDEOPLUGINPLAY:
         from .routes import play_video_channel  # pylint: disable=import-outside-toplevel
-        play_video_channel.run(url, params.get('identifier'), params.get('indirect'))
+        play_video_channel.run(settings, url, params.get('identifier'), params.get('indirect'))
         return _finished(start_time)
 
     if mode == MODES.PLEXONLINE:
         from .routes import plex_online  # pylint: disable=import-outside-toplevel
-        plex_online.run(url)
+        plex_online.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.CHANNELINSTALL:
@@ -261,12 +261,12 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.CHANNELVIEW:
         from .routes import channel_view  # pylint: disable=import-outside-toplevel
-        channel_view.run(url)
+        channel_view.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.PLAYLIBRARY_TRANSCODE:
         from .routes import play_library_media  # pylint: disable=import-outside-toplevel
-        play_library_media.run(url=url, transcode=True)
+        play_library_media.run(settings, url=url, transcode=True)
         return _finished(start_time)
 
     if mode == MODES.MYPLEXQUEUE:
@@ -276,7 +276,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.CHANNELSEARCH:
         from .routes import channel_search  # pylint: disable=import-outside-toplevel
-        channel_search.run(url, params.get('prompt'))
+        channel_search.run(settings, url, params.get('prompt'))
         return _finished(start_time)
 
     if mode == MODES.CHANNELPREFS:
@@ -286,42 +286,42 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.SHARED_MOVIES:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(content_filter='movies', display_shared=True)
+        display_sections.run(settings, content_filter='movies', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_SHOWS:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(content_filter='tvshows', display_shared=True)
+        display_sections.run(settings, content_filter='tvshows', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_PHOTOS:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(content_filter='photos', display_shared=True)
+        display_sections.run(settings, content_filter='photos', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_MUSIC:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(content_filter='music', display_shared=True)
+        display_sections.run(settings, content_filter='music', display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.SHARED_ALL:
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
-        display_sections.run(display_shared=True)
+        display_sections.run(settings, display_shared=True)
         return _finished(start_time)
 
     if mode == MODES.PLAYLISTS:
         from .routes import process_xml  # pylint: disable=import-outside-toplevel
-        process_xml.run(url)
+        process_xml.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.DISPLAYSERVERS:
         from .routes import display_plex_servers  # pylint: disable=import-outside-toplevel
-        display_plex_servers.run(url)
+        display_plex_servers.run(settings, url)
         return _finished(start_time)
 
     if mode == MODES.WIDGETS:
         from .routes import widgets  # pylint: disable=import-outside-toplevel
-        widgets.run(url)
+        widgets.run(settings, url)
         return _finished(start_time)
 
     return _finished(start_time)

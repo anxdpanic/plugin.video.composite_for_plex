@@ -13,14 +13,12 @@ import json
 
 from .common import notify_all
 from .logger import Logger
-from .settings import AddonSettings
 
 
 class UpNext:
     LOG = Logger('UpNext')
-    USE_EP_THUMBS = AddonSettings().get_setting('up_next_episode_thumbs', fresh=True)
 
-    def __init__(self, server, media_id, callback_args):
+    def __init__(self, settings, server, media_id, callback_args):
         """
         Contain the code required for using service.upnext
 
@@ -28,6 +26,7 @@ class UpNext:
         :param media_id: media id of the current episode
         :param callback_args: dict of arguments required for service.upnext `play_info`
         """
+        self.use_ep_thumbs = settings.get_setting('up_next_episode_thumbs', fresh=True)
         self.server = server
         self.media_id = media_id
         self.callback_args = callback_args
@@ -181,7 +180,7 @@ class UpNext:
                 "tvshow.poster": tvshow_image,
                 "thumb": episode_image,
                 "tvshow.fanart": fanart_image,
-                "tvshow.landscape": episode_image if self.USE_EP_THUMBS else fanart_image,
+                "tvshow.landscape": episode_image if self.use_ep_thumbs else fanart_image,
                 "tvshow.clearart": "",
                 "tvshow.clearlogo": "",
             },

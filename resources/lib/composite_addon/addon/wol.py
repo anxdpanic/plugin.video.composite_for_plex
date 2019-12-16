@@ -17,14 +17,11 @@ from contextlib import closing
 from six.moves import range
 
 from .logger import Logger
-from .settings import AddonSettings
 
 LOG = Logger()
 
 
-def wake_servers():
-    settings = AddonSettings()
-
+def wake_servers(settings):
     if settings.get_setting('wolon'):
         LOG.debug('Wake On LAN: true')
         for mac_address in settings.get_wakeservers():

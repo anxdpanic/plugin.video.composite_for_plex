@@ -13,7 +13,6 @@
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..addon.strings import i18n
 from ..addon.utils import get_master_server
 from ..plex import plex
@@ -21,10 +20,9 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run():
+def run(settings):
     plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
-    servers = get_master_server(all_servers=True, plex_network=plex_network)
+    servers = get_master_server(settings, all_servers=True, plex_network=plex_network)
     LOG.debug(str(servers))
 
     current_master = settings.get_setting('masterServer')

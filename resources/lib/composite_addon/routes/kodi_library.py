@@ -16,13 +16,12 @@ from ..addon.common import get_handle
 from ..addon.items.movie import create_movie_item
 from ..addon.items.show import create_show_item
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..plex import plex
 
 LOG = Logger()
 
 
-def run(params):
+def run(settings, params):
     del params['command']  # remove unrelated param
 
     content_type = _get_content_type(params.get('path_mode'))
@@ -47,12 +46,11 @@ def run(params):
         LOG.debug('refresh info for %s' % params.get('url'))
         plex_network = plex.Plex(load=True)
         server = plex_network.get_server_from_url(params.get('url'))
-        _list_content(server, params.get('url'), AddonSettings())
+        _list_content(server, params.get('url'), settings)
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
     else:
         plex_network = plex.Plex(load=True)
-        settings = AddonSettings()
         server_list = plex_network.get_server_list()
         LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 

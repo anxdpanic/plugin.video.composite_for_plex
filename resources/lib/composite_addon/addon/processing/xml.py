@@ -16,7 +16,6 @@ from ...addon.common import get_handle
 from ...addon.constants import MODES
 from ...addon.items.playlist import create_playlist_item
 from ...addon.items.track import create_track_item
-from ...addon.settings import AddonSettings
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
 from ...addon.utils import create_gui_item
@@ -29,7 +28,7 @@ from .episodes import process_episodes
 from .movies import process_movies
 
 
-def process_xml(url, tree=None, plex_network=None):
+def process_xml(settings, url, tree=None, plex_network=None):
     """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -39,7 +38,6 @@ def process_xml(url, tree=None, plex_network=None):
     """
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'movies')
 

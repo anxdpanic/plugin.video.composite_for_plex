@@ -18,18 +18,15 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcvfs  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
-from ..addon.settings import AddonSettings
 
 
-def get_device_name(device_name):
+def get_device_name(settings, device_name):
     if device_name is None:
-        device_name = AddonSettings().get_setting('devicename')
+        device_name = settings.get_setting('devicename')
     return device_name
 
 
-def get_client_identifier(client_id):
-    settings = AddonSettings()
-
+def get_client_identifier(settings, client_id):
     if client_id is None:
         client_id = settings.get_setting('client_id')
 
@@ -40,14 +37,14 @@ def get_client_identifier(client_id):
     return client_id
 
 
-def create_plex_identification(device_name=None, client_id=None, user=None, token=None):
+def create_plex_identification(settings, device_name=None, client_id=None, user=None, token=None):
     headers = {
         'X-Plex-Device': get_device(),
         'X-Plex-Client-Platform': 'Kodi',
-        'X-Plex-Device-Name': get_device_name(device_name),
+        'X-Plex-Device-Name': get_device_name(settings, device_name),
         'X-Plex-Language': 'en',
         'X-Plex-Platform': platform.uname()[0],
-        'X-Plex-Client-Identifier': get_client_identifier(client_id),
+        'X-Plex-Client-Identifier': get_client_identifier(settings, client_id),
         'X-Plex-Product': CONFIG['name'],
         'X-Plex-Platform-Version': platform.uname()[2],
         'X-Plex-Version': '0.0.0a1',

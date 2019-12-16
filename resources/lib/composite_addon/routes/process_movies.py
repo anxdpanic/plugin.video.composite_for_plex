@@ -14,6 +14,6 @@ from ..addon.processing.movies import process_movies
 from ..plex import plex
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    process_movies(url, plex_network=plex_network)
+    process_movies(settings, url, plex_network=plex_network)

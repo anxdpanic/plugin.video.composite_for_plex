@@ -25,12 +25,12 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(url, prefix=None, indirect=None, transcode=False):
+def run(settings, url, prefix=None, indirect=None, transcode=False):
     plex_network = plex.Plex(load=True)
 
     server = plex_network.get_server_from_url(url)
     if 'node.plexapp.com' in url:
-        server = get_master_server()
+        server = get_master_server(settings)
 
     session = None
 
@@ -73,7 +73,7 @@ def run(url, prefix=None, indirect=None, transcode=False):
     LOG.debug('Final URL is: %s' % url)
     xbmcplugin.setResolvedUrl(get_handle(), True, _list_item(url))
 
-    _monitor_transcode(server, session, transcode)
+    _monitor_transcode(settings, server, session, transcode)
     DATA_CACHE.delete_cache(True)
 
 
@@ -83,10 +83,10 @@ def _list_item(url):
     return xbmcgui.ListItem(path=url)
 
 
-def _monitor_transcode(server, session, transcode):
+def _monitor_transcode(settings, server, session, transcode):
     if session and transcode:
         try:
-            monitor_channel_transcode_playback(session, server)
+            monitor_channel_transcode_playback(settings, server, session)
         except:  # pylint: disable=bare-except
             LOG.debug('Unable to start transcode monitor')
     else:

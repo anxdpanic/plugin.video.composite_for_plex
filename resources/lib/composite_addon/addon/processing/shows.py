@@ -14,15 +14,13 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ...addon.common import get_handle
 from ...addon.items.show import create_show_item
-from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
 
 
-def process_shows(url, tree=None, plex_network=None):
+def process_shows(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'tvshows')
 

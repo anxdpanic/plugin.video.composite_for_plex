@@ -25,7 +25,6 @@ from .constants import CONFIG
 from .constants import StreamControl
 from .items.track import create_track_item
 from .logger import Logger
-from .settings import AddonSettings
 from .strings import encode_utf8
 from .strings import i18n
 from .utils import get_thumb_image
@@ -34,11 +33,9 @@ from .utils import get_xml
 LOG = Logger()
 
 
-def monitor_channel_transcode_playback(session_id, server):
+def monitor_channel_transcode_playback(settings, server, session_id):
     # Logic may appear backward, but this does allow for a failed start to be detected
     # First while loop waiting for start
-    settings = AddonSettings()
-
     if settings.get_setting('monitoroff'):
         return
 
@@ -65,22 +62,21 @@ def monitor_channel_transcode_playback(session_id, server):
     server.stop_transcode_session(session_id)
 
 
-def play_media_id_from_uuid(server_uuid, media_id, force=None, transcode=False,  # pylint: disable=too-many-arguments
+def play_media_id_from_uuid(settings, server_uuid, media_id, force=None, transcode=False,  # pylint: disable=too-many-arguments
                             transcode_profile=0, plex_network=None, player=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
     server = plex_network.get_server_from_uuid(server_uuid)
     url = server.get_formatted_url('/library/metadata/%s' % media_id)
-    play_library_media(url, force=force, transcode=transcode,
+    play_library_media(settings, url, force=force, transcode=transcode,
                        transcode_profile=transcode_profile, player=player)
 
 
-def play_library_media(url, force=None, transcode=False, transcode_profile=0,  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
+def play_library_media(settings, url, force=None, transcode=False, transcode_profile=0,  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
                        plex_network=None, player=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     session = None
 
@@ -92,17 +88,17 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
     if tree is None:
         return
 
-    streams = get_audio_subtitles_from_media(server, tree, True)
+    streams = get_audio_subtitles_from_media(settings, server, tree, True)
 
     stream_data = streams.get('full_data', {})
     stream_details = streams.get('details', [{}])
     stream_media = streams.get('media', {})
 
     if force and streams['type'] == 'music':
-        play_playlist(server, streams)
+        play_playlist(settings, server, streams)
         return
 
-    url = select_media_to_play(streams, server)
+    url = select_media_to_play(settings, server, streams)
 
     codec = stream_details[0].get('codec')
     resolution = stream_details[0].get('videoResolution')
@@ -205,7 +201,7 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
     window.setProperty('plugin.video.composite-nowplaying.id', media_id)
 
 
-def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def get_audio_subtitles_from_media(settings, server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     """
         Cycle through the Parts sections to find all 'selected' audio and subtitle streams
         If a stream is marked as selected=1 then we will record it in the dict
@@ -213,7 +209,6 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
         We also record the media locations for playback decision later on
     """
     LOG.debug('Gather media stream info')
-    settings = AddonSettings()
 
     parts = []
     parts_count = 0
@@ -403,9 +398,8 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
     return stream_data
 
 
-def select_media_to_play(data, server):
+def select_media_to_play(settings, server, data):
     # if we have two or more files for the same movie, then present a screen
-    settings = AddonSettings()
 
     result = 0
     dvd_playback = False
@@ -455,20 +449,19 @@ def select_media_to_play(data, server):
                 dvd_playback = True
 
     media_url = select_media_type(
+        settings, server,
         {
             'key': options[result][0],
             'file': options[result][1]
         },
-        server, dvd_playback
+        dvd_playback
     )
 
     LOG.debug('We have selected media at %s' % media_url)
     return media_url
 
 
-def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable=too-many-statements, too-many-branches
-    settings = AddonSettings()
-
+def select_media_type(settings, server, part_data, dvd_playback=False):  # pylint: disable=too-many-statements, too-many-branches
     stream = part_data['key']
     filename = part_data['file']
     file_location = ''
@@ -571,9 +564,8 @@ def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable
     return file_location
 
 
-def play_playlist(server, data):
+def play_playlist(settings, server, data):
     LOG.debug('Creating new playlist')
-    settings = AddonSettings()
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
 

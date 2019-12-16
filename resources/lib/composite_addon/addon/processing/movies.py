@@ -18,17 +18,16 @@ from ...addon.common import get_handle
 from ...addon.items.movie import create_movie_item
 from ...addon.items.track import create_track_item
 from ...addon.logger import Logger
-from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
 
 LOG = Logger()
 
 
-def process_movies(url, tree=None, plex_network=None):
+def process_movies(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
+
     xbmcplugin.setContent(get_handle(), 'movies')
 
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)

@@ -16,7 +16,6 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import MODES
-from ..addon.settings import AddonSettings
 from ..addon.strings import i18n
 from ..addon.utils import create_gui_item
 from ..addon.utils import get_fanart_image
@@ -26,9 +25,8 @@ from ..addon.utils import get_xml
 from ..plex import plex
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
     server = plex_network.get_server_from_url(url)
 
     tree = get_xml(url, plex_network=plex_network)

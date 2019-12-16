@@ -14,6 +14,6 @@ from ..addon.processing.xml import process_xml
 from ..plex import plex
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    process_xml(url, plex_network=plex_network)
+    process_xml(settings, url, plex_network=plex_network)

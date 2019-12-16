@@ -15,17 +15,15 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.episode import create_episode_item
 from ...addon.logger import Logger
-from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
 
 LOG = Logger()
 
 
-def process_episodes(url, tree=None, rating_key=None, plex_network=None, library=False):
+def process_episodes(settings, url, tree=None, rating_key=None, plex_network=None, library=False):  # pylint: disable=too-many-arguments
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'episodes')
 

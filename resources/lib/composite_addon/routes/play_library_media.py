@@ -17,23 +17,23 @@ from ..addon.utils import get_transcode_profile
 from ..plex import plex
 
 
-def run(url=None, server_uuid=None, media_id=None, force=None, transcode=False,  # pylint: disable=too-many-arguments
+def run(settings, url=None, server_uuid=None, media_id=None, force=None, transcode=False,  # pylint: disable=too-many-arguments
         transcode_profile=0):
     plex_network = plex.Plex(load=True)
 
     if transcode and transcode_profile is None:
-        transcode_profile = get_transcode_profile()
+        transcode_profile = get_transcode_profile(settings)
     if transcode_profile is None:
         transcode_profile = 0
 
     if url is None and (server_uuid and media_id):
-        play_media_id_from_uuid(server_uuid=server_uuid, media_id=media_id, force=force,
+        play_media_id_from_uuid(settings, server_uuid=server_uuid, media_id=media_id, force=force,
                                 transcode=transcode, transcode_profile=transcode_profile,
                                 plex_network=plex_network)
         DATA_CACHE.delete_cache(True)
         return
 
     if url:
-        play_library_media(url=url, force=force, transcode=transcode,
+        play_library_media(settings, url=url, force=force, transcode=transcode,
                            transcode_profile=transcode_profile, plex_network=plex_network)
         DATA_CACHE.delete_cache(True)

@@ -29,12 +29,12 @@ def run():
     LOG.debug('Service initialization...')
 
     window = xbmcgui.Window(10000)
-    player = CallbackPlayer(window=window)
+    player = CallbackPlayer(window=window, settings=settings)
     monitor = Monitor()
 
     companion_thread = None
     if settings.use_companion():
-        companion_thread = companion.CompanionReceiverThread(get_client())
+        companion_thread = companion.CompanionReceiverThread(get_client(settings), settings)
 
     while not monitor.abortRequested():
 

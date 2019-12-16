@@ -14,6 +14,6 @@ from ..addon.processing.photos import process_photos
 from ..plex import plex
 
 
-def run(url):
+def run(settings, url):
     plex_network = plex.Plex(load=True)
-    process_photos(url, plex_network=plex_network)
+    process_photos(settings, url, plex_network=plex_network)

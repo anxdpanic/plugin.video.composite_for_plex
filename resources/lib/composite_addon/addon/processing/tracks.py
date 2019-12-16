@@ -15,15 +15,13 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ...addon.common import get_handle
 from ...addon.items.track import create_track_item
-from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
 
 
-def process_tracks(url, tree=None, plex_network=None):
+def process_tracks(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'songs')
 

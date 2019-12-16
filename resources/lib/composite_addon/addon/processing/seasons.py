@@ -15,7 +15,6 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.season import create_season_item
 from ...addon.logger import Logger
-from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
 from .episodes import process_episodes
@@ -23,10 +22,9 @@ from .episodes import process_episodes
 LOG = Logger()
 
 
-def process_seasons(url, rating_key=None, plex_network=None, library=False):
+def process_seasons(settings, url, rating_key=None, plex_network=None, library=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'seasons')
 
@@ -55,7 +53,7 @@ def process_seasons(url, rating_key=None, plex_network=None, library=False):
 
         if will_flatten:
             url = server.get_url_location() + season.get('key')
-            process_episodes(url)
+            process_episodes(settings, url)
             return
 
         if settings.get_setting('disable_all_season') and season.get('index') is None:

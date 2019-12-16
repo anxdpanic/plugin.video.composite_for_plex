@@ -16,7 +16,6 @@ from ..addon.common import get_handle
 from ..addon.constants import CONFIG
 from ..addon.constants import MODES
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..addon.strings import i18n
 from ..addon.utils import create_gui_item
 from ..plex import plex
@@ -24,9 +23,8 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(content_filter=None, display_shared=False):
+def run(settings, content_filter=None, display_shared=False):
     plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
     xbmcplugin.setContent(get_handle(), 'files')
 
     server_list = plex_network.get_server_list()

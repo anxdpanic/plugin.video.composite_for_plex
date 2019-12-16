@@ -23,7 +23,7 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(url, prompt):
+def run(settings, url, prompt):
     """
         When we encounter a search request, branch off to this function to generate the keyboard
         and accept the terms.  This URL is then fed back into the correct function for
@@ -43,4 +43,4 @@ def run(url, prompt):
         text = keyboard.getText()
         LOG.debug('Search term input: %s' % text)
         url = url + '&query=' + quote(text)
-        process_plex_plugins(url, plex_network=plex_network)
+        process_plex_plugins(settings, url, plex_network=plex_network)

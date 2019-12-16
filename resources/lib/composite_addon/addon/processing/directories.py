@@ -15,18 +15,16 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.directory import create_directory_item
 from ...addon.logger import Logger
-from ...addon.settings import AddonSettings
 from ...plex import plex
 
 LOG = Logger()
 
 
-def process_directories(url, tree=None, plex_network=None):
+def process_directories(settings, url, tree=None, plex_network=None):
     LOG.debug('Processing secondary menus')
 
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-    settings = AddonSettings()
 
     content_type = 'files'
     if '/collection' in url:
