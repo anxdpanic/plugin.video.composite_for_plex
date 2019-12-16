@@ -13,9 +13,7 @@
 from ..addon.processing.movies import process_movies
 from ..plex import plex
 
-PLEX_NETWORK = plex.Plex(load=False)
-
 
 def run(url):
-    PLEX_NETWORK.load()
-    process_movies(url, plex_network=PLEX_NETWORK)
+    plex_network = plex.Plex(load=True)
+    process_movies(url, plex_network=plex_network)

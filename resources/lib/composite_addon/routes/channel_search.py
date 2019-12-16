@@ -21,7 +21,6 @@ from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run(url, prompt):
@@ -30,7 +29,7 @@ def run(url, prompt):
         and accept the terms.  This URL is then fed back into the correct function for
         onward processing.
     """
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
 
     if prompt:
         prompt = unquote(prompt)
@@ -44,4 +43,4 @@ def run(url, prompt):
         text = keyboard.getText()
         LOG.debug('Search term input: %s' % text)
         url = url + '&query=' + quote(text)
-        process_plex_plugins(url, plex_network=PLEX_NETWORK)
+        process_plex_plugins(url, plex_network=plex_network)

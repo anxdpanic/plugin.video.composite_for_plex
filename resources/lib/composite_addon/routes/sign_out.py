@@ -16,12 +16,12 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from ..addon.strings import i18n
 from ..plex import plex
 
-PLEX_NETWORK = plex.Plex(load=False)
-
 
 def run():
+    plex_network = plex.Plex(load=False)
+
     can_signout = True
-    if not PLEX_NETWORK.is_admin():
+    if not plex_network.is_admin():
         can_signout = False
         _ = xbmcgui.Dialog().ok(i18n('Sign Out'),
                                 i18n('To sign out you must be logged in as an admin user. '
@@ -31,5 +31,5 @@ def run():
                                         i18n('You are currently signed into myPlex.'
                                              ' Are you sure you want to sign out?'))
         if result:
-            PLEX_NETWORK.signout()
+            plex_network.signout()
             xbmc.executebuiltin('Container.Refresh')

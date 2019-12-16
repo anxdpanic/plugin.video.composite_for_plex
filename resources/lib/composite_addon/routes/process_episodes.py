@@ -13,9 +13,7 @@
 from ..addon.processing.episodes import process_episodes
 from ..plex import plex
 
-PLEX_NETWORK = plex.Plex(load=False)
-
 
 def run(url, rating_key=None, library=False):
-    PLEX_NETWORK.load()
-    process_episodes(url, rating_key=rating_key, plex_network=PLEX_NETWORK, library=library)
+    plex_network = plex.Plex(load=True)
+    process_episodes(url, rating_key=rating_key, plex_network=plex_network, library=library)

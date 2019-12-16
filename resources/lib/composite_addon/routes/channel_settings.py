@@ -21,7 +21,6 @@ from ..addon.utils import get_xml
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run(url, setting_id):
@@ -33,7 +32,7 @@ def run(url, setting_id):
         @ return: nothing
     """
 
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
 
     LOG.debug('Setting preference for ID: %s' % setting_id)
 
@@ -93,5 +92,5 @@ def run(url, setting_id):
     set_url += urlencode(set_params)
 
     LOG.debug('Settings URL: %s' % set_url)
-    PLEX_NETWORK.talk_to_server(set_url)
+    plex_network.talk_to_server(set_url)
     xbmc.executebuiltin('Container.Refresh')

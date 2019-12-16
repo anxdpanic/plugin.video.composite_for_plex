@@ -25,15 +25,13 @@ from ..addon.utils import get_thumb_image
 from ..addon.utils import get_xml
 from ..plex import plex
 
-PLEX_NETWORK = plex.Plex(load=False)
-
 
 def run(url):
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
     settings = AddonSettings()
-    server = PLEX_NETWORK.get_server_from_url(url)
+    server = plex_network.get_server_from_url(url)
 
-    tree = get_xml(url, plex_network=PLEX_NETWORK)
+    tree = get_xml(url, plex_network=plex_network)
     if tree is None:
         return
 

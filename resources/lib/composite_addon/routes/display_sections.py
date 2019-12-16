@@ -22,15 +22,14 @@ from ..addon.utils import create_gui_item
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run(content_filter=None, display_shared=False):
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
     settings = AddonSettings()
     xbmcplugin.setContent(get_handle(), 'files')
 
-    server_list = PLEX_NETWORK.get_server_list()
+    server_list = plex_network.get_server_list()
     LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 
     items = []
@@ -45,7 +44,7 @@ def run(content_filter=None, display_shared=False):
 
     # For each of the servers we have identified
     if (settings.get_setting('show_myplex_queue_menu') and
-            PLEX_NETWORK.is_myplex_signedin()):
+            plex_network.is_myplex_signedin()):
         details = {
             'title': i18n('myPlex Queue')
         }
@@ -56,7 +55,7 @@ def run(content_filter=None, display_shared=False):
         items.append(create_gui_item('http://myplexqueue', details, extra_data, settings=settings))
 
     items += server_additional_menu_items(server_list, content_filter, settings)
-    items += action_menu_items(settings)
+    items += action_menu_items(plex_network, settings)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
@@ -189,11 +188,11 @@ def server_additional_menu_items(server_list, content_filter, settings):
     return items
 
 
-def action_menu_items(settings):
+def action_menu_items(plex_network, settings):
     items = []
-    if PLEX_NETWORK.is_myplex_signedin():
+    if plex_network.is_myplex_signedin():
 
-        if PLEX_NETWORK.is_plexhome_enabled():
+        if plex_network.is_plexhome_enabled():
             details = {
                 'title': i18n('Switch User')
             }

@@ -23,13 +23,12 @@ from ..addon.utils import get_xml
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run(url, prefix=None, indirect=None, transcode=False):
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
 
-    server = PLEX_NETWORK.get_server_from_url(url)
+    server = plex_network.get_server_from_url(url)
     if 'node.plexapp.com' in url:
         server = get_master_server()
 
@@ -60,7 +59,7 @@ def run(url, prefix=None, indirect=None, transcode=False):
                 LOG.debug('Unable to get valid m3u8 playlist from transcoder')
                 return
 
-            server = PLEX_NETWORK.get_server_from_url(url)
+            server = plex_network.get_server_from_url(url)
             session = playlist.split()[-1]
             url = '%s/video/:/transcode/segmented/%s?t=1' % (server.get_url_location(), session)
 

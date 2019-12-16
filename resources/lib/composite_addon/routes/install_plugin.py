@@ -21,13 +21,12 @@ from ..addon.utils import get_xml
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run(url, name):
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
 
-    tree = get_xml(url, plex_network=PLEX_NETWORK)
+    tree = get_xml(url, plex_network=plex_network)
     if tree is None:
         return
 
@@ -48,7 +47,7 @@ def run(url, name):
 
             if result:
                 LOG.debug('Installing....')
-                _ = get_xml(url + '/install', plex_network=PLEX_NETWORK)
+                _ = get_xml(url + '/install', plex_network=plex_network)
 
             return
 
@@ -63,6 +62,6 @@ def run(url, name):
     LOG.debug('Option %s selected.  Operation is %s' % (result, operations[result]))
 
     item_url = url + '/' + operations[result].lower()
-    _ = get_xml(item_url, plex_network=PLEX_NETWORK)
+    _ = get_xml(item_url, plex_network=plex_network)
 
     xbmc.executebuiltin('Container.Refresh')

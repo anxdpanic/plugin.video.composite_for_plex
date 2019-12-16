@@ -19,23 +19,24 @@ from ..plex import plex
 from ..plex import plexsignin
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run():
+    plex_network = plex.Plex(load=False)
+
     try:
         signin_window = plexsignin.PlexSignin(i18n('myPlex Login'))
-        signin_window.set_authentication_target(PLEX_NETWORK)
+        signin_window.set_authentication_target(plex_network)
         signin_window.start()
         del signin_window
     except AttributeError:
-        response = PLEX_NETWORK.get_signin_pin()
+        response = plex_network.get_signin_pin()
         message = \
             i18n('From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]') % \
             ('https://www.plex.tv/link/', ' '.join(response.get('code', [])))
         xbmcgui.Dialog().ok(i18n('myPlex Login'), message)
         xbmc.sleep(500)
-        result = PLEX_NETWORK.check_signin_status(response.get('id', ''))
+        result = plex_network.check_signin_status(response.get('id', ''))
         if result:
             LOG.debug('Sign in successful ...')
         else:

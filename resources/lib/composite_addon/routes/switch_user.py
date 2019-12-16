@@ -18,11 +18,11 @@ from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run():
-    user_list = PLEX_NETWORK.get_plex_home_users()
+    plex_network = plex.Plex(load=False)
+    user_list = plex_network.get_plex_home_users()
     # zero means we are not plexHome'd up
     if user_list is None or len(user_list) == 1:
         LOG.debug('No users listed or only one user, Plex Home not enabled')
@@ -31,7 +31,7 @@ def run():
     LOG.debug('found %s users: %s' % (len(user_list), user_list.keys()))
 
     # Get rid of currently logged in user.
-    user_list.pop(PLEX_NETWORK.get_myplex_user(), None)
+    user_list.pop(plex_network.get_myplex_user(), None)
 
     result = xbmcgui.Dialog().select(i18n('Switch User'), user_list.keys())
     if result == -1:
@@ -47,7 +47,7 @@ def run():
         pin = xbmcgui.Dialog().input(i18n('Enter PIN'), type=xbmcgui.INPUT_NUMERIC,
                                      option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
-    success, message = PLEX_NETWORK.switch_plex_home_user(user['id'], pin)
+    success, message = plex_network.switch_plex_home_user(user['id'], pin)
 
     if not success:
         xbmcgui.Dialog().ok(i18n('Switch Failed'), message)
