@@ -14,9 +14,9 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ...addon.common import get_handle
 from ...addon.items.artist import create_artist_item
+from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
 def process_artists(url, tree=None, plex_network=None):
@@ -27,6 +27,7 @@ def process_artists(url, tree=None, plex_network=None):
     """
     if plex_network is None:
         plex_network = plex.Plex(load=True)
+    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'artists')
 
@@ -45,9 +46,9 @@ def process_artists(url, tree=None, plex_network=None):
     items = []
     artist_tags = tree.findall('Directory')
     for artist in artist_tags:
-        items.append(create_artist_item(server, artist))
+        items.append(create_artist_item(server, artist, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

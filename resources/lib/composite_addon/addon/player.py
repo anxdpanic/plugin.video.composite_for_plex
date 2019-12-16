@@ -23,7 +23,6 @@ from .strings import i18n
 from .up_next import UpNext
 
 LOG = Logger('player')
-SETTINGS = AddonSettings()
 
 
 class PlaybackMonitorThread(threading.Thread):
@@ -227,7 +226,9 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
-        monitor_playback = not SETTINGS.get_setting('monitoroff', fresh=True)
+        settings = AddonSettings()
+
+        monitor_playback = not settings.get_setting('monitoroff', fresh=True)
         playback_dict = read_pickled('playback_monitor.pickle')
 
         self.cleanup_threads()
@@ -242,7 +243,7 @@ class CallbackPlayer(xbmc.Player):
         if playback_dict:
             full_data = playback_dict.get('streams', {}).get('full_data', {})
             media_type = full_data.get('mediatype', '').lower()
-            if SETTINGS.use_up_next() and media_type == 'episode':
+            if settings.use_up_next() and media_type == 'episode':
                 self.LOG('Using Up Next ...')
                 UpNext(server=playback_dict.get('server'),
                        media_id=playback_dict.get('media_id'),
@@ -268,9 +269,9 @@ def set_audio_subtitles(stream):
     """
 
     # If we have decided not to collect any sub data then do not set subs
-
+    settings = AddonSettings()
     player = xbmc.Player()
-    control = SETTINGS.get_setting('streamControl', fresh=True)
+    control = settings.get_setting('streamControl', fresh=True)
 
     if stream['contents'] == 'type':
         LOG.debug('No audio or subtitle streams to process.')

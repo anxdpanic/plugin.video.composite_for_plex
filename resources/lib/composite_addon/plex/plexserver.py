@@ -37,7 +37,6 @@ from .plexcommon import get_device_name
 
 DEFAULT_PORT = '32400'
 LOG = Logger('plexserver')
-SETTINGS = AddonSettings()
 
 LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)
 
@@ -235,11 +234,13 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         self.local_address = address.split(',')
 
     def connection_test(self, tag, uri):
+        settings = get_settings()
+
         LOG.debug('[%s] Head request |%s|' % (self.uuid, uri))
         url_parts = urlparse(uri)
         status_code = requests.codes.not_found  # pylint: disable=no-member
         try:
-            verify_cert = uri.startswith('https') and SETTINGS.get_setting('verify_cert')
+            verify_cert = uri.startswith('https') and settings.get_setting('verify_cert')
             response = requests.head(uri, params=self.plex_identification_header,
                                      verify=verify_cert, timeout=(2, 60))
             status_code = response.status_code
@@ -253,13 +254,15 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
 
     def set_best_address(self, address=''):  # pylint: disable=too-many-statements, too-many-branches
+        settings = get_settings()
+
         if not address:
             self.connection_test_results = []
 
         self.offline = False
         self.update_identification()
 
-        use_https = SETTINGS.get_setting('secureconn')
+        use_https = settings.get_setting('secureconn')
         if not use_https:
             self.set_protocol('http')
 
@@ -393,6 +396,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             LOG.debug('[%s] Server appears to be offline' % self.uuid)
 
     def talk(self, url='/', refresh=False, method='get', extra_headers=None):  # pylint: disable=too-many-branches
+        settings = get_settings()
+
         if extra_headers is None:
             extra_headers = {}
 
@@ -400,7 +405,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = self.protocol == 'https' and SETTINGS.get_setting('verify_cert')
+            verify_cert = self.protocol == 'https' and settings.get_setting('verify_cert')
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:
@@ -555,8 +560,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return tree
 
     def processed_xml(self, url):
+        settings = get_settings()
+
         cache_name = DATA_CACHE.sha512_cache_name('processed_xml', self.get_uuid(), url)
-        is_valid, result = DATA_CACHE.check_cache(cache_name, SETTINGS.data_cache_ttl())
+        is_valid, result = DATA_CACHE.check_cache(cache_name, settings.data_cache_ttl())
         if is_valid and result is not None:
             return result
 
@@ -661,14 +668,15 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                           self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
+        settings = get_settings()
 
         LOG.debug('Getting fanart for %s' % section.get_title())
 
-        if SETTINGS.get_setting('skipimages'):
+        if settings.get_setting('skipimages'):
             return ''
 
         if section.get_art().startswith('/'):
-            if SETTINGS.get_setting('fullres_fanart'):
+            if settings.get_setting('fullres_fanart'):
                 return self.get_formatted_url(section.get_art())
 
             return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
@@ -737,18 +745,18 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
         LOG.debug('incoming URL is: %s' % url)
-
+        settings = get_settings()
         try:
-            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_%s' %
+            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' %
                                                        transcode_profile).split(',')
-            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_%s' %
+            subtitle_size = settings.get_setting('transcode_target_sub_size_%s' %
                                                  transcode_profile).split('.')[0]
-            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_%s' %
+            audio_boost = settings.get_setting('transcode_target_audio_size_%s' %
                                                transcode_profile).split('.')[0]
         except ValueError:
-            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_0').split(',')
-            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_0').split('.')[0]
-            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_0').split('.')[0]
+            resolution, bitrate = settings.get_setting('transcode_target_quality_0').split(',')
+            subtitle_size = settings.get_setting('transcode_target_sub_size_0').split('.')[0]
+            audio_boost = settings.get_setting('transcode_target_audio_size_0').split('.')[0]
 
         if bitrate.endswith('Mbps'):
             max_video_bitrate = float(bitrate.strip().split('Mbps')[0]) * 1000
@@ -787,3 +795,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                                                options={
                                                    'X-Plex-Device': 'Plex Home Theater'
                                                })
+
+
+def get_settings():
+    return AddonSettings()  # can't pickle

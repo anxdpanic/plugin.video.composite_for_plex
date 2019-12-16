@@ -16,7 +16,6 @@ from six.moves.urllib_parse import quote_plus
 
 from ...addon.constants import MODES
 from ...addon.logger import Logger
-from ...addon.settings import AddonSettings
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
 from ...addon.utils import build_context_menu
@@ -26,10 +25,9 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_thumb_image
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
-def create_show_item(server, url, show, library=False):
+def create_show_item(server, url, show, settings, library=False):
     temp_genre = []
 
     for child in show:
@@ -60,9 +58,9 @@ def create_show_item(server, url, show, library=False):
         'UnWatchedEpisodes': int(details['episode']) - _watched,
         'WatchedEpisodes': _watched,
         'TotalEpisodes': details['episode'],
-        'thumb': get_thumb_image(show, server),
-        'fanart_image': get_fanart_image(show, server),
-        'banner': get_banner_image(show, server),
+        'thumb': get_thumb_image(show, server, settings),
+        'fanart_image': get_fanart_image(show, server, settings),
+        'banner': get_banner_image(show, server, settings),
         'key': show.get('key', ''),
         'ratingKey': str(show.get('ratingKey', 0))
     }
@@ -76,7 +74,7 @@ def create_show_item(server, url, show, library=False):
         extra_data['partialTV'] = 1
 
     # Create URL based on whether we are going to flatten the season view
-    if SETTINGS.get_setting('flatten') == '2':
+    if settings.get_setting('flatten') == '2':
         LOG.debug('Flattening all shows')
         extra_data['mode'] = MODES.TVEPISODES
         item_url = '%s%s' % (server.get_url_location(),
@@ -86,15 +84,15 @@ def create_show_item(server, url, show, library=False):
         item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     context = None
-    if not SETTINGS.get_setting('skipcontextmenus'):
-        context = build_context_menu(url, extra_data, server)
+    if not settings.get_setting('skipcontextmenus'):
+        context = build_context_menu(url, extra_data, server, settings)
 
     if library:
         extra_data['hash'] = \
             _md5_all_episodes(server, extra_data['key'], details.get('TVShowTitle', ''))
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
-    return create_gui_item(item_url, details, extra_data, context)
+    return create_gui_item(item_url, details, extra_data, context, settings=settings)
 
 
 def _md5_all_episodes(server, url, title):

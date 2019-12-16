@@ -26,11 +26,11 @@ from ..addon.utils import get_xml
 from ..plex import plex
 
 PLEX_NETWORK = plex.Plex(load=False)
-SETTINGS = AddonSettings()
 
 
 def run(url):
     PLEX_NETWORK.load()
+    settings = AddonSettings()
     server = PLEX_NETWORK.get_server_from_url(url)
 
     tree = get_xml(url, plex_network=PLEX_NETWORK)
@@ -49,8 +49,8 @@ def run(url):
             continue
 
         extra_data = {
-            'fanart_image': get_fanart_image(channels, server),
-            'thumb': get_thumb_image(channels, server)
+            'fanart_image': get_fanart_image(channels, server, settings),
+            'thumb': get_thumb_image(channels, server, settings)
         }
 
         details = {
@@ -77,9 +77,9 @@ def run(url):
         elif suffix == 'music':
             extra_data['mode'] = MODES.MUSIC
 
-        items.append(create_gui_item(p_url, details, extra_data))
+        items.append(create_gui_item(p_url, details, extra_data, settings=settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

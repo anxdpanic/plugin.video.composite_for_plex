@@ -18,9 +18,9 @@ from ...addon.common import get_handle
 from ...addon.items.movie import create_movie_item
 from ...addon.items.track import create_track_item
 from ...addon.logger import Logger
+from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 LOG = Logger()
 
@@ -28,7 +28,7 @@ LOG = Logger()
 def process_movies(url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
-
+    settings = AddonSettings()
     xbmcplugin.setContent(get_handle(), 'movies')
 
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
@@ -53,13 +53,13 @@ def process_movies(url, tree=None, plex_network=None):
     items = []
     for movie in tree:
         if movie.tag.lower() == 'video':
-            items.append(create_movie_item(server, tree, url, movie))
+            items.append(create_movie_item(server, tree, url, movie, settings))
         elif movie.tag.lower() == 'track':
-            items.append(create_track_item(server, tree, movie))
+            items.append(create_track_item(server, tree, movie, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     LOG.debug('PROCESS: It took %s seconds to process %s items' %
               (time.time() - start_time, len(items)))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

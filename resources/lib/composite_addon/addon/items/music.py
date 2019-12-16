@@ -22,7 +22,7 @@ from ...addon.utils import get_thumb_image
 LOG = Logger()
 
 
-def create_music_item(server, tree, url, music):
+def create_music_item(server, tree, url, music, settings):
     details = {
         'genre': encode_utf8(music.get('genre', '')),
         'artist': encode_utf8(music.get('artist', '')),
@@ -34,12 +34,12 @@ def create_music_item(server, tree, url, music):
 
     extra_data = {
         'type': 'Music',
-        'thumb': get_thumb_image(music, server),
-        'fanart_image': get_fanart_image(music, server)
+        'thumb': get_thumb_image(music, server, settings),
+        'fanart_image': get_fanart_image(music, server, settings)
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(tree, server)
+        extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
 
     item_url = get_link_url(url, music, server)
 
@@ -50,7 +50,7 @@ def create_music_item(server, tree, url, music):
         details['duration'] = int(int(music.get('total_time', 0)) / 1000)
 
         extra_data['mode'] = MODES.BASICPLAY
-        return create_gui_item(item_url, details, extra_data, folder=False)
+        return create_gui_item(item_url, details, extra_data, folder=False, settings=settings)
 
     details['mediatype'] = 'artist'
 
@@ -73,4 +73,4 @@ def create_music_item(server, tree, url, music):
 
     extra_data['mode'] = MODES.MUSIC
 
-    return create_gui_item(item_url, details, extra_data)
+    return create_gui_item(item_url, details, extra_data, settings=settings)

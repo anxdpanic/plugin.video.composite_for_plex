@@ -20,13 +20,14 @@ from .logger import Logger
 from .settings import AddonSettings
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
 def wake_servers():
-    if SETTINGS.get_setting('wolon'):
+    settings = AddonSettings()
+
+    if settings.get_setting('wolon'):
         LOG.debug('Wake On LAN: true')
-        for mac_address in SETTINGS.get_wakeservers():
+        for mac_address in settings.get_wakeservers():
             if mac_address:
                 try:
                     LOG.debug('Waking server with MAC: %s' % mac_address)

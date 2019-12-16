@@ -2,6 +2,7 @@
 [add] Plex Companion receiver *experimental
 [add] Settings - Look and Feel - Main Menu - Show [menu item]
     - show or hide some main menu items
+[fix] Settings not taking effect due to reuselanguageinvoker
 [fix] Only verify cert for secure connections, and honor the Certificate Verification setting |contrib: Maven85|
 [fix] Some sockets not being closed after use
 [rem] Remove Clean context menus setting

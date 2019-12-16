@@ -25,11 +25,11 @@ from ..plex import plex
 
 LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
-SETTINGS = AddonSettings()
 
 
 def run(url):
     PLEX_NETWORK.load()
+    settings = AddonSettings()
     content_type = url.split('/')[2]
     LOG.debug('Displaying entries for %s' % content_type)
     servers = PLEX_NETWORK.get_server_list()
@@ -77,9 +77,9 @@ def run(url):
                 return
 
         if url:
-            items.append(create_gui_item(url, details, extra_data))
+            items.append(create_gui_item(url, details, extra_data, settings=settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

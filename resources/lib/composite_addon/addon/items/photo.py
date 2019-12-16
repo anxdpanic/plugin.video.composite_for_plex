@@ -19,7 +19,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 
 
-def create_photo_item(server, tree, url, photo):
+def create_photo_item(server, tree, url, photo, settings):
     details = {
         'title': encode_utf8(photo.get('title', photo.get('name', i18n('Unknown'))))
     }
@@ -28,19 +28,19 @@ def create_photo_item(server, tree, url, photo):
         details['title'] = i18n('Unknown')
 
     extra_data = {
-        'thumb': get_thumb_image(photo, server),
-        'fanart_image': get_fanart_image(photo, server),
+        'thumb': get_thumb_image(photo, server, settings),
+        'fanart_image': get_fanart_image(photo, server, settings),
         'type': 'image'
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(tree, server)
+        extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
 
     item_url = get_link_url(url, photo, server)
 
     if photo.tag == 'Directory':
         extra_data['mode'] = MODES.PHOTOS
-        return create_gui_item(item_url, details, extra_data)
+        return create_gui_item(item_url, details, extra_data, settings=settings)
 
     if photo.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
         for pics in photo:
@@ -52,6 +52,6 @@ def create_photo_item(server, tree, url, photo):
                     details['size'] = int(part.get('size', 0))
                     item_url = extra_data['key']
 
-        return create_gui_item(item_url, details, extra_data, folder=False)
+        return create_gui_item(item_url, details, extra_data, folder=False, settings=settings)
 
     return None

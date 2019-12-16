@@ -14,14 +14,15 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ...addon.common import get_handle
 from ...addon.items.plex_online import create_plex_online_item
+from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
 def process_plex_online(url, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
+    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'addons')
 
@@ -33,9 +34,9 @@ def process_plex_online(url, plex_network=None):
 
     items = []
     for plugin in tree:
-        items.append(create_plex_online_item(server, url, plugin))
+        items.append(create_plex_online_item(server, url, plugin, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

@@ -32,14 +32,14 @@ from .utils import get_thumb_image
 from .utils import get_xml
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
 def monitor_channel_transcode_playback(session_id, server):
     # Logic may appear backward, but this does allow for a failed start to be detected
     # First while loop waiting for start
+    settings = AddonSettings()
 
-    if SETTINGS.get_setting('monitoroff'):
+    if settings.get_setting('monitoroff'):
         return
 
     count = 0
@@ -80,6 +80,7 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
                        plex_network=None, player=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
+    settings = AddonSettings()
 
     session = None
 
@@ -110,11 +111,11 @@ def play_library_media(url, force=None, transcode=False, transcode_profile=0,  #
     except ValueError:
         bit_depth = None
 
-    if codec and (SETTINGS.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
+    if codec and (settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
         transcode = True
-    if resolution and (SETTINGS.get_setting('transcode_g1080') and resolution.lower() == '4k'):
+    if resolution and (settings.get_setting('transcode_g1080') and resolution.lower() == '4k'):
         transcode = True
-    if bit_depth and (SETTINGS.get_setting('transcode_g8bit') and bit_depth > 8):
+    if bit_depth and (settings.get_setting('transcode_g8bit') and bit_depth > 8):
         transcode = True
 
     if url is None:
@@ -212,6 +213,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
         We also record the media locations for playback decision later on
     """
     LOG.debug('Gather media stream info')
+    settings = AddonSettings()
 
     parts = []
     parts_count = 0
@@ -262,7 +264,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
                 'mpaa': encode_utf8(timings.get('contentRating', '')),
                 'year': int(timings.get('year', 0)),
                 'tagline': timings.get('tagline', ''),
-                'thumbnail': get_thumb_image(timings, server),
+                'thumbnail': get_thumb_image(timings, server, settings),
                 'mediatype': 'video'
             }
 
@@ -276,7 +278,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
                 full_data['season'] = int(timings.get('parentIndex', tree.get('parentIndex', 0)))
                 full_data['mediatype'] = 'episode'
 
-            if not SETTINGS.get_setting('skipmetadata'):
+            if not settings.get_setting('skipmetadata'):
                 tree_genres = timings.findall('Genre')
                 if tree_genres is not None:
                     full_data['genre'] = [encode_utf8(tree_genre.get('tag', ''))
@@ -296,7 +298,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
                 'artist': encode_utf8(timings.get('grandparentTitle',
                                                   tree.get('grandparentTitle', ''))),
                 'duration': int(timings.get('duration', 0)) / 1000,
-                'thumbnail': get_thumb_image(timings, server)
+                'thumbnail': get_thumb_image(timings, server, settings)
             }
 
             extra['album'] = timings.get('parentKey')
@@ -343,7 +345,7 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
                 pass
 
     # if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == 'video' and SETTINGS.get_setting('streamControl') == StreamControl().PLEX:
+    if media_type == 'video' and settings.get_setting('streamControl') == StreamControl().PLEX:
 
         contents = 'all'
         tags = tree.getiterator('Stream')
@@ -403,6 +405,8 @@ def get_audio_subtitles_from_media(server, tree, full=False):  # pylint: disable
 
 def select_media_to_play(data, server):
     # if we have two or more files for the same movie, then present a screen
+    settings = AddonSettings()
+
     result = 0
     dvd_playback = False
 
@@ -426,7 +430,7 @@ def select_media_to_play(data, server):
                                          details[index_count]['videoResolution'],
                                          details[index_count]['bitrate'])
 
-            if SETTINGS.get_setting('forcedvd'):
+            if settings.get_setting('forcedvd'):
                 if '.ifo' in name.lower():
                     LOG.debug('Found IFO DVD file in ' + name)
                     name = 'DVD Image'
@@ -446,7 +450,7 @@ def select_media_to_play(data, server):
             dvd_playback = True
 
     else:
-        if SETTINGS.get_setting('forcedvd'):
+        if settings.get_setting('forcedvd'):
             if '.ifo' in options[result]:
                 dvd_playback = True
 
@@ -463,11 +467,13 @@ def select_media_to_play(data, server):
 
 
 def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable=too-many-statements, too-many-branches
+    settings = AddonSettings()
+
     stream = part_data['key']
     filename = part_data['file']
     file_location = ''
 
-    if (filename is None) or (SETTINGS.get_stream() == '1'):
+    if (filename is None) or (settings.get_stream() == '1'):
         LOG.debug('Selecting stream')
         return server.get_formatted_url(stream)
 
@@ -487,7 +493,7 @@ def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable
         file_type = None
 
     # 0 is auto select.  basically check for local file first, then stream if not found
-    if SETTINGS.get_stream() == '0':
+    if settings.get_stream() == '0':
         # check if the file can be found locally
         if file_type in ['nixfile', 'winfile']:
             LOG.debug('Checking for local file')
@@ -502,15 +508,15 @@ def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable
         LOG.debug('No local file')
         if dvd_playback:
             LOG.debug('Forcing SMB for DVD playback')
-            SETTINGS.set_stream('2')
+            settings.set_stream('2')
         else:
             return server.get_formatted_url(stream)
 
     # 2 is use SMB
-    elif SETTINGS.get_stream() == '2' or SETTINGS.get_stream() == '3':
+    elif settings.get_stream() == '2' or settings.get_stream() == '3':
 
         filename = unquote(filename)
-        if SETTINGS.get_stream() == '2':
+        if settings.get_stream() == '2':
             protocol = 'smb'
         else:
             protocol = 'afp'
@@ -523,16 +529,16 @@ def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable
             server = server.get_location().split(':')[0]
             login_string = ''
 
-            if SETTINGS.get_setting('nasoverride'):
-                if SETTINGS.get_setting('nasoverrideip'):
-                    server = SETTINGS.get_setting('nasoverrideip')
+            if settings.get_setting('nasoverride'):
+                if settings.get_setting('nasoverrideip'):
+                    server = settings.get_setting('nasoverrideip')
                     LOG.debug('Overriding server with: %s' % server)
 
-                if SETTINGS.get_setting('nasuserid'):
-                    login_string = '%s:%s@' % (SETTINGS.get_setting('nasuserid'),
-                                               SETTINGS.get_setting('naspass'))
+                if settings.get_setting('nasuserid'):
+                    login_string = '%s:%s@' % (settings.get_setting('nasuserid'),
+                                               settings.get_setting('naspass'))
                     LOG.debug('Adding AFP/SMB login info for user: %s' %
-                              SETTINGS.get_setting('nasuserid'))
+                              settings.get_setting('nasuserid'))
 
             if filename.find('Volumes') > 0:
                 file_location = '%s:/%s' % \
@@ -547,13 +553,13 @@ def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable
                     # Add server name to file path.
                     file_location = '%s://%s%s%s' % (protocol, login_string, server, filename)
 
-        if SETTINGS.get_setting('nasoverride') and SETTINGS.get_setting('nasroot'):
+        if settings.get_setting('nasoverride') and settings.get_setting('nasroot'):
             # Re-root the file path
             LOG.debug('Altering path %s so root is: %s' %
-                      (file_location, SETTINGS.get_setting('nasroot')))
-            if '/' + SETTINGS.get_setting('nasroot') + '/' in file_location:
+                      (file_location, settings.get_setting('nasroot')))
+            if '/' + settings.get_setting('nasroot') + '/' in file_location:
                 components = file_location.split('/')
-                index = components.index(SETTINGS.get_setting('nasroot'))
+                index = components.index(settings.get_setting('nasroot'))
                 for _ in list(range(3, index)):
                     components.pop(3)
                 file_location = '/'.join(components)
@@ -567,6 +573,7 @@ def select_media_type(part_data, server, dvd_playback=False):  # pylint: disable
 
 def play_playlist(server, data):
     LOG.debug('Creating new playlist')
+    settings = AddonSettings()
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
 
@@ -579,7 +586,7 @@ def play_playlist(server, data):
     for track in track_tags:
         LOG.debug('Adding playlist item')
 
-        url, details = create_track_item(server, tree, track, listing=False)
+        url, details = create_track_item(server, tree, track, settings, listing=False)
         if CONFIG['kodi_version'] >= 18:
             list_item = xbmcgui.ListItem(details.get('title', i18n('Unknown')), offscreen=True)
         else:

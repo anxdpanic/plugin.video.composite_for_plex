@@ -14,14 +14,15 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ...addon.common import get_handle
 from ...addon.items.album import create_album_item
+from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
 def process_albums(url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
+    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'albums')
 
@@ -41,9 +42,9 @@ def process_albums(url, tree=None, plex_network=None):
     items = []
     album_tags = tree.findall('Directory')
     for album in album_tags:
-        items.append(create_album_item(server, tree, url, album))
+        items.append(create_album_item(server, tree, url, album, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

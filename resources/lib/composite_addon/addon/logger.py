@@ -22,8 +22,6 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from .constants import CONFIG
 from .settings import AddonSettings
 
-SETTINGS = AddonSettings()
-
 
 class Logger:
     DEBUG_DEBUG = 0
@@ -42,14 +40,16 @@ class Logger:
 
     def __init__(self, sub=None):
 
+        self.settings = AddonSettings()
+
         self.main = CONFIG['name']
         if sub:
             self.sub = '.' + sub
         else:
             self.sub = ''
 
-        self.level = SETTINGS.get_debug()
-        self.privacy = SETTINGS.get_setting('privacy')
+        self.level = self.settings.get_debug()
+        self.privacy = self.settings.get_setting('privacy')
 
     def get_name(self, level):
         return self.DEBUG_MAP[level]

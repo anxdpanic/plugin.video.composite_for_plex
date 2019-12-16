@@ -11,7 +11,3 @@
 
 __all__ = ['albums', 'artists', 'directories', 'episodes', 'movies', 'music', 'photos',
            'plex_online', 'plex_plugins', 'seasons', 'shows', 'tracks', 'xml']
-
-from ...addon.settings import AddonSettings as __AddonSettings
-
-SETTINGS = __AddonSettings()

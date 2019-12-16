@@ -26,17 +26,21 @@ from .constants import CONFIG
 class AddonSettings:
 
     def __init__(self):
-        self.settings = CONFIG['addon']
+        self.settings = self._get_addon()
         self.addon_name = CONFIG['name']
         xbmc.log(self.addon_name + '.settings -> Reading settings configuration', xbmc.LOGDEBUG)
         self.stream = self.settings.getSetting('streaming')
+
+    @staticmethod
+    def _get_addon():
+        return xbmcaddon.Addon(CONFIG['id'])
 
     def open_settings(self):
         return self.settings.openSettings()
 
     def get_setting(self, name, fresh=False):
         if fresh:
-            value = xbmcaddon.Addon(CONFIG['id']).getSetting(name)
+            value = self._get_addon().getSetting(name)
         else:
             value = self.settings.getSetting(name)
 

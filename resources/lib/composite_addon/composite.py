@@ -23,11 +23,12 @@ from .addon.logger import Logger
 from .addon.settings import AddonSettings
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
 def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-return-statements
-    if SETTINGS.get_setting('wolon'):
+    settings = AddonSettings()
+
+    if settings.get_setting('wolon'):
         from .addon.wol import wake_servers  # pylint: disable=import-outside-toplevel
         wake_servers()
 
@@ -57,14 +58,14 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     LOG.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s| Flatten |%s|\n'
               'Stream Control |%s| Force DVD |%s| SMB IP Override |%s| NAS IP |%s|' %
-              (SETTINGS.get_setting('fullres_thumbs'),
-               SETTINGS.get_stream(),
-               SETTINGS.get_setting('secondary'),
-               SETTINGS.get_setting('flatten'),
-               STREAM_CONTROL_MAP.get(SETTINGS.get_setting('streamControl')),
-               SETTINGS.get_setting('forcedvd'),
-               SETTINGS.get_setting('nasoverride'),
-               SETTINGS.get_setting('nasoverrideip')))
+              (settings.get_setting('fullres_thumbs'),
+               settings.get_stream(),
+               settings.get_setting('secondary'),
+               settings.get_setting('flatten'),
+               STREAM_CONTROL_MAP.get(settings.get_setting('streamControl')),
+               settings.get_setting('forcedvd'),
+               settings.get_setting('nasoverride'),
+               settings.get_setting('nasoverrideip')))
 
     if command == COMMANDS.REFRESH:
         from .routes import refresh  # pylint: disable=import-outside-toplevel

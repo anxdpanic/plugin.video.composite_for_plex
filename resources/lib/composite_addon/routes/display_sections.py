@@ -23,28 +23,28 @@ from ..plex import plex
 
 LOG = Logger()
 PLEX_NETWORK = plex.Plex(load=False)
-SETTINGS = AddonSettings()
 
 
 def run(content_filter=None, display_shared=False):
     PLEX_NETWORK.load()
+    settings = AddonSettings()
     xbmcplugin.setContent(get_handle(), 'files')
 
     server_list = PLEX_NETWORK.get_server_list()
     LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 
     items = []
-    items += server_section_menus_items(server_list, content_filter, display_shared)
+    items += server_section_menus_items(server_list, content_filter, display_shared, settings)
 
     if display_shared:
         if items:
             xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+        xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
         return
 
     # For each of the servers we have identified
-    if (SETTINGS.get_setting('show_myplex_queue_menu', fresh=True) and
+    if (settings.get_setting('show_myplex_queue_menu') and
             PLEX_NETWORK.is_myplex_signedin()):
         details = {
             'title': i18n('myPlex Queue')
@@ -53,18 +53,18 @@ def run(content_filter=None, display_shared=False):
             'type': 'Folder',
             'mode': MODES.MYPLEXQUEUE
         }
-        items.append(create_gui_item('http://myplexqueue', details, extra_data))
+        items.append(create_gui_item('http://myplexqueue', details, extra_data, settings=settings))
 
-    items += server_additional_menu_items(server_list, content_filter)
-    items += action_menu_items()
+    items += server_additional_menu_items(server_list, content_filter, settings)
+    items += action_menu_items(settings)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
 
 
-def server_section_menus_items(server_list, content_filter, display_shared):
+def server_section_menus_items(server_list, content_filter, display_shared, settings):
     items = []
     for server in server_list:
 
@@ -81,7 +81,7 @@ def server_section_menus_items(server_list, content_filter, display_shared):
                           % (server.get_name(), section.get_title(), section.get_type()))
                 continue
 
-            if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
+            if not settings.prefix_server() or (settings.prefix_server() and len(server_list) > 1):
                 details = {
                     'title': '%s: %s' % (server.get_name(), section.get_title())
                 }
@@ -97,7 +97,7 @@ def server_section_menus_items(server_list, content_filter, display_shared):
 
             path = section.get_path()
 
-            if SETTINGS.get_setting('secondary'):
+            if settings.get_setting('secondary'):
                 mode = MODES.GETCONTENT
             else:
                 mode = section.mode()
@@ -107,18 +107,19 @@ def server_section_menus_items(server_list, content_filter, display_shared):
             section_url = '%s%s' % (server.get_url_location(), path)
 
             context = None
-            if not SETTINGS.get_setting('skipcontextmenus'):
+            if not settings.get_setting('skipcontextmenus'):
                 context = [(i18n('Refresh library section'),
                             'RunScript(' + CONFIG['id'] + ', update, %s, %s)' %
                             (server.get_uuid(), section.get_key()))]
 
             # Build that listing..
-            items.append(create_gui_item(section_url, details, extra_data, context))
+            items.append(create_gui_item(section_url, details, extra_data,
+                                         context, settings=settings))
 
     return items
 
 
-def server_additional_menu_items(server_list, content_filter):
+def server_additional_menu_items(server_list, content_filter, settings):
     items = []
     for server in server_list:
 
@@ -129,12 +130,12 @@ def server_additional_menu_items(server_list, content_filter):
         if (content_filter is not None) and (content_filter != 'plugins'):
             continue
 
-        if not SETTINGS.prefix_server() or (SETTINGS.prefix_server() and len(server_list) > 1):
+        if not settings.prefix_server() or (settings.prefix_server() and len(server_list) > 1):
             prefix = server.get_name() + ': '
         else:
             prefix = ''
 
-        if SETTINGS.get_setting('show_channels_menu', fresh=True):
+        if settings.get_setting('show_channels_menu'):
             details = {
                 'title': prefix + i18n('Channels')
             }
@@ -144,9 +145,9 @@ def server_additional_menu_items(server_list, content_filter):
             }
 
             item_url = '%s/channels/all' % server.get_url_location()
-            items.append(create_gui_item(item_url, details, extra_data))
+            items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
-        if SETTINGS.get_setting('show_plex_online_menu', fresh=True):
+        if settings.get_setting('show_plex_online_menu'):
             # Create plexonline link
             details = {
                 'title': prefix + i18n('Plex Online')
@@ -157,9 +158,9 @@ def server_additional_menu_items(server_list, content_filter):
             }
 
             item_url = '%s/system/plexonline' % server.get_url_location()
-            items.append(create_gui_item(item_url, details, extra_data))
+            items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
-        if SETTINGS.get_setting('show_playlists_menu', fresh=True):
+        if settings.get_setting('show_playlists_menu'):
             # create playlist link
             details = {
                 'title': prefix + i18n('Playlists')
@@ -170,9 +171,9 @@ def server_additional_menu_items(server_list, content_filter):
             }
 
             item_url = '%s/playlists' % server.get_url_location()
-            items.append(create_gui_item(item_url, details, extra_data))
+            items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
-        if SETTINGS.get_setting('show_widget_menu', fresh=True):
+        if settings.get_setting('show_widget_menu'):
             # create Widgets link
             details = {
                 'title': prefix + i18n('Widgets')
@@ -183,12 +184,12 @@ def server_additional_menu_items(server_list, content_filter):
             }
 
             item_url = '%s' % server.get_url_location()
-            items.append(create_gui_item(item_url, details, extra_data))
+            items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
     return items
 
 
-def action_menu_items():
+def action_menu_items(settings):
     items = []
     if PLEX_NETWORK.is_myplex_signedin():
 
@@ -201,7 +202,7 @@ def action_menu_items():
             }
 
             item_url = 'cmd:switchuser'
-            items.append(create_gui_item(item_url, details, extra_data))
+            items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
         details = {
             'title': i18n('Sign Out')
@@ -211,7 +212,7 @@ def action_menu_items():
         }
 
         item_url = 'cmd:signout'
-        items.append(create_gui_item(item_url, details, extra_data))
+        items.append(create_gui_item(item_url, details, extra_data, settings=settings))
     else:
         details = {
             'title': i18n('Sign In')
@@ -221,7 +222,7 @@ def action_menu_items():
         }
 
         item_url = 'cmd:signintemp'
-        items.append(create_gui_item(item_url, details, extra_data))
+        items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
     details = {
         'title': i18n('Display Servers')
@@ -230,9 +231,9 @@ def action_menu_items():
         'type': 'file'
     }
     data_url = 'cmd:displayservers'
-    items.append(create_gui_item(data_url, details, extra_data))
+    items.append(create_gui_item(data_url, details, extra_data, settings=settings))
 
-    if SETTINGS.get_setting('cache'):
+    if settings.get_setting('cache'):
         details = {
             'title': i18n('Clear Caches')
         }
@@ -240,6 +241,6 @@ def action_menu_items():
             'type': 'file'
         }
         item_url = 'cmd:delete_refresh'
-        items.append(create_gui_item(item_url, details, extra_data))
+        items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
     return items

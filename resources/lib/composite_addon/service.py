@@ -19,10 +19,11 @@ from .companion import companion
 from .companion.client import get_client
 
 LOG = Logger('service')
-SETTINGS = AddonSettings()
 
 
 def run():
+    settings = AddonSettings()
+
     sleep_time = 10
 
     LOG.debug('Service initialization...')
@@ -32,7 +33,7 @@ def run():
     monitor = Monitor()
 
     companion_thread = None
-    if SETTINGS.use_companion():
+    if settings.use_companion():
         companion_thread = companion.CompanionReceiverThread(get_client())
 
     while not monitor.abortRequested():

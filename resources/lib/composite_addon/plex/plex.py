@@ -38,15 +38,14 @@ from .plexserver import PlexMediaServer
 
 DEFAULT_PORT = '32400'
 LOG = Logger('plex')
-SETTINGS = AddonSettings()
 
 
 class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
 
     def __init__(self, load=False):
-
+        self.settings = AddonSettings()
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl('servers', SETTINGS.get_setting('cache'))
+        self.cache = cache_control.CacheControl('servers', self.settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
@@ -172,7 +171,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('Loading cached server list')
 
         try:
-            ttl = int(SETTINGS.get_setting('cache_ttl')) * 60
+            ttl = int(self.settings.get_setting('cache_ttl')) * 60
         except ValueError:
             ttl = 3600
 
@@ -318,7 +317,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                     LOG.debug('MyPlex discovery found no servers')
 
             # Now grab any local devices we can find
-            if SETTINGS.get_setting('discovery') == '1':
+            if self.settings.get_setting('discovery') == '1':
                 LOG.debug('local GDM discovery setting enabled.')
                 LOG.debug('Attempting GDM lookup on multicast')
                 percent += 40
@@ -356,19 +355,19 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
             # Get any manually configured servers
             else:
-                if SETTINGS.get_setting('ipaddress'):
+                if self.settings.get_setting('ipaddress'):
                     percent += 40
                     progress_dialog.update(percent=percent, message=i18n('User provided...'))
 
-                    port = SETTINGS.get_setting('port')
+                    port = self.settings.get_setting('port')
                     if not port:
                         LOG.debug('No port defined.  Using default of ' + DEFAULT_PORT)
                         port = DEFAULT_PORT
 
                     LOG.debug('Settings hostname and port: %s : %s' %
-                              (SETTINGS.get_setting('ipaddress'), port))
+                              (self.settings.get_setting('ipaddress'), port))
 
-                    local_server = PlexMediaServer(address=SETTINGS.get_setting('ipaddress'),
+                    local_server = PlexMediaServer(address=self.settings.get_setting('ipaddress'),
                                                    port=port, discovery='local')
                     local_server.set_user(self.effective_user)
                     local_server.set_token(self.effective_token)
@@ -377,7 +376,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                         self.merge_server(local_server)
                     else:
                         LOG.error('Error: Unable to discover server %s' %
-                                  SETTINGS.get_setting('ipaddress'))
+                                  self.settings.get_setting('ipaddress'))
 
             percent += 40
             progress_dialog.update(percent=percent, message=i18n('Caching results...'))
@@ -392,7 +391,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             progress_dialog.update(percent=100, message=i18n('Finished'))
             progress_dialog.close()
 
-        if SETTINGS.get_setting('detected_notification'):
+        if self.settings.get_setting('detected_notification'):
             if server_names:
                 msg = i18n('Found servers:') + ' ' + server_names
             else:
@@ -485,7 +484,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
         try:
             verify_cert = \
-                self.myplex_server.startswith('https') and SETTINGS.get_setting('verify_cert')
+                self.myplex_server.startswith('https') and self.settings.get_setting('verify_cert')
             if method == 'get':
                 response = requests.get('%s%s' % (self.myplex_server, path),
                                         params=self.plex_identification_header(),

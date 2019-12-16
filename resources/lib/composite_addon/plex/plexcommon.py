@@ -20,22 +20,22 @@ from kodi_six import xbmcvfs  # pylint: disable=import-error
 from ..addon.constants import CONFIG
 from ..addon.settings import AddonSettings
 
-SETTINGS = AddonSettings()
-
 
 def get_device_name(device_name):
     if device_name is None:
-        device_name = SETTINGS.get_setting('devicename')
+        device_name = AddonSettings().get_setting('devicename')
     return device_name
 
 
 def get_client_identifier(client_id):
+    settings = AddonSettings()
+
     if client_id is None:
-        client_id = SETTINGS.get_setting('client_id')
+        client_id = settings.get_setting('client_id')
 
         if not client_id:
             client_id = str(uuid.uuid4())
-            SETTINGS.set_setting('client_id', client_id)
+            settings.set_setting('client_id', client_id)
 
     return client_id
 

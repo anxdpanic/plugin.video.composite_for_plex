@@ -15,9 +15,9 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.season import create_season_item
 from ...addon.logger import Logger
+from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 from .episodes import process_episodes
 
 LOG = Logger()
@@ -26,6 +26,7 @@ LOG = Logger()
 def process_seasons(url, rating_key=None, plex_network=None, library=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
+    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'seasons')
 
@@ -41,7 +42,7 @@ def process_seasons(url, rating_key=None, plex_network=None, library=False):
         return
 
     will_flatten = False
-    if SETTINGS.get_setting('flatten') == '1':
+    if settings.get_setting('flatten') == '1':
         # check for a single season
         if int(tree.get('size', 0)) == 1:
             LOG.debug('Flattening single season show')
@@ -57,12 +58,12 @@ def process_seasons(url, rating_key=None, plex_network=None, library=False):
             process_episodes(url)
             return
 
-        if SETTINGS.get_setting('disable_all_season') and season.get('index') is None:
+        if settings.get_setting('disable_all_season') and season.get('index') is None:
             continue
 
-        items.append(create_season_item(server, tree, season, library=library))
+        items.append(create_season_item(server, tree, season, settings, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

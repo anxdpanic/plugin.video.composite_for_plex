@@ -12,6 +12,4 @@
 from . import cache_control
 from .settings import AddonSettings
 
-__SETTINGS = AddonSettings()
-
-DATA_CACHE = cache_control.CacheControl('data', __SETTINGS.get_setting('data_cache'))
+DATA_CACHE = cache_control.CacheControl('data', AddonSettings().get_setting('data_cache'))

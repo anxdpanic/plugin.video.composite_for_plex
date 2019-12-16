@@ -15,9 +15,9 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.episode import create_episode_item
 from ...addon.logger import Logger
+from ...addon.settings import AddonSettings
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 LOG = Logger()
 
@@ -25,6 +25,7 @@ LOG = Logger()
 def process_episodes(url, tree=None, rating_key=None, plex_network=None, library=False):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
+    settings = AddonSettings()
 
     xbmcplugin.setContent(get_handle(), 'episodes')
 
@@ -57,9 +58,9 @@ def process_episodes(url, tree=None, rating_key=None, plex_network=None, library
     items = []
     show_tags = tree.findall('Video')
     for episode in show_tags:
-        items.append(create_episode_item(server, tree, url, episode, library=library))
+        items.append(create_episode_item(server, tree, url, episode, settings, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

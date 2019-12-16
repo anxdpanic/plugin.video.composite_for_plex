@@ -35,7 +35,6 @@ from .utils import jsonrpc
 from .utils import millis_to_time
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
 class PlexCompanionHandler(BaseHTTPRequestHandler):
@@ -43,7 +42,7 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
 
     def __init__(self, *args, **kwargs):
         self.server_list = []
-        self.client_details = SETTINGS.companion_receiver()
+        self.client_details = AddonSettings().companion_receiver()
         BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def log_message(self, format, *args):  # pylint: disable=redefined-builtin, unused-argument, no-self-use
