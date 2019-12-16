@@ -7,12 +7,13 @@
         <setting id="port" type="text" label="30530" default="30400" visible="eq(-2,0)" enable="eq(-2,0)"/>
         <setting id="secureconn" type="bool" label="30610" default="true"/>
         <setting id="verify_cert" type="bool" label="30647" default="true"/>
-        <!--<setting type="sep" />-->
+        <setting type="sep"/>
         <setting id="managemyplex" label="30605" type="action" action="RunScript($ID, managemyplex)" option="close"/>
         <setting id="selectMaster" label="30526" type="action" action="RunScript($ID, master)"/>
         <setting id="masterServer" label="30571" type="text" default=""/>
         <setting id="detected_notification" label="30663" type="bool" default="false"/>
         <setting id="client_id" type="text" visible="false" option="hidden"/>
+        <setting type="sep"/>
         <setting id="wolon" type="bool" label="30523" default="false"/>
         <setting id="wol1" type="text" label="30613" visible="eq(-1,true)" enable="eq(-1,true)" default=""/>
         <setting id="wol2" type="text" label="30613" visible="eq(-2,true)" enable="eq(-2,true)" default=""/>
@@ -35,15 +36,11 @@
         <setting id="nasuserid" type="text" label="30564" default="" subsetting="true" visible="eq(-2,true)" enable="eq(-2,true)"/>
         <setting id="naspass" type="text" label="30565" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)"/>
         <setting id="nasroot" type="text" label="30566" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)"/>
+        <setting type="lsep" label="30721"/>
         <setting id="transcode" type="bool" label="30507" default="false"/>
         <setting id="transcode_g8bit" type="bool" label="30659" default="false"/>
         <setting id="transcode_g1080" type="bool" label="30611" default="false"/>
         <setting id="transcode_hevc" type="bool" label="30612" default="false"/>
-        <!-- Start currently unused
-        <setting id="transcode_type" visible="false" label="30601" type="enum" lvalues="30614|30615" default="0"/>
-        <setting id="quality_leg" enable="false" visible="false" type="enum" label="30540" values="300kbps, 240p|720kbps, 320p|1.5Mbps, 480p|2Mbps, 720p|3Mbps, 720p|4Mbps, 720p|8Mbps, 1080p|10Mbps, 1080p|12Mbps, 1080p|20Mbps, 1080p"/>
-        <setting id="audiotype" visible="false" type="enum" label="30557" values="Stereo|AC3|DTS" default="0"/>
-        End currently unused -->
         <setting type="lsep" label="30641"/>
         <setting id="transcode_target_quality_0" type="labelenum" label="30540" values="420x420, 320Kbps|576x320, 720Kbps|720x480, 1.5Mbps|1024x768, 2Mbps|1280x720, 3Mbps|1280x720, 4Mbps|1920x1080, 8Mbps|1920x1080, 10Mbps|1920x1080, 12Mbps|1920x1080, 20Mbps|1920x1080, 40Mbps|1920x1080, unlimited"
                  default="1280x720, 4Mbps"/>
@@ -62,7 +59,6 @@
     </category>
     <category label="30520"> <!-- Look and feel -->
         <setting id="secondary" type="bool" label="30503" default="true"/>
-        <setting id="channelview" type="bool" label="30542" default="false"/>
         <setting id="flatten" type="enum" label="30543" lvalues="30553|30558|30559" default="0"/>
         <setting id="disable_all_season" type="bool" label="30603" default="false"/>
         <setting type="lsep" label="30714"/>
@@ -72,6 +68,9 @@
         <setting id="show_plex_online_menu" type="bool" label="30717" default="true"/>
         <setting id="show_playlists_menu" type="bool" label="30718" default="true"/>
         <setting id="show_widget_menu" type="bool" label="30693" default="true"/>
+        <setting type="lsep" label="30719"/>
+        <setting id="skipcontextmenus" type="bool" label="30552" default="false"/>
+        <setting id="showdeletecontextmenu" type="bool" label="30683" default="false" enable="eq(-1,false)"/>
     </category>
     <category label="30684">
         <setting id="use_up_next" type="bool" label="30685" default="false" enable="System.HasAddon(service.upnext)"/>
@@ -93,12 +92,10 @@
         <setting id="replacement" type="bool" visible="false" default="false"/>
     </category>
     <category label="30522"> <!-- advanced -->
-        <setting id="libraryfilter" type="bool" label="30588" default="false"/>
         <setting id="monitoroff" type="bool" label="30609" default="false"/>
+        <setting type="lsep" label="30720"/>
         <setting id="fullres_thumbs" type="bool" label="30595" default="true"/>
         <setting id="fullres_fanart" type="bool" label="30596" default="true"/>
-        <setting id="skipcontextmenus" type="bool" label="30552" default="false"/>
-        <setting id="showdeletecontextmenu" type="bool" label="30683" default="false"/>
         <setting id="skipmetadata" type="bool" label="30549" default="false"/>
         <setting id="skipimages" type="bool" label="30550" default="false"/>
         <setting id="skipflags" type="bool" label="30551" default="false"/>

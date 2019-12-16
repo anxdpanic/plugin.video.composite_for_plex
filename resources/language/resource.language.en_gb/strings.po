@@ -575,7 +575,7 @@ msgstr ""
 # 30548
 
 msgctxt "#30549"
-msgid "Skip Genre/director/writer metadata"
+msgid "Skip Genre/director/writer"
 msgstr ""
 
 msgctxt "#30550"
@@ -755,11 +755,11 @@ msgid "Manual"
 msgstr ""
 
 msgctxt "#30595"
-msgid "Use full-res thumbs"
+msgid "Use full resolution thumbs"
 msgstr ""
 
 msgctxt "#30596"
-msgid "Use full-res fanart"
+msgid "Use full resolution fanart"
 msgstr ""
 
 msgctxt "#30597"
@@ -1242,4 +1242,16 @@ msgstr ""
 
 msgctxt "#30718"
 msgid "Show [B]Playlists[/B] menu"
+msgstr ""
+
+msgctxt "#30719"
+msgid "Context Menu"
+msgstr ""
+
+msgctxt "#30720"
+msgid "Metadata"
+msgstr ""
+
+msgctxt "#30721"
+msgid "Transcoding"
 msgstr ""
