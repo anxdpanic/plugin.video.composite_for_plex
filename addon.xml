@@ -21,6 +21,7 @@
 [fix] Settings not taking effect due to reuselanguageinvoker
 [fix] Only verify cert for secure connections, and honor the Certificate Verification setting |contrib: Maven85|
 [fix] Some sockets not being closed after use
+[upd] Updated the settings menu
 [rem] Remove Clean context menus setting
 [lang] German (de_DE) |contrib: Maven85|
         </news>
