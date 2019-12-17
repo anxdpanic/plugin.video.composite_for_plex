@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="0.3.0" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="0.4.0" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="script.module.kodi-six" version="0.0.2"/>
@@ -21,6 +21,7 @@
 [fix] Settings not taking effect due to reuselanguageinvoker
 [fix] Only verify cert for secure connections, and honor the Certificate Verification setting |contrib: Maven85|
 [fix] Some sockets not being closed after use
+[upd] Updated the settings menu
 [rem] Remove Clean context menus setting
 [lang] German (de_DE) |contrib: Maven85|
         </news>
