@@ -13,17 +13,15 @@
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..plex.plexgdm import PlexGDM
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
 # Start GDM for server/client discovery
-def get_client():
+def get_client(settings):
     client = PlexGDM()
-    details = SETTINGS.companion_receiver()
+    details = settings.companion_receiver()
     client.client_details(details['uuid'], details['name'], details['port'],
                           CONFIG['name'], CONFIG['version'])
 

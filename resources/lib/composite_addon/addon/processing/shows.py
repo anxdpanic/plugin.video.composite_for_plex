@@ -16,10 +16,9 @@ from ...addon.common import get_handle
 from ...addon.items.show import create_show_item
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
-def process_shows(url, tree=None, plex_network=None):
+def process_shows(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -43,9 +42,9 @@ def process_shows(url, tree=None, plex_network=None):
     # For each directory tag we find
     show_tags = tree.findall('Directory')
     for show in show_tags:
-        items.append(create_show_item(server, url, show))
+        items.append(create_show_item(server, url, show, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

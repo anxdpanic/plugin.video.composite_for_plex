@@ -16,10 +16,9 @@ from ...addon.common import get_handle
 from ...addon.items.music import create_music_item
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
-def process_music(url, tree=None, plex_network=None):
+def process_music(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -35,7 +34,7 @@ def process_music(url, tree=None, plex_network=None):
         if music.get('key') is None:
             continue
 
-        items.append(create_music_item(server, tree, url, music))
+        items.append(create_music_item(server, tree, url, music, settings))
 
     if items:
         content_type = items[-1][1].getProperty('content_type')
@@ -45,4 +44,4 @@ def process_music(url, tree=None, plex_network=None):
 
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

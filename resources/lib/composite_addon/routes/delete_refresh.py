@@ -15,10 +15,9 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from ..addon.data_cache import DATA_CACHE
 from ..plex import plex
 
-PLEX_NETWORK = plex.Plex(load=False)
-
 
 def run():
-    PLEX_NETWORK.delete_cache()
+    plex_network = plex.Plex(load=False)
+    plex_network.delete_cache()
     DATA_CACHE.delete_cache(True)
     xbmc.executebuiltin('Container.Refresh')

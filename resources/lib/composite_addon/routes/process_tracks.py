@@ -13,9 +13,7 @@
 from ..addon.processing.tracks import process_tracks
 from ..plex import plex
 
-PLEX_NETWORK = plex.Plex(load=False)
 
-
-def run(url):
-    PLEX_NETWORK.load()
-    process_tracks(url, plex_network=PLEX_NETWORK)
+def run(settings, url):
+    plex_network = plex.Plex(load=True)
+    process_tracks(settings, url, plex_network=plex_network)

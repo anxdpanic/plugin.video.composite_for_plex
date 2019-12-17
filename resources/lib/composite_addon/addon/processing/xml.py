@@ -24,12 +24,11 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 from .episodes import process_episodes
 from .movies import process_movies
 
 
-def process_xml(url, tree=None, plex_network=None):
+def process_xml(settings, url, tree=None, plex_network=None):
     """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -59,26 +58,26 @@ def process_xml(url, tree=None, plex_network=None):
             details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
 
         extra_data = {
-            'thumb': get_thumb_image(plugin, server),
-            'fanart_image': get_fanart_image(plugin, server),
+            'thumb': get_thumb_image(plugin, server, settings),
+            'fanart_image': get_fanart_image(plugin, server, settings),
             'identifier': tree.get('identifier', ''),
             'type': 'Video'
         }
 
         if extra_data['fanart_image'] == '':
-            extra_data['fanart_image'] = get_fanart_image(tree, server)
+            extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
 
         _url = get_link_url(url, plugin, server)
 
         if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
             extra_data['mode'] = MODES.PROCESSXML
-            items.append(create_gui_item(_url, details, extra_data))
+            items.append(create_gui_item(_url, details, extra_data, settings=settings))
 
         elif plugin.tag == 'Track':
-            items.append(create_track_item(server, tree, plugin))
+            items.append(create_track_item(server, tree, plugin, settings))
 
         elif plugin.tag == 'Playlist':
-            items.append(create_playlist_item(url, server, plugin))
+            items.append(create_playlist_item(url, server, plugin, settings))
 
         elif tree.get('viewGroup') == 'movie':
             process_movies(url, tree, plex_network=plex_network)
@@ -91,4 +90,4 @@ def process_xml(url, tree=None, plex_network=None):
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

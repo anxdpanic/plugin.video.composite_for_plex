@@ -11,7 +11,6 @@
 """
 
 from ...addon.constants import MODES
-from ...addon.settings import AddonSettings
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
 from ...addon.utils import build_context_menu
@@ -20,10 +19,8 @@ from ...addon.utils import get_banner_image
 from ...addon.utils import get_fanart_image
 from ...addon.utils import get_thumb_image
 
-SETTINGS = AddonSettings()
 
-
-def create_season_item(server, tree, season, library=False):
+def create_season_item(server, tree, season, settings, library=False):
     plot = encode_utf8(tree.get('summary', ''))
 
     _watched = int(season.get('viewedLeafCount', 0))
@@ -51,16 +48,16 @@ def create_season_item(server, tree, season, library=False):
         'TotalEpisodes': details['episode'],
         'WatchedEpisodes': _watched,
         'UnWatchedEpisodes': details['episode'] - _watched,
-        'thumb': get_thumb_image(season, server),
-        'fanart_image': get_fanart_image(season, server),
-        'banner': get_banner_image(tree, server),
+        'thumb': get_thumb_image(season, server, settings),
+        'fanart_image': get_fanart_image(season, server, settings),
+        'banner': get_banner_image(tree, server, settings),
         'key': season.get('key', ''),
         'ratingKey': str(season.get('ratingKey', 0)),
         'mode': MODES.TVEPISODES
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(tree, server)
+        extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
 
     # Set up overlays for watched and unwatched episodes
     if extra_data['WatchedEpisodes'] == 0:
@@ -73,11 +70,11 @@ def create_season_item(server, tree, season, library=False):
     item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     context = None
-    if not SETTINGS.get_setting('skipcontextmenus'):
-        context = build_context_menu(item_url, season, server)
+    if not settings.get_setting('skipcontextmenus'):
+        context = build_context_menu(item_url, season, server, settings)
 
     if library:
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     # Build the screen directory listing
-    return create_gui_item(item_url, details, extra_data, context)
+    return create_gui_item(item_url, details, extra_data, context, settings=settings)

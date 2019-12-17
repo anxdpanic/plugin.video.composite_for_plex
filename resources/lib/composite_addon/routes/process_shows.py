@@ -13,9 +13,7 @@
 from ..addon.processing.shows import process_shows
 from ..plex import plex
 
-PLEX_NETWORK = plex.Plex(load=False)
 
-
-def run(url):
-    PLEX_NETWORK.load()
-    process_shows(url, plex_network=PLEX_NETWORK)
+def run(settings, url):
+    plex_network = plex.Plex(load=True)
+    process_shows(settings, url, plex_network=plex_network)

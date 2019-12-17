@@ -24,7 +24,6 @@ from ..addon.settings import AddonSettings
 from .http_persist import RequestManager
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
 def kodi_photo():
@@ -133,7 +132,7 @@ def jsonrpc(action, arguments=None):
     result = parse_jsonrpc(xbmc.executeJSONRPC(request))
 
     if not result:
-        web_server = SETTINGS.kodi_web_server()
+        web_server = AddonSettings().kodi_web_server()
         make_web_request = web_server['name'] and web_server['password'] and web_server['port']
 
         if make_web_request:
@@ -176,8 +175,8 @@ def get_ok_message():
     return get_xml_header() + '<Response code="200" status="OK" />'
 
 
-def get_plex_headers():
-    client_details = SETTINGS.companion_receiver()
+def get_plex_headers(settings):
+    client_details = settings.companion_receiver()
     headers = {
         'Content-type': 'application/x-www-form-urlencoded',
         'Access-Control-Allow-Origin': '*',
@@ -190,7 +189,7 @@ def get_plex_headers():
         'X-Plex-Model': get_platform(),
         'X-Plex-Device': 'PC',
     }
-    myplex_user = SETTINGS.get_setting('myplex_user')
+    myplex_user = settings.get_setting('myplex_user')
     if myplex_user:
         headers['X-Plex-Username'] = myplex_user
     return headers

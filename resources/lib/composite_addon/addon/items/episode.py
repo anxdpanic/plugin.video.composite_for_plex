@@ -14,7 +14,6 @@ import json
 
 from ...addon.constants import MODES
 from ...addon.logger import Logger
-from ...addon.settings import AddonSettings
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
 from ...addon.utils import build_context_menu
@@ -25,10 +24,9 @@ from ...addon.utils import get_media_data
 from ...addon.utils import get_thumb_image
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
-def create_episode_item(server, tree, url, episode, library=False):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+def create_episode_item(server, tree, url, episode, settings, library=False):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements, too-many-arguments
     temp_genre = []
     temp_cast = []
     temp_director = []
@@ -40,13 +38,13 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
     for child in episode:
         if child.tag == 'Media':
             media_arguments = dict(child.items())
-        elif child.tag == 'Genre' and not SETTINGS.get_setting('skipmetadata'):
+        elif child.tag == 'Genre' and not settings.get_setting('skipmetadata'):
             temp_genre.append(child.get('tag'))
-        elif child.tag == 'Writer' and not SETTINGS.get_setting('skipmetadata'):
+        elif child.tag == 'Writer' and not settings.get_setting('skipmetadata'):
             temp_writer.append(child.get('tag'))
-        elif child.tag == 'Director' and not SETTINGS.get_setting('skipmetadata'):
+        elif child.tag == 'Director' and not settings.get_setting('skipmetadata'):
             temp_director.append(child.get('tag'))
-        elif child.tag == 'Role' and not SETTINGS.get_setting('skipmetadata'):
+        elif child.tag == 'Role' and not settings.get_setting('skipmetadata'):
             temp_cast.append(child.get('tag'))
 
     LOG.debug('Media attributes are %s' % json.dumps(media_arguments, indent=4))
@@ -95,13 +93,13 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
         'section_art': '',
         'thumb': '',
     }
-    if not SETTINGS.get_setting('skipimages'):
+    if not settings.get_setting('skipimages'):
         art.update({
-            'banner': get_banner_image(tree, server),
-            'fanart': get_fanart_image(episode, server),
+            'banner': get_banner_image(tree, server, settings),
+            'fanart': get_fanart_image(episode, server, settings),
             'season_thumb': '',
-            'section_art': get_fanart_image(tree, server),
-            'thumb': get_thumb_image(episode, server),
+            'section_art': get_fanart_image(tree, server, settings),
+            'thumb': get_thumb_image(episode, server, settings),
         })
 
         if '/:/resources/show-fanart.jpg' in art['section_art']:
@@ -127,7 +125,7 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
         },
     }
 
-    if not SETTINGS.get_setting('skipimages'):
+    if not settings.get_setting('skipimages'):
         if extra_data['fanart_image'] == '':
             extra_data['fanart_image'] = art.get('section_art', '')
 
@@ -138,7 +136,7 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
                 '/:/resources/show.png' not in art.get('season_thumb', '')):
             extra_data['season_thumb'] = get_thumb_image({
                 'thumb': art.get('season_thumb')
-            }, server)
+            }, server, settings)
 
         # get ALL SEASONS or TVSHOW thumb
         if (not art.get('season_thumb', '') and episode.get('parentThumb', '') and
@@ -146,14 +144,14 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
             extra_data['season_thumb'] = \
                 get_thumb_image({
                     'thumb': episode.get('parentThumb', '')
-                }, server)
+                }, server, settings)
 
         elif (not art.get('season_thumb', '') and episode.get('grandparentThumb', '') and
               '/:/resources/show.png' not in episode.get('grandparentThumb', '')):
             extra_data['season_thumb'] = \
                 get_thumb_image({
                     'thumb': episode.get('grandparentThumb', '')
-                }, server)
+                }, server, settings)
 
     # Determine what type of watched flag [overlay] to use
     if int(episode.get('viewCount', 0)) > 0:
@@ -162,20 +160,20 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
         details['playcount'] = 0
 
     # Extended Metadata
-    if not SETTINGS.get_setting('skipmetadata'):
+    if not settings.get_setting('skipmetadata'):
         details['cast'] = temp_cast
         details['director'] = ' / '.join(temp_director)
         details['writer'] = ' / '.join(temp_writer)
         details['genre'] = ' / '.join(temp_genre)
 
     # Add extra media flag data
-    if not SETTINGS.get_setting('skipflags'):
+    if not settings.get_setting('skipflags'):
         extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
     context = None
-    if not SETTINGS.get_setting('skipcontextmenus'):
-        context = build_context_menu(url, extra_data, server)
+    if not settings.get_setting('skipcontextmenus'):
+        context = build_context_menu(url, extra_data, server, settings)
 
     extra_data['mode'] = MODES.PLAYLIBRARY
     if library:
@@ -183,4 +181,4 @@ def create_episode_item(server, tree, url, episode, library=False):  # pylint: d
 
     item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    return create_gui_item(item_url, details, extra_data, context, folder=False)
+    return create_gui_item(item_url, details, extra_data, context, folder=False, settings=settings)

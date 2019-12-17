@@ -19,7 +19,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 
 
-def create_plex_plugin_item(server, tree, url, plugin):
+def create_plex_plugin_item(server, tree, url, plugin, settings):
     details = {
         'title': encode_utf8(plugin.get('title'))
     }
@@ -31,8 +31,8 @@ def create_plex_plugin_item(server, tree, url, plugin):
         details['plot'] = plugin.get('summary')
 
     extra_data = {
-        'thumb': get_thumb_image(plugin, server),
-        'fanart_image': get_fanart_image(plugin, server),
+        'thumb': get_thumb_image(plugin, server, settings),
+        'fanart_image': get_fanart_image(plugin, server, settings),
         'identifier': tree.get('identifier', ''),
         'type': 'Video',
         'key': plugin.get('key', '')
@@ -43,23 +43,23 @@ def create_plex_plugin_item(server, tree, url, plugin):
                                                       server.get_location())
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(tree, server)
+        extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
 
     p_url = get_link_url(url, extra_data, server)
 
     if plugin.tag in ['Directory', 'Podcast']:
-        return get_directory_item(plugin, p_url, details, extra_data)
+        return get_directory_item(plugin, p_url, details, extra_data, settings)
 
     if plugin.tag == 'Setting':
-        return get_setting_item(plugin, url, details, extra_data)
+        return get_setting_item(plugin, url, details, extra_data, settings)
 
     if plugin.tag == 'Video':
-        return get_video_item(plugin, p_url, details, extra_data)
+        return get_video_item(plugin, p_url, details, extra_data, settings)
 
     return None
 
 
-def get_directory_item(plugin, url, details, extra_data):
+def get_directory_item(plugin, url, details, extra_data, settings):
     extra_data['mode'] = MODES.PLEXPLUGINS
     if plugin.get('search') == '1':
         extra_data['mode'] = MODES.CHANNELSEARCH
@@ -67,10 +67,10 @@ def get_directory_item(plugin, url, details, extra_data):
             'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))
         }
 
-    return create_gui_item(url, details, extra_data)
+    return create_gui_item(url, details, extra_data, settings=settings)
 
 
-def get_setting_item(plugin, url, details, extra_data):
+def get_setting_item(plugin, url, details, extra_data, settings):
     value = plugin.get('value')
     if plugin.get('option') == 'hidden':
         value = '********'
@@ -85,10 +85,10 @@ def get_setting_item(plugin, url, details, extra_data):
         'id': plugin.get('id')
     }
 
-    return create_gui_item(url, details, extra_data)
+    return create_gui_item(url, details, extra_data, settings=settings)
 
 
-def get_video_item(plugin, url, details, extra_data):
+def get_video_item(plugin, url, details, extra_data, settings):
     extra_data['mode'] = MODES.VIDEOPLUGINPLAY
 
     for child in plugin:
@@ -97,4 +97,4 @@ def get_video_item(plugin, url, details, extra_data):
                 'indirect': child.get('indirect', '0')
             }
 
-    return create_gui_item(url, details, extra_data, folder=False)
+    return create_gui_item(url, details, extra_data, folder=False, settings=settings)

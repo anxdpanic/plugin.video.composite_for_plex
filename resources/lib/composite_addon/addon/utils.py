@@ -23,22 +23,20 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from ..addon.common import get_argv
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
 from ..addon.strings import item_translate
 from ..plex import plex
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
-def get_master_server(all_servers=False, plex_network=None):
+def get_master_server(settings, all_servers=False, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
     possible_servers = []
-    current_master = SETTINGS.get_setting('masterServer')
+    current_master = settings.get_setting('masterServer')
     for server_data in plex_network.get_server_list():
         LOG.debug(str(server_data))
         if server_data.get_master() == 1:
@@ -67,7 +65,7 @@ def get_master_server(all_servers=False, plex_network=None):
     return possible_servers[0]
 
 
-def create_gui_item(url, details, extra_data, context=None, folder=True):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def create_gui_item(url, details, extra_data, context=None, folder=True, settings=None):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
     LOG.debug('Adding %s\n'
               'Details: %s\n'
               'Extra_data: %s' %
@@ -133,7 +131,7 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
             item_properties['TotalTime'] = str(extra_data.get('duration'))
             item_properties['ResumeTime'] = str(extra_data.get('resume'))
 
-            if not SETTINGS.get_setting('skipflags'):
+            if not settings.get_setting('skipflags'):
                 LOG.debug('Setting VrR as : %s' % extra_data.get('VideoResolution', ''))
                 item_properties['VideoResolution'] = extra_data.get('VideoResolution', '')
                 item_properties['VideoCodec'] = extra_data.get('VideoCodec', '')
@@ -190,7 +188,7 @@ def create_gui_item(url, details, extra_data, context=None, folder=True):  # pyl
             context.insert(0, (i18n('Play Transcoded'), 'PlayMedia(%s&transcode=1)' % link_url,))
             LOG.debug('Setting transcode options to [%s&transcode=1]' % link_url)
         LOG.debug('Building Context Menus')
-        list_item.addContextMenuItems(context, SETTINGS.get_setting('contextreplace'))
+        list_item.addContextMenuItems(context)
 
     if is_file:
         folder = False
@@ -254,14 +252,13 @@ def get_link_url(url, path_data, server):
     return '%s/%s' % (url, path)
 
 
-def get_thumb_image(data, server, width=720, height=720):
+def get_thumb_image(data, server, settings, width=720, height=720):
     """
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
         @ return formatted URL
     """
-
-    if SETTINGS.get_setting('skipimages'):
+    if settings.get_setting('skipimages'):
         return ''
 
     thumbnail = encode_utf8(data.get('thumb', '').split('?t')[0])
@@ -270,7 +267,7 @@ def get_thumb_image(data, server, width=720, height=720):
         return thumbnail
 
     if thumbnail.startswith('/'):
-        if SETTINGS.get_setting('fullres_thumbs'):
+        if settings.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
 
         thumbnail = quote_plus('http://localhost:32400' + thumbnail)
@@ -280,14 +277,13 @@ def get_thumb_image(data, server, width=720, height=720):
     return CONFIG['icon']
 
 
-def get_banner_image(data, server, width=720, height=720):
+def get_banner_image(data, server, settings, width=720, height=720):
     """
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
         @ return formatted URL
     """
-
-    if SETTINGS.get_setting('skipimages'):
+    if settings.get_setting('skipimages'):
         return ''
 
     thumbnail = encode_utf8(data.get('banner', '').split('?t')[0])
@@ -296,7 +292,7 @@ def get_banner_image(data, server, width=720, height=720):
         return thumbnail
 
     if thumbnail.startswith('/'):
-        if SETTINGS.get_setting('fullres_thumbs'):
+        if settings.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
 
         thumbnail = quote_plus('http://localhost:32400' + thumbnail)
@@ -306,13 +302,13 @@ def get_banner_image(data, server, width=720, height=720):
     return CONFIG['icon']
 
 
-def get_fanart_image(data, server, width=1280, height=720):
+def get_fanart_image(data, server, settings, width=1280, height=720):
     """
         Simply take a URL or path and determine how to format for fanart
         @ input: elementTree element, server name
         @ return formatted URL for photo resizing
     """
-    if SETTINGS.get_setting('skipimages'):
+    if settings.get_setting('skipimages'):
         return ''
 
     fanart = encode_utf8(data.get('art', ''))
@@ -321,7 +317,7 @@ def get_fanart_image(data, server, width=1280, height=720):
         return fanart
 
     if fanart.startswith('/'):
-        if SETTINGS.get_setting('fullres_fanart'):
+        if settings.get_setting('fullres_fanart'):
             return server.get_kodi_header_formatted_url(fanart)
 
         return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
@@ -345,7 +341,7 @@ def get_xml(url, tree=None, plex_network=None):
     return tree
 
 
-def build_context_menu(url, item_data, server):
+def build_context_menu(url, item_data, server, settings):
     context = []
     url_parts = urlparse(url)
     section = url_parts.path.split('/')[3]
@@ -388,7 +384,7 @@ def build_context_menu(url, item_data, server):
                         'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s)' %
                         (server.get_uuid(), item_id, item_data.get('library_section_uuid'))))
 
-    if SETTINGS.get_setting('showdeletecontextmenu'):
+    if settings.get_setting('showdeletecontextmenu'):
         context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' %
                         (server.get_uuid(), item_id)))
 
@@ -438,16 +434,16 @@ def get_media_data(tag_dict):
     }
 
 
-def get_transcode_profile():
+def get_transcode_profile(settings):
     profile_count = 3
     profile_labels = []
 
     for idx in list(range(profile_count)):
-        if idx == 0 or SETTINGS.get_setting('transcode_target_enabled_%s' % str(idx)):
-            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_%s' %
+        if idx == 0 or settings.get_setting('transcode_target_enabled_%s' % str(idx)):
+            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' %
                                                        str(idx)).split(',')
-            sub_size = SETTINGS.get_setting('transcode_target_sub_size_%s' % str(idx))
-            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_%s' % str(idx))
+            sub_size = settings.get_setting('transcode_target_sub_size_%s' % str(idx))
+            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % str(idx))
             profile_labels.append('[%s] %s@%s (%s/%s)' %
                                   (str(idx + 1), resolution, bitrate.strip(),
                                    sub_size, audio_boost))

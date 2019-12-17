@@ -572,12 +572,10 @@ msgctxt "#30547"
 msgid "Use WOL?"
 msgstr "Gebruik WOL?"
 
-msgctxt "#30548"
-msgid "Clean context menus"
-msgstr "Schoon contextmenu's op"
+# 30548
 
 msgctxt "#30549"
-msgid "Skip Genre/director/writer metadata"
+msgid "Skip Genre/director/writer"
 msgstr "Genre/regisseur/schrijver-metadata overslaan"
 
 msgctxt "#30550"
@@ -757,11 +755,11 @@ msgid "Manual"
 msgstr "Manueel"
 
 msgctxt "#30595"
-msgid "Use full-res thumbs"
+msgid "Use full resolution thumbs"
 msgstr "Gebruik thumbnails van volledige resolutie"
 
 msgctxt "#30596"
-msgid "Use full-res fanart"
+msgid "Use full resolution fanart"
 msgstr "Gebruik fanart van volledige resolutie"
 
 msgctxt "#30597"
@@ -1244,4 +1242,16 @@ msgstr ""
 
 msgctxt "#30718"
 msgid "Show [B]Playlists[/B] menu"
+msgstr ""
+
+msgctxt "#30719"
+msgid "Context Menu"
+msgstr ""
+
+msgctxt "#30720"
+msgid "Metadata"
+msgstr ""
+
+msgctxt "#30721"
+msgid "Transcoding"
 msgstr ""

@@ -28,10 +28,11 @@ from ..addon.strings import decode_utf8
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=True)
 
 
-def run(params):
+def run(settings, params):
+    plex_network = plex.Plex(load=True)
+
     for param in ['video_type', 'title', 'year']:  # check for expected common parameters
         if param not in params:
             return
@@ -45,7 +46,7 @@ def run(params):
 
     LOG.debug('Running with params: %s' % params)
 
-    search_results = search(params)
+    search_results = search(plex_network, params)
     log_results = [decode_utf8(ETree.tostring(search_result[1]))
                    for search_result in search_results]
     LOG.debug('Found search results: %s' % '\n\n'.join(log_results))
@@ -57,13 +58,13 @@ def run(params):
 
         if params.get('video_type') in ['show', 'season']:
             if params.get('video_type') == 'show':
-                process_seasons(server_uuid, rating_key=media_id,
-                                plex_network=PLEX_NETWORK)
+                process_seasons(settings, server_uuid, rating_key=media_id,
+                                plex_network=plex_network)
                 return
 
             if params.get('video_type') == 'season':
-                process_episodes(server_uuid, rating_key=media_id,
-                                 plex_network=PLEX_NETWORK)
+                process_episodes(settings, server_uuid, rating_key=media_id,
+                                 plex_network=plex_network)
                 return
 
         if params.get('video_type') in ['movie', 'episode']:
@@ -73,7 +74,7 @@ def run(params):
 
             play = wait_for_busy_dialog()
             if play:
-                play_media_id_from_uuid(server_uuid, media_id, player=True)
+                play_media_id_from_uuid(settings, server_uuid, media_id, player=True)
                 return
 
         LOG.debug('Failed to execute TraktToKodi action')
@@ -178,7 +179,7 @@ def _get_search_results(server, processed, params):
     return results
 
 
-def search(params):
+def search(plex_network, params):
     results = []
 
     content_type = _get_content_type(params.get('video_type'))
@@ -186,7 +187,7 @@ def search(params):
     if not content_type or not search_type:
         return []
 
-    server_list = PLEX_NETWORK.get_server_list()
+    server_list = plex_network.get_server_list()
 
     for server in server_list:
 

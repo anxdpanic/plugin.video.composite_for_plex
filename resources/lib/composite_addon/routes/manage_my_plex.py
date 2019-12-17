@@ -20,12 +20,13 @@ from ..plex import plex
 from ..plex import plexsignin
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run():
+    plex_network = plex.Plex(load=False)
+
     has_access = True
-    if not PLEX_NETWORK.is_myplex_signedin():
+    if not plex_network.is_myplex_signedin():
         result = xbmcgui.Dialog().yesno(i18n('Manage myPlex'),
                                         i18n('You are not currently logged into myPlex. '
                                              'Continue to sign in, or cancel to return'))
@@ -34,7 +35,7 @@ def run():
         else:
             has_access = False
 
-    elif not PLEX_NETWORK.is_admin():
+    elif not plex_network.is_admin():
         has_access = False
         _ = xbmcgui.Dialog().ok(i18n('Manage myPlex'),
                                 i18n('To access these screens you must be logged in as '
@@ -43,7 +44,7 @@ def run():
     if has_access:
         try:
             manage_window = plexsignin.PlexManage(i18n('Manage myPlex'))
-            manage_window.set_authentication_target(PLEX_NETWORK)
+            manage_window.set_authentication_target(plex_network)
             manage_window.start()
             del manage_window
         except AttributeError:

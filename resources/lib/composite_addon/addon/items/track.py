@@ -14,7 +14,6 @@ import json
 
 from ...addon.constants import MODES
 from ...addon.logger import Logger
-from ...addon.settings import AddonSettings
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
 from ...addon.utils import build_context_menu
@@ -23,10 +22,9 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_thumb_image
 
 LOG = Logger()
-SETTINGS = AddonSettings()
 
 
-def create_track_item(server, tree, track, listing=True):
+def create_track_item(server, tree, track, settings, listing=True):
     part_details = ()
 
     for child in track:
@@ -47,11 +45,11 @@ def create_track_item(server, tree, track, listing=True):
         'mediatype': 'song'
     }
 
-    section_art = get_fanart_image(tree, server)
+    section_art = get_fanart_image(tree, server, settings)
     if track.get('thumb'):
-        section_thumb = get_thumb_image(track, server)
+        section_thumb = get_thumb_image(track, server, settings)
     else:
-        section_thumb = get_thumb_image(tree, server)
+        section_thumb = get_thumb_image(tree, server, settings)
 
     extra_data = {
         'type': 'music',
@@ -81,10 +79,10 @@ def create_track_item(server, tree, track, listing=True):
 
     # Build any specific context menu entries
     context = None
-    if not SETTINGS.get_setting('skipcontextmenus'):
-        context = build_context_menu(url, extra_data, server)
+    if not settings.get_setting('skipcontextmenus'):
+        context = build_context_menu(url, extra_data, server, settings)
 
     if listing:
-        return create_gui_item(url, details, extra_data, context, folder=False)
+        return create_gui_item(url, details, extra_data, context, folder=False, settings=settings)
 
     return url, details

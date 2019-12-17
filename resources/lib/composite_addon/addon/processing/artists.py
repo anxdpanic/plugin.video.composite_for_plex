@@ -16,10 +16,9 @@ from ...addon.common import get_handle
 from ...addon.items.artist import create_artist_item
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
-def process_artists(url, tree=None, plex_network=None):
+def process_artists(settings, url, tree=None, plex_network=None):
     """
         Process artist XML and display data
         @input: url of XML page, or existing tree of XML page
@@ -45,9 +44,9 @@ def process_artists(url, tree=None, plex_network=None):
     items = []
     artist_tags = tree.findall('Directory')
     for artist in artist_tags:
-        items.append(create_artist_item(server, artist))
+        items.append(create_artist_item(server, artist, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

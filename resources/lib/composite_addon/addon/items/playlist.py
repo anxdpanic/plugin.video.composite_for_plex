@@ -18,7 +18,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 
 
-def create_playlist_item(url, server, track, listing=True):
+def create_playlist_item(url, server, track, settings, listing=True):
     details = {
         'title': encode_utf8(track.get('title', i18n('Unknown'))),
         'duration': int(track.get('duration', 0)) / 1000
@@ -28,7 +28,7 @@ def create_playlist_item(url, server, track, listing=True):
         'type': track.get('playlistType', ''),
         'thumb': get_thumb_image({
             'thumb': track.get('composite', '')
-        }, server),
+        }, server, settings),
         'mode': MODES.GETCONTENT
     }
 
@@ -40,6 +40,6 @@ def create_playlist_item(url, server, track, listing=True):
     item_url = get_link_url(url, track, server)
 
     if listing:
-        return create_gui_item(item_url, details, extra_data, folder=True)
+        return create_gui_item(item_url, details, extra_data, folder=True, settings=settings)
 
     return url, details

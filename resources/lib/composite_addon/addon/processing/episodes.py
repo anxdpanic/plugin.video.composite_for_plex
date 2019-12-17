@@ -17,12 +17,11 @@ from ...addon.items.episode import create_episode_item
 from ...addon.logger import Logger
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 LOG = Logger()
 
 
-def process_episodes(url, tree=None, rating_key=None, plex_network=None, library=False):
+def process_episodes(settings, url, tree=None, rating_key=None, plex_network=None, library=False):  # pylint: disable=too-many-arguments
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -57,9 +56,9 @@ def process_episodes(url, tree=None, rating_key=None, plex_network=None, library
     items = []
     show_tags = tree.findall('Video')
     for episode in show_tags:
-        items.append(create_episode_item(server, tree, url, episode, library=library))
+        items.append(create_episode_item(server, tree, url, episode, settings, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

@@ -17,10 +17,9 @@ from ...addon.common import get_handle
 from ...addon.items.track import create_track_item
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
-def process_tracks(url, tree=None, plex_network=None):
+def process_tracks(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -44,9 +43,9 @@ def process_tracks(url, tree=None, plex_network=None):
     items = []
     track_tags = tree.findall('Track')
     for track in track_tags:
-        items.append(create_track_item(server, tree, track))
+        items.append(create_track_item(server, tree, track, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

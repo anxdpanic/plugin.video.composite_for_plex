@@ -19,23 +19,31 @@ from .companion import companion
 from .companion.client import get_client
 
 LOG = Logger('service')
-SETTINGS = AddonSettings()
 
 
 def run():
+    settings = AddonSettings()
+
     sleep_time = 10
 
     LOG.debug('Service initialization...')
 
     window = xbmcgui.Window(10000)
-    player = CallbackPlayer(window=window)
+    player = CallbackPlayer(window=window, settings=settings)
     monitor = Monitor()
 
     companion_thread = None
-    if SETTINGS.use_companion():
-        companion_thread = companion.CompanionReceiverThread(get_client())
 
     while not monitor.abortRequested():
+
+        if not companion_thread and settings.use_companion():
+            _fresh_settings = AddonSettings()
+            companion_thread = companion.CompanionReceiverThread(get_client(_fresh_settings),
+                                                                 _fresh_settings)
+            del _fresh_settings
+        elif companion_thread and not settings.use_companion():
+            companion.shutdown(companion_thread)
+            companion_thread = None
 
         if monitor.waitForAbort(sleep_time):
             break

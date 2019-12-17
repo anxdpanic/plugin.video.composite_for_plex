@@ -19,21 +19,20 @@ from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
-def run():
+def run():  # pylint: disable=too-many-locals
     """
         Display a list of available audio streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     """
 
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
 
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]
 
-    server = PLEX_NETWORK.get_server_from_uuid(server_uuid)
+    server = plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
 
     audio_list = []

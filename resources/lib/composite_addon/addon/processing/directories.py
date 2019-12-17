@@ -16,12 +16,11 @@ from ...addon.common import get_handle
 from ...addon.items.directory import create_directory_item
 from ...addon.logger import Logger
 from ...plex import plex
-from . import SETTINGS
 
 LOG = Logger()
 
 
-def process_directories(url, tree=None, plex_network=None):
+def process_directories(settings, url, tree=None, plex_network=None):
     LOG.debug('Processing secondary menus')
 
     if plex_network is None:
@@ -37,9 +36,9 @@ def process_directories(url, tree=None, plex_network=None):
 
     items = []
     for directory in tree:
-        items.append(create_directory_item(server, tree, url, directory))
+        items.append(create_directory_item(server, tree, url, directory, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

@@ -16,10 +16,9 @@ from ...addon.common import get_handle
 from ...addon.items.photo import create_photo_item
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 
-def process_photos(url, tree=None, plex_network=None):
+def process_photos(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
@@ -33,11 +32,11 @@ def process_photos(url, tree=None, plex_network=None):
 
     items = []
     for photo in tree:
-        item = create_photo_item(server, tree, url, photo)
+        item = create_photo_item(server, tree, url, photo, settings)
         if item:
             items.append(item)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))

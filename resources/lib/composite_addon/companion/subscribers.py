@@ -37,9 +37,10 @@ WINDOW = xbmcgui.Window(10000)
 
 
 class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
-    def __init__(self, request_manager):
+    def __init__(self, settings, request_manager):
         self.request_manager = request_manager
         self.subscribers = {}
+        self.settings = settings
         self.info = {}
         self.last_key = ''
         self.last_rating_key = ''
@@ -172,7 +173,7 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
         server = self.get_server_by_host(self.server)
         self.request_manager.get_with_params(server.get('server', 'localhost'),
                                              server.get('port', 32400),
-                                             '/:/timeline', params, get_plex_headers(),
+                                             '/:/timeline', params, get_plex_headers(self.settings),
                                              server.get('protocol', 'http'))
         LOG.debug('sent server notification with state = %s' % params['state'])
         if players:
@@ -265,5 +266,6 @@ class Subscriber:  # pylint: disable=too-many-instance-attributes
         msg = re.sub(r'INSERTCOMMANDID', str(self.command_id), msg)
         LOG.debug('sending xml to subscriber %s: %s' % (self.tostr(), msg))
         if not self.request_manager.post(self.host, self.port, '/:/timeline', msg,
-                                         get_plex_headers(), self.protocol):
+                                         get_plex_headers(self.subscription_manager.settings),
+                                         self.protocol):
             self.subscription_manager.remove_subscriber(self.uuid)

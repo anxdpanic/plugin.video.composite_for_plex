@@ -13,12 +13,9 @@
 from kodi_six import xbmc  # pylint: disable=import-error
 
 from ..addon.data_cache import DATA_CACHE
-from ..addon.settings import AddonSettings
-
-SETTINGS = AddonSettings()
 
 
-def run():
-    if SETTINGS.get_setting('clear_data_cache_refresh'):
+def run(settings):
+    if settings.get_setting('clear_data_cache_refresh'):
         DATA_CACHE.delete_cache(True)
     xbmc.executebuiltin('Container.Refresh')

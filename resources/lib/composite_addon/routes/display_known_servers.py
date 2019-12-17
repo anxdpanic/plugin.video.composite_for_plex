@@ -18,12 +18,11 @@ from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run():
-    PLEX_NETWORK.load()
-    servers = PLEX_NETWORK.get_server_list()
+    plex_network = plex.Plex(load=True)
+    servers = plex_network.get_server_list()
 
     display_list = []
     for server in servers:

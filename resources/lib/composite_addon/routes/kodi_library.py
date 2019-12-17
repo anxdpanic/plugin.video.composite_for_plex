@@ -21,7 +21,7 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(params):
+def run(settings, params):
     del params['command']  # remove unrelated param
 
     content_type = _get_content_type(params.get('path_mode'))
@@ -46,7 +46,7 @@ def run(params):
         LOG.debug('refresh info for %s' % params.get('url'))
         plex_network = plex.Plex(load=True)
         server = plex_network.get_server_from_url(params.get('url'))
-        _list_content(server, params.get('url'))
+        _list_content(server, params.get('url'), settings)
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
     else:
@@ -60,7 +60,8 @@ def run(params):
                 if section.get_type() == content_type:
                     if content_type in ['movie', 'show']:
                         _list_content(server, '%s%s/all' %
-                                      (server.get_url_location(), section.get_path()))
+                                      (server.get_url_location(), section.get_path()),
+                                      settings)
 
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
@@ -75,7 +76,7 @@ def _get_content_type(path_mode):
     return content_type
 
 
-def _list_content(server, url):
+def _list_content(server, url, settings):
     tree = server.processed_xml(url)
     if tree is None:
         return
@@ -88,9 +89,9 @@ def _list_content(server, url):
 
     for content in tags:
         if content.get('type') == 'show':
-            items.append(create_show_item(server, url, content, library=True))
+            items.append(create_show_item(server, url, content, settings, library=True))
         elif content.get('type') == 'movie':
-            items.append(create_movie_item(server, tree, url, content, library=True))
+            items.append(create_movie_item(server, tree, url, content, settings, library=True))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

@@ -19,11 +19,10 @@ from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run():
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
 
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]
@@ -36,6 +35,6 @@ def run():
 
     if result:
         LOG.debug('Deleting....')
-        server = PLEX_NETWORK.get_server_from_uuid(server_uuid)
+        server = plex_network.get_server_from_uuid(server_uuid)
         server.delete_metadata(metadata_id)
         xbmc.executebuiltin('Container.Refresh')

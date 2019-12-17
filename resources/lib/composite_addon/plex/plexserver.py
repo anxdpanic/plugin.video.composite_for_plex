@@ -37,7 +37,6 @@ from .plexcommon import get_device_name
 
 DEFAULT_PORT = '32400'
 LOG = Logger('plexserver')
-SETTINGS = AddonSettings()
 
 LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)
 
@@ -47,6 +46,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def __init__(self, server_uuid=None, name=None, address=None, port=32400,  # pylint: disable=too-many-arguments
                  token=None, discovery=None, class_type='primary'):
 
+        self.settings = None
         self.__revision = CONFIG['required_revision']
         self.protocol = 'https'
         self.uuid = server_uuid
@@ -83,12 +83,18 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         self.plex_identification_string = None
         self.update_identification()
 
-    def plex_identification_headers(self):
-        self.client_id = get_client_identifier(self.client_id)
-        self.device_name = get_device_name(self.device_name)
+    def get_settings(self):
+        if not self.settings:
+            self.settings = AddonSettings()  # unable to pickle, unset before pickling
+        return self.settings
 
-        return create_plex_identification(device_name=self.device_name, client_id=self.client_id,
-                                          user=self.get_user(), token=self.get_token())
+    def plex_identification_headers(self):
+        self.client_id = get_client_identifier(self.get_settings(), self.client_id)
+        self.device_name = get_device_name(self.get_settings(), self.device_name)
+
+        return create_plex_identification(self.get_settings(), device_name=self.device_name,
+                                          client_id=self.client_id, user=self.get_user(),
+                                          token=self.get_token())
 
     def update_identification(self):
         self.plex_identification_header = self.plex_identification_headers()
@@ -239,7 +245,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         url_parts = urlparse(uri)
         status_code = requests.codes.not_found  # pylint: disable=no-member
         try:
-            verify_cert = uri.startswith('https') and SETTINGS.get_setting('verify_cert')
+            verify_cert = uri.startswith('https') and \
+                          self.get_settings().get_setting('verify_cert')
             response = requests.head(uri, params=self.plex_identification_header,
                                      verify=verify_cert, timeout=(2, 60))
             status_code = response.status_code
@@ -259,7 +266,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         self.offline = False
         self.update_identification()
 
-        use_https = SETTINGS.get_setting('secureconn')
+        use_https = self.get_settings().get_setting('secureconn')
         if not use_https:
             self.set_protocol('http')
 
@@ -400,7 +407,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = self.protocol == 'https' and SETTINGS.get_setting('verify_cert')
+            verify_cert = self.protocol == 'https' and \
+                          self.get_settings().get_setting('verify_cert')
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:
@@ -556,7 +564,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def processed_xml(self, url):
         cache_name = DATA_CACHE.sha512_cache_name('processed_xml', self.get_uuid(), url)
-        is_valid, result = DATA_CACHE.check_cache(cache_name, SETTINGS.data_cache_ttl())
+        is_valid, result = DATA_CACHE.check_cache(cache_name, self.get_settings().data_cache_ttl())
         if is_valid and result is not None:
             return result
 
@@ -661,14 +669,13 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                           self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
-
         LOG.debug('Getting fanart for %s' % section.get_title())
 
-        if SETTINGS.get_setting('skipimages'):
+        if self.get_settings().get_setting('skipimages'):
             return ''
 
         if section.get_art().startswith('/'):
-            if SETTINGS.get_setting('fullres_fanart'):
+            if self.get_settings().get_setting('fullres_fanart'):
                 return self.get_formatted_url(section.get_art())
 
             return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
@@ -737,18 +744,20 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
         LOG.debug('incoming URL is: %s' % url)
-
         try:
-            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_%s' %
-                                                       transcode_profile).split(',')
-            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_%s' %
-                                                 transcode_profile).split('.')[0]
-            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_%s' %
-                                               transcode_profile).split('.')[0]
+            resolution, bitrate = self.get_settings().get_setting('transcode_target_quality_%s' %
+                                                                  transcode_profile).split(',')
+            subtitle_size = self.get_settings().get_setting('transcode_target_sub_size_%s' %
+                                                            transcode_profile).split('.')[0]
+            audio_boost = self.get_settings().get_setting('transcode_target_audio_size_%s' %
+                                                          transcode_profile).split('.')[0]
         except ValueError:
-            resolution, bitrate = SETTINGS.get_setting('transcode_target_quality_0').split(',')
-            subtitle_size = SETTINGS.get_setting('transcode_target_sub_size_0').split('.')[0]
-            audio_boost = SETTINGS.get_setting('transcode_target_audio_size_0').split('.')[0]
+            resolution, bitrate = \
+                self.get_settings().get_setting('transcode_target_quality_0').split(',')
+            subtitle_size = \
+                self.get_settings().get_setting('transcode_target_sub_size_0').split('.')[0]
+            audio_boost = \
+                self.get_settings().get_setting('transcode_target_audio_size_0').split('.')[0]
 
         if bitrate.endswith('Mbps'):
             max_video_bitrate = float(bitrate.strip().split('Mbps')[0]) * 1000

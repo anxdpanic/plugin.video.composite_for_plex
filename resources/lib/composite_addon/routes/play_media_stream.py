@@ -20,11 +20,10 @@ from ..addon.logger import Logger
 from ..plex import plex
 
 LOG = Logger()
-PLEX_NETWORK = plex.Plex(load=False)
 
 
 def run(url):
-    PLEX_NETWORK.load()
+    plex_network = plex.Plex(load=True)
     if url.startswith('file'):
         LOG.debug('We are playing a local file')
         # Split out the path from the URL
@@ -32,7 +31,7 @@ def run(url):
     elif url.startswith('http'):
         LOG.debug('We are playing a stream')
         if '?' in url:
-            server = PLEX_NETWORK.get_server_from_url(url)
+            server = plex_network.get_server_from_url(url)
             playback_url = server.get_formatted_url(url)
         else:
             playback_url = ''

@@ -18,12 +18,11 @@ from ...addon.logger import Logger
 from ...addon.utils import get_master_server
 from ...addon.utils import get_xml
 from ...plex import plex
-from . import SETTINGS
 
 LOG = Logger()
 
 
-def process_plex_plugins(url, tree=None, plex_network=None):
+def process_plex_plugins(settings, url, tree=None, plex_network=None):
     """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -43,15 +42,15 @@ def process_plex_plugins(url, tree=None, plex_network=None):
 
     if (tree.get('identifier') != 'com.plexapp.plugins.myplex') and ('node.plexapp.com' in url):
         LOG.debug('This is a myPlex URL, attempting to locate master server')
-        server = get_master_server()
+        server = get_master_server(settings)
 
     items = []
     for plugin in tree:
-        item = create_plex_plugin_item(server, tree, url, plugin)
+        item = create_plex_plugin_item(server, tree, url, plugin, settings)
         if item:
             items.append(item)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=SETTINGS.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
