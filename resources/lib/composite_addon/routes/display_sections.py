@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
+from ..addon.constants import COMMANDS
 from ..addon.constants import CONFIG
 from ..addon.constants import MODES
 from ..addon.logger import Logger
@@ -198,7 +199,7 @@ def action_menu_items(plex_network, settings):
                 'type': 'file'
             }
 
-            item_url = 'cmd:switchuser'
+            item_url = 'cmd:' + COMMANDS.SWITCHUSER
             items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
         details = {
@@ -208,8 +209,27 @@ def action_menu_items(plex_network, settings):
             'type': 'file'
         }
 
-        item_url = 'cmd:signout'
+        item_url = 'cmd:' + COMMANDS.SIGNOUT
         items.append(create_gui_item(item_url, details, extra_data, settings=settings))
+
+        details = {
+            'title': i18n('Display Servers')
+        }
+        extra_data = {
+            'type': 'file'
+        }
+        data_url = 'cmd:' + COMMANDS.DISPLAYSERVER
+        items.append(create_gui_item(data_url, details, extra_data, settings=settings))
+
+        if settings.get_setting('cache'):
+            details = {
+                'title': i18n('Clear Caches')
+            }
+            extra_data = {
+                'type': 'file'
+            }
+            item_url = 'cmd:' + COMMANDS.DELETEREFRESH
+            items.append(create_gui_item(item_url, details, extra_data, settings=settings))
     else:
         details = {
             'title': i18n('Sign In')
@@ -218,26 +238,7 @@ def action_menu_items(plex_network, settings):
             'type': 'file'
         }
 
-        item_url = 'cmd:signintemp'
-        items.append(create_gui_item(item_url, details, extra_data, settings=settings))
-
-    details = {
-        'title': i18n('Display Servers')
-    }
-    extra_data = {
-        'type': 'file'
-    }
-    data_url = 'cmd:displayservers'
-    items.append(create_gui_item(data_url, details, extra_data, settings=settings))
-
-    if settings.get_setting('cache'):
-        details = {
-            'title': i18n('Clear Caches')
-        }
-        extra_data = {
-            'type': 'file'
-        }
-        item_url = 'cmd:delete_refresh'
+        item_url = 'cmd:' + COMMANDS.SIGNIN
         items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
     return items

@@ -87,11 +87,6 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         sign_in.run()
         return _finished(start_time)
 
-    if command == COMMANDS.SIGNINTEMP:
-        from .routes import sign_in_temp  # pylint: disable=import-outside-toplevel
-        sign_in_temp.run()
-        return _finished(start_time)
-
     if command == COMMANDS.MANAGEMYPLEX:
         from .routes import manage_my_plex  # pylint: disable=import-outside-toplevel
         manage_my_plex.run()
