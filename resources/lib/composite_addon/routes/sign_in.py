@@ -25,10 +25,11 @@ def run():
     plex_network = plex.Plex(load=False)
 
     try:
-        signin_window = plexsignin.PlexSignin(i18n('myPlex Login'))
-        signin_window.set_authentication_target(plex_network)
-        signin_window.start()
-        del signin_window
+        with plexsignin.PlexSignin(i18n('myPlex Login'), window=xbmcgui.Window(10000)) as dialog:
+            dialog.set_authentication_target(plex_network)
+            dialog.start()
+    except plexsignin.AlreadyActiveException:
+        pass
     except AttributeError:
         response = plex_network.get_signin_pin()
         message = \
