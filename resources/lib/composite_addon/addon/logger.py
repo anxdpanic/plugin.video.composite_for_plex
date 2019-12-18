@@ -24,12 +24,14 @@ from .settings import AddonSettings
 
 
 class Logger:
-    DEBUG_DEBUG = 0
-    DEBUG_DEBUGPLUS = 1
+    LOG_NOTICE = -1
+    LOG_DEBUG = 0
+    LOG_DEBUGPLUS = 1
     LOG_ERROR = 9
     DEBUG_MAP = {
-        DEBUG_DEBUG: 'debug',
-        DEBUG_DEBUGPLUS: 'debug+',
+        LOG_NOTICE: 'notice',
+        LOG_DEBUG: 'debug',
+        LOG_DEBUGPLUS: 'debug+',
         LOG_ERROR: 'error'
     }
 
@@ -55,13 +57,23 @@ class Logger:
         return self.DEBUG_MAP[level]
 
     def error(self, message, no_privacy=False):
-        return self.__print_message(message, 9, no_privacy)
+        return self.__print_message(message, self.LOG_ERROR, no_privacy)
+
+    def notice(self, message, no_privacy=False):
+        return self.__print_message(message, self.LOG_NOTICE, no_privacy)
 
     def debug(self, message, no_privacy=False):
-        return self.__print_message(message, 0, no_privacy)
+        return self.__print_message(message, self.LOG_DEBUG, no_privacy)
 
     def debugplus(self, message, no_privacy=False):
-        return self.__print_message(message, 1, no_privacy)
+        return self.__print_message(message, self.LOG_DEBUGPLUS, no_privacy)
+
+    def __get_kodi_log_level(self, level):
+        if level == self.LOG_ERROR:
+            return xbmc.LOGERROR
+        if level == self.LOG_NOTICE:
+            return xbmc.LOGNOTICE
+        return xbmc.LOGDEBUG
 
     def __print_message(self, msg, level=0, no_privacy=False):
         if not isinstance(msg, string_types):
@@ -94,8 +106,8 @@ class Logger:
             except:  # pylint: disable=bare-except
                 msg = 'Logging failure:\n%s' % traceback.format_exc()
 
-        if self.level >= level or level == self.LOG_ERROR:
-            log_level = xbmc.LOGERROR if level == self.LOG_ERROR else xbmc.LOGDEBUG
+        if self.level >= level or level in [self.LOG_ERROR, self.LOG_NOTICE]:
+            log_level = self.__get_kodi_log_level(level)
             try:
                 xbmc.log('%s%s -> %s : %s%s' %
                          (self.main, self.sub, inspect.stack(0)[2][3], msg, tag), log_level)
