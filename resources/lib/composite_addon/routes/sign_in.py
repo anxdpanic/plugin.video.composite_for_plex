@@ -10,11 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcgui  # pylint: disable=import-error
-
 from ..addon.logger import Logger
-from ..addon.strings import i18n
 from ..plex import plex
 from ..plex import plexsignin
 
@@ -23,23 +19,4 @@ LOG = Logger()
 
 def run():
     plex_network = plex.Plex(load=False)
-
-    try:
-        with plexsignin.PlexSignin(i18n('myPlex Login'), window=xbmcgui.Window(10000)) as dialog:
-            dialog.set_authentication_target(plex_network)
-            dialog.start()
-    except plexsignin.AlreadyActiveException:
-        pass
-    except AttributeError:
-        response = plex_network.get_signin_pin()
-        message = \
-            i18n('From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]') % \
-            ('https://www.plex.tv/link/', ' '.join(response.get('code', [])))
-        xbmcgui.Dialog().ok(i18n('myPlex Login'), message)
-        xbmc.sleep(500)
-        result = plex_network.check_signin_status(response.get('id', ''))
-        if result:
-            LOG.debug('Sign in successful ...')
-        else:
-            LOG.debug('Sign in failed ...')
-        xbmc.executebuiltin('Container.Refresh')
+    _ = plexsignin.sign_in_to_plex(plex_network)
