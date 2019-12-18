@@ -35,10 +35,14 @@ LOG = Logger('cachecontrol')
 
 
 class CacheControl:
+    # ADDON_DATA_FOLDER is hardcoded and is used for path protection
+    # Cache will only enable/delete if the path is in the add-on's addon_data folder
+    ADDON_DATA_FOLDER = 'special://profile/addon_data/plugin.video.composite_for_plex/'
 
     def __init__(self, cache_location, enabled=True):
-        if CONFIG['addon'].getAddonInfo('profile') not in CONFIG['cache_path']:
-            LOG.debug('CACHE: Cache is disabled, cache path has invalid parent')
+        if not CONFIG['cache_path'].startswith(self.ADDON_DATA_FOLDER):
+            LOG.debug('CACHE: Cache is disabled, the cache path is'
+                      ' not in the addon_data folder')
             enabled = False
 
         self.cache_location = xbmc.translatePath(os.path.join(CONFIG['cache_path'], cache_location))
@@ -154,6 +158,11 @@ class CacheControl:
         return False, None
 
     def delete_cache(self, force=False):
+        if not CONFIG['cache_path'].startswith(self.ADDON_DATA_FOLDER):
+            LOG.debug('CACHE: Cache not deleted, the cache path is'
+                      ' not in the addon_data folder')
+            return
+
         start_time = time.time()
 
         persistent_cache_suffix = '.pcache'
