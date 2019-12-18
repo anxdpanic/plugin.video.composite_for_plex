@@ -111,9 +111,3 @@ StreamControl = __enum(
     PLEX='1',
     NEVER='2'
 )
-
-STREAM_CONTROL_MAP = {
-    StreamControl().KODI: 'Kodi',
-    StreamControl().PLEX: 'Plex',
-    StreamControl().NEVER: 'Never'
-}

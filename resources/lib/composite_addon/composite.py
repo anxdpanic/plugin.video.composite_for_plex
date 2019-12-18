@@ -18,7 +18,6 @@ from .addon.common import get_params
 from .addon.constants import COMMANDS
 from .addon.constants import CONFIG
 from .addon.constants import MODES
-from .addon.constants import STREAM_CONTROL_MAP
 from .addon.logger import Logger
 from .addon.settings import AddonSettings
 
@@ -48,24 +47,13 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     url = params.get('url')
 
-    LOG.debug('%s %s: Kodi %s on %s with Python %s' %
-              (CONFIG['name'], CONFIG['version'], CONFIG['kodi_version'],
-               platform.uname()[0], '.'.join([str(i) for i in sys.version_info])),
-              no_privacy=True)  # force no privacy to avoid redacting version strings
+    LOG.notice('%s %s: Kodi %s on %s with Python %s' %
+               (CONFIG['name'], CONFIG['version'], CONFIG['kodi_version'],
+                platform.uname()[0], '.'.join([str(i) for i in sys.version_info])),
+               no_privacy=True)  # force no privacy to avoid redacting version strings
 
-    LOG.debug('Mode |%s| Command |%s| Url |%s| Parameters |%s| Server UUID |%s| Media Id |%s|'
-              % (mode, command, url, params, server_uuid, media_id))
-
-    LOG.debug('Settings:\nFullRes Thumbs |%s| Streaming |%s| Filter Menus |%s| Flatten |%s|\n'
-              'Stream Control |%s| Force DVD |%s| SMB IP Override |%s| NAS IP |%s|' %
-              (settings.get_setting('fullres_thumbs'),
-               settings.get_stream(),
-               settings.get_setting('secondary'),
-               settings.get_setting('flatten'),
-               STREAM_CONTROL_MAP.get(settings.get_setting('streamControl')),
-               settings.get_setting('forcedvd'),
-               settings.get_setting('nasoverride'),
-               settings.get_setting('nasoverrideip')))
+    LOG.notice('Mode |%s| Command |%s| Url |%s| Parameters |%s| Server UUID |%s| Media Id |%s|'
+               % (mode, command, url, params, server_uuid, media_id))
 
     if command == COMMANDS.REFRESH:
         from .routes import refresh  # pylint: disable=import-outside-toplevel
@@ -323,4 +311,4 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
 
 def _finished(start_time):
-    LOG.debug('Finished. |%.3fs|' % (time.time() - start_time))
+    LOG.notice('Finished. |%.3fs|' % (time.time() - start_time))
