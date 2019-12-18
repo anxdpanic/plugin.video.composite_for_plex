@@ -10,26 +10,10 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcgui  # pylint: disable=import-error
-
-from ..addon.strings import i18n
 from ..plex import plex
+from ..plex import plexsignin
 
 
 def run():
     plex_network = plex.Plex(load=False)
-
-    can_signout = True
-    if not plex_network.is_admin():
-        can_signout = False
-        _ = xbmcgui.Dialog().ok(i18n('Sign Out'),
-                                i18n('To sign out you must be logged in as an admin user. '
-                                     'Switch user and try again'))
-    if can_signout:
-        result = xbmcgui.Dialog().yesno(i18n('myPlex'),
-                                        i18n('You are currently signed into myPlex.'
-                                             ' Are you sure you want to sign out?'))
-        if result:
-            plex_network.signout()
-            xbmc.executebuiltin('Container.Refresh')
+    plexsignin.sign_out(plex_network)

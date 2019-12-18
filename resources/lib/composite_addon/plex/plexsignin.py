@@ -385,11 +385,12 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.connect(self.signout_button, lambda: self.signout())  # pylint: disable=unnecessary-lambda
 
     def switch(self):
-        xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', switchuser)')
-        self.close()
+        switched = switch_user(self.plex_network, refresh=False)
+        if switched:
+            self.close()
 
     def signout(self):
-        xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signout)')
+        sign_out(self.plex_network, refresh=False)
         if not self.plex_network.is_myplex_signedin():
             self.close()
 
@@ -441,3 +442,59 @@ def sign_in_to_plex(plex_network, refresh=True):
             xbmc.executebuiltin('Container.Refresh')
 
     return status
+
+
+def sign_out(plex_network, refresh=True):
+    can_signout = True
+    if not plex_network.is_admin():
+        can_signout = False
+        _ = xbmcgui.Dialog().ok(i18n('Sign Out'),
+                                i18n('To sign out you must be logged in as an admin user. '
+                                     'Switch user and try again'))
+    if can_signout:
+        result = xbmcgui.Dialog().yesno(i18n('myPlex'),
+                                        i18n('You are currently signed into myPlex.'
+                                             ' Are you sure you want to sign out?'))
+        if result:
+            plex_network.signout()
+            if refresh:
+                xbmc.executebuiltin('Container.Refresh')
+
+
+def switch_user(plex_network, refresh=True):
+    user_list = plex_network.get_plex_home_users()
+    # zero means we are not plexHome'd up
+    if user_list is None or len(user_list) == 1:
+        LOG.debug('No users listed or only one user, Plex Home not enabled')
+        return False
+
+    LOG.debug('found %s users: %s' % (len(user_list), user_list.keys()))
+
+    # Get rid of currently logged in user.
+    user_list.pop(plex_network.get_myplex_user(), None)
+
+    result = xbmcgui.Dialog().select(i18n('Switch User'), user_list.keys())
+    if result == -1:
+        LOG.debug('Dialog cancelled')
+        return False
+
+    LOG.debug('user [%s] selected' % user_list.keys()[result])
+    user = user_list[user_list.keys()[result]]
+
+    pin = None
+    if user['protected'] == '1':
+        LOG.debug('Protected user [%s], requesting password' % user['title'])
+        pin = xbmcgui.Dialog().input(i18n('Enter PIN'), type=xbmcgui.INPUT_NUMERIC,
+                                     option=xbmcgui.ALPHANUM_HIDE_INPUT)
+
+    success, message = plex_network.switch_plex_home_user(user['id'], pin)
+
+    if not success:
+        xbmcgui.Dialog().ok(i18n('Switch Failed'), message)
+        LOG.debug('Switch User Failed')
+        return False
+
+    if refresh:
+        xbmc.executebuiltin('Container.Refresh')
+
+    return True
