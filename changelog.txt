@@ -1,3 +1,6 @@
+0.4.1
+[fix] only allow one dialog at a time ie. accidentally opening multiple sign in dialogs
+
 0.4.0
 [add] Plex Companion receiver *experimental
 [add] Settings - Look and Feel - Main Menu - Show [menu item]

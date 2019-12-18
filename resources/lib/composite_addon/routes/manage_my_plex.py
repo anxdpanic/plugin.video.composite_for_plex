@@ -43,9 +43,11 @@ def run():
 
     if has_access:
         try:
-            manage_window = plexsignin.PlexManage(i18n('Manage myPlex'))
-            manage_window.set_authentication_target(plex_network)
-            manage_window.start()
-            del manage_window
+            with plexsignin.PlexManage(i18n('Manage myPlex'),
+                                       window=xbmcgui.Window(10000)) as dialog:
+                dialog.set_authentication_target(plex_network)
+                dialog.start()
+        except plexsignin.AlreadyActiveException:
+            pass
         except AttributeError:
             LOG.debug('Failed to load PlexManage ...')

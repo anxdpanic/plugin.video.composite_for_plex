@@ -21,9 +21,13 @@ LOG = Logger('plex_signin')
 MEDIA_PATH = xbmc.translatePath(CONFIG['media_path'] + 'dialogs/')
 
 
+class AlreadyActiveException(Exception):
+    pass
+
+
 # noinspection PyAttributeOutsideInit
 class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, title=''):
+    def __init__(self, title='', window=None):
         """Class constructor"""
         # Call the base class' constructor.
         super(PlexSignin, self).__init__(title)
@@ -37,8 +41,17 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
         self.plex_network = None
         self.identifier = None
-
+        self.window = window
         self.data = {}
+
+    def __enter__(self):
+        if self.window.getProperty('-'.join([CONFIG['id'], 'dialog_active'])) == 'true':
+            raise AlreadyActiveException
+        self.window.setProperty('-'.join([CONFIG['id'], 'dialog_active']), 'true')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.window.clearProperty('-'.join([CONFIG['id'], 'dialog_active']))
 
     def start(self):
         xbmc.executebuiltin('Dialog.Close(all,true)')
@@ -268,7 +281,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
 
 # noinspection PyAttributeOutsideInit
 class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, title=''):
+    def __init__(self, title='', window=None):
         """Class constructor"""
         # Call the base class' constructor.
         super(PlexManage, self).__init__(title)
@@ -281,6 +294,16 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         # Connect Backspace button to close our addon.
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
         self.plex_network = None
+        self.window = window
+
+    def __enter__(self):
+        if self.window.getProperty('-'.join([CONFIG['id'], 'dialog_active'])) == 'true':
+            raise AlreadyActiveException
+        self.window.setProperty('-'.join([CONFIG['id'], 'dialog_active']), 'true')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.window.clearProperty('-'.join([CONFIG['id'], 'dialog_active']))
 
     def start(self):
         xbmc.executebuiltin('Dialog.Close(all,true)')
