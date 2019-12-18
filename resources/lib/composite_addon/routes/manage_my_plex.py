@@ -10,10 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
-from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.strings import i18n
 from ..plex import plex
@@ -27,13 +25,13 @@ def run():
 
     has_access = True
     if not plex_network.is_myplex_signedin():
+        has_access = False
         result = xbmcgui.Dialog().yesno(i18n('Manage myPlex'),
                                         i18n('You are not currently logged into myPlex. '
                                              'Continue to sign in, or cancel to return'))
         if result:
-            xbmc.executebuiltin('RunScript(' + CONFIG['id'] + ', signin)')
-        else:
-            has_access = False
+            has_access = plexsignin.sign_in_to_plex(plex_network, refresh=False)
+            plex_network = plex.Plex(load=False)
 
     elif not plex_network.is_admin():
         has_access = False
@@ -42,12 +40,4 @@ def run():
                                      'an admin user. Switch user and try again'))
 
     if has_access:
-        try:
-            with plexsignin.PlexManage(i18n('Manage myPlex'),
-                                       window=xbmcgui.Window(10000)) as dialog:
-                dialog.set_authentication_target(plex_network)
-                dialog.start()
-        except plexsignin.AlreadyActiveException:
-            pass
-        except AttributeError:
-            LOG.debug('Failed to load PlexManage ...')
+        plexsignin.manage_plex(plex_network)

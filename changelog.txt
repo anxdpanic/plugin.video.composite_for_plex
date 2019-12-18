@@ -1,5 +1,6 @@
 0.4.1
 [fix] only allow one dialog at a time ie. accidentally opening multiple sign in dialogs
+[fix] Settings - Server - Manage myPlex when sign in required
 
 0.4.0
 [add] Plex Companion receiver *experimental

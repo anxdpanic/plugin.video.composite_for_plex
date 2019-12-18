@@ -16,6 +16,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [fix] only allow one dialog at a time ie. accidentally opening multiple sign in dialogs
+[fix] Settings - Server - Manage myPlex when sign in required
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>

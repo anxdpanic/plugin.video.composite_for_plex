@@ -12,6 +12,7 @@
 
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 from kodi_six import xbmc  # pylint: disable=import-error
+from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
@@ -278,6 +279,9 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.password_field.controlDown(self.submit_button)
         # Set initial focus.
 
+    def signed_in(self):
+        return self.plex_network.is_myplex_signedin()
+
 
 # noinspection PyAttributeOutsideInit
 class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-attributes
@@ -397,3 +401,43 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
                                          self.cancel_button, self.signout_button)
         self.signout_button.setNavigation(self.cancel_button, self.switch_button,
                                           self.switch_button, self.cancel_button)
+
+
+def manage_plex(plex_network):
+    try:
+        with PlexManage(i18n('Manage myPlex'), window=xbmcgui.Window(10000)) as dialog:
+            dialog.set_authentication_target(plex_network)
+            dialog.start()
+    except AlreadyActiveException:
+        pass
+    except AttributeError:
+        LOG.debug('Failed to load PlexManage ...')
+
+
+def sign_in_to_plex(plex_network, refresh=True):
+    status = False
+    try:
+        with PlexSignin(i18n('myPlex Login'), window=xbmcgui.Window(10000)) as dialog:
+            dialog.set_authentication_target(plex_network)
+            dialog.start()
+            status = dialog.signed_in()
+    except AlreadyActiveException:
+        pass
+    except AttributeError:
+        response = plex_network.get_signin_pin()
+        message = \
+            i18n('From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]') % \
+            ('https://www.plex.tv/link/', ' '.join(response.get('code', [])))
+        xbmcgui.Dialog().ok(i18n('myPlex Login'), message)
+        xbmc.sleep(500)
+        result = plex_network.check_signin_status(response.get('id', ''))
+        if result:
+            status = True
+            LOG.debug('Sign in successful ...')
+        else:
+            LOG.debug('Sign in failed ...')
+
+        if refresh:
+            xbmc.executebuiltin('Container.Refresh')
+
+    return status
