@@ -35,7 +35,6 @@ COMMANDS = __enum(
     MASTER='master',
     REFRESH='refresh',
     SIGNIN='signin',
-    SIGNINTEMP='signintemp',
     SIGNOUT='signout',
     SUBS='subs',
     SWITCHUSER='switchuser',

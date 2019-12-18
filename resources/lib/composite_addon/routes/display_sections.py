@@ -218,7 +218,7 @@ def action_menu_items(plex_network, settings):
             'type': 'file'
         }
 
-        item_url = 'cmd:signintemp'
+        item_url = 'cmd:signin'
         items.append(create_gui_item(item_url, details, extra_data, settings=settings))
 
     details = {
