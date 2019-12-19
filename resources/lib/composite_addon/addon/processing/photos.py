@@ -24,7 +24,7 @@ def process_photos(settings, url, tree=None, plex_network=None):
 
     server = plex_network.get_server_from_url(url)
 
-    xbmcplugin.setContent(get_handle(), 'photo')
+    xbmcplugin.setContent(get_handle(), 'images')
 
     tree = get_xml(url, tree)
     if tree is None:
