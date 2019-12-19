@@ -42,6 +42,7 @@ def create_photo_item(server, tree, url, photo, settings):
 
     if photo.tag == 'Directory':
         extra_data['mode'] = MODES.PHOTOS
+        extra_data['type'] = 'folder'
         return create_gui_item(item_url, details, extra_data, settings=settings)
 
     if photo.tag == 'Photo' and (tree.get('viewGroup', '') == 'photo' or
@@ -51,8 +52,9 @@ def create_photo_item(server, tree, url, photo, settings):
                 parts = [img for img in pics if img.tag == 'Part']
                 for part in parts:
                     extra_data['key'] = \
-                        server.get_url_location() + part.get('key', '')
+                        server.get_formatted_url(part.get('key', ''))
                     details['size'] = int(part.get('size', 0))
+                    details['picturepath'] = extra_data['key']
                     item_url = extra_data['key']
 
         if tree.get('playlistType'):

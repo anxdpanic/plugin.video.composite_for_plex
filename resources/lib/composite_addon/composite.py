@@ -47,6 +47,8 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     url = params.get('url')
 
+    settings.set_picture_mode(params.get('content_type') == 'image')
+
     LOG.notice('%s %s: Kodi %s on %s with Python %s' %
                (CONFIG['name'], CONFIG['version'], CONFIG['kodi_version'],
                 platform.uname()[0], '.'.join([str(i) for i in sys.version_info])),

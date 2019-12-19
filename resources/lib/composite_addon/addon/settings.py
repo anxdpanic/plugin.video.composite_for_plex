@@ -30,6 +30,7 @@ class AddonSettings:
         self.addon_name = CONFIG['name']
         xbmc.log(self.addon_name + '.settings -> Reading settings configuration', xbmc.LOGDEBUG)
         self.stream = self.settings.getSetting('streaming')
+        self.picture_mode = False
 
     @staticmethod
     def _get_addon():
@@ -60,6 +61,12 @@ class AddonSettings:
             value = str(value).lower()
 
         self.settings.setSetting(name, value)
+
+    def get_picture_mode(self):
+        return self.picture_mode
+
+    def set_picture_mode(self, value):
+        self.picture_mode = bool(value)
 
     def get_wakeservers(self):
         servers = []

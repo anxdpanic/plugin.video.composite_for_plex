@@ -108,6 +108,8 @@ def create_gui_item(url, details, extra_data, context=None, folder=True, setting
     info_labels = copy.deepcopy(details)
     if set_info_type.lower() == 'folder' or set_info_type.lower() == 'file':
         set_info_type = 'Video'
+    elif set_info_type.lower() == 'image':
+        set_info_type = 'Picture'
 
     if set_info_type == 'Video':
         if not info_labels.get('plot'):
