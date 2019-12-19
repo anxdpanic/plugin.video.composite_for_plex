@@ -36,10 +36,16 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
     #### Sources
    
     - **Movies:** `plugin://plugin.video.composite_for_plex/library/movies/`
+      - Choose information provider: Local information only
+      - Movies are in separate folders that match the movie title: Disabled
+      - Scan recursively: Disabled
     - **TV Shows:** `plugin://plugin.video.composite_for_plex/library/tvshows/`
+      - Choose information provider: Local information only
+      - Selected folder contains a single TV show: Disabled
 
     **Wiki:** https://kodi.wiki/view/Adding_video_sources <br/>
-    Instead of Steps 4-5 add the appropriate `plugin://` url from the sources above
+    Instead of Steps 4-5 add the appropriate `plugin://` url from the sources above <br/>
+    Instead of Step 9 use Local information only
 
 - TraktToKodi
     -
