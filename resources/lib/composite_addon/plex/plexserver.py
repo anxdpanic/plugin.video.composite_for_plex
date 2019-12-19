@@ -423,6 +423,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 elif method == 'delete':
                     response = requests.delete(uri, params=params, verify=verify_cert,
                                                timeout=(2, 60))
+                elif method == 'post':
+                    response = requests.post(uri, params=params, verify=verify_cert,
+                                             timeout=(2, 60))
                 else:
                     response = None
 
@@ -466,6 +469,11 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return '<?xml version="1.0" encoding="UTF-8"?>' \
                '<message status="offline">' \
                '</message>'
+
+    def post(self, url, refresh=False, extra_headers=None):
+        if extra_headers is None:
+            extra_headers = {}
+        return self.talk(url, refresh, method='post', extra_headers=extra_headers)
 
     def tell(self, url, refresh=False, extra_headers=None):
         if extra_headers is None:
@@ -725,6 +733,15 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def delete_metadata(self, media_id):
         return self.talk('/library/metadata/%s' % media_id, method='delete')
 
+    def create_playlist(self, metadata_id, playlist_title, playlist_type):
+        return self.process_xml(self.post('/playlists', extra_headers={
+            'uri': 'server://%s/com.plexapp.plugins.library/library/metadata/%s' %
+                   (self.get_uuid(), metadata_id),
+            'title': playlist_title,
+            'type': playlist_type,
+            'smart': 0
+        }))
+
     def add_playlist_item(self, playlist_id, library_section_uuid, metadata_id):
         return self.process_xml(self.tell('/playlists/%s/items' % playlist_id,
                                           extra_headers={
@@ -734,6 +751,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def delete_playlist_item(self, playlist_item_id, path):
         return self.process_xml(self.talk('%s/%s' % (path, playlist_item_id), method='delete'))
+
+    def delete_playlist(self, playlist_id):
+        return self.talk('/playlists/%s' % playlist_id, method='delete')
 
     def get_playlists(self):
         return self.processed_xml('/playlists')

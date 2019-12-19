@@ -1256,3 +1256,23 @@ msgstr ""
 msgctxt "#30721"
 msgid "Transcoding"
 msgstr ""
+
+msgctxt "#30722"
+msgid "Create a playlist"
+msgstr ""
+
+msgctxt "#30723"
+msgid "Enter a playlist title"
+msgstr ""
+
+msgctxt "#30724"
+msgid "Delete playlist"
+msgstr ""
+
+msgctxt "#30725"
+msgid "Confirm playlist delete?"
+msgstr ""
+
+msgctxt "#30726"
+msgid "Are you sure you want to delete this playlist?"
+msgstr ""

@@ -10,10 +10,12 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import get_argv
 from ..addon.constants import CONFIG
+from ..addon.data_cache import DATA_CACHE
 from ..addon.logger import Logger
 from ..addon.strings import i18n
 from ..plex import plex
@@ -27,6 +29,7 @@ def run():
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]
     library_section_uuid = get_argv()[4]
+    playlist_type = get_argv()[5]
 
     server = plex_network.get_server_from_uuid(server_uuid)
 
@@ -36,17 +39,32 @@ def run():
 
     LOG.debug('choosing playlist: %s' % selected)
 
+    playlist_title = ''
+    if selected.get('key') == 'CREATEAPLAYLIST':
+        playlist_title = get_playlist_title(selected.get('title'))
+        if not playlist_title:
+            return
+
     item = server.get_metadata(metadata_id)[0]
     item_title = item.get('title', '')
     item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
-
-    response = server.add_playlist_item(selected.get('key'), library_section_uuid, metadata_id)
+    if playlist_type and playlist_title:
+        selected['title'] = playlist_title
+        response = server.create_playlist(metadata_id, playlist_title, playlist_type)
+    else:
+        response = server.add_playlist_item(selected.get('key'), library_section_uuid, metadata_id)
     if response and not response.get('status'):
-        leaf_added = int(response.get('leafCountAdded', 0))
-        leaf_requested = int(response.get('leafCountRequested', 0))
-        if leaf_added > 0 and leaf_added == leaf_requested:
+        if playlist_type and playlist_title:
+            success = response.get('size') == '1'
+        else:
+            leaf_added = int(response.get('leafCountAdded', 0))
+            leaf_requested = int(response.get('leafCountRequested', 0))
+            success = leaf_added > 0 and leaf_added == leaf_requested
+
+        if success:
             xbmcgui.Dialog().notification(CONFIG['name'], i18n('Added to the playlist') %
                                           (item_title, selected.get('title')), item_image)
+            DATA_CACHE.delete_cache(True)
             return
 
         xbmcgui.Dialog().notification(CONFIG['name'], i18n('is already in the playlist') %
@@ -58,7 +76,12 @@ def run():
 
 
 def playlist_user_select(server):
-    playlists = []
+    playlists = [{
+        'title': i18n('Create a playlist'),
+        'key': 'CREATEAPLAYLIST',
+        'image': CONFIG['icon'],
+        'summary': '',
+    }]
     tree = server.get_playlists()
     for playlist in tree.getiterator('Playlist'):
         image = ''
@@ -94,3 +117,14 @@ def playlist_user_select(server):
         return None
 
     return playlists[return_value]
+
+
+def get_playlist_title(heading):
+    keyboard = xbmc.Keyboard('', i18n('Enter a playlist title'))
+    keyboard.setHeading(heading)
+    keyboard.doModal()
+    if keyboard.isConfirmed():
+        playlist_title = keyboard.getText()
+        playlist_title = playlist_title.strip()
+        return playlist_title
+    return ''
