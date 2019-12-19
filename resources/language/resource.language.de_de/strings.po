@@ -909,7 +909,7 @@ msgstr "Beenden"
 
 msgctxt "#30634"
 msgid "Enter your myPlex details below"
-msgstr "Gebe unten die myPlex-Daten ein"
+msgstr "Gib unten die myPlex-Daten ein"
 
 #  30635
 
@@ -1187,92 +1187,92 @@ msgstr "Daten-Cache"
 
 msgctxt "#30704"
 msgid "Companion receiver is unable to start due to a port conflict"
-msgstr ""
+msgstr "Companion-Empfänger kann aufgrund eines Portkonflikts nicht gestartet werden"
 
 msgctxt "#30705"
 msgid "Companion receiver has started"
-msgstr ""
+msgstr "Companion-Empfänger wurde gestartet"
 
 msgctxt "#30706"
 msgid "Companion receiver has been stopped"
-msgstr ""
+msgstr "Companion-Empfänger wurde gestoppt"
 
 msgctxt "#30707"
 msgid "Companion Receiver"
-msgstr ""
+msgstr "Companion-Empfänger"
 
 msgctxt "#30708"
 msgid "Enabled"
-msgstr ""
+msgstr "Aktiviert"
 
 msgctxt "#30709"
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 msgctxt "#30710"
 msgid "Kodi's Web Server Settings"
-msgstr ""
+msgstr "Kodi's Webserver-Einstellungen"
 
 msgctxt "#30711"
 msgid "[COLOR=red]EXPERIMENTAL[/COLOR] - This feature is experimental[CR]Any changes to these settings will require a restart to take effect"
-msgstr ""
+msgstr "[COLOR=red]EXPERIMENTELL[/COLOR] - Dieses Feature ist experimentell[CR]Änderungen an diesen Einstellungen erfordern einen Neustart, damit sie wirksam werden"
 
 msgctxt "#30712"
 msgid "Username"
-msgstr ""
+msgstr "Benutzer"
 
 msgctxt "#30713"
 msgid "Password"
-msgstr ""
+msgstr "Passwort"
 
 msgctxt "#30714"
 msgid "Main Menu"
-msgstr ""
+msgstr "Hauptmenü"
 
 msgctxt "#30715"
 msgid "Show [B]myPlex Queue[/B] menu"
-msgstr ""
+msgstr "Zeige den Menüpunkt [B]myPlex Warteschlange[/B]"
 
 msgctxt "#30716"
 msgid "Show [B]Channels[/B] menu"
-msgstr ""
+msgstr "Zeige den Menüpunkt [B]Kanäle[/B]"
 
 msgctxt "#30717"
 msgid "Show [B]Plex Online[/B] menu"
-msgstr ""
+msgstr "Zeige den Menüpunkt [B]Plex Online[/B]"
 
 msgctxt "#30718"
 msgid "Show [B]Playlists[/B] menu"
-msgstr ""
+msgstr "Zeige den Menüpunkt [B]Wiedergabelisten[/B]"
 
 msgctxt "#30719"
 msgid "Context Menu"
-msgstr ""
+msgstr "Kontextmenü"
 
 msgctxt "#30720"
 msgid "Metadata"
-msgstr ""
+msgstr "Metadaten"
 
 msgctxt "#30721"
 msgid "Transcoding"
-msgstr ""
+msgstr "Transcoding"
 
 msgctxt "#30722"
 msgid "Create a playlist"
-msgstr ""
+msgstr "Wiedergabeliste erstellen"
 
 msgctxt "#30723"
 msgid "Enter a playlist title"
-msgstr ""
+msgstr "Titel der Wiedergabeliste"
 
 msgctxt "#30724"
 msgid "Delete playlist"
-msgstr ""
+msgstr "Wiedergabeliste löschen"
 
 msgctxt "#30725"
 msgid "Confirm playlist delete?"
-msgstr ""
+msgstr "Wiedergabeliste löschen?"
 
 msgctxt "#30726"
 msgid "Are you sure you want to delete this playlist?"
-msgstr ""
+msgstr "Wiedergabeliste wirklich löschen?"
