@@ -33,7 +33,6 @@ def create_photo_item(server, tree, url, photo, settings):
         'fanart_image': get_fanart_image(photo, server, settings),
         'type': 'image',
         'ratingKey': photo.get('ratingKey'),
-        'mode': MODES.PLAYLIBRARY
     }
 
     if extra_data['fanart_image'] == '':
@@ -43,10 +42,21 @@ def create_photo_item(server, tree, url, photo, settings):
 
     if photo.tag == 'Directory':
         extra_data['mode'] = MODES.PHOTOS
+        extra_data['type'] = 'folder'
         return create_gui_item(item_url, details, extra_data, settings=settings)
 
     if photo.tag == 'Photo' and (tree.get('viewGroup', '') == 'photo' or
                                  tree.get('playlistType') == 'photo'):
+        for pics in photo:
+            if pics.tag == 'Media':
+                parts = [img for img in pics if img.tag == 'Part']
+                for part in parts:
+                    extra_data['key'] = \
+                        server.get_formatted_url(part.get('key', ''))
+                    details['size'] = int(part.get('size', 0))
+                    details['picturepath'] = extra_data['key']
+                    item_url = extra_data['key']
+
         if tree.get('playlistType'):
             playlist_key = str(tree.get('ratingKey', 0))
             if photo.get('playlistItemID') and playlist_key:
@@ -65,8 +75,7 @@ def create_photo_item(server, tree, url, photo, settings):
         if not settings.get_setting('skipcontextmenus'):
             context = build_context_menu(item_url, extra_data, server, settings)
 
-        photo_url = '%s%s' % (server.get_url_location(), photo.get('key'))
-        return create_gui_item(photo_url, details, extra_data, context,
+        return create_gui_item(item_url, details, extra_data, context,
                                folder=False, settings=settings)
 
     return None

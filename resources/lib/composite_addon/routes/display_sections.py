@@ -79,6 +79,10 @@ def server_section_menus_items(server_list, content_filter, display_shared, sett
                           % (server.get_name(), section.get_title(), section.get_type()))
                 continue
 
+            if not settings.get_picture_mode() and section.is_photo():
+                # photos only work from the picture add-ons
+                continue
+
             if not settings.prefix_server() or (settings.prefix_server() and len(server_list) > 1):
                 details = {
                     'title': '%s: %s' % (server.get_name(), section.get_title())
