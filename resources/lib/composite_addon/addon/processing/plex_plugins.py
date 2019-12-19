@@ -33,7 +33,7 @@ def process_plex_plugins(settings, url, tree=None, plex_network=None):
     if plex_network is None:
         plex_network = plex.Plex(load=True)
 
-    xbmcplugin.setContent(get_handle(), 'addons')
+    xbmcplugin.setContent(get_handle(), 'files')
 
     server = plex_network.get_server_from_url(url)
     tree = get_xml(url, tree)
