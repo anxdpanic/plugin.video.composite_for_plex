@@ -40,13 +40,13 @@ def run():
     LOG.debug('choosing playlist: %s' % selected)
 
     playlist_title = ''
+    item = server.get_metadata(metadata_id)[0]
+    item_title = item.get('title', '')
     if selected.get('key') == 'CREATEAPLAYLIST':
-        playlist_title = get_playlist_title(selected.get('title'))
+        playlist_title = get_playlist_title(item_title)
         if not playlist_title:
             return
 
-    item = server.get_metadata(metadata_id)[0]
-    item_title = item.get('title', '')
     item_image = server.get_kodi_header_formatted_url(server.get_url_location() + item.get('thumb'))
     if playlist_type and playlist_title:
         selected['title'] = playlist_title
@@ -119,9 +119,8 @@ def playlist_user_select(server):
     return playlists[return_value]
 
 
-def get_playlist_title(heading):
-    keyboard = xbmc.Keyboard('', i18n('Enter a playlist title'))
-    keyboard.setHeading(heading)
+def get_playlist_title(line):
+    keyboard = xbmc.Keyboard(line, i18n('Enter a playlist title'))
     keyboard.doModal()
     if keyboard.isConfirmed():
         playlist_title = keyboard.getText()
