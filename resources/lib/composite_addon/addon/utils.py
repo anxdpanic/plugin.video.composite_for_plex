@@ -85,7 +85,9 @@ def create_gui_item(url, details, extra_data, context=None, folder=True, setting
         plugin_url += path_mode.rstrip('/') + '/'
 
     # Create the URL to pass to the item
-    if url.startswith('http') or url.startswith('file'):
+    if not folder and extra_data['type'] == 'image':
+        link_url = url
+    elif url.startswith('http') or url.startswith('file'):
         link_url = '%s?url=%s&mode=%s' % (plugin_url, quote(url), extra_data.get('mode', 0))
     else:
         link_url = '%s?url=%s&mode=%s' % (plugin_url, url, extra_data.get('mode', 0))
@@ -104,8 +106,7 @@ def create_gui_item(url, details, extra_data, context=None, folder=True, setting
 
     set_info_type = extra_data.get('type', 'Video')
     info_labels = copy.deepcopy(details)
-    if (set_info_type.lower() == 'folder' or set_info_type.lower() == 'file' or
-            extra_data['type'] == 'image'):
+    if set_info_type.lower() == 'folder' or set_info_type.lower() == 'file':
         set_info_type = 'Video'
 
     if set_info_type == 'Video':
