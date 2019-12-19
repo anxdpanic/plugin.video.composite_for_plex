@@ -153,6 +153,11 @@ def create_episode_item(server, tree, url, episode, settings, library=False):  #
                     'thumb': episode.get('grandparentThumb', '')
                 }, server, settings)
 
+    if tree.tag == 'MediaContainer':
+        extra_data.update({
+            'library_section_uuid': tree.get('librarySectionUUID')
+        })
+
     # Determine what type of watched flag [overlay] to use
     if int(episode.get('viewCount', 0)) > 0:
         details['playcount'] = 1
