@@ -389,6 +389,10 @@ def build_context_menu(url, item_data, server, settings):  # pylint: disable=too
                         'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s, %s)' %
                         (server.get_uuid(), item_id, item_data.get('library_section_uuid'),
                          playlist_type)))
+    elif item_data.get('playlist') is True:
+        context.append((i18n('Delete playlist'),
+                        'RunScript(' + CONFIG['id'] + ', delete_playlist, %s, %s)' %
+                        (server.get_uuid(), item_id)))
 
     if settings.get_setting('showdeletecontextmenu'):
         context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' %

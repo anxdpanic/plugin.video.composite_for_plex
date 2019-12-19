@@ -752,6 +752,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def delete_playlist_item(self, playlist_item_id, path):
         return self.process_xml(self.talk('%s/%s' % (path, playlist_item_id), method='delete'))
 
+    def delete_playlist(self, playlist_id):
+        return self.talk('/playlists/%s' % playlist_id, method='delete')
+
     def get_playlists(self):
         return self.processed_xml('/playlists')
 

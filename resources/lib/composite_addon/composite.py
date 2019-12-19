@@ -125,6 +125,11 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         set_master_server.run(settings)
         return _finished(start_time)
 
+    if command == COMMANDS.DELETEPLAYLIST:
+        from .routes import delete_playlist  # pylint: disable=import-outside-toplevel
+        delete_playlist.run()
+        return _finished(start_time)
+
     if command == COMMANDS.DELETEFROMPLAYLIST:
         from .routes import delete_playlist_item  # pylint: disable=import-outside-toplevel
         delete_playlist_item.run()

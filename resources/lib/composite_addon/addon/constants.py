@@ -28,6 +28,7 @@ COMMANDS = __enum(
     ADDTOPLAYLIST='add_playlist_item',
     AUDIO='audio',
     DELETE='delete',
+    DELETEPLAYLIST='delete_playlist',
     DELETEFROMPLAYLIST='delete_playlist_item',
     DELETEREFRESH='delete_refresh',
     DISPLAYSERVER='displayservers',

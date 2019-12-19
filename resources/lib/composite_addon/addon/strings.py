@@ -167,6 +167,9 @@ STRINGS = {
     'Companion receiver has been stopped': 30706,
     'Create a playlist': 30722,
     'Enter a playlist title': 30723,
+    'Delete playlist': 30724,
+    'Confirm playlist delete?': 30725,
+    'Are you sure you want to delete this playlist?': 30726,
 }
 
 

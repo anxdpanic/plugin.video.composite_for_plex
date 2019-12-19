@@ -13,6 +13,7 @@
 from ...addon.constants import MODES
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
+from ...addon.utils import build_context_menu
 from ...addon.utils import create_gui_item
 from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
@@ -25,6 +26,8 @@ def create_playlist_item(url, server, track, settings, listing=True):
     }
 
     extra_data = {
+        'playlist': True,
+        'ratingKey': track.get('ratingKey'),
         'type': track.get('playlistType', ''),
         'thumb': get_thumb_image({
             'thumb': track.get('composite', '')
@@ -39,7 +42,12 @@ def create_playlist_item(url, server, track, settings, listing=True):
 
     item_url = get_link_url(url, track, server)
 
+    context = None
+    if not settings.get_setting('skipcontextmenus'):
+        context = build_context_menu(item_url, extra_data, server, settings)
+
     if listing:
-        return create_gui_item(item_url, details, extra_data, folder=True, settings=settings)
+        return create_gui_item(item_url, details, extra_data, context,
+                               folder=True, settings=settings)
 
     return url, details
