@@ -15,6 +15,7 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import get_argv
 from ..addon.constants import CONFIG
+from ..addon.data_cache import DATA_CACHE
 from ..addon.logger import Logger
 from ..addon.strings import i18n
 from ..plex import plex
@@ -51,6 +52,7 @@ def run():
         if response and not response.get('status'):
             xbmcgui.Dialog().notification(CONFIG['name'], i18n('has been removed the playlist') %
                                           (item_title, playlist_title), item_image)
+            DATA_CACHE.delete_cache(True)
             xbmc.executebuiltin('Container.Refresh')
             return
 
