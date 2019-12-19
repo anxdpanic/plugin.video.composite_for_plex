@@ -39,6 +39,8 @@ def create_playlist_item(url, server, track, settings, listing=True):
         extra_data['mode'] = MODES.MOVIES
     elif extra_data['type'] == 'audio':
         extra_data['mode'] = MODES.TRACKS
+    elif extra_data['type'] == 'photo':
+        extra_data['mode'] = MODES.PHOTOS
 
     item_url = get_link_url(url, track, server)
 

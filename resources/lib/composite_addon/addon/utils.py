@@ -387,6 +387,9 @@ def build_context_menu(url, item_data, server, settings):  # pylint: disable=too
             playlist_type = 'audio'
         elif item_type == 'video':
             playlist_type = 'video'
+        elif item_type == 'image':
+            playlist_type = 'photo'
+
         context.append((i18n('Add to playlist'),
                         'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s, %s)' %
                         (COMMANDS.ADDTOPLAYLIST, server.get_uuid(), item_id,
