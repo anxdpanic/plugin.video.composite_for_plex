@@ -13,6 +13,7 @@
 from ...addon.constants import MODES
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
+from ...addon.utils import build_context_menu
 from ...addon.utils import create_gui_item
 from ...addon.utils import get_fanart_image
 from ...addon.utils import get_link_url
@@ -30,7 +31,9 @@ def create_photo_item(server, tree, url, photo, settings):
     extra_data = {
         'thumb': get_thumb_image(photo, server, settings),
         'fanart_image': get_fanart_image(photo, server, settings),
-        'type': 'image'
+        'type': 'image',
+        'ratingKey': photo.get('ratingKey'),
+        'mode': MODES.PLAYLIBRARY
     }
 
     if extra_data['fanart_image'] == '':
@@ -42,16 +45,28 @@ def create_photo_item(server, tree, url, photo, settings):
         extra_data['mode'] = MODES.PHOTOS
         return create_gui_item(item_url, details, extra_data, settings=settings)
 
-    if photo.tag == 'Photo' and tree.get('viewGroup', '') == 'photo':
-        for pics in photo:
-            if pics.tag == 'Media':
-                parts = [img for img in pics if img.tag == 'Part']
-                for part in parts:
-                    extra_data['key'] = \
-                        server.get_url_location() + part.get('key', '')
-                    details['size'] = int(part.get('size', 0))
-                    item_url = extra_data['key']
+    if photo.tag == 'Photo' and (tree.get('viewGroup', '') == 'photo' or
+                                 tree.get('playlistType') == 'photo'):
+        if tree.get('playlistType'):
+            playlist_key = str(tree.get('ratingKey', 0))
+            if photo.get('playlistItemID') and playlist_key:
+                extra_data.update({
+                    'playlist_item_id': photo.get('playlistItemID'),
+                    'playlist_title': tree.get('title'),
+                    'playlist_url': '/playlists/%s/items' % playlist_key
+                })
 
-        return create_gui_item(item_url, details, extra_data, folder=False, settings=settings)
+        if tree.tag == 'MediaContainer':
+            extra_data.update({
+                'library_section_uuid': tree.get('librarySectionUUID')
+            })
+
+        context = None
+        if not settings.get_setting('skipcontextmenus'):
+            context = build_context_menu(item_url, extra_data, server, settings)
+
+        photo_url = '%s%s' % (server.get_url_location(), photo.get('key'))
+        return create_gui_item(photo_url, details, extra_data, context,
+                               folder=False, settings=settings)
 
     return None
