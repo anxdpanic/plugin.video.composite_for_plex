@@ -31,7 +31,6 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
     To add Composite (Plex) media to your library, add a video source for movies/tv shows.
  
     - Will not have support for most Plex features.
-    - Watched status is not imported to your library, Plex's watched status will still be updated on playback.
     
     #### Sources
    
@@ -71,6 +70,5 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
 
 This add-on is a fork of PleXBMC by Hippojay
 
-https://github.com/hippojay/plugin.video.plexbmc
-
+https://github.com/hippojay/plugin.video.plexbmc <br/>
 https://github.com/Tgxcorporation/plugin.video.plexbmc
