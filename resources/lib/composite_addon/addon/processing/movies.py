@@ -16,6 +16,7 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ...addon.common import get_handle
 from ...addon.items.movie import create_movie_item
+from ...addon.items.photo import create_photo_item
 from ...addon.items.track import create_track_item
 from ...addon.logger import Logger
 from ...addon.utils import get_xml
@@ -53,8 +54,10 @@ def process_movies(settings, url, tree=None, plex_network=None):
     for movie in tree:
         if movie.tag.lower() == 'video':
             items.append(create_movie_item(server, tree, url, movie, settings))
-        elif movie.tag.lower() == 'track':
+        elif movie.tag.lower() == 'track':  # mixed content video playlist
             items.append(create_track_item(server, tree, movie, settings))
+        elif movie.tag.lower() == 'photo':  # mixed content video playlist
+            items.append(create_photo_item(server, tree, url, movie, settings))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
