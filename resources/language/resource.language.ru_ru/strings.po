@@ -1231,3 +1231,11 @@ msgstr ""
 msgctxt "#30721"
 msgid "Transcoding"
 msgstr ""
+
+msgctxt "#30722"
+msgid "Create a playlist"
+msgstr ""
+
+msgctxt "#30723"
+msgid "Enter a playlist title"
+msgstr ""

@@ -15,6 +15,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
+[add] Playlist creation
 [fix] add basic path protection to cache related actions
 [fix] only allow one dialog at a time ie. accidentally opening multiple sign in dialogs
 [fix] Settings - Server - Manage myPlex when sign in required

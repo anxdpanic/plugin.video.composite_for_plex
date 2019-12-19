@@ -165,6 +165,8 @@ STRINGS = {
     'Companion receiver is unable to start due to a port conflict': 30704,
     'Companion receiver has started': 30705,
     'Companion receiver has been stopped': 30706,
+    'Create a playlist': 30722,
+    'Enter a playlist title': 30723,
 }
 
 

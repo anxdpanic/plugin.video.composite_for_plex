@@ -341,7 +341,7 @@ def get_xml(url, tree=None, plex_network=None):
     return tree
 
 
-def build_context_menu(url, item_data, server, settings):
+def build_context_menu(url, item_data, server, settings):  # pylint: disable=too-many-locals
     context = []
     url_parts = urlparse(url)
     section = url_parts.path.split('/')[3]
@@ -380,9 +380,15 @@ def build_context_menu(url, item_data, server, settings):
                         % (server.get_uuid(), item_id, playlist_title,
                            item_data.get('playlist_item_id'), playlist_url)))
     elif item_data.get('library_section_uuid'):
+        playlist_type = ''
+        if item_type == 'music':
+            playlist_type = 'audio'
+        elif item_type == 'video':
+            playlist_type = 'video'
         context.append((i18n('Add to playlist'),
-                        'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s)' %
-                        (server.get_uuid(), item_id, item_data.get('library_section_uuid'))))
+                        'RunScript(' + CONFIG['id'] + ', add_playlist_item, %s, %s, %s, %s)' %
+                        (server.get_uuid(), item_id, item_data.get('library_section_uuid'),
+                         playlist_type)))
 
     if settings.get_setting('showdeletecontextmenu'):
         context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', delete, %s, %s)' %
