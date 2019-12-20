@@ -577,7 +577,7 @@ msgstr "Verwende Wake on LAN?"
 
 msgctxt "#30549"
 msgid "Skip Genre/director/writer"
-msgstr "Genre-/Regisseur-/Author-Metadaten überspringen"
+msgstr "Informationen über Genre/Regisseur/Author überspringen"
 
 msgctxt "#30550"
 msgid "Skip images (thumbs, fanart)"
@@ -1143,7 +1143,7 @@ msgstr "Widgets"
 
 msgctxt "#30693"
 msgid "Show [B]Widgets[/B] menu"
-msgstr "Widgets-Menü anzeigen"
+msgstr "Zeige den Menüpunkt [B]Widgets[/B]"
 
 msgctxt "#30694"
 msgid "Clear Caches"
