@@ -21,7 +21,7 @@ LOG = Logger()
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     servers = context.plex_network.get_server_list()
 
     display_list = []

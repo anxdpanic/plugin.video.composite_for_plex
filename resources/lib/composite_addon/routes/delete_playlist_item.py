@@ -24,7 +24,7 @@ LOG = Logger()
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]

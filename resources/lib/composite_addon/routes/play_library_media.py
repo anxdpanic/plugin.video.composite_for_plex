@@ -19,7 +19,7 @@ from ..plex import plex
 
 def run(context, url=None, server_uuid=None, media_id=None, force=None, transcode=False,  # pylint: disable=too-many-arguments
         transcode_profile=0):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     if transcode and transcode_profile is None:
         transcode_profile = get_transcode_profile(context)

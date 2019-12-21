@@ -16,7 +16,7 @@ from ..plex import plexsignin
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=False, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=False)
     plexsignin.sign_out(context)
     context.plex_network.delete_cache()
     DATA_CACHE.delete_cache(True)

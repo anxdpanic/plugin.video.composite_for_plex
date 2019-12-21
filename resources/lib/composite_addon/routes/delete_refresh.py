@@ -17,7 +17,7 @@ from ..plex import plex
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=False, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=False)
     context.plex_network.delete_cache()
     DATA_CACHE.delete_cache(True)
     xbmc.executebuiltin('Container.Refresh')

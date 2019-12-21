@@ -19,7 +19,7 @@ LOG = Logger()
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=False, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=False)
     _ = plexsignin.sign_in_to_plex(context)
     context.plex_network.delete_cache()
     DATA_CACHE.delete_cache(True)

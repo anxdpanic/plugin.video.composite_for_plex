@@ -27,7 +27,7 @@ def run(context):  # pylint: disable=too-many-locals
         The currently selected stream will be annotated with a *
     """
 
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]

@@ -31,7 +31,7 @@ LOG = Logger()
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     for param in ['video_type', 'title', 'year']:  # check for expected common parameters
         if param not in context.params:

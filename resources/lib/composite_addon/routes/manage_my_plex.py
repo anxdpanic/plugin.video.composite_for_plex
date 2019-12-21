@@ -21,7 +21,7 @@ LOG = Logger()
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=False, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=False)
 
     has_access = True
     if not context.plex_network.is_myplex_signedin():
@@ -31,7 +31,7 @@ def run(context):
                                              'Continue to sign in, or cancel to return'))
         if result:
             has_access = plexsignin.sign_in_to_plex(context, refresh=False)
-            context.plex_network = plex.Plex(load=False, settings=context.settings)
+            context.plex_network = plex.Plex(context.settings, load=False)
 
     elif not context.plex_network.is_admin():
         has_access = False

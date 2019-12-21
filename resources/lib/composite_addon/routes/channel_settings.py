@@ -32,7 +32,7 @@ def run(context, url, setting_id):
         @ return: nothing
     """
 
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     LOG.debug('Setting preference for ID: %s' % setting_id)
 

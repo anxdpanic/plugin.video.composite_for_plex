@@ -23,7 +23,7 @@ LOG = Logger()
 
 
 def run(context, url):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     if url.startswith('file'):
         LOG.debug('We are playing a local file')
         # Split out the path from the URL
