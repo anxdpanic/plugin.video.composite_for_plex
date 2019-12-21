@@ -10,6 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from ..addon.data_cache import DATA_CACHE
 from ..plex import plex
 from ..plex import plexsignin
 
@@ -17,3 +18,5 @@ from ..plex import plexsignin
 def run(context):
     context.plex_network = plex.Plex(load=False, settings=context.settings)
     plexsignin.sign_out(context)
+    context.plex_network.delete_cache()
+    DATA_CACHE.delete_cache(True)
