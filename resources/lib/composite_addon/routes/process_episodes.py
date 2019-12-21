@@ -15,5 +15,5 @@ from ..plex import plex
 
 
 def run(context, url, rating_key=None, library=False):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     process_episodes(context, url, rating_key=rating_key, library=library)

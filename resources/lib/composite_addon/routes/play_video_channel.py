@@ -26,7 +26,7 @@ LOG = Logger()
 
 
 def run(context, url, prefix=None, indirect=None, transcode=False):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     server = context.plex_network.get_server_from_url(url)
     if 'node.plexapp.com' in url:

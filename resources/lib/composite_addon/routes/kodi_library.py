@@ -27,7 +27,7 @@ def run(context):
 
     if kodi_action == 'check_exists' and context.params.get('url'):
         exists = False
-        context.plex_network = plex.Plex(load=True, settings=context.settings)
+        context.plex_network = plex.Plex(context.settings, load=True)
         server = context.plex_network.get_server_from_url(context.params.get('url'))
         if server:
             tree = server.processed_xml(context.params.get('url'))
@@ -42,13 +42,13 @@ def run(context):
 
     elif kodi_action == 'refresh_info' and context.params.get('url'):
         LOG.debug('refresh info for %s' % context.params.get('url'))
-        context.plex_network = plex.Plex(load=True, settings=context.settings)
+        context.plex_network = plex.Plex(context.settings, load=True)
         server = context.plex_network.get_server_from_url(context.params.get('url'))
         _list_content(context, server, context.params.get('url'))
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
     else:
-        context.plex_network = plex.Plex(load=True, settings=context.settings)
+        context.plex_network = plex.Plex(context.settings, load=True)
         server_list = context.plex_network.get_server_list()
         LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 

@@ -43,7 +43,7 @@ def run(context, url=None, server_uuid=None, mode=None):
         @input: URL of XML page
         @return: nothing, redirects to another function
     """
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     if server_uuid and mode:
         server = context.plex_network.get_server_from_uuid(server_uuid)

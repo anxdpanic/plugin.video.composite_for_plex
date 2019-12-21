@@ -29,7 +29,7 @@ def run(context, url, prompt):
         and accept the terms.  This URL is then fed back into the correct function for
         onward processing.
     """
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     if prompt:
         prompt = unquote(prompt)

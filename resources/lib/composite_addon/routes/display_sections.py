@@ -25,7 +25,7 @@ LOG = Logger()
 
 
 def run(context, content_filter=None, display_shared=False):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     xbmcplugin.setContent(get_handle(), 'files')
 
     server_list = context.plex_network.get_server_list()

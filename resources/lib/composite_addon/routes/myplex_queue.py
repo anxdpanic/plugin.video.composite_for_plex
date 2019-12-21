@@ -19,7 +19,7 @@ from ..plex import plex
 
 
 def run(context):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     if not context.plex_network.is_myplex_signedin():
         xbmcgui.Dialog().notification(heading=CONFIG['name'],
                                       message=i18n('myPlex not configured'),

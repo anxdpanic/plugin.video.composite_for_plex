@@ -26,7 +26,7 @@ LOG = Logger()
 
 
 def run(context, url):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     content_type = url.split('/')[2]
     LOG.debug('Displaying entries for %s' % content_type)
     servers = context.plex_network.get_server_list()

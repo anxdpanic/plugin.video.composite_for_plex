@@ -24,7 +24,7 @@ LOG = Logger()
 
 
 def run(context, url, name):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
 
     tree = get_xml(context, url)
     if tree is None:

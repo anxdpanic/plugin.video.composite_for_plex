@@ -24,7 +24,7 @@ LOG = Logger()
 
 
 def run(context):  # pylint: disable=too-many-locals
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]
     library_section_uuid = get_argv()[4]

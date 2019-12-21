@@ -19,7 +19,7 @@ from ..plex import plex
 
 
 def run(context, url):
-    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    context.plex_network = plex.Plex(context.settings, load=True)
     server = context.plex_network.get_server_from_url(url)
 
     sections = server.get_sections()

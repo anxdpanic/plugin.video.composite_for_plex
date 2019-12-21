@@ -28,7 +28,6 @@ from ..addon.common import get_platform_ip
 from ..addon.common import is_ip
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
-from ..addon.settings import AddonSettings
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
 from .plexcommon import create_plex_identification
@@ -42,12 +41,8 @@ LOG = Logger('plex')
 
 class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
 
-    def __init__(self, load=False, settings=None):
-        if settings is None:
-            self.settings = AddonSettings()
-        else:
-            self.settings = settings
-
+    def __init__(self, settings, load=False):
+        self.settings = settings
         # Provide an interface into Plex
         self.cache = cache_control.CacheControl('servers', self.settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'
