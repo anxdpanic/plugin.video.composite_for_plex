@@ -40,7 +40,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.set_navigation()
         # Connect Backspace button to close our addon.
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
-        self.plex_network = None
+        self.context = None
         self.identifier = None
         self.window = window
         self.data = {}
@@ -59,8 +59,8 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.display_pin()
         self.doModal()
 
-    def set_authentication_target(self, plex_network):
-        self.plex_network = plex_network
+    def set_context(self, context):
+        self.context = context
 
     def set_controls(self):
         """Set up UI controls"""
@@ -170,7 +170,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.manual_button.setNavigation(self.cancel_button, self.submit_pin_button,
                                          self.submit_pin_button, self.cancel_button)
 
-        self.data = self.plex_network.get_signin_pin()
+        self.data = self.context.plex_network.get_signin_pin()
 
         digits = self.data['code']
         self.identifier = self.data['id']
@@ -216,8 +216,8 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
             self.display_failure(False)
 
     def submit(self):
-        token = self.plex_network.sign_into_myplex(self.name_field.getText(),
-                                                   self.password_field.getText())
+        token = self.context.plex_network.sign_into_myplex(self.name_field.getText(),
+                                                           self.password_field.getText())
 
         if token is not None:
             self.display_failure(False)
@@ -244,7 +244,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
             self.display_manual(True)
 
     def submit_pin(self):
-        result = self.plex_network.check_signin_status(self.identifier)
+        result = self.context.plex_network.check_signin_status(self.identifier)
 
         if result:
             self.display_failure(False)
@@ -280,7 +280,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         # Set initial focus.
 
     def signed_in(self):
-        return self.plex_network.is_myplex_signedin()
+        return self.context.plex_network.is_myplex_signedin()
 
 
 # noinspection PyAttributeOutsideInit
@@ -297,7 +297,7 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.set_navigation()
         # Connect Backspace button to close our addon.
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
-        self.plex_network = None
+        self.context = None
         self.window = window
 
     def __enter__(self):
@@ -316,7 +316,7 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.doModal()
 
     def gather_plex_information(self):
-        user = self.plex_network.get_myplex_information()
+        user = self.context.plex_network.get_myplex_information()
 
         self.name_field.addLabel(user['username'])
         self.email_field.addLabel(user['email'])
@@ -325,8 +325,8 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         if user['thumb']:
             self.thumb.setImage(user['thumb'])
 
-    def set_authentication_target(self, plex_network):
-        self.plex_network = plex_network
+    def set_context(self, context):
+        self.context = context
 
     def set_controls(self):
         """Set up UI controls"""
@@ -385,13 +385,13 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         self.connect(self.signout_button, lambda: self.signout())  # pylint: disable=unnecessary-lambda
 
     def switch(self):
-        switched = switch_user(self.plex_network, refresh=False)
+        switched = switch_user(self.context, refresh=False)
         if switched:
             self.close()
 
     def signout(self):
-        sign_out(self.plex_network, refresh=False)
-        if not self.plex_network.is_myplex_signedin():
+        sign_out(self.context, refresh=False)
+        if not self.context.plex_network.is_myplex_signedin():
             self.close()
 
     def set_navigation(self):
@@ -407,7 +407,7 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
 def manage_plex(context):
     try:
         with PlexManage(i18n('Manage myPlex'), window=xbmcgui.Window(10000)) as dialog:
-            dialog.set_authentication_target(context.plex_network)
+            dialog.set_context(context)
             dialog.start()
     except AlreadyActiveException:
         pass
@@ -419,7 +419,7 @@ def sign_in_to_plex(context, refresh=True):
     status = False
     try:
         with PlexSignin(i18n('myPlex Login'), window=xbmcgui.Window(10000)) as dialog:
-            dialog.set_authentication_target(context.plex_network)
+            dialog.set_context(context)
             dialog.start()
             status = dialog.signed_in()
     except AlreadyActiveException:
