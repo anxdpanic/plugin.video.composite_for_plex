@@ -21,7 +21,7 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(context):  # pylint: disable=too-many-locals
+def run(context):
     """
         Display a list of available Subtitle streams and allow a user to select one.
         The currently selected stream will be annotated with a *

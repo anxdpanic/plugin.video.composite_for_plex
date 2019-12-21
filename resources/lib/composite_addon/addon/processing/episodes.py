@@ -20,7 +20,7 @@ from ...addon.utils import get_xml
 LOG = Logger()
 
 
-def process_episodes(context, url, tree=None, rating_key=None, library=False):  # pylint: disable=too-many-arguments
+def process_episodes(context, url, tree=None, rating_key=None, library=False):
     xbmcplugin.setContent(get_handle(), 'episodes')
 
     if not url.startswith(('http', 'file')) and rating_key:
