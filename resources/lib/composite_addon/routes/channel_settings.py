@@ -23,7 +23,7 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(url, setting_id):
+def run(context, url, setting_id):
     """
         Take the setting XML and parse it to create an updated
         string with the new settings.  For the selected value, create
@@ -32,7 +32,7 @@ def run(url, setting_id):
         @ return: nothing
     """
 
-    plex_network = plex.Plex(load=True)
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
 
     LOG.debug('Setting preference for ID: %s' % setting_id)
 
@@ -40,7 +40,7 @@ def run(url, setting_id):
         LOG.debug('ID not set')
         return
 
-    tree = get_xml(url)
+    tree = get_xml(context, url)
     if tree is None:
         return
 
@@ -92,5 +92,5 @@ def run(url, setting_id):
     set_url += urlencode(set_params)
 
     LOG.debug('Settings URL: %s' % set_url)
-    plex_network.talk_to_server(set_url)
+    context.plex_network.talk_to_server(set_url)
     xbmc.executebuiltin('Container.Refresh')

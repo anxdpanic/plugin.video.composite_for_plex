@@ -23,12 +23,11 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 from ...addon.utils import get_xml
-from ...plex import plex
 from .episodes import process_episodes
 from .movies import process_movies
 
 
-def process_xml(settings, url, tree=None, plex_network=None):
+def process_xml(context, url, tree=None):
     """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -36,13 +35,11 @@ def process_xml(settings, url, tree=None, plex_network=None):
         @input: plugin page URL
         @return: nothing, creates Kodi GUI listing
     """
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
 
     xbmcplugin.setContent(get_handle(), 'movies')
 
-    server = plex_network.get_server_from_url(url)
-    tree = get_xml(url, tree)
+    server = context.plex_network.get_server_from_url(url)
+    tree = get_xml(context, url, tree)
 
     if tree is None:
         return
@@ -58,36 +55,36 @@ def process_xml(settings, url, tree=None, plex_network=None):
             details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
 
         extra_data = {
-            'thumb': get_thumb_image(plugin, server, settings),
-            'fanart_image': get_fanart_image(plugin, server, settings),
+            'thumb': get_thumb_image(context, server, plugin),
+            'fanart_image': get_fanart_image(context, server, plugin),
             'identifier': tree.get('identifier', ''),
             'type': 'Video'
         }
 
         if extra_data['fanart_image'] == '':
-            extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
+            extra_data['fanart_image'] = get_fanart_image(context, server, tree)
 
-        _url = get_link_url(url, plugin, server)
+        _url = get_link_url(server, url, plugin)
 
         if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
             extra_data['mode'] = MODES.PROCESSXML
-            items.append(create_gui_item(_url, details, extra_data, settings=settings))
+            items.append(create_gui_item(context, _url, details, extra_data))
 
         elif plugin.tag == 'Track':
-            items.append(create_track_item(server, tree, plugin, settings))
+            items.append(create_track_item(context, server, tree, plugin))
 
         elif plugin.tag == 'Playlist':
-            items.append(create_playlist_item(url, server, plugin, settings))
+            items.append(create_playlist_item(context, url, server, plugin))
 
         elif tree.get('viewGroup') == 'movie':
-            process_movies(url, tree, plex_network=plex_network)
+            process_movies(context, url, tree)
             return
 
         elif tree.get('viewGroup') == 'episode':
-            process_episodes(url, tree, plex_network=plex_network)
+            process_episodes(context, url, tree)
             return
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

@@ -14,6 +14,6 @@ from ..plex import plex
 from ..plex import plexsignin
 
 
-def run():
-    plex_network = plex.Plex(load=False)
-    plexsignin.sign_out(plex_network)
+def run(context):
+    context.plex_network = plex.Plex(load=False, settings=context.settings)
+    plexsignin.sign_out(context)

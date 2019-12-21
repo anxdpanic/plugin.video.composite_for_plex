@@ -23,15 +23,14 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run():
-    plex_network = plex.Plex(load=True)
-
+def run(context):  # pylint: disable=too-many-locals
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]
     library_section_uuid = get_argv()[4]
     playlist_type = get_argv()[5]
 
-    server = plex_network.get_server_from_uuid(server_uuid)
+    server = context.plex_network.get_server_from_uuid(server_uuid)
 
     selected = playlist_user_select(server)
     if selected is None:

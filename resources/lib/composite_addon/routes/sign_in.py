@@ -17,6 +17,6 @@ from ..plex import plexsignin
 LOG = Logger()
 
 
-def run():
-    plex_network = plex.Plex(load=False)
-    _ = plexsignin.sign_in_to_plex(plex_network)
+def run(context):
+    context.plex_network = plex.Plex(load=False, settings=context.settings)
+    _ = plexsignin.sign_in_to_plex(context)

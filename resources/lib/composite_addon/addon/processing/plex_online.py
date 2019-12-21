@@ -15,26 +15,22 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.plex_online import create_plex_online_item
 from ...addon.utils import get_xml
-from ...plex import plex
 
 
-def process_plex_online(settings, url, plex_network=None):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def process_plex_online(context, url):
     xbmcplugin.setContent(get_handle(), 'files')
 
-    server = plex_network.get_server_from_url(url)
+    server = context.plex_network.get_server_from_url(url)
 
-    tree = get_xml(url)
+    tree = get_xml(context, url)
     if tree is None:
         return
 
     items = []
     for plugin in tree:
-        items.append(create_plex_online_item(server, url, plugin, settings))
+        items.append(create_plex_online_item(context, server, url, plugin))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

@@ -21,18 +21,18 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run():
+def run(context):  # pylint: disable=too-many-locals
     """
         Display a list of available Subtitle streams and allow a user to select one.
         The currently selected stream will be annotated with a *
     """
 
-    plex_network = plex.Plex(load=True)
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
 
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]
 
-    server = plex_network.get_server_from_uuid(server_uuid)
+    server = context.plex_network.get_server_from_uuid(server_uuid)
     tree = server.get_metadata(metadata_id)
 
     sub_list = ['']

@@ -17,7 +17,7 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_thumb_image
 
 
-def create_artist_item(server, artist, settings):
+def create_artist_item(context, server, artist):
     details = {
         'artist': encode_utf8(artist.get('title', ''))
     }
@@ -26,8 +26,8 @@ def create_artist_item(server, artist, settings):
 
     extra_data = {
         'type': 'Music',
-        'thumb': get_thumb_image(artist, server, settings),
-        'fanart_image': get_fanart_image(artist, server, settings),
+        'thumb': get_thumb_image(context, server, artist),
+        'fanart_image': get_fanart_image(context, server, artist),
         'ratingKey': artist.get('title', ''),
         'key': artist.get('key', ''),
         'mode': MODES.ALBUMS,
@@ -37,4 +37,4 @@ def create_artist_item(server, artist, settings):
 
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    return create_gui_item(url, details, extra_data, settings=settings)
+    return create_gui_item(context, url, details, extra_data)

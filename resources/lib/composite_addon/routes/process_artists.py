@@ -14,6 +14,6 @@ from ..addon.processing.artists import process_artists
 from ..plex import plex
 
 
-def run(settings, url):
-    plex_network = plex.Plex(load=True)
-    process_artists(settings, url, plex_network=plex_network)
+def run(context, url):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    process_artists(context, url)

@@ -27,7 +27,7 @@ from ...addon.utils import get_thumb_image
 LOG = Logger()
 
 
-def create_show_item(server, url, show, settings, library=False):
+def create_show_item(context, server, url, show, library=False):
     temp_genre = []
 
     for child in show:
@@ -58,9 +58,9 @@ def create_show_item(server, url, show, settings, library=False):
         'UnWatchedEpisodes': int(details['episode']) - _watched,
         'WatchedEpisodes': _watched,
         'TotalEpisodes': details['episode'],
-        'thumb': get_thumb_image(show, server, settings),
-        'fanart_image': get_fanart_image(show, server, settings),
-        'banner': get_banner_image(show, server, settings),
+        'thumb': get_thumb_image(context, server, show),
+        'fanart_image': get_fanart_image(context, server, show),
+        'banner': get_banner_image(context, server, show),
         'key': show.get('key', ''),
         'ratingKey': str(show.get('ratingKey', 0))
     }
@@ -74,7 +74,7 @@ def create_show_item(server, url, show, settings, library=False):
         extra_data['partialTV'] = 1
 
     # Create URL based on whether we are going to flatten the season view
-    if settings.get_setting('flatten') == '2':
+    if context.settings.get_setting('flatten') == '2':
         LOG.debug('Flattening all shows')
         extra_data['mode'] = MODES.TVEPISODES
         item_url = '%s%s' % (server.get_url_location(),
@@ -83,16 +83,16 @@ def create_show_item(server, url, show, settings, library=False):
         extra_data['mode'] = MODES.TVSEASONS
         item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    context = None
-    if not settings.get_setting('skipcontextmenus'):
-        context = build_context_menu(url, extra_data, server, settings)
+    context_menu = None
+    if not context.settings.get_setting('skipcontextmenus'):
+        context_menu = build_context_menu(context, server, url, extra_data)
 
     if library:
         extra_data['hash'] = \
             _md5_all_episodes(server, extra_data['key'], details.get('TVShowTitle', ''))
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
-    return create_gui_item(item_url, details, extra_data, context, settings=settings)
+    return create_gui_item(context, item_url, details, extra_data, context_menu)
 
 
 def _md5_all_episodes(server, url, title):

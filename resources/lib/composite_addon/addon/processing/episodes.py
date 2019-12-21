@@ -16,25 +16,21 @@ from ...addon.common import get_handle
 from ...addon.items.episode import create_episode_item
 from ...addon.logger import Logger
 from ...addon.utils import get_xml
-from ...plex import plex
 
 LOG = Logger()
 
 
-def process_episodes(settings, url, tree=None, rating_key=None, plex_network=None, library=False):  # pylint: disable=too-many-arguments
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def process_episodes(context, url, tree=None, rating_key=None, library=False):  # pylint: disable=too-many-arguments
     xbmcplugin.setContent(get_handle(), 'episodes')
 
     if not url.startswith(('http', 'file')) and rating_key:
         # Get URL, XML and parse
-        server = plex_network.get_server_from_uuid(url)
+        server = context.plex_network.get_server_from_uuid(url)
         url = server.get_url_location() + '/library/metadata/%s/children' % str(rating_key)
     else:
-        server = plex_network.get_server_from_url(url)
+        server = context.plex_network.get_server_from_url(url)
 
-    tree = get_xml(url, tree)
+    tree = get_xml(context, url, tree)
     if tree is None:
         return
 
@@ -56,9 +52,9 @@ def process_episodes(settings, url, tree=None, rating_key=None, plex_network=Non
     items = []
     show_tags = tree.findall('Video')
     for episode in show_tags:
-        items.append(create_episode_item(server, tree, url, episode, settings, library=library))
+        items.append(create_episode_item(context, server, tree, url, episode, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

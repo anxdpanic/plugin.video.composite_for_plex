@@ -20,7 +20,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 
 
-def create_photo_item(server, tree, url, photo, settings):
+def create_photo_item(context, server, tree, url, photo):
     details = {
         'title': encode_utf8(photo.get('title', photo.get('name', i18n('Unknown'))))
     }
@@ -29,21 +29,21 @@ def create_photo_item(server, tree, url, photo, settings):
         details['title'] = i18n('Unknown')
 
     extra_data = {
-        'thumb': get_thumb_image(photo, server, settings),
-        'fanart_image': get_fanart_image(photo, server, settings),
+        'thumb': get_thumb_image(context, server, photo),
+        'fanart_image': get_fanart_image(context, server, photo),
         'type': 'image',
         'ratingKey': photo.get('ratingKey'),
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
+        extra_data['fanart_image'] = get_fanart_image(context, server, tree)
 
-    item_url = get_link_url(url, photo, server)
+    item_url = get_link_url(server, url, photo)
 
     if photo.tag == 'Directory':
         extra_data['mode'] = MODES.PHOTOS
         extra_data['type'] = 'folder'
-        return create_gui_item(item_url, details, extra_data, settings=settings)
+        return create_gui_item(context, item_url, details, extra_data)
 
     if photo.tag == 'Photo' and (tree.get('viewGroup', '') == 'photo' or
                                  tree.get('playlistType') == 'photo'):
@@ -71,11 +71,10 @@ def create_photo_item(server, tree, url, photo, settings):
                 'library_section_uuid': tree.get('librarySectionUUID')
             })
 
-        context = None
-        if not settings.get_setting('skipcontextmenus'):
-            context = build_context_menu(item_url, extra_data, server, settings)
+        context_menu = None
+        if not context.settings.get_setting('skipcontextmenus'):
+            context_menu = build_context_menu(context, server, item_url, extra_data)
 
-        return create_gui_item(item_url, details, extra_data, context,
-                               folder=False, settings=settings)
+        return create_gui_item(context, item_url, details, extra_data, context_menu, folder=False)
 
     return None

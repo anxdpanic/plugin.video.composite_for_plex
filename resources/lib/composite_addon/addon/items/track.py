@@ -24,7 +24,7 @@ from ...addon.utils import get_thumb_image
 LOG = Logger()
 
 
-def create_track_item(server, tree, track, settings, listing=True):
+def create_track_item(context, server, tree, track, listing=True):
     part_details = ()
 
     for child in track:
@@ -45,11 +45,11 @@ def create_track_item(server, tree, track, settings, listing=True):
         'mediatype': 'song'
     }
 
-    section_art = get_fanart_image(tree, server, settings)
+    section_art = get_fanart_image(context, server, tree)
     if track.get('thumb'):
-        section_thumb = get_thumb_image(track, server, settings)
+        section_thumb = get_thumb_image(context, server, track)
     else:
-        section_thumb = get_thumb_image(tree, server, settings)
+        section_thumb = get_thumb_image(context, server, tree)
 
     extra_data = {
         'type': 'music',
@@ -78,11 +78,11 @@ def create_track_item(server, tree, track, settings, listing=True):
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
     # Build any specific context menu entries
-    context = None
-    if not settings.get_setting('skipcontextmenus'):
-        context = build_context_menu(url, extra_data, server, settings)
+    context_menu = None
+    if not context.settings.get_setting('skipcontextmenus'):
+        context_menu = build_context_menu(context, server, url, extra_data)
 
     if listing:
-        return create_gui_item(url, details, extra_data, context, folder=False, settings=settings)
+        return create_gui_item(context, url, details, extra_data, context_menu, folder=False)
 
     return url, details

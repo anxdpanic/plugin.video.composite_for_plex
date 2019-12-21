@@ -14,7 +14,6 @@ from ..addon.processing.episodes import process_episodes
 from ..plex import plex
 
 
-def run(settings, url, rating_key=None, library=False):
-    plex_network = plex.Plex(load=True)
-    process_episodes(settings, url, rating_key=rating_key,
-                     plex_network=plex_network, library=library)
+def run(context, url, rating_key=None, library=False):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    process_episodes(context, url, rating_key=rating_key, library=library)

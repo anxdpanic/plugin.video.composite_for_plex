@@ -1,3 +1,5 @@
+[upd] cosmetics
+
 0.5.0
 [add] Playlist creation and deletion
 [add] Support photo playlists

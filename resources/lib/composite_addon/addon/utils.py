@@ -28,18 +28,14 @@ from ..addon.logger import Logger
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
 from ..addon.strings import item_translate
-from ..plex import plex
 
 LOG = Logger()
 
 
-def get_master_server(settings, all_servers=False, plex_network=None):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def get_master_server(context, all_servers=False):
     possible_servers = []
-    current_master = settings.get_setting('masterServer')
-    for server_data in plex_network.get_server_list():
+    current_master = context.settings.get_setting('masterServer')
+    for server_data in context.plex_network.get_server_list():
         LOG.debug(str(server_data))
         if server_data.get_master() == 1:
             possible_servers.append(server_data)
@@ -67,7 +63,7 @@ def get_master_server(settings, all_servers=False, plex_network=None):
     return possible_servers[0]
 
 
-def create_gui_item(url, details, extra_data, context=None, folder=True, settings=None):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
+def create_gui_item(context, url, details, extra_data, context_menu=None, folder=True):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
     LOG.debug('Adding %s\n'
               'Details: %s\n'
               'Extra_data: %s' %
@@ -135,7 +131,7 @@ def create_gui_item(url, details, extra_data, context=None, folder=True, setting
             item_properties['TotalTime'] = str(extra_data.get('duration'))
             item_properties['ResumeTime'] = str(extra_data.get('resume'))
 
-            if not settings.get_setting('skipflags'):
+            if not context.settings.get_setting('skipflags'):
                 LOG.debug('Setting VrR as : %s' % extra_data.get('VideoResolution', ''))
                 item_properties['VideoResolution'] = extra_data.get('VideoResolution', '')
                 item_properties['VideoCodec'] = extra_data.get('VideoCodec', '')
@@ -186,13 +182,14 @@ def create_gui_item(url, details, extra_data, context=None, folder=True, setting
         'icon': thumb
     })
 
-    if context is not None:
+    if context_menu is not None:
         if not folder and extra_data.get('type', 'video').lower() == 'video':
             # Play Transcoded
-            context.insert(0, (i18n('Play Transcoded'), 'PlayMedia(%s&transcode=1)' % link_url,))
+            context_menu.insert(0, (i18n('Play Transcoded'),
+                                    'PlayMedia(%s&transcode=1)' % link_url))
             LOG.debug('Setting transcode options to [%s&transcode=1]' % link_url)
         LOG.debug('Building Context Menus')
-        list_item.addContextMenuItems(context)
+        list_item.addContextMenuItems(context_menu)
 
     if is_file:
         folder = False
@@ -214,7 +211,7 @@ def create_gui_item(url, details, extra_data, context=None, folder=True, setting
     return link_url, list_item, folder
 
 
-def get_link_url(url, path_data, server):
+def get_link_url(server, url, path_data):
     path = path_data.get('key', '')
 
     LOG.debug('Path is %s' % path)
@@ -256,13 +253,13 @@ def get_link_url(url, path_data, server):
     return '%s/%s' % (url, path)
 
 
-def get_thumb_image(data, server, settings, width=720, height=720):
+def get_thumb_image(context, server, data, width=720, height=720):
     """
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
         @ return formatted URL
     """
-    if settings.get_setting('skipimages'):
+    if context.settings.get_setting('skipimages'):
         return ''
 
     thumbnail = encode_utf8(data.get('thumb', '').split('?t')[0])
@@ -271,7 +268,7 @@ def get_thumb_image(data, server, settings, width=720, height=720):
         return thumbnail
 
     if thumbnail.startswith('/'):
-        if settings.get_setting('fullres_thumbs'):
+        if context.settings.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
 
         thumbnail = quote_plus('http://localhost:32400' + thumbnail)
@@ -281,13 +278,13 @@ def get_thumb_image(data, server, settings, width=720, height=720):
     return CONFIG['icon']
 
 
-def get_banner_image(data, server, settings, width=720, height=720):
+def get_banner_image(context, server, data, width=720, height=720):
     """
         Simply take a URL or path and determine how to format for images
         @ input: elementTree element, server name
         @ return formatted URL
     """
-    if settings.get_setting('skipimages'):
+    if context.settings.get_setting('skipimages'):
         return ''
 
     thumbnail = encode_utf8(data.get('banner', '').split('?t')[0])
@@ -296,7 +293,7 @@ def get_banner_image(data, server, settings, width=720, height=720):
         return thumbnail
 
     if thumbnail.startswith('/'):
-        if settings.get_setting('fullres_thumbs'):
+        if context.settings.get_setting('fullres_thumbs'):
             return server.get_kodi_header_formatted_url(thumbnail)
 
         thumbnail = quote_plus('http://localhost:32400' + thumbnail)
@@ -306,13 +303,13 @@ def get_banner_image(data, server, settings, width=720, height=720):
     return CONFIG['icon']
 
 
-def get_fanart_image(data, server, settings, width=1280, height=720):
+def get_fanart_image(context, server, data, width=1280, height=720):
     """
         Simply take a URL or path and determine how to format for fanart
         @ input: elementTree element, server name
         @ return formatted URL for photo resizing
     """
-    if settings.get_setting('skipimages'):
+    if context.settings.get_setting('skipimages'):
         return ''
 
     fanart = encode_utf8(data.get('art', ''))
@@ -321,7 +318,7 @@ def get_fanart_image(data, server, settings, width=1280, height=720):
         return fanart
 
     if fanart.startswith('/'):
-        if settings.get_setting('fullres_fanart'):
+        if context.settings.get_setting('fullres_fanart'):
             return server.get_kodi_header_formatted_url(fanart)
 
         return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
@@ -331,12 +328,9 @@ def get_fanart_image(data, server, settings, width=1280, height=720):
     return ''
 
 
-def get_xml(url, tree=None, plex_network=None):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def get_xml(context, url, tree=None):
     if tree is None:
-        tree = plex_network.get_processed_xml(url)
+        tree = context.plex_network.get_processed_xml(url)
 
     if tree.get('message'):
         xbmcgui.Dialog().ok(tree.get('header', i18n('Message')), tree.get('message', ''))
@@ -345,8 +339,8 @@ def get_xml(url, tree=None, plex_network=None):
     return tree
 
 
-def build_context_menu(url, item_data, server, settings):  # pylint: disable=too-many-locals
-    context = []
+def build_context_menu(context, server, url, item_data):  # pylint: disable=too-many-locals
+    context_menu = []
     url_parts = urlparse(url)
     section = url_parts.path.split('/')[3]
 
@@ -359,30 +353,31 @@ def build_context_menu(url, item_data, server, settings):  # pylint: disable=too
         parent_id = item_data.get('parentRatingKey')
         grandparent_id = item_data.get('grandparentRatingKey')
         if parent_id and item_data.get('season') is not None:
-            context.append((i18n('Go to') %
-                            (i18n('Season') + ' ' + str(item_data.get('season', 0))),
-                            'Container.Update(plugin://%s/?mode=%s&url=%s&rating_key=%s)' %
-                            (CONFIG['id'], MODES.TVEPISODES, server.get_uuid(), parent_id)))
+            context_menu.append((i18n('Go to') %
+                                 (i18n('Season') + ' ' + str(item_data.get('season', 0))),
+                                 'Container.Update(plugin://%s/?mode=%s&url=%s&rating_key=%s)' %
+                                 (CONFIG['id'], MODES.TVEPISODES, server.get_uuid(), parent_id)))
         if grandparent_id and item_data.get('tvshowtitle'):
-            context.append((i18n('Go to') % item_data.get('tvshowtitle'),
-                            'Container.Update(plugin://%s/?mode=%s&url=%s&rating_key=%s)' %
-                            (CONFIG['id'], MODES.TVSEASONS, server.get_uuid(), grandparent_id)))
+            context_menu.append((i18n('Go to') % item_data.get('tvshowtitle'),
+                                 'Container.Update(plugin://%s/?mode=%s&url=%s&rating_key=%s)' %
+                                 (CONFIG['id'], MODES.TVSEASONS, server.get_uuid(),
+                                  grandparent_id)))
 
     if item_type in ['video', 'season']:
-        context.append((i18n('Mark as unwatched'),
-                        'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s)' %
-                        (COMMANDS.WATCH, server.get_uuid(), item_id, 'unwatch')))
-        context.append((i18n('Mark as watched'),
-                        'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s)' %
-                        (COMMANDS.WATCH, server.get_uuid(), item_id, 'watch')))
+        context_menu.append((i18n('Mark as unwatched'),
+                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s)' %
+                             (COMMANDS.WATCH, server.get_uuid(), item_id, 'unwatch')))
+        context_menu.append((i18n('Mark as watched'),
+                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s)' %
+                             (COMMANDS.WATCH, server.get_uuid(), item_id, 'watch')))
 
     if item_data.get('playlist_item_id'):
         playlist_title = item_data.get('playlist_title')
         playlist_url = item_data.get('playlist_url', url_parts.path)
-        context.append((i18n('Delete from playlist'),
-                        'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s, %s, %s)'
-                        % (COMMANDS.DELETEFROMPLAYLIST, server.get_uuid(), item_id, playlist_title,
-                           item_data.get('playlist_item_id'), playlist_url)))
+        context_menu.append((i18n('Delete from playlist'),
+                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s, %s, %s)'
+                             % (COMMANDS.DELETEFROMPLAYLIST, server.get_uuid(), item_id,
+                                playlist_title, item_data.get('playlist_item_id'), playlist_url)))
     elif item_data.get('library_section_uuid'):
         playlist_type = ''
         if item_type == 'music':
@@ -392,32 +387,32 @@ def build_context_menu(url, item_data, server, settings):  # pylint: disable=too
         elif item_type == 'image':
             playlist_type = 'photo'
 
-        context.append((i18n('Add to playlist'),
-                        'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s, %s)' %
-                        (COMMANDS.ADDTOPLAYLIST, server.get_uuid(), item_id,
-                         item_data.get('library_section_uuid'), playlist_type)))
+        context_menu.append((i18n('Add to playlist'),
+                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s, %s)' %
+                             (COMMANDS.ADDTOPLAYLIST, server.get_uuid(), item_id,
+                              item_data.get('library_section_uuid'), playlist_type)))
     elif item_data.get('playlist') is True:
-        context.append((i18n('Delete playlist'),
-                        'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                        (COMMANDS.DELETEPLAYLIST, server.get_uuid(), item_id)))
+        context_menu.append((i18n('Delete playlist'),
+                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
+                             (COMMANDS.DELETEPLAYLIST, server.get_uuid(), item_id)))
 
-    if settings.get_setting('showdeletecontextmenu'):
-        context.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                        (COMMANDS.DELETE, server.get_uuid(), item_id)))
+    if context.settings.get_setting('showdeletecontextmenu'):
+        context_menu.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
+                             (COMMANDS.DELETE, server.get_uuid(), item_id)))
 
     if item_type == 'video' and item_source in ['tvepisodes', 'movies']:
-        context.append((i18n('Audio'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                        (COMMANDS.AUDIO, server.get_uuid(), item_id)))
-        context.append((i18n('Subtitles'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                        (COMMANDS.SUBS, server.get_uuid(), item_id)))
+        context_menu.append((i18n('Audio'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
+                             (COMMANDS.AUDIO, server.get_uuid(), item_id)))
+        context_menu.append((i18n('Subtitles'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
+                             (COMMANDS.SUBS, server.get_uuid(), item_id)))
 
-    context.append((i18n('Update library'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                    (COMMANDS.UPDATE, server.get_uuid(), section)))
-    context.append((i18n('Refresh'), 'RunScript(' + CONFIG['id'] + ', %s)' % COMMANDS.REFRESH))
+    context_menu.append((i18n('Update library'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
+                         (COMMANDS.UPDATE, server.get_uuid(), section)))
+    context_menu.append((i18n('Refresh'), 'RunScript(' + CONFIG['id'] + ', %s)' % COMMANDS.REFRESH))
 
-    LOG.debug('Using context menus:\n%s' % '\n'.join(str(menu) for menu in context))
+    LOG.debug('Using context menus:\n%s' % '\n'.join(str(menu) for menu in context_menu))
 
-    return context
+    return context_menu
 
 
 def get_media_data(tag_dict):
@@ -451,16 +446,16 @@ def get_media_data(tag_dict):
     }
 
 
-def get_transcode_profile(settings):
+def get_transcode_profile(context):
     profile_count = 3
     profile_labels = []
 
     for idx in list(range(profile_count)):
-        if idx == 0 or settings.get_setting('transcode_target_enabled_%s' % str(idx)):
-            resolution, bitrate = settings.get_setting('transcode_target_quality_%s' %
-                                                       str(idx)).split(',')
-            sub_size = settings.get_setting('transcode_target_sub_size_%s' % str(idx))
-            audio_boost = settings.get_setting('transcode_target_audio_size_%s' % str(idx))
+        if idx == 0 or context.settings.get_setting('transcode_target_enabled_%s' % str(idx)):
+            resolution, bitrate = context.settings.get_setting('transcode_target_quality_%s' %
+                                                               str(idx)).split(',')
+            sub_size = context.settings.get_setting('transcode_target_sub_size_%s' % str(idx))
+            audio_boost = context.settings.get_setting('transcode_target_audio_size_%s' % str(idx))
             profile_labels.append('[%s] %s@%s (%s/%s)' %
                                   (str(idx + 1), resolution, bitrate.strip(),
                                    sub_size, audio_boost))

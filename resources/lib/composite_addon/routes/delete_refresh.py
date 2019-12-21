@@ -16,8 +16,8 @@ from ..addon.data_cache import DATA_CACHE
 from ..plex import plex
 
 
-def run():
-    plex_network = plex.Plex(load=False)
-    plex_network.delete_cache()
+def run(context):
+    context.plex_network = plex.Plex(load=False, settings=context.settings)
+    context.plex_network.delete_cache()
     DATA_CACHE.delete_cache(True)
     xbmc.executebuiltin('Container.Refresh')

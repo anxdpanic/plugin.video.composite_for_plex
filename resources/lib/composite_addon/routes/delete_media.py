@@ -21,8 +21,8 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run():
-    plex_network = plex.Plex(load=True)
+def run(context):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
 
     server_uuid = get_argv()[2]
     metadata_id = get_argv()[3]
@@ -35,6 +35,6 @@ def run():
 
     if result:
         LOG.debug('Deleting....')
-        server = plex_network.get_server_from_uuid(server_uuid)
+        server = context.plex_network.get_server_from_uuid(server_uuid)
         server.delete_metadata(metadata_id)
         xbmc.executebuiltin('Container.Refresh')

@@ -17,7 +17,7 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_thumb_image
 
 
-def create_album_item(server, tree, url, album, settings):
+def create_album_item(context, server, tree, url, album):
     details = {
         'album': encode_utf8(album.get('title', '')),
         'year': int(album.get('year', 0)),
@@ -32,16 +32,16 @@ def create_album_item(server, tree, url, album, settings):
 
     extra_data = {
         'type': 'Music',
-        'thumb': get_thumb_image(album, server, settings),
-        'fanart_image': get_fanart_image(album, server, settings),
+        'thumb': get_thumb_image(context, server, album),
+        'fanart_image': get_fanart_image(context, server, album),
         'key': album.get('key', ''),
         'mode': MODES.TRACKS,
         'plot': album.get('summary', '')
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
+        extra_data['fanart_image'] = get_fanart_image(context, server, tree)
 
     url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    return create_gui_item(url, details, extra_data, settings=settings)
+    return create_gui_item(context, url, details, extra_data)

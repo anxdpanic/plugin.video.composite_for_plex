@@ -17,7 +17,6 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ..plex import plex
 from .common import get_handle
 from .common import jsonrpc_play
 from .common import write_pickled
@@ -33,10 +32,10 @@ from .utils import get_xml
 LOG = Logger()
 
 
-def monitor_channel_transcode_playback(settings, server, session_id):
+def monitor_channel_transcode_playback(context, server, session_id):
     # Logic may appear backward, but this does allow for a failed start to be detected
     # First while loop waiting for start
-    if settings.get_setting('monitoroff'):
+    if context.settings.get_setting('monitoroff'):
         return
 
     count = 0
@@ -62,43 +61,37 @@ def monitor_channel_transcode_playback(settings, server, session_id):
     server.stop_transcode_session(session_id)
 
 
-def play_media_id_from_uuid(settings, server_uuid, media_id, force=None, transcode=False,  # pylint: disable=too-many-arguments
-                            transcode_profile=0, plex_network=None, player=False):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
-    server = plex_network.get_server_from_uuid(server_uuid)
+def play_media_id_from_uuid(context, server_uuid, media_id, force=None, transcode=False,  # pylint: disable=too-many-arguments
+                            transcode_profile=0, player=False):
+    server = context.plex_network.get_server_from_uuid(server_uuid)
     url = server.get_formatted_url('/library/metadata/%s' % media_id)
-    play_library_media(settings, url, force=force, transcode=transcode,
+    play_library_media(context, url, force=force, transcode=transcode,
                        transcode_profile=transcode_profile, player=player)
 
 
-def play_library_media(settings, url, force=None, transcode=False, transcode_profile=0,  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
-                       plex_network=None, player=False):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def play_library_media(context, url, force=None, transcode=False, transcode_profile=0,  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
+                       player=False):
     session = None
 
-    server = plex_network.get_server_from_url(url)
+    server = context.plex_network.get_server_from_url(url)
 
     media_id = url.split('?')[0].split('&')[0].split('/')[-1]
 
-    tree = get_xml(url)
+    tree = get_xml(context, url)
     if tree is None:
         return
 
-    streams = get_audio_subtitles_from_media(settings, server, tree, True)
+    streams = get_audio_subtitles_from_media(context, server, tree, True)
 
     stream_data = streams.get('full_data', {})
     stream_details = streams.get('details', [{}])
     stream_media = streams.get('media', {})
 
     if force and streams['type'] == 'music':
-        play_playlist(settings, server, streams)
+        play_playlist(context, server, streams)
         return
 
-    url = select_media_to_play(settings, server, streams)
+    url = select_media_to_play(context, server, streams)
 
     codec = stream_details[0].get('codec')
     resolution = stream_details[0].get('videoResolution')
@@ -107,11 +100,12 @@ def play_library_media(settings, url, force=None, transcode=False, transcode_pro
     except ValueError:
         bit_depth = None
 
-    if codec and (settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
+    if codec and (context.settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
         transcode = True
-    if resolution and (settings.get_setting('transcode_g1080') and resolution.lower() == '4k'):
+    if resolution and (context.settings.get_setting('transcode_g1080') and
+                       resolution.lower() == '4k'):
         transcode = True
-    if bit_depth and (settings.get_setting('transcode_g8bit') and bit_depth > 8):
+    if bit_depth and (context.settings.get_setting('transcode_g8bit') and bit_depth > 8):
         transcode = True
 
     if url is None:
@@ -177,6 +171,7 @@ def play_library_media(settings, url, force=None, transcode=False, transcode_pro
         jsonrpc_play(playback_url)
     else:
         if streams['type'] == 'video' or streams['type'] == 'music':
+            server.settings = None  # can't pickle xbmcaddon.Addon()
             monitor_dict = {
                 'media_id': media_id,
                 'playing_file': playback_url,
@@ -201,7 +196,7 @@ def play_library_media(settings, url, force=None, transcode=False, transcode_pro
     window.setProperty('plugin.video.composite-nowplaying.id', media_id)
 
 
-def get_audio_subtitles_from_media(settings, server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def get_audio_subtitles_from_media(context, server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     """
         Cycle through the Parts sections to find all 'selected' audio and subtitle streams
         If a stream is marked as selected=1 then we will record it in the dict
@@ -259,7 +254,7 @@ def get_audio_subtitles_from_media(settings, server, tree, full=False):  # pylin
                 'mpaa': encode_utf8(timings.get('contentRating', '')),
                 'year': int(timings.get('year', 0)),
                 'tagline': timings.get('tagline', ''),
-                'thumbnail': get_thumb_image(timings, server, settings),
+                'thumbnail': get_thumb_image(context, server, timings),
                 'mediatype': 'video'
             }
 
@@ -273,7 +268,7 @@ def get_audio_subtitles_from_media(settings, server, tree, full=False):  # pylin
                 full_data['season'] = int(timings.get('parentIndex', tree.get('parentIndex', 0)))
                 full_data['mediatype'] = 'episode'
 
-            if not settings.get_setting('skipmetadata'):
+            if not context.settings.get_setting('skipmetadata'):
                 tree_genres = timings.findall('Genre')
                 if tree_genres is not None:
                     full_data['genre'] = [encode_utf8(tree_genre.get('tag', ''))
@@ -293,7 +288,7 @@ def get_audio_subtitles_from_media(settings, server, tree, full=False):  # pylin
                 'artist': encode_utf8(timings.get('grandparentTitle',
                                                   tree.get('grandparentTitle', ''))),
                 'duration': int(timings.get('duration', 0)) / 1000,
-                'thumbnail': get_thumb_image(timings, server, settings)
+                'thumbnail': get_thumb_image(context, server, timings)
             }
 
             extra['album'] = timings.get('parentKey')
@@ -340,7 +335,8 @@ def get_audio_subtitles_from_media(settings, server, tree, full=False):  # pylin
                 pass
 
     # if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == 'video' and settings.get_setting('streamControl') == StreamControl().PLEX:
+    if media_type == 'video' and \
+            context.settings.get_setting('streamControl') == StreamControl().PLEX:
 
         contents = 'all'
         tags = tree.getiterator('Stream')
@@ -398,7 +394,7 @@ def get_audio_subtitles_from_media(settings, server, tree, full=False):  # pylin
     return stream_data
 
 
-def select_media_to_play(settings, server, data):
+def select_media_to_play(context, server, data):
     # if we have two or more files for the same movie, then present a screen
 
     result = 0
@@ -424,7 +420,7 @@ def select_media_to_play(settings, server, data):
                                          details[index_count]['videoResolution'],
                                          details[index_count]['bitrate'])
 
-            if settings.get_setting('forcedvd'):
+            if context.settings.get_setting('forcedvd'):
                 if '.ifo' in name.lower():
                     LOG.debug('Found IFO DVD file in ' + name)
                     name = 'DVD Image'
@@ -444,12 +440,12 @@ def select_media_to_play(settings, server, data):
             dvd_playback = True
 
     else:
-        if settings.get_setting('forcedvd'):
+        if context.settings.get_setting('forcedvd'):
             if '.ifo' in options[result]:
                 dvd_playback = True
 
     media_url = select_media_type(
-        settings, server,
+        context, server,
         {
             'key': options[result][0],
             'file': options[result][1]
@@ -461,12 +457,12 @@ def select_media_to_play(settings, server, data):
     return media_url
 
 
-def select_media_type(settings, server, part_data, dvd_playback=False):  # pylint: disable=too-many-statements, too-many-branches
+def select_media_type(context, server, part_data, dvd_playback=False):  # pylint: disable=too-many-statements, too-many-branches
     stream = part_data['key']
     filename = part_data['file']
     file_location = ''
 
-    if (filename is None) or (settings.get_stream() == '1'):
+    if (filename is None) or (context.settings.get_stream() == '1'):
         LOG.debug('Selecting stream')
         return server.get_formatted_url(stream)
 
@@ -486,7 +482,7 @@ def select_media_type(settings, server, part_data, dvd_playback=False):  # pylin
         file_type = None
 
     # 0 is auto select.  basically check for local file first, then stream if not found
-    if settings.get_stream() == '0':
+    if context.settings.get_stream() == '0':
         # check if the file can be found locally
         if file_type in ['nixfile', 'winfile']:
             LOG.debug('Checking for local file')
@@ -501,15 +497,15 @@ def select_media_type(settings, server, part_data, dvd_playback=False):  # pylin
         LOG.debug('No local file')
         if dvd_playback:
             LOG.debug('Forcing SMB for DVD playback')
-            settings.set_stream('2')
+            context.settings.set_stream('2')
         else:
             return server.get_formatted_url(stream)
 
     # 2 is use SMB
-    elif settings.get_stream() == '2' or settings.get_stream() == '3':
+    elif context.settings.get_stream() == '2' or context.settings.get_stream() == '3':
 
         filename = unquote(filename)
-        if settings.get_stream() == '2':
+        if context.settings.get_stream() == '2':
             protocol = 'smb'
         else:
             protocol = 'afp'
@@ -522,16 +518,16 @@ def select_media_type(settings, server, part_data, dvd_playback=False):  # pylin
             server = server.get_location().split(':')[0]
             login_string = ''
 
-            if settings.get_setting('nasoverride'):
-                if settings.get_setting('nasoverrideip'):
-                    server = settings.get_setting('nasoverrideip')
+            if context.settings.get_setting('nasoverride'):
+                if context.settings.get_setting('nasoverrideip'):
+                    server = context.settings.get_setting('nasoverrideip')
                     LOG.debug('Overriding server with: %s' % server)
 
-                if settings.get_setting('nasuserid'):
-                    login_string = '%s:%s@' % (settings.get_setting('nasuserid'),
-                                               settings.get_setting('naspass'))
+                if context.settings.get_setting('nasuserid'):
+                    login_string = '%s:%s@' % (context.settings.get_setting('nasuserid'),
+                                               context.settings.get_setting('naspass'))
                     LOG.debug('Adding AFP/SMB login info for user: %s' %
-                              settings.get_setting('nasuserid'))
+                              context.settings.get_setting('nasuserid'))
 
             if filename.find('Volumes') > 0:
                 file_location = '%s:/%s' % \
@@ -546,13 +542,13 @@ def select_media_type(settings, server, part_data, dvd_playback=False):  # pylin
                     # Add server name to file path.
                     file_location = '%s://%s%s%s' % (protocol, login_string, server, filename)
 
-        if settings.get_setting('nasoverride') and settings.get_setting('nasroot'):
+        if context.settings.get_setting('nasoverride') and context.settings.get_setting('nasroot'):
             # Re-root the file path
             LOG.debug('Altering path %s so root is: %s' %
-                      (file_location, settings.get_setting('nasroot')))
-            if '/' + settings.get_setting('nasroot') + '/' in file_location:
+                      (file_location, context.settings.get_setting('nasroot')))
+            if '/' + context.settings.get_setting('nasroot') + '/' in file_location:
                 components = file_location.split('/')
-                index = components.index(settings.get_setting('nasroot'))
+                index = components.index(context.settings.get_setting('nasroot'))
                 for _ in list(range(3, index)):
                     components.pop(3)
                 file_location = '/'.join(components)
@@ -564,12 +560,12 @@ def select_media_type(settings, server, part_data, dvd_playback=False):  # pylin
     return file_location
 
 
-def play_playlist(settings, server, data):
+def play_playlist(context, server, data):
     LOG.debug('Creating new playlist')
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
 
-    tree = get_xml(server.get_url_location() + data['extra'].get('album') + '/children')
+    tree = get_xml(context, server.get_url_location() + data['extra'].get('album') + '/children')
 
     if tree is None:
         return
@@ -578,7 +574,7 @@ def play_playlist(settings, server, data):
     for track in track_tags:
         LOG.debug('Adding playlist item')
 
-        url, details = create_track_item(server, tree, track, settings, listing=False)
+        url, details = create_track_item(context, server, tree, track, listing=False)
         if CONFIG['kodi_version'] >= 18:
             list_item = xbmcgui.ListItem(details.get('title', i18n('Unknown')), offscreen=True)
         else:

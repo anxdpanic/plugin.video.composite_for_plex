@@ -20,15 +20,11 @@ from ...addon.items.photo import create_photo_item
 from ...addon.items.track import create_track_item
 from ...addon.logger import Logger
 from ...addon.utils import get_xml
-from ...plex import plex
 
 LOG = Logger()
 
 
-def process_movies(settings, url, tree=None, plex_network=None):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def process_movies(context, url, tree=None):
     xbmcplugin.setContent(get_handle(), 'movies')
 
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
@@ -42,9 +38,9 @@ def process_movies(settings, url, tree=None, plex_network=None):
 
     # get the server name from the URL, which was passed via the on screen listing..
 
-    server = plex_network.get_server_from_url(url)
+    server = context.plex_network.get_server_from_url(url)
 
-    tree = get_xml(url, tree)
+    tree = get_xml(context, url, tree)
     if tree is None:
         return
 
@@ -53,15 +49,15 @@ def process_movies(settings, url, tree=None, plex_network=None):
     items = []
     for movie in tree:
         if movie.tag.lower() == 'video':
-            items.append(create_movie_item(server, tree, url, movie, settings))
+            items.append(create_movie_item(context, server, tree, url, movie))
         elif movie.tag.lower() == 'track':  # mixed content video playlist
-            items.append(create_track_item(server, tree, movie, settings))
+            items.append(create_track_item(context, server, tree, movie))
         elif movie.tag.lower() == 'photo':  # mixed content video playlist
-            items.append(create_photo_item(server, tree, url, movie, settings))
+            items.append(create_photo_item(context, server, tree, url, movie))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
     LOG.debug('PROCESS: It took %s seconds to process %s items' %
               (time.time() - start_time, len(items)))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))
