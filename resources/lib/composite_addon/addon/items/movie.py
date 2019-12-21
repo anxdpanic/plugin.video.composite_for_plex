@@ -27,7 +27,7 @@ from ...addon.utils import get_thumb_image
 LOG = Logger()
 
 
-def create_movie_item(server, tree, url, movie, settings, library=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
+def create_movie_item(context, server, tree, url, movie, library=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
     temp_genre = []
     temp_cast = []
     temp_collections = []
@@ -41,15 +41,15 @@ def create_movie_item(server, tree, url, movie, settings, library=False):  # pyl
     for child in movie:
         if child.tag == 'Media':
             media_arguments = dict(child.items())
-        elif child.tag == 'Genre' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Genre' and not context.settings.get_setting('skipmetadata'):
             temp_genre.append(child.get('tag'))
-        elif child.tag == 'Writer' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Writer' and not context.settings.get_setting('skipmetadata'):
             temp_writer.append(child.get('tag'))
-        elif child.tag == 'Director' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Director' and not context.settings.get_setting('skipmetadata'):
             temp_director.append(child.get('tag'))
-        elif child.tag == 'Role' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Role' and not context.settings.get_setting('skipmetadata'):
             temp_cast.append(child.get('tag'))
-        elif child.tag == 'Collection' and not settings.get_setting('skipmetadata'):
+        elif child.tag == 'Collection' and not context.settings.get_setting('skipmetadata'):
             temp_collections.append(child.get('tag'))
 
     LOG.debug('Media attributes are %s' % json.dumps(media_arguments, indent=4))
@@ -78,8 +78,8 @@ def create_movie_item(server, tree, url, movie, settings, library=False):  # pyl
     extra_data = {
         'type': 'Video',
         'source': 'movies',
-        'thumb': get_thumb_image(movie, server, settings),
-        'fanart_image': get_fanart_image(movie, server, settings),
+        'thumb': get_thumb_image(context, server, movie),
+        'fanart_image': get_fanart_image(context, server, movie),
         'key': movie.get('key', ''),
         'ratingKey': str(movie.get('ratingKey', 0)),
         'duration': duration,
@@ -107,7 +107,7 @@ def create_movie_item(server, tree, url, movie, settings, library=False):  # pyl
         details['playcount'] = 0
 
     # Extended Metadata
-    if not settings.get_setting('skipmetadata'):
+    if not context.settings.get_setting('skipmetadata'):
         details['cast'] = temp_cast
         details['director'] = ' / '.join(temp_director)
         details['writer'] = ' / '.join(temp_writer)
@@ -122,13 +122,13 @@ def create_movie_item(server, tree, url, movie, settings, library=False):  # pyl
         LOG.debug('Trailer plugin url added: %s' % details['trailer'])
 
     # Add extra media flag data
-    if not settings.get_setting('skipflags'):
+    if not context.settings.get_setting('skipflags'):
         extra_data.update(get_media_data(media_arguments))
 
     # Build any specific context menu entries
-    context = None
-    if not settings.get_setting('skipcontextmenus'):
-        context = build_context_menu(url, extra_data, server, settings)
+    context_menu = None
+    if not context.settings.get_setting('skipcontextmenus'):
+        context_menu = build_context_menu(context, server, url, extra_data)
 
     # http:// <server> <path> &mode=<mode>
     extra_data['mode'] = MODES.PLAYLIBRARY
@@ -137,4 +137,4 @@ def create_movie_item(server, tree, url, movie, settings, library=False):  # pyl
 
     final_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    return create_gui_item(final_url, details, extra_data, context, folder=False, settings=settings)
+    return create_gui_item(context, final_url, details, extra_data, context_menu, folder=False)

@@ -21,10 +21,10 @@ from .logger import Logger
 LOG = Logger()
 
 
-def wake_servers(settings):
-    if settings.get_setting('wolon'):
+def wake_servers(context):
+    if context.settings.get_setting('wolon'):
         LOG.debug('Wake On LAN: true')
-        for mac_address in settings.get_wakeservers():
+        for mac_address in context.settings.get_wakeservers():
             if mac_address:
                 try:
                     LOG.debug('Waking server with MAC: %s' % mac_address)

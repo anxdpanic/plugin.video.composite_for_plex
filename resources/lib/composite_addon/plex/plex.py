@@ -42,8 +42,12 @@ LOG = Logger('plex')
 
 class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
 
-    def __init__(self, load=False):
-        self.settings = AddonSettings()
+    def __init__(self, load=False, settings=None):
+        if settings is None:
+            self.settings = AddonSettings()
+        else:
+            self.settings = settings
+
         # Provide an interface into Plex
         self.cache = cache_control.CacheControl('servers', self.settings.get_setting('cache'))
         self.myplex_server = 'https://plex.tv'

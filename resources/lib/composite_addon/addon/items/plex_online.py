@@ -18,7 +18,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 
 
-def create_plex_online_item(server, url, plugin, settings):
+def create_plex_online_item(context, server, url, plugin):
     details = {
         'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))
     }
@@ -26,7 +26,7 @@ def create_plex_online_item(server, url, plugin, settings):
         'type': 'Video',
         'installed': int(plugin.get('installed', 2)),
         'key': plugin.get('key', ''),
-        'thumb': get_thumb_image(plugin, server, settings),
+        'thumb': get_thumb_image(context, server, plugin),
         'mode': MODES.CHANNELINSTALL
     }
 
@@ -36,10 +36,10 @@ def create_plex_online_item(server, url, plugin, settings):
     elif extra_data['installed'] == 2:
         extra_data['mode'] = MODES.PLEXONLINE
 
-    item_url = get_link_url(url, plugin, server)
+    item_url = get_link_url(server, url, plugin)
 
     extra_data['parameters'] = {
         'name': details['title']
     }
 
-    return create_gui_item(item_url, details, extra_data, settings=settings)
+    return create_gui_item(context, item_url, details, extra_data)

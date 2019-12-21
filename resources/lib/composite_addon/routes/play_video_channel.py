@@ -25,12 +25,12 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(settings, url, prefix=None, indirect=None, transcode=False):
-    plex_network = plex.Plex(load=True)
+def run(context, url, prefix=None, indirect=None, transcode=False):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
 
-    server = plex_network.get_server_from_url(url)
+    server = context.plex_network.get_server_from_url(url)
     if 'node.plexapp.com' in url:
-        server = get_master_server(settings)
+        server = get_master_server(context)
 
     session = None
 
@@ -53,13 +53,13 @@ def run(settings, url, prefix=None, indirect=None, transcode=False):
         if len(url) > 1000:
             LOG.debug('Kodi HLS limit detected, will pre-fetch m3u8 playlist')
 
-            playlist = get_xml(url)
+            playlist = get_xml(context, url)
 
             if not playlist or '# EXTM3U' not in playlist:
                 LOG.debug('Unable to get valid m3u8 playlist from transcoder')
                 return
 
-            server = plex_network.get_server_from_url(url)
+            server = context.plex_network.get_server_from_url(url)
             session = playlist.split()[-1]
             url = '%s/video/:/transcode/segmented/%s?t=1' % (server.get_url_location(), session)
 
@@ -73,7 +73,7 @@ def run(settings, url, prefix=None, indirect=None, transcode=False):
     LOG.debug('Final URL is: %s' % url)
     xbmcplugin.setResolvedUrl(get_handle(), True, _list_item(url))
 
-    _monitor_transcode(settings, server, session, transcode)
+    _monitor_transcode(context, server, session, transcode)
     DATA_CACHE.delete_cache(True)
 
 
@@ -83,10 +83,10 @@ def _list_item(url):
     return xbmcgui.ListItem(path=url)
 
 
-def _monitor_transcode(settings, server, session, transcode):
+def _monitor_transcode(context, server, session, transcode):
     if session and transcode:
         try:
-            monitor_channel_transcode_playback(settings, server, session)
+            monitor_channel_transcode_playback(context, server, session)
         except:  # pylint: disable=bare-except
             LOG.debug('Unable to start transcode monitor')
     else:

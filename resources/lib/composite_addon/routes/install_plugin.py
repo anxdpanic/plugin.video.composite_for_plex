@@ -23,10 +23,10 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(url, name):
-    plex_network = plex.Plex(load=True)
+def run(context, url, name):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
 
-    tree = get_xml(url, plex_network=plex_network)
+    tree = get_xml(context, url)
     if tree is None:
         return
 
@@ -47,7 +47,7 @@ def run(url, name):
 
             if result:
                 LOG.debug('Installing....')
-                _ = get_xml(url + '/install', plex_network=plex_network)
+                _ = get_xml(context, url + '/install')
 
             return
 
@@ -62,6 +62,6 @@ def run(url, name):
     LOG.debug('Option %s selected.  Operation is %s' % (result, operations[result]))
 
     item_url = url + '/' + operations[result].lower()
-    _ = get_xml(item_url, plex_network=plex_network)
+    _ = get_xml(context, item_url)
 
     xbmc.executebuiltin('Container.Refresh')

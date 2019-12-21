@@ -20,9 +20,9 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run():
-    plex_network = plex.Plex(load=True)
-    servers = plex_network.get_server_list()
+def run(context):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    servers = context.plex_network.get_server_list()
 
     display_list = []
     for server in servers:

@@ -19,7 +19,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 
 
-def create_playlist_item(url, server, track, settings, listing=True):
+def create_playlist_item(context, url, server, track, listing=True):
     details = {
         'title': encode_utf8(track.get('title', i18n('Unknown'))),
         'duration': int(track.get('duration', 0)) / 1000
@@ -29,9 +29,9 @@ def create_playlist_item(url, server, track, settings, listing=True):
         'playlist': True,
         'ratingKey': track.get('ratingKey'),
         'type': track.get('playlistType', ''),
-        'thumb': get_thumb_image({
+        'thumb': get_thumb_image(context, server, {
             'thumb': track.get('composite', '')
-        }, server, settings),
+        }),
         'mode': MODES.GETCONTENT
     }
 
@@ -42,14 +42,13 @@ def create_playlist_item(url, server, track, settings, listing=True):
     elif extra_data['type'] == 'photo':
         extra_data['mode'] = MODES.PHOTOS
 
-    item_url = get_link_url(url, track, server)
+    item_url = get_link_url(server, url, track)
 
-    context = None
-    if not settings.get_setting('skipcontextmenus'):
-        context = build_context_menu(item_url, extra_data, server, settings)
+    context_menu = None
+    if not context.settings.get_setting('skipcontextmenus'):
+        context_menu = build_context_menu(context, server, item_url, extra_data)
 
     if listing:
-        return create_gui_item(item_url, details, extra_data, context,
-                               folder=True, settings=settings)
+        return create_gui_item(context, item_url, details, extra_data, context_menu, folder=True)
 
     return url, details

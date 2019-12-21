@@ -14,6 +14,6 @@ from ..addon.processing.plex_plugins import process_plex_plugins
 from ..plex import plex
 
 
-def run(settings, url):
-    plex_network = plex.Plex(load=True)
-    process_plex_plugins(settings, url, plex_network=plex_network)
+def run(context, url):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    process_plex_plugins(context, url)

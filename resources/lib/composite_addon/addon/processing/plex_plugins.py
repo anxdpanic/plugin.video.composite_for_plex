@@ -17,12 +17,11 @@ from ...addon.items.plex_plugin import create_plex_plugin_item
 from ...addon.logger import Logger
 from ...addon.utils import get_master_server
 from ...addon.utils import get_xml
-from ...plex import plex
 
 LOG = Logger()
 
 
-def process_plex_plugins(settings, url, tree=None, plex_network=None):
+def process_plex_plugins(context, url, tree=None):
     """
         Main function to parse plugin XML from PMS
         Will create dir or item links depending on what the
@@ -30,27 +29,24 @@ def process_plex_plugins(settings, url, tree=None, plex_network=None):
         @input: plugin page URL
         @return: nothing, creates Kodi GUI listing
     """
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
     xbmcplugin.setContent(get_handle(), 'files')
 
-    server = plex_network.get_server_from_url(url)
-    tree = get_xml(url, tree)
+    server = context.plex_network.get_server_from_url(url)
+    tree = get_xml(context, url, tree)
     if tree is None:
         return
 
     if (tree.get('identifier') != 'com.plexapp.plugins.myplex') and ('node.plexapp.com' in url):
         LOG.debug('This is a myPlex URL, attempting to locate master server')
-        server = get_master_server(settings)
+        server = get_master_server(context)
 
     items = []
     for plugin in tree:
-        item = create_plex_plugin_item(server, tree, url, plugin, settings)
+        item = create_plex_plugin_item(context, server, tree, url, plugin)
         if item:
             items.append(item)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

@@ -20,7 +20,7 @@ from ...addon.utils import get_link_url
 from ...addon.utils import get_thumb_image
 
 
-def create_directory_item(server, tree, url, directory, settings):
+def create_directory_item(context, server, tree, url, directory):
     title = encode_utf8(directory.get('title', i18n('Unknown')))
     title = directory_item_translate(title, tree.get('thumb'))
 
@@ -32,12 +32,12 @@ def create_directory_item(server, tree, url, directory, settings):
         details['mediatype'] = 'set'
 
     extra_data = {
-        'thumb': get_thumb_image(tree, server, settings),
-        'fanart_image': get_fanart_image(tree, server, settings),
+        'thumb': get_thumb_image(context, server, tree),
+        'fanart_image': get_fanart_image(context, server, tree),
         'mode': MODES.GETCONTENT,
         'type': 'Folder'
     }
 
-    item_url = '%s' % (get_link_url(url, directory, server))
+    item_url = '%s' % (get_link_url(server, url, directory))
 
-    return create_gui_item(item_url, details, extra_data, settings=settings)
+    return create_gui_item(context, item_url, details, extra_data)

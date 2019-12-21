@@ -15,16 +15,12 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.directory import create_directory_item
 from ...addon.logger import Logger
-from ...plex import plex
 
 LOG = Logger()
 
 
-def process_directories(settings, url, tree=None, plex_network=None):
+def process_directories(context, url, tree=None):
     LOG.debug('Processing secondary menus')
-
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
 
     content_type = 'files'
     if '/collection' in url:
@@ -32,13 +28,13 @@ def process_directories(settings, url, tree=None, plex_network=None):
 
     xbmcplugin.setContent(get_handle(), content_type)
 
-    server = plex_network.get_server_from_url(url)
+    server = context.plex_network.get_server_from_url(url)
 
     items = []
     for directory in tree:
-        items.append(create_directory_item(server, tree, url, directory, settings))
+        items.append(create_directory_item(context, server, tree, url, directory))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

@@ -18,43 +18,39 @@ from ...addon.items.movie import create_movie_item
 from ...addon.items.photo import create_photo_item
 from ...addon.items.track import create_track_item
 from ...addon.utils import get_xml
-from ...plex import plex
 
 
-def process_tracks(settings, url, tree=None, plex_network=None):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def process_tracks(context, url, tree=None):
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DURATION)
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_SONG_RATING)
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_TRACKNUM)
 
-    tree = get_xml(url, tree)
+    tree = get_xml(context, url, tree)
     if tree is None:
         return
 
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
 
-    server = plex_network.get_server_from_url(url)
+    server = context.plex_network.get_server_from_url(url)
 
     content_type = 'songs'
     items = []
     for track in tree:
         if track.tag.lower() == 'track':
-            items.append(create_track_item(server, tree, track, settings))
+            items.append(create_track_item(context, server, tree, track))
         elif track.tag.lower() == 'photo':  # mixed content audio playlist
             content_type = 'movies'  # use movies for mixed content playlists
-            items.append(create_photo_item(server, tree, url, track, settings))
+            items.append(create_photo_item(context, server, tree, url, track))
         elif track.tag.lower() == 'video':  # mixed content audio playlist
             content_type = 'movies'  # use movies for mixed content playlists
-            items.append(create_movie_item(server, tree, url, track, settings))
+            items.append(create_movie_item(context, server, tree, url, track))
 
     xbmcplugin.setContent(get_handle(), content_type)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

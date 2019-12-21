@@ -21,20 +21,18 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(settings, params):
-    del params['command']  # remove unrelated param
+def run(context):
+    content_type = _get_content_type(context.params.get('path_mode'))
+    kodi_action = context.params.get('kodi_action')
 
-    content_type = _get_content_type(params.get('path_mode'))
-    kodi_action = params.get('kodi_action')
-
-    if kodi_action == 'check_exists' and params.get('url'):
+    if kodi_action == 'check_exists' and context.params.get('url'):
         exists = False
-        plex_network = plex.Plex(load=True)
-        server = plex_network.get_server_from_url(params.get('url'))
+        context.plex_network = plex.Plex(load=True, settings=context.settings)
+        server = context.plex_network.get_server_from_url(context.params.get('url'))
         if server:
-            tree = server.processed_xml(params.get('url'))
+            tree = server.processed_xml(context.params.get('url'))
             exists = tree is not None and not tree.get('message') and tree.get('size', '0') != '0'
-        LOG.debug('check_exists for %s -> %s' % (params.get('url'), exists))
+        LOG.debug('check_exists for %s -> %s' % (context.params.get('url'), exists))
         xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
 
     elif kodi_action == 'check_exists':
@@ -42,16 +40,16 @@ def run(settings, params):
         LOG.debug('check_exists for %s -> %s' % (content_type, exists))
         xbmcplugin.setResolvedUrl(get_handle(), exists, xbmcgui.ListItem())
 
-    elif kodi_action == 'refresh_info' and params.get('url'):
-        LOG.debug('refresh info for %s' % params.get('url'))
-        plex_network = plex.Plex(load=True)
-        server = plex_network.get_server_from_url(params.get('url'))
-        _list_content(server, params.get('url'), settings)
+    elif kodi_action == 'refresh_info' and context.params.get('url'):
+        LOG.debug('refresh info for %s' % context.params.get('url'))
+        context.plex_network = plex.Plex(load=True, settings=context.settings)
+        server = context.plex_network.get_server_from_url(context.params.get('url'))
+        _list_content(context, server, context.params.get('url'))
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
     else:
-        plex_network = plex.Plex(load=True)
-        server_list = plex_network.get_server_list()
+        context.plex_network = plex.Plex(load=True, settings=context.settings)
+        server_list = context.plex_network.get_server_list()
         LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
 
         for server in server_list:
@@ -59,9 +57,8 @@ def run(settings, params):
             for section in sections:
                 if section.get_type() == content_type:
                     if content_type in ['movie', 'show']:
-                        _list_content(server, '%s%s/all' %
-                                      (server.get_url_location(), section.get_path()),
-                                      settings)
+                        _list_content(context, server, '%s%s/all' %
+                                      (server.get_url_location(), section.get_path()))
 
         xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=False)
 
@@ -76,7 +73,7 @@ def _get_content_type(path_mode):
     return content_type
 
 
-def _list_content(server, url, settings):
+def _list_content(context, server, url):
     tree = server.processed_xml(url)
     if tree is None:
         return
@@ -89,9 +86,9 @@ def _list_content(server, url, settings):
 
     for content in tags:
         if content.get('type') == 'show':
-            items.append(create_show_item(server, url, content, settings, library=True))
+            items.append(create_show_item(context, server, url, content, library=True))
         elif content.get('type') == 'movie':
-            items.append(create_movie_item(server, tree, url, content, settings, library=True))
+            items.append(create_movie_item(context, server, tree, url, content, library=True))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

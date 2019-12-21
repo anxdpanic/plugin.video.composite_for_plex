@@ -25,11 +25,11 @@ from ..addon.utils import get_xml
 from ..plex import plex
 
 
-def run(settings, url):
-    plex_network = plex.Plex(load=True)
-    server = plex_network.get_server_from_url(url)
+def run(context, url):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    server = context.plex_network.get_server_from_url(url)
 
-    tree = get_xml(url, plex_network=plex_network)
+    tree = get_xml(context, url)
     if tree is None:
         return
 
@@ -45,8 +45,8 @@ def run(settings, url):
             continue
 
         extra_data = {
-            'fanart_image': get_fanart_image(channels, server, settings),
-            'thumb': get_thumb_image(channels, server, settings)
+            'fanart_image': get_fanart_image(context, server, channels),
+            'thumb': get_thumb_image(context, server, channels)
         }
 
         details = {
@@ -63,7 +63,7 @@ def run(settings, url):
             'key': channels.get('key'),
             'identifier': channels.get('key')
         }
-        p_url = get_link_url(url, path_data, server)
+        p_url = get_link_url(server, url, path_data)
 
         extra_data['mode'] = MODES.GETCONTENT
         if suffix == 'photos':
@@ -73,9 +73,9 @@ def run(settings, url):
         elif suffix == 'music':
             extra_data['mode'] = MODES.MUSIC
 
-        items.append(create_gui_item(p_url, details, extra_data, settings=settings))
+        items.append(create_gui_item(context, p_url, details, extra_data))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

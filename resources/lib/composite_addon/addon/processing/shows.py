@@ -15,13 +15,9 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.show import create_show_item
 from ...addon.utils import get_xml
-from ...plex import plex
 
 
-def process_shows(settings, url, tree=None, plex_network=None):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
-
+def process_shows(context, url, tree=None):
     xbmcplugin.setContent(get_handle(), 'tvshows')
 
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
@@ -32,19 +28,19 @@ def process_shows(settings, url, tree=None, plex_network=None):
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     # Get the URL and server name.  Get the XML and parse
-    tree = get_xml(url, tree)
+    tree = get_xml(context, url, tree)
     if tree is None:
         return
 
-    server = plex_network.get_server_from_url(url)
+    server = context.plex_network.get_server_from_url(url)
 
     items = []
     # For each directory tag we find
     show_tags = tree.findall('Directory')
     for show in show_tags:
-        items.append(create_show_item(server, url, show, settings))
+        items.append(create_show_item(context, server, url, show))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

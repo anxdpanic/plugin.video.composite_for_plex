@@ -18,9 +18,9 @@ from ..addon.utils import create_gui_item
 from ..plex import plex
 
 
-def run(settings, url):
-    plex_network = plex.Plex(load=True)
-    server = plex_network.get_server_from_url(url)
+def run(context, url):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    server = context.plex_network.get_server_from_url(url)
 
     sections = server.get_sections()
 
@@ -36,8 +36,7 @@ def run(settings, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(section.get_path(), details,
-                                         extra_data, settings=settings))
+            items.append(create_gui_item(context, section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added Movies'))
@@ -48,8 +47,7 @@ def run(settings, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(section.get_path(), details,
-                                         extra_data, settings=settings))
+            items.append(create_gui_item(context, section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Released Movies'))
@@ -60,8 +58,7 @@ def run(settings, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(section.get_path(), details,
-                                         extra_data, settings=settings))
+            items.append(create_gui_item(context, section.get_path(), details, extra_data))
 
         if section.is_show():
             details = {
@@ -73,8 +70,7 @@ def run(settings, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(section.get_path(), details,
-                                         extra_data, settings=settings))
+            items.append(create_gui_item(context, section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added TV Shows'))
@@ -85,8 +81,7 @@ def run(settings, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(section.get_path(), details,
-                                         extra_data, settings=settings))
+            items.append(create_gui_item(context, section.get_path(), details, extra_data))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Aired TV Shows'))
@@ -97,10 +92,9 @@ def run(settings, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(section.get_path(), details,
-                                         extra_data, settings=settings))
+            items.append(create_gui_item(context, section.get_path(), details, extra_data))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

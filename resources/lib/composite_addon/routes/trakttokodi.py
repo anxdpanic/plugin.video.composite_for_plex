@@ -30,51 +30,43 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(settings, params):
-    plex_network = plex.Plex(load=True)
+def run(context):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
 
     for param in ['video_type', 'title', 'year']:  # check for expected common parameters
-        if param not in params:
+        if param not in context.params:
             return
 
     # possible params ['video_type', 'title', 'year', 'trakt_id', 'episode_id', 'season_id',
     # 'season', 'episode', 'ep_title', 'imdb_id', 'tmdb_id', 'tvdb_id']
 
-    del params['mode']  # remove unrelated param
-    del params['url']  # remove unrelated param
-    del params['command']  # remove unrelated param
-
-    LOG.debug('Running with params: %s' % params)
-
-    search_results = search(plex_network, params)
+    search_results = search(context)
     log_results = [decode_utf8(ETree.tostring(search_result[1]))
                    for search_result in search_results]
     LOG.debug('Found search results: %s' % '\n\n'.join(log_results))
 
-    server_uuid, media_id = get_server_uuid_and_media_id(params, search_results)
+    server_uuid, media_id = get_server_uuid_and_media_id(context.params, search_results)
     if server_uuid and media_id:
         LOG.debug('Found a server with the requested content @ server_uuid=%s w/ media_id=%s' %
                   (server_uuid, media_id))
 
-        if params.get('video_type') in ['show', 'season']:
-            if params.get('video_type') == 'show':
-                process_seasons(settings, server_uuid, rating_key=media_id,
-                                plex_network=plex_network)
+        if context.params.get('video_type') in ['show', 'season']:
+            if context.params.get('video_type') == 'show':
+                process_seasons(context, server_uuid, rating_key=media_id)
                 return
 
-            if params.get('video_type') == 'season':
-                process_episodes(settings, server_uuid, rating_key=media_id,
-                                 plex_network=plex_network)
+            if context.params.get('video_type') == 'season':
+                process_episodes(context, server_uuid, rating_key=media_id)
                 return
 
-        if params.get('video_type') in ['movie', 'episode']:
+        if context.params.get('video_type') in ['movie', 'episode']:
             xbmcplugin.endOfDirectory(get_handle(), False, cacheToDisc=False)
             if xbmc.Player().isPlaying():
                 xbmc.Player().stop()
 
             play = wait_for_busy_dialog()
             if play:
-                play_media_id_from_uuid(settings, server_uuid, media_id, player=True)
+                play_media_id_from_uuid(context, server_uuid, media_id, player=True)
                 return
 
         LOG.debug('Failed to execute TraktToKodi action')
@@ -148,27 +140,27 @@ def _get_search_type(video_type):
     return search_type
 
 
-def _get_search_results(server, processed, params):
+def _get_search_results(context, server, processed):
     results = []
-    if params.get('video_type') == 'episode':
-        episode = _get_episode(params, server, processed=processed)
+    if context.params.get('video_type') == 'episode':
+        episode = _get_episode(context.params, server, processed=processed)
 
         if episode is not None:
             results.append((server.get_uuid(), episode))
             return results
 
-    if params.get('video_type') in ['episode', 'season']:
-        show = _get_show(params, processed)
+    if context.params.get('video_type') in ['episode', 'season']:
+        show = _get_show(context.params, processed)
         if show is not None:
 
-            season = _get_season(params, server, show.get('ratingKey'))
+            season = _get_season(context.params, server, show.get('ratingKey'))
             if season is not None:
-                if params.get('video_type') == 'season':
+                if context.params.get('video_type') == 'season':
                     results.append((server.get_uuid(), season))
                     return results
 
-                if params.get('video_type') == 'episode':
-                    episode = _get_episode(params, server, season.get('ratingKey'))
+                if context.params.get('video_type') == 'episode':
+                    episode = _get_episode(context.params, server, season.get('ratingKey'))
                     if episode is not None:
                         results.append((server.get_uuid(), episode))
                         return results
@@ -179,15 +171,15 @@ def _get_search_results(server, processed, params):
     return results
 
 
-def search(plex_network, params):
+def search(context):
     results = []
 
-    content_type = _get_content_type(params.get('video_type'))
-    search_type = _get_search_type(params.get('video_type'))
+    content_type = _get_content_type(context.params.get('video_type'))
+    search_type = _get_search_type(context.params.get('video_type'))
     if not content_type or not search_type:
         return []
 
-    server_list = plex_network.get_server_list()
+    server_list = context.plex_network.get_server_list()
 
     for server in server_list:
 
@@ -195,17 +187,18 @@ def search(plex_network, params):
         for section in sections:
 
             if section.get_type() == content_type:
-                title = params.get('ep_title') if search_type == '4' else params.get('title')
+                title = context.params.get('ep_title') if search_type == '4' \
+                    else context.params.get('title')
                 url = '%s/search?type=%s&query=%s' % (section.get_path(), search_type, title)
                 processed = server.processed_xml(url)
 
-                if not _is_not_none(processed) and params.get('video_type') == 'episode':
+                if not _is_not_none(processed) and context.params.get('video_type') == 'episode':
                     url = '%s/search?type=%s&query=%s' % \
-                          (section.get_path(), '2', params.get('title'))
+                          (section.get_path(), '2', context.params.get('title'))
                     processed = server.processed_xml(url)
 
                 if _is_not_none(processed):
-                    results += _get_search_results(server, processed, params)
+                    results += _get_search_results(context, server, processed)
 
     return results
 

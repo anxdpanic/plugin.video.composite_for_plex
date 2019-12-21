@@ -20,7 +20,7 @@ from ...addon.utils import get_fanart_image
 from ...addon.utils import get_thumb_image
 
 
-def create_season_item(server, tree, season, settings, library=False):
+def create_season_item(context, server, tree, season, library=False):
     plot = encode_utf8(tree.get('summary', ''))
 
     _watched = int(season.get('viewedLeafCount', 0))
@@ -48,16 +48,16 @@ def create_season_item(server, tree, season, settings, library=False):
         'TotalEpisodes': details['episode'],
         'WatchedEpisodes': _watched,
         'UnWatchedEpisodes': details['episode'] - _watched,
-        'thumb': get_thumb_image(season, server, settings),
-        'fanart_image': get_fanart_image(season, server, settings),
-        'banner': get_banner_image(tree, server, settings),
+        'thumb': get_thumb_image(context, server, season),
+        'fanart_image': get_fanart_image(context, server, season),
+        'banner': get_banner_image(context, server, tree),
         'key': season.get('key', ''),
         'ratingKey': str(season.get('ratingKey', 0)),
         'mode': MODES.TVEPISODES
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(tree, server, settings)
+        extra_data['fanart_image'] = get_fanart_image(context, server, tree)
 
     # Set up overlays for watched and unwatched episodes
     if extra_data['WatchedEpisodes'] == 0:
@@ -69,12 +69,12 @@ def create_season_item(server, tree, season, settings, library=False):
 
     item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
 
-    context = None
-    if not settings.get_setting('skipcontextmenus'):
-        context = build_context_menu(item_url, season, server, settings)
+    context_menu = None
+    if not context.settings.get_setting('skipcontextmenus'):
+        context_menu = build_context_menu(context, server, item_url, season)
 
     if library:
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     # Build the screen directory listing
-    return create_gui_item(item_url, details, extra_data, context, settings=settings)
+    return create_gui_item(context, item_url, details, extra_data, context_menu)

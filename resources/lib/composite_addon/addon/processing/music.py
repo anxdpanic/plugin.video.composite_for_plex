@@ -15,16 +15,12 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 from ...addon.common import get_handle
 from ...addon.items.music import create_music_item
 from ...addon.utils import get_xml
-from ...plex import plex
 
 
-def process_music(settings, url, tree=None, plex_network=None):
-    if plex_network is None:
-        plex_network = plex.Plex(load=True)
+def process_music(context, url, tree=None):
+    server = context.plex_network.get_server_from_url(url)
 
-    server = plex_network.get_server_from_url(url)
-
-    tree = get_xml(url, tree)
+    tree = get_xml(context, url, tree)
     if tree is None:
         return
 
@@ -34,7 +30,7 @@ def process_music(settings, url, tree=None, plex_network=None):
         if music.get('key') is None:
             continue
 
-        items.append(create_music_item(server, tree, url, music, settings))
+        items.append(create_music_item(context, server, tree, url, music))
 
     if items:
         content_type = items[-1][1].getProperty('content_type')
@@ -44,4 +40,4 @@ def process_music(settings, url, tree=None, plex_network=None):
 
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))

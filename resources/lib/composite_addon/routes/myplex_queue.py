@@ -18,12 +18,12 @@ from ..addon.strings import i18n
 from ..plex import plex
 
 
-def run():
-    plex_network = plex.Plex(load=True)
-    if not plex_network.is_myplex_signedin():
+def run(context):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    if not context.plex_network.is_myplex_signedin():
         xbmcgui.Dialog().notification(heading=CONFIG['name'],
                                       message=i18n('myPlex not configured'),
                                       icon=CONFIG['icon'])
     else:
-        tree = plex_network.get_myplex_queue()
-        process_plex_plugins('https://plex.tv/playlists/queue/all', tree, plex_network=plex_network)
+        tree = context.plex_network.get_myplex_queue()
+        process_plex_plugins(context, 'https://plex.tv/playlists/queue/all', tree)

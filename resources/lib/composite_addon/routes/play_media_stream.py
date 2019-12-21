@@ -22,8 +22,8 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(url):
-    plex_network = plex.Plex(load=True)
+def run(context, url):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
     if url.startswith('file'):
         LOG.debug('We are playing a local file')
         # Split out the path from the URL
@@ -31,7 +31,7 @@ def run(url):
     elif url.startswith('http'):
         LOG.debug('We are playing a stream')
         if '?' in url:
-            server = plex_network.get_server_from_url(url)
+            server = context.plex_network.get_server_from_url(url)
             playback_url = server.get_formatted_url(url)
         else:
             playback_url = ''

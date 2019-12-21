@@ -404,10 +404,10 @@ class PlexManage(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
                                           self.switch_button, self.cancel_button)
 
 
-def manage_plex(plex_network):
+def manage_plex(context):
     try:
         with PlexManage(i18n('Manage myPlex'), window=xbmcgui.Window(10000)) as dialog:
-            dialog.set_authentication_target(plex_network)
+            dialog.set_authentication_target(context.plex_network)
             dialog.start()
     except AlreadyActiveException:
         pass
@@ -415,23 +415,23 @@ def manage_plex(plex_network):
         LOG.debug('Failed to load PlexManage ...')
 
 
-def sign_in_to_plex(plex_network, refresh=True):
+def sign_in_to_plex(context, refresh=True):
     status = False
     try:
         with PlexSignin(i18n('myPlex Login'), window=xbmcgui.Window(10000)) as dialog:
-            dialog.set_authentication_target(plex_network)
+            dialog.set_authentication_target(context.plex_network)
             dialog.start()
             status = dialog.signed_in()
     except AlreadyActiveException:
         pass
     except AttributeError:
-        response = plex_network.get_signin_pin()
+        response = context.plex_network.get_signin_pin()
         message = \
             i18n('From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]') % \
             ('https://www.plex.tv/link/', ' '.join(response.get('code', [])))
         xbmcgui.Dialog().ok(i18n('myPlex Login'), message)
         xbmc.sleep(500)
-        result = plex_network.check_signin_status(response.get('id', ''))
+        result = context.plex_network.check_signin_status(response.get('id', ''))
         if result:
             status = True
             LOG.debug('Sign in successful ...')
@@ -444,9 +444,9 @@ def sign_in_to_plex(plex_network, refresh=True):
     return status
 
 
-def sign_out(plex_network, refresh=True):
+def sign_out(context, refresh=True):
     can_signout = True
-    if not plex_network.is_admin():
+    if not context.plex_network.is_admin():
         can_signout = False
         _ = xbmcgui.Dialog().ok(i18n('Sign Out'),
                                 i18n('To sign out you must be logged in as an admin user. '
@@ -456,13 +456,13 @@ def sign_out(plex_network, refresh=True):
                                         i18n('You are currently signed into myPlex.'
                                              ' Are you sure you want to sign out?'))
         if result:
-            plex_network.signout()
+            context.plex_network.signout()
             if refresh:
                 xbmc.executebuiltin('Container.Refresh')
 
 
-def switch_user(plex_network, refresh=True):
-    user_list = plex_network.get_plex_home_users()
+def switch_user(context, refresh=True):
+    user_list = context.plex_network.get_plex_home_users()
     # zero means we are not plexHome'd up
     if user_list is None or len(user_list) == 1:
         LOG.debug('No users listed or only one user, Plex Home not enabled')
@@ -471,7 +471,7 @@ def switch_user(plex_network, refresh=True):
     LOG.debug('found %s users: %s' % (len(user_list), user_list.keys()))
 
     # Get rid of currently logged in user.
-    user_list.pop(plex_network.get_myplex_user(), None)
+    user_list.pop(context.plex_network.get_myplex_user(), None)
 
     result = xbmcgui.Dialog().select(i18n('Switch User'), user_list.keys())
     if result == -1:
@@ -487,7 +487,7 @@ def switch_user(plex_network, refresh=True):
         pin = xbmcgui.Dialog().input(i18n('Enter PIN'), type=xbmcgui.INPUT_NUMERIC,
                                      option=xbmcgui.ALPHANUM_HIDE_INPUT)
 
-    success, message = plex_network.switch_plex_home_user(user['id'], pin)
+    success, message = context.plex_network.switch_plex_home_user(user['id'], pin)
 
     if not success:
         xbmcgui.Dialog().ok(i18n('Switch Failed'), message)

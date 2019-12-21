@@ -14,6 +14,6 @@ from ..addon.processing.plex_online import process_plex_online
 from ..plex import plex
 
 
-def run(settings, url):
-    plex_network = plex.Plex(load=True)
-    process_plex_online(settings, url, plex_network=plex_network)
+def run(context, url):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
+    process_plex_online(context, url)

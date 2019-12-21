@@ -25,11 +25,11 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(settings, url):
-    plex_network = plex.Plex(load=True)
+def run(context, url):
+    context.plex_network = plex.Plex(load=True, settings=context.settings)
     content_type = url.split('/')[2]
     LOG.debug('Displaying entries for %s' % content_type)
-    servers = plex_network.get_server_list()
+    servers = context.plex_network.get_server_list()
     servers_list = len(servers)
 
     items = []
@@ -49,34 +49,34 @@ def run(settings, url):
             extra_data['mode'] = MODES.PLEXPLUGINS
             url = '%s%s' % (media_server.get_url_location(), '/video')
             if servers_list == 1:
-                process_plex_plugins(settings, url, plex_network=plex_network)
+                process_plex_plugins(context, url)
                 return
 
         elif content_type == 'online':
             extra_data['mode'] = MODES.PLEXONLINE
             url = '%s%s' % (media_server.get_url_location(), '/system/plexonline')
             if servers_list == 1:
-                process_plex_online(settings, url, plex_network=plex_network)
+                process_plex_online(context, url)
                 return
 
         elif content_type == 'music':
             extra_data['mode'] = MODES.MUSIC
             url = '%s%s' % (media_server.get_url_location(), '/music')
             if servers_list == 1:
-                process_music(settings, url, plex_network=plex_network)
+                process_music(context, url)
                 return
 
         elif content_type == 'photo':
             extra_data['mode'] = MODES.PHOTOS
             url = '%s%s' % (media_server.get_url_location(), '/photos')
             if servers_list == 1:
-                process_photos(settings, url, plex_network=plex_network)
+                process_photos(context, url)
                 return
 
         if url:
-            items.append(create_gui_item(url, details, extra_data, settings=settings))
+            items.append(create_gui_item(context, url, details, extra_data))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))
