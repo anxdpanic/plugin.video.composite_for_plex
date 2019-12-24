@@ -2,6 +2,10 @@ language: python
 python:
   - "3.6"
 
+env:
+  global:
+    - ADDON_PYTHON_PATH=$TRAVIS_BUILD_DIR/resources/lib/
+
 before_install:
   - |
     cd $HOME
@@ -21,5 +25,5 @@ before_script:
 
 script:
   - kodi-addon-checker $TRAVIS_BUILD_DIR --branch=jarvis
-  - pylint $TRAVIS_BUILD_DIR/resources/lib/
-  - isort -sl -rc $TRAVIS_BUILD_DIR/resources/lib/ --diff
+  - pylint $ADDON_PYTHON_PATH
+  - isort -sl -rc $ADDON_PYTHON_PATH --diff
