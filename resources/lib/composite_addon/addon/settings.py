@@ -23,7 +23,7 @@ from kodi_six import xbmcvfs  # pylint: disable=import-error
 from .constants import CONFIG
 
 
-class AddonSettings:
+class AddonSettings:  # pylint: disable=too-many-public-methods
 
     def __init__(self):
         self.settings = self._get_addon()
@@ -119,6 +119,9 @@ class AddonSettings:
             return False
 
         return s_upnext_enabled and has_upnext and not upnext_disabled
+
+    def up_next_encoding(self):
+        return self.get_setting('up_next_data_encoding', fresh=True)
 
     def data_cache_ttl(self):
         return int(self.get_setting('data_cache_ttl', fresh=True)) * 60
