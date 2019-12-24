@@ -15,7 +15,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[upd] cosmetics
+[add] Setting to configure service.upnext notification encoding (hex/base64)
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>

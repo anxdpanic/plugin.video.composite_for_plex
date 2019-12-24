@@ -26,7 +26,8 @@ class UpNext:
         :param media_id: media id of the current episode
         :param callback_args: dict of arguments required for service.upnext `play_info`
         """
-        self.use_ep_thumbs = settings.get_setting('up_next_episode_thumbs', fresh=True)
+        self.settings = settings
+        self.use_ep_thumbs = self.settings.get_setting('up_next_episode_thumbs', fresh=True)
         self.server = server
         self.media_id = media_id
         self.callback_args = callback_args
@@ -63,7 +64,8 @@ class UpNext:
 
             self.LOG.debug('Notifying service.upnext with upnext_data:\n%s' %
                            json.dumps(up_next_data, indent=4))
-            notify_all('upnext_data', up_next_data)
+            encoding = self.settings.up_next_encoding()
+            notify_all(encoding, 'upnext_data', up_next_data)
 
     def get_metadata(self, media_id):
         """

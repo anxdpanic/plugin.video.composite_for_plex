@@ -10,7 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import base64
 import json
 import os
 import socket
@@ -141,14 +140,24 @@ def read_pickled(filename, delete_after=True):
     return pickle.loads(pickled_data)
 
 
-def notify_all(method, data):
+def notify_all(encoding, method, data):
     next_data = json.dumps(data)
     if not isinstance(next_data, bytes):
         next_data = next_data.encode('utf-8')
 
-    data = base64.b64encode(next_data)
-    if PY3:
-        data = data.decode('ascii')
+    if encoding == 'base64':
+        from base64 import b64encode  # pylint: disable=import-outside-toplevel
+        data = b64encode(next_data)
+        if PY3:
+            data = data.decode('ascii')
+    elif encoding == 'hex':
+        from binascii import hexlify  # pylint: disable=import-outside-toplevel
+        if PY3:
+            if not isinstance(next_data, bytes):
+                next_data = next_data.encode('utf-8')
+            data = hexlify(next_data).decode('utf-8')
+        else:
+            data = hexlify(next_data)
 
     jsonrpc_request = {
         "jsonrpc": "2.0",

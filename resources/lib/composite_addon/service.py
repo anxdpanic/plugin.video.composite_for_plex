@@ -30,7 +30,7 @@ def run():
 
     window = xbmcgui.Window(10000)
     player = CallbackPlayer(window=window, settings=settings)
-    monitor = Monitor()
+    monitor = Monitor(settings)
 
     companion_thread = None
 

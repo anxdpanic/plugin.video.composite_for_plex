@@ -1276,3 +1276,7 @@ msgstr "Wiedergabeliste löschen?"
 msgctxt "#30726"
 msgid "Are you sure you want to delete this playlist?"
 msgstr "Wiedergabeliste wirklich löschen?"
+
+msgctxt "#30727"
+msgid "Notification encoding"
+msgstr ""

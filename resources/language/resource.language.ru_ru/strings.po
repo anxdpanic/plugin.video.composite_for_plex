@@ -1251,3 +1251,7 @@ msgstr ""
 msgctxt "#30726"
 msgid "Are you sure you want to delete this playlist?"
 msgstr ""
+
+msgctxt "#30727"
+msgid "Notification encoding"
+msgstr ""

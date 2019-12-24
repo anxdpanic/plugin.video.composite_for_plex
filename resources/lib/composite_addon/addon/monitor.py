@@ -9,7 +9,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import base64
 import json
 
 from six.moves.urllib_parse import urlencode
@@ -24,21 +23,32 @@ from .logger import Logger
 class Monitor(xbmc.Monitor):
     LOG = Logger('Monitor')
 
-    def __init__(self):
-        """
-        """
+    def __init__(self, settings):
+        self.settings = settings
 
-    @staticmethod
-    def decode_up_next_notification(data):
+    def decode_up_next_notification(self, data):
         """
         Decode data received from Up Next notification
         """
         data = json.loads(data)
+        json_data = None
+        encoding = self.settings.up_next_encoding()
         if data:
-            json_data = base64.b64decode(data[0])
+            if encoding == 'base64':
+                from base64 import b64decode  # pylint: disable=import-outside-toplevel
+                json_data = b64decode(data[0])
+            elif encoding == 'hex':
+                from binascii import unhexlify  # pylint: disable=import-outside-toplevel
+                json_data = unhexlify(data[0])
+
+            if not json_data:
+                return None
+
             if isinstance(json_data, bytes):
                 json_data = json_data.decode('utf-8')
+
             return json.loads(json_data)
+
         return None
 
     @staticmethod
