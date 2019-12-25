@@ -21,9 +21,7 @@ from six.moves.urllib_parse import urlparse
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import get_argv
-from ..addon.constants import COMMANDS
 from ..addon.constants import CONFIG
-from ..addon.constants import MODES
 from ..addon.logger import Logger
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
@@ -337,82 +335,6 @@ def get_xml(context, url, tree=None):
         return None
 
     return tree
-
-
-def build_context_menu(context, server, url, item_data):  # pylint: disable=too-many-locals
-    context_menu = []
-    url_parts = urlparse(url)
-    section = url_parts.path.split('/')[3]
-
-    additional_context_menus = item_data.get('additional_context_menus', {})
-    item_id = item_data.get('ratingKey', '0')
-    item_type = item_data.get('type', '').lower()
-    item_source = item_data.get('source', '').lower()
-
-    if additional_context_menus.get('go_to'):
-        parent_id = item_data.get('parentRatingKey')
-        grandparent_id = item_data.get('grandparentRatingKey')
-        if parent_id and item_data.get('season') is not None:
-            context_menu.append((i18n('Go to') %
-                                 (i18n('Season') + ' ' + str(item_data.get('season', 0))),
-                                 'Container.Update(plugin://%s/?mode=%s&url=%s&rating_key=%s)' %
-                                 (CONFIG['id'], MODES.TVEPISODES, server.get_uuid(), parent_id)))
-        if grandparent_id and item_data.get('tvshowtitle'):
-            context_menu.append((i18n('Go to') % item_data.get('tvshowtitle'),
-                                 'Container.Update(plugin://%s/?mode=%s&url=%s&rating_key=%s)' %
-                                 (CONFIG['id'], MODES.TVSEASONS, server.get_uuid(),
-                                  grandparent_id)))
-
-    if item_type in ['video', 'season']:
-        context_menu.append((i18n('Mark as unwatched'),
-                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s)' %
-                             (COMMANDS.WATCH, server.get_uuid(), item_id, 'unwatch')))
-        context_menu.append((i18n('Mark as watched'),
-                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s)' %
-                             (COMMANDS.WATCH, server.get_uuid(), item_id, 'watch')))
-
-    if item_data.get('playlist_item_id'):
-        playlist_title = item_data.get('playlist_title')
-        playlist_url = item_data.get('playlist_url', url_parts.path)
-        context_menu.append((i18n('Delete from playlist'),
-                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s, %s, %s)'
-                             % (COMMANDS.DELETEFROMPLAYLIST, server.get_uuid(), item_id,
-                                playlist_title, item_data.get('playlist_item_id'), playlist_url)))
-    elif item_data.get('library_section_uuid'):
-        playlist_type = ''
-        if item_type == 'music':
-            playlist_type = 'audio'
-        elif item_type == 'video':
-            playlist_type = 'video'
-        elif item_type == 'image':
-            playlist_type = 'photo'
-
-        context_menu.append((i18n('Add to playlist'),
-                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s, %s, %s)' %
-                             (COMMANDS.ADDTOPLAYLIST, server.get_uuid(), item_id,
-                              item_data.get('library_section_uuid'), playlist_type)))
-    elif item_data.get('playlist') is True:
-        context_menu.append((i18n('Delete playlist'),
-                             'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                             (COMMANDS.DELETEPLAYLIST, server.get_uuid(), item_id)))
-
-    if context.settings.get_setting('showdeletecontextmenu'):
-        context_menu.append((i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                             (COMMANDS.DELETE, server.get_uuid(), item_id)))
-
-    if item_type == 'video' and item_source in ['tvepisodes', 'movies']:
-        context_menu.append((i18n('Audio'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                             (COMMANDS.AUDIO, server.get_uuid(), item_id)))
-        context_menu.append((i18n('Subtitles'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                             (COMMANDS.SUBS, server.get_uuid(), item_id)))
-
-    context_menu.append((i18n('Update library'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
-                         (COMMANDS.UPDATE, server.get_uuid(), section)))
-    context_menu.append((i18n('Refresh'), 'RunScript(' + CONFIG['id'] + ', %s)' % COMMANDS.REFRESH))
-
-    LOG.debug('Using context menus:\n%s' % '\n'.join(str(menu) for menu in context_menu))
-
-    return context_menu
 
 
 def get_media_data(tag_dict):
