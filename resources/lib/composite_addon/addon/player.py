@@ -13,13 +13,13 @@ import threading
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
-from .common import read_pickled
 from .constants import CONFIG
 from .constants import StreamControl
 from .logger import Logger
 from .strings import encode_utf8
 from .strings import i18n
 from .up_next import UpNext
+from .utils import read_pickled
 
 LOG = Logger('player')
 

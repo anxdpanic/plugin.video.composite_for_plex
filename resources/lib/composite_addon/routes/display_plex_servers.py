@@ -14,12 +14,12 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import MODES
+from ..addon.items.common import create_gui_item
 from ..addon.logger import Logger
 from ..addon.processing.music import process_music
 from ..addon.processing.photos import process_photos
 from ..addon.processing.plex_online import process_plex_online
 from ..addon.processing.plex_plugins import process_plex_plugins
-from ..addon.utils import create_gui_item
 from ..plex import plex
 
 LOG = Logger()
