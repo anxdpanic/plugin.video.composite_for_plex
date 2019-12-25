@@ -11,9 +11,9 @@
 """
 
 from ...addon.constants import MODES
+from ...addon.context_menu import ContextMenu
 from ...addon.strings import encode_utf8
 from ...addon.strings import i18n
-from ...addon.utils import build_context_menu
 from ...addon.utils import create_gui_item
 from ...addon.utils import get_banner_image
 from ...addon.utils import get_fanart_image
@@ -71,7 +71,7 @@ def create_season_item(context, server, tree, season, library=False):
 
     context_menu = None
     if not context.settings.get_setting('skipcontextmenus'):
-        context_menu = build_context_menu(context, server, item_url, season)
+        context_menu = ContextMenu(context, server, item_url, season).menu
 
     if library:
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
