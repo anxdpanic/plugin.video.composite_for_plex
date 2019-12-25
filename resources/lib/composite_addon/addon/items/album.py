@@ -12,9 +12,9 @@
 
 from ...addon.constants import MODES
 from ...addon.strings import encode_utf8
-from ...addon.utils import create_gui_item
-from ...addon.utils import get_fanart_image
-from ...addon.utils import get_thumb_image
+from .common import create_gui_item
+from .common import get_fanart_image
+from .common import get_thumb_image
 
 
 def create_album_item(context, server, tree, url, album):

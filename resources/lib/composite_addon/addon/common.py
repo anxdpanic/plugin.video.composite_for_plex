@@ -10,19 +10,13 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-import json
-import os
 import socket
 import sys
-import time
 
-from six import PY3
-from six.moves import cPickle as pickle
 from six.moves import range
 from six.moves.urllib_parse import unquote
 
 from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from .constants import COMMANDS
 from .constants import CONFIG
@@ -113,96 +107,3 @@ def is_ip(address):
 
 def get_platform_ip():
     return xbmc.getIPAddress()
-
-
-def write_pickled(filename, data):
-    try:
-        os.makedirs(CONFIG['temp_path'])
-    except:  # pylint: disable=bare-except
-        pass
-    filename = os.path.join(CONFIG['temp_path'], filename)
-    pickled_data = pickle.dumps(data, protocol=2)
-    with open(filename, 'wb') as open_file:
-        open_file.write(pickled_data)
-
-
-def read_pickled(filename, delete_after=True):
-    filename = os.path.join(CONFIG['temp_path'], filename)
-    if not os.path.exists(filename):
-        return None
-    with open(filename, 'rb') as open_file:
-        pickled_data = open_file.read()
-    if delete_after:
-        try:
-            os.remove(filename)
-        except:  # pylint: disable=bare-except
-            pass
-    return pickle.loads(pickled_data)
-
-
-def notify_all(encoding, method, data):
-    next_data = json.dumps(data)
-    if not isinstance(next_data, bytes):
-        next_data = next_data.encode('utf-8')
-
-    if encoding == 'base64':
-        from base64 import b64encode  # pylint: disable=import-outside-toplevel
-        data = b64encode(next_data)
-        if PY3:
-            data = data.decode('ascii')
-    elif encoding == 'hex':
-        from binascii import hexlify  # pylint: disable=import-outside-toplevel
-        if PY3:
-            if not isinstance(next_data, bytes):
-                next_data = next_data.encode('utf-8')
-            data = hexlify(next_data).decode('utf-8')
-        else:
-            data = hexlify(next_data)
-
-    jsonrpc_request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "JSONRPC.NotifyAll",
-        "params": {
-            "sender": "%s.SIGNAL" % CONFIG['id'],
-            "message": method,
-            "data": [data],
-        }
-    }
-
-    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
-
-
-def jsonrpc_play(url):
-    jsonrpc_request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "player.open",
-        "params": {
-            "item": {
-                "file": url
-            }
-        }
-    }
-
-    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
-
-
-def wait_for_busy_dialog():
-    """
-    Wait for busy dialogs to close, starting playback while the busy dialog is active
-    could crash Kodi 18 / 19 (pre-alpha)
-    """
-    monitor = xbmc.Monitor()
-    start_time = time.time()
-    xbmc.sleep(500)
-
-    LOG.debug('Waiting for busy dialogs to close ...')
-    while (xbmcgui.getCurrentWindowDialogId() in [10138, 10160] and
-           not monitor.abortRequested()):
-        if monitor.waitForAbort(3):
-            break
-
-    LOG.debug('Waited %.2f for busy dialogs to close.' % (time.time() - start_time))
-    return (not monitor.abortRequested() and
-            xbmcgui.getCurrentWindowDialogId() not in [10138, 10160])

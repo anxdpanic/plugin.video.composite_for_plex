@@ -16,9 +16,9 @@ from ..addon.common import get_handle
 from ..addon.constants import COMMANDS
 from ..addon.constants import CONFIG
 from ..addon.constants import MODES
+from ..addon.items.common import create_gui_item
 from ..addon.logger import Logger
 from ..addon.strings import i18n
-from ..addon.utils import create_gui_item
 from ..plex import plex
 
 LOG = Logger()

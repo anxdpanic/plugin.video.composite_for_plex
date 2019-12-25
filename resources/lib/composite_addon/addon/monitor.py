@@ -15,9 +15,9 @@ from six.moves.urllib_parse import urlencode
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
-from .common import jsonrpc_play
 from .constants import CONFIG
 from .logger import Logger
+from .utils import jsonrpc_play
 
 
 class Monitor(xbmc.Monitor):

@@ -13,8 +13,8 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import MODES
+from ..addon.items.common import create_gui_item
 from ..addon.strings import i18n
-from ..addon.utils import create_gui_item
 from ..plex import plex
 
 

@@ -18,16 +18,16 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from .common import get_handle
-from .common import jsonrpc_play
-from .common import write_pickled
 from .constants import CONFIG
 from .constants import StreamControl
+from .items.common import get_thumb_image
 from .items.track import create_track_item
 from .logger import Logger
 from .strings import encode_utf8
 from .strings import i18n
-from .utils import get_thumb_image
 from .utils import get_xml
+from .utils import jsonrpc_play
+from .utils import write_pickled
 
 LOG = Logger()
 

@@ -11,8 +11,8 @@
 
 import json
 
-from .common import notify_all
 from .logger import Logger
+from .utils import notify_all
 
 
 class UpNext:
