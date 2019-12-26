@@ -1,5 +1,7 @@
 0.6.1
 [add] Setting to configure service.upnext notification encoding (hex/base64)
+[upd] Linting
+[upd] Refactoring
 
 0.6.0
 [upd] cosmetics
