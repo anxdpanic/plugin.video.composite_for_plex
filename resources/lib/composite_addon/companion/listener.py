@@ -137,13 +137,14 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
                 self.response(response, get_plex_headers(self.settings))
             elif '/subscribe' in request_path:
                 self.response(get_ok_message(), get_plex_headers(self.settings))
-                protocol = params.get('protocol', False)
-                host = self.client_address[0]
-                port = params.get('port', False)
-                uuid = self.headers.get('X-Plex-Client-Identifier', '')
-                command_id = params.get('commandID', 0)
-                self.server.subscription_manager.add_subscriber(protocol, host, port,
-                                                                uuid, command_id)
+                subscriber_data = {
+                    'protocol': params.get('protocol', False),
+                    'host': self.client_address[0],
+                    'port': params.get('port', False),
+                    'uuid': self.headers.get('X-Plex-Client-Identifier', ''),
+                    'command_id': params.get('commandID', 0),
+                }
+                self.server.subscription_manager.add_subscriber(subscriber_data)
             elif '/poll' in request_path:
                 if params.get('wait', False) == '1':
                     xbmc.sleep(950)
