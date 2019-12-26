@@ -15,6 +15,7 @@ import sys
 
 from six.moves import range
 from six.moves.urllib_parse import unquote
+from six.moves.urllib_parse import urlencode
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
@@ -94,6 +95,10 @@ def get_plugin_url_path():
     if not path or (path and path.endswith('.py')):
         return None
     return path
+
+
+def get_plugin_url(params):
+    return 'plugin://%s/?%s' % (CONFIG['id'], urlencode(params))
 
 
 def is_ip(address):

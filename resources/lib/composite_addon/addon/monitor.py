@@ -11,11 +11,11 @@
 
 import json
 
-from six.moves.urllib_parse import urlencode
-
 from kodi_six import xbmc  # pylint: disable=import-error
 
+from .common import get_plugin_url
 from .constants import CONFIG
+from .constants import MODES
 from .logger import Logger
 from .utils import jsonrpc_play
 
@@ -56,7 +56,7 @@ class Monitor(xbmc.Monitor):
         """
         Create a playback url from Up Next 'play_info'
         """
-        data['mode'] = '5'
+        data['mode'] = MODES.PLAYLIBRARY
 
         if data['transcode'] is None:
             data['transcode'] = 0
@@ -64,10 +64,7 @@ class Monitor(xbmc.Monitor):
 
         data['transcode_profile'] = int(data.get('transcode_profile', 0))
 
-        if data['force'] is None:
-            del data['force']
-
-        return 'plugin://%s/?%s' % (CONFIG['id'], urlencode(data))
+        return get_plugin_url(data)
 
     def onNotification(self, sender, method, data):  # pylint: disable=invalid-name
         """

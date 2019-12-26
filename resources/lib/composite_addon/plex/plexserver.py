@@ -812,7 +812,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                   (full_url, str(transcode_profile + 1), resolution, bitrate.strip(),
                    subtitle_size, audio_boost))
 
-        return session, self.get_formatted_url(full_url,
-                                               options={
-                                                   'X-Plex-Device': 'Plex Home Theater'
-                                               })
+        return self.get_formatted_url(full_url,
+                                      options={
+                                          'X-Plex-Device': 'Plex Home Theater'
+                                      }), session
