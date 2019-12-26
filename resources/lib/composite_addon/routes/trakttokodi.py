@@ -19,11 +19,13 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
+from ..addon.common import get_plugin_url
+from ..addon.constants import MODES
 from ..addon.logger import Logger
-from ..addon.playback import play_media_id_from_uuid
 from ..addon.processing.episodes import process_episodes
 from ..addon.processing.seasons import process_seasons
 from ..addon.strings import decode_utf8
+from ..addon.utils import jsonrpc_play
 from ..addon.utils import wait_for_busy_dialog
 from ..plex import plex
 
@@ -66,7 +68,11 @@ def run(context):
 
             play = wait_for_busy_dialog()
             if play:
-                play_media_id_from_uuid(context, server_uuid, media_id, player=True)
+                jsonrpc_play(get_plugin_url({
+                    'mode': MODES.PLAYLIBRARY,
+                    'server_uuid': server_uuid,
+                    'media_id': media_id
+                }))
                 return
 
         LOG.debug('Failed to execute TraktToKodi action')

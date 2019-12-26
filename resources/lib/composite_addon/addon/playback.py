@@ -26,7 +26,6 @@ from .logger import Logger
 from .strings import encode_utf8
 from .strings import i18n
 from .utils import get_xml
-from .utils import jsonrpc_play
 from .utils import write_pickled
 
 LOG = Logger()
@@ -62,19 +61,15 @@ def monitor_channel_transcode_playback(context, server, session_id):
 
 
 def play_media_id_from_uuid(context, server_uuid, media_id, force=None, transcode=False,  # pylint: disable=too-many-arguments
-                            transcode_profile=0, player=False):
+                            transcode_profile=0):
     server = context.plex_network.get_server_from_uuid(server_uuid)
     url = server.get_formatted_url('/library/metadata/%s' % media_id)
     play_library_media(context, url, force=force, transcode=transcode,
-                       transcode_profile=transcode_profile, player=player)
+                       transcode_profile=transcode_profile)
 
 
-def play_library_media(context, url, force=None, transcode=False, transcode_profile=0,  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
-                       player=False):
-    session = None
-
+def play_library_media(context, url, force=None, transcode=False, transcode_profile=0):
     server = context.plex_network.get_server_from_url(url)
-
     media_id = url.split('?')[0].split('&')[0].split('/')[-1]
 
     tree = get_xml(context, url)
@@ -84,7 +79,6 @@ def play_library_media(context, url, force=None, transcode=False, transcode_prof
     streams = get_audio_subtitles_from_media(context, server, tree, True)
 
     stream_data = streams.get('full_data', {})
-    stream_details = streams.get('details', [{}])
     stream_media = streams.get('media', {})
 
     if force and streams['type'] == 'music':
@@ -93,6 +87,103 @@ def play_library_media(context, url, force=None, transcode=False, transcode_prof
 
     url = select_media_to_play(context, server, streams)
 
+    if url is None:
+        return
+
+    transcode = is_transcode_required(context, streams.get('details', [{}]), transcode)
+    try:
+        transcode_profile = int(transcode_profile)
+    except ValueError:
+        transcode_profile = 0
+
+    url, session = get_playback_url_and_session(server, url, streams, transcode, transcode_profile)
+
+    details = {
+        'resume': int(int(stream_media['viewOffset']) / 1000),
+        'duration': int(int(stream_media['duration']) / 1000),
+    }
+
+    if isinstance(force, int):
+        if int(force) > 0:
+            details['resume'] = int(int(force) / 1000)
+        else:
+            details['resume'] = force
+
+    LOG.debug('Resume has been set to %s' % details['resume'])
+
+    list_item = create_playback_item(url, session, streams, stream_data, details)
+
+    if streams['type'] in ['music', 'video']:
+        server.settings = None  # can't pickle xbmcaddon.Addon()
+        write_pickled('playback_monitor.pickle', {
+            'media_id': media_id,
+            'playing_file': url,
+            'session': session,
+            'server': server,
+            'streams': streams,
+            'callback_args': {
+                'transcode': transcode,
+                'transcode_profile': transcode_profile
+            }
+        })
+
+    xbmcplugin.setResolvedUrl(get_handle(), True, list_item)
+
+    set_now_playing_properties(server, media_id)
+
+
+def create_playback_item(url, session, streams, data, details):
+    if CONFIG['kodi_version'] >= 18:
+        list_item = xbmcgui.ListItem(path=url, offscreen=True)
+    else:
+        list_item = xbmcgui.ListItem(path=url)
+
+    if data:
+        thumb = data.get('thumbnail', CONFIG['icon'])
+        if 'thumbnail' in data:
+            del data['thumbnail']  # not a valid info label
+
+        list_item.setInfo(type=streams['type'], infoLabels=data)
+        list_item.setArt({
+            'icon': thumb,
+            'thumb': thumb
+        })
+
+    list_item.setProperty('TotalTime', str(details['duration']))
+    if session is not None and details.get('resume'):
+        list_item.setProperty('ResumeTime', str(details['resume']))
+        list_item.setProperty('StartOffset', str(details['resume']))
+        LOG.debug('Playback from resume point: %s' % details['resume'])
+
+    return list_item
+
+
+def set_now_playing_properties(server, media_id):
+    window = xbmcgui.Window(10000)
+    window.setProperty('plugin.video.composite-nowplaying.server', server.get_location())
+    window.setProperty('plugin.video.composite-nowplaying.id', media_id)
+
+
+def get_playback_url_and_session(server, url, streams, transcode, transcode_profile):
+    protocol = url.split(':', 1)[0]
+
+    if protocol == 'file':
+        LOG.debug('We are playing a local file')
+        return url.split(':', 1)[1], None
+
+    if protocol.startswith('http'):
+        LOG.debug('We are playing a stream')
+        if transcode:
+            LOG.debug('We will be transcoding the stream')
+            return server.get_universal_transcode(streams['extra']['path'],
+                                                  transcode_profile=transcode_profile)
+
+        return server.get_formatted_url(url), None
+
+    return url, None
+
+
+def is_transcode_required(context, stream_details, default=False):
     codec = stream_details[0].get('codec')
     resolution = stream_details[0].get('videoResolution')
     try:
@@ -101,99 +192,14 @@ def play_library_media(context, url, force=None, transcode=False, transcode_prof
         bit_depth = None
 
     if codec and (context.settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
-        transcode = True
+        return True
     if resolution and (context.settings.get_setting('transcode_g1080') and
                        resolution.lower() == '4k'):
-        transcode = True
+        return True
     if bit_depth and (context.settings.get_setting('transcode_g8bit') and bit_depth > 8):
-        transcode = True
+        return True
 
-    if url is None:
-        return
-
-    try:
-        transcode_profile = int(transcode_profile)
-    except ValueError:
-        transcode_profile = 0
-
-    protocol = url.split(':', 1)[0]
-
-    if protocol == 'file':
-        LOG.debug('We are playing a local file')
-        playback_url = url.split(':', 1)[1]
-    elif protocol.startswith('http'):
-        LOG.debug('We are playing a stream')
-        if transcode:
-            LOG.debug('We will be transcoding the stream')
-            session, playback_url = \
-                server.get_universal_transcode(streams['extra']['path'],
-                                               transcode_profile=transcode_profile)
-        else:
-            playback_url = server.get_formatted_url(url)
-    else:
-        playback_url = url
-
-    resume = int(int(stream_media['viewOffset']) / 1000)
-    duration = int(int(stream_media['duration']) / 1000)
-
-    LOG.debug('Resume has been set to %s ' % resume)
-    if CONFIG['kodi_version'] >= 18:
-        list_item = xbmcgui.ListItem(path=playback_url, offscreen=True)
-    else:
-        list_item = xbmcgui.ListItem(path=playback_url)
-
-    if stream_data:
-        thumb = stream_data.get('thumbnail', CONFIG['icon'])
-        if 'thumbnail' in stream_data:
-            del stream_data['thumbnail']  # not a valid info label
-
-        list_item.setInfo(type=streams['type'], infoLabels=stream_data)
-        list_item.setArt({
-            'icon': thumb,
-            'thumb': thumb
-        })
-
-    if force:
-
-        if int(force) > 0:
-            resume = int(int(force) / 1000)
-        else:
-            resume = force
-
-    if force or session is not None:
-        if resume:
-            list_item.setProperty('ResumeTime', str(resume))
-            list_item.setProperty('TotalTime', str(duration))
-            list_item.setProperty('StartOffset', str(resume))
-            LOG.debug('Playback from resume point: %s' % resume)
-
-    if streams['type'] == 'picture':
-        jsonrpc_play(playback_url)
-    else:
-        if streams['type'] == 'video' or streams['type'] == 'music':
-            server.settings = None  # can't pickle xbmcaddon.Addon()
-            monitor_dict = {
-                'media_id': media_id,
-                'playing_file': playback_url,
-                'session': session,
-                'server': server,
-                'streams': streams,
-                'callback_args': {
-                    'force': force,
-                    'transcode': transcode,
-                    'transcode_profile': transcode_profile
-                }
-            }
-            write_pickled('playback_monitor.pickle', monitor_dict)
-
-        if get_handle() == -1 or player:
-            xbmc.Player().play(playback_url, list_item)
-        else:
-            xbmcplugin.setResolvedUrl(get_handle(), True, list_item)
-
-    window = xbmcgui.Window(10000)
-    window.setProperty('plugin.video.composite-nowplaying.server', server.get_location())
-    window.setProperty('plugin.video.composite-nowplaying.id', media_id)
+    return default
 
 
 def get_audio_subtitles_from_media(context, server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches

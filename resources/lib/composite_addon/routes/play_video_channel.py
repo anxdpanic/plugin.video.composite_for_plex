@@ -40,14 +40,14 @@ def run(context, url, prefix=None, indirect=None, transcode=False):
             url = '/' + url.split('/', 3)[3]
             transcode = True
 
-        session, url = server.get_universal_transcode(url)
+        url, session = server.get_universal_transcode(url)
 
     # if we have a plex URL, then this is a transcoding URL
     if 'plex://' in url:
         LOG.debug('found webkit video, pass to transcoder')
         if not prefix:
             prefix = 'system'
-            session, url = server.get_universal_transcode(url)
+            url, session = server.get_universal_transcode(url)
 
         # Workaround for Kodi HLS request limit of 1024 byts
         if len(url) > 1000:
