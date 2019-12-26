@@ -185,8 +185,8 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
     def controllable():
         return 'playPause,play,stop,skipPrevious,skipNext,volume,stepBack,stepForward,seekTo'
 
-    def add_subscriber(self, protocol, host, port, uuid, command_id):  # pylint: disable=too-many-arguments
-        sub = Subscriber(protocol, host, port, uuid, command_id, self.request_manager, self)
+    def add_subscriber(self, data):
+        sub = Subscriber(data, self.request_manager, self)
         with threading.RLock():
             self.subscribers[sub.uuid] = sub
         return sub
@@ -233,18 +233,34 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
         return info
 
 
-class Subscriber:  # pylint: disable=too-many-instance-attributes
-    def __init__(self, protocol, host, port, uuid, command_id,  # pylint: disable=too-many-arguments
-                 request_manager, subscription_manager):
+class Subscriber:
+    def __init__(self, data, request_manager, subscription_manager):
+        self.data = data
         self.request_manager = request_manager
         self.subscription_manager = subscription_manager
-        self.protocol = protocol or 'http'
-        self.host = host
-        self.port = port or 32400
-        self.uuid = uuid or host
-        self.command_id = int(command_id) or 0
+
         self.nav_location_sent = False
         self.age = 0
+
+    @property
+    def protocol(self):
+        return self.data.get('protocol') or 'http'
+
+    @property
+    def host(self):
+        return self.data.get('host')
+
+    @property
+    def port(self):
+        return self.data.get('port') or 32400
+
+    @property
+    def uuid(self):
+        return self.data.get('uuid') or self.data.get('host')
+
+    @property
+    def command_id(self):
+        return int(self.data.get('command_id')) or 0
 
     def __eq__(self, other):
         return self.uuid == other.uuid
