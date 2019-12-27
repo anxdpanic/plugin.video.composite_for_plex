@@ -60,19 +60,17 @@ def monitor_channel_transcode_playback(context, server, session_id):
     server.stop_transcode_session(session_id)
 
 
-def play_media_id_from_uuid(context, server_uuid, media_id, force=None, transcode=False,  # pylint: disable=too-many-arguments
-                            transcode_profile=0):
-    server = context.plex_network.get_server_from_uuid(server_uuid)
-    url = server.get_formatted_url('/library/metadata/%s' % media_id)
-    play_library_media(context, url, force=force, transcode=transcode,
-                       transcode_profile=transcode_profile)
+def play_media_id_from_uuid(context, data):
+    server = context.plex_network.get_server_from_uuid(data['server_uuid'])
+    data['url'] = server.get_formatted_url('/library/metadata/%s' % data['media_id'])
+    play_library_media(context, data)
 
 
-def play_library_media(context, url, force=None, transcode=False, transcode_profile=0):
-    server = context.plex_network.get_server_from_url(url)
-    media_id = url.split('?')[0].split('&')[0].split('/')[-1]
+def play_library_media(context, data):
+    server = context.plex_network.get_server_from_url(data['url'])
+    media_id = data['url'].split('?')[0].split('&')[0].split('/')[-1]
 
-    tree = get_xml(context, url)
+    tree = get_xml(context, data['url'])
     if tree is None:
         return
 
@@ -81,7 +79,7 @@ def play_library_media(context, url, force=None, transcode=False, transcode_prof
     stream_data = streams.get('full_data', {})
     stream_media = streams.get('media', {})
 
-    if force and streams['type'] == 'music':
+    if data['force'] and streams['type'] == 'music':
         play_playlist(context, server, streams)
         return
 
@@ -90,9 +88,9 @@ def play_library_media(context, url, force=None, transcode=False, transcode_prof
     if url is None:
         return
 
-    transcode = is_transcode_required(context, streams.get('details', [{}]), transcode)
+    transcode = is_transcode_required(context, streams.get('details', [{}]), data['transcode'])
     try:
-        transcode_profile = int(transcode_profile)
+        transcode_profile = int(data['transcode_profile'])
     except ValueError:
         transcode_profile = 0
 
@@ -103,11 +101,11 @@ def play_library_media(context, url, force=None, transcode=False, transcode_prof
         'duration': int(int(stream_media['duration']) / 1000),
     }
 
-    if isinstance(force, int):
-        if int(force) > 0:
-            details['resume'] = int(int(force) / 1000)
+    if isinstance(data['force'], int):
+        if int(data['force']) > 0:
+            details['resume'] = int(int(data['force']) / 1000)
         else:
-            details['resume'] = force
+            details['resume'] = data['force']
 
     LOG.debug('Resume has been set to %s' % details['resume'])
 
