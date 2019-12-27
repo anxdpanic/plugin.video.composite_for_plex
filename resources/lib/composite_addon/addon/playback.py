@@ -79,7 +79,7 @@ def play_library_media(context, data):
     stream_data = streams.get('full_data', {})
     stream_media = streams.get('media', {})
 
-    if data['force'] and streams['type'] == 'music':
+    if data.get('force') and streams['type'] == 'music':
         play_playlist(context, server, streams)
         return
 
@@ -101,7 +101,7 @@ def play_library_media(context, data):
         'duration': int(int(stream_media['duration']) / 1000),
     }
 
-    if isinstance(data['force'], int):
+    if isinstance(data.get('force'), int):
         if int(data['force']) > 0:
             details['resume'] = int(int(data['force']) / 1000)
         else:
