@@ -76,27 +76,27 @@ def play_library_media(context, data):
     if tree is None:
         return
 
-    streams = get_audio_subtitles_from_media(context, server, tree, True)
+    stream = StreamData(context, server, tree).stream
 
-    stream_data = streams.get('full_data', {})
-    stream_media = streams.get('media', {})
+    stream_data = stream.get('full_data', {})
+    stream_media = stream.get('media', {})
 
-    if data.get('force') and streams['type'] == 'music':
-        play_playlist(context, server, streams)
+    if data.get('force') and stream['type'] == 'music':
+        play_playlist(context, server, stream)
         return
 
-    url = MediaSelect(context, server, streams).media_url
+    url = MediaSelect(context, server, stream).media_url
 
     if url is None:
         return
 
-    transcode = is_transcode_required(context, streams.get('details', [{}]), data['transcode'])
+    transcode = is_transcode_required(context, stream.get('details', [{}]), data['transcode'])
     try:
         transcode_profile = int(data['transcode_profile'])
     except ValueError:
         transcode_profile = 0
 
-    url, session = get_playback_url_and_session(server, url, streams, transcode, transcode_profile)
+    url, session = get_playback_url_and_session(server, url, stream, transcode, transcode_profile)
 
     details = {
         'resume': int(int(stream_media['viewOffset']) / 1000),
@@ -111,16 +111,16 @@ def play_library_media(context, data):
 
     LOG.debug('Resume has been set to %s' % details['resume'])
 
-    list_item = create_playback_item(url, session, streams, stream_data, details)
+    list_item = create_playback_item(url, session, stream, stream_data, details)
 
-    if streams['type'] in ['music', 'video']:
+    if stream['type'] in ['music', 'video']:
         server.settings = None  # can't pickle xbmcaddon.Addon()
         write_pickled('playback_monitor.pickle', {
             'media_id': media_id,
             'playing_file': url,
             'session': session,
             'server': server,
-            'streams': streams,
+            'stream': stream,
             'callback_args': {
                 'transcode': transcode,
                 'transcode_profile': transcode_profile
@@ -202,162 +202,204 @@ def is_transcode_required(context, stream_details, default=False):
     return default
 
 
-def get_audio_subtitles_from_media(context, server, tree, full=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
-    """
-        Cycle through the Parts sections to find all 'selected' audio and subtitle streams
-        If a stream is marked as selected=1 then we will record it in the dict
-        Any that are not, are ignored as we do not need to set them
-        We also record the media locations for playback decision later on
-    """
-    LOG.debug('Gather media stream info')
+class StreamData:
 
-    parts = []
-    parts_count = 0
-    subtitle = {}
-    sub_count = 0
-    audio = {}
-    audio_count = 0
-    media = {}
-    sub_offset = -1
-    audio_offset = -1
-    selected_sub_offset = -1
-    selected_audio_offset = -1
-    full_data = {}
-    contents = 'type'
-    extra = {}
+    def __init__(self, context, server, tree):
+        self.context = context
+        self.server = server
+        self.tree = tree
 
-    timings = tree.find('Video')
-    if timings is not None:
-        media_type = 'video'
-        extra['path'] = timings.get('key')
-    else:
-        timings = tree.find('Track')
-        if timings:
-            media_type = 'music'
-            extra['path'] = timings.get('key')
-        else:
-            timings = tree.find('Photo')
-            if timings:
-                media_type = 'picture'
-                extra['path'] = timings.get('key')
-            else:
-                LOG.debug('No Video data found')
-                return {}
+        self._content = None
 
-    media['viewOffset'] = timings.get('viewOffset', 0)
-    media['duration'] = timings.get('duration', 12 * 60 * 60)
-
-    if full:
-        if media_type == 'video':
-            full_data = {
-                'plot': encode_utf8(timings.get('summary', '')),
-                'title': encode_utf8(timings.get('title', i18n('Unknown'))),
-                'sorttitle':
-                    encode_utf8(timings.get('titleSort',
-                                            timings.get('title', i18n('Unknown')))),
-                'rating': float(timings.get('rating', 0)),
-                'studio': encode_utf8(timings.get('studio', '')),
-                'mpaa': encode_utf8(timings.get('contentRating', '')),
-                'year': int(timings.get('year', 0)),
-                'tagline': timings.get('tagline', ''),
-                'thumbnail': get_thumb_image(context, server, timings),
-                'mediatype': 'video'
-            }
-
-            if timings.get('type') == 'movie':
-                full_data['mediatype'] = 'movie'
-            elif timings.get('type') == 'episode':
-                full_data['episode'] = int(timings.get('index', 0))
-                full_data['aired'] = timings.get('originallyAvailableAt', '')
-                full_data['tvshowtitle'] = \
-                    encode_utf8(timings.get('grandparentTitle', tree.get('grandparentTitle', '')))
-                full_data['season'] = int(timings.get('parentIndex', tree.get('parentIndex', 0)))
-                full_data['mediatype'] = 'episode'
-
-            if not context.settings.get_setting('skipmetadata'):
-                tree_genres = timings.findall('Genre')
-                if tree_genres is not None:
-                    full_data['genre'] = [encode_utf8(tree_genre.get('tag', ''))
-                                          for tree_genre in tree_genres]
-
-        elif media_type == 'music':
-            track_title = '%s. %s' % \
-                          (str(timings.get('index', 0)).zfill(2),
-                           encode_utf8(timings.get('title', i18n('Unknown'))))
-            full_data = {
-                'TrackNumber': int(timings.get('index', 0)),
-                'discnumber': int(timings.get('parentIndex', 0)),
-                'title': track_title,
-                'rating': float(timings.get('rating', 0)),
-                'album': encode_utf8(timings.get('parentTitle',
-                                                 tree.get('parentTitle', ''))),
-                'artist': encode_utf8(timings.get('grandparentTitle',
-                                                  tree.get('grandparentTitle', ''))),
-                'duration': int(timings.get('duration', 0)) / 1000,
-                'thumbnail': get_thumb_image(context, server, timings)
-            }
-
-            extra['album'] = timings.get('parentKey')
-            extra['index'] = timings.get('index')
-
-    details = timings.findall('Media')
-
-    media_details_list = []
-    for media_details in details:
-
-        try:
-            if media_details.get('videoResolution') == 'sd':
-                resolution = 'SD'
-            elif int(media_details.get('videoResolution', 0)) > 1088:
-                resolution = '4K'
-            elif int(media_details.get('videoResolution', 0)) >= 1080:
-                resolution = 'HD 1080'
-            elif int(media_details.get('videoResolution', 0)) >= 720:
-                resolution = 'HD 720'
-            else:
-                resolution = 'SD'
-        except ValueError:
-            resolution = ''
-
-        media_details_temp = {
-            'bitrate': round(float(media_details.get('bitrate', 0)) / 1000, 1),
-            'bitDepth': media_details.get('bitDepth', 8),
-            'videoResolution': resolution,
-            'container': media_details.get('container', 'unknown'),
-            'codec': media_details.get('videoCodec')
+        self.data = {
+            'contents': 'type',  # What type of data we are holding
+            'audio': {},  # Audio data held in a dict
+            'audio_count': 0,  # Number of audio streams
+            'subtitle': {},  # Subtitle data (embedded) held as a dict
+            'sub_count': 0,  # Number of subtitle streams
+            'parts': [],  # The different media locations
+            'parts_count': 0,  # Number of media locations
+            'media': {},  # Resume/duration data for media
+            'details': [],  # Bitrate, resolution and container for each part
+            'sub_offset': -1,  # Stream index for selected subs
+            'audio_offset': -1,  # Stream index for select audio
+            'full_data': {},  # Full metadata extract if requested
+            'type': 'video',  # Type of metadata
+            'extra': {}
         }
 
-        options = media_details.findall('Part')
+        self.update_data()
 
-        # Get the media locations (file and web) for later on
-        for stuff in options:
+    def update_data(self):
+        LOG.debug('Gathering stream info')
+
+        if not self._get_content():
+            return
+
+        self.data['media']['viewOffset'] = self._content.get('viewOffset', 0)
+        self.data['media']['duration'] = self._content.get('duration', 12 * 60 * 60)
+
+        if self.data['type'] == 'video':
+            self._get_video_data()
+
+        if self.data['type'] == 'music':
+            self._get_track_data()
+
+        self._get_media_details()
+
+        if (self.data['type'] == 'video' and
+                self.context.settings.get_setting('streamControl') == StreamControl().PLEX):
+            self._get_audio_and_subtitles()
+        else:
+            LOG.debug('Stream selection is set OFF')
+
+    @property
+    def stream(self):
+        LOG.debug(self.data)
+        return self.data
+
+    def _get_content(self):
+        content = self.tree.find('Video')
+        if content is not None:
+            self.data['type'] = 'video'
+            self.data['extra']['path'] = content.get('key')
+            self._content = content
+            return True
+
+        content = self.tree.find('Track')
+        if content is not None:
+            self.data['type'] = 'music'
+            self.data['extra']['path'] = content.get('key')
+            self._content = content
+            return True
+
+        content = self.tree.find('Photo')
+        if content is not None:
+            self.data['type'] = 'picture'
+            self.data['extra']['path'] = content.get('key')
+            self._content = content
+            return True
+
+        LOG.debug('No content data found')
+        self._content = None
+        return False
+
+    def _get_video_data(self):
+        self.data['full_data'] = {
+            'plot': encode_utf8(self._content.get('summary', '')),
+            'title': encode_utf8(self._content.get('title', i18n('Unknown'))),
+            'sorttitle': encode_utf8(
+                self._content.get('titleSort', self._content.get('title', i18n('Unknown')))
+            ),
+            'rating': float(self._content.get('rating', 0)),
+            'studio': encode_utf8(self._content.get('studio', '')),
+            'mpaa': encode_utf8(self._content.get('contentRating', '')),
+            'year': int(self._content.get('year', 0)),
+            'tagline': self._content.get('tagline', ''),
+            'thumbnail': get_thumb_image(self.context, self.server, self._content),
+            'mediatype': 'video'
+        }
+
+        if self._content.get('type') == 'movie':
+            self.data['full_data']['mediatype'] = 'movie'
+        elif self._content.get('type') == 'episode':
+            self.data['full_data']['episode'] = int(self._content.get('index', 0))
+            self.data['full_data']['aired'] = self._content.get('originallyAvailableAt', '')
+            self.data['full_data']['tvshowtitle'] = encode_utf8(
+                self._content.get('grandparentTitle', self.tree.get('grandparentTitle', ''))
+            )
+            self.data['full_data']['season'] = int(
+                self._content.get('parentIndex', self.tree.get('parentIndex', 0))
+            )
+            self.data['full_data']['mediatype'] = 'episode'
+
+        if not self.context.settings.get_setting('skipmetadata'):
+            tree_genres = self._content.findall('Genre')
+            if tree_genres is not None:
+                self.data['full_data']['genre'] = [encode_utf8(tree_genre.get('tag', ''))
+                                                   for tree_genre in tree_genres]
+
+    def _get_track_data(self):
+
+        track_title = '%s. %s' % \
+                      (str(self._content.get('index', 0)).zfill(2),
+                       encode_utf8(self._content.get('title', i18n('Unknown'))))
+        self.data['full_data'] = {
+            'TrackNumber': int(self._content.get('index', 0)),
+            'discnumber': int(self._content.get('parentIndex', 0)),
+            'title': track_title,
+            'rating': float(self._content.get('rating', 0)),
+            'album': encode_utf8(self._content.get('parentTitle',
+                                                   self.tree.get('parentTitle', ''))),
+            'artist': encode_utf8(self._content.get('grandparentTitle',
+                                                    self.tree.get('grandparentTitle', ''))),
+            'duration': int(self._content.get('duration', 0)) / 1000,
+            'thumbnail': get_thumb_image(self.context, self.server, self._content)
+        }
+
+        self.data['extra']['album'] = self._content.get('parentKey')
+        self.data['extra']['index'] = self._content.get('index')
+
+    def _get_media_details(self):
+        media = self._content.findall('Media')
+
+        self.data['details'] = []
+        self.data['parts'] = []
+        self.data['parts_count'] = 0
+
+        for details in media:
 
             try:
-                bits = stuff.get('key'), stuff.get('file')
-                parts.append(bits)
-                media_details_list.append(media_details_temp)
-                parts_count += 1
-            except:  # pylint: disable=bare-except
-                pass
+                if details.get('videoResolution') == 'sd':
+                    resolution = 'SD'
+                elif int(details.get('videoResolution', 0)) > 1088:
+                    resolution = '4K'
+                elif int(details.get('videoResolution', 0)) >= 1080:
+                    resolution = 'HD 1080'
+                elif int(details.get('videoResolution', 0)) >= 720:
+                    resolution = 'HD 720'
+                else:
+                    resolution = 'SD'
+            except ValueError:
+                resolution = ''
 
-    # if we are deciding internally or forcing an external subs file, then collect the data
-    if media_type == 'video' and \
-            context.settings.get_setting('streamControl') == StreamControl().PLEX:
+            media_details = {
+                'bitrate': round(float(details.get('bitrate', 0)) / 1000, 1),
+                'bitDepth': details.get('bitDepth', 8),
+                'videoResolution': resolution,
+                'container': details.get('container', 'unknown'),
+                'codec': details.get('videoCodec')
+            }
 
-        contents = 'all'
-        tags = tree.getiterator('Stream')
+            parts = details.findall('Part')
+
+            # Get the media locations (file and web) for later on
+            for part in parts:
+                self.data['parts'].append((part.get('key'), part.get('file')))
+                self.data['details'].append(media_details)
+                self.data['parts_count'] += 1
+
+    def _get_audio_and_subtitles(self):
+        audio_offset = 0
+        sub_offset = 0
+
+        self.data['contents'] = 'all'
+        self.data['audio_count'] = 0
+        self.data['sub_count'] = 0
+
+        tags = self.tree.getiterator('Stream')
 
         for bits in tags:
             stream = dict(bits.items())
 
             # Audio Streams
             if stream['streamType'] == '2':
-                audio_count += 1
+                self.data['audio_count'] += 1
                 audio_offset += 1
                 if stream.get('selected') == '1':
                     LOG.debug('Found preferred audio id: %s ' % stream['id'])
-                    audio = stream
-                    selected_audio_offset = audio_offset
+                    self.data['audio'] = stream
+                    self.data['audio_offset'] = audio_offset
 
             # Subtitle Streams
             elif stream['streamType'] == '3':
@@ -369,35 +411,12 @@ def get_audio_subtitles_from_media(context, server, tree, full=False):  # pylint
 
                 if stream.get('selected') == '1':
                     LOG.debug('Found preferred subtitles id : %s ' % stream['id'])
-                    sub_count += 1
-                    subtitle = stream
+                    self.data['sub_count'] += 1
+                    self.data['subtitle'] = stream
                     if stream.get('key'):
-                        subtitle['key'] = server.get_formatted_url(stream['key'])
+                        self.data['subtitle']['key'] = self.server.get_formatted_url(stream['key'])
                     else:
-                        selected_sub_offset = int(stream.get('index')) - sub_offset
-
-    else:
-        LOG.debug('Stream selection is set OFF')
-
-    stream_data = {
-        'contents': contents,  # What type of data we are holding
-        'audio': audio,  # Audio data held in a dict
-        'audio_count': audio_count,  # Number of audio streams
-        'subtitle': subtitle,  # Subtitle data (embedded) held as a dict
-        'sub_count': sub_count,  # Number of subtitle streams
-        'parts': parts,  # The different media locations
-        'parts_count': parts_count,  # Number of media locations
-        'media': media,  # Resume/duration data for media
-        'details': media_details_list,  # Bitrate, resolution and container for each part
-        'sub_offset': selected_sub_offset,  # Stream index for selected subs
-        'audio_offset': selected_audio_offset,  # Stream index for select audio
-        'full_data': full_data,  # Full metadata extract if requested
-        'type': media_type,  # Type of metadata
-        'extra': extra
-    }  # Extra data
-
-    LOG.debug(stream_data)
-    return stream_data
+                        self.data['sub_offset'] = int(stream.get('index')) - sub_offset
 
 
 class MediaSelect:
