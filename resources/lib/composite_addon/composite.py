@@ -192,9 +192,13 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.PLAYLIBRARY:
         from .routes import play_library_media  # pylint: disable=import-outside-toplevel
-        play_library_media.run(context, url=url, server_uuid=server_uuid, media_id=media_id,
-                               transcode=int(context.params.get('transcode', 0)) == 1,
-                               transcode_profile=context.params.get('transcode_profile'))
+        play_library_media.run(context, {
+            'url': url,
+            'server_uuid': server_uuid,
+            'media_id': media_id,
+            'transcode': int(context.params.get('transcode', 0)) == 1,
+            'transcode_profile': context.params.get('transcode_profile')
+        })
         return _finished(start_time)
 
     if mode == MODES.TVEPISODES:
@@ -261,7 +265,10 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 
     if mode == MODES.PLAYLIBRARY_TRANSCODE:
         from .routes import play_library_media  # pylint: disable=import-outside-toplevel
-        play_library_media.run(context, url=url, transcode=True)
+        play_library_media.run(context, {
+            'url': url,
+            'transcode': True
+        })
         return _finished(start_time)
 
     if mode == MODES.MYPLEXQUEUE:
