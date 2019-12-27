@@ -16,6 +16,7 @@ from six.moves.urllib_parse import unquote
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
+from kodi_six import xbmcvfs  # pylint: disable=import-error
 
 from .common import get_handle
 from .constants import CONFIG
@@ -25,6 +26,7 @@ from .items.track import create_track_item
 from .logger import Logger
 from .strings import encode_utf8
 from .strings import i18n
+from .utils import get_file_type
 from .utils import get_xml
 from .utils import write_pickled
 
@@ -79,11 +81,11 @@ def play_library_media(context, data):
     stream_data = streams.get('full_data', {})
     stream_media = streams.get('media', {})
 
-    if data['force'] and streams['type'] == 'music':
+    if data.get('force') and streams['type'] == 'music':
         play_playlist(context, server, streams)
         return
 
-    url = select_media_to_play(context, server, streams)
+    url = MediaSelect(context, server, streams).media_url
 
     if url is None:
         return
@@ -101,7 +103,7 @@ def play_library_media(context, data):
         'duration': int(int(stream_media['duration']) / 1000),
     }
 
-    if isinstance(data['force'], int):
+    if isinstance(data.get('force'), int):
         if int(data['force']) > 0:
             details['resume'] = int(int(data['force']) / 1000)
         else:
@@ -398,170 +400,190 @@ def get_audio_subtitles_from_media(context, server, tree, full=False):  # pylint
     return stream_data
 
 
-def select_media_to_play(context, server, data):
-    # if we have two or more files for the same movie, then present a screen
+class MediaSelect:
+    def __init__(self, context, server, data):
+        self.context = context
+        self.server = server
+        self.data = data
 
-    result = 0
-    dvd_playback = False
+        self.dvd_playback = False
 
-    count = data['parts_count']
-    options = data['parts']
-    details = data['details']
+        self._media_index = None
+        self._media_url = None
 
-    if count > 1:
+        self.update_selection()
 
-        dialog_options = []
-        dvd_index = []
-        index_count = 0
-        for items in options:
+    def update_selection(self):
+        self._select_media()
+        self._get_media_url()
 
-            if items[1]:
-                name = items[1].split('/')[-1]
-                # name='%s %s %sMbps' % (items[1].split('/')[-1],
-                # details[index_count]['videoResolution'], details[index_count]['bitrate'])
-            else:
-                name = '%s %s %sMbps' % (items[0].split('.')[-1],
-                                         details[index_count]['videoResolution'],
-                                         details[index_count]['bitrate'])
+    @property
+    def media_url(self):
+        return self._media_url
 
-            if context.settings.get_setting('forcedvd'):
-                if '.ifo' in name.lower():
-                    LOG.debug('Found IFO DVD file in ' + name)
-                    name = 'DVD Image'
-                    dvd_index.append(index_count)
+    @media_url.setter
+    def media_url(self, value):
+        self._media_url = value
 
-            dialog_options.append(name)
-            index_count += 1
+    def _select_media(self):
+        count = self.data['parts_count']
+        options = self.data['parts']
+        details = self.data['details']
 
-        LOG.debug('Create selection dialog box - we have a decision to make!')
-        start_time = xbmcgui.Dialog()
-        result = start_time.select(i18n('Select media to play'), dialog_options)
-        if result == -1:
-            return None
+        if count > 1:
 
-        if result in dvd_index:
-            LOG.debug('DVD Media selected')
-            dvd_playback = True
+            dialog_options = []
+            dvd_index = []
+            index_count = 0
+            for items in options:
 
-    else:
-        if context.settings.get_setting('forcedvd'):
-            if '.ifo' in options[result]:
-                dvd_playback = True
-
-    media_url = select_media_type(
-        context, server,
-        {
-            'key': options[result][0],
-            'file': options[result][1]
-        },
-        dvd_playback
-    )
-
-    LOG.debug('We have selected media at %s' % media_url)
-    return media_url
-
-
-def select_media_type(context, server, part_data, dvd_playback=False):  # pylint: disable=too-many-statements, too-many-branches
-    stream = part_data['key']
-    filename = part_data['file']
-    file_location = ''
-
-    if (filename is None) or (context.settings.get_stream() == '1'):
-        LOG.debug('Selecting stream')
-        return server.get_formatted_url(stream)
-
-    # First determine what sort of 'file' file is
-
-    if filename[0:2] == '\\\\':
-        LOG.debug('Detected UNC source file')
-        file_type = 'UNC'
-    elif filename[0:1] in ['/', '\\']:
-        LOG.debug('Detected unix source file')
-        file_type = 'nixfile'
-    elif filename[1:3] == ':\\' or filename[1:2] == ':/':
-        LOG.debug('Detected windows source file')
-        file_type = 'winfile'
-    else:
-        LOG.debug('Unknown file type source: %s' % filename)
-        file_type = None
-
-    # 0 is auto select.  basically check for local file first, then stream if not found
-    if context.settings.get_stream() == '0':
-        # check if the file can be found locally
-        if file_type in ['nixfile', 'winfile']:
-            LOG.debug('Checking for local file')
-            try:
-                exists = open(filename, 'r')
-                LOG.debug('Local f found, will use this')
-                exists.close()
-                return 'file:%s' % filename
-            except:  # pylint: disable=bare-except
-                pass
-
-        LOG.debug('No local file')
-        if dvd_playback:
-            LOG.debug('Forcing SMB for DVD playback')
-            context.settings.set_stream('2')
-        else:
-            return server.get_formatted_url(stream)
-
-    # 2 is use SMB
-    elif context.settings.get_stream() == '2' or context.settings.get_stream() == '3':
-
-        filename = unquote(filename)
-        if context.settings.get_stream() == '2':
-            protocol = 'smb'
-        else:
-            protocol = 'afp'
-
-        LOG.debug('Selecting smb/unc')
-        if file_type == 'UNC':
-            file_location = '%s:%s' % (protocol, filename.replace('\\', '/'))
-        else:
-            # Might be OSX type, in which case, remove Volumes and replace with server
-            server = server.get_location().split(':')[0]
-            login_string = ''
-
-            if context.settings.get_setting('nasoverride'):
-                if context.settings.get_setting('nasoverrideip'):
-                    server = context.settings.get_setting('nasoverrideip')
-                    LOG.debug('Overriding server with: %s' % server)
-
-                if context.settings.get_setting('nasuserid'):
-                    login_string = '%s:%s@' % (context.settings.get_setting('nasuserid'),
-                                               context.settings.get_setting('naspass'))
-                    LOG.debug('Adding AFP/SMB login info for user: %s' %
-                              context.settings.get_setting('nasuserid'))
-
-            if filename.find('Volumes') > 0:
-                file_location = '%s:/%s' % \
-                                (protocol, filename.replace('Volumes', login_string + server))
-            else:
-                if file_type == 'winfile':
-                    file_location = ('%s://%s%s/%s' %
-                                     (protocol, login_string, server,
-                                      filename[3:].replace('\\', '/')))
+                if items[1]:
+                    name = items[1].split('/')[-1]
+                    # name='%s %s %sMbps' % (items[1].split('/')[-1],
+                    # details[index_count]['videoResolution'], details[index_count]['bitrate'])
                 else:
-                    # else assume its a file local to server available over smb/samba.
-                    # Add server name to file path.
-                    file_location = '%s://%s%s%s' % (protocol, login_string, server, filename)
+                    name = '%s %s %sMbps' % (items[0].split('.')[-1],
+                                             details[index_count]['videoResolution'],
+                                             details[index_count]['bitrate'])
 
-        if context.settings.get_setting('nasoverride') and context.settings.get_setting('nasroot'):
+                if self.context.settings.get_setting('forcedvd'):
+                    if '.ifo' in name.lower():
+                        LOG.debug('Found IFO DVD file in ' + name)
+                        name = 'DVD Image'
+                        dvd_index.append(index_count)
+
+                dialog_options.append(name)
+                index_count += 1
+
+            LOG.debug('Create selection dialog box - we have a decision to make!')
+            dialog = xbmcgui.Dialog()
+            result = dialog.select(i18n('Select media to play'), dialog_options)
+            if result == -1:
+                self._media_index = None
+
+            if result in dvd_index:
+                LOG.debug('DVD Media selected')
+                self.dvd_playback = True
+
+            self._media_index = result
+
+        else:
+            if self.context.settings.get_setting('forcedvd'):
+                if '.ifo' in options[0]:
+                    self.dvd_playback = True
+
+            self._media_index = 0
+
+    def _get_media_url(self):
+        if self._media_index is None:
+            self.media_url = None
+            return
+
+        stream = self.data['parts'][self._media_index][0]
+        filename = self.data['parts'][self._media_index][1]
+
+        if self._http(filename, stream):
+            return
+
+        file_type = get_file_type(filename)
+
+        if self._auto(filename, file_type, stream):
+            return
+
+        if self._smb_afp(filename, file_type):
+            return
+
+        LOG.debug('No option detected, streaming is safest to choose')
+        self.media_url = self.server.get_formatted_url(stream)
+
+    def _http(self, filename, stream):
+        if filename is None or self.context.settings.get_stream() == '1':  # http
+            LOG.debug('Selecting stream')
+            self.media_url = self.server.get_formatted_url(stream)
+            return True
+
+        return False
+
+    def _auto(self, filename, file_type, stream):
+        if self.context.settings.get_stream() == '0':  # auto
+            # check if the file can be found locally
+            if file_type in ['NIX', 'WIN']:
+                LOG.debug('Checking for local file')
+                if xbmcvfs.exists(filename):
+                    LOG.debug('Local file exists')
+                    self.media_url = 'file:%s' % filename
+                    return True
+
+            LOG.debug('No local file')
+            if self.dvd_playback:
+                LOG.debug('Forcing SMB for DVD playback')
+                self.context.settings.set_stream('2')
+            else:
+                self.media_url = self.server.get_formatted_url(stream)
+                return True
+
+        return False
+
+    def _smb_afp(self, filename, file_type):
+        if self.context.settings.get_stream() in ['2', '3']:  # smb / AFP
+
+            filename = unquote(filename)
+            if self.context.settings.get_stream() == '2':
+                protocol = 'smb'
+            else:
+                protocol = 'afp'
+
+            LOG.debug('Selecting smb/unc')
+            if file_type == 'UNC':
+                self.media_url = '%s:%s' % (protocol, filename.replace('\\', '/'))
+            else:
+                # Might be OSX type, in which case, remove Volumes and replace with server
+                server = self.server.get_location().split(':')[0]
+                login_string = ''
+
+                if self.context.settings.get_setting('nasoverride'):
+                    if self.context.settings.get_setting('nasoverrideip'):
+                        server = self.context.settings.get_setting('nasoverrideip')
+                        LOG.debug('Overriding server with: %s' % server)
+
+                    if self.context.settings.get_setting('nasuserid'):
+                        login_string = '%s:%s@' % (self.context.settings.get_setting('nasuserid'),
+                                                   self.context.settings.get_setting('naspass'))
+                        LOG.debug('Adding AFP/SMB login info for user: %s' %
+                                  self.context.settings.get_setting('nasuserid'))
+
+                if filename.find('Volumes') > 0:
+                    self.media_url = '%s:/%s' % \
+                                     (protocol, filename.replace('Volumes', login_string + server))
+                else:
+                    if file_type == 'WIN':
+                        self.media_url = ('%s://%s%s/%s' %
+                                          (protocol, login_string, server,
+                                           filename[3:].replace('\\', '/')))
+                    else:
+                        # else assume its a file local to server available over smb/samba.
+                        # Add server name to file path.
+                        self.media_url = '%s://%s%s%s' % (protocol, login_string, server, filename)
+
+            # nas override
+            self._nas_override()
+
+            return self.media_url is not None
+
+        return False
+
+    def _nas_override(self):
+        if (self.context.settings.get_setting('nasoverride') and
+                self.context.settings.get_setting('nasroot')):
             # Re-root the file path
             LOG.debug('Altering path %s so root is: %s' %
-                      (file_location, context.settings.get_setting('nasroot')))
-            if '/' + context.settings.get_setting('nasroot') + '/' in file_location:
-                components = file_location.split('/')
-                index = components.index(context.settings.get_setting('nasroot'))
+                      (self.media_url, self.context.settings.get_setting('nasroot')))
+            if '/' + self.context.settings.get_setting('nasroot') + '/' in self.media_url:
+                components = self.media_url.split('/')
+                index = components.index(self.context.settings.get_setting('nasroot'))
                 for _ in list(range(3, index)):
                     components.pop(3)
-                file_location = '/'.join(components)
-    else:
-        LOG.debug('No option detected, streaming is safest to choose')
-        file_location = server.get_formatted_url(stream)
-
-    LOG.debug('Returning URL: %s ' % file_location)
-    return file_location
+                self.media_url = '/'.join(components)
 
 
 def play_playlist(context, server, data):

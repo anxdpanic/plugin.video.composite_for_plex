@@ -187,3 +187,18 @@ def wait_for_busy_dialog():
     LOG.debug('Waited %.2f for busy dialogs to close.' % (time.time() - start_time))
     return (not monitor.abortRequested() and
             xbmcgui.getCurrentWindowDialogId() not in [10138, 10160])
+
+
+def get_file_type(filename):
+    if filename[0:2] == '\\\\':
+        LOG.debug('Detected UNC source file')
+        return 'UNC'
+    if filename[0:1] in ['/', '\\']:
+        LOG.debug('Detected unix source file')
+        return 'NIX'
+    if filename[1:3] == ':\\' or filename[1:2] == ':/':
+        LOG.debug('Detected windows source file')
+        return 'WIN'
+
+    LOG.debug('Unknown file type source: %s' % filename)
+    return None
