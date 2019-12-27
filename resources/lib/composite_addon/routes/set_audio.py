@@ -21,7 +21,7 @@ from ..plex import plex
 LOG = Logger()
 
 
-def run(context):  # pylint: disable=too-many-locals
+def run(context):
     """
         Display a list of available audio streams and allow a user to select one.
         The currently selected stream will be annotated with a *
@@ -48,28 +48,12 @@ def run(context):  # pylint: disable=too-many-locals
 
                 stream_id = streams.get('id')
                 audio_list.append(stream_id)
-                lang = streams.get('languageCode', i18n('Unknown'))
 
-                LOG.debug('Detected Audio stream [%s] [%s] ' % (stream_id, lang))
-
-                if streams.get('channels', i18n('Unknown')) == '6':
-                    channels = '5.1'
-                elif streams.get('channels', i18n('Unknown')) == '7':
-                    channels = '6.1'
-                elif streams.get('channels', i18n('Unknown')) == '2':
-                    channels = 'Stereo'
-                else:
-                    channels = streams.get('channels', i18n('Unknown'))
-
-                if streams.get('codec', i18n('Unknown')) == 'ac3':
-                    codec = 'AC3'
-                elif streams.get('codec', i18n('Unknown')) == 'dca':
-                    codec = 'DTS'
-                else:
-                    codec = streams.get('codec', i18n('Unknown'))
+                LOG.debug('Detected Audio stream [%s] [%s] ' %
+                          (stream_id, streams.get('languageCode', 'Unknown')))
 
                 language = '%s (%s %s)' % (encode_utf8(streams.get('language', i18n('Unknown'))),
-                                           codec, channels)
+                                           audio_codec(streams), audio_channels(streams))
 
                 if streams.get('selected') == '1':
                     language = language + '*'
@@ -83,3 +67,24 @@ def run(context):  # pylint: disable=too-many-locals
 
     LOG.debug('User has selected stream %s' % audio_list[result])
     server.set_audio_stream(part_id, audio_list[result])
+
+
+def audio_channels(streams):
+    if streams.get('channels', i18n('Unknown')) == '6':
+        return '5.1'
+    if streams.get('channels', i18n('Unknown')) == '7':
+        return '6.1'
+    if streams.get('channels', i18n('Unknown')) == '2':
+        return 'Stereo'
+
+    return streams.get('channels', i18n('Unknown'))
+
+
+def audio_codec(streams):
+    if streams.get('codec', i18n('Unknown')) == 'ac3':
+        return 'AC3'
+
+    if streams.get('codec', i18n('Unknown')) == 'dca':
+        return 'DTS'
+
+    return streams.get('codec', i18n('Unknown'))
