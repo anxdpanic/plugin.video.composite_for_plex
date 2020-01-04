@@ -15,10 +15,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] Setting to configure service.upnext notification encoding (hex/base64)
-[upd] Simplify hash generation for library integration of tv shows
-[upd] Linting
-[upd] Refactoring
+[fix] set content type for library endpoints
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
