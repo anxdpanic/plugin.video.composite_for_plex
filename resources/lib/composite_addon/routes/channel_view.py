@@ -36,7 +36,7 @@ def run(context, url):
     if PY3:
         tree_iter = tree.iter()
     else:
-        tree_iter = tree.getiterator('Directory')  # pylint: disable=deprecated-method
+        tree_iter = tree.getiterator('Directory')
 
     items = []
     for channels in tree_iter:

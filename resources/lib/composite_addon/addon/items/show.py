@@ -12,8 +12,6 @@
 
 import hashlib
 
-from six.moves.urllib_parse import quote_plus
-
 from ...addon.constants import MODES
 from ...addon.logger import Logger
 from ...addon.strings import encode_utf8
@@ -88,35 +86,14 @@ def create_show_item(context, server, url, show, library=False):
         context_menu = ContextMenu(context, server, url, extra_data).menu
 
     if library:
-        extra_data['hash'] = \
-            _md5_all_episodes(server, extra_data['key'], details.get('TVShowTitle', ''))
+        extra_data['hash'] = _md5_hash(show)
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     return create_gui_item(context, item_url, details, extra_data, context_menu)
 
 
-def _md5_all_episodes(server, url, title):
-    url = '%s%s' % (server.get_url_location(), url.replace('children', 'allLeaves'))
-
-    tree = server.processed_xml(url)
-    if tree is None:
-        return None
-
+def _md5_hash(show):
     show_hash = hashlib.md5()
-
-    hash_title = title
-    if not isinstance(hash_title, bytes):
-        hash_title = hash_title.encode('utf-8')
-    hash_title = quote_plus(hash_title).encode('utf-8')
-
-    show_hash.update(hash_title)
-
-    for episode in tree:
-        hash_title = episode.get('title')
-        if not isinstance(hash_title, bytes):
-            hash_title = hash_title.encode('utf-8')
-        hash_title = quote_plus(hash_title).encode('utf-8')
-
-        show_hash.update(hash_title)
-
+    show_hash.update(show.get('addedAt', u'').encode('utf-8'))
+    show_hash.update(show.get('updatedAt', u'').encode('utf-8'))
     return show_hash.hexdigest().upper()

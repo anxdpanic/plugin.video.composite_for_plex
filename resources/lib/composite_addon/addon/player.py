@@ -56,8 +56,8 @@ class PlaybackMonitorThread(threading.Thread):
     def session(self):
         return self._monitor_dict.get('session')
 
-    def streams(self):
-        return self._monitor_dict.get('streams')
+    def stream(self):
+        return self._monitor_dict.get('stream')
 
     def stop(self):
         self.LOG.debug('[%s]: Stop event set...' % self.media_id())
@@ -125,8 +125,8 @@ class PlaybackMonitorThread(threading.Thread):
 
         self._wait_for_playback()
 
-        if self.streams():
-            set_audio_subtitles(self.settings, self.streams())
+        if self.stream():
+            set_audio_subtitles(self.settings, self.stream())
 
         wait_time = 0.5
         waited = 0.0
@@ -240,7 +240,7 @@ class CallbackPlayer(xbmc.Player):
             self.LOG('Playback monitoring failed to start, missing required {} ...')
 
         if playback_dict:
-            full_data = playback_dict.get('streams', {}).get('full_data', {})
+            full_data = playback_dict.get('stream', {}).get('full_data', {})
             media_type = full_data.get('mediatype', '').lower()
             if self.settings.use_up_next() and media_type == 'episode':
                 self.LOG('Using Up Next ...')

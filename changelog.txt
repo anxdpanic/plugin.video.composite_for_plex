@@ -1,5 +1,6 @@
-0.6.1
+0.7.0
 [add] Setting to configure service.upnext notification encoding (hex/base64)
+[upd] Simplify hash generation for library integration of tv shows
 [upd] Linting
 [upd] Refactoring
 
