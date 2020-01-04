@@ -55,8 +55,9 @@ def run(context):
         for server in server_list:
             sections = server.get_sections()
             for section in sections:
-                if section.get_type() == content_type:
-                    if content_type in ['movie', 'show']:
+                if section.get_type() in content_type:
+                    if content_type in ['movies', 'tvshows']:
+                        xbmcplugin.setContent(get_handle(), content_type)
                         _list_content(context, server, '%s%s/all' %
                                       (server.get_url_location(), section.get_path()))
 
@@ -67,9 +68,9 @@ def _get_content_type(path_mode):
     content_type = None
     if path_mode:
         if path_mode.endswith('movies'):
-            content_type = 'movie'
+            content_type = 'movies'
         elif path_mode.endswith('tvshows'):
-            content_type = 'show'
+            content_type = 'tvshows'
     return content_type
 
 
