@@ -12,10 +12,10 @@
 
 import json
 
-from ...addon.constants import MODES
-from ...addon.logger import Logger
-from ...addon.strings import encode_utf8
-from ...addon.strings import i18n
+from ..constants import MODES
+from ..logger import Logger
+from ..strings import encode_utf8
+from ..strings import i18n
 from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_thumb_image

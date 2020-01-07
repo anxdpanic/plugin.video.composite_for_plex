@@ -12,11 +12,11 @@
 
 from six.moves.urllib_parse import urlparse
 
-from ...addon.constants import COMMANDS
-from ...addon.constants import CONFIG
-from ...addon.constants import MODES
-from ...addon.logger import Logger
-from ...addon.strings import i18n
+from ..constants import COMMANDS
+from ..constants import CONFIG
+from ..constants import MODES
+from ..logger import Logger
+from ..strings import i18n
 
 LOG = Logger()
 

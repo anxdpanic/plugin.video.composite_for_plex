@@ -12,13 +12,14 @@
 
 import hashlib
 
-from ...addon.constants import MODES
-from ...addon.logger import Logger
-from ...addon.strings import encode_utf8
-from ...addon.strings import i18n
+from ..constants import MODES
+from ..logger import Logger
+from ..strings import encode_utf8
+from ..strings import i18n
 from .common import create_gui_item
 from .common import get_banner_image
 from .common import get_fanart_image
+from .common import get_metadata
 from .common import get_thumb_image
 from .context_menu import ContextMenu
 
@@ -26,11 +27,7 @@ LOG = Logger()
 
 
 def create_show_item(context, server, url, show, library=False):
-    temp_genre = []
-
-    for child in show:
-        if child.tag == 'Genre':
-            temp_genre.append(child.get('tag', ''))
+    metadata = get_metadata(context, show)
 
     _watched = int(show.get('viewedLeafCount', 0))
 
@@ -46,7 +43,8 @@ def create_show_item(context, server, url, show, library=False):
         'mpaa': show.get('contentRating', ''),
         'rating': float(show.get('rating', 0)),
         'aired': show.get('originallyAvailableAt', ''),
-        'genre': ' / '.join(temp_genre),
+        'cast': metadata['cast'],
+        'genre': ' / '.join(metadata['genre']),
         'mediatype': 'tvshow'
     }
 

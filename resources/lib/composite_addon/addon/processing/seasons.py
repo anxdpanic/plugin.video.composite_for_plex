@@ -12,10 +12,10 @@
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ...addon.common import get_handle
-from ...addon.items.season import create_season_item
-from ...addon.logger import Logger
-from ...addon.utils import get_xml
+from ..common import get_handle
+from ..items.season import create_season_item
+from ..logger import Logger
+from ..utils import get_xml
 from .episodes import process_episodes
 
 LOG = Logger()

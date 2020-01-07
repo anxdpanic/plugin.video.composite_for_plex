@@ -10,9 +10,9 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from ...addon.constants import MODES
-from ...addon.strings import encode_utf8
-from ...addon.strings import i18n
+from ..constants import MODES
+from ..strings import encode_utf8
+from ..strings import i18n
 from .common import create_gui_item
 from .common import get_banner_image
 from .common import get_fanart_image

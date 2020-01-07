@@ -12,9 +12,9 @@
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ...addon.common import get_handle
-from ...addon.items.album import create_album_item
-from ...addon.utils import get_xml
+from ..common import get_handle
+from ..items.album import create_album_item
+from ..utils import get_xml
 
 
 def process_albums(context, url, tree=None):
