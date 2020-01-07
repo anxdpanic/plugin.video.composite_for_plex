@@ -266,7 +266,7 @@ def get_banner_image(context, server, data, width=720, height=720):
         return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
                                                     (thumbnail, width, height))
 
-    return CONFIG['icon']
+    return ''
 
 
 def get_fanart_image(context, server, data, width=1280, height=720):
@@ -323,3 +323,33 @@ def get_media_data(tag_dict):
             'audio': stream_info_audio,
         },
     }
+
+
+def get_metadata(context, data):
+    metadata = {
+        'attributes': {},
+        'cast': [],
+        'collections': [],
+        'director': [],
+        'genre': [],
+        'writer': [],
+    }
+
+    media_tag = data.find('Media')
+    if media_tag:
+        metadata['attributes'] = dict(media_tag.items())
+
+    if not context.settings.get_setting('skipmetadata'):
+        for child in data:
+            if child.tag == 'Genre':
+                metadata['genre'].append(child.get('tag'))
+            elif child.tag == 'Writer':
+                metadata['writer'].append(child.get('tag'))
+            elif child.tag == 'Director':
+                metadata['director'].append(child.get('tag'))
+            elif child.tag == 'Role':
+                metadata['cast'].append(child.get('tag'))
+            elif child.tag == 'Collection':
+                metadata['collections'].append(child.get('tag'))
+
+    return metadata

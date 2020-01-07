@@ -21,42 +21,21 @@ from ...addon.strings import i18n
 from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_media_data
+from .common import get_metadata
 from .common import get_thumb_image
 from .context_menu import ContextMenu
 
 LOG = Logger()
 
 
-def create_movie_item(context, server, tree, url, movie, library=False):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches, too-many-arguments
-    temp_genre = []
-    temp_cast = []
-    temp_collections = []
-    temp_director = []
-    temp_writer = []
+def create_movie_item(context, server, tree, url, movie, library=False):  # pylint: disable=too-many-arguments
 
-    media_arguments = {}
-
-    # Lets grab all the info we can quickly through either a dictionary, or assignment to a list
-    # We'll process it later
-    for child in movie:
-        if child.tag == 'Media':
-            media_arguments = dict(child.items())
-        elif child.tag == 'Genre' and not context.settings.get_setting('skipmetadata'):
-            temp_genre.append(child.get('tag'))
-        elif child.tag == 'Writer' and not context.settings.get_setting('skipmetadata'):
-            temp_writer.append(child.get('tag'))
-        elif child.tag == 'Director' and not context.settings.get_setting('skipmetadata'):
-            temp_director.append(child.get('tag'))
-        elif child.tag == 'Role' and not context.settings.get_setting('skipmetadata'):
-            temp_cast.append(child.get('tag'))
-        elif child.tag == 'Collection' and not context.settings.get_setting('skipmetadata'):
-            temp_collections.append(child.get('tag'))
-
-    LOG.debug('Media attributes are %s' % json.dumps(media_arguments, indent=4))
+    metadata = get_metadata(context, movie)
+    LOG.debug('Media attributes are %s' % json.dumps(metadata['attributes'], indent=4))
 
     # Gather some data
     view_offset = movie.get('viewOffset', 0)
-    duration = int(media_arguments.get('duration', movie.get('duration', 0))) / 1000
+    duration = int(metadata['attributes'].get('duration', movie.get('duration', 0))) / 1000
 
     # Required listItem entries for Kodi
     details = {
@@ -101,19 +80,14 @@ def create_movie_item(context, server, tree, url, movie, library=False):  # pyli
         })
 
     # Determine what type of watched flag [overlay] to use
-    if int(movie.get('viewCount', 0)) > 0:
-        details['playcount'] = 1
-    elif int(movie.get('viewCount', 0)) == 0:
-        details['playcount'] = 0
+    details['playcount'] = int(int(movie.get('viewCount', 0)) > 0)
 
     # Extended Metadata
-    if not context.settings.get_setting('skipmetadata'):
-        details['cast'] = temp_cast
-        details['director'] = ' / '.join(temp_director)
-        details['writer'] = ' / '.join(temp_writer)
-        details['genre'] = ' / '.join(temp_genre)
-        if temp_collections:
-            details['set'] = ' / '.join(temp_collections)
+    details['cast'] = metadata['cast']
+    details['director'] = ' / '.join(metadata['director'])
+    details['genre'] = ' / '.join(metadata['genre'])
+    details['set'] = ' / '.join(metadata['collections'])
+    details['writer'] = ' / '.join(metadata['writer'])
 
     if movie.get('primaryExtraKey') is not None:
         details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
@@ -123,7 +97,7 @@ def create_movie_item(context, server, tree, url, movie, library=False):  # pyli
 
     # Add extra media flag data
     if not context.settings.get_setting('skipflags'):
-        extra_data.update(get_media_data(media_arguments))
+        extra_data.update(get_media_data(metadata['attributes']))
 
     # Build any specific context menu entries
     context_menu = None
