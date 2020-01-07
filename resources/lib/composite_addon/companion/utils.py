@@ -70,22 +70,25 @@ def plex_type(_kodi_type):
     return None
 
 
-def get_platform():  # pylint: disable=too-many-return-statements
+def get_platform():
+    platform = 'Unknown'
+
     if xbmc.getCondVisibility('system.platform.osx'):
-        return 'MacOSX'
+        platform = 'MacOSX'
     if xbmc.getCondVisibility('system.platform.atv2'):
-        return 'AppleTV2'
+        platform = 'AppleTV2'
     if xbmc.getCondVisibility('system.platform.ios'):
-        return 'iOS'
+        platform = 'iOS'
     if xbmc.getCondVisibility('system.platform.windows'):
-        return 'Windows'
+        platform = 'Windows'
     if xbmc.getCondVisibility('system.platform.raspberrypi'):
-        return 'RaspberryPi'
+        platform = 'RaspberryPi'
     if xbmc.getCondVisibility('system.platform.linux'):
-        return 'Linux'
+        platform = 'Linux'
     if xbmc.getCondVisibility('system.platform.android'):
-        return 'Android'
-    return 'Unknown'
+        platform = 'Android'
+
+    return platform
 
 
 def jsonrpc(action, arguments=None):
