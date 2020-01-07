@@ -1,3 +1,4 @@
+0.7.1
 [add] add cast to tv shows
 [fix] set content type for library endpoints
 [upd] linting / cosmetics
