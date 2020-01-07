@@ -54,7 +54,12 @@ def create_episode_item(context, server, tree, url, episode, library=False):  # 
         'tvshowtitle': encode_utf8(episode.get('grandparentTitle',
                                                tree.get('grandparentTitle', ''))),
         'season': int(episode.get('parentIndex', tree.get('parentIndex', 0))),
-        'mediatype': 'episode'
+        'mediatype': 'episode',
+        'playcount': int(int(episode.get('viewCount', 0)) > 0),
+        'cast': metadata['cast'],
+        'director': ' / '.join(metadata['director']),
+        'genre': ' / '.join(metadata['genre']),
+        'writer': ' / '.join(metadata['writer']),
     }
 
     if episode.get('sorttitle'):
@@ -98,15 +103,6 @@ def create_episode_item(context, server, tree, url, episode, library=False):  # 
         extra_data.update({
             'library_section_uuid': tree.get('librarySectionUUID')
         })
-
-    # Determine what type of watched flag [overlay] to use
-    details['playcount'] = int(int(episode.get('viewCount', 0)) > 0)
-
-    # Extended Metadata
-    details['cast'] = metadata['cast']
-    details['director'] = ' / '.join(metadata['director'])
-    details['genre'] = ' / '.join(metadata['genre'])
-    details['writer'] = ' / '.join(metadata['writer'])
 
     # Add extra media flag data
     if not context.settings.get_setting('skipflags'):

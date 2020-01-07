@@ -50,7 +50,13 @@ def create_movie_item(context, server, tree, url, movie, library=False):  # pyli
         'premiered': movie.get('originallyAvailableAt', '1970-01-01'),
         'tagline': movie.get('tagline', ''),
         'dateAdded': str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0)))),
-        'mediatype': 'movie'
+        'mediatype': 'movie',
+        'playcount': int(int(movie.get('viewCount', 0)) > 0),
+        'cast': metadata['cast'],
+        'director': ' / '.join(metadata['director']),
+        'genre': ' / '.join(metadata['genre']),
+        'set': ' / '.join(metadata['collections']),
+        'writer': ' / '.join(metadata['writer']),
     }
 
     # Extra data required to manage other properties
@@ -78,16 +84,6 @@ def create_movie_item(context, server, tree, url, movie, library=False):  # pyli
         extra_data.update({
             'library_section_uuid': tree.get('librarySectionUUID')
         })
-
-    # Determine what type of watched flag [overlay] to use
-    details['playcount'] = int(int(movie.get('viewCount', 0)) > 0)
-
-    # Extended Metadata
-    details['cast'] = metadata['cast']
-    details['director'] = ' / '.join(metadata['director'])
-    details['genre'] = ' / '.join(metadata['genre'])
-    details['set'] = ' / '.join(metadata['collections'])
-    details['writer'] = ' / '.join(metadata['writer'])
 
     if movie.get('primaryExtraKey') is not None:
         details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
