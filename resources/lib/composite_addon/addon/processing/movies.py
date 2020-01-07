@@ -14,12 +14,12 @@ import time
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
-from ...addon.common import get_handle
-from ...addon.items.movie import create_movie_item
-from ...addon.items.photo import create_photo_item
-from ...addon.items.track import create_track_item
-from ...addon.logger import Logger
-from ...addon.utils import get_xml
+from ..common import get_handle
+from ..items.movie import create_movie_item
+from ..items.photo import create_photo_item
+from ..items.track import create_track_item
+from ..logger import Logger
+from ..utils import get_xml
 
 LOG = Logger()
 
