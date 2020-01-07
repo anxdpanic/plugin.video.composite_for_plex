@@ -15,7 +15,9 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
+[add] add cast to tv shows
 [fix] set content type for library endpoints
+[upd] linting / cosmetics
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
