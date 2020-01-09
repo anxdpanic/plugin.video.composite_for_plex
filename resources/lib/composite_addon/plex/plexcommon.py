@@ -18,6 +18,7 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcvfs  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
+from ..companion.utils import get_platform
 
 
 def get_device_name(settings, device_name):
@@ -42,12 +43,12 @@ def create_plex_identification(settings, device_name=None, client_id=None, user=
         'X-Plex-Device': get_device(),
         'X-Plex-Client-Platform': 'Kodi',
         'X-Plex-Device-Name': get_device_name(settings, device_name),
-        'X-Plex-Language': 'en',
-        'X-Plex-Platform': platform.uname()[0],
+        'X-Plex-Language': CONFIG['language'],
+        'X-Plex-Platform': get_platform(),
         'X-Plex-Client-Identifier': get_client_identifier(settings, client_id),
         'X-Plex-Product': CONFIG['name'],
         'X-Plex-Platform-Version': platform.uname()[2],
-        'X-Plex-Version': '0.0.0a1',
+        'X-Plex-Version': CONFIG['version'],
         'X-Plex-Provides': 'player,controller'
     }
 
