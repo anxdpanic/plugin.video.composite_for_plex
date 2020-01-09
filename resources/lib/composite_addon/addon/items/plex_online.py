@@ -11,11 +11,12 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_link_url
 from .common import get_thumb_image
+from .gui import create_gui_item
 
 
 def create_plex_online_item(context, item):
@@ -42,4 +43,5 @@ def create_plex_online_item(context, item):
         'name': details['title']
     }
 
-    return create_gui_item(context, item_url, details, extra_data)
+    gui_item = GUIItem(item_url, details, extra_data)
+    return create_gui_item(context, gui_item)

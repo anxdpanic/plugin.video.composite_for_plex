@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -16,7 +16,8 @@ from ..addon.common import get_handle
 from ..addon.constants import COMMANDS
 from ..addon.constants import CONFIG
 from ..addon.constants import MODES
-from ..addon.items.common import create_gui_item
+from ..addon.containers import GUIItem
+from ..addon.items.gui import create_gui_item
 from ..addon.logger import Logger
 from ..addon.strings import i18n
 from ..plex import plex
@@ -52,7 +53,8 @@ def run(context, content_filter=None, display_shared=False):
             'type': 'Folder',
             'mode': MODES.MYPLEXQUEUE
         }
-        items.append(create_gui_item(context, 'http://myplexqueue', details, extra_data))
+        gui_item = GUIItem('http://myplexqueue', details, extra_data)
+        items.append(create_gui_item(context, gui_item))
 
     items += server_additional_menu_items(context, server_list, content_filter)
     items += action_menu_items(context)
@@ -117,7 +119,8 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
                                  (server.get_uuid(), section.get_key()))]
 
             # Build that listing..
-            items.append(create_gui_item(context, section_url, details, extra_data, context_menu))
+            gui_item = GUIItem(section_url, details, extra_data, context_menu)
+            items.append(create_gui_item(context, gui_item))
 
     return items
 
@@ -149,7 +152,8 @@ def server_additional_menu_items(context, server_list, content_filter):
             }
 
             item_url = '%s/channels/all' % server.get_url_location()
-            items.append(create_gui_item(context, item_url, details, extra_data))
+            gui_item = GUIItem(item_url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
         if context.settings.get_setting('show_plex_online_menu'):
             # Create plexonline link
@@ -162,7 +166,8 @@ def server_additional_menu_items(context, server_list, content_filter):
             }
 
             item_url = '%s/system/plexonline' % server.get_url_location()
-            items.append(create_gui_item(context, item_url, details, extra_data))
+            gui_item = GUIItem(item_url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
         if context.settings.get_setting('show_playlists_menu'):
             # create playlist link
@@ -175,7 +180,8 @@ def server_additional_menu_items(context, server_list, content_filter):
             }
 
             item_url = '%s/playlists' % server.get_url_location()
-            items.append(create_gui_item(context, item_url, details, extra_data))
+            gui_item = GUIItem(item_url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
         if context.settings.get_setting('show_widget_menu'):
             # create Widgets link
@@ -188,7 +194,8 @@ def server_additional_menu_items(context, server_list, content_filter):
             }
 
             item_url = '%s' % server.get_url_location()
-            items.append(create_gui_item(context, item_url, details, extra_data))
+            gui_item = GUIItem(item_url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
     return items
 
@@ -206,7 +213,8 @@ def action_menu_items(context):
             }
 
             item_url = 'cmd:' + COMMANDS.SWITCHUSER
-            items.append(create_gui_item(context, item_url, details, extra_data))
+            gui_item = GUIItem(item_url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
         details = {
             'title': i18n('Sign Out')
@@ -216,7 +224,8 @@ def action_menu_items(context):
         }
 
         item_url = 'cmd:' + COMMANDS.SIGNOUT
-        items.append(create_gui_item(context, item_url, details, extra_data))
+        gui_item = GUIItem(item_url, details, extra_data)
+        items.append(create_gui_item(context, gui_item))
 
         details = {
             'title': i18n('Display Servers')
@@ -224,8 +233,9 @@ def action_menu_items(context):
         extra_data = {
             'type': 'file'
         }
-        data_url = 'cmd:' + COMMANDS.DISPLAYSERVER
-        items.append(create_gui_item(context, data_url, details, extra_data))
+        item_url = 'cmd:' + COMMANDS.DISPLAYSERVER
+        gui_item = GUIItem(item_url, details, extra_data)
+        items.append(create_gui_item(context, gui_item))
 
         if context.settings.get_setting('cache'):
             details = {
@@ -235,7 +245,8 @@ def action_menu_items(context):
                 'type': 'file'
             }
             item_url = 'cmd:' + COMMANDS.DELETEREFRESH
-            items.append(create_gui_item(context, item_url, details, extra_data))
+            gui_item = GUIItem(item_url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
     else:
         details = {
             'title': i18n('Sign In')
@@ -245,6 +256,7 @@ def action_menu_items(context):
         }
 
         item_url = 'cmd:' + COMMANDS.SIGNIN
-        items.append(create_gui_item(context, item_url, details, extra_data))
+        gui_item = GUIItem(item_url, details, extra_data)
+        items.append(create_gui_item(context, gui_item))
 
     return items

@@ -11,13 +11,14 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_banner_image
 from .common import get_fanart_image
 from .common import get_thumb_image
 from .context_menu import ContextMenu
+from .gui import create_gui_item
 
 
 def create_season_item(context, item, library=False):
@@ -78,4 +79,5 @@ def create_season_item(context, item, library=False):
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     # Build the screen directory listing
-    return create_gui_item(context, item_url, details, extra_data, context_menu)
+    gui_item = GUIItem(item_url, details, extra_data, context_menu)
+    return create_gui_item(context, gui_item)

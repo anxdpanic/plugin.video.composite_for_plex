@@ -60,6 +60,80 @@ class Context:
         self._plex_network = value
 
 
+class GUIItem:
+    """
+    Used to simplify passing items to functions/methods
+    """
+
+    def __init__(self, url=None, info_labels=None, extra=None, menu=None):
+        self._context_menu = menu
+        self._extra = extra
+        self._info_labels = info_labels
+        self._is_folder = True
+        self._url = url
+
+    @property
+    def context_menu(self):
+        return self._context_menu
+
+    @context_menu.setter
+    def context_menu(self, value):
+        """
+        :param value:
+        """
+        self._context_menu = value
+
+    @property
+    def extra(self):
+        if self._extra is None:
+            raise ItemPropertyUnavailable
+        return self._extra
+
+    @extra.setter
+    def extra(self, value):
+        """
+        :param value:
+        """
+        self._extra = value
+
+    @property
+    def info_labels(self):
+        if self._info_labels is None:
+            raise ItemPropertyUnavailable
+        return self._info_labels
+
+    @info_labels.setter
+    def info_labels(self, value):
+        """
+        :param value:
+        """
+        self._info_labels = value
+
+    @property
+    def is_folder(self):
+        return self._is_folder
+
+    @is_folder.setter
+    def is_folder(self, value):
+        """
+        :param value:
+        """
+        self._is_folder = value
+
+    @property
+    def url(self):
+        if self._url is None:
+            raise ItemPropertyUnavailable
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        """
+        :param value:
+        """
+        self._url = value
+
+
 class Item:
     """
     Used to simplify passing items to functions/methods

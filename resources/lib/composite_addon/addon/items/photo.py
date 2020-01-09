@@ -11,13 +11,14 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_link_url
 from .common import get_thumb_image
 from .context_menu import ContextMenu
+from .gui import create_gui_item
 
 
 def create_photo_item(context, item):
@@ -43,7 +44,8 @@ def create_photo_item(context, item):
     if item.data.tag == 'Directory':
         extra_data['mode'] = MODES.PHOTOS
         extra_data['type'] = 'folder'
-        return create_gui_item(context, item_url, details, extra_data)
+        gui_item = GUIItem(item_url, details, extra_data)
+        return create_gui_item(context, gui_item)
 
     if item.data.tag == 'Photo' and (item.tree.get('viewGroup', '') == 'photo' or
                                      item.tree.get('playlistType') == 'photo'):
@@ -75,6 +77,8 @@ def create_photo_item(context, item):
         if not context.settings.get_setting('skipcontextmenus'):
             context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
-        return create_gui_item(context, item_url, details, extra_data, context_menu, folder=False)
+        gui_item = GUIItem(item_url, details, extra_data, context_menu)
+        gui_item.is_folder = False
+        return create_gui_item(context, gui_item)
 
     return None

@@ -21,7 +21,7 @@ from kodi_six import xbmcvfs  # pylint: disable=import-error
 from .common import get_handle
 from .constants import CONFIG
 from .constants import StreamControl
-from .context import Item
+from .containers import Item
 from .items.common import get_thumb_image
 from .items.track import create_track_item
 from .logger import Logger

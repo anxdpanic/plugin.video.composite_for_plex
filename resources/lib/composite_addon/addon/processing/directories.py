@@ -13,7 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
-from ..context import Item
+from ..containers import Item
 from ..items.directory import create_directory_item
 from ..logger import Logger
 

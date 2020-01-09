@@ -11,13 +11,14 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..logger import Logger
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_link_url
 from .common import get_thumb_image
+from .gui import create_gui_item
 
 LOG = Logger()
 
@@ -51,7 +52,10 @@ def create_music_item(context, item):
         details['duration'] = int(int(item.data.get('total_time', 0)) / 1000)
 
         extra_data['mode'] = MODES.BASICPLAY
-        return create_gui_item(context, item_url, details, extra_data, folder=False)
+
+        gui_item = GUIItem(item_url, details, extra_data)
+        gui_item.is_folder = False
+        return create_gui_item(context, gui_item)
 
     details['mediatype'] = 'artist'
 
@@ -74,4 +78,5 @@ def create_music_item(context, item):
 
     extra_data['mode'] = MODES.MUSIC
 
-    return create_gui_item(context, item_url, details, extra_data)
+    gui_item = GUIItem(item_url, details, extra_data)
+    return create_gui_item(context, gui_item)

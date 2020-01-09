@@ -13,13 +13,14 @@
 import json
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..logger import Logger
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_thumb_image
 from .context_menu import ContextMenu
+from .gui import create_gui_item
 
 LOG = Logger()
 
@@ -85,6 +86,8 @@ def create_track_item(context, item, listing=True):
         context_menu = ContextMenu(context, item.server, url, extra_data).menu
 
     if listing:
-        return create_gui_item(context, url, details, extra_data, context_menu, folder=False)
+        gui_item = GUIItem(url, details, extra_data, context_menu)
+        gui_item.is_folder = False
+        return create_gui_item(context, gui_item)
 
     return url, details

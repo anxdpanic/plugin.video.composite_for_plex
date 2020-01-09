@@ -14,7 +14,7 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
-from ..context import Item
+from ..containers import Item
 from ..items.movie import create_movie_item
 from ..items.photo import create_photo_item
 from ..items.track import create_track_item

@@ -11,12 +11,13 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_link_url
 from .common import get_thumb_image
+from .gui import create_gui_item
 
 
 def create_plex_plugin_item(context, item):
@@ -68,7 +69,8 @@ def get_directory_item(context, plugin, url, details, extra_data):
             'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))
         }
 
-    return create_gui_item(context, url, details, extra_data)
+    gui_item = GUIItem(url, details, extra_data)
+    return create_gui_item(context, gui_item)
 
 
 def get_setting_item(context, plugin, url, details, extra_data):
@@ -86,7 +88,8 @@ def get_setting_item(context, plugin, url, details, extra_data):
         'id': plugin.get('id')
     }
 
-    return create_gui_item(context, url, details, extra_data)
+    gui_item = GUIItem(url, details, extra_data)
+    return create_gui_item(context, gui_item)
 
 
 def get_video_item(context, plugin, url, details, extra_data):
@@ -98,4 +101,6 @@ def get_video_item(context, plugin, url, details, extra_data):
                 'indirect': child.get('indirect', '0')
             }
 
-    return create_gui_item(context, url, details, extra_data, folder=False)
+    gui_item = GUIItem(url, details, extra_data)
+    gui_item.is_folder = False
+    return create_gui_item(context, gui_item)

@@ -11,12 +11,13 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_link_url
 from .common import get_thumb_image
 from .context_menu import ContextMenu
+from .gui import create_gui_item
 
 
 def create_playlist_item(context, item, listing=True):
@@ -49,6 +50,7 @@ def create_playlist_item(context, item, listing=True):
         context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
     if listing:
-        return create_gui_item(context, item_url, details, extra_data, context_menu, folder=True)
+        gui_item = GUIItem(item_url, details, extra_data, context_menu)
+        return create_gui_item(context, gui_item)
 
     return item.url, details

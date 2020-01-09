@@ -11,13 +11,14 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import directory_item_translate
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_link_url
 from .common import get_thumb_image
+from .gui import create_gui_item
 
 
 def create_directory_item(context, item):
@@ -40,4 +41,5 @@ def create_directory_item(context, item):
 
     item_url = '%s' % (get_link_url(item.server, item.url, item.data))
 
-    return create_gui_item(context, item_url, details, extra_data)
+    gui_item = GUIItem(item_url, details, extra_data)
+    return create_gui_item(context, gui_item)

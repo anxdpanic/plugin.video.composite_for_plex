@@ -11,10 +11,11 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_thumb_image
+from .gui import create_gui_item
 
 
 def create_album_item(context, item):
@@ -44,4 +45,5 @@ def create_album_item(context, item):
 
     url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    return create_gui_item(context, url, details, extra_data)
+    gui_item = GUIItem(url, details, extra_data)
+    return create_gui_item(context, gui_item)

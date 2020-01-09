@@ -15,15 +15,16 @@ import json
 
 from ..constants import CONFIG
 from ..constants import MODES
+from ..containers import GUIItem
 from ..logger import Logger
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_media_data
 from .common import get_metadata
 from .common import get_thumb_image
 from .context_menu import ContextMenu
+from .gui import create_gui_item
 
 LOG = Logger()
 
@@ -107,4 +108,6 @@ def create_movie_item(context, item, library=False):
 
     final_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    return create_gui_item(context, final_url, details, extra_data, context_menu, folder=False)
+    gui_item = GUIItem(final_url, details, extra_data, context_menu)
+    gui_item.is_folder = False
+    return create_gui_item(context, gui_item)

@@ -9,5 +9,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['album', 'artist', 'common', 'context_menu', 'directory', 'episode', 'movie', 'music',
-           'photo', 'playlist', 'plex_online', 'plex_plugin', 'season', 'show', 'track']
+__all__ = ['album', 'artist', 'common', 'context_menu', 'directory', 'episode', 'gui',
+           'movie', 'music', 'photo', 'playlist', 'plex_online', 'plex_plugin', 'season',
+           'show', 'track']

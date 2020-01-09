@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -9,6 +9,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['cache_control', 'common', 'constants', 'context', 'data_cache', 'items', 'logger',
+__all__ = ['cache_control', 'common', 'constants', 'containers', 'data_cache', 'items', 'logger',
            'monitor', 'playback', 'player', 'processing', 'settings', 'strings', 'up_next',
            'utils', 'wol']

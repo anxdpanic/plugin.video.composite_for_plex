@@ -14,11 +14,12 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
 from ..constants import MODES
-from ..context import Item
-from ..items.common import create_gui_item
+from ..containers import GUIItem
+from ..containers import Item
 from ..items.common import get_fanart_image
 from ..items.common import get_link_url
 from ..items.common import get_thumb_image
+from ..items.gui import create_gui_item
 from ..items.playlist import create_playlist_item
 from ..items.track import create_track_item
 from ..strings import encode_utf8
@@ -69,7 +70,8 @@ def process_xml(context, url, tree=None):
 
         if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
             extra_data['mode'] = MODES.PROCESSXML
-            items.append(create_gui_item(context, _url, details, extra_data))
+            gui_item = GUIItem(_url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
         elif plugin.tag == 'Track':
             item = Item(server, url, tree, plugin)

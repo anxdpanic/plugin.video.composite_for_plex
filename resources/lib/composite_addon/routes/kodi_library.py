@@ -13,7 +13,7 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
-from ..addon.context import Item
+from ..addon.containers import Item
 from ..addon.items.movie import create_movie_item
 from ..addon.items.show import create_show_item
 from ..addon.logger import Logger
