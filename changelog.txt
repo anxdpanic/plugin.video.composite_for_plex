@@ -1,6 +1,7 @@
 0.7.1
 [add] add cast to tv shows
 [fix] set content type for library endpoints
+[upd] improve plex identification |contrib: Maven85|
 [upd] linting / cosmetics
 
 0.7.0

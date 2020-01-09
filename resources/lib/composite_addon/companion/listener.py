@@ -22,10 +22,10 @@ from six.moves.urllib_parse import urlparse
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
+from ..addon.common import get_platform
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from .utils import get_ok_message
-from .utils import get_platform
 from .utils import get_player_ids
 from .utils import get_players
 from .utils import get_plex_headers

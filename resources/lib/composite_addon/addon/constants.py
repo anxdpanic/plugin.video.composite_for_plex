@@ -109,14 +109,16 @@ except:  # pylint: disable=bare-except
     CONFIG['kodi_version'] = 0
 
 try:
-    JSONRPC_REQUEST = {
+    _ = {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "Application.GetProperties",
-        "params": {"properties": ["language"]}
+        "params": {
+            "properties": ["language"]
+        }
     }
-    CONFIG['language'] = json.loads(xbmc.executeJSONRPC(json.dumps(JSONRPC_REQUEST))) \
-                         .get('result').get('language').split('_')[0]
+    CONFIG['language'] = json.loads(xbmc.executeJSONRPC(json.dumps(_))) \
+        .get('result').get('language').split('_')[0]
 except:  # pylint: disable=bare-except
     CONFIG['language'] = 'en'
 
