@@ -18,6 +18,7 @@ from six import PY3
 
 from kodi_six import xbmc  # pylint: disable=import-error
 
+from ..addon.common import get_platform
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
 from ..addon.settings import AddonSettings
@@ -68,27 +69,6 @@ def plex_type(_kodi_type):
     if _kodi_type == kodi_audio():
         return plex_audio()
     return None
-
-
-def get_platform():
-    platform = 'Unknown'
-
-    if xbmc.getCondVisibility('system.platform.osx'):
-        platform = 'MacOSX'
-    if xbmc.getCondVisibility('system.platform.atv2'):
-        platform = 'AppleTV2'
-    if xbmc.getCondVisibility('system.platform.ios'):
-        platform = 'iOS'
-    if xbmc.getCondVisibility('system.platform.windows'):
-        platform = 'Windows'
-    if xbmc.getCondVisibility('system.platform.raspberrypi'):
-        platform = 'RaspberryPi'
-    if xbmc.getCondVisibility('system.platform.linux'):
-        platform = 'Linux'
-    if xbmc.getCondVisibility('system.platform.android'):
-        platform = 'Android'
-
-    return platform
 
 
 def jsonrpc(action, arguments=None):

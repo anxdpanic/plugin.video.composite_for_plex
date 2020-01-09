@@ -112,3 +112,24 @@ def is_ip(address):
 
 def get_platform_ip():
     return xbmc.getIPAddress()
+
+
+def get_platform():
+    platform = 'Unknown'
+
+    if xbmc.getCondVisibility('system.platform.osx'):
+        platform = 'MacOSX'
+    if xbmc.getCondVisibility('system.platform.atv2'):
+        platform = 'AppleTV2'
+    if xbmc.getCondVisibility('system.platform.ios'):
+        platform = 'iOS'
+    if xbmc.getCondVisibility('system.platform.windows'):
+        platform = 'Windows'
+    if xbmc.getCondVisibility('system.platform.raspberrypi'):
+        platform = 'RaspberryPi'
+    if xbmc.getCondVisibility('system.platform.linux'):
+        platform = 'Linux'
+    if xbmc.getCondVisibility('system.platform.android'):
+        platform = 'Android'
+
+    return platform
