@@ -27,7 +27,7 @@ def create_season_item(context, item, library=False):
     _watched = int(item.data.get('viewedLeafCount', 0))
 
     # Create the basic data structures to pass up
-    details = {
+    info_labels = {
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
         'TVShowTitle': encode_utf8(item.data.get('parentTitle', i18n('Unknown'))),
         'sorttitle': encode_utf8(item.data.get('titleSort',
@@ -42,14 +42,14 @@ def create_season_item(context, item, library=False):
     }
 
     if item.data.get('sorttitle'):
-        details['sorttitle'] = item.data.get('sorttitle')
+        info_labels['sorttitle'] = item.data.get('sorttitle')
 
     extra_data = {
         'type': 'video',
         'source': 'tvseasons',
-        'TotalEpisodes': details['episode'],
+        'TotalEpisodes': info_labels['episode'],
         'WatchedEpisodes': _watched,
-        'UnWatchedEpisodes': details['episode'] - _watched,
+        'UnWatchedEpisodes': info_labels['episode'] - _watched,
         'thumb': get_thumb_image(context, item.server, item.data),
         'fanart_image': get_fanart_image(context, item.server, item.data),
         'banner': get_banner_image(context, item.server, item.tree),
@@ -63,9 +63,9 @@ def create_season_item(context, item, library=False):
 
     # Set up overlays for watched and unwatched episodes
     if extra_data['WatchedEpisodes'] == 0:
-        details['playcount'] = 0
+        info_labels['playcount'] = 0
     elif extra_data['UnWatchedEpisodes'] == 0:
-        details['playcount'] = 1
+        info_labels['playcount'] = 1
     else:
         extra_data['partialTV'] = 1
 
@@ -79,5 +79,5 @@ def create_season_item(context, item, library=False):
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     # Build the screen directory listing
-    gui_item = GUIItem(item_url, details, extra_data, context_menu)
+    gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
     return create_gui_item(context, gui_item)

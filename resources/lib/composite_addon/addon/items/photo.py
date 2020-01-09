@@ -22,12 +22,12 @@ from .gui import create_gui_item
 
 
 def create_photo_item(context, item):
-    details = {
+    info_labels = {
         'title': encode_utf8(item.data.get('title', item.data.get('name', i18n('Unknown'))))
     }
 
-    if not details['title']:
-        details['title'] = i18n('Unknown')
+    if not info_labels['title']:
+        info_labels['title'] = i18n('Unknown')
 
     extra_data = {
         'thumb': get_thumb_image(context, item.server, item.data),
@@ -44,7 +44,7 @@ def create_photo_item(context, item):
     if item.data.tag == 'Directory':
         extra_data['mode'] = MODES.PHOTOS
         extra_data['type'] = 'folder'
-        gui_item = GUIItem(item_url, details, extra_data)
+        gui_item = GUIItem(item_url, info_labels, extra_data)
         return create_gui_item(context, gui_item)
 
     if item.data.tag == 'Photo' and (item.tree.get('viewGroup', '') == 'photo' or
@@ -55,8 +55,8 @@ def create_photo_item(context, item):
                 for part in parts:
                     extra_data['key'] = \
                         item.server.get_formatted_url(part.get('key', ''))
-                    details['size'] = int(part.get('size', 0))
-                    details['picturepath'] = extra_data['key']
+                    info_labels['size'] = int(part.get('size', 0))
+                    info_labels['picturepath'] = extra_data['key']
                     item_url = extra_data['key']
 
         if item.tree.get('playlistType'):
@@ -77,7 +77,7 @@ def create_photo_item(context, item):
         if not context.settings.get_setting('skipcontextmenus'):
             context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
-        gui_item = GUIItem(item_url, details, extra_data, context_menu)
+        gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
         gui_item.is_folder = False
         return create_gui_item(context, gui_item)
 

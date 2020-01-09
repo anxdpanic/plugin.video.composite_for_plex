@@ -39,7 +39,7 @@ def create_episode_item(context, item, library=False):
     duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
 
     # Required listItem entries for Kodi
-    details = {
+    info_labels = {
         'plot': encode_utf8(item.data.get('summary', '')),
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
         'sorttitle': encode_utf8(item.data.get('titleSort',
@@ -63,18 +63,18 @@ def create_episode_item(context, item, library=False):
     }
 
     if item.data.get('sorttitle'):
-        details['sorttitle'] = encode_utf8(item.data.get('sorttitle'))
+        info_labels['sorttitle'] = encode_utf8(item.data.get('sorttitle'))
 
     if item.tree.get('mixedParents') == '1':
         if item.tree.get('parentIndex') == '1':
-            details['title'] = '%sx%s %s' % (details['season'],
-                                             str(details['episode']).zfill(2),
-                                             details['title'])
+            info_labels['title'] = '%sx%s %s' % (info_labels['season'],
+                                                 str(info_labels['episode']).zfill(2),
+                                                 info_labels['title'])
         else:
-            details['title'] = '%s - %sx%s %s' % (details['tvshowtitle'],
-                                                  details['season'],
-                                                  str(details['episode']).zfill(2),
-                                                  details['title'])
+            info_labels['title'] = '%s - %sx%s %s' % (info_labels['tvshowtitle'],
+                                                      info_labels['season'],
+                                                      str(info_labels['episode']).zfill(2),
+                                                      info_labels['title'])
 
     art = _get_art(context, item)
 
@@ -92,8 +92,8 @@ def create_episode_item(context, item, library=False):
         'grandparentRatingKey': str(item.data.get('grandparentRatingKey', 0)),
         'duration': duration,
         'resume': int(int(view_offset) / 1000),
-        'season': details.get('season'),
-        'tvshowtitle': details.get('tvshowtitle'),
+        'season': info_labels.get('season'),
+        'tvshowtitle': info_labels.get('tvshowtitle'),
         'additional_context_menus': {
             'go_to': use_go_to
         },
@@ -119,7 +119,7 @@ def create_episode_item(context, item, library=False):
 
     item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    gui_item = GUIItem(item_url, details, extra_data, context_menu)
+    gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
     gui_item.is_folder = False
     return create_gui_item(context, gui_item)
 

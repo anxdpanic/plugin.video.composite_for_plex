@@ -20,7 +20,7 @@ from .gui import create_gui_item
 
 
 def create_plex_online_item(context, item):
-    details = {
+    info_labels = {
         'title': encode_utf8(item.data.get('title', item.data.get('name', i18n('Unknown'))))
     }
     extra_data = {
@@ -32,7 +32,7 @@ def create_plex_online_item(context, item):
     }
 
     if extra_data['installed'] == 1:
-        details['title'] = details['title'] + ' (%s)' % encode_utf8(i18n('installed'))
+        info_labels['title'] = info_labels['title'] + ' (%s)' % encode_utf8(i18n('installed'))
 
     elif extra_data['installed'] == 2:
         extra_data['mode'] = MODES.PLEXONLINE
@@ -40,8 +40,8 @@ def create_plex_online_item(context, item):
     item_url = get_link_url(item.server, item.url, item.data)
 
     extra_data['parameters'] = {
-        'name': details['title']
+        'name': info_labels['title']
     }
 
-    gui_item = GUIItem(item_url, details, extra_data)
+    gui_item = GUIItem(item_url, info_labels, extra_data)
     return create_gui_item(context, gui_item)

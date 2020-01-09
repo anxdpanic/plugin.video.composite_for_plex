@@ -24,7 +24,7 @@ LOG = Logger()
 
 
 def create_music_item(context, item):
-    details = {
+    info_labels = {
         'genre': encode_utf8(item.data.get('genre', '')),
         'artist': encode_utf8(item.data.get('artist', '')),
         'year': int(item.data.get('year', 0)),
@@ -46,37 +46,37 @@ def create_music_item(context, item):
 
     if item.data.tag == 'Track':
         LOG.debug('Track Tag')
-        details['mediatype'] = 'song'
-        details['title'] = item.data.get('track',
-                                         encode_utf8(item.data.get('title', i18n('Unknown'))))
-        details['duration'] = int(int(item.data.get('total_time', 0)) / 1000)
+        info_labels['mediatype'] = 'song'
+        info_labels['title'] = item.data.get('track',
+                                             encode_utf8(item.data.get('title', i18n('Unknown'))))
+        info_labels['duration'] = int(int(item.data.get('total_time', 0)) / 1000)
 
         extra_data['mode'] = MODES.BASICPLAY
 
-        gui_item = GUIItem(item_url, details, extra_data)
+        gui_item = GUIItem(item_url, info_labels, extra_data)
         gui_item.is_folder = False
         return create_gui_item(context, gui_item)
 
-    details['mediatype'] = 'artist'
+    info_labels['mediatype'] = 'artist'
 
     if item.data.tag == 'Artist':
         LOG.debug('Artist Tag')
-        details['mediatype'] = 'artist'
-        details['title'] = encode_utf8(item.data.get('artist', i18n('Unknown')))
+        info_labels['mediatype'] = 'artist'
+        info_labels['title'] = encode_utf8(item.data.get('artist', i18n('Unknown')))
 
     elif item.data.tag == 'Album':
         LOG.debug('Album Tag')
-        details['mediatype'] = 'album'
-        details['title'] = encode_utf8(item.data.get('album', i18n('Unknown')))
+        info_labels['mediatype'] = 'album'
+        info_labels['title'] = encode_utf8(item.data.get('album', i18n('Unknown')))
 
     elif item.data.tag == 'Genre':
-        details['title'] = encode_utf8(item.data.get('genre', i18n('Unknown')))
+        info_labels['title'] = encode_utf8(item.data.get('genre', i18n('Unknown')))
 
     else:
         LOG.debug('Generic Tag: %s' % item.data.tag)
-        details['title'] = encode_utf8(item.data.get('title', i18n('Unknown')))
+        info_labels['title'] = encode_utf8(item.data.get('title', i18n('Unknown')))
 
     extra_data['mode'] = MODES.MUSIC
 
-    gui_item = GUIItem(item_url, details, extra_data)
+    gui_item = GUIItem(item_url, info_labels, extra_data)
     return create_gui_item(context, gui_item)

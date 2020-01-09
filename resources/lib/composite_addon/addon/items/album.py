@@ -19,7 +19,7 @@ from .gui import create_gui_item
 
 
 def create_album_item(context, item):
-    details = {
+    info_labels = {
         'album': encode_utf8(item.data.get('title', '')),
         'year': int(item.data.get('year', 0)),
         'artist': encode_utf8(item.tree.get('parentTitle', item.data.get('parentTitle', ''))),
@@ -27,9 +27,9 @@ def create_album_item(context, item):
     }
 
     if 'recentlyAdded' in item.url:
-        details['title'] = '%s - %s' % (details['artist'], details['album'])
+        info_labels['title'] = '%s - %s' % (info_labels['artist'], info_labels['album'])
     else:
-        details['title'] = details['album']
+        info_labels['title'] = info_labels['album']
 
     extra_data = {
         'type': 'Music',
@@ -45,5 +45,5 @@ def create_album_item(context, item):
 
     url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    gui_item = GUIItem(url, details, extra_data)
+    gui_item = GUIItem(url, info_labels, extra_data)
     return create_gui_item(context, gui_item)

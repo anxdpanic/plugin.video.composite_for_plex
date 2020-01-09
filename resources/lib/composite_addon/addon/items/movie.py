@@ -38,7 +38,7 @@ def create_movie_item(context, item, library=False):
     duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
 
     # Required listItem entries for Kodi
-    details = {
+    info_labels = {
         'plot': encode_utf8(item.data.get('summary', '')),
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
         'sorttitle': encode_utf8(item.data.get('titleSort',
@@ -87,10 +87,11 @@ def create_movie_item(context, item, library=False):
         })
 
     if item.data.get('primaryExtraKey') is not None:
-        details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
-                             (item.server.get_url_location(), item.data.get('primaryExtraKey', ''),
-                              MODES.PLAYLIBRARY)
-        LOG.debug('Trailer plugin url added: %s' % details['trailer'])
+        info_labels['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
+                                 (item.server.get_url_location(),
+                                  item.data.get('primaryExtraKey', ''),
+                                  MODES.PLAYLIBRARY)
+        LOG.debug('Trailer plugin url added: %s' % info_labels['trailer'])
 
     # Add extra media flag data
     if not context.settings.get_setting('skipflags'):
@@ -108,6 +109,6 @@ def create_movie_item(context, item, library=False):
 
     final_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    gui_item = GUIItem(final_url, details, extra_data, context_menu)
+    gui_item = GUIItem(final_url, info_labels, extra_data, context_menu)
     gui_item.is_folder = False
     return create_gui_item(context, gui_item)

@@ -25,12 +25,12 @@ def create_directory_item(context, item):
     title = encode_utf8(item.data.get('title', i18n('Unknown')))
     title = directory_item_translate(title, item.tree.get('thumb'))
 
-    details = {
+    info_labels = {
         'title': title
     }
 
     if '/collection' in item.url:
-        details['mediatype'] = 'set'
+        info_labels['mediatype'] = 'set'
 
     extra_data = {
         'thumb': get_thumb_image(context, item.server, item.tree),
@@ -41,5 +41,5 @@ def create_directory_item(context, item):
 
     item_url = '%s' % (get_link_url(item.server, item.url, item.data))
 
-    gui_item = GUIItem(item_url, details, extra_data)
+    gui_item = GUIItem(item_url, info_labels, extra_data)
     return create_gui_item(context, gui_item)

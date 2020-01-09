@@ -19,11 +19,11 @@ from .gui import create_gui_item
 
 
 def create_artist_item(context, item):
-    details = {
+    info_labels = {
         'artist': encode_utf8(item.data.get('title', ''))
     }
 
-    details['title'] = details['artist']
+    info_labels['title'] = info_labels['artist']
 
     extra_data = {
         'type': 'Music',
@@ -38,5 +38,5 @@ def create_artist_item(context, item):
 
     url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    gui_item = GUIItem(url, details, extra_data)
+    gui_item = GUIItem(url, info_labels, extra_data)
     return create_gui_item(context, gui_item)

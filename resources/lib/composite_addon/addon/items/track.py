@@ -26,16 +26,16 @@ LOG = Logger()
 
 
 def create_track_item(context, item, listing=True):
-    part_details = ()
+    part_info_labels = ()
 
     for child in item.data:
         for babies in child:
             if babies.tag == 'Part':
-                part_details = (dict(babies.items()))
+                part_info_labels = (dict(babies.items()))
 
-    LOG.debug('Part: %s' % json.dumps(part_details, indent=4))
+    LOG.debug('Part: %s' % json.dumps(part_info_labels, indent=4))
 
-    details = {
+    info_labels = {
         'TrackNumber': int(item.data.get('index', 0)),
         'discnumber': int(item.data.get('parentIndex', 0)),
         'title': str(item.data.get('index', 0)).zfill(2) + '. ' +
@@ -86,8 +86,8 @@ def create_track_item(context, item, listing=True):
         context_menu = ContextMenu(context, item.server, url, extra_data).menu
 
     if listing:
-        gui_item = GUIItem(url, details, extra_data, context_menu)
+        gui_item = GUIItem(url, info_labels, extra_data, context_menu)
         gui_item.is_folder = False
         return create_gui_item(context, gui_item)
 
-    return url, details
+    return url, info_labels

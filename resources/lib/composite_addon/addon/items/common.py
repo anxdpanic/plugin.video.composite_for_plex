@@ -138,7 +138,7 @@ def get_fanart_image(context, server, data, width=1280, height=720):
 
 def get_media_data(tag_dict):
     """
-        Extra the media details from the XML
+        Extra the media info_labels from the XML
         @input: dict of <media /> tag attributes
         @output: dict of required values
     """

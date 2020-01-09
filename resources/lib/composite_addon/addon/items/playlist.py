@@ -21,7 +21,7 @@ from .gui import create_gui_item
 
 
 def create_playlist_item(context, item, listing=True):
-    details = {
+    info_labels = {
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
         'duration': int(item.data.get('duration', 0)) / 1000
     }
@@ -50,7 +50,7 @@ def create_playlist_item(context, item, listing=True):
         context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
     if listing:
-        gui_item = GUIItem(item_url, details, extra_data, context_menu)
+        gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
         return create_gui_item(context, gui_item)
 
-    return item.url, details
+    return item.url, info_labels
