@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -11,70 +11,71 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_banner_image
 from .common import get_fanart_image
 from .common import get_thumb_image
 from .context_menu import ContextMenu
+from .gui import create_gui_item
 
 
-def create_season_item(context, server, tree, season, library=False):
-    plot = encode_utf8(tree.get('summary', ''))
-
-    _watched = int(season.get('viewedLeafCount', 0))
-
+def create_season_item(context, item, library=False):
     # Create the basic data structures to pass up
-    details = {
-        'title': encode_utf8(season.get('title', i18n('Unknown'))),
-        'TVShowTitle': encode_utf8(season.get('parentTitle', i18n('Unknown'))),
-        'sorttitle': encode_utf8(season.get('titleSort', season.get('title', i18n('Unknown')))),
-        'studio': encode_utf8(season.get('studio', '')),
-        'plot': plot,
-        'season': season.get('index', 0),
-        'episode': int(season.get('leafCount', 0)),
-        'mpaa': season.get('contentRating', ''),
-        'aired': season.get('originallyAvailableAt', ''),
+    info_labels = {
+        'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
+        'TVShowTitle': encode_utf8(item.data.get('parentTitle', i18n('Unknown'))),
+        'sorttitle': encode_utf8(item.data.get('titleSort',
+                                               item.data.get('title', i18n('Unknown')))),
+        'studio': encode_utf8(item.data.get('studio', '')),
+        'plot': encode_utf8(item.tree.get('summary', '')),
+        'season': item.data.get('index', 0),
+        'episode': int(item.data.get('leafCount', 0)),
+        'mpaa': item.data.get('contentRating', ''),
+        'aired': item.data.get('originallyAvailableAt', ''),
         'mediatype': 'season'
     }
 
-    if season.get('sorttitle'):
-        details['sorttitle'] = season.get('sorttitle')
+    if item.data.get('sorttitle'):
+        info_labels['sorttitle'] = item.data.get('sorttitle')
+
+    _watched = int(item.data.get('viewedLeafCount', 0))
 
     extra_data = {
         'type': 'video',
         'source': 'tvseasons',
-        'TotalEpisodes': details['episode'],
+        'TotalEpisodes': info_labels['episode'],
         'WatchedEpisodes': _watched,
-        'UnWatchedEpisodes': details['episode'] - _watched,
-        'thumb': get_thumb_image(context, server, season),
-        'fanart_image': get_fanart_image(context, server, season),
-        'banner': get_banner_image(context, server, tree),
-        'key': season.get('key', ''),
-        'ratingKey': str(season.get('ratingKey', 0)),
+        'UnWatchedEpisodes': info_labels['episode'] - _watched,
+        'thumb': get_thumb_image(context, item.server, item.data),
+        'fanart_image': get_fanart_image(context, item.server, item.data),
+        'banner': get_banner_image(context, item.server, item.tree),
+        'key': item.data.get('key', ''),
+        'ratingKey': str(item.data.get('ratingKey', 0)),
         'mode': MODES.TVEPISODES
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(context, server, tree)
+        extra_data['fanart_image'] = get_fanart_image(context, item.server, item.tree)
 
     # Set up overlays for watched and unwatched episodes
     if extra_data['WatchedEpisodes'] == 0:
-        details['playcount'] = 0
+        info_labels['playcount'] = 0
     elif extra_data['UnWatchedEpisodes'] == 0:
-        details['playcount'] = 1
+        info_labels['playcount'] = 1
     else:
         extra_data['partialTV'] = 1
 
-    item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
+    item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     context_menu = None
     if not context.settings.get_setting('skipcontextmenus'):
-        context_menu = ContextMenu(context, server, item_url, season).menu
+        context_menu = ContextMenu(context, item.server, item_url, item.data).menu
 
     if library:
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
     # Build the screen directory listing
-    return create_gui_item(context, item_url, details, extra_data, context_menu)
+    gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
+    return create_gui_item(context, gui_item)

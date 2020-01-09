@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..containers import Item
 from ..items.artist import create_artist_item
 from ..utils import get_xml
 
@@ -40,7 +41,8 @@ def process_artists(context, url, tree=None):
     items = []
     artist_tags = tree.findall('Directory')
     for artist in artist_tags:
-        items.append(create_artist_item(context, server, artist))
+        item = Item(server, url, tree, artist)
+        items.append(create_artist_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

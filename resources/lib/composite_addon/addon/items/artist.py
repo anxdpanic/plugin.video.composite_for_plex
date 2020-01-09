@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -11,30 +11,32 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_thumb_image
+from .gui import create_gui_item
 
 
-def create_artist_item(context, server, artist):
-    details = {
-        'artist': encode_utf8(artist.get('title', ''))
+def create_artist_item(context, item):
+    info_labels = {
+        'artist': encode_utf8(item.data.get('title', ''))
     }
 
-    details['title'] = details['artist']
+    info_labels['title'] = info_labels['artist']
 
     extra_data = {
         'type': 'Music',
-        'thumb': get_thumb_image(context, server, artist),
-        'fanart_image': get_fanart_image(context, server, artist),
-        'ratingKey': artist.get('title', ''),
-        'key': artist.get('key', ''),
+        'thumb': get_thumb_image(context, item.server, item.data),
+        'fanart_image': get_fanart_image(context, item.server, item.data),
+        'ratingKey': item.data.get('title', ''),
+        'key': item.data.get('key', ''),
         'mode': MODES.ALBUMS,
-        'plot': artist.get('summary', ''),
+        'plot': item.data.get('summary', ''),
         'mediatype': 'artist'
     }
 
-    url = '%s%s' % (server.get_url_location(), extra_data['key'])
+    url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    return create_gui_item(context, url, details, extra_data)
+    gui_item = GUIItem(url, info_labels, extra_data)
+    return create_gui_item(context, gui_item)

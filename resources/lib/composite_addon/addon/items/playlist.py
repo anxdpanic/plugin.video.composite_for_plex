@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -11,26 +11,27 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_link_url
 from .common import get_thumb_image
 from .context_menu import ContextMenu
+from .gui import create_gui_item
 
 
-def create_playlist_item(context, url, server, track, listing=True):
-    details = {
-        'title': encode_utf8(track.get('title', i18n('Unknown'))),
-        'duration': int(track.get('duration', 0)) / 1000
+def create_playlist_item(context, item, listing=True):
+    info_labels = {
+        'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
+        'duration': int(item.data.get('duration', 0)) / 1000
     }
 
     extra_data = {
         'playlist': True,
-        'ratingKey': track.get('ratingKey'),
-        'type': track.get('playlistType', ''),
-        'thumb': get_thumb_image(context, server, {
-            'thumb': track.get('composite', '')
+        'ratingKey': item.data.get('ratingKey'),
+        'type': item.data.get('playlistType', ''),
+        'thumb': get_thumb_image(context, item.server, {
+            'thumb': item.data.get('composite', '')
         }),
         'mode': MODES.GETCONTENT
     }
@@ -42,13 +43,14 @@ def create_playlist_item(context, url, server, track, listing=True):
     elif extra_data['type'] == 'photo':
         extra_data['mode'] = MODES.PHOTOS
 
-    item_url = get_link_url(server, url, track)
+    item_url = get_link_url(item.server, item.url, item.data)
 
     context_menu = None
     if not context.settings.get_setting('skipcontextmenus'):
-        context_menu = ContextMenu(context, server, item_url, extra_data).menu
+        context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
     if listing:
-        return create_gui_item(context, item_url, details, extra_data, context_menu, folder=True)
+        gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
+        return create_gui_item(context, gui_item)
 
-    return url, details
+    return item.url, info_labels

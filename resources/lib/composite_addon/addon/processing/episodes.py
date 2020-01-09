@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..containers import Item
 from ..items.episode import create_episode_item
 from ..logger import Logger
 from ..utils import get_xml
@@ -52,7 +53,8 @@ def process_episodes(context, url, tree=None, rating_key=None, library=False):
     items = []
     show_tags = tree.findall('Video')
     for episode in show_tags:
-        items.append(create_episode_item(context, server, tree, url, episode, library=library))
+        item = Item(server, url, tree, episode)
+        items.append(create_episode_item(context, item, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

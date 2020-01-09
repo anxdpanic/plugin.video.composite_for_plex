@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -11,90 +11,100 @@
 """
 
 from ..constants import MODES
+from ..containers import GUIItem
 from ..strings import encode_utf8
 from ..strings import i18n
-from .common import create_gui_item
 from .common import get_fanart_image
 from .common import get_link_url
 from .common import get_thumb_image
+from .gui import create_gui_item
 
 
-def create_plex_plugin_item(context, server, tree, url, plugin):
-    details = {
-        'title': encode_utf8(plugin.get('title'))
+def create_plex_plugin_item(context, item):
+    info_labels = {
+        'title': encode_utf8(item.data.get('title'))
     }
 
-    if details['title']:
-        details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
+    if info_labels['title']:
+        info_labels['title'] = encode_utf8(item.data.get('name', i18n('Unknown')))
 
-    if plugin.get('summary'):
-        details['plot'] = plugin.get('summary')
+    if item.data.get('summary'):
+        info_labels['plot'] = item.data.get('summary')
 
     extra_data = {
-        'thumb': get_thumb_image(context, server, plugin),
-        'fanart_image': get_fanart_image(context, server, plugin),
-        'identifier': tree.get('identifier', ''),
+        'thumb': get_thumb_image(context, item.server, item.data),
+        'fanart_image': get_fanart_image(context, item.server, item.data),
+        'identifier': item.tree.get('identifier', ''),
         'type': 'Video',
-        'key': plugin.get('key', '')
+        'key': item.data.get('key', '')
     }
 
-    if (tree.get('identifier') != 'com.plexapp.plugins.myplex') and ('node.plexapp.com' in url):
+    if ((item.tree.get('identifier') != 'com.plexapp.plugins.myplex') and
+            ('node.plexapp.com' in item.url)):
         extra_data['key'] = extra_data['key'].replace('node.plexapp.com:32400',
-                                                      server.get_location())
+                                                      item.server.get_location())
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(context, server, tree)
+        extra_data['fanart_image'] = get_fanart_image(context, item.server, item.tree)
 
-    p_url = get_link_url(server, url, extra_data)
+    item_url = get_link_url(item.server, item.url, extra_data)
 
-    if plugin.tag in ['Directory', 'Podcast']:
-        return get_directory_item(context, plugin, p_url, details, extra_data)
+    if item.data.tag in ['Directory', 'Podcast']:
+        gui_item = GUIItem(item_url, info_labels, extra_data)
+        return get_directory_item(context, item.data, gui_item)
 
-    if plugin.tag == 'Setting':
-        return get_setting_item(context, plugin, url, details, extra_data)
+    if item.data.tag == 'Setting':
+        gui_item = GUIItem(item.url, info_labels, extra_data)
+        return get_setting_item(context, item.data, gui_item)
 
-    if plugin.tag == 'Video':
-        return get_video_item(context, plugin, p_url, details, extra_data)
+    if item.data.tag == 'Video':
+        gui_item = GUIItem(item_url, info_labels, extra_data)
+        return get_video_item(context, item.data, gui_item)
 
     return None
 
 
-def get_directory_item(context, plugin, url, details, extra_data):
-    extra_data['mode'] = MODES.PLEXPLUGINS
-    if plugin.get('search') == '1':
-        extra_data['mode'] = MODES.CHANNELSEARCH
-        extra_data['parameters'] = {
-            'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))
+def get_directory_item(context, data, item):
+    item.extra['mode'] = MODES.PLEXPLUGINS
+    if data.get('search') == '1':
+        item.extra['mode'] = MODES.CHANNELSEARCH
+        item.extra['parameters'] = {
+            'prompt': encode_utf8(data.get('prompt', i18n('Enter search term')))
         }
 
-    return create_gui_item(context, url, details, extra_data)
+    gui_item = GUIItem(item.url, item.info_labels, item.extra)
+    return create_gui_item(context, gui_item)
 
 
-def get_setting_item(context, plugin, url, details, extra_data):
-    value = plugin.get('value')
-    if plugin.get('option') == 'hidden':
+def get_setting_item(context, data, item):
+    value = data.get('value')
+    if data.get('option') == 'hidden':
         value = '********'
-    elif plugin.get('type') == 'text':
-        value = plugin.get('value')
-    elif plugin.get('type') == 'enum':
-        value = plugin.get('values').split('|')[int(plugin.get('value', 0))]
+    elif data.get('type') == 'text':
+        value = data.get('value')
+    elif data.get('type') == 'enum':
+        value = data.get('values').split('|')[int(data.get('value', 0))]
 
-    details['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n('Unknown'))), value)
-    extra_data['mode'] = MODES.CHANNELPREFS
-    extra_data['parameters'] = {
-        'id': plugin.get('id')
+    item.info_labels['title'] = '%s - [%s]' % \
+                                (encode_utf8(data.get('label', i18n('Unknown'))), value)
+    item.extra['mode'] = MODES.CHANNELPREFS
+    item.extra['parameters'] = {
+        'id': data.get('id')
     }
 
-    return create_gui_item(context, url, details, extra_data)
+    gui_item = GUIItem(item.url, item.info_labels, item.extra)
+    return create_gui_item(context, gui_item)
 
 
-def get_video_item(context, plugin, url, details, extra_data):
-    extra_data['mode'] = MODES.VIDEOPLUGINPLAY
+def get_video_item(context, data, item):
+    item.extra['mode'] = MODES.VIDEOPLUGINPLAY
 
-    for child in plugin:
+    for child in data:
         if child.tag == 'Media':
-            extra_data['parameters'] = {
+            item.extra['parameters'] = {
                 'indirect': child.get('indirect', '0')
             }
 
-    return create_gui_item(context, url, details, extra_data, folder=False)
+    gui_item = GUIItem(item.url, item.info_labels, item.extra)
+    gui_item.is_folder = False
+    return create_gui_item(context, gui_item)

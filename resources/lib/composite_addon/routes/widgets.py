@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,7 +13,8 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import MODES
-from ..addon.items.common import create_gui_item
+from ..addon.containers import GUIItem
+from ..addon.items.gui import create_gui_item
 from ..addon.strings import i18n
 from ..plex import plex
 
@@ -36,7 +37,8 @@ def run(context, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(context, section.get_path(), details, extra_data))
+            gui_item = GUIItem(section.get_path(), details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added Movies'))
@@ -47,7 +49,8 @@ def run(context, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(context, section.get_path(), details, extra_data))
+            gui_item = GUIItem(section.get_path(), details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Released Movies'))
@@ -58,7 +61,8 @@ def run(context, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(context, section.get_path(), details, extra_data))
+            gui_item = GUIItem(section.get_path(), details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
         if section.is_show():
             details = {
@@ -70,7 +74,8 @@ def run(context, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(context, section.get_path(), details, extra_data))
+            gui_item = GUIItem(section.get_path(), details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added TV Shows'))
@@ -81,7 +86,8 @@ def run(context, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(context, section.get_path(), details, extra_data))
+            gui_item = GUIItem(section.get_path(), details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Aired TV Shows'))
@@ -92,7 +98,8 @@ def run(context, url):
                     'server_uuid': server.get_uuid()
                 }
             }
-            items.append(create_gui_item(context, section.get_path(), details, extra_data))
+            gui_item = GUIItem(section.get_path(), details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
+from ..addon.containers import Item
 from ..addon.items.movie import create_movie_item
 from ..addon.items.show import create_show_item
 from ..addon.logger import Logger
@@ -86,10 +87,11 @@ def _list_content(context, server, url):
         tags = tree.findall('Directory')
 
     for content in tags:
+        item = Item(server, url, tree, content)
         if content.get('type') == 'show':
-            items.append(create_show_item(context, server, url, content, library=True))
+            items.append(create_show_item(context, item, library=True))
         elif content.get('type') == 'movie':
-            items.append(create_movie_item(context, server, tree, url, content, library=True))
+            items.append(create_movie_item(context, item, library=True))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

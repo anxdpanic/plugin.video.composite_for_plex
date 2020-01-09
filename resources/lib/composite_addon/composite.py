@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -18,7 +18,7 @@ from .addon.common import get_params
 from .addon.constants import COMMANDS
 from .addon.constants import CONFIG
 from .addon.constants import MODES
-from .addon.context import Context
+from .addon.containers import Context
 from .addon.logger import Logger
 from .addon.settings import AddonSettings
 

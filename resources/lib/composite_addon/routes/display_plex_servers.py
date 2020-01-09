@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -14,7 +14,8 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import MODES
-from ..addon.items.common import create_gui_item
+from ..addon.containers import GUIItem
+from ..addon.items.gui import create_gui_item
 from ..addon.logger import Logger
 from ..addon.processing.music import process_music
 from ..addon.processing.photos import process_photos
@@ -74,7 +75,8 @@ def run(context, url):
                 return
 
         if url:
-            items.append(create_gui_item(context, url, details, extra_data))
+            gui_item = GUIItem(url, details, extra_data)
+            items.append(create_gui_item(context, gui_item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
