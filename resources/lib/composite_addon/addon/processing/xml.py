@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -14,6 +14,7 @@ from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
 from ..constants import MODES
+from ..context import Item
 from ..items.common import create_gui_item
 from ..items.common import get_fanart_image
 from ..items.common import get_link_url
@@ -71,10 +72,12 @@ def process_xml(context, url, tree=None):
             items.append(create_gui_item(context, _url, details, extra_data))
 
         elif plugin.tag == 'Track':
-            items.append(create_track_item(context, server, tree, plugin))
+            item = Item(server, url, tree, plugin)
+            items.append(create_track_item(context, item))
 
         elif plugin.tag == 'Playlist':
-            items.append(create_playlist_item(context, url, server, plugin))
+            item = Item(server, url, tree, plugin)
+            items.append(create_playlist_item(context, item))
 
         elif tree.get('viewGroup') == 'movie':
             process_movies(context, url, tree)

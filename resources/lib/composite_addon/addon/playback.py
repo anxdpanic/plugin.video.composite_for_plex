@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -21,6 +21,7 @@ from kodi_six import xbmcvfs  # pylint: disable=import-error
 from .common import get_handle
 from .constants import CONFIG
 from .constants import StreamControl
+from .context import Item
 from .items.common import get_thumb_image
 from .items.track import create_track_item
 from .logger import Logger
@@ -618,8 +619,8 @@ def play_playlist(context, server, data):
     track_tags = tree.findall('Track')
     for track in track_tags:
         LOG.debug('Adding playlist item')
-
-        url, details = create_track_item(context, server, tree, track, listing=False)
+        item = Item(server, None, tree, track)
+        url, details = create_track_item(context, item, listing=False)
         if CONFIG['kodi_version'] >= 18:
             list_item = xbmcgui.ListItem(details.get('title', i18n('Unknown')), offscreen=True)
         else:

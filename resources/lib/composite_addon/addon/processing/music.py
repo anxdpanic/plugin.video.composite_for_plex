@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..context import Item
 from ..items.music import create_music_item
 from ..utils import get_xml
 
@@ -30,7 +31,8 @@ def process_music(context, url, tree=None):
         if music.get('key') is None:
             continue
 
-        items.append(create_music_item(context, server, tree, url, music))
+        item = Item(server, url, tree, music)
+        items.append(create_music_item(context, item))
 
     if items:
         content_type = items[-1][1].getProperty('content_type')

@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..context import Item
 from ..items.plex_online import create_plex_online_item
 from ..utils import get_xml
 
@@ -28,7 +29,8 @@ def process_plex_online(context, url):
 
     items = []
     for plugin in tree:
-        items.append(create_plex_online_item(context, server, url, plugin))
+        item = Item(server, url, tree, plugin)
+        items.append(create_plex_online_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..context import Item
 from ..items.plex_plugin import create_plex_plugin_item
 from ..logger import Logger
 from ..utils import get_master_server
@@ -42,7 +43,8 @@ def process_plex_plugins(context, url, tree=None):
 
     items = []
     for plugin in tree:
-        item = create_plex_plugin_item(context, server, tree, url, plugin)
+        item = Item(server, tree, url, plugin)
+        item = create_plex_plugin_item(context, item)
         if item:
             items.append(item)
 

@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -15,6 +15,7 @@ import time
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..context import Item
 from ..items.movie import create_movie_item
 from ..items.photo import create_photo_item
 from ..items.track import create_track_item
@@ -48,12 +49,13 @@ def process_movies(context, url, tree=None):
     start_time = time.time()
     items = []
     for movie in tree:
+        item = Item(server, url, tree, movie)
         if movie.tag.lower() == 'video':
-            items.append(create_movie_item(context, server, tree, url, movie))
+            items.append(create_movie_item(context, item))
         elif movie.tag.lower() == 'track':  # mixed content video playlist
-            items.append(create_track_item(context, server, tree, movie))
+            items.append(create_track_item(context, item))
         elif movie.tag.lower() == 'photo':  # mixed content video playlist
-            items.append(create_photo_item(context, server, tree, url, movie))
+            items.append(create_photo_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

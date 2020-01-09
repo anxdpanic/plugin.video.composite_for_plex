@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -18,15 +18,15 @@ from .common import get_link_url
 from .common import get_thumb_image
 
 
-def create_plex_online_item(context, server, url, plugin):
+def create_plex_online_item(context, item):
     details = {
-        'title': encode_utf8(plugin.get('title', plugin.get('name', i18n('Unknown'))))
+        'title': encode_utf8(item.data.get('title', item.data.get('name', i18n('Unknown'))))
     }
     extra_data = {
         'type': 'Video',
-        'installed': int(plugin.get('installed', 2)),
-        'key': plugin.get('key', ''),
-        'thumb': get_thumb_image(context, server, plugin),
+        'installed': int(item.data.get('installed', 2)),
+        'key': item.data.get('key', ''),
+        'thumb': get_thumb_image(context, item.server, item.data),
         'mode': MODES.CHANNELINSTALL
     }
 
@@ -36,7 +36,7 @@ def create_plex_online_item(context, server, url, plugin):
     elif extra_data['installed'] == 2:
         extra_data['mode'] = MODES.PLEXONLINE
 
-    item_url = get_link_url(server, url, plugin)
+    item_url = get_link_url(item.server, item.url, item.data)
 
     extra_data['parameters'] = {
         'name': details['title']

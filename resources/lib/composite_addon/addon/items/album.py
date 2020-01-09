@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -17,31 +17,31 @@ from .common import get_fanart_image
 from .common import get_thumb_image
 
 
-def create_album_item(context, server, tree, url, album):
+def create_album_item(context, item):
     details = {
-        'album': encode_utf8(album.get('title', '')),
-        'year': int(album.get('year', 0)),
-        'artist': encode_utf8(tree.get('parentTitle', album.get('parentTitle', ''))),
+        'album': encode_utf8(item.data.get('title', '')),
+        'year': int(item.data.get('year', 0)),
+        'artist': encode_utf8(item.tree.get('parentTitle', item.data.get('parentTitle', ''))),
         'mediatype': 'album'
     }
 
-    if 'recentlyAdded' in url:
+    if 'recentlyAdded' in item.url:
         details['title'] = '%s - %s' % (details['artist'], details['album'])
     else:
         details['title'] = details['album']
 
     extra_data = {
         'type': 'Music',
-        'thumb': get_thumb_image(context, server, album),
-        'fanart_image': get_fanart_image(context, server, album),
-        'key': album.get('key', ''),
+        'thumb': get_thumb_image(context, item.server, item.data),
+        'fanart_image': get_fanart_image(context, item.server, item.data),
+        'key': item.data.get('key', ''),
         'mode': MODES.TRACKS,
-        'plot': album.get('summary', '')
+        'plot': item.data.get('summary', '')
     }
 
     if extra_data['fanart_image'] == '':
-        extra_data['fanart_image'] = get_fanart_image(context, server, tree)
+        extra_data['fanart_image'] = get_fanart_image(context, item.server, item.tree)
 
-    url = '%s%s' % (server.get_url_location(), extra_data['key'])
+    url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     return create_gui_item(context, url, details, extra_data)

@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -27,46 +27,45 @@ from .context_menu import ContextMenu
 LOG = Logger()
 
 
-def create_episode_item(context, server, tree, url, episode, library=False):  # pylint: disable=too-many-arguments
-
-    metadata = get_metadata(context, episode)
+def create_episode_item(context, item, library=False):
+    metadata = get_metadata(context, item.data)
     LOG.debug('Media attributes are %s' % json.dumps(metadata['attributes'], indent=4))
 
-    use_go_to = url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
+    use_go_to = item.url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
 
     # Gather some data
-    view_offset = episode.get('viewOffset', 0)
-    duration = int(metadata['attributes'].get('duration', episode.get('duration', 0))) / 1000
+    view_offset = item.data.get('viewOffset', 0)
+    duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
 
     # Required listItem entries for Kodi
     details = {
-        'plot': encode_utf8(episode.get('summary', '')),
-        'title': encode_utf8(episode.get('title', i18n('Unknown'))),
-        'sorttitle': encode_utf8(episode.get('titleSort',
-                                             episode.get('title', i18n('Unknown')))),
-        'rating': float(episode.get('rating', 0)),
-        'studio': encode_utf8(episode.get('studio', tree.get('studio', ''))),
-        'mpaa': episode.get('contentRating', tree.get('grandparentContentRating', '')),
-        'year': int(episode.get('year', 0)),
-        'tagline': encode_utf8(episode.get('tagline', '')),
-        'episode': int(episode.get('index', 0)),
-        'aired': episode.get('originallyAvailableAt', ''),
-        'tvshowtitle': encode_utf8(episode.get('grandparentTitle',
-                                               tree.get('grandparentTitle', ''))),
-        'season': int(episode.get('parentIndex', tree.get('parentIndex', 0))),
+        'plot': encode_utf8(item.data.get('summary', '')),
+        'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
+        'sorttitle': encode_utf8(item.data.get('titleSort',
+                                               item.data.get('title', i18n('Unknown')))),
+        'rating': float(item.data.get('rating', 0)),
+        'studio': encode_utf8(item.data.get('studio', item.tree.get('studio', ''))),
+        'mpaa': item.data.get('contentRating', item.tree.get('grandparentContentRating', '')),
+        'year': int(item.data.get('year', 0)),
+        'tagline': encode_utf8(item.data.get('tagline', '')),
+        'episode': int(item.data.get('index', 0)),
+        'aired': item.data.get('originallyAvailableAt', ''),
+        'tvshowtitle': encode_utf8(item.data.get('grandparentTitle',
+                                                 item.tree.get('grandparentTitle', ''))),
+        'season': int(item.data.get('parentIndex', item.tree.get('parentIndex', 0))),
         'mediatype': 'episode',
-        'playcount': int(int(episode.get('viewCount', 0)) > 0),
+        'playcount': int(int(item.data.get('viewCount', 0)) > 0),
         'cast': metadata['cast'],
         'director': ' / '.join(metadata['director']),
         'genre': ' / '.join(metadata['genre']),
         'writer': ' / '.join(metadata['writer']),
     }
 
-    if episode.get('sorttitle'):
-        details['sorttitle'] = encode_utf8(episode.get('sorttitle'))
+    if item.data.get('sorttitle'):
+        details['sorttitle'] = encode_utf8(item.data.get('sorttitle'))
 
-    if tree.get('mixedParents') == '1':
-        if tree.get('parentIndex') == '1':
+    if item.tree.get('mixedParents') == '1':
+        if item.tree.get('parentIndex') == '1':
             details['title'] = '%sx%s %s' % (details['season'],
                                              str(details['episode']).zfill(2),
                                              details['title'])
@@ -76,7 +75,7 @@ def create_episode_item(context, server, tree, url, episode, library=False):  # 
                                                   str(details['episode']).zfill(2),
                                                   details['title'])
 
-    art = _get_art(context, server, tree, episode)
+    art = _get_art(context, item)
 
     # Extra data required to manage other properties
     extra_data = {
@@ -86,10 +85,10 @@ def create_episode_item(context, server, tree, url, episode, library=False):  # 
         'fanart_image': art.get('fanart', ''),
         'banner': art.get('banner', ''),
         'season_thumb': art.get('season_thumb', ''),
-        'key': episode.get('key', ''),
-        'ratingKey': str(episode.get('ratingKey', 0)),
-        'parentRatingKey': str(episode.get('parentRatingKey', 0)),
-        'grandparentRatingKey': str(episode.get('grandparentRatingKey', 0)),
+        'key': item.data.get('key', ''),
+        'ratingKey': str(item.data.get('ratingKey', 0)),
+        'parentRatingKey': str(item.data.get('parentRatingKey', 0)),
+        'grandparentRatingKey': str(item.data.get('grandparentRatingKey', 0)),
         'duration': duration,
         'resume': int(int(view_offset) / 1000),
         'season': details.get('season'),
@@ -99,9 +98,9 @@ def create_episode_item(context, server, tree, url, episode, library=False):  # 
         },
     }
 
-    if tree.tag == 'MediaContainer':
+    if item.tree.tag == 'MediaContainer':
         extra_data.update({
-            'library_section_uuid': tree.get('librarySectionUUID')
+            'library_section_uuid': item.tree.get('librarySectionUUID')
         })
 
     # Add extra media flag data
@@ -111,18 +110,18 @@ def create_episode_item(context, server, tree, url, episode, library=False):  # 
     # Build any specific context menu entries
     context_menu = None
     if not context.settings.get_setting('skipcontextmenus'):
-        context_menu = ContextMenu(context, server, url, extra_data).menu
+        context_menu = ContextMenu(context, item.server, item.url, extra_data).menu
 
     extra_data['mode'] = MODES.PLAYLIBRARY
     if library:
         extra_data['path_mode'] = MODES.TXT_TVSHOWS_LIBRARY
 
-    item_url = '%s%s' % (server.get_url_location(), extra_data['key'])
+    item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     return create_gui_item(context, item_url, details, extra_data, context_menu, folder=False)
 
 
-def _get_art(context, server, tree, episode):
+def _get_art(context, item):
     art = {
         'banner': '',
         'fanart': '',
@@ -133,11 +132,11 @@ def _get_art(context, server, tree, episode):
 
     if not context.settings.get_setting('skipimages'):
         art.update({
-            'banner': get_banner_image(context, server, tree),
-            'fanart': get_fanart_image(context, server, episode),
+            'banner': get_banner_image(context, item.server, item.tree),
+            'fanart': get_fanart_image(context, item.server, item.data),
             'season_thumb': '',
-            'section_art': get_fanart_image(context, server, tree),
-            'thumb': get_thumb_image(context, server, episode),
+            'section_art': get_fanart_image(context, item.server, item.tree),
+            'thumb': get_thumb_image(context, item.server, item.data),
         })
 
         if '/:/resources/show-fanart.jpg' in art['section_art']:
@@ -148,23 +147,23 @@ def _get_art(context, server, tree, episode):
 
         if (art.get('season_thumb', '') and
                 '/:/resources/show.png' not in art.get('season_thumb', '')):
-            art['season_thumb'] = get_thumb_image(context, server, {
+            art['season_thumb'] = get_thumb_image(context, item.server, {
                 'thumb': art.get('season_thumb')
             })
 
         # get ALL SEASONS or TVSHOW thumb
-        if (not art.get('season_thumb', '') and episode.get('parentThumb', '') and
-                '/:/resources/show.png' not in episode.get('parentThumb', '')):
+        if (not art.get('season_thumb', '') and item.data.get('parentThumb', '') and
+                '/:/resources/show.png' not in item.data.get('parentThumb', '')):
             art['season_thumb'] = \
-                get_thumb_image(context, server, {
-                    'thumb': episode.get('parentThumb', '')
+                get_thumb_image(context, item.server, {
+                    'thumb': item.data.get('parentThumb', '')
                 })
 
-        elif (not art.get('season_thumb', '') and episode.get('grandparentThumb', '') and
-              '/:/resources/show.png' not in episode.get('grandparentThumb', '')):
+        elif (not art.get('season_thumb', '') and item.data.get('grandparentThumb', '') and
+              '/:/resources/show.png' not in item.data.get('grandparentThumb', '')):
             art['season_thumb'] = \
-                get_thumb_image(context, server, {
-                    'thumb': episode.get('grandparentThumb', '')
+                get_thumb_image(context, item.server, {
+                    'thumb': item.data.get('grandparentThumb', '')
                 })
 
     return art

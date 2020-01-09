@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -58,6 +58,74 @@ class Context:
         :param value: resources/lib/composite_addon/plex/plex.Plex()
         """
         self._plex_network = value
+
+
+class Item:
+    """
+    Used to simplify passing items to functions/methods
+    """
+
+    def __init__(self, server=None, url=None, tree=None, data=None):
+        self._data = data
+        self._server = server
+        self._tree = tree
+        self._url = url
+
+    @property
+    def data(self):
+        if self._data is None:
+            raise ItemPropertyUnavailable
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        """
+        :param value:
+        """
+        self._data = value
+
+    @property
+    def server(self):
+        if not self._server:
+            raise ItemPropertyUnavailable
+        return self._server
+
+    @server.setter
+    def server(self, value):
+        """
+        :param value:
+        """
+        self._server = value
+
+    @property
+    def tree(self):
+        if self._tree is None:
+            raise ItemPropertyUnavailable
+        return self._tree
+
+    @tree.setter
+    def tree(self, value):
+        """
+        :param value:
+        """
+        self._tree = value
+
+    @property
+    def url(self):
+        if not self._url:
+            raise ItemPropertyUnavailable
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        """
+        :param value:
+        """
+        self._url = value
+
+
+class ItemPropertyUnavailable(Exception):
+    pass
 
 
 class ContextPropertyUnavailable(Exception):

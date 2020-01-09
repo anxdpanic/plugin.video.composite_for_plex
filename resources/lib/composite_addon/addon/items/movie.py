@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -28,30 +28,30 @@ from .context_menu import ContextMenu
 LOG = Logger()
 
 
-def create_movie_item(context, server, tree, url, movie, library=False):  # pylint: disable=too-many-arguments
-
-    metadata = get_metadata(context, movie)
+def create_movie_item(context, item, library=False):
+    metadata = get_metadata(context, item.data)
     LOG.debug('Media attributes are %s' % json.dumps(metadata['attributes'], indent=4))
 
     # Gather some data
-    view_offset = movie.get('viewOffset', 0)
-    duration = int(metadata['attributes'].get('duration', movie.get('duration', 0))) / 1000
+    view_offset = item.data.get('viewOffset', 0)
+    duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
 
     # Required listItem entries for Kodi
     details = {
-        'plot': encode_utf8(movie.get('summary', '')),
-        'title': encode_utf8(movie.get('title', i18n('Unknown'))),
-        'sorttitle': encode_utf8(movie.get('titleSort', movie.get('title', i18n('Unknown')))),
-        'rating': float(movie.get('rating', 0)),
-        'studio': encode_utf8(movie.get('studio', '')),
-        'mpaa': encode_utf8(movie.get('contentRating', '')),
-        'year': int(movie.get('year', 0)),
-        'date': movie.get('originallyAvailableAt', '1970-01-01'),
-        'premiered': movie.get('originallyAvailableAt', '1970-01-01'),
-        'tagline': movie.get('tagline', ''),
-        'dateAdded': str(datetime.datetime.fromtimestamp(int(movie.get('addedAt', 0)))),
+        'plot': encode_utf8(item.data.get('summary', '')),
+        'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
+        'sorttitle': encode_utf8(item.data.get('titleSort',
+                                               item.data.get('title', i18n('Unknown')))),
+        'rating': float(item.data.get('rating', 0)),
+        'studio': encode_utf8(item.data.get('studio', '')),
+        'mpaa': encode_utf8(item.data.get('contentRating', '')),
+        'year': int(item.data.get('year', 0)),
+        'date': item.data.get('originallyAvailableAt', '1970-01-01'),
+        'premiered': item.data.get('originallyAvailableAt', '1970-01-01'),
+        'tagline': item.data.get('tagline', ''),
+        'dateAdded': str(datetime.datetime.fromtimestamp(int(item.data.get('addedAt', 0)))),
         'mediatype': 'movie',
-        'playcount': int(int(movie.get('viewCount', 0)) > 0),
+        'playcount': int(int(item.data.get('viewCount', 0)) > 0),
         'cast': metadata['cast'],
         'director': ' / '.join(metadata['director']),
         'genre': ' / '.join(metadata['genre']),
@@ -63,31 +63,31 @@ def create_movie_item(context, server, tree, url, movie, library=False):  # pyli
     extra_data = {
         'type': 'Video',
         'source': 'movies',
-        'thumb': get_thumb_image(context, server, movie),
-        'fanart_image': get_fanart_image(context, server, movie),
-        'key': movie.get('key', ''),
-        'ratingKey': str(movie.get('ratingKey', 0)),
+        'thumb': get_thumb_image(context, item.server, item.data),
+        'fanart_image': get_fanart_image(context, item.server, item.data),
+        'key': item.data.get('key', ''),
+        'ratingKey': str(item.data.get('ratingKey', 0)),
         'duration': duration,
         'resume': int(int(view_offset) / 1000)
     }
 
-    if tree.get('playlistType'):
-        playlist_key = str(tree.get('ratingKey', 0))
-        if movie.get('playlistItemID') and playlist_key:
+    if item.tree.get('playlistType'):
+        playlist_key = str(item.tree.get('ratingKey', 0))
+        if item.data.get('playlistItemID') and playlist_key:
             extra_data.update({
-                'playlist_item_id': movie.get('playlistItemID'),
-                'playlist_title': tree.get('title'),
+                'playlist_item_id': item.data.get('playlistItemID'),
+                'playlist_title': item.tree.get('title'),
                 'playlist_url': '/playlists/%s/items' % playlist_key
             })
 
-    if tree.tag == 'MediaContainer':
+    if item.tree.tag == 'MediaContainer':
         extra_data.update({
-            'library_section_uuid': tree.get('librarySectionUUID')
+            'library_section_uuid': item.tree.get('librarySectionUUID')
         })
 
-    if movie.get('primaryExtraKey') is not None:
+    if item.data.get('primaryExtraKey') is not None:
         details['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
-                             (server.get_url_location(), movie.get('primaryExtraKey', ''),
+                             (item.server.get_url_location(), item.data.get('primaryExtraKey', ''),
                               MODES.PLAYLIBRARY)
         LOG.debug('Trailer plugin url added: %s' % details['trailer'])
 
@@ -98,13 +98,13 @@ def create_movie_item(context, server, tree, url, movie, library=False):  # pyli
     # Build any specific context menu entries
     context_menu = None
     if not context.settings.get_setting('skipcontextmenus'):
-        context_menu = ContextMenu(context, server, url, extra_data).menu
+        context_menu = ContextMenu(context, item.server, item.url, extra_data).menu
 
     # http:// <server> <path> &mode=<mode>
     extra_data['mode'] = MODES.PLAYLIBRARY
     if library:
         extra_data['path_mode'] = MODES.TXT_MOVIES_LIBRARY
 
-    final_url = '%s%s' % (server.get_url_location(), extra_data['key'])
+    final_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     return create_gui_item(context, final_url, details, extra_data, context_menu, folder=False)

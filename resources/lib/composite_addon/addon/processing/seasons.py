@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..context import Item
 from ..items.season import create_season_item
 from ..logger import Logger
 from ..utils import get_xml
@@ -55,7 +56,8 @@ def process_seasons(context, url, rating_key=None, library=False):
         if context.settings.get_setting('disable_all_season') and season.get('index') is None:
             continue
 
-        items.append(create_season_item(context, server, tree, season, library=library))
+        item = Item(server, url, tree, season)
+        items.append(create_season_item(context, item, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -14,6 +14,7 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..context import Item
 from ..items.movie import create_movie_item
 from ..items.photo import create_photo_item
 from ..items.track import create_track_item
@@ -39,14 +40,15 @@ def process_tracks(context, url, tree=None):
     content_type = 'songs'
     items = []
     for track in tree:
+        item = Item(server, url, tree, track)
         if track.tag.lower() == 'track':
-            items.append(create_track_item(context, server, tree, track))
+            items.append(create_track_item(context, item))
         elif track.tag.lower() == 'photo':  # mixed content audio playlist
             content_type = 'movies'  # use movies for mixed content playlists
-            items.append(create_photo_item(context, server, tree, url, track))
+            items.append(create_photo_item(context, item))
         elif track.tag.lower() == 'video':  # mixed content audio playlist
             content_type = 'movies'  # use movies for mixed content playlists
-            items.append(create_movie_item(context, server, tree, url, track))
+            items.append(create_movie_item(context, item))
 
     xbmcplugin.setContent(get_handle(), content_type)
 

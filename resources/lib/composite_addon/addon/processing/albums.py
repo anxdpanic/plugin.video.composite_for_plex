@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -13,6 +13,7 @@
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
+from ..context import Item
 from ..items.album import create_album_item
 from ..utils import get_xml
 
@@ -36,7 +37,8 @@ def process_albums(context, url, tree=None):
     items = []
     album_tags = tree.findall('Directory')
     for album in album_tags:
-        items.append(create_album_item(context, server, tree, url, album))
+        item = Item(server, url, tree, album)
+        items.append(create_album_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

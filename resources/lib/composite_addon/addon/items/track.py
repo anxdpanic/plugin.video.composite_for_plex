@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -24,10 +24,10 @@ from .context_menu import ContextMenu
 LOG = Logger()
 
 
-def create_track_item(context, server, tree, track, listing=True):
+def create_track_item(context, item, listing=True):
     part_details = ()
 
-    for child in track:
+    for child in item.data:
         for babies in child:
             if babies.tag == 'Part':
                 part_details = (dict(babies.items()))
@@ -35,52 +35,54 @@ def create_track_item(context, server, tree, track, listing=True):
     LOG.debug('Part: %s' % json.dumps(part_details, indent=4))
 
     details = {
-        'TrackNumber': int(track.get('index', 0)),
-        'discnumber': int(track.get('parentIndex', 0)),
-        'title': str(track.get('index', 0)).zfill(2) + '. ' + (track.get('title', i18n('Unknown'))),
-        'rating': float(track.get('rating', 0)),
-        'album': encode_utf8(track.get('parentTitle', tree.get('parentTitle', ''))),
-        'artist': encode_utf8(track.get('grandparentTitle', tree.get('grandparentTitle', ''))),
-        'duration': int(track.get('duration', 0)) / 1000,
+        'TrackNumber': int(item.data.get('index', 0)),
+        'discnumber': int(item.data.get('parentIndex', 0)),
+        'title': str(item.data.get('index', 0)).zfill(2) + '. ' +
+                 (item.data.get('title', i18n('Unknown'))),
+        'rating': float(item.data.get('rating', 0)),
+        'album': encode_utf8(item.data.get('parentTitle', item.tree.get('parentTitle', ''))),
+        'artist': encode_utf8(item.data.get('grandparentTitle',
+                                            item.tree.get('grandparentTitle', ''))),
+        'duration': int(item.data.get('duration', 0)) / 1000,
         'mediatype': 'song'
     }
 
-    section_art = get_fanart_image(context, server, tree)
-    if track.get('thumb'):
-        section_thumb = get_thumb_image(context, server, track)
+    section_art = get_fanart_image(context, item.server, item.tree)
+    if item.data.get('thumb'):
+        section_thumb = get_thumb_image(context, item.server, item.data)
     else:
-        section_thumb = get_thumb_image(context, server, tree)
+        section_thumb = get_thumb_image(context, item.server, item.tree)
 
     extra_data = {
         'type': 'music',
         'fanart_image': section_art,
         'thumb': section_thumb,
-        'key': track.get('key', ''),
-        'ratingKey': str(track.get('ratingKey', 0)),
+        'key': item.data.get('key', ''),
+        'ratingKey': str(item.data.get('ratingKey', 0)),
         'mode': MODES.PLAYLIBRARY
     }
 
-    if tree.get('playlistType'):
-        playlist_key = str(tree.get('ratingKey', 0))
-        if track.get('playlistItemID') and playlist_key:
+    if item.tree.get('playlistType'):
+        playlist_key = str(item.tree.get('ratingKey', 0))
+        if item.data.get('playlistItemID') and playlist_key:
             extra_data.update({
-                'playlist_item_id': track.get('playlistItemID'),
-                'playlist_title': tree.get('title'),
+                'playlist_item_id': item.data.get('playlistItemID'),
+                'playlist_title': item.tree.get('title'),
                 'playlist_url': '/playlists/%s/items' % playlist_key
             })
 
-    if tree.tag == 'MediaContainer':
+    if item.tree.tag == 'MediaContainer':
         extra_data.update({
-            'library_section_uuid': tree.get('librarySectionUUID')
+            'library_section_uuid': item.tree.get('librarySectionUUID')
         })
 
     # If we are streaming, then get the virtual location
-    url = '%s%s' % (server.get_url_location(), extra_data['key'])
+    url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     # Build any specific context menu entries
     context_menu = None
     if not context.settings.get_setting('skipcontextmenus'):
-        context_menu = ContextMenu(context, server, url, extra_data).menu
+        context_menu = ContextMenu(context, item.server, url, extra_data).menu
 
     if listing:
         return create_gui_item(context, url, details, extra_data, context_menu, folder=False)
