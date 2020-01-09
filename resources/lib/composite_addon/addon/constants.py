@@ -10,6 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+import json
 import os
 
 from kodi_six import xbmc  # pylint: disable=import-error
@@ -106,6 +107,18 @@ try:
     CONFIG['kodi_version'] = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
 except:  # pylint: disable=bare-except
     CONFIG['kodi_version'] = 0
+
+try:
+    JSONRPC_REQUEST = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "Application.GetProperties",
+        "params": {"properties": ["language"]}
+    }
+    CONFIG['language'] = json.loads(xbmc.executeJSONRPC(json.dumps(JSONRPC_REQUEST))) \
+                         .get('result').get('language').split('_')[0]
+except:  # pylint: disable=bare-except
+    CONFIG['language'] = 'en'
 
 StreamControl = __enum(
     KODI='0',
