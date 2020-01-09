@@ -26,10 +26,9 @@ def create_album_item(context, item):
         'mediatype': 'album'
     }
 
+    info_labels['title'] = info_labels['album']
     if 'recentlyAdded' in item.url:
-        info_labels['title'] = '%s - %s' % (info_labels['artist'], info_labels['album'])
-    else:
-        info_labels['title'] = info_labels['album']
+        info_labels['title'] = '%s - %s' % (info_labels['artist'], info_labels['title'])
 
     extra_data = {
         'type': 'Music',

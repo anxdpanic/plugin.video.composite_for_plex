@@ -47,60 +47,64 @@ def create_plex_plugin_item(context, item):
     if extra_data['fanart_image'] == '':
         extra_data['fanart_image'] = get_fanart_image(context, item.server, item.tree)
 
-    p_url = get_link_url(item.server, item.url, extra_data)
+    item_url = get_link_url(item.server, item.url, extra_data)
 
     if item.data.tag in ['Directory', 'Podcast']:
-        return get_directory_item(context, item.data, p_url, info_labels, extra_data)
+        gui_item = GUIItem(item_url, info_labels, extra_data)
+        return get_directory_item(context, item.data, gui_item)
 
     if item.data.tag == 'Setting':
-        return get_setting_item(context, item.data, item.url, info_labels, extra_data)
+        gui_item = GUIItem(item.url, info_labels, extra_data)
+        return get_setting_item(context, item.data, gui_item)
 
     if item.data.tag == 'Video':
-        return get_video_item(context, item.data, p_url, info_labels, extra_data)
+        gui_item = GUIItem(item_url, info_labels, extra_data)
+        return get_video_item(context, item.data, gui_item)
 
     return None
 
 
-def get_directory_item(context, plugin, url, info_labels, extra_data):
-    extra_data['mode'] = MODES.PLEXPLUGINS
-    if plugin.get('search') == '1':
-        extra_data['mode'] = MODES.CHANNELSEARCH
-        extra_data['parameters'] = {
-            'prompt': encode_utf8(plugin.get('prompt', i18n('Enter search term')))
+def get_directory_item(context, data, item):
+    item.extra['mode'] = MODES.PLEXPLUGINS
+    if data.get('search') == '1':
+        item.extra['mode'] = MODES.CHANNELSEARCH
+        item.extra['parameters'] = {
+            'prompt': encode_utf8(data.get('prompt', i18n('Enter search term')))
         }
 
-    gui_item = GUIItem(url, info_labels, extra_data)
+    gui_item = GUIItem(item.url, item.info_labels, item.extra)
     return create_gui_item(context, gui_item)
 
 
-def get_setting_item(context, plugin, url, info_labels, extra_data):
-    value = plugin.get('value')
-    if plugin.get('option') == 'hidden':
+def get_setting_item(context, data, item):
+    value = data.get('value')
+    if data.get('option') == 'hidden':
         value = '********'
-    elif plugin.get('type') == 'text':
-        value = plugin.get('value')
-    elif plugin.get('type') == 'enum':
-        value = plugin.get('values').split('|')[int(plugin.get('value', 0))]
+    elif data.get('type') == 'text':
+        value = data.get('value')
+    elif data.get('type') == 'enum':
+        value = data.get('values').split('|')[int(data.get('value', 0))]
 
-    info_labels['title'] = '%s - [%s]' % (encode_utf8(plugin.get('label', i18n('Unknown'))), value)
-    extra_data['mode'] = MODES.CHANNELPREFS
-    extra_data['parameters'] = {
-        'id': plugin.get('id')
+    item.info_labels['title'] = '%s - [%s]' % \
+                                (encode_utf8(data.get('label', i18n('Unknown'))), value)
+    item.extra['mode'] = MODES.CHANNELPREFS
+    item.extra['parameters'] = {
+        'id': data.get('id')
     }
 
-    gui_item = GUIItem(url, info_labels, extra_data)
+    gui_item = GUIItem(item.url, item.info_labels, item.extra)
     return create_gui_item(context, gui_item)
 
 
-def get_video_item(context, plugin, url, info_labels, extra_data):
-    extra_data['mode'] = MODES.VIDEOPLUGINPLAY
+def get_video_item(context, data, item):
+    item.extra['mode'] = MODES.VIDEOPLUGINPLAY
 
-    for child in plugin:
+    for child in data:
         if child.tag == 'Media':
-            extra_data['parameters'] = {
+            item.extra['parameters'] = {
                 'indirect': child.get('indirect', '0')
             }
 
-    gui_item = GUIItem(url, info_labels, extra_data)
+    gui_item = GUIItem(item.url, item.info_labels, item.extra)
     gui_item.is_folder = False
     return create_gui_item(context, gui_item)

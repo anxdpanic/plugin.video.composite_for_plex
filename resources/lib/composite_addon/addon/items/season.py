@@ -22,10 +22,6 @@ from .gui import create_gui_item
 
 
 def create_season_item(context, item, library=False):
-    plot = encode_utf8(item.tree.get('summary', ''))
-
-    _watched = int(item.data.get('viewedLeafCount', 0))
-
     # Create the basic data structures to pass up
     info_labels = {
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
@@ -33,7 +29,7 @@ def create_season_item(context, item, library=False):
         'sorttitle': encode_utf8(item.data.get('titleSort',
                                                item.data.get('title', i18n('Unknown')))),
         'studio': encode_utf8(item.data.get('studio', '')),
-        'plot': plot,
+        'plot': encode_utf8(item.tree.get('summary', '')),
         'season': item.data.get('index', 0),
         'episode': int(item.data.get('leafCount', 0)),
         'mpaa': item.data.get('contentRating', ''),
@@ -43,6 +39,8 @@ def create_season_item(context, item, library=False):
 
     if item.data.get('sorttitle'):
         info_labels['sorttitle'] = item.data.get('sorttitle')
+
+    _watched = int(item.data.get('viewedLeafCount', 0))
 
     extra_data = {
         'type': 'video',

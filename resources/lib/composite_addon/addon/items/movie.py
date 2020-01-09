@@ -33,10 +33,6 @@ def create_movie_item(context, item, library=False):
     metadata = get_metadata(context, item.data)
     LOG.debug('Media attributes are %s' % json.dumps(metadata['attributes'], indent=4))
 
-    # Gather some data
-    view_offset = item.data.get('viewOffset', 0)
-    duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
-
     # Required listItem entries for Kodi
     info_labels = {
         'plot': encode_utf8(item.data.get('summary', '')),
@@ -59,6 +55,17 @@ def create_movie_item(context, item, library=False):
         'set': ' / '.join(metadata['collections']),
         'writer': ' / '.join(metadata['writer']),
     }
+
+    if item.data.get('primaryExtraKey') is not None:
+        info_labels['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
+                                 (item.server.get_url_location(),
+                                  item.data.get('primaryExtraKey', ''),
+                                  MODES.PLAYLIBRARY)
+        LOG.debug('Trailer plugin url added: %s' % info_labels['trailer'])
+
+    # Gather some data
+    view_offset = item.data.get('viewOffset', 0)
+    duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
 
     # Extra data required to manage other properties
     extra_data = {
@@ -86,13 +93,6 @@ def create_movie_item(context, item, library=False):
             'library_section_uuid': item.tree.get('librarySectionUUID')
         })
 
-    if item.data.get('primaryExtraKey') is not None:
-        info_labels['trailer'] = 'plugin://' + CONFIG['id'] + '/?url=%s%s?mode=%s' % \
-                                 (item.server.get_url_location(),
-                                  item.data.get('primaryExtraKey', ''),
-                                  MODES.PLAYLIBRARY)
-        LOG.debug('Trailer plugin url added: %s' % info_labels['trailer'])
-
     # Add extra media flag data
     if not context.settings.get_setting('skipflags'):
         extra_data.update(get_media_data(metadata['attributes']))
@@ -107,8 +107,8 @@ def create_movie_item(context, item, library=False):
     if library:
         extra_data['path_mode'] = MODES.TXT_MOVIES_LIBRARY
 
-    final_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
+    item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
-    gui_item = GUIItem(final_url, info_labels, extra_data, context_menu)
+    gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
     gui_item.is_folder = False
     return create_gui_item(context, gui_item)

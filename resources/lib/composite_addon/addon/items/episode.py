@@ -32,12 +32,6 @@ def create_episode_item(context, item, library=False):
     metadata = get_metadata(context, item.data)
     LOG.debug('Media attributes are %s' % json.dumps(metadata['attributes'], indent=4))
 
-    use_go_to = item.url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
-
-    # Gather some data
-    view_offset = item.data.get('viewOffset', 0)
-    duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
-
     # Required listItem entries for Kodi
     info_labels = {
         'plot': encode_utf8(item.data.get('summary', '')),
@@ -76,6 +70,11 @@ def create_episode_item(context, item, library=False):
                                                       str(info_labels['episode']).zfill(2),
                                                       info_labels['title'])
 
+
+    # Gather some data
+    view_offset = item.data.get('viewOffset', 0)
+    duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
+
     art = _get_art(context, item)
 
     # Extra data required to manage other properties
@@ -95,7 +94,7 @@ def create_episode_item(context, item, library=False):
         'season': info_labels.get('season'),
         'tvshowtitle': info_labels.get('tvshowtitle'),
         'additional_context_menus': {
-            'go_to': use_go_to
+            'go_to': item.url.endswith(('onDeck', 'recentlyAdded', 'recentlyViewed', 'newest'))
         },
     }
 

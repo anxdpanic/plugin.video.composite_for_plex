@@ -78,16 +78,16 @@ def create_track_item(context, item, listing=True):
         })
 
     # If we are streaming, then get the virtual location
-    url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
+    item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     # Build any specific context menu entries
     context_menu = None
     if not context.settings.get_setting('skipcontextmenus'):
-        context_menu = ContextMenu(context, item.server, url, extra_data).menu
+        context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
     if listing:
-        gui_item = GUIItem(url, info_labels, extra_data, context_menu)
+        gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
         gui_item.is_folder = False
         return create_gui_item(context, gui_item)
 
-    return url, info_labels
+    return item_url, info_labels

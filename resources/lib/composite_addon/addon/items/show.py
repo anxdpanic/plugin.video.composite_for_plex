@@ -30,8 +30,6 @@ LOG = Logger()
 def create_show_item(context, item, library=False):
     metadata = get_metadata(context, item.data)
 
-    _watched = int(item.data.get('viewedLeafCount', 0))
-
     # Create the basic data structures to pass up
     info_labels = {
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
@@ -49,6 +47,8 @@ def create_show_item(context, item, library=False):
         'genre': ' / '.join(metadata['genre']),
         'mediatype': 'tvshow'
     }
+
+    _watched = int(item.data.get('viewedLeafCount', 0))
 
     extra_data = {
         'type': 'video',

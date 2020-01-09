@@ -37,11 +37,11 @@ def create_plex_online_item(context, item):
     elif extra_data['installed'] == 2:
         extra_data['mode'] = MODES.PLEXONLINE
 
-    item_url = get_link_url(item.server, item.url, item.data)
-
     extra_data['parameters'] = {
         'name': info_labels['title']
     }
+
+    item_url = get_link_url(item.server, item.url, item.data)
 
     gui_item = GUIItem(item_url, info_labels, extra_data)
     return create_gui_item(context, gui_item)
