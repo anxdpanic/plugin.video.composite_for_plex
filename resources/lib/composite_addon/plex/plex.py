@@ -296,7 +296,72 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         data = self.talk_to_myplex(url)
         return ETree.fromstring(data)
 
-    def discover_all_servers(self):  # pylint: disable=too-many-statements, too-many-branches
+    def gdm_discovery(self):
+        try:
+            interface_address = get_platform_ip()
+            LOG.debug('Using interface: %s for GDM discovery' % interface_address)
+        except:  # pylint: disable=bare-except
+            interface_address = None
+            LOG.debug('Using systems default interface for GDM discovery')
+
+        try:
+            gdm_client = PlexGDM(interface=interface_address)
+            gdm_client.discover()
+            gdm_server_name = gdm_client.get_server_list()
+        except Exception as error:  # pylint: disable=broad-except
+            LOG.error('GDM Issue [%s]' % error)
+            traceback.print_exc()
+        else:
+            if gdm_client.discovery_complete and gdm_server_name:
+                LOG.debug('GDM discovery completed')
+
+                for device in gdm_server_name:
+                    server = PlexMediaServer(name=device['serverName'],
+                                             address=device['server'],
+                                             port=device['port'],
+                                             discovery='discovery',
+                                             server_uuid=device['uuid'])
+                    server.set_user(self.effective_user)
+                    server.set_token(self.effective_token)
+
+                    self.merge_server(server)
+            else:
+                LOG.debug('GDM was not able to discover any servers')
+
+    def user_provided_discovery(self):
+        port = self.settings.get_setting('port')
+        if not port:
+            LOG.debug('No port defined.  Using default of ' + DEFAULT_PORT)
+            port = DEFAULT_PORT
+
+        ip_address = self.settings.get_setting('ipaddress')
+        LOG.debug('Settings hostname and port: %s : %s' %
+                  (ip_address, port))
+
+        server = PlexMediaServer(address=ip_address, port=port, discovery='local')
+        server.set_user(self.effective_user)
+        server.set_token(self.effective_token)
+        server.refresh()
+
+        if server.discovered:
+            self.merge_server(server)
+        else:
+            LOG.error('Error: Unable to discover server %s' %
+                      self.settings.get_setting('ipaddress'))
+
+    def _discovery_notification(self, servers):
+        if self.settings.get_setting('detected_notification'):
+            if servers:
+                msg = i18n('Found servers:') + ' ' + servers
+            else:
+                msg = i18n('No servers found')
+
+            xbmcgui.Dialog().notification(heading=CONFIG['name'],
+                                          message=msg,
+                                          icon=CONFIG['icon'],
+                                          sound=False)
+
+    def discover_all_servers(self):
         progress_dialog = xbmcgui.DialogProgressBG()
         progress_dialog.create(heading=CONFIG['name'] + ' ' + i18n('Server Discovery'),
                                message=i18n('Please wait...'))
@@ -322,61 +387,13 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 LOG.debug('Attempting GDM lookup on multicast')
                 percent += 40
                 progress_dialog.update(percent=percent, message=i18n('GDM discovery...'))
-                try:
-                    interface_address = get_platform_ip()
-                    LOG.debug('Using interface: %s for GDM discovery' % interface_address)
-                except:  # pylint: disable=bare-except
-                    interface_address = None
-                    LOG.debug('Using systems default interface for GDM discovery')
-
-                try:
-                    gdm_client = PlexGDM(interface=interface_address)
-                    gdm_client.discover()
-                    gdm_server_name = gdm_client.get_server_list()
-                except Exception as error:  # pylint: disable=broad-except
-                    LOG.error('GDM Issue [%s]' % error)
-                    traceback.print_exc()
-                else:
-                    if gdm_client.discovery_complete and gdm_server_name:
-                        LOG.debug('GDM discovery completed')
-
-                        for device in gdm_server_name:
-                            new_server = PlexMediaServer(name=device['serverName'],
-                                                         address=device['server'],
-                                                         port=device['port'],
-                                                         discovery='discovery',
-                                                         server_uuid=device['uuid'])
-                            new_server.set_user(self.effective_user)
-                            new_server.set_token(self.effective_token)
-
-                            self.merge_server(new_server)
-                    else:
-                        LOG.debug('GDM was not able to discover any servers')
+                self.gdm_discovery()
 
             # Get any manually configured servers
-            else:
-                if self.settings.get_setting('ipaddress'):
-                    percent += 40
-                    progress_dialog.update(percent=percent, message=i18n('User provided...'))
-
-                    port = self.settings.get_setting('port')
-                    if not port:
-                        LOG.debug('No port defined.  Using default of ' + DEFAULT_PORT)
-                        port = DEFAULT_PORT
-
-                    LOG.debug('Settings hostname and port: %s : %s' %
-                              (self.settings.get_setting('ipaddress'), port))
-
-                    local_server = PlexMediaServer(address=self.settings.get_setting('ipaddress'),
-                                                   port=port, discovery='local')
-                    local_server.set_user(self.effective_user)
-                    local_server.set_token(self.effective_token)
-                    local_server.refresh()
-                    if local_server.discovered:
-                        self.merge_server(local_server)
-                    else:
-                        LOG.error('Error: Unable to discover server %s' %
-                                  self.settings.get_setting('ipaddress'))
+            elif self.settings.get_setting('ipaddress'):
+                percent += 40
+                progress_dialog.update(percent=percent, message=i18n('User provided...'))
+                self.user_provided_discovery()
 
             percent += 40
             progress_dialog.update(percent=percent, message=i18n('Caching results...'))
@@ -393,16 +410,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             progress_dialog.update(percent=100, message=i18n('Finished'))
             progress_dialog.close()
 
-        if self.settings.get_setting('detected_notification'):
-            if server_names:
-                msg = i18n('Found servers:') + ' ' + server_names
-            else:
-                msg = i18n('No servers found')
-
-            xbmcgui.Dialog().notification(heading=CONFIG['name'],
-                                          message=msg,
-                                          icon=CONFIG['icon'],
-                                          sound=False)
+        self._discovery_notification(server_names)
 
     def get_myplex_queue(self):
         return self.get_processed_myplex_xml('/pms/playlists/queue/all')
