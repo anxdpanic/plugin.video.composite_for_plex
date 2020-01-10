@@ -22,8 +22,16 @@ LOG = Logger()
 def get_client(settings):
     client = PlexGDM()
     details = settings.companion_receiver()
-    client.client_details(details['uuid'], details['name'], details['port'],
-                          CONFIG['name'], CONFIG['version'])
+    data = {
+        'uuid': details['uuid'],
+        'name': details['name'],
+        'port': details['port'],
+        'product': {
+            'name': CONFIG['name'],
+            'version': CONFIG['version'],
+        }
+    }
+    client.client_details(data)
 
     LOG.debug('Registration string is: %s' % client.get_client_details())
     return client

@@ -56,11 +56,12 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
         self.discover_t = None
         self.register_t = None
 
-    def client_details(self, c_id, c_name, c_post, c_product, c_version):  # pylint: disable=too-many-arguments
+    def client_details(self, data):
         self.client_data = 'Content-Type: plex/media-player\nResource-Identifier: %s\nName: %s\n' \
                            'Port: %s\nProduct: %s\nVersion: %s' % \
-                           (c_id, c_name, c_post, c_product, c_version)
-        self.client_id = c_id
+                           (data['uuid'], data['name'], data['port'],
+                            data['product']['name'], data['product']['version'])
+        self.client_id = data['uuid']
 
     def get_client_details(self):
         if not self.client_data:
