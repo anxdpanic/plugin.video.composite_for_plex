@@ -2,7 +2,7 @@
 [add] add cast to tv shows
 [fix] set content type for library endpoints
 [upd] improve plex identification |contrib: Maven85|
-[upd] refactor item creation
+[upd] refactoring
 [upd] linting / cosmetics
 
 0.7.0
