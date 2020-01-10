@@ -259,25 +259,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
         self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
 
-    def set_best_address(self, address=''):  # pylint: disable=too-many-statements, too-many-branches
-        if not address:
-            self.connection_test_results = []
-
-        self.offline = False
-        self.update_identification()
-
-        use_https = self.get_settings().get_setting('secureconn')
-        if not use_https:
-            self.set_protocol('http')
-
+    def _get_formatted_uris(self, address):
         external_uri = ''
         internal_address = ''
         external_address = ''
-
-        tags = []
-        tested = []
-        threads = []
-        uris = []
 
         if address:
             if ':' not in address:
@@ -298,6 +283,15 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 internal_address = '%s:%s' % (internal_address, DEFAULT_PORT)
             if external_address and ':' not in external_address:
                 external_address = '%s:%s' % (external_address, DEFAULT_PORT)
+
+        return address, external_uri, internal_address, external_address
+
+    def _get_connection_uris_and_tags(self, address, external_uri,
+                                      internal_address, external_address):
+        tags = []
+        uris = []
+
+        use_https = self.get_settings().get_setting('secureconn')
 
         if address:
             if use_https:
@@ -325,6 +319,103 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 uris.append('%s://%s/' % ('http', external_address))
                 tags.append('external')
 
+        return uris, tags
+
+    def _set_best_https(self):
+        if any(conn[0] == 'user' and conn[1] == 'https' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'user' and conn[1] == 'https' and conn[3])
+            LOG.debug('[%s] Server [%s] not found in existing lists.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        if any(conn[0] == 'external_uri' and conn[1] == 'https' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'external_uri' and
+                                       conn[1] == 'https' and conn[3])
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        if any(conn[0] == 'internal' and conn[1] == 'https' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'internal' and conn[1] == 'https' and conn[3])
+            LOG.debug('[%s] Server [%s] found on existing internal list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        if any(conn[0] == 'external' and conn[1] == 'https' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'external' and conn[1] == 'https' and conn[3])
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        return False
+
+    def _set_best_http(self):
+        if any(conn[0] == 'user' and conn[1] == 'http' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'user' and conn[1] == 'http' and conn[3])
+            self.set_protocol('http')
+            LOG.debug('[%s] Server [%s] not found in existing lists.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        if any(conn[0] == 'external_uri' and conn[1] == 'http' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'external_uri' and conn[1] == 'http'
+                                       and conn[3])
+            self.set_protocol('http')
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        if any(conn[0] == 'internal' and conn[1] == 'http' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'internal' and conn[1] == 'http' and conn[3])
+            self.set_protocol('http')
+            LOG.debug('[%s] Server [%s] found on existing internal list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        if any(conn[0] == 'external' and conn[1] == 'http' and conn[3]
+               for conn in self.connection_test_results):
+            self.access_address = next(conn[2] for conn in self.connection_test_results
+                                       if conn[0] == 'external' and conn[1] == 'http' and conn[3])
+            self.set_protocol('http')
+            LOG.debug('[%s] Server [%s] found in existing external list.  '
+                      'selecting as default' % (self.uuid, self.access_address))
+            return True
+
+        return False
+
+    def set_best_address(self, address=''):
+        if not address:
+            self.connection_test_results = []
+
+        self.offline = False
+        self.update_identification()
+
+        if not self.get_settings().get_setting('secureconn'):
+            self.set_protocol('http')
+
+        tested = []
+        threads = []
+
+        address, external_uri, internal_address, external_address = \
+            self._get_formatted_uris(address)
+
+        uris, tags = self._get_connection_uris_and_tags(address, external_uri,
+                                                        internal_address, external_address)
+
         for idx in list(range(len(uris))):
             uri = uris[idx]
             if uri in tested:
@@ -340,62 +431,14 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         #  connection preference https
         #  (user provided, external uri, internal address, external address)
-        if any(c[0] == 'user' and c[1] == 'https' and c[3]
-               for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'user' and c[1] == 'https' and c[3])
-            LOG.debug('[%s] Server [%s] not found in existing lists.  '
-                      'selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external_uri' and c[1] == 'https' and c[3]
-                 for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'external_uri' and c[1] == 'https' and c[3])
-            LOG.debug('[%s] Server [%s] found in existing external list.  '
-                      'selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'internal' and c[1] == 'https' and c[3]
-                 for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'internal' and c[1] == 'https' and c[3])
-            LOG.debug('[%s] Server [%s] found on existing internal list.  '
-                      'selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external' and c[1] == 'https' and c[3]
-                 for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'external' and c[1] == 'https' and c[3])
-            LOG.debug('[%s] Server [%s] found in existing external list.  '
-                      'selecting as default' % (self.uuid, self.access_address))
+        found_connection = self._set_best_https()
 
-        #  connection preference http
-        #  (user provided, external uri, internal address, external address)
-        elif any(c[0] == 'user' and c[1] == 'http' and c[3]
-                 for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'user' and c[1] == 'http' and c[3])
-            self.set_protocol('http')
-            LOG.debug('[%s] Server [%s] not found in existing lists.  '
-                      'selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external_uri' and c[1] == 'http' and c[3]
-                 for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'external_uri' and c[1] == 'http' and c[3])
-            self.set_protocol('http')
-            LOG.debug('[%s] Server [%s] found in existing external list.  '
-                      'selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'internal' and c[1] == 'http' and c[3]
-                 for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'internal' and c[1] == 'http' and c[3])
-            self.set_protocol('http')
-            LOG.debug('[%s] Server [%s] found on existing internal list.  '
-                      'selecting as default' % (self.uuid, self.access_address))
-        elif any(c[0] == 'external' and c[1] == 'http' and c[3]
-                 for c in self.connection_test_results):
-            self.access_address = next(c[2] for c in self.connection_test_results
-                                       if c[0] == 'external' and c[1] == 'http' and c[3])
-            self.set_protocol('http')
-            LOG.debug('[%s] Server [%s] found in existing external list.  '
-                      'selecting as default' % (self.uuid, self.access_address))
-        else:
+        if not found_connection:
+            # connection preference http
+            #  (user provided, external uri, internal address, external address)
+            found_connection = self._set_best_http()
+
+        if not found_connection:
             self.offline = True
             LOG.debug('[%s] Server appears to be offline' % self.uuid)
 
