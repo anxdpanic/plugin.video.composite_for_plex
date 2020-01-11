@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -41,7 +41,7 @@ def get_xml(context, url, tree=None):
 
 def get_master_server(context, all_servers=False):
     possible_servers = []
-    current_master = context.settings.get_setting('masterServer')
+    current_master = context.settings.master_server()
     for server_data in context.plex_network.get_server_list():
         LOG.debug(str(server_data))
         if server_data.get_master() == 1:
@@ -75,11 +75,11 @@ def get_transcode_profile(context):
     profile_labels = []
 
     for idx in list(range(profile_count)):
-        if idx == 0 or context.settings.get_setting('transcode_target_enabled_%s' % str(idx)):
-            resolution, bitrate = context.settings.get_setting('transcode_target_quality_%s' %
-                                                               str(idx)).split(',')
-            sub_size = context.settings.get_setting('transcode_target_sub_size_%s' % str(idx))
-            audio_boost = context.settings.get_setting('transcode_target_audio_size_%s' % str(idx))
+        profile = context.settings.transcode_profile(idx)
+        if profile.get('enabled'):
+            resolution, bitrate = profile.get('quality').split(',')
+            sub_size = profile.get('subtitle_size')
+            audio_boost = profile.get('audio_boost')
             profile_labels.append('[%s] %s@%s (%s/%s)' %
                                   (str(idx + 1), resolution, bitrate.strip(),
                                    sub_size, audio_boost))

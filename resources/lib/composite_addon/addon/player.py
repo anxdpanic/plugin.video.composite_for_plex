@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -227,7 +227,7 @@ class CallbackPlayer(xbmc.Player):
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name
-        monitor_playback = not self.settings.get_setting('monitoroff', fresh=True)
+        monitor_playback = not self.settings.playback_monitor_disabled(fresh=True)
         playback_dict = read_pickled('playback_monitor.pickle')
 
         self.cleanup_threads()
@@ -269,7 +269,7 @@ def set_audio_subtitles(settings, stream):
 
     # If we have decided not to collect any sub data then do not set subs
     player = xbmc.Player()
-    control = settings.get_setting('streamControl', fresh=True)
+    control = settings.stream_control(fresh=True)
 
     if stream['contents'] == 'type':
         LOG.debug('No audio or subtitle streams to process.')

@@ -74,7 +74,7 @@ def create_photo_item(context, item):
             })
 
         context_menu = None
-        if not context.settings.get_setting('skipcontextmenus'):
+        if not context.settings.skip_context_menus():
             context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
         gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)

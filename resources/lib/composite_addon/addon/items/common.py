@@ -67,7 +67,7 @@ def get_thumb_image(context, server, data, width=720, height=720):
         @ input: elementTree element, server name
         @ return formatted URL
     """
-    if context.settings.get_setting('skipimages'):
+    if context.settings.skip_images():
         return ''
 
     thumbnail = encode_utf8(data.get('thumb', '').split('?t')[0])
@@ -76,7 +76,7 @@ def get_thumb_image(context, server, data, width=720, height=720):
         return thumbnail
 
     if thumbnail.startswith('/'):
-        if context.settings.get_setting('fullres_thumbs'):
+        if context.settings.full_resolution_thumbnails():
             return server.get_kodi_header_formatted_url(thumbnail)
 
         thumbnail = quote_plus('http://localhost:32400' + thumbnail)
@@ -92,7 +92,7 @@ def get_banner_image(context, server, data, width=720, height=720):
         @ input: elementTree element, server name
         @ return formatted URL
     """
-    if context.settings.get_setting('skipimages'):
+    if context.settings.skip_images():
         return ''
 
     thumbnail = encode_utf8(data.get('banner', '').split('?t')[0])
@@ -101,7 +101,7 @@ def get_banner_image(context, server, data, width=720, height=720):
         return thumbnail
 
     if thumbnail.startswith('/'):
-        if context.settings.get_setting('fullres_thumbs'):
+        if context.settings.full_resolution_thumbnails():
             return server.get_kodi_header_formatted_url(thumbnail)
 
         thumbnail = quote_plus('http://localhost:32400' + thumbnail)
@@ -117,7 +117,7 @@ def get_fanart_image(context, server, data, width=1280, height=720):
         @ input: elementTree element, server name
         @ return formatted URL for photo resizing
     """
-    if context.settings.get_setting('skipimages'):
+    if context.settings.skip_images():
         return ''
 
     fanart = encode_utf8(data.get('art', ''))
@@ -126,7 +126,7 @@ def get_fanart_image(context, server, data, width=1280, height=720):
         return fanart
 
     if fanart.startswith('/'):
-        if context.settings.get_setting('fullres_fanart'):
+        if context.settings.full_resolution_fanart():
             return server.get_kodi_header_formatted_url(fanart)
 
         return server.get_kodi_header_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
@@ -181,7 +181,7 @@ def get_metadata(context, data):
     if media_tag:
         metadata['attributes'] = dict(media_tag.items())
 
-    if not context.settings.get_setting('skipmetadata'):
+    if not context.settings.skip_metadata():
         for child in data:
             if child.tag == 'Genre':
                 metadata['genre'].append(child.get('tag'))

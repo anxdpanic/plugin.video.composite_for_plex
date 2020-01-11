@@ -50,7 +50,7 @@ def create_gui_item(context, item):
     info_type, info_labels = _get_info(item)
     list_item.setInfo(type=info_type, infoLabels=info_labels)
 
-    if (not context.settings.get_setting('skipflags') and
+    if (not context.settings.skip_flags() and
             not item.is_folder and
             item.extra.get('type', 'video').lower() == 'video'):
         stream_info = item.extra.get('stream_info', {})
@@ -160,7 +160,7 @@ def _get_properties(context, item):
             item_properties['TotalTime'] = str(item.extra.get('duration'))
             item_properties['ResumeTime'] = str(item.extra.get('resume'))
 
-            if not context.settings.get_setting('skipflags'):
+            if not context.settings.skip_flags():
                 LOG.debug('Setting VrR as : %s' % item.extra.get('VideoResolution', ''))
                 item_properties['VideoResolution'] = item.extra.get('VideoResolution', '')
                 item_properties['VideoCodec'] = item.extra.get('VideoCodec', '')

@@ -82,7 +82,7 @@ def create_track_item(context, item, listing=True):
 
     # Build any specific context menu entries
     context_menu = None
-    if not context.settings.get_setting('skipcontextmenus'):
+    if not context.settings.skip_context_menus():
         context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
     if listing:

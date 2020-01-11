@@ -3,7 +3,7 @@
 
     Copyright (C) 2013-2019 PleXBMC Helper (script.plexbmc.helper)
         by wickning1 (aka Nick Wing), hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -77,7 +77,7 @@ class CompanionReceiverThread(threading.Thread):  # pylint: disable=too-many-ins
                 break
             except:  # pylint: disable=bare-except
                 self.LOG.debug('Unable to start receiver. Sleep and Retry...')
-                self.settings.set_setting('replacement', True)
+                self.settings.set_replacement(True)
 
             self.MONITOR.waitForAbort(3)
 
@@ -94,13 +94,13 @@ class CompanionReceiverThread(threading.Thread):  # pylint: disable=too-many-ins
 
         if self.httpd:
             self.client.start_all()
-            self.settings.set_setting('replacement', False)
+            self.settings.set_replacement(False)
 
             count = 0
             running = False
 
             while (not xbmc.Monitor().abortRequested() and
-                   not self.settings.get_setting('replacement') and
+                   not self.settings.replacement() and
                    not self.stopped()):
                 try:
 

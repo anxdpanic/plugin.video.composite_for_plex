@@ -46,7 +46,7 @@ def create_playlist_item(context, item, listing=True):
     item_url = get_link_url(item.server, item.url, item.data)
 
     context_menu = None
-    if not context.settings.get_setting('skipcontextmenus'):
+    if not context.settings.skip_context_menus():
         context_menu = ContextMenu(context, item.server, item_url, extra_data).menu
 
     if listing:

@@ -70,7 +70,6 @@ def create_episode_item(context, item, library=False):
                                                       str(info_labels['episode']).zfill(2),
                                                       info_labels['title'])
 
-
     # Gather some data
     view_offset = item.data.get('viewOffset', 0)
     duration = int(metadata['attributes'].get('duration', item.data.get('duration', 0))) / 1000
@@ -104,12 +103,12 @@ def create_episode_item(context, item, library=False):
         })
 
     # Add extra media flag data
-    if not context.settings.get_setting('skipflags'):
+    if not context.settings.skip_flags():
         extra_data.update(get_media_data(metadata['attributes']))
 
     # Build any specific context menu entries
     context_menu = None
-    if not context.settings.get_setting('skipcontextmenus'):
+    if not context.settings.skip_context_menus():
         context_menu = ContextMenu(context, item.server, item.url, extra_data).menu
 
     extra_data['mode'] = MODES.PLAYLIBRARY
@@ -132,7 +131,7 @@ def _get_art(context, item):
         'thumb': '',
     }
 
-    if not context.settings.get_setting('skipimages'):
+    if not context.settings.skip_images():
         art.update({
             'banner': get_banner_image(context, item.server, item.tree),
             'fanart': get_fanart_image(context, item.server, item.data),

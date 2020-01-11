@@ -37,7 +37,7 @@ def process_seasons(context, url, rating_key=None, library=False):
         return
 
     will_flatten = False
-    if context.settings.get_setting('flatten') == '1':
+    if context.settings.flatten_seasons() == '1':
         # check for a single season
         if int(tree.get('size', 0)) == 1:
             LOG.debug('Flattening single season show')
@@ -53,7 +53,7 @@ def process_seasons(context, url, rating_key=None, library=False):
             process_episodes(context, url)
             return
 
-        if context.settings.get_setting('disable_all_season') and season.get('index') is None:
+        if context.settings.all_season_disabled() and season.get('index') is None:
             continue
 
         item = Item(server, url, tree, season)
@@ -62,4 +62,4 @@ def process_seasons(context, url, rating_key=None, library=False):
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.cache_directory())

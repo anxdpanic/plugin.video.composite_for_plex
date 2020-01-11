@@ -40,12 +40,13 @@ def run(context, content_filter=None, display_shared=False):
             xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
         xbmcplugin.endOfDirectory(get_handle(),
-                                  cacheToDisc=context.settings.get_setting('kodicache'))
+                                  cacheToDisc=context.settings.cache_directory())
         return
 
+    menus = context.settings.show_menus()
+
     # For each of the servers we have identified
-    if (context.settings.get_setting('show_myplex_queue_menu') and
-            context.plex_network.is_myplex_signedin()):
+    if menus.get('queue') and context.plex_network.is_myplex_signedin():
         details = {
             'title': i18n('myPlex Queue')
         }
@@ -56,13 +57,13 @@ def run(context, content_filter=None, display_shared=False):
         gui_item = GUIItem('http://myplexqueue', details, extra_data)
         items.append(create_gui_item(context, gui_item))
 
-    items += server_additional_menu_items(context, server_list, content_filter)
+    items += server_additional_menu_items(context, server_list, content_filter, menus)
     items += action_menu_items(context)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.cache_directory())
 
 
 def server_section_menus_items(context, server_list, content_filter, display_shared):
@@ -103,7 +104,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
 
             path = section.get_path()
 
-            if context.settings.get_setting('secondary'):
+            if context.settings.secondary_menus():
                 mode = MODES.GETCONTENT
             else:
                 mode = section.mode()
@@ -113,7 +114,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
             section_url = '%s%s' % (server.get_url_location(), path)
 
             context_menu = None
-            if not context.settings.get_setting('skipcontextmenus'):
+            if not context.settings.skip_context_menus():
                 context_menu = [(i18n('Refresh library section'),
                                  'RunScript(' + CONFIG['id'] + ', update, %s, %s)' %
                                  (server.get_uuid(), section.get_key()))]
@@ -125,7 +126,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
     return items
 
 
-def server_additional_menu_items(context, server_list, content_filter):
+def server_additional_menu_items(context, server_list, content_filter, menus):
     items = []
     for server in server_list:
 
@@ -142,7 +143,7 @@ def server_additional_menu_items(context, server_list, content_filter):
         else:
             prefix = ''
 
-        if context.settings.get_setting('show_channels_menu'):
+        if menus.get('channels'):
             details = {
                 'title': prefix + i18n('Channels')
             }
@@ -155,7 +156,7 @@ def server_additional_menu_items(context, server_list, content_filter):
             gui_item = GUIItem(item_url, details, extra_data)
             items.append(create_gui_item(context, gui_item))
 
-        if context.settings.get_setting('show_plex_online_menu'):
+        if menus.get('online'):
             # Create plexonline link
             details = {
                 'title': prefix + i18n('Plex Online')
@@ -169,7 +170,7 @@ def server_additional_menu_items(context, server_list, content_filter):
             gui_item = GUIItem(item_url, details, extra_data)
             items.append(create_gui_item(context, gui_item))
 
-        if context.settings.get_setting('show_playlists_menu'):
+        if menus.get('playlists'):
             # create playlist link
             details = {
                 'title': prefix + i18n('Playlists')
@@ -183,7 +184,7 @@ def server_additional_menu_items(context, server_list, content_filter):
             gui_item = GUIItem(item_url, details, extra_data)
             items.append(create_gui_item(context, gui_item))
 
-        if context.settings.get_setting('show_widget_menu'):
+        if menus.get('widgets'):
             # create Widgets link
             details = {
                 'title': prefix + i18n('Widgets')
@@ -237,7 +238,7 @@ def action_menu_items(context):
         gui_item = GUIItem(item_url, details, extra_data)
         items.append(create_gui_item(context, gui_item))
 
-        if context.settings.get_setting('cache'):
+        if context.settings.cache():
             details = {
                 'title': i18n('Clear Caches')
             }

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -23,17 +23,17 @@ from ..addon.constants import CONFIG
 
 def get_device_name(settings, device_name):
     if device_name is None:
-        device_name = settings.get_setting('devicename')
+        device_name = settings.device_name()
     return device_name
 
 
 def get_client_identifier(settings, client_id):
     if client_id is None:
-        client_id = settings.get_setting('client_id')
+        client_id = settings.client_id()
 
         if not client_id:
             client_id = str(uuid.uuid4())
-            settings.set_setting('client_id', client_id)
+            settings.set_client_id(client_id)
 
     return client_id
 

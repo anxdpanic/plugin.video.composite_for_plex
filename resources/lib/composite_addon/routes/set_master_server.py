@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -25,7 +25,7 @@ def run(context):
     servers = get_master_server(context, all_servers=True)
     LOG.debug(str(servers))
 
-    current_master = context.settings.get_setting('masterServer')
+    current_master = context.settings.master_server()
 
     display_option_list = []
     for address in servers:
@@ -39,4 +39,4 @@ def run(context):
         return
 
     LOG.debug('Setting master server to: %s' % servers[result].get_name())
-    context.settings.update_master_server(servers[result].get_name())
+    context.settings.set_master_server(servers[result].get_name())

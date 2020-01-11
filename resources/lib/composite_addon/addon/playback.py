@@ -37,7 +37,7 @@ LOG = Logger()
 def monitor_channel_transcode_playback(context, server, session_id):
     # Logic may appear backward, but this does allow for a failed start to be detected
     # First while loop waiting for start
-    if context.settings.get_setting('monitoroff'):
+    if context.settings.playback_monitor_disabled():
         return
 
     count = 0
@@ -192,12 +192,11 @@ def is_transcode_required(context, stream_details, default=False):
     except ValueError:
         bit_depth = None
 
-    if codec and (context.settings.get_setting('transcode_hevc') and codec.lower() == 'hevc'):
+    if codec and (context.settings.transcode_hevc() and codec.lower() == 'hevc'):
         return True
-    if resolution and (context.settings.get_setting('transcode_g1080') and
-                       resolution.lower() == '4k'):
+    if resolution and (context.settings.transcode_g1080() and resolution.lower() == '4k'):
         return True
-    if bit_depth and (context.settings.get_setting('transcode_g8bit') and bit_depth > 8):
+    if bit_depth and (context.settings.transcode_g8bit() and bit_depth > 8):
         return True
 
     return default
@@ -249,7 +248,7 @@ class StreamData:
         self._get_media_details()
 
         if (self.data['type'] == 'video' and
-                self.context.settings.get_setting('streamControl') == StreamControl().PLEX):
+                self.context.settings.stream_control() == StreamControl().PLEX):
             self._get_audio_and_subtitles()
         else:
             LOG.debug('Stream selection is set OFF')
@@ -314,7 +313,7 @@ class StreamData:
             )
             self.data['full_data']['mediatype'] = 'episode'
 
-        if not self.context.settings.get_setting('skipmetadata'):
+        if not self.context.settings.skip_metadata():
             tree_genres = self._content.findall('Genre')
             if tree_genres is not None:
                 self.data['full_data']['genre'] = [encode_utf8(tree_genre.get('tag', ''))
@@ -466,7 +465,7 @@ class MediaSelect:
                                              details[index_count]['videoResolution'],
                                              details[index_count]['bitrate'])
 
-                if self.context.settings.get_setting('forcedvd'):
+                if self.context.settings.force_dvd():
                     if '.ifo' in name.lower():
                         LOG.debug('Found IFO DVD file in ' + name)
                         name = 'DVD Image'
@@ -488,7 +487,7 @@ class MediaSelect:
             self._media_index = result
 
         else:
-            if self.context.settings.get_setting('forcedvd'):
+            if self.context.settings.force_dvd():
                 if '.ifo' in options[0]:
                     self.dvd_playback = True
 
@@ -560,17 +559,18 @@ class MediaSelect:
                 # Might be OSX type, in which case, remove Volumes and replace with server
                 server = self.server.get_location().split(':')[0]
                 login_string = ''
+                override_info = self.context.settings.override_info()
 
-                if self.context.settings.get_setting('nasoverride'):
-                    if self.context.settings.get_setting('nasoverrideip'):
-                        server = self.context.settings.get_setting('nasoverrideip')
+                if override_info.get('override'):
+                    if override_info.get('ip_address'):
+                        server = override_info.get('ip_address')
                         LOG.debug('Overriding server with: %s' % server)
 
-                    if self.context.settings.get_setting('nasuserid'):
-                        login_string = '%s:%s@' % (self.context.settings.get_setting('nasuserid'),
-                                                   self.context.settings.get_setting('naspass'))
+                    if override_info.get('user_id'):
+                        login_string = '%s:%s@' % (override_info.get('user_id'),
+                                                   override_info.get('password'))
                         LOG.debug('Adding AFP/SMB login info for user: %s' %
-                                  self.context.settings.get_setting('nasuserid'))
+                                  override_info.get('user_id'))
 
                 if filename.find('Volumes') > 0:
                     self.media_url = '%s:/%s' % \
@@ -593,14 +593,14 @@ class MediaSelect:
         return False
 
     def _nas_override(self):
-        if (self.context.settings.get_setting('nasoverride') and
-                self.context.settings.get_setting('nasroot')):
+        override_info = self.context.settings.override_info()
+        if override_info.get('override') and override_info.get('root'):
             # Re-root the file path
             LOG.debug('Altering path %s so root is: %s' %
-                      (self.media_url, self.context.settings.get_setting('nasroot')))
-            if '/' + self.context.settings.get_setting('nasroot') + '/' in self.media_url:
+                      (self.media_url, override_info.get('root')))
+            if '/' + override_info.get('root') + '/' in self.media_url:
                 components = self.media_url.split('/')
-                index = components.index(self.context.settings.get_setting('nasroot'))
+                index = components.index(override_info.get('root'))
                 for _ in list(range(3, index)):
                     components.pop(3)
                 self.media_url = '/'.join(components)

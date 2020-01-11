@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -12,4 +12,4 @@
 from . import cache_control
 from .settings import AddonSettings
 
-DATA_CACHE = cache_control.CacheControl('data', AddonSettings().get_setting('data_cache'))
+DATA_CACHE = cache_control.CacheControl('data', AddonSettings().data_cache())

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -27,7 +27,7 @@ class UpNext:
         :param callback_args: dict of arguments required for service.upnext `play_info`
         """
         self.settings = settings
-        self.use_ep_thumbs = self.settings.get_setting('up_next_episode_thumbs', fresh=True)
+        self.use_ep_thumbs = self.settings.up_next_episode_thumbs()
         self.server = server
         self.media_id = media_id
         self.callback_args = callback_args

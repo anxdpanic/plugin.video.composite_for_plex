@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -22,7 +22,7 @@ LOG = Logger()
 
 
 def wake_servers(context):
-    if context.settings.get_setting('wolon'):
+    if context.settings.wake_on_lan():
         LOG.debug('Wake On LAN: true')
         for mac_address in context.settings.get_wakeservers():
             if mac_address:

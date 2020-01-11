@@ -62,4 +62,4 @@ def process_movies(context, url, tree=None):
     LOG.debug('PROCESS: It took %s seconds to process %s items' %
               (time.time() - start_time, len(items)))
 
-    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.get_setting('kodicache'))
+    xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.cache_directory())

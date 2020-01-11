@@ -70,7 +70,7 @@ def create_season_item(context, item, library=False):
     item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     context_menu = None
-    if not context.settings.get_setting('skipcontextmenus'):
+    if not context.settings.skip_context_menus():
         context_menu = ContextMenu(context, item.server, item_url, item.data).menu
 
     if library:

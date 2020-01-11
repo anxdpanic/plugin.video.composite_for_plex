@@ -94,12 +94,12 @@ def create_movie_item(context, item, library=False):
         })
 
     # Add extra media flag data
-    if not context.settings.get_setting('skipflags'):
+    if not context.settings.skip_flags():
         extra_data.update(get_media_data(metadata['attributes']))
 
     # Build any specific context menu entries
     context_menu = None
-    if not context.settings.get_setting('skipcontextmenus'):
+    if not context.settings.skip_context_menus():
         context_menu = ContextMenu(context, item.server, item.url, extra_data).menu
 
     # http:// <server> <path> &mode=<mode>

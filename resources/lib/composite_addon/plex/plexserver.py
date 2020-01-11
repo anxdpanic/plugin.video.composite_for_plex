@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -245,8 +245,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         url_parts = urlparse(uri)
         status_code = requests.codes.not_found  # pylint: disable=no-member
         try:
-            verify_cert = uri.startswith('https') and \
-                          self.get_settings().get_setting('verify_cert')
+            verify_cert = uri.startswith('https') and self.get_settings().verify_certificates()
             response = requests.head(uri, params=self.plex_identification_header,
                                      verify=verify_cert, timeout=(2, 60))
             status_code = response.status_code
@@ -291,7 +290,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         tags = []
         uris = []
 
-        use_https = self.get_settings().get_setting('secureconn')
+        use_https = self.get_settings().secure_connection()
 
         if address:
             if use_https:
@@ -404,7 +403,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         self.offline = False
         self.update_identification()
 
-        if not self.get_settings().get_setting('secureconn'):
+        if not self.get_settings().secure_connection():
             self.set_protocol('http')
 
         tested = []
@@ -450,8 +449,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = self.protocol == 'https' and \
-                          self.get_settings().get_setting('verify_cert')
+            verify_cert = self.protocol == 'https' and self.get_settings().verify_certificates()
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:
@@ -722,11 +720,11 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def get_fanart(self, section, width=1280, height=720):
         LOG.debug('Getting fanart for %s' % section.get_title())
 
-        if self.get_settings().get_setting('skipimages'):
+        if self.get_settings().skip_images():
             return ''
 
         if section.get_art().startswith('/'):
-            if self.get_settings().get_setting('fullres_fanart'):
+            if self.get_settings().full_resolution_fanart():
                 return self.get_formatted_url(section.get_art())
 
             return self.get_formatted_url('/photo/:/transcode?url=%s&width=%s&height=%s' %
@@ -807,20 +805,11 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
         LOG.debug('incoming URL is: %s' % url)
-        try:
-            resolution, bitrate = self.get_settings().get_setting('transcode_target_quality_%s' %
-                                                                  transcode_profile).split(',')
-            subtitle_size = self.get_settings().get_setting('transcode_target_sub_size_%s' %
-                                                            transcode_profile).split('.')[0]
-            audio_boost = self.get_settings().get_setting('transcode_target_audio_size_%s' %
-                                                          transcode_profile).split('.')[0]
-        except ValueError:
-            resolution, bitrate = \
-                self.get_settings().get_setting('transcode_target_quality_0').split(',')
-            subtitle_size = \
-                self.get_settings().get_setting('transcode_target_sub_size_0').split('.')[0]
-            audio_boost = \
-                self.get_settings().get_setting('transcode_target_audio_size_0').split('.')[0]
+
+        profile = self.get_settings().transcode_profile(transcode_profile)
+        resolution, bitrate = profile.get('quality').split(',')
+        subtitle_size = profile.get('subtitle_size').split('.')[0]
+        audio_boost = profile.get('audio_boost').split('.')[0]
 
         if bitrate.endswith('Mbps'):
             max_video_bitrate = float(bitrate.strip().split('Mbps')[0]) * 1000
