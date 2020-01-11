@@ -1,6 +1,7 @@
 0.7.1
 [add] add cast to tv shows
 [fix] set content type for library endpoints
+[fix] rare crash starting playback (from Up Next) due to busy dialogs
 [upd] improve plex identification |contrib: Maven85|
 [upd] refactoring
 [upd] linting / cosmetics
