@@ -72,7 +72,7 @@ def create_show_item(context, item, library=False):
         extra_data['partialTV'] = 1
 
     # Create URL based on whether we are going to flatten the season view
-    if context.settings.get_setting('flatten') == '2':
+    if context.settings.flatten_seasons() == '2':
         LOG.debug('Flattening all shows')
         extra_data['mode'] = MODES.TVEPISODES
         item_url = '%s%s' % (item.server.get_url_location(),
@@ -82,7 +82,7 @@ def create_show_item(context, item, library=False):
         item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
 
     context_menu = None
-    if not context.settings.get_setting('skipcontextmenus'):
+    if not context.settings.skip_context_menus():
         context_menu = ContextMenu(context, item.server, item.url, extra_data).menu
 
     if library:

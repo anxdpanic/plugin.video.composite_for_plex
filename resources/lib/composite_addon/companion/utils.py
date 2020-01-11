@@ -3,7 +3,7 @@
 
     Copyright (C) 2013-2019 PleXBMC Helper (script.plexbmc.helper)
         by wickning1 (aka Nick Wing), hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -172,7 +172,7 @@ def get_plex_headers(settings):
         'X-Plex-Model': get_platform(),
         'X-Plex-Device': 'PC',
     }
-    myplex_user = settings.get_setting('myplex_user')
+    myplex_user = settings.myplex_user()
     if myplex_user:
         headers['X-Plex-Username'] = myplex_user
     return headers

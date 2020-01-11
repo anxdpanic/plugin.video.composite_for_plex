@@ -29,7 +29,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
     context = Context()
     context.settings = AddonSettings()
 
-    if context.settings.get_setting('wolon'):
+    if context.settings.wake_on_lan():
         from .addon.wol import wake_servers  # pylint: disable=import-outside-toplevel
         wake_servers(context)
 

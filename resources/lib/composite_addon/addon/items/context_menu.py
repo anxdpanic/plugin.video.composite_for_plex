@@ -129,7 +129,7 @@ class ContextMenu:
             )
 
     def _add_delete(self):
-        if self.context.settings.get_setting('showdeletecontextmenu'):
+        if self.context.settings.show_delete_context_menu():
             self._context_menu.append(
                 (i18n('Delete'), 'RunScript(' + CONFIG['id'] + ', %s, %s, %s)' %
                  (COMMANDS.DELETE, self.server.get_uuid(), self.item_id))

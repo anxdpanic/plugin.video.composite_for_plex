@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -51,7 +51,7 @@ class Logger:
             self.sub = ''
 
         self.level = self.settings.get_debug()
-        self.privacy = self.settings.get_setting('privacy')
+        self.privacy = self.settings.privacy()
 
     def get_name(self, level):
         return self.DEBUG_MAP[level]

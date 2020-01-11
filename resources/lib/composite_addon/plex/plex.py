@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -44,7 +44,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
     def __init__(self, settings, load=False):
         self.settings = settings
         # Provide an interface into Plex
-        self.cache = cache_control.CacheControl('servers', self.settings.get_setting('cache'))
+        self.cache = cache_control.CacheControl('servers', self.settings.cache())
         self.myplex_server = 'https://plex.tv'
         self.myplex_user = None
         self.myplex_token = None
@@ -171,7 +171,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('Loading cached server list')
 
         try:
-            ttl = int(self.settings.get_setting('cache_ttl')) * 60
+            ttl = self.settings.cache_ttl()
         except ValueError:
             ttl = 3600
 
@@ -329,12 +329,12 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 LOG.debug('GDM was not able to discover any servers')
 
     def user_provided_discovery(self):
-        port = self.settings.get_setting('port')
+        port = self.settings.port()
         if not port:
             LOG.debug('No port defined.  Using default of ' + DEFAULT_PORT)
             port = DEFAULT_PORT
 
-        ip_address = self.settings.get_setting('ipaddress')
+        ip_address = self.settings.ip_address()
         LOG.debug('Settings hostname and port: %s : %s' %
                   (ip_address, port))
 
@@ -347,10 +347,10 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             self.merge_server(server)
         else:
             LOG.error('Error: Unable to discover server %s' %
-                      self.settings.get_setting('ipaddress'))
+                      self.settings.ip_address())
 
     def _discovery_notification(self, servers):
-        if self.settings.get_setting('detected_notification'):
+        if self.settings.servers_detected_notification():
             if servers:
                 msg = i18n('Found servers:') + ' ' + servers
             else:
@@ -382,7 +382,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                     LOG.debug('MyPlex discovery found no servers')
 
             # Now grab any local devices we can find
-            if self.settings.get_setting('discovery') == '1':
+            if self.settings.discovery() == '1':
                 LOG.debug('local GDM discovery setting enabled.')
                 LOG.debug('Attempting GDM lookup on multicast')
                 percent += 40
@@ -390,7 +390,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 self.gdm_discovery()
 
             # Get any manually configured servers
-            elif self.settings.get_setting('ipaddress'):
+            elif self.settings.ip_address():
                 percent += 40
                 progress_dialog.update(percent=percent, message=i18n('User provided...'))
                 self.user_provided_discovery()
@@ -494,7 +494,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
         try:
             verify_cert = \
-                self.myplex_server.startswith('https') and self.settings.get_setting('verify_cert')
+                self.myplex_server.startswith('https') and self.settings.verify_certificates()
             if method == 'get':
                 response = requests.get('%s%s' % (self.myplex_server, path),
                                         params=self.plex_identification_header(),

@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -39,7 +39,7 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
     def open_settings(self):
         return self.settings.openSettings()
 
-    def get_setting(self, name, fresh=False):
+    def _get_setting(self, name, fresh=False):
         if fresh:
             value = self._get_addon().getSetting(name)
         else:
@@ -53,20 +53,59 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
 
         return value
 
-    def get_debug(self):
-        return int(self.get_setting('debug'))
-
-    def set_setting(self, name, value):
+    def _set_setting(self, name, value):
         if isinstance(value, bool):
             value = str(value).lower()
 
         self.settings.setSetting(name, value)
+
+    def dump_settings(self):
+        return self.__dict__
+
+    def get_debug(self):
+        return int(self._get_setting('debug'))
+
+    def cache_directory(self):
+        return self._get_setting('kodicache')
+
+    def privacy(self):
+        return self._get_setting('privacy')
+
+    def stream_control(self, fresh=False):
+        return self._get_setting('streamControl', fresh=fresh)
+
+    def full_resolution_thumbnails(self):
+        return self._get_setting('fullres_thumbs')
+
+    def full_resolution_fanart(self):
+        return self._get_setting('fullres_fanart')
+
+    def force_dvd(self):
+        return self._get_setting('forcedvd')
+
+    def show_delete_context_menu(self):
+        return self._get_setting('showdeletecontextmenu')
+
+    def skip_context_menus(self):
+        return self._get_setting('skipcontextmenus')
+
+    def skip_flags(self):
+        return self._get_setting('skipflags')
+
+    def skip_images(self):
+        return self._get_setting('skipimages')
+
+    def skip_metadata(self):
+        return self._get_setting('skipmetadata')
 
     def get_picture_mode(self):
         return self.picture_mode
 
     def set_picture_mode(self, value):
         self.picture_mode = bool(value)
+
+    def wake_on_lan(self):
+        return self._get_setting('wolon')
 
     def get_wakeservers(self):
         servers = []
@@ -80,20 +119,109 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
     def set_stream(self, value):
         self.stream = value
 
-    def dump_settings(self):
-        return self.__dict__
+    def master_server(self):
+        return self._get_setting('masterServer')
 
-    def update_master_server(self, value):
+    def set_master_server(self, value):
         xbmc.log(self.addon_name + '.settings -> Updating master server to %s' %
                  value, xbmc.LOGDEBUG)
         self.settings.setSetting('masterServer', '%s' % value)
 
     def prefix_server(self):
-        return self.get_setting('prefix_server') == '1'
+        return self._get_setting('prefix_server') == '1'
+
+    def flatten_seasons(self):
+        return self._get_setting('flatten')
+
+    def all_season_disabled(self):
+        return self._get_setting('disable_all_season')
+
+    def playback_monitor_disabled(self, fresh=False):
+        return self._get_setting('monitoroff', fresh=fresh)
+
+    def secure_connection(self):
+        return self._get_setting('secureconn')
+
+    def verify_certificates(self):
+        return self._get_setting('verify_cert')
+
+    def secondary_menus(self):
+        return self._get_setting('secondary')
+
+    def show_menus(self):
+        return {
+            'queue': self._get_setting('show_myplex_queue_menu'),
+            'channels': self._get_setting('show_channels_menu'),
+            'online': self._get_setting('show_plex_online_menu'),
+            'playlists': self._get_setting('show_playlists_menu'),
+            'widgets': self._get_setting('show_widget_menu'),
+        }
+
+    def device_name(self):
+        return self._get_setting('devicename')
+
+    def client_id(self):
+        return self._get_setting('client_id')
+
+    def set_client_id(self, value):
+        return self._set_setting('client_id', value)
+
+    def ip_address(self):
+        return self._get_setting('ipaddress')
+
+    def port(self):
+        return self._get_setting('port')
+
+    def discovery(self):
+        return self._get_setting('discovery')
+
+    def servers_detected_notification(self):
+        return self._get_setting('detected_notification')
+
+    def myplex_user(self):
+        return self._get_setting('myplex_user')
+
+    def replacement(self):
+        return self._get_setting('replacement')
+
+    def set_replacement(self, value):
+        self._set_setting('replacement', value)
+
+    def override_info(self):
+        return {
+            'override': self._get_setting('nasoverride'),
+            'root': self._get_setting('nasroot'),
+            'ip_address': self._get_setting('nasoverrideip'),
+            'user_id': self._get_setting('nasuserid'),
+            'password': self._get_setting('naspass'),
+        }
+
+    def transcode_hevc(self):
+        return self._get_setting('transcode_hevc')
+
+    def transcode_g1080(self):
+        return self._get_setting('transcode_g1080')
+
+    def transcode_g8bit(self):
+        return self._get_setting('transcode_g8bit')
+
+    def transcode_profile(self, value):
+        try:
+            value = int(value)
+        except ValueError:
+            value = 0
+
+        enabled = True if value == 0 else self._get_setting('transcode_target_enabled_%d' % value)
+        return {
+            'enabled': enabled,
+            'quality': self._get_setting('transcode_target_quality_%d' % value),
+            'subtitle_size': self._get_setting('transcode_target_sub_size_%d' % value),
+            'audio_boost': self._get_setting('transcode_target_audio_size_%d' % value),
+        }
 
     def use_up_next(self):
         upnext_id = 'service.upnext'
-        s_upnext_enabled = self.get_setting('use_up_next', fresh=True)
+        s_upnext_enabled = self._get_setting('use_up_next', fresh=True)
 
         try:
             _ = xbmcaddon.Addon(upnext_id)
@@ -115,46 +243,61 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
                 upnext_disabled = not self.enable_addon(upnext_id)
 
         if (not has_upnext or upnext_disabled) and s_upnext_enabled:
-            self.set_setting('use_up_next', False)
+            self._set_setting('use_up_next', False)
             return False
 
         return s_upnext_enabled and has_upnext and not upnext_disabled
 
     def up_next_encoding(self):
-        return self.get_setting('up_next_data_encoding', fresh=True)
+        return self._get_setting('up_next_data_encoding', fresh=True)
+
+    def up_next_episode_thumbs(self):
+        return self._get_setting('up_next_episode_thumbs', fresh=True)
+
+    def cache(self):
+        return self._get_setting('cache')
+
+    def cache_ttl(self):
+        return int(self._get_setting('cache_ttl')) * 60
+
+    def cache_clear_on_refresh(self):
+        return self._get_setting('clear_data_cache_refresh')
+
+    def data_cache(self):
+        return self._get_setting('data_cache')
 
     def data_cache_ttl(self):
-        return int(self.get_setting('data_cache_ttl', fresh=True)) * 60
+        return int(self._get_setting('data_cache_ttl', fresh=True)) * 60
 
     def use_companion(self):
-        return self.get_setting('use_companion_receiver', fresh=True)
+        return self._get_setting('use_companion_receiver', fresh=True)
 
     def companion_receiver(self):
-        receiver_uuid = str(self.get_setting('receiver_uuid')) or str(uuid.uuid4())
-        self.set_setting('receiver_uuid', receiver_uuid)
+        receiver_uuid = str(self._get_setting('receiver_uuid')) or str(uuid.uuid4())
+        self._set_setting('receiver_uuid', receiver_uuid)
 
-        port = self.get_setting('receiver_port')
+        port = self._get_setting('receiver_port')
         try:
             port = int(port)
         except ValueError:
             port = 3005
 
         return {
-            'name': self.get_setting('receiver_name'),
+            'name': self._get_setting('receiver_name'),
             'port': port,
             'uuid': receiver_uuid,
         }
 
     def kodi_web_server(self):
-        port = self.get_setting('web_server_port')
+        port = self._get_setting('web_server_port')
         try:
             port = int(port)
         except ValueError:
             port = 8080
 
         return {
-            'name': self.get_setting('web_server_username'),
-            'password': self.get_setting('web_server_password'),
+            'name': self._get_setting('web_server_username'),
+            'password': self._get_setting('web_server_password'),
             'port': port,
         }
 
