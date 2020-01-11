@@ -18,6 +18,7 @@ from .constants import CONFIG
 from .constants import MODES
 from .logger import Logger
 from .utils import jsonrpc_play
+from .utils import wait_for_busy_dialog
 
 
 class Monitor(xbmc.Monitor):
@@ -75,4 +76,6 @@ class Monitor(xbmc.Monitor):
 
         if sender.startswith('upnextprovider') and method.endswith('_play_action'):
             # received a play notification from Up Next
-            jsonrpc_play(self.up_next_playback_url(self.decode_up_next_notification(data)))
+            play = wait_for_busy_dialog()
+            if play:
+                jsonrpc_play(self.up_next_playback_url(self.decode_up_next_notification(data)))
