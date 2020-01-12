@@ -146,7 +146,8 @@ class PlaybackMonitorThread(threading.Thread):
 
             try:
                 current_time = int(self.PLAYER.getTime())
-                total_time = int(self.PLAYER.getTotalTime())
+                if total_time == 0:
+                    total_time = int(self.PLAYER.getTotalTime())
             except RuntimeError:
                 pass
 
