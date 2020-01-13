@@ -12,6 +12,8 @@
 import json
 import math
 
+from .common import get_plugin_url
+from .constants import MODES
 from .logger import Logger
 from .utils import notify_all
 
@@ -147,13 +149,13 @@ class UpNext:
         return {
             "current_episode": self._up_next_episode(current_metadata),
             "next_episode": self._up_next_episode(next_metadata),
-            "play_info": {
+            "play_url": self.playback_url({
                 "media_id": next_metadata.get('ratingKey', '0'),
                 "force": self.callback_args.get('force', None),
                 "transcode": self.callback_args.get('transcode', False),
                 "transcode_profile": self.callback_args.get('transcode_profile', 0),
-                "server_uuid": self.server.uuid
-            }
+                "server_uuid": self.server.uuid,
+            }),
         }
 
     def get_image(self, url):
@@ -165,6 +167,22 @@ class UpNext:
         if url.startswith('/'):
             url = self.server.get_url_location() + url
         return self.server.get_kodi_header_formatted_url(url)
+
+    @staticmethod
+    def playback_url(data):
+        """
+        Create a playback url for Up Next
+        """
+
+        data['mode'] = MODES.PLAYLIBRARY
+
+        if data['transcode'] is None:
+            data['transcode'] = 0
+        data['transcode'] = int(data['transcode'])
+
+        data['transcode_profile'] = int(data.get('transcode_profile', 0))
+
+        return get_plugin_url(data)
 
     def _up_next_episode(self, metadata):
         """
