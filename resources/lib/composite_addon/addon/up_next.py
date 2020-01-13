@@ -10,6 +10,7 @@
 """
 
 import json
+import math
 
 from .logger import Logger
 from .utils import notify_all
@@ -192,7 +193,12 @@ class UpNext:
             "season": str(metadata.get('parentIndex', 0)).zfill(2),
             "episode": str(metadata.get('index', 0)).zfill(2),
             "rating": float(metadata.get('rating', 0)),
-            "firstaired": metadata.get('originallyAvailableAt', '')
+            "firstaired": metadata.get('originallyAvailableAt', ''),
         }
+
+        try:
+            episode["runtime"] = math.floor(int(metadata.get('duration')) / 1000)
+        except ValueError:
+            pass
 
         return episode

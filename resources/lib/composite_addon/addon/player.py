@@ -59,6 +59,18 @@ class PlaybackMonitorThread(threading.Thread):
     def stream(self):
         return self._monitor_dict.get('stream')
 
+    def full_data(self):
+        _stream = self.stream()
+        if _stream:
+            return _stream.get('full_data', {})
+        return {}
+
+    def callback_arguments(self):
+        return self._monitor_dict.get('callback_args', {})
+
+    def media_type(self):
+        return self.full_data().get('mediatype', 'file').lower()
+
     def stop(self):
         self.LOG.debug('[%s]: Stop event set...' % self.media_id())
         self._stopped.set()
@@ -87,8 +99,19 @@ class PlaybackMonitorThread(threading.Thread):
 
             np_waited += np_wait_time
 
+    def notify_upnext(self):
+        if self.settings.use_up_next() and self.media_type() == 'episode':
+            self.LOG('Using Up Next ...')
+            UpNext(self.settings, server=self.server(), media_id=self.media_id(),
+                   callback_args=self.callback_arguments()).run()
+        else:
+            self.LOG('Up Next is disabled ...')
+
     def report_playback_progress(self, current_time, total_time,
                                  progress, played_time=-1):
+        if current_time == 0 or total_time == 0:
+            return played_time
+
         if played_time > -1:
             if played_time == current_time:
                 self.LOG.debug('Video paused at: %s secs of %s @ %s%%' %
@@ -128,6 +151,8 @@ class PlaybackMonitorThread(threading.Thread):
         if self.stream():
             set_audio_subtitles(self.settings, self.stream())
 
+        self.notify_upnext()
+
         wait_time = 0.5
         waited = 0.0
 
@@ -146,7 +171,8 @@ class PlaybackMonitorThread(threading.Thread):
 
             try:
                 current_time = int(self.PLAYER.getTime())
-                total_time = int(self.PLAYER.getTotalTime())
+                if total_time == 0:
+                    total_time = int(self.PLAYER.getTotalTime())
             except RuntimeError:
                 pass
 
@@ -170,8 +196,7 @@ class PlaybackMonitorThread(threading.Thread):
 
             waited += wait_time
 
-        if current_time != 0 and total_time != 0:
-            _ = self.report_playback_progress(current_time, total_time, progress)
+        _ = self.report_playback_progress(current_time, total_time, progress)
 
         if self.session() is not None:
             self.LOG.debug('Stopping PMS transcode job with session %s' % self.session())
@@ -238,17 +263,6 @@ class CallbackPlayer(xbmc.Player):
             self.LOG('Playback monitoring is disabled ...')
         elif not playback_dict:
             self.LOG('Playback monitoring failed to start, missing required {} ...')
-
-        if playback_dict:
-            full_data = playback_dict.get('stream', {}).get('full_data', {})
-            media_type = full_data.get('mediatype', '').lower()
-            if self.settings.use_up_next() and media_type == 'episode':
-                self.LOG('Using Up Next ...')
-                UpNext(self.settings, server=playback_dict.get('server'),
-                       media_id=playback_dict.get('media_id'),
-                       callback_args=playback_dict.get('callback_args', {})).run()
-            else:
-                self.LOG('Up Next is disabled ...')
 
     def onPlayBackEnded(self):  # pylint: disable=invalid-name
         self.stop_threads()
