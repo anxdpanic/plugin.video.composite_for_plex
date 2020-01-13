@@ -178,15 +178,30 @@ def wait_for_busy_dialog():
     start_time = time.time()
     xbmc.sleep(500)
 
-    LOG.debug('Waiting for busy dialogs to close ...')
-    while (xbmcgui.getCurrentWindowDialogId() in [10138, 10160] and
-           not monitor.abortRequested()):
-        if monitor.waitForAbort(3):
+    def _abort():
+        return monitor.abortRequested()
+
+    def _busy():
+        return xbmcgui.getCurrentWindowDialogId() in [10138, 10160]
+
+    def _wait():
+        LOG.debug('Waiting for busy dialogs to close ...')
+        while not _abort() and _busy():
+            if monitor.waitForAbort(1):
+                break
+
+    while not _abort():
+        if _busy():
+            _wait()
+
+        if monitor.waitForAbort(1):
+            break
+
+        if not _busy():
             break
 
     LOG.debug('Waited %.2f for busy dialogs to close.' % (time.time() - start_time))
-    return (not monitor.abortRequested() and
-            xbmcgui.getCurrentWindowDialogId() not in [10138, 10160])
+    return not _abort() and not _busy()
 
 
 def get_file_type(filename):
