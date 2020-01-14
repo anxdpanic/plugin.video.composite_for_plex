@@ -171,10 +171,16 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
             }
         self.get_server()
         server = self.get_server_by_host(self.server)
-        self.request_manager.get_with_params(server.get('server', 'localhost'),
-                                             server.get('port', 32400),
-                                             '/:/timeline', params, get_plex_headers(self.settings),
-                                             server.get('protocol', 'http'))
+
+        self.request_manager.get_with_params(
+            self.request_manager.uri(
+                server.get('server', 'localhost'),
+                server.get('port', 32400),
+                server.get('protocol', 'http')
+            ),
+            '/:/timeline', params, get_plex_headers(self.settings)
+        )
+
         LOG.debug('sent server notification with state = %s' % params['state'])
         if players:
             self.sent_stopped = False
@@ -269,7 +275,9 @@ class Subscriber:
         return 'uuid=%s,commandID=%i' % (self.uuid, self.command_id)
 
     def cleanup(self):
-        self.request_manager.close_connection(self.protocol, self.host, self.port)
+        self.request_manager.close_connection(
+            self.request_manager.uri(self.host, self.port, self.protocol)
+        )
 
     def send_update(self, msg, is_nav):
         self.age += 1
@@ -281,7 +289,9 @@ class Subscriber:
             self.nav_location_sent = True
         msg = re.sub(r'INSERTCOMMANDID', str(self.command_id), msg)
         LOG.debug('sending xml to subscriber %s: %s' % (self.tostr(), msg))
-        if not self.request_manager.post(self.host, self.port, '/:/timeline', msg,
-                                         get_plex_headers(self.subscription_manager.settings),
-                                         self.protocol):
+
+        if not self.request_manager.post(
+                self.request_manager.uri(self.host, self.port, self.protocol), '/:/timeline',
+                msg, get_plex_headers(self.subscription_manager.settings)
+        ):
             self.subscription_manager.remove_subscriber(self.uuid)

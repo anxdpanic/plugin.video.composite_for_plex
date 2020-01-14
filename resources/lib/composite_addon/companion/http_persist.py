@@ -24,35 +24,36 @@ LOG = Logger()
 class RequestManager:
     def __init__(self):
         self.connections = {}
+        self.uri = URIContainer
 
-    def get_connection(self, protocol, host, port):
-        connection = self.connections.get(protocol + host + str(port), False)
+    def get_connection(self, uri):
+        connection = self.connections.get(uri.protocol + uri.host + str(uri.port), False)
         if not connection:
-            if protocol == 'https':
-                connection = http_client.HTTPSConnection(host, port)
+            if uri.protocol == 'https':
+                connection = http_client.HTTPSConnection(uri.host, uri.port)
             else:
-                connection = http_client.HTTPConnection(host, port)
-            self.connections[protocol + host + str(port)] = connection
+                connection = http_client.HTTPConnection(uri.host, uri.port)
+            self.connections[uri.protocol + uri.host + str(uri.port)] = connection
         return connection
 
-    def close_connection(self, protocol, host, port):
-        connection = self.connections.get(protocol + host + str(port), False)
+    def close_connection(self, uri):
+        connection = self.connections.get(uri.protocol + uri.host + str(uri.port), False)
         if connection and not isinstance(connection, bool):
             connection.close()
-            self.connections.pop(protocol + host + str(port), None)
+            self.connections.pop(uri.protocol + uri.host + str(uri.port), None)
 
     def dump_connections(self):
         for connection in self.connections.values():
             connection.close()
         self.connections = {}
 
-    def post(self, host, port, path, body, header=None, protocol='http'):  # pylint: disable=too-many-arguments
+    def post(self, uri, path, body, header=None):
         if header is None:
             header = {}
 
         connection = None
         try:
-            connection = self.get_connection(protocol, host, port)
+            connection = self.get_connection(uri)
             header['Connection'] = 'keep-alive'
             connection.request('POST', path, body, header)
             data = connection.getresponse()
@@ -63,14 +64,14 @@ class RequestManager:
 
             return data.read() or True
         except:  # pylint: disable=bare-except
-            LOG.debug('Unable to connect to %s\nReason:' % host)
+            LOG.debug('Unable to connect to %s\nReason:' % uri.host)
             LOG.debug(traceback.print_exc())
-            self.connections.pop(protocol + host + str(port), None)
+            self.connections.pop(uri.protocol + uri.host + str(uri.port), None)
             if connection:
                 connection.close()
             return False
 
-    def get_with_params(self, host, port, path, params, header=None, protocol='http'):  # pylint: disable=too-many-arguments
+    def get_with_params(self, uri, path, params, header=None):
         if header is None:
             header = {}
 
@@ -79,15 +80,15 @@ class RequestManager:
         for key in params:
             pairs.append(str(key) + '=' + str(params[key]))
         new_path += '&'.join(pairs)
-        return self.get(host, port, new_path, header, protocol)
+        return self.get(uri, new_path, header)
 
-    def get(self, host, port, path, header=None, protocol='http'):  # pylint: disable=too-many-arguments
+    def get(self, uri, path, header=None):
         if header is None:
             header = {}
 
         connection = None
         try:
-            connection = self.get_connection(protocol, host, port)
+            connection = self.get_connection(uri)
             header['Connection'] = 'keep-alive'
             connection.request('GET', path, headers=header)
             data = connection.getresponse()
@@ -98,11 +99,51 @@ class RequestManager:
                 result = data.read() or True
         except socket.error as error:
             if error.errno not in [10061, 10053]:
-                LOG.debug('Unable to connect to %s\nReason: %s' % (host, traceback.print_exc()))
-                self.connections.pop(protocol + host + str(port), None)
+                LOG.debug('Unable to connect to %s\nReason: %s' % (uri.host, traceback.print_exc()))
+                self.connections.pop(uri.protocol + uri.host + str(uri.port), None)
             result = False
         finally:
             if connection:
                 connection.close()
 
         return result
+
+
+class URIContainer:
+    def __init__(self, host, port=32400, protocol='http'):
+        self._protocol = 'http'
+        self.protocol = protocol
+        self._host = ''
+        self.host = host
+        self._port = 32400
+        self.port = port
+
+    @property
+    def protocol(self):
+        return self._protocol
+
+    @protocol.setter
+    def protocol(self, value):
+        _protocol = 'http'
+        if value == 'https':
+            _protocol = 'https'
+        self._protocol = _protocol
+
+    @property
+    def host(self):
+        return self._host
+
+    @host.setter
+    def host(self, value):
+        self._host = value
+
+    @property
+    def port(self):
+        return int(self._port)
+
+    @port.setter
+    def port(self, value):
+        self._port = int(value)
+
+    def __str__(self):
+        return '%s://%s:%d' % (self.protocol, self.host, self.port)
