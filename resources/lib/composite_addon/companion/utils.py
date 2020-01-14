@@ -132,8 +132,13 @@ def jsonrpc(action, arguments=None):
                 'Content-Type': 'application/json',
                 'Authorization': 'Basic ' + base64string,
             }
-            result = parse_jsonrpc(RequestManager().post('127.0.0.1', web_server['port'],
-                                                         '/jsonrpc', request, headers))
+            request_manager = RequestManager()
+            result = parse_jsonrpc(
+                request_manager.post(
+                    request_manager.uri('127.0.0.1', web_server['port']),
+                    '/jsonrpc', request, headers
+                )
+            )
 
     return result
 
