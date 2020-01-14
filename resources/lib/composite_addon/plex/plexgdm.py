@@ -183,7 +183,47 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
     def get_server_list(self):
         return self.server_list
 
-    def discover(self):  # pylint: disable=too-many-statements, too-many-branches
+    @staticmethod
+    def _get_server_from_response(response):
+        server = {
+            'server': response.get('from')[0]
+        }
+
+        # Check if we had a positive HTTP response
+        if '200 OK' in response.get('data'):
+
+            server['discovery'] = 'auto'
+            server['owned'] = '1'
+            server['master'] = 1
+            server['role'] = 'master'
+            server['class'] = None
+
+            for pairs in response.get('data').split('\n'):
+                key, value = pairs.split(':')
+                value = value.strip()
+                if key == 'Content-Type':
+                    server['content-type'] = value
+                elif key == 'Resource-Identifier':
+                    server['uuid'] = value
+                elif key == 'Name':
+                    server['serverName'] = value
+                elif key == 'Port':
+                    server['port'] = value
+                elif key == 'Updated-At':
+                    server['updated'] = value
+                elif key == 'Version':
+                    server['version'] = value
+                elif key == 'Server-Class':
+                    server['class'] = value
+                elif key == 'Host':
+                    server['host'] = value
+
+        return server
+
+    def discover(self):
+        received_data = []
+        discovered_servers = []
+
         _socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         with closing(_socket) as open_socket:
             # Set a timeout so the socket does not block indefinitely
@@ -197,8 +237,6 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                 open_socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF,
                                        socket.inet_aton(self.interface))
 
-            return_data = []
-
             # Send data to the multicast group
             LOG.debug('Sending discovery messages ...')
             # noinspection PyUnusedLocal
@@ -209,7 +247,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                     data, server = open_socket.recvfrom(1024)
                     LOG.debug('Received data from %s:%s' % (server[0], server[1]))
                     LOG.debug('Data received is:\n %s' % data)
-                    return_data.append({
+                    received_data.append({
                         'from': server,
                         'data': decode_utf8(data)
                     })
@@ -218,44 +256,8 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
         self.discovery_complete = True
 
-        discovered_servers = []
-
-        if return_data:
-
-            for response in return_data:
-                update = {
-                    'server': response.get('from')[0]
-                }
-
-                # Check if we had a positive HTTP response
-                if '200 OK' in response.get('data'):
-
-                    update['discovery'] = 'auto'
-                    update['owned'] = '1'
-                    update['master'] = 1
-                    update['role'] = 'master'
-                    update['class'] = None
-
-                    for each in response.get('data').split('\n'):
-
-                        if 'Content-Type:' in each:
-                            update['content-type'] = each.split(':')[1].strip()
-                        elif 'Resource-Identifier:' in each:
-                            update['uuid'] = each.split(':')[1].strip()
-                        elif 'Name:' in each:
-                            update['serverName'] = each.split(':')[1].strip()
-                        elif 'Port:' in each:
-                            update['port'] = each.split(':')[1].strip()
-                        elif 'Updated-At:' in each:
-                            update['updated'] = each.split(':')[1].strip()
-                        elif 'Version:' in each:
-                            update['version'] = each.split(':')[1].strip()
-                        elif 'Server-Class:' in each:
-                            update['class'] = each.split(':')[1].strip()
-                        elif 'Host:' in each:
-                            update['host'] = each.split(':')[1].strip()
-
-                discovered_servers.append(update)
+        for response in received_data:
+            discovered_servers.append(self._get_server_from_response(response))
 
         self.server_list = discovered_servers
 
