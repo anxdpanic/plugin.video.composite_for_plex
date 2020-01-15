@@ -137,6 +137,33 @@ class PlaybackMonitorThread(threading.Thread):
                                                    state='stopped', duration=total_time * 1000)
         return played_time
 
+    def _is_playing_current_file(self):
+        try:
+            current_file = self.PLAYER.getPlayingFile()
+            if current_file != self.playing_file() and \
+                    not (current_file.startswith(self.plugin_path())
+                         and self.media_id() in current_file) or self.stopped():
+                self.stop()
+                return False
+        except RuntimeError:
+            pass
+        return True
+
+    def _get_playback_progress(self, total_time):
+        try:
+            current_time = int(self.PLAYER.getTime())
+            if total_time == 0:
+                total_time = int(self.PLAYER.getTotalTime())
+        except RuntimeError:
+            current_time = 0
+
+        try:
+            progress = int((float(current_time) / float(total_time)) * 100)
+        except ZeroDivisionError:
+            progress = 0
+
+        return current_time, total_time, progress
+
     def run(self):
         current_time = 0
         played_time = 0
@@ -151,35 +178,18 @@ class PlaybackMonitorThread(threading.Thread):
         if self.stream():
             set_audio_subtitles(self.settings, self.stream())
 
-        self.notify_upnext()
-
         wait_time = 0.5
         waited = 0.0
+
+        notified_upnext = False
 
         # Whilst the file is playing back
         while self.PLAYER.isPlaying() and not self.MONITOR.abortRequested():
 
-            try:
-                current_file = self.PLAYER.getPlayingFile()
-                if current_file != self.playing_file() and \
-                        not (current_file.startswith(self.plugin_path())
-                             and self.media_id() in current_file) or self.stopped():
-                    self.stop()
-                    break
-            except RuntimeError:
-                pass
+            if not self._is_playing_current_file():
+                break
 
-            try:
-                current_time = int(self.PLAYER.getTime())
-                if total_time == 0:
-                    total_time = int(self.PLAYER.getTotalTime())
-            except RuntimeError:
-                pass
-
-            try:
-                progress = int((float(current_time) / float(total_time)) * 100)
-            except ZeroDivisionError:
-                progress = 0
+            current_time, total_time, progress = self._get_playback_progress(total_time)
 
             try:
                 report = int((float(waited) / 10.0)) >= 1
@@ -190,6 +200,10 @@ class PlaybackMonitorThread(threading.Thread):
                 waited = 0.0
                 played_time = self.report_playback_progress(current_time, total_time,
                                                             progress, played_time)
+
+            if not notified_upnext and current_time > 0:
+                notified_upnext = True
+                self.notify_upnext()
 
             if self.MONITOR.waitForAbort(wait_time):
                 break
@@ -259,8 +273,9 @@ class CallbackPlayer(xbmc.Player):
         if monitor_playback and playback_dict:
             self.threads.append(PlaybackMonitorThread(self.settings, playback_dict))
 
-        if not monitor_playback:
+        elif not monitor_playback:
             self.LOG('Playback monitoring is disabled ...')
+
         elif not playback_dict:
             self.LOG('Playback monitoring failed to start, missing required {} ...')
 
