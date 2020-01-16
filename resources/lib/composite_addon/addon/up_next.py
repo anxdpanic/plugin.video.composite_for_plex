@@ -97,12 +97,16 @@ class UpNext:
 
         episodes = self.server.get_children(media_id)
         if episodes is not None:
+            found_current = False
             for video in episodes:
-                if video.get('index') and (int(video.get('index')) == episode + 1):
+                if found_current:
                     self.LOG.debug('Found metadata for S%sE%s' %
-                                   (str(season).zfill(2), str(episode + 1).zfill(2)))
+                                   (str(season).zfill(2), str(video.get('index')).zfill(2)))
                     next_episode = video
                     break
+
+                if int(video.get('index')) == episode:
+                    found_current = True
 
         return next_episode
 

@@ -15,7 +15,8 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[upd] reduce risk of rare crash starting playback (from Up Next) due to busy dialogs
+[fix] incorrect next episode sent to Up Next when playing merged episodes ie. S01E01-E02
+[upd] Up Next now handles starting playback of the next episode
 [upd] improve plex identification |contrib: Maven85|
 [upd] refactoring
 [upd] linting / cosmetics
