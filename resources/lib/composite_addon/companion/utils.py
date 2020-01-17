@@ -115,7 +115,11 @@ def jsonrpc(action, arguments=None):
     result = parse_jsonrpc(xbmc.executeJSONRPC(request))
 
     if not result:
-        web_server = AddonSettings().kodi_web_server()
+        try:
+            web_server = AddonSettings().kodi_web_server()
+        except RuntimeError:
+            return result
+
         make_web_request = web_server['name'] and web_server['password'] and web_server['port']
 
         if make_web_request:
