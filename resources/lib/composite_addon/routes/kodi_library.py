@@ -52,13 +52,13 @@ def run(context):
         context.plex_network = plex.Plex(context.settings, load=True)
         server_list = context.plex_network.get_server_list()
         LOG.debug('Using list of %s servers: %s' % (len(server_list), server_list))
-
+        set_content = xbmcplugin.setContent
         for server in server_list:
             sections = server.get_sections()
             for section in sections:
                 if section.get_type() in content_type:
                     if content_type in ['movies', 'tvshows']:
-                        xbmcplugin.setContent(get_handle(), content_type)
+                        set_content(get_handle(), content_type)
                         _list_content(context, server, '%s%s/all' %
                                       (server.get_url_location(), section.get_path()))
 
@@ -81,6 +81,7 @@ def _list_content(context, server, url):
         return
 
     items = []
+    append_item = items.append
 
     tags = tree.findall('Video')
     if not tags:
@@ -89,9 +90,9 @@ def _list_content(context, server, url):
     for content in tags:
         item = Item(server, url, tree, content)
         if content.get('type') == 'show':
-            items.append(create_show_item(context, item, library=True))
+            append_item(create_show_item(context, item, library=True))
         elif content.get('type') == 'movie':
-            items.append(create_movie_item(context, item, library=True))
+            append_item(create_movie_item(context, item, library=True))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

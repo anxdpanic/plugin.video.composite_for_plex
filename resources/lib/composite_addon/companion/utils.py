@@ -28,7 +28,7 @@ LOG = Logger()
 
 
 def kodi_photo():
-    return 'photo'
+    return 'picture'
 
 
 def kodi_video():
@@ -115,7 +115,11 @@ def jsonrpc(action, arguments=None):
     result = parse_jsonrpc(xbmc.executeJSONRPC(request))
 
     if not result:
-        web_server = AddonSettings().kodi_web_server()
+        try:
+            web_server = AddonSettings().kodi_web_server()
+        except RuntimeError:
+            return result
+
         make_web_request = web_server['name'] and web_server['password'] and web_server['port']
 
         if make_web_request:
@@ -194,10 +198,7 @@ def get_players():
 
 
 def get_player_ids():
-    ret = []
-    for player in get_players().values():
-        ret.append(player['player_id'])
-    return ret
+    return list(map(lambda x: x['player_id'], get_players().values()))
 
 
 def get_video_player_id(players=None):

@@ -374,9 +374,11 @@ class StreamData:
             parts = details.findall('Part')
 
             # Get the media locations (file and web) for later on
+            append_parts = self.data['parts'].append
+            append_details = self.data['details'].append
             for part in parts:
-                self.data['parts'].append((part.get('key'), part.get('file')))
-                self.data['details'].append(media_details)
+                append_parts((part.get('key'), part.get('file')))
+                append_details(media_details)
                 self.data['parts_count'] += 1
 
     def _get_audio_and_subtitles(self):
@@ -453,6 +455,8 @@ class MediaSelect:
 
             dialog_options = []
             dvd_index = []
+            append_dialog_options = dialog_options.append
+            append_dvd_index = dvd_index.append
             index_count = 0
             for items in options:
 
@@ -469,9 +473,9 @@ class MediaSelect:
                     if '.ifo' in name.lower():
                         LOG.debug('Found IFO DVD file in ' + name)
                         name = 'DVD Image'
-                        dvd_index.append(index_count)
+                        append_dvd_index(index_count)
 
-                dialog_options.append(name)
+                append_dialog_options(name)
                 index_count += 1
 
             LOG.debug('Create selection dialog box - we have a decision to make!')
@@ -601,8 +605,9 @@ class MediaSelect:
             if '/' + override_info.get('root') + '/' in self.media_url:
                 components = self.media_url.split('/')
                 index = components.index(override_info.get('root'))
+                pop = components.pop
                 for _ in list(range(3, index)):
-                    components.pop(3)
+                    pop(3)
                 self.media_url = '/'.join(components)
 
 
@@ -617,14 +622,17 @@ def play_playlist(context, server, data):
         return
 
     track_tags = tree.findall('Track')
+    add_to_playlist = playlist.add
+    item_constructor = xbmcgui.ListItem
+
     for track in track_tags:
         LOG.debug('Adding playlist item')
         item = Item(server, None, tree, track)
         url, details = create_track_item(context, item, listing=False)
         if CONFIG['kodi_version'] >= 18:
-            list_item = xbmcgui.ListItem(details.get('title', i18n('Unknown')), offscreen=True)
+            list_item = item_constructor(details.get('title', i18n('Unknown')), offscreen=True)
         else:
-            list_item = xbmcgui.ListItem(details.get('title', i18n('Unknown')))
+            list_item = item_constructor(details.get('title', i18n('Unknown')))
 
         thumb = data['full_data'].get('thumbnail', CONFIG['icon'])
         if 'thumbnail' in data['full_data']:
@@ -635,7 +643,7 @@ def play_playlist(context, server, data):
             'thumb': thumb
         })
         list_item.setInfo(type='music', infoLabels=details)
-        playlist.add(url, list_item)
+        add_to_playlist(url, list_item)
 
     index = int(data['extra'].get('index', 0)) - 1
     LOG.debug('Playlist complete.  Starting playback from track %s [playlist index %s] ' %

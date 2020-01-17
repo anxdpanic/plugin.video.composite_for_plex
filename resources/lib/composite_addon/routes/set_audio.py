@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -36,7 +36,9 @@ def run(context):
     tree = server.get_metadata(metadata_id)
 
     audio_list = []
+    append_audio = audio_list.append
     display_list = []
+    append_label = display_list.append
     part_id = ''
     for parts in tree.getiterator('Part'):
 
@@ -47,7 +49,7 @@ def run(context):
             if streams.get('streamType', '') == '2':
 
                 stream_id = streams.get('id')
-                audio_list.append(stream_id)
+                append_audio(stream_id)
 
                 LOG.debug('Detected Audio stream [%s] [%s] ' %
                           (stream_id, streams.get('languageCode', 'Unknown')))
@@ -58,7 +60,7 @@ def run(context):
                 if streams.get('selected') == '1':
                     language = language + '*'
 
-                display_list.append(language)
+                append_label(language)
         break
 
     result = xbmcgui.Dialog().select(i18n('Select audio'), display_list)

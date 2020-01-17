@@ -42,11 +42,12 @@ def process_plex_plugins(context, url, tree=None):
         server = get_master_server(context)
 
     items = []
+    append_item = items.append
     for plugin in tree:
         item = Item(server, tree, url, plugin)
         item = create_plex_plugin_item(context, item)
         if item:
-            items.append(item)
+            append_item(item)
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

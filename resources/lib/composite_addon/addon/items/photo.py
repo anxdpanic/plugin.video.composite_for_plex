@@ -49,12 +49,12 @@ def create_photo_item(context, item):
 
     if item.data.tag == 'Photo' and (item.tree.get('viewGroup', '') == 'photo' or
                                      item.tree.get('playlistType') == 'photo'):
+        get_formatted_url = item.server.get_formatted_url
         for pics in item.data:
             if pics.tag == 'Media':
                 parts = [img for img in pics if img.tag == 'Part']
                 for part in parts:
-                    extra_data['key'] = \
-                        item.server.get_formatted_url(part.get('key', ''))
+                    extra_data['key'] = get_formatted_url(part.get('key', ''))
                     info_labels['size'] = int(part.get('size', 0))
                     info_labels['picturepath'] = extra_data['key']
                     item_url = extra_data['key']

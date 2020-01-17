@@ -28,11 +28,13 @@ def run(context):
     current_master = context.settings.master_server()
 
     display_option_list = []
+    append_server = display_option_list.append
+
     for address in servers:
         found_server = address.get_name()
         if found_server == current_master:
             found_server = found_server + '*'
-        display_option_list.append(found_server)
+        append_server(found_server)
 
     result = xbmcgui.Dialog().select(i18n('Select master server'), display_option_list)
     if result == -1:

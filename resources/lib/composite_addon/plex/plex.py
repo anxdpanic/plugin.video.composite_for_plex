@@ -399,13 +399,16 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
             percent += 40
             progress_dialog.update(percent=percent, message=i18n('Caching results...'))
+
             for server_uuid in list(self.server_list.keys()):
                 self.server_list[server_uuid].settings = None  # can't pickle xbmcaddon.Addon()
+
             self.cache.write_cache(self.server_list_cache, self.server_list)
 
-            servers = [(self.server_list[key].get_name(), key)
-                       for key in list(self.server_list.keys())]
-            server_names = ', '.join([server[0] for server in servers])
+            servers = list(map(lambda x: (self.server_list[x].get_name(), x),
+                               self.server_list.keys()))
+
+            server_names = ', '.join(map(lambda x: x[0], servers))
 
             LOG.debug('serverList is: %s ' % servers)
         finally:

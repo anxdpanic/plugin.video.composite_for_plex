@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -36,7 +36,9 @@ def run(context):
     tree = server.get_metadata(metadata_id)
 
     sub_list = ['']
+    append_subtitle = sub_list.append
     display_list = ['None']
+    append_label = display_list.append
     fl_select = False
     part_id = ''
     for parts in tree.getiterator('Part'):
@@ -55,7 +57,7 @@ def run(context):
                     LOG.debug('Stream: %s - Ignoring idx file for now' % stream_id)
                     continue
 
-                sub_list.append(stream_id)
+                append_subtitle(stream_id)
 
                 if streams.get('selected') == '1':
                     fl_select = True
@@ -63,7 +65,7 @@ def run(context):
                 else:
                     language = streams.get('language', i18n('Unknown'))
 
-                display_list.append(language)
+                append_label(language)
         break
 
     if not fl_select:

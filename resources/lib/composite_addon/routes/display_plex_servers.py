@@ -34,6 +34,7 @@ def run(context, url):
     servers_list = len(servers)
 
     items = []
+    append_item = items.append
     # For each of the servers we have identified
     for media_server in servers:
 
@@ -76,7 +77,7 @@ def run(context, url):
 
         if url:
             gui_item = GUIItem(url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

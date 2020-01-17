@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -81,12 +81,15 @@ def playlist_user_select(server):
         'image': CONFIG['icon'],
         'summary': '',
     }]
+    append_playlist = playlists.append
+    get_formatted_url = server.get_formatted_url
     tree = server.get_playlists()
+
     for playlist in tree.getiterator('Playlist'):
         image = ''
         if playlist.get('composite'):
-            image = server.get_formatted_url(server.get_url_location() + playlist.get('composite'))
-        playlists.append({
+            image = get_formatted_url(server.get_url_location() + playlist.get('composite'))
+        append_playlist({
             'title': playlist.get('title'),
             'key': playlist.get('ratingKey'),
             'image': image,
@@ -94,21 +97,24 @@ def playlist_user_select(server):
         })
 
     if CONFIG['kodi_version'] > 16:
+        item_constructor = xbmcgui.ListItem
         select_items = []
+        append_item = select_items.append
+
         for playlist in playlists:
-            list_item = xbmcgui.ListItem(label=playlist.get('title'),
+            list_item = item_constructor(label=playlist.get('title'),
                                          label2=playlist.get('summary'))
             list_item.setArt({
                 'icon': playlist.get('image'),
                 'thumb': playlist.get('image'),
                 'poster': playlist.get('image'),
             })
-            select_items.append(list_item)
+            append_item(list_item)
 
         return_value = xbmcgui.Dialog().select(i18n('Select playlist'), select_items,
                                                useDetails=True)
     else:
-        select_items = [playlist.get('title') for playlist in playlists]
+        select_items = list(map(lambda x: x.get('title'), playlists))
         return_value = xbmcgui.Dialog().select(i18n('Select playlist'), select_items)
 
     if return_value == -1:

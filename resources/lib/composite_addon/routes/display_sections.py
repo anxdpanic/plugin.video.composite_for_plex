@@ -34,6 +34,7 @@ def run(context, content_filter=None, display_shared=False):
 
     items = []
     items += server_section_menus_items(context, server_list, content_filter, display_shared)
+    append_item = items.append
 
     if display_shared:
         if items:
@@ -55,7 +56,7 @@ def run(context, content_filter=None, display_shared=False):
             'mode': MODES.MYPLEXQUEUE
         }
         gui_item = GUIItem('http://myplexqueue', details, extra_data)
-        items.append(create_gui_item(context, gui_item))
+        append_item(create_gui_item(context, gui_item))
 
     items += server_additional_menu_items(context, server_list, content_filter, menus)
     items += action_menu_items(context)
@@ -68,9 +69,13 @@ def run(context, content_filter=None, display_shared=False):
 
 def server_section_menus_items(context, server_list, content_filter, display_shared):
     items = []
+    append_item = items.append
     for server in server_list:
 
         sections = server.get_sections()
+        url_location = server.get_url_location()
+        server_uuid = server.get_uuid()
+        server_name = server.get_name()
 
         for section in sections:
 
@@ -80,7 +85,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
 
             if section.content_type() is None:
                 LOG.debug('Ignoring section %s: %s of type %s as unable to process'
-                          % (server.get_name(), section.get_title(), section.get_type()))
+                          % (server_name, section.get_title(), section.get_type()))
                 continue
 
             if not context.settings.get_picture_mode() and section.is_photo():
@@ -90,7 +95,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
             if not context.settings.prefix_server() or \
                     (context.settings.prefix_server() and len(server_list) > 1):
                 details = {
-                    'title': '%s: %s' % (server.get_name(), section.get_title())
+                    'title': '%s: %s' % (server_name, section.get_title())
                 }
             else:
                 details = {
@@ -111,23 +116,24 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
                 path = path + '/all'
 
             extra_data['mode'] = mode
-            section_url = '%s%s' % (server.get_url_location(), path)
+            section_url = '%s%s' % (url_location, path)
 
             context_menu = None
             if not context.settings.skip_context_menus():
                 context_menu = [(i18n('Refresh library section'),
                                  'RunScript(' + CONFIG['id'] + ', update, %s, %s)' %
-                                 (server.get_uuid(), section.get_key()))]
+                                 (server_uuid, section.get_key()))]
 
             # Build that listing..
             gui_item = GUIItem(section_url, details, extra_data, context_menu)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
     return items
 
 
 def server_additional_menu_items(context, server_list, content_filter, menus):
     items = []
+    append_item = items.append
     for server in server_list:
 
         if server.is_offline() or server.is_secondary():
@@ -154,7 +160,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
 
             item_url = '%s/channels/all' % server.get_url_location()
             gui_item = GUIItem(item_url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
         if menus.get('online'):
             # Create plexonline link
@@ -168,7 +174,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
 
             item_url = '%s/system/plexonline' % server.get_url_location()
             gui_item = GUIItem(item_url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
         if menus.get('playlists'):
             # create playlist link
@@ -182,7 +188,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
 
             item_url = '%s/playlists' % server.get_url_location()
             gui_item = GUIItem(item_url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
         if menus.get('widgets'):
             # create Widgets link
@@ -196,13 +202,14 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
 
             item_url = '%s' % server.get_url_location()
             gui_item = GUIItem(item_url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
     return items
 
 
 def action_menu_items(context):
     items = []
+    append_item = items.append
     if context.plex_network.is_myplex_signedin():
 
         if context.plex_network.is_plexhome_enabled():
@@ -215,7 +222,7 @@ def action_menu_items(context):
 
             item_url = 'cmd:' + COMMANDS.SWITCHUSER
             gui_item = GUIItem(item_url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
         details = {
             'title': i18n('Sign Out')
@@ -226,7 +233,7 @@ def action_menu_items(context):
 
         item_url = 'cmd:' + COMMANDS.SIGNOUT
         gui_item = GUIItem(item_url, details, extra_data)
-        items.append(create_gui_item(context, gui_item))
+        append_item(create_gui_item(context, gui_item))
 
         details = {
             'title': i18n('Display Servers')
@@ -236,7 +243,7 @@ def action_menu_items(context):
         }
         item_url = 'cmd:' + COMMANDS.DISPLAYSERVER
         gui_item = GUIItem(item_url, details, extra_data)
-        items.append(create_gui_item(context, gui_item))
+        append_item(create_gui_item(context, gui_item))
 
         if context.settings.cache():
             details = {
@@ -247,7 +254,7 @@ def action_menu_items(context):
             }
             item_url = 'cmd:' + COMMANDS.DELETEREFRESH
             gui_item = GUIItem(item_url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
     else:
         details = {
             'title': i18n('Sign In')
@@ -258,6 +265,6 @@ def action_menu_items(context):
 
         item_url = 'cmd:' + COMMANDS.SIGNIN
         gui_item = GUIItem(item_url, details, extra_data)
-        items.append(create_gui_item(context, gui_item))
+        append_item(create_gui_item(context, gui_item))
 
     return items

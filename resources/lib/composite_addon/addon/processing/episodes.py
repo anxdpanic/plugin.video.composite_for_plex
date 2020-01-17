@@ -51,10 +51,11 @@ def process_episodes(context, url, tree=None, rating_key=None, library=False):
     xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_MPAA_RATING)
 
     items = []
+    append_item = items.append
     show_tags = tree.findall('Video')
     for episode in show_tags:
         item = Item(server, url, tree, episode)
-        items.append(create_episode_item(context, item, library=library))
+        append_item(create_episode_item(context, item, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

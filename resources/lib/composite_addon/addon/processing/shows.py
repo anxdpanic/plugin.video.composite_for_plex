@@ -36,11 +36,12 @@ def process_shows(context, url, tree=None):
     server = context.plex_network.get_server_from_url(url)
 
     items = []
+    append_item = items.append
     # For each directory tag we find
     show_tags = tree.findall('Directory')
     for show in show_tags:
         item = Item(server, url, tree, show)
-        items.append(create_show_item(context, item))
+        append_item(create_show_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

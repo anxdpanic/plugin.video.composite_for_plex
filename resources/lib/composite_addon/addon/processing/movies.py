@@ -48,14 +48,15 @@ def process_movies(context, url, tree=None):
     # Find all the video tags, as they contain the data we need to link to a file.
     start_time = time.time()
     items = []
+    append_item = items.append
     for movie in tree:
         item = Item(server, url, tree, movie)
         if movie.tag.lower() == 'video':
-            items.append(create_movie_item(context, item))
+            append_item(create_movie_item(context, item))
         elif movie.tag.lower() == 'track':  # mixed content video playlist
-            items.append(create_track_item(context, item))
+            append_item(create_track_item(context, item))
         elif movie.tag.lower() == 'photo':  # mixed content video playlist
-            items.append(create_photo_item(context, item))
+            append_item(create_photo_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

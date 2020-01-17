@@ -32,9 +32,10 @@ def process_directories(context, url, tree=None):
     server = context.plex_network.get_server_from_url(url)
 
     items = []
+    append_item = items.append
     for directory in tree:
         item = Item(server, url, tree, directory)
-        items.append(create_directory_item(context, item))
+        append_item(create_directory_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

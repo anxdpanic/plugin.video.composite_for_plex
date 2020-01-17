@@ -40,6 +40,7 @@ def run(context, url):
         tree_iter = tree.getiterator('Directory')
 
     items = []
+    append_item = items.append
     for channels in tree_iter:
 
         if channels.get('local', '') == '0' or channels.get('size', '0') == '0':
@@ -75,7 +76,7 @@ def run(context, url):
             extra_data['mode'] = MODES.MUSIC
 
         gui_item = GUIItem(p_url, details, extra_data)
-        items.append(create_gui_item(context, gui_item))
+        append_item(create_gui_item(context, gui_item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
