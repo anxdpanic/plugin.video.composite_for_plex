@@ -441,7 +441,26 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             self.offline = True
             LOG.debug('[%s] Server appears to be offline' % self.uuid)
 
-    def talk(self, url='/', refresh=False, method='get', extra_headers=None):  # pylint: disable=too-many-branches
+    def _request(self, uri, params, method):
+        verify_cert = self.protocol == 'https' and self.get_settings().verify_certificates()
+
+        response = None
+
+        if method == 'get':
+            response = requests.get(uri, params=params, verify=verify_cert, timeout=(2, 60))
+        elif method == 'put':
+            response = requests.put(uri, params=params, verify=verify_cert, timeout=(2, 60))
+        elif method == 'delete':
+            response = requests.delete(uri, params=params, verify=verify_cert, timeout=(2, 60))
+        elif method == 'post':
+            response = requests.post(uri, params=params, verify=verify_cert, timeout=(2, 60))
+
+        if response:
+            response.encoding = 'utf-8'
+
+        return response
+
+    def talk(self, url='/', refresh=False, method='get', extra_headers=None):
         if extra_headers is None:
             extra_headers = {}
 
@@ -449,31 +468,15 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
 
-            verify_cert = self.protocol == 'https' and self.get_settings().verify_certificates()
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:
                 params.update(extra_headers)
+
             try:
-                if method == 'get':
-                    response = requests.get(uri, params=params, verify=verify_cert,
-                                            timeout=(2, 60))
-                elif method == 'put':
-                    response = requests.put(uri, params=params, verify=verify_cert,
-                                            timeout=(2, 60))
-                elif method == 'delete':
-                    response = requests.delete(uri, params=params, verify=verify_cert,
-                                               timeout=(2, 60))
-                elif method == 'post':
-                    response = requests.post(uri, params=params, verify=verify_cert,
-                                             timeout=(2, 60))
-                else:
-                    response = None
-
-                if response:
-                    response.encoding = 'utf-8'
-
+                response = self._request(uri, params, method)
                 self.offline = False
+
             except requests.exceptions.ConnectionError as error:
                 LOG.error('Server: %s is offline or unreachable. error: %s' %
                           (self.get_address(), error))
@@ -487,8 +490,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
             except requests.exceptions.ReadTimeout:
                 LOG.debug('Server: read timeout for %s on %s ' % (self.get_address(), url))
-            else:
 
+            else:
                 LOG.debug('URL was: %s' % response.url)
 
                 if response.status_code == requests.codes.ok:  # pylint: disable=no-member
