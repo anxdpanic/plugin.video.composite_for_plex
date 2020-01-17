@@ -131,6 +131,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             response = requests.get('%s/users/account?X-Plex-Token=%s' %
                                     (self.myplex_server, temp_token),
                                     headers=self.plex_identification_header())
+            response.encoding = 'utf-8'
 
             LOG.debug('Status Code: %s' % response.status_code)
 
@@ -283,6 +284,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
     def talk_direct_to_server(self, ip_address='localhost', port=DEFAULT_PORT, url=None):
         response = requests.get('http://%s:%s%s' % (ip_address, port, url),
                                 params=self.plex_identification_header(), timeout=2)
+        response.encoding = 'utf-8'
 
         LOG.debug('URL was: %s' % response.url)
 
@@ -489,37 +491,46 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             existing.refresh()
             self.server_list[existing.get_uuid()] = existing
 
+    def _request(self, path, method, use_params):
+        verify_cert = self.myplex_server.startswith('https') and self.settings.verify_certificates()
+
+        try:
+            if use_params:
+                response = getattr(requests, method)('%s%s' % (self.myplex_server, path),
+                                                     params=self.plex_identification_header(),
+                                                     verify=verify_cert, timeout=(3, 10))
+            else:
+                response = getattr(requests, method)('%s%s' % (self.myplex_server, path),
+                                                     headers=self.plex_identification_header(),
+                                                     verify=verify_cert, timeout=(3, 10))
+        except AttributeError:
+            LOG.error('Unknown HTTP method requested: %s' % method)
+            response = None
+
+        if response:
+            response.encoding = 'utf-8'
+
+        return response
+
     def talk_to_myplex(self, path, renew=False, method='get'):
         LOG.debug('url = %s%s' % (self.myplex_server, path))
 
+        use_params = method == 'get'
+        method = method.replace('get2', 'get')
+
         try:
-            verify_cert = \
-                self.myplex_server.startswith('https') and self.settings.verify_certificates()
-            if method == 'get':
-                response = requests.get('%s%s' % (self.myplex_server, path),
-                                        params=self.plex_identification_header(),
-                                        verify=verify_cert, timeout=(3, 10))
-            elif method == 'get2':
-                response = requests.get('%s%s' % (self.myplex_server, path),
-                                        headers=self.plex_identification_header(),
-                                        verify=verify_cert, timeout=(3, 10))
-            elif method == 'post':
-                response = requests.post('%s%s' % (self.myplex_server, path), data='',
-                                         headers=self.plex_identification_header(),
-                                         verify=verify_cert, timeout=(3, 10))
-            else:
-                LOG.error('Unknown HTTP method requested: %s' % method)
-                response = None
+            response = self._request(path, method, use_params=use_params)
+
         except requests.exceptions.ConnectionError as error:
             LOG.error('myPlex: %s is offline or unreachable. error: %s' %
                       (self.myplex_server, error))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
+
         except requests.exceptions.ReadTimeout:
             LOG.debug('myPlex: read timeout for %s on %s ' % (self.myplex_server, path))
             return '<?xml version="1.0" encoding="UTF-8"?><message status="error"></message>'
 
         else:
-
             LOG.debugplus('Full URL was: %s' % response.url)
             LOG.debugplus('Full header sent was: %s' % response.request.headers)
             LOG.debugplus('Full header received was: %s' % response.headers)
@@ -576,6 +587,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
         response = requests.post('%s/users/sign_in.xml' % self.myplex_server,
                                  headers=dict(self.plex_identification_header(), **myplex_headers))
+        response.encoding = 'utf-8'
 
         if response.status_code == 201:
             try:
