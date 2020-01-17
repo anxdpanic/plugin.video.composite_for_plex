@@ -444,16 +444,11 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def _request(self, uri, params, method):
         verify_cert = self.protocol == 'https' and self.get_settings().verify_certificates()
 
-        response = None
-
-        if method == 'get':
-            response = requests.get(uri, params=params, verify=verify_cert, timeout=(2, 60))
-        elif method == 'put':
-            response = requests.put(uri, params=params, verify=verify_cert, timeout=(2, 60))
-        elif method == 'delete':
-            response = requests.delete(uri, params=params, verify=verify_cert, timeout=(2, 60))
-        elif method == 'post':
-            response = requests.post(uri, params=params, verify=verify_cert, timeout=(2, 60))
+        try:
+            response = getattr(requests, method)(uri, params=params, verify=verify_cert,
+                                                 timeout=(2, 60))
+        except AttributeError:
+            response = None
 
         if response:
             response.encoding = 'utf-8'
