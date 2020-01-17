@@ -28,7 +28,7 @@ LOG = Logger()
 
 
 def kodi_photo():
-    return 'photo'
+    return 'picture'
 
 
 def kodi_video():
