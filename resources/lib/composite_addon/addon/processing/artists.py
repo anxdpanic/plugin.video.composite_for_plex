@@ -39,10 +39,11 @@ def process_artists(context, url, tree=None):
     server = context.plex_network.get_server_from_url(url)
 
     items = []
+    append_item = items.append
     artist_tags = tree.findall('Directory')
     for artist in artist_tags:
         item = Item(server, url, tree, artist)
-        items.append(create_artist_item(context, item))
+        append_item(create_artist_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

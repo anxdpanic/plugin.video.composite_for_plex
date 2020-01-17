@@ -9,6 +9,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from kodi_six import xbmcgui  # pylint: disable=import-error
+
 
 class Context:
     """
@@ -64,6 +66,7 @@ class GUIItem:
     """
     Used to simplify passing items to functions/methods
     """
+    CONSTRUCTOR = xbmcgui.ListItem
 
     def __init__(self, url=None, info_labels=None, extra=None, menu=None):
         self._context_menu = menu

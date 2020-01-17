@@ -42,12 +42,13 @@ def get_link_url(server, url, path_data):
     if path.startswith('plex:'):
         LOG.debug('Detected plex link')
         components = path.split('&')
+        append_component = components.append
         for idx in components:
             if 'prefix=' in idx:
                 del components[components.index(idx)]
                 break
         if path_data.get('identifier') is not None:
-            components.append('identifier=' + path_data['identifier'])
+            append_component('identifier=' + path_data['identifier'])
 
         path = '&'.join(components)
         return 'plex://' + server.get_location() + '/' + '/'.join(path.split('/')[3:])
@@ -182,16 +183,22 @@ def get_metadata(context, data):
         metadata['attributes'] = dict(media_tag.items())
 
     if not context.settings.skip_metadata():
+        append_genre = metadata['genre'].append
+        append_writer = metadata['writer'].append
+        append_director = metadata['director'].append
+        append_cast = metadata['cast'].append
+        append_collections = metadata['collections'].append
+
         for child in data:
             if child.tag == 'Genre':
-                metadata['genre'].append(child.get('tag'))
+                append_genre(child.get('tag'))
             elif child.tag == 'Writer':
-                metadata['writer'].append(child.get('tag'))
+                append_writer(child.get('tag'))
             elif child.tag == 'Director':
-                metadata['director'].append(child.get('tag'))
+                append_director(child.get('tag'))
             elif child.tag == 'Role':
-                metadata['cast'].append(child.get('tag'))
+                append_cast(child.get('tag'))
             elif child.tag == 'Collection':
-                metadata['collections'].append(child.get('tag'))
+                append_collections(child.get('tag'))
 
     return metadata

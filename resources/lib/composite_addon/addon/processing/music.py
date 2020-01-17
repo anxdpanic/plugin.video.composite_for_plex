@@ -26,13 +26,14 @@ def process_music(context, url, tree=None):
         return
 
     items = []
+    append_item = items.append
     for music in tree:
 
         if music.get('key') is None:
             continue
 
         item = Item(server, url, tree, music)
-        items.append(create_music_item(context, item))
+        append_item(create_music_item(context, item))
 
     if items:
         content_type = items[-1][1].getProperty('content_type')

@@ -16,8 +16,6 @@ import json
 from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import urlparse
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
-
 from ..common import get_argv
 from ..constants import CONFIG
 from ..logger import Logger
@@ -42,9 +40,9 @@ def create_gui_item(context, item):
                            item.extra.get('source'), item.is_folder)
 
     if CONFIG['kodi_version'] >= 18:
-        list_item = xbmcgui.ListItem(title, offscreen=True)
+        list_item = item.CONSTRUCTOR(title, offscreen=True)
     else:
-        list_item = xbmcgui.ListItem(title)
+        list_item = item.CONSTRUCTOR(title)
 
     # Set the properties of the item, such as summary, name, season, etc
     info_type, info_labels = _get_info(item)
@@ -72,8 +70,9 @@ def create_gui_item(context, item):
     if CONFIG['kodi_version'] >= 18:
         list_item.setProperties(item_properties)
     else:
+        set_property = list_item.setProperty
         for key, value in item_properties.items():
-            list_item.setProperty(key, value)
+            set_property(key, value)
 
     if item.url.startswith('cmd:'):
         item.is_folder = False

@@ -28,9 +28,10 @@ def process_plex_online(context, url):
         return
 
     items = []
+    append_item = items.append
     for plugin in tree:
         item = Item(server, url, tree, plugin)
-        items.append(create_plex_online_item(context, item))
+        append_item(create_plex_online_item(context, item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

@@ -333,7 +333,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
 def _finished(start_time, data):
     LOG.notice('%s %s: Kodi %s on %s with Python %s' %
                (CONFIG['name'], CONFIG['version'], CONFIG['kodi_version'],
-                platform.uname()[0], '.'.join([str(i) for i in sys.version_info])),
+                platform.uname()[0], '.'.join(map(str, sys.version_info))),
                no_privacy=True)  # force no privacy to avoid redacting version strings
 
     LOG.notice('Mode |%s| Command |%s| Url |%s| Parameters |%s| Server UUID |%s| Media Id |%s|'

@@ -6,7 +6,7 @@
     Utilises pickle to store object data as file within the KODI virtual file system.
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -177,8 +177,11 @@ class CacheControl:
 
         LOG.debug('List of file: [%s]' % file_list)
         LOG.debug('List of dirs: [%s]' % dirs)
+
         cache_files = []
+        append = cache_files.append
         has_persistent = False
+
         for cache_file in file_list:
             if cache_file.endswith(persistent_cache_suffix):
                 has_persistent = True
@@ -186,15 +189,16 @@ class CacheControl:
             if not force and cache_file.endswith(persistent_cache_suffix):
                 continue
 
-            cache_files.append(os.path.join(self.cache_location, cache_file))
+            append(os.path.join(self.cache_location, cache_file))
 
         folder_deleted = False
         if not has_persistent:
             folder_deleted = self.delete_cache_folder()
 
+        delete = xbmcvfs.delete
         if not folder_deleted:
             for cache_file in cache_files:
-                if xbmcvfs.delete(cache_file):
+                if delete(cache_file):
                     LOG.debug('SUCCESSFUL: removed %s' % cache_file)
                 else:
                     LOG.debug('UNSUCCESSFUL: did not remove %s' % cache_file)

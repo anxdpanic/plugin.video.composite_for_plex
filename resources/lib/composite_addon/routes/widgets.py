@@ -26,6 +26,7 @@ def run(context, url):
     sections = server.get_sections()
 
     items = []
+    append_item = items.append
     for section in sections:
         if section.is_movie():
             details = {
@@ -38,7 +39,7 @@ def run(context, url):
                 }
             }
             gui_item = GUIItem(section.get_path(), details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added Movies'))
@@ -50,7 +51,7 @@ def run(context, url):
                 }
             }
             gui_item = GUIItem(section.get_path(), details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Released Movies'))
@@ -62,7 +63,7 @@ def run(context, url):
                 }
             }
             gui_item = GUIItem(section.get_path(), details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
         if section.is_show():
             details = {
@@ -75,7 +76,7 @@ def run(context, url):
                 }
             }
             gui_item = GUIItem(section.get_path(), details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Added TV Shows'))
@@ -87,7 +88,7 @@ def run(context, url):
                 }
             }
             gui_item = GUIItem(section.get_path(), details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
             details = {
                 'title': '%s: %s' % (server.get_name(), i18n('Recently Aired TV Shows'))
@@ -99,7 +100,7 @@ def run(context, url):
                 }
             }
             gui_item = GUIItem(section.get_path(), details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

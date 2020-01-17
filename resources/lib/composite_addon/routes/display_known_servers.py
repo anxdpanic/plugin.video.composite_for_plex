@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -25,6 +25,7 @@ def run(context):
     servers = context.plex_network.get_server_list()
 
     display_list = []
+    append_server = display_list.append
     for server in servers:
         name = server.get_name()
         log_status = server.get_status()
@@ -40,7 +41,7 @@ def run(context):
         LOG.debug('Device: %s [%s] [%s]' % (name, log_status, log_secure))
         LOG.debugplus('Full device dump [%s]' % server.__dict__)
 
-        display_list.append('%s [%s] [%s]' % (name, status_label, secure_label))
+        append_server('%s [%s] [%s]' % (name, status_label, secure_label))
 
     xbmcgui.Dialog().select(i18n('Known server list'), display_list)
 

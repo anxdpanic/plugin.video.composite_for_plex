@@ -41,11 +41,12 @@ def get_xml(context, url, tree=None):
 
 def get_master_server(context, all_servers=False):
     possible_servers = []
+    append_server = possible_servers.append
     current_master = context.settings.master_server()
     for server_data in context.plex_network.get_server_list():
         LOG.debug(str(server_data))
         if server_data.get_master() == 1:
-            possible_servers.append(server_data)
+            append_server(server_data)
     LOG.debug('Possible master servers are: %s' % possible_servers)
 
     if all_servers:
@@ -73,6 +74,7 @@ def get_master_server(context, all_servers=False):
 def get_transcode_profile(context):
     profile_count = 3
     profile_labels = []
+    append_label = profile_labels.append
 
     for idx in list(range(profile_count)):
         profile = context.settings.transcode_profile(idx)
@@ -80,9 +82,9 @@ def get_transcode_profile(context):
             resolution, bitrate = profile.get('quality').split(',')
             sub_size = profile.get('subtitle_size')
             audio_boost = profile.get('audio_boost')
-            profile_labels.append('[%s] %s@%s (%s/%s)' %
-                                  (str(idx + 1), resolution, bitrate.strip(),
-                                   sub_size, audio_boost))
+            append_label('[%s] %s@%s (%s/%s)' %
+                         (str(idx + 1), resolution, bitrate.strip(),
+                          sub_size, audio_boost))
 
     if len(profile_labels) == 1:
         return 0

@@ -6,7 +6,7 @@
     media servers.
 
     Copyright (C) 2011-2018 PleXBMC (plugin.video.plexbmc) by hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2018-2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2018-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -222,7 +222,6 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
     def discover(self):
         received_data = []
-        discovered_servers = []
 
         _socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         with closing(_socket) as open_socket:
@@ -256,10 +255,7 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
 
         self.discovery_complete = True
 
-        for response in received_data:
-            discovered_servers.append(self._get_server_from_response(response))
-
-        self.server_list = discovered_servers
+        self.server_list = list(map(self._get_server_from_response, received_data))
 
         if not self.server_list:
             LOG.debug('No servers have been discovered')

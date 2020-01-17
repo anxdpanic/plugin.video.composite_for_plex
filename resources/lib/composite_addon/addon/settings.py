@@ -109,8 +109,9 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
 
     def get_wakeservers(self):
         servers = []
+        append = servers.append
         for server in list(range(1, 12)):
-            servers.append(self.settings.getSetting('wol%s' % server))
+            append(self.settings.getSetting('wol%s' % server))
         return servers
 
     def get_stream(self):

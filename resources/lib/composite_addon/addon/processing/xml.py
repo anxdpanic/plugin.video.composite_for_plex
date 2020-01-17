@@ -47,6 +47,7 @@ def process_xml(context, url, tree=None):
         return
 
     items = []
+    append_item = items.append
     for plugin in tree:
 
         details = {
@@ -71,15 +72,15 @@ def process_xml(context, url, tree=None):
         if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
             extra_data['mode'] = MODES.PROCESSXML
             gui_item = GUIItem(_url, details, extra_data)
-            items.append(create_gui_item(context, gui_item))
+            append_item(create_gui_item(context, gui_item))
 
         elif plugin.tag == 'Track':
             item = Item(server, url, tree, plugin)
-            items.append(create_track_item(context, item))
+            append_item(create_track_item(context, item))
 
         elif plugin.tag == 'Playlist':
             item = Item(server, url, tree, plugin)
-            items.append(create_playlist_item(context, item))
+            append_item(create_playlist_item(context, item))
 
         elif tree.get('viewGroup') == 'movie':
             process_movies(context, url, tree)

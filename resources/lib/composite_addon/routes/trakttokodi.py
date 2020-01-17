@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -35,16 +35,16 @@ LOG = Logger()
 def run(context):
     context.plex_network = plex.Plex(context.settings, load=True)
 
+    params = context.params
     for param in ['video_type', 'title', 'year']:  # check for expected common parameters
-        if param not in context.params:
+        if param not in params:
             return
 
     # possible params ['video_type', 'title', 'year', 'trakt_id', 'episode_id', 'season_id',
     # 'season', 'episode', 'ep_title', 'imdb_id', 'tmdb_id', 'tvdb_id']
 
     search_results = search(context)
-    log_results = [decode_utf8(ETree.tostring(search_result[1]))
-                   for search_result in search_results]
+    log_results = list(map(lambda x: decode_utf8(ETree.tostring(x[1])), search_results))
     LOG.debug('Found search results: %s' % '\n\n'.join(log_results))
 
     server_uuid, media_id = get_server_uuid_and_media_id(context.params, search_results)
@@ -147,12 +147,16 @@ def _get_search_type(video_type):
 
 
 def _get_search_results(context, server, processed):
+    server_uuid = server.get_uuid()
+
     results = []
+    append_result = results.append
+
     if context.params.get('video_type') == 'episode':
         episode = _get_episode(context.params, server, processed=processed)
 
         if episode is not None:
-            results.append((server.get_uuid(), episode))
+            append_result((server_uuid, episode))
             return results
 
     if context.params.get('video_type') in ['episode', 'season']:
@@ -162,17 +166,16 @@ def _get_search_results(context, server, processed):
             season = _get_season(context.params, server, show.get('ratingKey'))
             if season is not None:
                 if context.params.get('video_type') == 'season':
-                    results.append((server.get_uuid(), season))
+                    append_result((server_uuid, season))
                     return results
 
                 if context.params.get('video_type') == 'episode':
                     episode = _get_episode(context.params, server, season.get('ratingKey'))
                     if episode is not None:
-                        results.append((server.get_uuid(), episode))
+                        append_result((server_uuid, episode))
                         return results
     else:
-        for result in processed:
-            results.append((server.get_uuid(), result))
+        results = list(map(lambda x: (server_uuid, x), processed))
 
     return results
 
@@ -186,22 +189,24 @@ def search(context):
         return []
 
     server_list = context.plex_network.get_server_list()
+    params = context.params
 
     for server in server_list:
+        processed_xml = server.processed_xml
 
         sections = server.get_sections()
         for section in sections:
 
             if section.get_type() == content_type:
-                title = context.params.get('ep_title') if search_type == '4' \
-                    else context.params.get('title')
+                title = params.get('ep_title') if search_type == '4' \
+                    else params.get('title')
                 url = '%s/search?type=%s&query=%s' % (section.get_path(), search_type, title)
-                processed = server.processed_xml(url)
+                processed = processed_xml(url)
 
-                if not _is_not_none(processed) and context.params.get('video_type') == 'episode':
+                if not _is_not_none(processed) and params.get('video_type') == 'episode':
                     url = '%s/search?type=%s&query=%s' % \
-                          (section.get_path(), '2', context.params.get('title'))
-                    processed = server.processed_xml(url)
+                          (section.get_path(), '2', params.get('title'))
+                    processed = processed_xml(url)
 
                 if _is_not_none(processed):
                     results += _get_search_results(context, server, processed)

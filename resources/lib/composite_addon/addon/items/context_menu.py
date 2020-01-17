@@ -53,7 +53,7 @@ class ContextMenu:
         self._add_update_library()
         self._add_refresh()
 
-        LOG.debug('Using context menus:\n%s' % '\n'.join(str(menu) for menu in self._context_menu))
+        LOG.debug('Using context menus:\n%s' % '\n'.join(map(str, self._context_menu)))
 
     def _add_go_to_season(self):
         if self.data.get('additional_context_menus', {}).get('go_to'):

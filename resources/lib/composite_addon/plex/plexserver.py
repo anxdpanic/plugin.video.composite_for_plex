@@ -131,10 +131,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         }
 
     def create_plex_identification_string(self):
-        header = []
-        for key, value in self.plex_identification_header.items():
-            header.append('%s=%s' % (key, quote(value)))
-
+        header = map(lambda x: '='.join((x[0], quote(x[1]))),
+                     self.plex_identification_header.items())
         return '&'.join(header)
 
     def get_uuid(self):
@@ -407,7 +405,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             self.set_protocol('http')
 
         tested = []
+        append_tested = tested.append
         threads = []
+        append_thread = threads.append
 
         address, external_uri, internal_address, external_address = \
             self._get_formatted_uris(address)
@@ -419,8 +419,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             uri = uris[idx]
             if uri in tested:
                 continue
-            tested.append(uri)
-            threads.append(threading.Thread(target=self.connection_test, args=(tags[idx], uri)))
+            append_tested(uri)
+            append_thread(threading.Thread(target=self.connection_test, args=(tags[idx], uri)))
 
         _ = [thread.start() for thread in threads]
         _ = [thread.join() for thread in threads]
@@ -546,8 +546,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.section_list
 
     def discover_sections(self):
-        for section in self.processed_xml('/library/sections'):
-            self.section_list.append(plexsection.PlexSection(section))
+        plex_section = plexsection.PlexSection
+        self.section_list = list(map(plex_section, self.processed_xml('/library/sections')))
 
     def get_recently_added(self, section=-1, start=0, size=0, hide_watched=True):
 

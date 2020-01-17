@@ -194,10 +194,7 @@ def get_players():
 
 
 def get_player_ids():
-    ret = []
-    for player in get_players().values():
-        ret.append(player['player_id'])
-    return ret
+    return list(map(lambda x: x['player_id'], get_players().values()))
 
 
 def get_video_player_id(players=None):

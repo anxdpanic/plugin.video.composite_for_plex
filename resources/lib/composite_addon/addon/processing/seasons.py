@@ -44,6 +44,7 @@ def process_seasons(context, url, rating_key=None, library=False):
             will_flatten = True
 
     items = []
+    append_item = items.append
     # For all the directory tags
     season_tags = tree.findall('Directory')
     for season in season_tags:
@@ -57,7 +58,7 @@ def process_seasons(context, url, rating_key=None, library=False):
             continue
 
         item = Item(server, url, tree, season)
-        items.append(create_season_item(context, item, library=library))
+        append_item(create_season_item(context, item, library=library))
 
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))

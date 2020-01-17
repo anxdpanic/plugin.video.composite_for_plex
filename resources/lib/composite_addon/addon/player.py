@@ -246,9 +246,11 @@ class CallbackPlayer(xbmc.Player):
 
     def cleanup_threads(self, only_ended=False):
         active_threads = []
+        append = active_threads.append
+
         for thread in self.threads:
             if only_ended and not thread.ended():
-                active_threads.append(thread)
+                append(thread)
                 continue
 
             if thread.ended():

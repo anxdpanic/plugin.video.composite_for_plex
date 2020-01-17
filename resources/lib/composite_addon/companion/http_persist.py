@@ -3,7 +3,7 @@
 
     Copyright (C) 2013-2019 PleXBMC Helper (script.plexbmc.helper)
         by wickning1 (aka Nick Wing), hippojay (Dave Hawes-Johnson)
-    Copyright (C) 2019 Composite (plugin.video.composite_for_plex)
+    Copyright (C) 2019-2020 Composite (plugin.video.composite_for_plex)
 
     This file is part of Composite (plugin.video.composite_for_plex)
 
@@ -75,12 +75,9 @@ class RequestManager:
         if header is None:
             header = {}
 
-        new_path = path + '?'
-        pairs = []
-        for key in params:
-            pairs.append(str(key) + '=' + str(params[key]))
-        new_path += '&'.join(pairs)
-        return self.get(uri, new_path, header)
+        params = '&'.join(map(lambda x: '='.join([str(x), str(params[x])]), params))
+        path = '?'.join([path, params])
+        return self.get(uri, path, header)
 
     def get(self, uri, path, header=None):
         if header is None:
