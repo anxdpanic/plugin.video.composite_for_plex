@@ -10,7 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from six.moves import range
+from six.moves import xrange
 from six.moves.urllib_parse import unquote
 
 from kodi_six import xbmc  # pylint: disable=import-error
@@ -606,7 +606,7 @@ class MediaSelect:
                 components = self.media_url.split('/')
                 index = components.index(override_info.get('root'))
                 pop = components.pop
-                for _ in list(range(3, index)):
+                for _ in xrange(3, index):
                     pop(3)
                 self.media_url = '/'.join(components)
 
