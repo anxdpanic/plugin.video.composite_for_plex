@@ -104,6 +104,8 @@ class PlaybackMonitorThread(threading.Thread):
             self.LOG('Using Up Next ...')
             UpNext(self.settings, server=self.server(), media_id=self.media_id(),
                    callback_args=self.callback_arguments()).run()
+        elif self.media_type() != 'episode':
+            self.LOG('Up Next [%s] is not an episode ...' % self.media_type())
         else:
             self.LOG('Up Next is disabled ...')
 
