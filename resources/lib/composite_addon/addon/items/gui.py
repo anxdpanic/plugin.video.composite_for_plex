@@ -71,7 +71,8 @@ def create_gui_item(context, item):
         list_item.setProperties(item_properties)
     else:
         set_property = list_item.setProperty
-        for key, value in item_properties.items():
+        _item_properties = item_properties.items()
+        for key, value in _item_properties:
             set_property(key, value)
 
     if item.url.startswith('cmd:'):
@@ -97,7 +98,8 @@ def _get_url(item):
         url = '%s?url=%s&mode=%s' % (plugin_url, item.url, item.extra.get('mode', 0))
 
     if item.extra.get('parameters'):
-        for argument, value in item.extra.get('parameters').items():
+        parameters = item.extra.get('parameters').items()
+        for argument, value in parameters:
             url = '%s&%s=%s' % (url, argument, quote(value))
 
     return url

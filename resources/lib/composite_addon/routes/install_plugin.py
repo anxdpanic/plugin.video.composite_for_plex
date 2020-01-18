@@ -36,8 +36,9 @@ def run(context, url, name):
         pass
 
     operations = {}
-    for idx, plugins in enumerate(tree.findall('Directory')):
-        operations[idx] = plugins.get('title')
+    plugins = tree.findall('Directory')
+    for idx, plugin in enumerate(plugins):
+        operations[idx] = plugin.get('title')
 
         # If we find an install option, switch to a yes/no dialog box
         if operations[idx].lower() == 'install':

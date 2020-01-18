@@ -13,7 +13,7 @@
 import socket
 import sys
 
-from six.moves import range
+from six.moves import xrange
 from six.moves.urllib_parse import unquote
 from six.moves.urllib_parse import urlencode
 
@@ -48,7 +48,8 @@ def get_params():
         _params = param_string
 
         pairs_of_params = _params.lstrip('?').split('&')
-        for idx in list(range(len(pairs_of_params))):
+        number_of_pairs = len(pairs_of_params)
+        for idx in xrange(number_of_pairs):
             split_params = pairs_of_params[idx].split('=')
 
             if (len(split_params)) == 2:

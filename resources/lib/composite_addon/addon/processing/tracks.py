@@ -40,14 +40,15 @@ def process_tracks(context, url, tree=None):
     content_type = 'songs'
     items = []
     append_item = items.append
-    for track in tree:
-        item = Item(server, url, tree, track)
-        if track.tag.lower() == 'track':
+    branches = tree.getiterator()
+    for branch in branches:
+        item = Item(server, url, tree, branch)
+        if branch.tag.lower() == 'track':
             append_item(create_track_item(context, item))
-        elif track.tag.lower() == 'photo':  # mixed content audio playlist
+        elif branch.tag.lower() == 'photo':  # mixed content audio playlist
             content_type = 'movies'  # use movies for mixed content playlists
             append_item(create_photo_item(context, item))
-        elif track.tag.lower() == 'video':  # mixed content audio playlist
+        elif branch.tag.lower() == 'video':  # mixed content audio playlist
             content_type = 'movies'  # use movies for mixed content playlists
             append_item(create_movie_item(context, item))
 

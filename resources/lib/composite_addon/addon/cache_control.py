@@ -180,6 +180,7 @@ class CacheControl:
 
         cache_files = []
         append = cache_files.append
+        path_join = os.path.join
         has_persistent = False
 
         for cache_file in file_list:
@@ -189,7 +190,7 @@ class CacheControl:
             if not force and cache_file.endswith(persistent_cache_suffix):
                 continue
 
-            append(os.path.join(self.cache_location, cache_file))
+            append(path_join(self.cache_location, cache_file))
 
         folder_deleted = False
         if not has_persistent:

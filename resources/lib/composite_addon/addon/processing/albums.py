@@ -36,8 +36,8 @@ def process_albums(context, url, tree=None):
 
     items = []
     append_item = items.append
-    album_tags = tree.findall('Directory')
-    for album in album_tags:
+    albums = tree.getiterator('Directory')
+    for album in albums:
         item = Item(server, url, tree, album)
         append_item(create_album_item(context, item))
 

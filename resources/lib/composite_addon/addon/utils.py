@@ -16,7 +16,7 @@ import time
 
 from six import PY3
 from six.moves import cPickle as pickle
-from six.moves import range
+from six.moves import xrange
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
@@ -76,7 +76,7 @@ def get_transcode_profile(context):
     profile_labels = []
     append_label = profile_labels.append
 
-    for idx in list(range(profile_count)):
+    for idx in xrange(profile_count):
         profile = context.settings.transcode_profile(idx)
         if profile.get('enabled'):
             resolution, bitrate = profile.get('quality').split(',')

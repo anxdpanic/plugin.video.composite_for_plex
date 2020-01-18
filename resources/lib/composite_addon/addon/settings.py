@@ -13,7 +13,7 @@
 import json
 import uuid
 
-from six.moves import range
+from six.moves import xrange
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcaddon  # pylint: disable=import-error
@@ -108,11 +108,8 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
         return self._get_setting('wolon')
 
     def get_wakeservers(self):
-        servers = []
-        append = servers.append
-        for server in list(range(1, 12)):
-            append(self.settings.getSetting('wol%s' % server))
-        return servers
+        get_setting = self._get_setting
+        return list(map(lambda x: get_setting('wol%s' % x), xrange(1, 12)))
 
     def get_stream(self):
         return self.stream

@@ -14,7 +14,7 @@ import socket
 import struct
 from contextlib import closing
 
-from six.moves import range
+from six.moves import xrange
 
 from .logger import Logger
 
@@ -24,7 +24,8 @@ LOG = Logger()
 def wake_servers(context):
     if context.settings.wake_on_lan():
         LOG.debug('Wake On LAN: true')
-        for mac_address in context.settings.get_wakeservers():
+        servers = context.settings.get_wakeservers()
+        for mac_address in servers:
             if mac_address:
                 try:
                     LOG.debug('Waking server with MAC: %s' % mac_address)
@@ -53,7 +54,7 @@ def wake_on_lan(mac_address):
     send_data = ''
 
     # Split up the hex values and pack.
-    for i in list(range(0, len(data), 2)):
+    for i in xrange(0, len(data), 2):
         send_data = ''.join([send_data, struct.pack('B', int(data[i: i + 2], 16))])
 
     # Broadcast it to the LAN.

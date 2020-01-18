@@ -104,6 +104,8 @@ class PlaybackMonitorThread(threading.Thread):
             self.LOG('Using Up Next ...')
             UpNext(self.settings, server=self.server(), media_id=self.media_id(),
                    callback_args=self.callback_arguments()).run()
+        elif self.media_type() != 'episode':
+            self.LOG('Up Next [%s] is not an episode ...' % self.media_type())
         else:
             self.LOG('Up Next is disabled ...')
 
@@ -264,7 +266,7 @@ class CallbackPlayer(xbmc.Player):
             except RuntimeError:
                 pass
         self.LOG.debug('Active monitor threads: |%s|' %
-                       ', '.join([thread.media_id() for thread in active_threads]))
+                       ', '.join(map(lambda x: x.media_id(), active_threads)))
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name

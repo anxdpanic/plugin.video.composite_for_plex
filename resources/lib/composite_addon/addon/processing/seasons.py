@@ -43,18 +43,20 @@ def process_seasons(context, url, rating_key=None, library=False):
             LOG.debug('Flattening single season show')
             will_flatten = True
 
+    all_season_disabled = context.settings.all_season_disabled()
+
     items = []
     append_item = items.append
     # For all the directory tags
-    season_tags = tree.findall('Directory')
-    for season in season_tags:
+    seasons = tree.getiterator('Directory')
+    for season in seasons:
 
         if will_flatten:
             url = server.get_url_location() + season.get('key')
             process_episodes(context, url)
             return
 
-        if context.settings.all_season_disabled() and season.get('index') is None:
+        if all_season_disabled and season.get('index') is None:
             continue
 
         item = Item(server, url, tree, season)

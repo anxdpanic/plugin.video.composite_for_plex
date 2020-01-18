@@ -43,7 +43,8 @@ def process_plex_plugins(context, url, tree=None):
 
     items = []
     append_item = items.append
-    for plugin in tree:
+    plugins = tree.getiterator()
+    for plugin in plugins:
         item = Item(server, tree, url, plugin)
         item = create_plex_plugin_item(context, item)
         if item:

@@ -31,16 +31,17 @@ def process_photos(context, url, tree=None):
     content_type = 'images'
     items = []
     append_item = items.append
-    for photo in tree:
-        item = Item(server, url, tree, photo)
-        if photo.tag.lower() == 'photo':
+    branches = tree.getiterator()
+    for branch in branches:
+        item = Item(server, url, tree, branch)
+        if branch.tag.lower() == 'photo':
             append_item(create_photo_item(context, item))
-        elif photo.tag.lower() == 'directory':
+        elif branch.tag.lower() == 'directory':
             append_item(create_directory_item(context, item))
-        elif photo.tag.lower() == 'track':  # mixed content photo playlist
+        elif branch.tag.lower() == 'track':  # mixed content photo playlist
             content_type = 'movies'  # use movies for mixed content playlists
             append_item(create_track_item(context, item))
-        elif photo.tag.lower() == 'video':  # mixed content photo playlist
+        elif branch.tag.lower() == 'video':  # mixed content photo playlist
             content_type = 'movies'  # use movies for mixed content playlists
             append_item(create_movie_item(context, item))
 
