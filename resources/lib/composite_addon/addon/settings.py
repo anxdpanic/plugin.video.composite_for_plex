@@ -31,6 +31,7 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
         xbmc.log(self.addon_name + '.settings -> Reading settings configuration', xbmc.LOGDEBUG)
         self.stream = self.settings.getSetting('streaming')
         self.picture_mode = False
+        self._settings = {}
 
     @staticmethod
     def _get_addon():
@@ -40,10 +41,14 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
         return self.settings.openSettings()
 
     def _get_setting(self, name, fresh=False):
-        if fresh:
-            value = self._get_addon().getSetting(name)
-        else:
-            value = self.settings.getSetting(name)
+        value = self._settings.get(name)
+        if value is None or fresh:
+            if fresh:
+                value = self._get_addon().getSetting(name)
+            else:
+                value = self.settings.getSetting(name)
+
+            self._settings[name] = value
 
         if value == 'true':
             return True
@@ -58,6 +63,7 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
             value = str(value).lower()
 
         self.settings.setSetting(name, value)
+        self._settings[name] = value
 
     def dump_settings(self):
         return self.__dict__
