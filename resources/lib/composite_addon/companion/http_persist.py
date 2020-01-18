@@ -43,7 +43,8 @@ class RequestManager:
             self.connections.pop(uri.protocol + uri.host + str(uri.port), None)
 
     def dump_connections(self):
-        for connection in self.connections.values():
+        connections = self.connections.values()
+        for connection in connections:
             connection.close()
         self.connections = {}
 

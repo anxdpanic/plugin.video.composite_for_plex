@@ -48,18 +48,18 @@ def process_xml(context, url, tree=None):
 
     items = []
     append_item = items.append
-    for plugin in tree:
-
+    branches = tree.getiterator()
+    for branch in branches:
         details = {
-            'title': encode_utf8(plugin.get('title'))
+            'title': encode_utf8(branch.get('title'))
         }
 
         if not details['title']:
-            details['title'] = encode_utf8(plugin.get('name', i18n('Unknown')))
+            details['title'] = encode_utf8(branch.get('name', i18n('Unknown')))
 
         extra_data = {
-            'thumb': get_thumb_image(context, server, plugin),
-            'fanart_image': get_fanart_image(context, server, plugin),
+            'thumb': get_thumb_image(context, server, branch),
+            'fanart_image': get_fanart_image(context, server, branch),
             'identifier': tree.get('identifier', ''),
             'type': 'Video'
         }
@@ -67,19 +67,19 @@ def process_xml(context, url, tree=None):
         if extra_data['fanart_image'] == '':
             extra_data['fanart_image'] = get_fanart_image(context, server, tree)
 
-        _url = get_link_url(server, url, plugin)
+        _url = get_link_url(server, url, branch)
 
-        if plugin.tag == 'Directory' or plugin.tag == 'Podcast':
+        if branch.tag in ['Directory', 'Podcast']:
             extra_data['mode'] = MODES.PROCESSXML
             gui_item = GUIItem(_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
-        elif plugin.tag == 'Track':
-            item = Item(server, url, tree, plugin)
+        elif branch.tag == 'Track':
+            item = Item(server, url, tree, branch)
             append_item(create_track_item(context, item))
 
-        elif plugin.tag == 'Playlist':
-            item = Item(server, url, tree, plugin)
+        elif branch.tag == 'Playlist':
+            item = Item(server, url, tree, branch)
             append_item(create_playlist_item(context, item))
 
         elif tree.get('viewGroup') == 'movie':

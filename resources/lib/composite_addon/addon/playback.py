@@ -316,8 +316,8 @@ class StreamData:
         if not self.context.settings.skip_metadata():
             tree_genres = self._content.findall('Genre')
             if tree_genres is not None:
-                self.data['full_data']['genre'] = [encode_utf8(tree_genre.get('tag', ''))
-                                                   for tree_genre in tree_genres]
+                self.data['full_data']['genre'] = \
+                    list(map(lambda x: encode_utf8(x.get('tag', '')), tree_genres))
 
     def _get_track_data(self):
 
@@ -447,6 +447,8 @@ class MediaSelect:
         self._media_url = value
 
     def _select_media(self):
+        force_dvd = self.context.settings.force_dvd()
+
         count = self.data['parts_count']
         options = self.data['parts']
         details = self.data['details']
@@ -469,7 +471,7 @@ class MediaSelect:
                                              details[index_count]['videoResolution'],
                                              details[index_count]['bitrate'])
 
-                if self.context.settings.force_dvd():
+                if force_dvd:
                     if '.ifo' in name.lower():
                         LOG.debug('Found IFO DVD file in ' + name)
                         name = 'DVD Image'
@@ -491,7 +493,7 @@ class MediaSelect:
             self._media_index = result
 
         else:
-            if self.context.settings.force_dvd():
+            if force_dvd:
                 if '.ifo' in options[0]:
                     self.dvd_playback = True
 

@@ -68,6 +68,12 @@ def run(context, content_filter=None, display_shared=False):
 
 
 def server_section_menus_items(context, server_list, content_filter, display_shared):
+    settings = {
+        'picture_mode': context.settings.get_picture_mode(),
+        'prefix_server': context.settings.prefix_server(),
+        'use_context_menus': not context.settings.skip_context_menus(),
+    }
+
     items = []
     append_item = items.append
     for server in server_list:
@@ -88,12 +94,12 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
                           % (server_name, section.get_title(), section.get_type()))
                 continue
 
-            if not context.settings.get_picture_mode() and section.is_photo():
+            if not settings.get('picture_mode') and section.is_photo():
                 # photos only work from the picture add-ons
                 continue
 
-            if not context.settings.prefix_server() or \
-                    (context.settings.prefix_server() and len(server_list) > 1):
+            if not settings.get('prefix_server') or \
+                    (settings.get('prefix_server') and len(server_list) > 1):
                 details = {
                     'title': '%s: %s' % (server_name, section.get_title())
                 }
@@ -119,7 +125,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
             section_url = '%s%s' % (url_location, path)
 
             context_menu = None
-            if not context.settings.skip_context_menus():
+            if settings.get('use_context_menus'):
                 context_menu = [(i18n('Refresh library section'),
                                  'RunScript(' + CONFIG['id'] + ', update, %s, %s)' %
                                  (server_uuid, section.get_key()))]
@@ -132,6 +138,8 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
 
 
 def server_additional_menu_items(context, server_list, content_filter, menus):
+    prefix_server = context.settings.prefix_server()
+
     items = []
     append_item = items.append
     for server in server_list:
@@ -143,8 +151,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
         if (content_filter is not None) and (content_filter != 'plugins'):
             continue
 
-        if not context.settings.prefix_server() or \
-                (context.settings.prefix_server() and len(server_list) > 1):
+        if not prefix_server or (prefix_server and len(server_list) > 1):
             prefix = server.get_name() + ': '
         else:
             prefix = ''

@@ -434,8 +434,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             return {}
 
         server_list = ETree.fromstring(xml)
-
-        for device in server_list.findall('Device'):
+        devices = server_list.getiterator('Device')  # pylint: disable=deprecated-method
+        for device in devices:
 
             LOG.debug('[%s] Found device' % device.get('name'))
 
@@ -451,7 +451,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             discovered_server.set_token(device.get('accessToken'))
             discovered_server.set_user(self.effective_user)
 
-            for connection in device.findall('Connection'):
+            connections = device.getiterator('Connection')
+            for connection in connections:
                 LOG.debug('[%s] Found server connection' % device.get('name'))
 
                 if connection.get('local') == '0':
@@ -657,7 +658,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 return PlexMediaServer(name='dummy', address='127.0.0.1',
                                        port=32400, discovery='local')
 
-        for server in self.server_list.values():
+        server_list = self.server_list.values()
+        for server in server_list:
 
             LOG.debug('[%s] - checking ip:%s against server ip %s' %
                       (server.get_name(), uri, server.get_address()))
@@ -745,7 +747,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             return False, 'Unknown error'
 
         username = None
-        for users in self.user_list.values():
+        user_list = self.user_list.values()
+        for users in user_list:
             if uid == users['id']:
                 username = users['title']
                 break

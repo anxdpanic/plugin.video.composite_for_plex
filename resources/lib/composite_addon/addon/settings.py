@@ -108,12 +108,8 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
         return self._get_setting('wolon')
 
     def get_wakeservers(self):
-        servers = []
-        append = servers.append
         get_setting = self._get_setting
-        for server in xrange(1, 12):
-            append(get_setting('wol%s' % server))
-        return servers
+        return list(map(lambda x: get_setting('wol%s' % x), xrange(1, 12)))
 
     def get_stream(self):
         return self.stream

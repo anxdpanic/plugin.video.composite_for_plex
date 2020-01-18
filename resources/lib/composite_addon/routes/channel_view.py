@@ -10,8 +10,6 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from six import PY3
-
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
@@ -34,14 +32,10 @@ def run(context, url):
     if tree is None:
         return
 
-    if PY3:
-        tree_iter = tree.iter()
-    else:
-        tree_iter = tree.getiterator('Directory')
-
     items = []
     append_item = items.append
-    for channels in tree_iter:
+    directories = tree.getiterator('Directory')
+    for channels in directories:
 
         if channels.get('local', '') == '0' or channels.get('size', '0') == '0':
             continue

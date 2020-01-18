@@ -49,13 +49,14 @@ def process_movies(context, url, tree=None):
     start_time = time.time()
     items = []
     append_item = items.append
-    for movie in tree:
-        item = Item(server, url, tree, movie)
-        if movie.tag.lower() == 'video':
+    branches = tree.getiterator()
+    for branch in branches:
+        item = Item(server, url, tree, branch)
+        if branch.tag.lower() == 'video':
             append_item(create_movie_item(context, item))
-        elif movie.tag.lower() == 'track':  # mixed content video playlist
+        elif branch.tag.lower() == 'track':  # mixed content video playlist
             append_item(create_track_item(context, item))
-        elif movie.tag.lower() == 'photo':  # mixed content video playlist
+        elif branch.tag.lower() == 'photo':  # mixed content video playlist
             append_item(create_photo_item(context, item))
 
     if items:

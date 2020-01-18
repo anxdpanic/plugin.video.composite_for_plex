@@ -83,11 +83,11 @@ def _list_content(context, server, url):
     items = []
     append_item = items.append
 
-    tags = tree.findall('Video')
-    if not tags:
-        tags = tree.findall('Directory')
+    branches = tree.getiterator('Video')
+    if not branches:
+        branches = tree.getiterator('Directory')
 
-    for content in tags:
+    for content in branches:
         item = Item(server, url, tree, content)
         if content.get('type') == 'show':
             append_item(create_show_item(context, item, library=True))

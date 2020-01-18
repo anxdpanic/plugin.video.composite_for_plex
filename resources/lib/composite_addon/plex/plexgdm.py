@@ -198,7 +198,8 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
             server['role'] = 'master'
             server['class'] = None
 
-            for pairs in response.get('data').split('\n'):
+            lines = response.get('data').split('\n')
+            for pairs in lines:
                 key, value = pairs.split(':')
                 value = value.strip()
                 if key == 'Content-Type':

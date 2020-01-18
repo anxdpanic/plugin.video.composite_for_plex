@@ -266,7 +266,7 @@ class CallbackPlayer(xbmc.Player):
             except RuntimeError:
                 pass
         self.LOG.debug('Active monitor threads: |%s|' %
-                       ', '.join([thread.media_id() for thread in active_threads]))
+                       ', '.join(map(lambda x: x.media_id(), active_threads)))
         self.threads = active_threads
 
     def onPlayBackStarted(self):  # pylint: disable=invalid-name

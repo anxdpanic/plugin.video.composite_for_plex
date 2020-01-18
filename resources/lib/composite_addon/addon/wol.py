@@ -24,7 +24,8 @@ LOG = Logger()
 def wake_servers(context):
     if context.settings.wake_on_lan():
         LOG.debug('Wake On LAN: true')
-        for mac_address in context.settings.get_wakeservers():
+        servers = context.settings.get_wakeservers()
+        for mac_address in servers:
             if mac_address:
                 try:
                     LOG.debug('Waking server with MAC: %s' % mac_address)

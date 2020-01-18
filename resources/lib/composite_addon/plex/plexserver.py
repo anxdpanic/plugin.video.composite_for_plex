@@ -415,12 +415,13 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         uris, tags = self._get_connection_uris_and_tags(address, external_uri,
                                                         internal_address, external_address)
         number_of_uris = len(uris)
+        thread = threading.Thread
         for idx in xrange(number_of_uris):
             uri = uris[idx]
             if uri in tested:
                 continue
             append_tested(uri)
-            append_thread(threading.Thread(target=self.connection_test, args=(tags[idx], uri)))
+            append_thread(thread(target=self.connection_test, args=(tags[idx], uri)))
 
         _ = [thread.start() for thread in threads]
         _ = [thread.join() for thread in threads]

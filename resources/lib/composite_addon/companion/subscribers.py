@@ -57,10 +57,9 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
     def get_server_by_host(self, host):
         if len(self.server_list) == 1:
             return self.server_list[0]
-        for server in self.server_list:
-            if server.get('serverName') in host or server.get('server') in host:
-                return server
-        return {}
+
+        return next((server for server in self.server_list
+                     if server.get('serverName') in host or server.get('server') in host), {})
 
     def get_volume(self):
         self.volume = get_volume()
@@ -71,7 +70,8 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
         if players:
             self.get_volume()
             maintype = plex_audio()
-            for player in players.values():
+            _players = players.values()
+            for player in _players:
                 if player.get('type') == kodi_video():
                     maintype = plex_video()
                 elif player.get('type') == kodi_photo():
@@ -146,8 +146,10 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
         msg = self.msg(players)
         if self.subscribers:
             with threading.RLock():
-                for sub in self.subscribers.values():
-                    sub.send_update(msg, len(players) == 0)
+                is_nav = len(players) == 0
+                subs = self.subscribers.values()
+                for sub in subs:
+                    sub.send_update(msg, is_nav)
         self.notify_server(players)
 
         return True
@@ -159,7 +161,8 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
         params = {
             'state': 'stopped'
         }
-        for player in players.values():
+        _players = players.values()
+        for player in _players:
             info = self.player_props[player.get('player_id')]
             params = {
                 'containerKey': (self.last_key or '/library/metadata/900000'),
@@ -199,14 +202,16 @@ class SubscriptionManager:  # pylint: disable=too-many-instance-attributes,
 
     def remove_subscriber(self, uuid):
         with threading.RLock():
-            for sub in self.subscribers.values():
+            subs = self.subscribers.values()
+            for sub in subs:
                 if uuid in [sub.uuid, sub.host]:
                     sub.cleanup()
                     del self.subscribers[sub.uuid]
 
     def cleanup(self):
         with threading.RLock():
-            for sub in self.subscribers.values():
+            subs = self.subscribers.values()
+            for sub in subs:
                 if sub.age > 30:
                     sub.cleanup()
                     del self.subscribers[sub.uuid]

@@ -29,7 +29,8 @@ def process_plex_online(context, url):
 
     items = []
     append_item = items.append
-    for plugin in tree:
+    plugins = tree.getiterator()
+    for plugin in plugins:
         item = Item(server, url, tree, plugin)
         append_item(create_plex_online_item(context, item))
 

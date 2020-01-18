@@ -46,7 +46,8 @@ def run(context, url, setting_id):
 
     set_url = '%s/set?' % url
     set_params = {}
-    for plugin in tree:
+    plugins = tree.getiterator()
+    for plugin in plugins:
 
         if plugin.get('id') == setting_id:
             LOG.debug('Found correct id entry for: %s' % setting_id)

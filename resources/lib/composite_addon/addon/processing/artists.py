@@ -40,8 +40,8 @@ def process_artists(context, url, tree=None):
 
     items = []
     append_item = items.append
-    artist_tags = tree.findall('Directory')
-    for artist in artist_tags:
+    artists = tree.getiterator('Directory')
+    for artist in artists:
         item = Item(server, url, tree, artist)
         append_item(create_artist_item(context, item))
 
