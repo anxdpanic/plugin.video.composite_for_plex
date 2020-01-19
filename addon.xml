@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.composite_for_plex" name="Composite" version="1.4.4" provider-name="anxdpanic">
     <requires>
-        <import addon="xbmc.python" version="2.24.0"/>
+        <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.kodi-six" version="0.0.2"/>
         <import addon="script.module.six" version="1.11.0"/>
         <import addon="script.module.requests" version="2.12.4"/>
@@ -12,7 +12,7 @@
         <medialibraryscanpath content="movies">library/movies/</medialibraryscanpath>
         <medialibraryscanpath content="tvshows">library/tvshows/</medialibraryscanpath>
     </extension>
-    <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
+    <extension point="xbmc.service" library="resources/lib/service_entry_point.py"/>
     <extension point="xbmc.python.script" library="resources/lib/entry_point.py"/>
     <extension point="kodi.context.item">
         <menu id="kodi.core.main">
@@ -38,8 +38,8 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <assets>
-            <icon>icon.png</icon>
-            <fanart>fanart.jpg</fanart>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.png</fanart>
         </assets>
         <news>
 [fix] fix TV series not showing with library integration |contrib: mash2k3|
