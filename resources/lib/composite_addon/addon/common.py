@@ -122,6 +122,8 @@ def get_platform():
         platform = 'MacOSX'
     if xbmc.getCondVisibility('system.platform.atv2'):
         platform = 'AppleTV2'
+    if xbmc.getCondVisibility('system.platform.tvos'):
+        platform = 'tvOS'
     if xbmc.getCondVisibility('system.platform.ios'):
         platform = 'iOS'
     if xbmc.getCondVisibility('system.platform.windows'):
