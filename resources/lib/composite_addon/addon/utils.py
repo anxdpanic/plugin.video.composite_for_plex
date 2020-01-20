@@ -153,7 +153,7 @@ def notify_all(encoding, method, data):
         }
     }
 
-    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
+    xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
 
 
 def jsonrpc_play(url):
@@ -168,13 +168,19 @@ def jsonrpc_play(url):
         }
     }
 
-    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
+    xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
 
 
 def wait_for_busy_dialog():
     """
     Wait for busy dialogs to close, starting playback while the busy dialog is active
     could crash Kodi 18 / 19 (pre-alpha)
+
+    Github issues:
+        https://github.com/xbmc/xbmc/issues/16756
+        https://github.com/xbmc/xbmc/pull/16450  # possible solution
+
+    TODO: remove this function when the above issue is resolved
     """
     monitor = xbmc.Monitor()
     start_time = time.time()
