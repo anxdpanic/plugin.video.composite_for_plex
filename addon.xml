@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="0.8.0" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="0.8.1" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="script.module.kodi-six" version="0.0.2"/>
@@ -15,11 +15,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[fix] incorrect next episode sent to Up Next when playing merged episodes ie. S01E01-E02
-[upd] Up Next now handles starting playback of the next episode
-[upd] improve plex identification |contrib: Maven85|
-[upd] refactoring
-[upd] linting / cosmetics
+[upd] updates for official repository review
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>

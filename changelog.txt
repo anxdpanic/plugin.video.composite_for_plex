@@ -1,3 +1,6 @@
+0.8.1
+[upd] updates for official repository review
+
 0.8.0
 [fix] incorrect next episode sent to Up Next when playing merged episodes ie. S01E01-E02
 [upd] Up Next now handles starting playback of the next episode
