@@ -153,7 +153,7 @@ def notify_all(encoding, method, data):
         }
     }
 
-    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
+    xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
 
 
 def jsonrpc_play(url):
@@ -168,7 +168,7 @@ def jsonrpc_play(url):
         }
     }
 
-    _ = xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
+    xbmc.executeJSONRPC(json.dumps(jsonrpc_request))
 
 
 def wait_for_busy_dialog():
