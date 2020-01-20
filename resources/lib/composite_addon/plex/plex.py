@@ -140,13 +140,11 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                     LOG.debugplus(encode_utf8(response.text, py2_only=False))
                     LOG.debug('Received new plex token')
                     xml = ETree.fromstring(encode_utf8(response.text))
+
                     home = xml.get('home', '0')
                     username = xml.get('username', '')
-
                     avatar = xml.get('thumb')
-                    # Required because plex.tv doesn't return content-length and
-                    # KODI requires it for cache
-                    # fixed in KODI 15 (isengard)
+
                     if avatar.startswith('https://plex.tv') or avatar.startswith('http://plex.tv'):
                         avatar = avatar.replace('//', '//i2.wp.com/', 1)
                     self.plexhome_settings['plexhome_user_avatar'] = avatar
