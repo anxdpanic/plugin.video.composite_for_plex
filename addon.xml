@@ -15,7 +15,8 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[upd] updates for official repository review
+[fix] listing of playlists in some cases |contrib: Maven85|
+[lang] German (de_DE) |contrib: Maven85|
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
