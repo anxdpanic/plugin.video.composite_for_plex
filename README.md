@@ -11,6 +11,12 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
 
 - Installation
     -
+    #### Kodi 18+
+    * [Install from official repository](https://kodi.wiki/view/HOW-TO:Install_add-ons)
+    
+    ---
+    
+    #### Kodi 16+
     * Kodi 17+: Enable - `Settings -> System -> Add-ons -> Unknown Sources`
     1. Download repository: [repository.anxdpanic-x.x.x.zip](https://github.com/anxdpanic/_repository/raw/master/zips/repository.anxdpanic/repository.anxdpanic-0.9.8.zip)
     2. [Install from zip file](http://kodi.wiki/view/Add-on_manager#How_to_install_from_a_ZIP_file) (repository.anxdpanic-x.x.x.zip)
