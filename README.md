@@ -11,12 +11,12 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
 
 - Installation
     -
-    #### Kodi 18+
+    ##### Kodi 18+
     * [Install from official repository](https://kodi.wiki/view/HOW-TO:Install_add-ons)
     
     ---
     
-    #### Kodi 16+
+    ##### Kodi 16+
     * Kodi 17+: Enable - `Settings -> System -> Add-ons -> Unknown Sources`
     1. Download repository: [repository.anxdpanic-x.x.x.zip](https://github.com/anxdpanic/_repository/raw/master/zips/repository.anxdpanic/repository.anxdpanic-0.9.8.zip)
     2. [Install from zip file](http://kodi.wiki/view/Add-on_manager#How_to_install_from_a_ZIP_file) (repository.anxdpanic-x.x.x.zip)
@@ -69,12 +69,10 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
 
 - Support
     -
-
-    Post an [Issue](https://github.com/anxdpanic/plugin.video.composite_for_plex/issues)
-
+  
+    Post an [issue](https://github.com/anxdpanic/plugin.video.composite_for_plex/issues)  
+    Post on the [forum](https://forum.kodi.tv/showthread.php?tid=351179) 
 ---
 
-This add-on is a fork of PleXBMC by Hippojay
+This add-on is a fork of [PleXBMC by Hippojay](https://github.com/hippojay/plugin.video.plexbmc)
 
-https://github.com/hippojay/plugin.video.plexbmc <br/>
-https://github.com/Tgxcorporation/plugin.video.plexbmc
