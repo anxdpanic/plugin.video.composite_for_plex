@@ -1,3 +1,6 @@
+0.8.3
+[fix] resuming playback
+
 0.8.2
 [fix] listing of playlists in some cases |contrib: Maven85|
 [lang] German (de_DE) |contrib: Maven85|
