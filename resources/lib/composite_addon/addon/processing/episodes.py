@@ -37,7 +37,6 @@ def process_episodes(context, url, tree=None, rating_key=None, library=False):
 
     if tree.get('mixedParents') == '1' or context.settings.episode_sort_method() == 'plex':
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
-        xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_EPISODE)
     else:
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_EPISODE)
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
