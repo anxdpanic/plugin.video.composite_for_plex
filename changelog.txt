@@ -1,5 +1,6 @@
 0.8.3
 [fix] resuming playback
+[add] Settings - Look and Feel - Episode sort method: Kodi/Plex
 
 0.8.2
 [fix] listing of playlists in some cases |contrib: Maven85|

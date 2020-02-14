@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="0.8.3~alpha1" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="0.8.3~alpha2" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="script.module.kodi-six" version="0.0.2"/>
@@ -16,6 +16,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [fix] resuming playback
+[add] Settings - Look and Feel - Episode sort method: Kodi/Plex
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
