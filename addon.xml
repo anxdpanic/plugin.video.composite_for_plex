@@ -16,6 +16,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [fix] resuming playback
+[add] Settings - Look and Feel - Episode sort method: Kodi/Plex
         </news>
         <assets>
             <icon>resources/media/icon.png</icon>
