@@ -59,8 +59,9 @@ def create_episode_item(context, item, library=False):
     if item.data.get('sorttitle'):
         info_labels['sorttitle'] = encode_utf8(item.data.get('sorttitle'))
 
-    if item.tree.get('mixedParents') == '1':
-        if item.tree.get('parentIndex') == '1':
+    plex_sorting = context.settings.episode_sort_method() == 'plex'
+    if (item.tree.get('mixedParents') == '1') or plex_sorting:
+        if (item.tree.get('parentIndex') == '1') or plex_sorting:
             info_labels['title'] = '%sx%s %s' % (info_labels['season'],
                                                  str(info_labels['episode']).zfill(2),
                                                  info_labels['title'])
