@@ -74,5 +74,16 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
     Post on the [forum](https://forum.kodi.tv/showthread.php?tid=351179) 
 ---
 
+Translation
+-
+    
+Thanks to **Maven85** (de_DE)
+
+Artwork
+-
+    
+Thanks to **spooknik** (Icon and Fanart)
+    
+--- 
 This add-on is a fork of [PleXBMC by Hippojay](https://github.com/hippojay/plugin.video.plexbmc)
 
