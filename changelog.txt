@@ -1,3 +1,7 @@
+1.0.0
+[add] new fanart and icon |contrib: spooknik|
+[upd] include more artwork when creating the playable item
+
 0.8.3
 [fix] resuming playback
 [add] Settings - Look and Feel - Episode sort method: Kodi/Plex
