@@ -19,8 +19,8 @@
 [upd] include more artwork when creating the playable item
         </news>
         <assets>
-            <icon>resources/media/icon.png</icon>
-            <fanart>resources/media/fanart.png</fanart>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
         </assets>
         <platform>all</platform>
         <license>GPL-2.0-or-later</license>
