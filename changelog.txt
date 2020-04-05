@@ -1,3 +1,6 @@
+1.0.1
+[fix] browsing By Folder
+
 1.0.0
 [add] new fanart and icon |contrib: spooknik|
 [upd] include more artwork when creating the playable item

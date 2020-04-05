@@ -793,3 +793,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('Gathered information: %s' % result)
 
         return result
+
+    @staticmethod
+    def _tree_tostring(tree):
+        return ETree.tostring(tree)
