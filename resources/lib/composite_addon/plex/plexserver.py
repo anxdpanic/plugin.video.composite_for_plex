@@ -626,7 +626,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         data = self.talk(url)
         tree = self.process_xml(data)
-        if tree:
+        if tree is not None:
             DATA_CACHE.write_cache(cache_name, tree)
         return tree
 
