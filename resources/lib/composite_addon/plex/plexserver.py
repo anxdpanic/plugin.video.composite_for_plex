@@ -248,7 +248,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                                      verify=verify_cert, timeout=(2, 60))
             status_code = response.status_code
             LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
-            if status_code in [requests.codes.ok, requests.codes.unauthorized]:
+            if status_code in [requests.codes.ok, requests.codes.unauthorized]:  # pylint: disable=no-member
                 self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, True))
                 return
         except:  # pylint: disable=bare-except
@@ -626,7 +626,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         data = self.talk(url)
         tree = self.process_xml(data)
-        if tree:
+        if tree is not None:
             DATA_CACHE.write_cache(cache_name, tree)
         return tree
 
