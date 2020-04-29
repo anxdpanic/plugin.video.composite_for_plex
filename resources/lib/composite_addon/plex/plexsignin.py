@@ -62,7 +62,7 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
     def set_context(self, context):
         self.context = context
 
-    def set_controls(self):
+    def set_controls(self):  # pylint: disable=too-many-statements
         """Set up UI controls"""
         # Description Text
         self.description = pyxbmct.TextBox()
