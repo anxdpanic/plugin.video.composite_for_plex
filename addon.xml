@@ -16,6 +16,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [fix] browsing By Folder
+[fix] login on Kodi 19/Matrix due to removal of deprecated isPassword
         </news>
         <assets>
             <icon>icon.png</icon>

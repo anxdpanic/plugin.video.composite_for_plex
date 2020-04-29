@@ -1,5 +1,6 @@
 1.0.1
 [fix] browsing By Folder
+[fix] login on Kodi 19/Matrix due to removal of deprecated isPassword
 
 1.0.0
 [add] new fanart and icon |contrib: spooknik|
