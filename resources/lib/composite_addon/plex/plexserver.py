@@ -493,7 +493,6 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 if response.status_code == requests.codes.ok:  # pylint: disable=no-member
                     LOG.debug('Response: 200 OK - Encoding: %s' % response.encoding)
                     data = encode_utf8(response.text, py2_only=False)
-                    LOG.debugplus('XML: \n%s' % data)
                     LOG.debug('DOWNLOAD: It took %.2f seconds to retrieve data from %s' %
                               ((time.time() - start_time), self.get_address()))
                     return data
@@ -608,6 +607,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         tree = ETree.fromstring(data)
         LOG.debug('PARSE: it took %.2f seconds to parse data from %s' %
                   ((time.time() - start_time), self.get_address()))
+        LOG.debugplus('TREE: %s' % ETree.tostring(tree))
         return tree
 
     def processed_xml(self, url):
@@ -645,6 +645,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         LOG.debug('PROCESSING: it took %.2f seconds to process data from %s' %
                   ((time.time() - start_time), self.get_address()))
+        LOG.debugplus('TREE: %s' % ETree.tostring(data))
         return data
 
     def is_owned(self):
