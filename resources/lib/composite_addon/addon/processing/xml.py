@@ -49,10 +49,8 @@ def process_xml(context, url, tree=None):
     items = []
     append_item = items.append
 
-    branches = tree.getiterator('Directory')
-    if not branches:
-        branches = tree.getiterator()
-
+    # .iter includes itself, this is unwanted
+    branches = [elem for elem in tree.iter() if elem is not tree]
     for branch in branches:
         details = {}
         if branch.get('title'):
