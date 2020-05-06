@@ -19,12 +19,11 @@ from ..containers import Item
 from ..items.common import get_fanart_image
 from ..items.common import get_link_url
 from ..items.common import get_thumb_image
-from ..items.gui import create_gui_item
 from ..items.episode import create_episode_item
+from ..items.gui import create_gui_item
 from ..items.movie import create_movie_item
 from ..items.playlist import create_playlist_item
 from ..items.track import create_track_item
-
 from ..strings import encode_utf8
 from ..strings import i18n
 from ..utils import get_xml
@@ -87,20 +86,20 @@ def process_xml(context, url, tree=None):
             append_item(create_playlist_item(context, item))
 
         elif branch.tag == 'Video':
+            item = Item(server, url, tree, branch)
+
             if tree.get('viewGroup') == 'movie':
                 content_type = 'movies'
-                item = Item(server, url, tree, branch)
                 append_item(create_movie_item(context, item))
+                continue
 
-            elif tree.get('viewGroup') == 'episode':
+            if tree.get('viewGroup') == 'episode':
                 content_type = 'episodes'
-                item = Item(server, url, tree, branch)
                 append_item(create_episode_item(context, item))
+                continue
 
-            else:
-                content_type = 'videos'
-                item = Item(server, url, tree, branch)
-                append_item(create_movie_item(context, item))
+            content_type = 'videos'
+            append_item(create_movie_item(context, item))
 
     if items:
         _set_content(content_type)
@@ -120,7 +119,7 @@ def _set_content(content_type):
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_SONG_RATING)
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_TRACKNUM)
 
-    elif content_type == 'movies' or content_type == 'videos':
+    elif content_type in ['movies', 'videos']:
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_UNSORTED)
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
         xbmcplugin.addSortMethod(get_handle(), xbmcplugin.SORT_METHOD_DATEADDED)
