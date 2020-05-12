@@ -1,5 +1,5 @@
 1.1.0
-[add] end-point to search for movies/episodes from all available servers
+[add] end-point to search for movies/episodes from all available servers for external use ie. TheMovieDb Helper
 [fix] browsing By Folder
 [fix] login on Kodi 19/Matrix due to removal of deprecated isPassword
 [fix] Up Next when duration is unavailable
