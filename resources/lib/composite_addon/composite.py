@@ -157,7 +157,8 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         return _finished(start_time)
 
     # Run a function based on the mode variable that was passed in the URL
-    if (isinstance(mode, int) and mode < 0) or (not url and (not server_uuid and not media_id)):
+    if (((isinstance(mode, int) and mode < 0) or (not url and (not server_uuid and not media_id)))  # pylint: disable=too-many-boolean-expressions
+            and mode not in [MODES.SEARCHALL]):
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
         display_sections.run(context)
         return _finished(start_time)
@@ -325,6 +326,11 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
     if mode == MODES.WIDGETS:
         from .routes import widgets  # pylint: disable=import-outside-toplevel
         widgets.run(context, url)
+        return _finished(start_time)
+
+    if mode == MODES.SEARCHALL:
+        from .routes import search_all  # pylint: disable=import-outside-toplevel
+        search_all.run(context)
         return _finished(start_time)
 
     return _finished(start_time)
