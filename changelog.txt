@@ -1,3 +1,6 @@
+1.1.1
+[fixup] logging
+
 1.1.0
 [add] end-point to search for movies/episodes from all available servers for external use ie. TheMovieDb Helper
 [fix] browsing By Folder

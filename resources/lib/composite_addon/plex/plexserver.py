@@ -488,7 +488,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 LOG.debug('Server: read timeout for %s on %s ' % (self.get_address(), url))
 
             else:
-                LOG.debug('URL was: %s' % response.url)
+                LOG.debug('URL was: %s using %s' % (response.url, self.protocol))
 
                 if response.status_code == requests.codes.ok:  # pylint: disable=no-member
                     LOG.debug('Response: 200 OK - Encoding: %s' % response.encoding)
