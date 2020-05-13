@@ -239,21 +239,21 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         self.local_address = address.split(',')
 
     def connection_test(self, tag, uri):
-        LOG.debug('[%s] GET request |%s|' % (self.uuid, uri))
+        LOG.debug('[%s] Head request |%s|' % (self.uuid, uri))
         url_parts = urlparse(uri)
         status_code = requests.codes.not_found  # pylint: disable=no-member
         try:
             verify_cert = uri.startswith('https') and self.get_settings().verify_certificates()
-            response = requests.get(uri, params=self.plex_identification_header,
-                                    verify=verify_cert, timeout=(2, 60))
+            response = requests.head(uri, params=self.plex_identification_header,
+                                     verify=verify_cert, timeout=(2, 60))
             status_code = response.status_code
-            LOG.debug('[%s] GET status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
+            LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
             if status_code in [requests.codes.ok, requests.codes.unauthorized]:  # pylint: disable=no-member
                 self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, True))
                 return
         except:  # pylint: disable=bare-except
             pass
-        LOG.debug('[%s] GET status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
+        LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
         self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
 
     def _get_formatted_uris(self, address):
