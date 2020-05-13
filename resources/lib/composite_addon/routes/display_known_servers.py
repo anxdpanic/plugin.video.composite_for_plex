@@ -28,7 +28,10 @@ def run(context):
     servers = context.plex_network.get_server_list()
 
     display_list = []
+    test_results = []
     append_server = display_list.append
+    append_test = test_results.append
+
     for server in servers:
         name = server.get_name()
         log_status = server.get_status()
@@ -51,7 +54,16 @@ def run(context):
         LOG.debugplus('Full device dump [%s]' % json.dumps(device_dump, indent=4))
 
         append_server('%s [%s] [%s]' % (name, status_label, secure_label))
+        append_test(device_dump.get('connection_test_results', []))
 
-    xbmcgui.Dialog().select(i18n('Known server list'), display_list)
+    result = xbmcgui.Dialog().select(i18n('Known server list'), display_list)
+    if result > -1:
+        addresses = []
+        append_address = addresses.append
+        for address in test_results[result]:
+            append_address('[COLOR %s]%s://%s/[/COLOR]' %
+                           ('lightgreen' if address[3] else 'pink', address[1], address[2]))
+
+        xbmcgui.Dialog().select(i18n('Known server list'), addresses)
 
     xbmc.executebuiltin('Container.Refresh')
