@@ -10,6 +10,9 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from copy import deepcopy
+import json
+
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
@@ -38,8 +41,14 @@ def run(context):
             log_secure = 'Not Secure'
             secure_label = i18n(log_secure)
 
+        device_dump = deepcopy(server.__dict__)
+        if context.settings.privacy():
+            device_dump['token'] = 'XXXXXXXXXX'
+            device_dump['plex_identification_header']['X-Plex-Token'] = 'XXXXXXXXXX'
+            device_dump['plex_identification_header']['X-Plex-User'] = 'XXXXXXX'
+
         LOG.debug('Device: %s [%s] [%s]' % (name, log_status, log_secure))
-        LOG.debugplus('Full device dump [%s]' % server.__dict__)
+        LOG.debugplus('Full device dump [%s]' % json.dumps(device_dump, indent=4))
 
         append_server('%s [%s] [%s]' % (name, status_label, secure_label))
 

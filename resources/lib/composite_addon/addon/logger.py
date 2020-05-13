@@ -35,10 +35,10 @@ class Logger:
         LOG_ERROR: 'error'
     }
 
-    token_regex = re.compile(r'-Token=[a-zA-Z0-9|\-].*?([\s&|$])')
+    token_regex = re.compile(r'-Token=[a-zA-Z0-9|\-_]+([\s&|\'"])*')
     ip_regex = re.compile(r'\.\d{1,3}\.\d{1,3}\.')
     ip_dom_regex = re.compile(r'-\d{1,3}-\d{1,3}-')
-    user_regex = re.compile(r'-User=[a-zA-Z0-9|\-].*?([\s&|$])')
+    user_regex = re.compile(r'-User=[a-zA-Z0-9|\-_]+([\s&|\'"])*')
 
     def __init__(self, sub=None):
 

@@ -33,6 +33,6 @@
         <disclaimer lang="en_GB">Composite is NOT an official Plex add-on and is not supported or endorsed by Plex.</disclaimer>
         <description lang="de_DE">Durchsuchen und Abspielen von Videos, Musik und Fotos, die vom Plex Media Server verwaltet werden.[CR][CR]Fork von Hippojay's PleXBMC</description>
         <disclaimer lang="de_DE">Composite ist KEIN offizielles Plex Add-on und wird von Plex weder unterstützt noch gebilligt.</disclaimer>
-        <reuselanguageinvoker>false</reuselanguageinvoker>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>
 </addon>
