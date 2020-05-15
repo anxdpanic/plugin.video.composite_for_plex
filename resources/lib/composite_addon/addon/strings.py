@@ -170,6 +170,9 @@ STRINGS = {
     'Delete playlist': 30724,
     'Confirm playlist delete?': 30725,
     'Are you sure you want to delete this playlist?': 30726,
+    'Manage Servers': 30731,
+    'Set as Master': 30732,
+    'Connection Test Results': 30733,
 }
 
 

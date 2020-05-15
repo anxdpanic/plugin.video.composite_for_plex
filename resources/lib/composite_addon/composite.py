@@ -85,9 +85,9 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         manage_my_plex.run(context)
         return _finished(start_time)
 
-    if command == COMMANDS.DISPLAYSERVER:
-        from .routes import display_known_servers  # pylint: disable=import-outside-toplevel
-        display_known_servers.run(context)
+    if command == COMMANDS.MANAGESERVERS:
+        from .routes import manage_servers  # pylint: disable=import-outside-toplevel
+        manage_servers.run(context)
         return _finished(start_time)
 
     if command == COMMANDS.DELETEREFRESH:
