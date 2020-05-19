@@ -15,11 +15,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] end-point to search for movies/episodes from all available servers for external use ie. TheMovieDb Helper
-[fix] browsing By Folder
-[fix] login on Kodi 19/Matrix due to removal of deprecated isPassword
-[fix] Up Next when duration is unavailable
-[upd] improve debug logging and masking of private data
+[add] added setting to configure forced subtitles as default(forced)
         </news>
         <assets>
             <icon>icon.png</icon>

@@ -1304,3 +1304,7 @@ msgstr ""
 msgctxt "#30733"
 msgid "Connection Test Results"
 msgstr ""
+
+msgctxt "#30734"
+msgid "Default to forced subtitles"
+msgstr ""
