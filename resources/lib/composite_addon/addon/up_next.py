@@ -198,8 +198,8 @@ class UpNext:
         tvshow_image = self.get_image(metadata.get('grandparentThumb'))
 
         episode = {
-            "episodeid": metadata.get('ratingKey', -1),
-            "tvshowid": metadata.get('grandparentRatingKey', -1),
+            "episodeid": str(metadata.get('ratingKey', -1)),
+            "tvshowid": str(metadata.get('grandparentRatingKey', -1)),
             "title": metadata.get('title', ''),
             "art": {
                 "tvshow.poster": tvshow_image,
