@@ -28,22 +28,34 @@ def process_photos(context, url, tree=None):
     if tree is None:
         return
 
-    content_type = 'images'
+    content_counter = {
+        'photo': 0,
+        'track': 0,
+        'video': 0,
+    }
     items = []
     append_item = items.append
+
     branches = tree.getiterator()
     for branch in branches:
         item = Item(server, url, tree, branch)
-        if branch.tag.lower() == 'photo':
+        tag = branch.tag.lower()
+        if tag == 'photo':
             append_item(create_photo_item(context, item))
-        elif branch.tag.lower() == 'directory':
+        elif tag == 'directory':
             append_item(create_directory_item(context, item))
-        elif branch.tag.lower() == 'track':  # mixed content photo playlist
-            content_type = 'movies'  # use movies for mixed content playlists
+        elif tag == 'track':  # mixed content photo playlist
             append_item(create_track_item(context, item))
-        elif branch.tag.lower() == 'video':  # mixed content photo playlist
-            content_type = 'movies'  # use movies for mixed content playlists
+        elif tag == 'video':  # mixed content photo playlist
             append_item(create_movie_item(context, item))
+
+        if isinstance(content_counter.get(tag), int):
+            content_counter[tag] += 1
+
+    content_type = 'images'
+    if (content_counter['photo'] < content_counter['track'] or
+            content_counter['photo'] < content_counter['video']):
+        content_type = 'movies'  # use movies for mixed content playlists
 
     xbmcplugin.setContent(get_handle(), content_type)
 

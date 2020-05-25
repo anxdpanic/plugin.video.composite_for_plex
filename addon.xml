@@ -16,6 +16,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [add] added setting to configure forced subtitles as default(forced)
+[upd] improve content type selection for photos
         </news>
         <assets>
             <icon>icon.png</icon>
