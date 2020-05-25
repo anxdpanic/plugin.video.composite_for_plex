@@ -1291,3 +1291,19 @@ msgstr ""
 msgctxt "#30730"
 msgid "Kodi"
 msgstr ""
+
+msgctxt "#30731"
+msgid "Manage Servers"
+msgstr ""
+
+msgctxt "#30732"
+msgid "Set as Master"
+msgstr ""
+
+msgctxt "#30733"
+msgid "Connection Test Results"
+msgstr ""
+
+msgctxt "#30734"
+msgid "Default to forced subtitles"
+msgstr ""

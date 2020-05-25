@@ -243,12 +243,12 @@ def action_menu_items(context):
         append_item(create_gui_item(context, gui_item))
 
         details = {
-            'title': i18n('Display Servers')
+            'title': i18n('Manage Servers')
         }
         extra_data = {
             'type': 'file'
         }
-        item_url = 'cmd:' + COMMANDS.DISPLAYSERVER
+        item_url = 'cmd:' + COMMANDS.MANAGESERVERS
         gui_item = GUIItem(item_url, details, extra_data)
         append_item(create_gui_item(context, gui_item))
 

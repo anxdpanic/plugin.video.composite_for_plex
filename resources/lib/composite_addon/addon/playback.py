@@ -467,6 +467,8 @@ class StreamData:
                 self.data['parts_count'] += 1
 
     def _get_audio_and_subtitles(self):
+        default_to_forced = self.context.settings.default_forced_subtitles()
+
         audio_offset = 0
         sub_offset = 0
 
@@ -476,6 +478,7 @@ class StreamData:
 
         tags = self.tree.getiterator('Stream')
 
+        forced_subtitle = False
         for bits in tags:
             stream = dict(bits.items())
 
@@ -491,13 +494,20 @@ class StreamData:
             # Subtitle Streams
             elif stream['streamType'] == '3':
 
+                if forced_subtitle:
+                    continue
+
                 if sub_offset == -1:
                     sub_offset = int(stream.get('index', -1))
                 elif 0 < int(stream.get('index', -1)) < sub_offset:
                     sub_offset = int(stream.get('index', -1))
 
-                if stream.get('selected') == '1':
-                    LOG.debug('Found preferred subtitles id : %s ' % stream['id'])
+                forced_subtitle = stream.get('forced') == '1' and default_to_forced
+                selected = stream.get('selected') == '1'
+
+                if forced_subtitle or selected:
+                    LOG.debug('Found %s subtitles id : %s ' %
+                              ('preferred' if not forced_subtitle else 'forced', stream['id']))
                     self.data['sub_count'] += 1
                     self.data['subtitle'] = stream
                     if stream.get('key'):

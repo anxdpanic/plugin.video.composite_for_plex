@@ -11,8 +11,8 @@
 
 __all__ = ['add_playlist_item', 'channel_search', 'channel_settings', 'channel_view',
            'delete_media', 'delete_playlist', 'delete_playlist_item', 'delete_refresh',
-           'display_known_servers', 'display_plex_servers', 'display_sections', 'get_content',
-           'install_plugin', 'kodi_library', 'manage_my_plex', 'myplex_queue', 'play_library_media',
+           'display_plex_servers', 'display_sections', 'get_content', 'install_plugin',
+           'kodi_library', 'manage_my_plex', 'myplex_queue', 'manage_servers', 'play_library_media',
            'play_media_stream', 'play_video_channel', 'plex_online', 'process_albums',
            'process_artists', 'process_movies', 'process_music', 'process_photos',
            'process_plex_online', 'process_plex_plugins', 'process_tracks', 'process_episodes',

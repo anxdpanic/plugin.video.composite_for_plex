@@ -123,6 +123,9 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
     def set_stream(self, value):
         self.stream = value
 
+    def default_forced_subtitles(self):
+        return self._get_setting('default_forced_subs')
+
     def master_server(self):
         return self._get_setting('masterServer')
 
