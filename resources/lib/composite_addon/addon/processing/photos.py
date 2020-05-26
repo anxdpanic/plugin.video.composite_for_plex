@@ -52,14 +52,16 @@ def process_photos(context, url, tree=None):
         if isinstance(content_counter.get(tag), int):
             content_counter[tag] += 1
 
-    content_type = 'images'
-    if (content_counter['photo'] < content_counter['track'] or
-            content_counter['photo'] < content_counter['video']):
-        content_type = 'movies'  # use movies for mixed content playlists
-
-    xbmcplugin.setContent(get_handle(), content_type)
-
     if items:
+        content_type = 'images'
+        if context.settings.mixed_content_type() == 'majority':
+            majority = max(content_counter, key=content_counter.get)
+            if majority == 'track':
+                content_type = 'songs'
+            elif majority == 'video':
+                content_type = 'movies'
+
+        xbmcplugin.setContent(get_handle(), content_type)
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.cache_directory())

@@ -1283,3 +1283,15 @@ msgstr ""
 msgctxt "#30734"
 msgid "Default to forced subtitles"
 msgstr ""
+
+msgctxt "#30735"
+msgid "Mixed content type"
+msgstr ""
+
+msgctxt "#30736"
+msgid "Default"
+msgstr ""
+
+msgctxt "#30737"
+msgid "Majority"
+msgstr ""
