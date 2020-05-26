@@ -1307,3 +1307,23 @@ msgstr ""
 msgctxt "#30737"
 msgid "Majority"
 msgstr ""
+
+msgctxt "#30738"
+msgid "Add custom access url"
+msgstr ""
+
+msgctxt "#30739"
+msgid "Custom access urls"
+msgstr ""
+
+msgctxt "#30740"
+msgid "Edit"
+msgstr ""
+
+msgctxt "#30741"
+msgid "Edit custom access url"
+msgstr ""
+
+msgctxt "#30742"
+msgid "Custom"
+msgstr ""

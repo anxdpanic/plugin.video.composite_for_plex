@@ -17,6 +17,8 @@
         <news>
 [add] added setting to configure forced subtitles as default(forced)
 [add] added setting to configure mixed content type behavior
+[add] added support for custom access urls (ie. nginx)
+      - Main Menu - Manage Servers - &lt;server&gt; - Custom access urls - Add custom access url
         </news>
         <assets>
             <icon>icon.png</icon>

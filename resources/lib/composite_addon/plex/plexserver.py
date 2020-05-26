@@ -64,7 +64,11 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             self.local_address = ['%s:%s' % (address, port)]
             self.local_address_uri = [None]
 
+        self.custom_access_urls = []
+
         self.access_address = '%s:%s' % (address, port)
+        self.access_path = '/'
+        self.access_uri = '%s://%s:%s%s' % (self.protocol, address, port, self.access_path)
 
         self.section_list = []
         self.token = token
@@ -107,6 +111,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         if self.offline:
             return 'Offline'
 
+        if self.access_uri in self.custom_access_urls:
+            return 'Custom'
+
         if self.access_address == self.external_address or \
                 (self.external_address_uri and (self.access_address in self.external_address_uri)):
             return 'Remote'
@@ -142,10 +149,21 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.server_name
 
     def get_address(self):
-        return self.access_address.split(':')[0]
+        return self.access_address.split('@')[-1].split(':')[0]
 
     def get_port(self):
-        return self.access_address.split(':')[1]
+        split_address = self.access_address.split('@')[-1].split(':')
+
+        if isinstance(split_address, list) and len(split_address) == 2:
+            return self.access_address.split('@')[-1].split(':')[-1]
+
+        if self.access_uri.startswith('https'):
+            return '443'
+
+        if self.access_uri.startswith('http'):
+            return '80'
+
+        return DEFAULT_PORT
 
     def get_location(self):
         return self.get_access_address()
@@ -154,7 +172,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return self.access_address
 
     def get_url_location(self):
-        return '%s://%s' % (self.protocol, self.access_address)
+        return self.access_uri
 
     def get_token(self):
         return self.token
@@ -235,6 +253,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             self.local_address.append('%s:%s' % (address, port))
             self.local_address_uri.append(uri)
 
+    def add_custom_access_urls(self, addresses):
+        if isinstance(addresses, list):
+            self.custom_access_urls = addresses
+
     def add_local_address(self, address):
         self.local_address = address.split(',')
 
@@ -249,12 +271,14 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             status_code = response.status_code
             LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
             if status_code in [requests.codes.ok, requests.codes.unauthorized]:  # pylint: disable=no-member
-                self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, True))
+                self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc,
+                                                     url_parts.path, uri, True))
                 return
         except:  # pylint: disable=bare-except
             pass
         LOG.debug('[%s] Head status |%s| -> |%s|' % (self.uuid, uri, str(status_code)))
-        self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc, False))
+        self.connection_test_results.append((tag, url_parts.scheme, url_parts.netloc,
+                                             url_parts.path, uri, False))
 
     def _get_formatted_uris(self, address):
         external_uri = ''
@@ -262,7 +286,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         external_address = ''
 
         if address:
-            if ':' not in address:
+            if ':' not in address.split('@')[-1]:
                 address = '%s:%s' % (address, DEFAULT_PORT)
         else:
             if self.external_address_uri:
@@ -316,38 +340,54 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 uris.append('%s://%s/' % ('http', external_address))
                 tags.append('external')
 
+        for url in self.custom_access_urls:
+            uris.append(url)
+            tags.append('user')
+
         return uris, tags
 
     def _set_best_https(self):
-        if any(conn[0] == 'user' and conn[1] == 'https' and conn[3]
+        if any(conn[0] == 'user' and conn[1] == 'https' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'user' and conn[1] == 'https' and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'user' and conn[1] == 'https' and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             LOG.debug('[%s] Server [%s] not found in existing lists.  '
                       'selecting as default' % (self.uuid, self.access_address))
             return True
 
-        if any(conn[0] == 'external_uri' and conn[1] == 'https' and conn[3]
+        if any(conn[0] == 'external_uri' and conn[1] == 'https' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'external_uri' and
-                                       conn[1] == 'https' and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'external_uri' and
+                        conn[1] == 'https' and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             LOG.debug('[%s] Server [%s] found in existing external list.  '
                       'selecting as default' % (self.uuid, self.access_address))
             return True
 
-        if any(conn[0] == 'internal' and conn[1] == 'https' and conn[3]
+        if any(conn[0] == 'internal' and conn[1] == 'https' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'internal' and conn[1] == 'https' and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'internal' and conn[1] == 'https' and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             LOG.debug('[%s] Server [%s] found on existing internal list.  '
                       'selecting as default' % (self.uuid, self.access_address))
             return True
 
-        if any(conn[0] == 'external' and conn[1] == 'https' and conn[3]
+        if any(conn[0] == 'external' and conn[1] == 'https' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'external' and conn[1] == 'https' and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'external' and conn[1] == 'https' and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             LOG.debug('[%s] Server [%s] found in existing external list.  '
                       'selecting as default' % (self.uuid, self.access_address))
             return True
@@ -355,38 +395,50 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return False
 
     def _set_best_http(self):
-        if any(conn[0] == 'user' and conn[1] == 'http' and conn[3]
+        if any(conn[0] == 'user' and conn[1] == 'http' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'user' and conn[1] == 'http' and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'user' and conn[1] == 'http' and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             self.set_protocol('http')
             LOG.debug('[%s] Server [%s] not found in existing lists.  '
                       'selecting as default' % (self.uuid, self.access_address))
             return True
 
-        if any(conn[0] == 'external_uri' and conn[1] == 'http' and conn[3]
+        if any(conn[0] == 'external_uri' and conn[1] == 'http' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'external_uri' and conn[1] == 'http'
-                                       and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'external_uri' and conn[1] == 'http'
+                        and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             self.set_protocol('http')
             LOG.debug('[%s] Server [%s] found in existing external list.  '
                       'selecting as default' % (self.uuid, self.access_address))
             return True
 
-        if any(conn[0] == 'internal' and conn[1] == 'http' and conn[3]
+        if any(conn[0] == 'internal' and conn[1] == 'http' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'internal' and conn[1] == 'http' and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'internal' and conn[1] == 'http' and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             self.set_protocol('http')
             LOG.debug('[%s] Server [%s] found on existing internal list.  '
                       'selecting as default' % (self.uuid, self.access_address))
             return True
 
-        if any(conn[0] == 'external' and conn[1] == 'http' and conn[3]
+        if any(conn[0] == 'external' and conn[1] == 'http' and conn[5]
                for conn in self.connection_test_results):
-            self.access_address = next(conn[2] for conn in self.connection_test_results
-                                       if conn[0] == 'external' and conn[1] == 'http' and conn[3])
+            conn = next(conn for conn in self.connection_test_results
+                        if conn[0] == 'external' and conn[1] == 'http' and conn[5])
+            self.access_address = conn[2]
+            self.access_path = conn[3]
+            self.access_uri = conn[4]
             self.set_protocol('http')
             LOG.debug('[%s] Server [%s] found in existing external list.  '
                       'selecting as default' % (self.uuid, self.access_address))
@@ -463,7 +515,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         if not self.offline or refresh:
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
-
+            url = '/'.join([self.access_path.rstrip('/'), url.lstrip('/')])
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:
@@ -675,7 +727,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             if url_parts.query:
                 url = url + '?' + url_parts.query
 
-        location = '%s%s' % (self.get_url_location(), url)
+        location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
 
         url_parts = urlparse(location)
 
@@ -699,7 +751,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             if url_parts.query:
                 url = url + '?' + url_parts.query
 
-        location = '%s%s' % (self.get_url_location(), url)
+        location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
 
         url_parts = urlparse(location)
 
