@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="1.2.0~alpha1" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="1.2.0~alpha2" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="script.module.kodi-six" version="0.0.2"/>
@@ -16,7 +16,9 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [add] added setting to configure forced subtitles as default(forced)
-[upd] improve content type selection for photos
+[add] added setting to configure mixed content type behavior
+[add] added support for custom access urls (ie. nginx)
+      - Main Menu - Manage Servers - &lt;server&gt; - Custom access urls - Add custom access url
         </news>
         <assets>
             <icon>icon.png</icon>

@@ -172,6 +172,14 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
             return 'plex'
         raise Exception('Unknown sort method')
 
+    def mixed_content_type(self):
+        method = self._get_setting('mixed_content_type')
+        if method == '0':
+            return 'default'
+        if method == '1':
+            return 'majority'
+        raise Exception('Unknown mixed content type method')
+
     def device_name(self):
         return self._get_setting('devicename')
 

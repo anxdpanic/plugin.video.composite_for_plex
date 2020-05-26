@@ -1,6 +1,8 @@
 1.2.0
 [add] added setting to configure forced subtitles as default(forced)
-[upd] improve content type selection for photos
+[add] added setting to configure mixed content type behavior
+[add] added support for custom access urls (ie. nginx)
+          - Main Menu - Manage Servers - <server> - Custom access urls - Add custom access url
 
 1.1.1
 [fixup] logging

@@ -29,6 +29,7 @@ from ..addon.common import get_platform_ip
 from ..addon.common import is_ip
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
+from ..addon.server_config import ServerConfigStore
 from ..addon.strings import encode_utf8
 from ..addon.strings import i18n
 from .plexcommon import create_plex_identification
@@ -64,6 +65,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             'plexhome_user_cache': '',
             'plexhome_user_avatar': ''
         }
+
+        self.server_configs = ServerConfigStore()
 
         self.setup_user_token()
         if load:
@@ -477,6 +480,10 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 if connection.get('protocol') == 'http':
                     LOG.debug('[%s] Dropping back to http' % device.get('name'))
                     discovered_server.set_protocol('http')
+
+            discovered_server.add_custom_access_urls(
+                self.server_configs.access_urls(device.get('clientIdentifier'))
+            )
 
             discovered_server.set_best_address()  # Default to external address
 

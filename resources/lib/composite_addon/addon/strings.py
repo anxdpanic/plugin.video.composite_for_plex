@@ -173,6 +173,11 @@ STRINGS = {
     'Manage Servers': 30731,
     'Set as Master': 30732,
     'Connection Test Results': 30733,
+    'Add custom access url': 30738,
+    'Custom access urls': 30739,
+    'Edit': 30740,
+    'Edit custom access url': 30741,
+    'Custom': 30742,
 }
 
 
