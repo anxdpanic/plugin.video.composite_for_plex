@@ -107,7 +107,7 @@ def create_movie_item(context, item, library=False):
     if library:
         extra_data['path_mode'] = MODES.TXT_MOVIES_LIBRARY
 
-    item_url = '%s%s' % (item.server.get_url_location(), extra_data['key'])
+    item_url = '%s/%s' % (item.server.get_url_location().rstrip('/'), extra_data['key'].lstrip('/'))
 
     gui_item = GUIItem(item_url, info_labels, extra_data, context_menu)
     gui_item.is_folder = False

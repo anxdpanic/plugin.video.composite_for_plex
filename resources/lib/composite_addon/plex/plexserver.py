@@ -185,7 +185,17 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             return True
         return False
 
-    def find_address_match(self, ipaddress, port):
+    def find_address_match(self, scheme, ipaddress, port):
+        if not port:
+            port = ''
+
+        LOG.debug('Checking [%s://%s%s] against [%s]' %
+                  (scheme, ipaddress, '' if not port else ':' + port, self.access_uri))
+        uri = '%s://%s' % (scheme, ipaddress)
+        uri += ':' + port if port else ''
+        if self.access_uri.startswith(uri) and uri.count(':') == self.access_uri.count(':'):
+            return True
+
         LOG.debug('Checking [%s:%s] against [%s]' % (ipaddress, port, self.access_address))
         if '%s:%s' % (ipaddress, port) == self.access_address:
             return True
@@ -515,7 +525,8 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         if not self.offline or refresh:
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
-            url = '/'.join([self.access_path.rstrip('/'), url.lstrip('/')])
+            if url.endswith('library/sections'):
+                url = '/'.join([self.access_path.rstrip('/'), url.lstrip('/')])
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:
@@ -725,10 +736,12 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             url = url_parts.path
 
             if url_parts.query:
-                url = url + '?' + url_parts.query
+                url = '?'.join([url, url_parts.query])
 
+        access_path_dbl = '/%s/%s/' % \
+                          (self.access_path.replace('/', ''), self.access_path.replace('/', ''))
         location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
-
+        location = location.replace(access_path_dbl, self.access_path)
         url_parts = urlparse(location)
 
         query_args = parse_qsl(url_parts.query)
@@ -736,7 +749,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         new_query_args = urlencode(query_args, True)
 
-        return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path,
+        return urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path.replace('//', '/'),
                            url_parts.params, new_query_args, url_parts.fragment))
 
     def get_kodi_header_formatted_url(self, url, options=None):
@@ -749,10 +762,12 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             url = url_parts.path
 
             if url_parts.query:
-                url = url + '?' + url_parts.query
+                url = '?'.join([url, url_parts.query])
 
+        access_path_dbl = '/%s/%s/' % \
+                          (self.access_path.replace('/', ''), self.access_path.replace('/', ''))
         location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
-
+        location = location.replace(access_path_dbl, self.access_path)
         url_parts = urlparse(location)
 
         query_args = parse_qsl(url_parts.query)
@@ -765,8 +780,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         new_query_args = urlencode(query_args, True)
 
-        return '%s|%s' % (urlunparse((url_parts.scheme, url_parts.netloc, url_parts.path,
-                                      url_parts.params, new_query_args, url_parts.fragment)),
+        return '%s|%s' % (urlunparse((url_parts.scheme, url_parts.netloc,
+                                      url_parts.path.replace('//', '/'), url_parts.params,
+                                      new_query_args, url_parts.fragment)),
                           self.plex_identification_string)
 
     def get_fanart(self, section, width=1280, height=720):
@@ -786,7 +802,10 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         return section.get_art()
 
     def stop_transcode_session(self, session):
-        self.talk('/video/:/transcode/segmented/stop?session=%s' % session)
+        options = {
+            'session': session,
+        }
+        self.talk(self._update_path('/video/:/transcode/segmented/stop', options))
 
     def report_playback_progress(self, media_id, watched_time, state='playing', duration=0):
         try:
@@ -795,9 +814,16 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 watched_time = duration
                 mark_watched = True
 
-            self.talk('/:/timeline?duration=%s&guid=com.plexapp.plugins.library&'
-                      'key=/library/metadata/%s&ratingKey=%s&state=%s&time=%s' %
-                      (duration, media_id, media_id, state, watched_time))
+            options = {
+                'duration': duration,
+                'guid': 'com.plexapp.plugins.library',
+                'key': '/library/metadata/%s' % media_id,
+                'ratingKey': media_id,
+                'state': state,
+                'time': watched_time,
+            }
+
+            self.talk(self._update_path('/:/timeline', options))
 
             if mark_watched:
                 self.mark_item_watched(media_id)
@@ -806,28 +832,42 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             pass
 
     def mark_item_watched(self, media_id):
-        self.talk('/:/scrobble?key=%s&identifier=com.plexapp.plugins.library' % media_id)
+        options = {
+            'key': media_id,
+            'identifier': 'com.plexapp.plugins.library',
+        }
+        self.talk(self._update_path('/:/scrobble', options))
 
     def mark_item_unwatched(self, media_id):
-        self.talk('/:/unscrobble?key=%s&identifier=com.plexapp.plugins.library' % media_id)
+        options = {
+            'key': media_id,
+            'identifier': 'com.plexapp.plugins.library',
+        }
+        self.talk(self._update_path('/:/unscrobble', options))
 
     def refresh_section(self, key):
-        return self.talk('/library/sections/%s/refresh' % key)
+        return self.talk(self._update_path('/library/sections/%s/refresh' % key))
 
     def get_metadata(self, media_id):
-        return self.processed_xml('/library/metadata/%s' % media_id)
+        return self.processed_xml(self._update_path('/library/metadata/%s' % media_id))
 
     def set_audio_stream(self, part_id, stream_id):
-        return self.tell('/library/parts/%s?audioStreamID=%s' % (part_id, stream_id))
+        options = {
+            'audioStreamID': stream_id,
+        }
+        return self.tell(self._update_path('/library/parts/%s' % part_id, options))
 
     def set_subtitle_stream(self, part_id, stream_id):
-        return self.tell('/library/parts/%s?subtitleStreamID=%s' % (part_id, stream_id))
+        options = {
+            'subtitleStreamID': stream_id,
+        }
+        return self.tell(self._update_path('/library/parts/%s' % part_id, options))
 
     def delete_metadata(self, media_id):
-        return self.talk('/library/metadata/%s' % media_id, method='delete')
+        return self.talk(self._update_path('/library/metadata/%s' % media_id), method='delete')
 
     def create_playlist(self, metadata_id, playlist_title, playlist_type):
-        return self.process_xml(self.post('/playlists', extra_headers={
+        return self.process_xml(self.post(self._update_path('/playlists'), extra_headers={
             'uri': 'server://%s/com.plexapp.plugins.library/library/metadata/%s' %
                    (self.get_uuid(), metadata_id),
             'title': playlist_title,
@@ -836,23 +876,25 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         }))
 
     def add_playlist_item(self, playlist_id, library_section_uuid, metadata_id):
-        return self.process_xml(self.tell('/playlists/%s/items' % playlist_id,
+        return self.process_xml(self.tell(self._update_path('/playlists/%s/items' % playlist_id),
                                           extra_headers={
                                               'uri': 'library://' + library_section_uuid +
                                                      '/item/%2Flibrary%2Fmetadata%2F' + metadata_id
                                           }))
 
     def delete_playlist_item(self, playlist_item_id, path):
-        return self.process_xml(self.talk('%s/%s' % (path, playlist_item_id), method='delete'))
+        return self.process_xml(
+            self.talk(self._update_path('%s/%s' % (path, playlist_item_id)), method='delete')
+        )
 
     def delete_playlist(self, playlist_id):
-        return self.talk('/playlists/%s' % playlist_id, method='delete')
+        return self.talk(self._update_path('/playlists/%s' % playlist_id), method='delete')
 
     def get_playlists(self):
-        return self.processed_xml('/playlists')
+        return self.processed_xml(self._update_path('/playlists'))
 
     def get_children(self, media_id):
-        return self.processed_xml('/library/metadata/%s/children' % media_id)
+        return self.processed_xml(self._update_path('/library/metadata/%s/children' % media_id))
 
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
@@ -872,7 +914,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         else:
             max_video_bitrate = 2000  # a catch all amount for missing data
 
-        transcode_request = '/video/:/transcode/universal/start.m3u8?'
+        transcode_request = '/video/:/transcode/universal/start.m3u8'
         session = str(uuid.uuid4())
         quality = '100'
         transcode_settings = {
@@ -891,7 +933,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             'path': 'http://127.0.0.1:32400%s' % url
         }
 
-        full_url = '%s%s' % (transcode_request, urlencode(transcode_settings))
+        full_url = self._update_path(transcode_request, transcode_settings)
         LOG.debug('\nURL: |%s|\nProfile: |[%s] %s@%s (%s/%s)|' %
                   (full_url, str(transcode_profile + 1), resolution, bitrate.strip(),
                    subtitle_size, audio_boost))
@@ -901,3 +943,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                                           'X-Plex-Device': 'Plex Home Theater',
                                           'X-Plex-Client-Profile-Name': 'Chrome',
                                       }), session
+
+    def _update_path(self, url, options=None):
+        if options is None:
+            options = {}
+        location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
+        return '%s?%s' % (urlparse(location).path, urlencode(options, True))
