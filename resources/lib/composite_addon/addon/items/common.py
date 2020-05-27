@@ -36,7 +36,7 @@ def get_link_url(server, url, path_data):
     # If key starts with a / then prefix with server address
     if path.startswith('/'):
         LOG.debug('Detected base path link')
-        return '%s%s' % (server.get_url_location(), path)
+        return '%s/%s' % (server.get_url_location().rstrip('/'), path.lstrip('/'))
 
     # If key starts with plex:// then it requires transcoding
     if path.startswith('plex:'):

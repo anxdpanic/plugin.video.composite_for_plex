@@ -122,7 +122,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
                 path = path + '/all'
 
             extra_data['mode'] = mode
-            section_url = '%s%s' % (url_location, path)
+            section_url = '%s/%s' % (url_location.rstrip('/'), path.lstrip('/'))
 
             context_menu = None
             if settings.get('use_context_menus'):
@@ -165,7 +165,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
                 'mode': MODES.CHANNELVIEW
             }
 
-            item_url = '%s/channels/all' % server.get_url_location()
+            item_url = '%s/channels/all' % server.get_url_location().rstrip('/')
             gui_item = GUIItem(item_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
@@ -179,7 +179,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
                 'mode': MODES.PLEXONLINE
             }
 
-            item_url = '%s/system/plexonline' % server.get_url_location()
+            item_url = '%s/system/plexonline' % server.get_url_location().rstrip('/')
             gui_item = GUIItem(item_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
@@ -193,7 +193,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
                 'mode': MODES.PLAYLISTS
             }
 
-            item_url = '%s/playlists' % server.get_url_location()
+            item_url = '%s/playlists' % server.get_url_location().rstrip('/')
             gui_item = GUIItem(item_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
@@ -207,7 +207,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
                 'mode': MODES.WIDGETS
             }
 
-            item_url = '%s' % server.get_url_location()
+            item_url = server.get_url_location()
             gui_item = GUIItem(item_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
