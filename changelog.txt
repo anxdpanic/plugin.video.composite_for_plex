@@ -3,6 +3,7 @@
 [add] added setting to configure mixed content type behavior
 [add] added support for custom access urls (ie. nginx)
           - Main Menu - Manage Servers - <server> - Custom access urls - Add custom access url
+[fix] possible timestamp out of range for movies
 
 1.1.1
 [fixup] logging
