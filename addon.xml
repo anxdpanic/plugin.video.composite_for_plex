@@ -20,6 +20,7 @@
 [add] added support for custom access urls (ie. nginx)
       - Main Menu - Manage Servers - &lt;server&gt; - Custom access urls - Add custom access url
 [fix] possible timestamp out of range for movies
+[chg] All Movies, All Shows, All Artists, and All Photos are no longer shortened to All
         </news>
         <assets>
             <icon>icon.png</icon>
