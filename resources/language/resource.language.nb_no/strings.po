@@ -1339,3 +1339,19 @@ msgstr ""
 msgctxt "#30742"
 msgid "Custom"
 msgstr ""
+
+msgctxt "#30743"
+msgid "All Artists"
+msgstr ""
+
+msgctxt "#30744"
+msgid "All Photos"
+msgstr ""
+
+msgctxt "#30745"
+msgid "All Shows"
+msgstr ""
+
+msgctxt "#30746"
+msgid "All Movies"
+msgstr ""
