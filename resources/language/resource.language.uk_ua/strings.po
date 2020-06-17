@@ -1343,3 +1343,19 @@ msgstr ""
 msgctxt "#30746"
 msgid "All Movies"
 msgstr ""
+
+msgctxt "#30747"
+msgid "Preferred lyrics format"
+msgstr ""
+
+msgctxt "#30748"
+msgid "Lyrics (Plex Pass required)"
+msgstr ""
+
+msgctxt "#30749"
+msgid "lrc"
+msgstr ""
+
+msgctxt "#30750"
+msgid "txt"
+msgstr ""
