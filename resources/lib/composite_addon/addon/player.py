@@ -62,6 +62,19 @@ class PlaybackMonitorThread(threading.Thread):
     def stream(self):
         return self._monitor_dict.get('stream')
 
+    def markers(self):
+        return self.stream().get('intro_markers')
+
+    def intro_start(self):
+        if isinstance(self.markers(), list) and len(self.markers()) == 2:
+            return int(self.markers()[0])
+        return None
+
+    def intro_end(self):
+        if isinstance(self.markers(), list) and len(self.markers()) == 2:
+            return int(self.markers()[1])
+        return None
+
     def full_data(self):
         _stream = self.stream()
         if _stream:

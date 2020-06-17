@@ -76,6 +76,10 @@ def play_library_media(context, data):
     server = context.plex_network.get_server_from_url(data['url'])
     media_id = data['url'].split('?')[0].split('&')[0].split('/')[-1]
 
+    if 'includeMarkers' not in data['url']:
+        data['url'] += '&' if '?' in data['url'] else '?'
+        data['url'] += 'includeMarkers=1'
+
     tree = get_xml(context, data['url'])
     if tree is None:
         return
@@ -255,7 +259,8 @@ class StreamData:
             'audio_offset': -1,  # Stream index for select audio
             'full_data': {},  # Full metadata extract if requested
             'type': 'video',  # Type of metadata
-            'extra': {}
+            'intro_markers': [],
+            'extra': {},
         }
 
         self.update_data()
@@ -350,6 +355,8 @@ class StreamData:
                 self.data['full_data']['genre'] = \
                     list(map(lambda x: encode_utf8(x.get('tag', '')), tree_genres))
 
+        self.data['intro_markers'] = self._get_intro_markers()
+
     def _get_track_data(self):
 
         track_title = '%s. %s' % \
@@ -372,6 +379,14 @@ class StreamData:
 
         self.data['extra']['album'] = self._content.get('parentKey')
         self.data['extra']['index'] = self._content.get('index')
+
+    def _get_intro_markers(self):
+        for marker in self._content.iter('Marker'):
+            if (marker.get('type') == 'intro' and
+                    marker.get('startTimeOffset') and marker.get('endTimeOffset')):
+                return [marker.get('startTimeOffset'), marker.get('endTimeOffset')]
+
+        return []
 
     def _get_lyrics(self):
         lyrics = []
