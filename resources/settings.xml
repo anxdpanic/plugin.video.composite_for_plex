@@ -31,14 +31,16 @@
         <setting id="streaming" type="enum" label="30501" lvalues="30511|30512|30513|30563" default="0"/>
         <setting id="streamControl" type="enum" label="30538" lvalues="30536|30567|30539" default="1"/>
         <setting id="default_forced_subs" type="bool" label="30734" default="true"/>
-        <setting id="lyrics" type="bool" label="30748" default="true"/>
-        <setting id="default_lyrics_format" type="enum" label="30747" lvalues="30749|30750" default="0" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)"/>
         <setting id="forcedvd" type="bool" label="30560" default="false"/>
         <setting id="nasoverride" type="bool" label="30561" default="false"/>
         <setting id="nasoverrideip" type="text" label="30562" default="" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)"/>
         <setting id="nasuserid" type="text" label="30564" default="" subsetting="true" visible="eq(-2,true)" enable="eq(-2,true)"/>
         <setting id="naspass" type="text" label="30565" option="hidden" subsetting="true" default="" visible="eq(-3,true)" enable="eq(-3,true)"/>
         <setting id="nasroot" type="text" label="30566" default="" subsetting="true" visible="eq(-4,true)" enable="eq(-4,true)"/>
+        <setting type="lsep" label="30753"/>
+        <setting id="intro_skipping" type="bool" label="30752" default="true"/>
+        <setting id="lyrics" type="bool" label="30748" default="true"/>
+        <setting id="default_lyrics_format" type="enum" label="30747" lvalues="30749|30750" default="0" subsetting="true" visible="eq(-1,true)" enable="eq(-1,true)"/>
         <setting type="lsep" label="30721"/>
         <setting id="transcode" type="bool" label="30507" default="false"/>
         <setting id="transcode_g8bit" type="bool" label="30659" default="false"/>

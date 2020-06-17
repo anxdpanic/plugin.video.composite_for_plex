@@ -210,6 +210,9 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
     def set_replacement(self, value):
         self._set_setting('replacement', value)
 
+    def intro_skipping(self):
+        return self._get_setting('intro_skipping')
+
     def get_lyrics_priorities(self):
         if not self._get_setting('lyrics'):
             return None
