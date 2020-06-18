@@ -210,6 +210,28 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
     def set_replacement(self, value):
         self._set_setting('replacement', value)
 
+    def intro_skipping(self):
+        return self._get_setting('intro_skipping')
+
+    def get_lyrics_priorities(self):
+        if not self._get_setting('lyrics'):
+            return None
+
+        formats = {
+            '0': 'lrc',
+            '1': 'txt',
+        }
+
+        fmt = formats.get(self._get_setting('default_lyrics_format'))
+
+        priorities = {
+            'lrc': 100 if fmt == 'lrc' else 50,
+            'txt': 100 if fmt == 'txt' else 50,
+            'none': 0,
+        }
+
+        return priorities
+
     def override_info(self):
         return {
             'override': self._get_setting('nasoverride'),

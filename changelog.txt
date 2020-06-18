@@ -1,4 +1,6 @@
 1.2.0
+[add] added intro skipping (Requires Plex Pass)
+[add] added lyrics info label for lyrics provided by Plex (Requires Plex Pass)
 [add] added setting to configure forced subtitles as default(forced)
 [add] added setting to configure mixed content type behavior
 [add] added support for custom access urls (ie. nginx)

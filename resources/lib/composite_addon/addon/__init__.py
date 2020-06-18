@@ -11,4 +11,4 @@
 
 __all__ = ['cache_control', 'common', 'constants', 'containers', 'data_cache', 'json_store',
            'items', 'logger', 'monitor', 'playback', 'player', 'processing', 'server_config',
-           'settings', 'strings', 'up_next', 'utils', 'wol']
+           'settings', 'skip_intro', 'strings', 'up_next', 'utils', 'wol']

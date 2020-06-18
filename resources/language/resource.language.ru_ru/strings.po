@@ -1331,3 +1331,31 @@ msgstr ""
 msgctxt "#30746"
 msgid "All Movies"
 msgstr ""
+
+msgctxt "#30747"
+msgid "Preferred lyrics format"
+msgstr ""
+
+msgctxt "#30748"
+msgid "Lyrics"
+msgstr ""
+
+msgctxt "#30749"
+msgid "lrc"
+msgstr ""
+
+msgctxt "#30750"
+msgid "txt"
+msgstr ""
+
+msgctxt "#30751"
+msgid "Skip intro"
+msgstr ""
+
+msgctxt "#30752"
+msgid "Intro skipping"
+msgstr ""
+
+msgctxt "#30753"
+msgid "Plex Pass Required"
+msgstr ""

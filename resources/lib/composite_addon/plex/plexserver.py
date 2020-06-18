@@ -896,6 +896,25 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def get_children(self, media_id):
         return self.processed_xml(self._update_path('/library/metadata/%s/children' % media_id))
 
+    def get_lyrics(self, media_id):
+        path = '/library/streams/{id}'.format(id=media_id)
+        path = self._update_path(path)
+
+        cache_name = DATA_CACHE.sha512_cache_name('get_lyrics', self.get_uuid(), path)
+        is_valid, result = DATA_CACHE.check_cache(cache_name, self.get_settings().data_cache_ttl())
+        if is_valid and result is not None:
+            return result
+
+        lyrics = self.talk(path)
+        if isinstance(lyrics, bytes):
+            lyrics = lyrics.decode('utf-8')
+
+        if lyrics is not None:
+            DATA_CACHE.write_cache(cache_name, lyrics)
+
+        LOG.debugplus('LYRICS:\n %s' % lyrics)
+        return lyrics
+
     def get_universal_transcode(self, url, transcode_profile=0):
         # Check for myplex user, which we need to alter to a master server
         LOG.debug('incoming URL is: %s' % url)

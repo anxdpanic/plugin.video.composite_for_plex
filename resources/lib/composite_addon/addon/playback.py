@@ -76,6 +76,10 @@ def play_library_media(context, data):
     server = context.plex_network.get_server_from_url(data['url'])
     media_id = data['url'].split('?')[0].split('&')[0].split('/')[-1]
 
+    if 'includeMarkers' not in data['url']:
+        data['url'] += '&' if '?' in data['url'] else '?'
+        data['url'] += 'includeMarkers=1'
+
     tree = get_xml(context, data['url'])
     if tree is None:
         return
@@ -255,7 +259,8 @@ class StreamData:
             'audio_offset': -1,  # Stream index for select audio
             'full_data': {},  # Full metadata extract if requested
             'type': 'video',  # Type of metadata
-            'extra': {}
+            'intro_markers': [],
+            'extra': {},
         }
 
         self.update_data()
@@ -350,11 +355,15 @@ class StreamData:
                 self.data['full_data']['genre'] = \
                     list(map(lambda x: encode_utf8(x.get('tag', '')), tree_genres))
 
+        self.data['intro_markers'] = self._get_intro_markers()
+
     def _get_track_data(self):
 
         track_title = '%s. %s' % \
                       (str(self._content.get('index', 0)).zfill(2),
                        encode_utf8(self._content.get('title', i18n('Unknown'))))
+        lyrics = self._get_lyrics()
+
         self.data['full_data'] = {
             'TrackNumber': int(self._content.get('index', 0)),
             'discnumber': int(self._content.get('parentIndex', 0)),
@@ -365,10 +374,47 @@ class StreamData:
             'artist': encode_utf8(self._content.get('grandparentTitle',
                                                     self.tree.get('grandparentTitle', ''))),
             'duration': int(self._content.get('duration', 0)) / 1000,
+            'lyrics': lyrics,
         }
 
         self.data['extra']['album'] = self._content.get('parentKey')
         self.data['extra']['index'] = self._content.get('index')
+
+    def _get_intro_markers(self):
+        for marker in self._content.iter('Marker'):
+            if (marker.get('type') == 'intro' and
+                    marker.get('startTimeOffset') and marker.get('endTimeOffset')):
+                return [marker.get('startTimeOffset'), marker.get('endTimeOffset')]
+
+        return []
+
+    def _get_lyrics(self):
+        lyrics = []
+
+        lyric_priorities = self.context.settings.get_lyrics_priorities()
+        if not lyric_priorities:
+            return ''
+
+        for stream in self._content.iter('Stream'):
+            if (stream.get('provider') == 'com.plexapp.agents.lyricfind' and
+                    stream.get('streamType') == '4'):
+                lyric = {
+                    'codec': stream.get('codec', ''),
+                    'title': stream.get('displayTitle', ''),
+                    'format': stream.get('format', ''),
+                    'id': stream.get('id', ''),
+                    'key': stream.get('key', ''),
+                    'provider': stream.get('provider', 'com.plexapp.agents.lyricfind'),
+                    'streamType': stream.get('streamType', '4'),
+                }
+                lyric['priority'] = lyric_priorities.get(lyric.get('codec', 'none'), 0)
+                lyrics.append(lyric)
+
+        if lyrics:
+            lyrics = sorted(lyrics, key=lambda l: l['priority'], reverse=True)
+            return self.server.get_lyrics(lyrics[0]['id'])
+
+        return ''
 
     def _get_art(self):
         art = {
