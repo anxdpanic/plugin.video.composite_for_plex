@@ -217,6 +217,11 @@ class PlaybackMonitorThread(threading.Thread):
 
     def skip_intro(self):
         if self.settings.intro_skipping() and self._intro_start() and self._intro_end():
+            if (self._dialog_skip_intro and self._dialog_skip_intro.on_hold and
+                    (self._intro_start() > self._get_time_ms() or
+                     self._get_time_ms() > self._intro_end())):
+                self._dialog_skip_intro.on_hold = False
+
             if self._intro_start() <= self._get_time_ms() < self._intro_end():
                 self._skip_intro_dialog()
                 self._dialog_skip_intro.show()
