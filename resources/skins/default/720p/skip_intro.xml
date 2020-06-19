@@ -14,7 +14,6 @@
             <control type="group">
                 <height>64</height>
                 <control type="image">
-                    <top>0</top>
                     <width>100%</width>
                     <height>64</height>
                     <texture colordiffuse="44000000">background.png</texture>
@@ -44,7 +43,6 @@
                             <texturenofocus border="10" colordiffuse="FF323232">button.png</texturenofocus>
                             <alttexturefocus border="10" colordiffuse="FF063FB2">button.png</alttexturefocus>
                             <alttexturenofocus border="10" colordiffuse="FF323232">button.png</alttexturenofocus>
-                            <pulseonselect>no</pulseonselect>
                         </control>
                     </control>
                 </control>
