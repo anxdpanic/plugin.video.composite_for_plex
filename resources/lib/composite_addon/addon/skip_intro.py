@@ -20,7 +20,11 @@ class SkipIntroDialog(WindowXMLDialog):
 
     def __init__(self, *args, **kwargs):
         self.intro_end = kwargs.pop('intro_end', None)
-        self.showing = False
+
+        self._showing = False
+        self._player = None
+        self._on_hold = False
+
         self.LOG.debug('Dialog initialized, Intro ends at %s' % self._log_time(self.intro_end))
         WindowXMLDialog.__init__(self, *args, **kwargs)
 
@@ -29,7 +33,7 @@ class SkipIntroDialog(WindowXMLDialog):
             self.close()
             return
 
-        if not self.showing:
+        if not self.on_hold and not self.showing:
             self.LOG.debug('Showing dialog')
             self.showing = True
             WindowXMLDialog.show(self)
@@ -42,13 +46,39 @@ class SkipIntroDialog(WindowXMLDialog):
 
     def onClick(self, control_id):  # pylint: disable=invalid-name
         if self.intro_end and control_id == 3002:  # 3002 = Skip Intro button
-            Player().seekTime(self.intro_end // 1000)
+            if self.player.isPlaying():
+                self.on_hold = True
+                self.player.seekTime(self.intro_end // 1000)
+                self.close()
 
     def onAction(self, action):  # pylint: disable=invalid-name
         close_actions = [10, 13, 92]
         # 10 = previousmenu, 13 = stop, 92 = back
         if action in close_actions:
+            self.on_hold = True
             self.close()
+
+    @property
+    def player(self):
+        if self._player is None:
+            self._player = Player()
+        return self._player
+
+    @property
+    def showing(self):
+        return self._showing
+
+    @showing.setter
+    def showing(self, value):
+        self._showing = bool(value)
+
+    @property
+    def on_hold(self):
+        return self._on_hold
+
+    @on_hold.setter
+    def on_hold(self, value):
+        self._on_hold = bool(value)
 
     @staticmethod
     def _log_time(mil):
