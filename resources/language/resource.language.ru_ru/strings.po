@@ -1359,3 +1359,7 @@ msgstr ""
 msgctxt "#30753"
 msgid "Plex Pass Required"
 msgstr ""
+
+msgctxt "#30754"
+msgid "Plex™ powered by LyricFind™"
+msgstr ""
