@@ -41,7 +41,7 @@ class SkipIntroDialog(WindowXMLDialog):
             WindowXMLDialog.close(self)
 
     def onClick(self, control_id):  # pylint: disable=invalid-name
-        cid_skip_intro = 3000
+        cid_skip_intro = 3002
 
         if self.intro_end and control_id == cid_skip_intro:  # Skip intro
             Player().seekTime(self.intro_end // 1000)
