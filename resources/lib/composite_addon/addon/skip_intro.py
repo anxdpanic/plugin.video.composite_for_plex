@@ -41,18 +41,13 @@ class SkipIntroDialog(WindowXMLDialog):
             WindowXMLDialog.close(self)
 
     def onClick(self, control_id):  # pylint: disable=invalid-name
-        cid_skip_intro = 3002
-
-        if self.intro_end and control_id == cid_skip_intro:  # Skip intro
+        if self.intro_end and control_id == 3002:  # 3002 = Skip Intro button
             Player().seekTime(self.intro_end // 1000)
 
     def onAction(self, action):  # pylint: disable=invalid-name
-        act_player_stop = 13
-        act_nav_back = 92
-
-        if action == act_player_stop:
-            self.close()
-        elif action == act_nav_back:
+        close_actions = [10, 13, 92]
+        # 10 = previousmenu, 13 = stop, 92 = back
+        if action in close_actions:
             self.close()
 
     @staticmethod
@@ -60,7 +55,5 @@ class SkipIntroDialog(WindowXMLDialog):
         if not isinstance(mil, int):
             return 'undefined'
         secs = (mil // 1000) % 60
-        secs = int(secs)
         mins = (mil // (1000 * 60)) % 60
-        mins = int(mins)
-        return '%d:%d' % (mins, secs)
+        return '%d:%d' % (int(mins), int(secs))

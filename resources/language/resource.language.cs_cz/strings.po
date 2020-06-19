@@ -1387,3 +1387,7 @@ msgstr ""
 msgctxt "#30754"
 msgid "Plex™ powered by LyricFind™"
 msgstr ""
+
+msgctxt "#30755"
+msgid "Show skip intro dialog"
+msgstr ""

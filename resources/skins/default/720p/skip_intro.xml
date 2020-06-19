@@ -17,7 +17,7 @@
                     <top>0</top>
                     <width>100%</width>
                     <height>64</height>
-                    <texture colordiffuse="88000000">background.png</texture>
+                    <texture colordiffuse="44000000">background.png</texture>
                 </control>
                 <control type="group">
                     <top>12</top>

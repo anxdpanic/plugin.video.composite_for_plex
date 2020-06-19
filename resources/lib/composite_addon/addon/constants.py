@@ -42,6 +42,7 @@ COMMANDS = __enum(
     SWITCHUSER='switchuser',
     UPDATE='update',
     WATCH='watch',
+    TEST_SKIP_INTRO_DIALOG='test_skip_intro_dialog',
 )
 
 MODES = __enum(
