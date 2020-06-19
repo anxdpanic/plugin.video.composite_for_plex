@@ -182,6 +182,7 @@ STRINGS = {
     'All Photos': 30744,
     'All Shows': 30745,
     'All Movies': 30746,
+    'Plex powered by LyricFind': 30754,
 }
 
 
