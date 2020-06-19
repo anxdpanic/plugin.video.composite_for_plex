@@ -122,5 +122,7 @@
         <setting id="debug" type="enum" label="30514" lvalues="30599|30600" default="0"/>
         <setting type="sep"/>
         <setting id="privacy" type="bool" label="30607" default="true"/>
+        <setting type="sep"/>
+        <setting id="test_skip_intro_dialog" label="30755" type="action" action="RunScript($ID, test_skip_intro_dialog)" option="close"/>
     </category>
 </settings>
