@@ -21,6 +21,7 @@ class SkipIntroDialog(WindowXMLDialog):
     def __init__(self, *args, **kwargs):
         self.intro_end = kwargs.pop('intro_end', None)
         self.showing = False
+        self._player = None
         self.LOG.debug('Dialog initialized, Intro ends at %s' % self._log_time(self.intro_end))
         WindowXMLDialog.__init__(self, *args, **kwargs)
 
@@ -42,13 +43,19 @@ class SkipIntroDialog(WindowXMLDialog):
 
     def onClick(self, control_id):  # pylint: disable=invalid-name
         if self.intro_end and control_id == 3002:  # 3002 = Skip Intro button
-            Player().seekTime(self.intro_end // 1000)
+            if self.player().isPlaying():
+                self.player().seekTime(self.intro_end // 1000)
 
     def onAction(self, action):  # pylint: disable=invalid-name
         close_actions = [10, 13, 92]
         # 10 = previousmenu, 13 = stop, 92 = back
         if action in close_actions:
             self.close()
+
+    def player(self):
+        if self._player is None:
+            self._player = Player()
+        return self._player
 
     @staticmethod
     def _log_time(mil):
