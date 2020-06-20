@@ -192,7 +192,6 @@ def create_playback_item(url, streams, data, details):
 
     if streams['type'] == 'music':
         list_item.setProperty('culrc.source', i18n('Plex powered by LyricFind'))
-        list_item.setProperty('do_not_analyze', 'true')
 
     return list_item
 
