@@ -169,7 +169,7 @@ class UpNext:
         if not url:
             return ''
         if url.startswith('/'):
-            url = self.server.get_url_location() + url
+            url = self.server.join_url(self.server.get_url_location(), url)
         return self.server.get_kodi_header_formatted_url(url)
 
     @staticmethod

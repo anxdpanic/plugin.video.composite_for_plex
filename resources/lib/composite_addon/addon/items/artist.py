@@ -36,7 +36,7 @@ def create_artist_item(context, item):
         'mediatype': 'artist'
     }
 
-    url = '%s/%s' % (item.server.get_url_location().rstrip('/'), extra_data['key'].lstrip('/'))
+    url = item.server.join_url(item.server.get_url_location(), extra_data['key'])
 
     gui_item = GUIItem(url, info_labels, extra_data)
     return create_gui_item(context, gui_item)

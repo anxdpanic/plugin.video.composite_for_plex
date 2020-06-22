@@ -80,26 +80,21 @@ def run(context, url=None, server_uuid=None, mode=None):
 
 def _get_url(server, mode, url):
     sections = server.get_sections()
-    url_location = server.get_url_location().rstrip('/')
 
     for section in sections:
         is_video = section.is_movie() or section.is_show()
         if is_video:
             if mode in [MODES.TXT_TVSHOWS, MODES.TXT_MOVIES]:
-                url = '%s/%s/%s' % \
-                      (url_location, section.get_path().lstrip('/').rstrip('/'), 'all')
+                url = server.join_url(server.get_url_location(), section.get_path(), 'all')
                 break
             if mode in [MODES.TXT_MOVIES_ON_DECK, MODES.TXT_TVSHOWS_ON_DECK]:
-                url = '%s/%s/%s' % \
-                      (url_location, unquote(url).lstrip('/').rstrip('/'), 'onDeck')
+                url = server.join_url(server.get_url_location(), unquote(url), 'onDeck')
                 break
             if mode in [MODES.TXT_MOVIES_RECENT_ADDED, MODES.TXT_TVSHOWS_RECENT_ADDED]:
-                url = '%s/%s/%s' % \
-                      (url_location, unquote(url).lstrip('/').rstrip('/'), 'recentlyAdded')
+                url = server.join_url(server.get_url_location(), unquote(url), 'recentlyAdded')
                 break
             if mode in [MODES.TXT_MOVIES_RECENT_RELEASE, MODES.TXT_TVSHOWS_RECENT_AIRED]:
-                url = '%s/%s/%s' % \
-                      (url_location, unquote(url).lstrip('/').rstrip('/'), 'newest')
+                url = server.join_url(server.get_url_location(), unquote(url), 'newest')
                 break
     return url
 
