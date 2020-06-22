@@ -122,8 +122,7 @@ def server_section_menus_items(context, server_list, content_filter, display_sha
                 path = path + '/all'
 
             extra_data['mode'] = mode
-            section_url = '%s/%s' % (url_location.rstrip('/'), path.lstrip('/'))
-
+            section_url = server.join_url(url_location, path)
             context_menu = None
             if settings.get('use_context_menus'):
                 context_menu = [(i18n('Refresh library section'),
@@ -165,7 +164,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
                 'mode': MODES.CHANNELVIEW
             }
 
-            item_url = '%s/channels/all' % server.get_url_location().rstrip('/')
+            item_url = server.join_url(server.get_url_location(), 'channels/all')
             gui_item = GUIItem(item_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
@@ -178,8 +177,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
                 'type': 'Folder',
                 'mode': MODES.PLEXONLINE
             }
-
-            item_url = '%s/system/plexonline' % server.get_url_location().rstrip('/')
+            item_url = server.join_url(server.get_url_location(), 'system/plexonline')
             gui_item = GUIItem(item_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
@@ -192,8 +190,7 @@ def server_additional_menu_items(context, server_list, content_filter, menus):
                 'type': 'Folder',
                 'mode': MODES.PLAYLISTS
             }
-
-            item_url = '%s/playlists' % server.get_url_location().rstrip('/')
+            item_url = server.join_url(server.get_url_location(), 'playlists')
             gui_item = GUIItem(item_url, details, extra_data)
             append_item(create_gui_item(context, gui_item))
 

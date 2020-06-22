@@ -526,7 +526,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             LOG.debug('URL is: %s using %s' % (url, self.protocol))
             start_time = time.time()
             if url.endswith('library/sections'):
-                url = '/'.join([self.access_path.rstrip('/'), url.lstrip('/')])
+                url = self.join_url(self.access_path, url)
             uri = '%s://%s:%s%s' % (self.protocol, self.get_address(), self.get_port(), url)
             params = copy.deepcopy(self.plex_identification_header)
             if params is not None:
@@ -740,7 +740,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         access_path_dbl = '/%s/%s/' % \
                           (self.access_path.replace('/', ''), self.access_path.replace('/', ''))
-        location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
+        location = self.join_url(self.get_url_location(), url)
         location = location.replace(access_path_dbl, self.access_path)
         url_parts = urlparse(location)
 
@@ -766,7 +766,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
         access_path_dbl = '/%s/%s/' % \
                           (self.access_path.replace('/', ''), self.access_path.replace('/', ''))
-        location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
+        location = self.join_url(self.get_url_location(), url)
         location = location.replace(access_path_dbl, self.access_path)
         url_parts = urlparse(location)
 
@@ -884,11 +884,12 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def delete_playlist_item(self, playlist_item_id, path):
         return self.process_xml(
-            self.talk(self._update_path('%s/%s' % (path, playlist_item_id)), method='delete')
+            self.talk(self._update_path(self.join_url(path, playlist_item_id)), method='delete')
         )
 
     def delete_playlist(self, playlist_id):
-        return self.talk(self._update_path('/playlists/%s' % playlist_id), method='delete')
+        return self.talk(self._update_path(self.join_url('/playlists', playlist_id)),
+                         method='delete')
 
     def get_playlists(self):
         return self.processed_xml(self._update_path('/playlists'))
@@ -963,8 +964,22 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                                           'X-Plex-Client-Profile-Name': 'Chrome',
                                       }), session
 
+    @staticmethod
+    def join_url(*args):
+        url = ''
+        for arg in args:
+            if not url:
+                url = arg.rstrip('/')
+            else:
+                url = url.rstrip('/') + '/' + arg.lstrip('/')
+
+        url = url.replace('https://', '<https>').replace('http://', '<http>')  # mask scheme
+        url = url.replace('//', '/')  # replace any double slashes that may have got through
+        url = url.replace('<https>', 'https://').replace('<http>', 'http://')  # unmask scheme
+        return url
+
     def _update_path(self, url, options=None):
         if options is None:
             options = {}
-        location = '/'.join([self.get_url_location().rstrip('/'), url.lstrip('/')])
+        location = self.join_url(self.get_url_location(), url)
         return '%s?%s' % (urlparse(location).path, urlencode(options, True))

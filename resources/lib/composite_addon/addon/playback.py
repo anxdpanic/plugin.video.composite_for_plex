@@ -762,7 +762,8 @@ def play_playlist(context, server, data):
     playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
     playlist.clear()
 
-    tree = get_xml(context, server.get_url_location() + data['extra'].get('album') + '/children')
+    url = server.join_url(server.get_url_location(), data['extra'].get('album'), 'children')
+    tree = get_xml(context, url)
 
     if tree is None:
         return
