@@ -969,17 +969,17 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         url = ''
         for arg in args:
             if not url:
-                url = arg.rstrip('/')
+                url = arg
             else:
-                url = url.rstrip('/') + '/' + arg.lstrip('/')
+                url = '/'.join([url.rstrip('/'), arg.lstrip('/')])
 
-        url = url.replace('https://', '<https>').replace('http://', '<http>')  # mask scheme
-        url = url.replace('//', '/')  # replace any double slashes that may have got through
-        url = url.replace('<https>', 'https://').replace('<http>', 'http://')  # unmask scheme
+        url = url.replace('https://', '<https>').replace('http://', '<http>')
+        url = url.replace('//', '/')
+        url = url.replace('<https>', 'https://').replace('<http>', 'http://')
         return url
 
     def _update_path(self, url, options=None):
         if options is None:
             options = {}
         location = self.join_url(self.get_url_location(), url)
-        return '%s?%s' % (urlparse(location).path, urlencode(options, True))
+        return '?'.join([urlparse(location).path, urlencode(options, True)])
