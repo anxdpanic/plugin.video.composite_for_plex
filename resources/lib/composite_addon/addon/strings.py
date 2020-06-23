@@ -183,6 +183,7 @@ STRINGS = {
     'All Shows': 30745,
     'All Movies': 30746,
     'Plex powered by LyricFind': 30754,
+    'All_': 30756,
 }
 
 
@@ -277,7 +278,7 @@ def directory_item_translate(title, thumb):
             'Search...': 'Search...',
         }
         if thumb.endswith('video.png') and title.startswith('All '):
-            return i18n('All')
+            return i18n('All_') % title.replace('All ', '')
 
     elif thumb.endswith('photo.png'):
         translation_map = {

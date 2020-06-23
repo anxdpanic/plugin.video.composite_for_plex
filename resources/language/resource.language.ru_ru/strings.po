@@ -1361,9 +1361,13 @@ msgid "Plex Pass Required"
 msgstr ""
 
 msgctxt "#30754"
-msgid "Plex™ powered by LyricFind™"
+msgid "Plex powered by LyricFind"
 msgstr ""
 
 msgctxt "#30755"
 msgid "Show skip intro dialog"
+msgstr ""
+
+msgctxt "#30756"
+msgid "All %s"
 msgstr ""
