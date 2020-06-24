@@ -15,6 +15,7 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
+[chg] movie collections default to sorting by year
 [fix] minor fixups
         </news>
         <assets>

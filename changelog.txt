@@ -1,3 +1,4 @@
+[chg] movie collections default to sorting by year
 [fix] minor fixups
 
 1.2.0
