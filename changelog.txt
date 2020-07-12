@@ -1,5 +1,6 @@
 [chg] movie collections default to sorting by year
 [fix] minor fixups
+[upd] use new settings format for Kodi 19
 
 1.2.0
 [add] added intro skipping (Requires Plex Pass)
