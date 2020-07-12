@@ -1,3 +1,6 @@
+[chg] movie collections default to sorting by year
+[fix] minor fixups
+
 1.2.0
 [add] added intro skipping (Requires Plex Pass)
 [add] added lyrics info label for lyrics provided by Plex (Requires Plex Pass)

@@ -15,15 +15,8 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
-[add] added intro skipping (Requires Plex Pass)
-[add] added lyrics info label for lyrics provided by Plex (Requires Plex Pass)
-[add] added setting to configure forced subtitles as default(forced)
-[add] added setting to configure mixed content type behavior
-[add] added support for custom access urls (ie. nginx)
-      - Main Menu - Manage Servers - &lt;server&gt; - Custom access urls - Add custom access url
-[fix] possible timestamp out of range for movies
-[chg] All Movies, All Shows, All Artists, and All Photos are no longer shortened to All
-[lang] German (de_DE) |contrib: Maven85|
+[chg] movie collections default to sorting by year
+[fix] minor fixups
         </news>
         <assets>
             <icon>icon.png</icon>
