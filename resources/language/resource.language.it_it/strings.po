@@ -1327,3 +1327,11 @@ msgstr ""
 msgctxt "#30756"
 msgid "All %s"
 msgstr ""
+
+msgctxt "#30757"
+msgid "All Servers: TV Shows On Deck"
+msgstr ""
+
+msgctxt "#30758"
+msgid "All Servers: Movies On Deck"
+msgstr ""

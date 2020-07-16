@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="1.2.1~alpha1" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="1.2.1~alpha2" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="script.module.kodi-six" version="0.0.2"/>
@@ -15,7 +15,10 @@
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
     <extension point="xbmc.addon.metadata">
         <news>
+[add] menu items 'TV Shows/Movies on Deck' and widgets 'All Servers: TV Shows/Movies on Deck'
+    for on deck results from all servers
 [chg] movie collections default to sorting by year
+[fix] 'Always Transcode' setting is now applied
 [fix] minor fixups
 [upd] use new settings format for Kodi 19
         </news>

@@ -1396,3 +1396,11 @@ msgstr "'Intro überspringen'-Dialog anzeigen"
 msgctxt "#30756"
 msgid "All %s"
 msgstr "Alle %s"
+
+msgctxt "#30757"
+msgid "All Servers: TV Shows On Deck"
+msgstr ""
+
+msgctxt "#30758"
+msgid "All Servers: Movies On Deck"
+msgstr ""
