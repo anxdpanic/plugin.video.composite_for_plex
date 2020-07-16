@@ -241,6 +241,9 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
             'password': self._get_setting('naspass'),
         }
 
+    def always_transcode(self):
+        return self._get_setting('transcode')
+
     def transcode_hevc(self):
         return self._get_setting('transcode_hevc')
 

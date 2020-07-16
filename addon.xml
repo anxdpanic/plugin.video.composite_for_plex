@@ -18,6 +18,7 @@
 [add] menu items 'TV Shows/Movies on Deck' and widgets 'All Servers: TV Shows/Movies on Deck'
     for on deck results from all servers
 [chg] movie collections default to sorting by year
+[fix] 'Always Transcode' setting is now applied
 [fix] minor fixups
 [upd] use new settings format for Kodi 19
         </news>
