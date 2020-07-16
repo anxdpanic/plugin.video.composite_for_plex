@@ -634,13 +634,14 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         arguments = ''
 
         if section < 0:
-            return self.processed_xml('/library/onDeck%s' % arguments)
+            return self.processed_xml(self._update_path('/library/onDeck%s' % arguments))
 
         if size > 0:
             arguments = '%s?X-Plex-Container-Start=%s&X-Plex-Container-Size=%s' % \
                         (arguments, start, size)
 
-        return self.processed_xml('/library/sections/%s/onDeck%s' % (section, arguments))
+        return self.processed_xml(self._update_path('/library/sections/%s/onDeck%s' %
+                                                    (section, arguments)))
 
     def get_recently_viewed_shows(self, section=-1, start=0, size=0):
 

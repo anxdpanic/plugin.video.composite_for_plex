@@ -184,6 +184,8 @@ STRINGS = {
     'All Movies': 30746,
     'Plex powered by LyricFind': 30754,
     'All_': 30756,
+    'All Servers: TV Shows On Deck': 30757,
+    'All Servers: Movies On Deck': 30758,
 }
 
 

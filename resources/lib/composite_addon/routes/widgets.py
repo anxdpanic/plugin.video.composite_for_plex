@@ -102,6 +102,29 @@ def run(context, url):
             gui_item = GUIItem(section.get_path(), details, extra_data)
             append_item(create_gui_item(context, gui_item))
 
+    if sections:
+        details = {
+            'title': i18n('All Servers: TV Shows On Deck')
+        }
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.TVSHOWS_ON_DECK
+        }
+
+        gui_item = GUIItem('/library/onDeck', details, extra_data)
+        append_item(create_gui_item(context, gui_item))
+
+        details = {
+            'title': i18n('All Servers: Movies On Deck')
+        }
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.MOVIES_ON_DECK
+        }
+
+        gui_item = GUIItem('/library/onDeck', details, extra_data)
+        append_item(create_gui_item(context, gui_item))
+
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
