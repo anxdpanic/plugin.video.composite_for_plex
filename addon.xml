@@ -18,7 +18,7 @@
 [add] menu items 'TV Shows/Movies on Deck' and widgets 'All Servers: TV Shows/Movies on Deck'
     for on deck results from all servers
 [add] menu items 'Recently Added Episodes/Movies' and widgets
-    'All Servers: Recently Added Episodes/Movies' for on recently added results from all servers
+    'All Servers: Recently Added Episodes/Movies' for recently added results from all servers
 [chg] movie collections default to sorting by year
 [fix] 'Always Transcode' setting is now applied
 [fix] minor fixups
