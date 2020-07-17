@@ -42,7 +42,8 @@ def run(context):
 
 
 def _list_content(context, server, section):
-    tree = server.get_ondeck(section=section)
+    tree = server.get_recently_added(section=section,
+                                     size=context.settings.recently_added_item_count())
     if tree is None:
         return []
 
