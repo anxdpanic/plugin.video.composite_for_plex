@@ -97,6 +97,14 @@ MODES = __enum(
     TXT_TVSHOWS_LIBRARY='library/tvshows',
 )
 
+COMBINED_SECTIONS = [
+    # Used to check for all server modes
+    str(MODES.TVSHOWS_ON_DECK),
+    str(MODES.MOVIES_ON_DECK),
+    str(MODES.EPISODES_RECENTLY_ADDED),
+    str(MODES.MOVIES_RECENTLY_ADDED),
+]
+
 CONFIG = {
     'addon': __ADDON,
     'id': __ID,
