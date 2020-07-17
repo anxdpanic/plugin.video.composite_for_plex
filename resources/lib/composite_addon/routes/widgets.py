@@ -125,6 +125,28 @@ def run(context, url):
         gui_item = GUIItem('/library/onDeck', details, extra_data)
         append_item(create_gui_item(context, gui_item))
 
+        details = {
+            'title': i18n('All Servers: Recently Added Episodes')
+        }
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.EPISODES_RECENTLY_ADDED
+        }
+
+        gui_item = GUIItem('/library/recentlyAdded', details, extra_data)
+        append_item(create_gui_item(context, gui_item))
+
+        details = {
+            'title': i18n('All Servers: Recently Added Movies')
+        }
+        extra_data = {
+            'type': 'Folder',
+            'mode': MODES.MOVIES_RECENTLY_ADDED
+        }
+
+        gui_item = GUIItem('/library/recentlyAdded', details, extra_data)
+        append_item(create_gui_item(context, gui_item))
+
     if items:
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 

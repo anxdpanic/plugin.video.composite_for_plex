@@ -39,6 +39,7 @@ def run(context, content_filter=None, display_shared=False):
                                                       content_filter, display_shared)
     if server_section_menus:
         items += all_server_on_deck_menu_items(context)
+        items += all_server_recently_added_menu_items(context)
 
     items += server_section_menus
 
@@ -97,6 +98,35 @@ def all_server_on_deck_menu_items(context):
     }
 
     gui_item = GUIItem('/library/onDeck', details, extra_data)
+    append_item(create_gui_item(context, gui_item))
+
+    return items
+
+
+def all_server_recently_added_menu_items(context):
+    items = []
+    append_item = items.append
+
+    details = {
+        'title': i18n('Recently Added Episodes')
+    }
+    extra_data = {
+        'type': 'Folder',
+        'mode': MODES.EPISODES_RECENTLY_ADDED
+    }
+
+    gui_item = GUIItem('/library/recentlyAdded', details, extra_data)
+    append_item(create_gui_item(context, gui_item))
+
+    details = {
+        'title': i18n('Recently Added Movies')
+    }
+    extra_data = {
+        'type': 'Folder',
+        'mode': MODES.MOVIES_RECENTLY_ADDED
+    }
+
+    gui_item = GUIItem('/library/recentlyAdded', details, extra_data)
     append_item(create_gui_item(context, gui_item))
 
     return items

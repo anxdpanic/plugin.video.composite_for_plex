@@ -1391,3 +1391,15 @@ msgstr ""
 msgctxt "#30758"
 msgid "All Servers: Movies On Deck"
 msgstr ""
+
+msgctxt "#30759"
+msgid "Recently Added Episodes"
+msgstr ""
+
+msgctxt "#30760"
+msgid "All Servers: Recently Added Episodes"
+msgstr ""
+
+msgctxt "#30761"
+msgid "All Servers: Recently Added Movies"
+msgstr ""
