@@ -56,8 +56,8 @@ def _list_content(context, server, section):
     for content in branches:
         item = Item(server, server.get_url_location(), tree, content)
         if content.get('type') == 'episode':
-            append_item(create_episode_item(context, item, library=True))
+            append_item(create_episode_item(context, item))
         elif content.get('type') == 'movie':
-            append_item(create_movie_item(context, item, library=True))
+            append_item(create_movie_item(context, item))
 
     return items
