@@ -982,5 +982,13 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
     def _update_path(self, url, options=None):
         if options is None:
             options = {}
+
         location = self.join_url(self.get_url_location(), url)
-        return '?'.join([urlparse(location).path, urlencode(options, True)])
+        parsed_url = urlparse(location)
+        if parsed_url.query:
+            options.update(dict(parse_qsl(parsed_url.query)))
+
+        if options:
+            return '?'.join([parsed_url.path, urlencode(options, True)])
+
+        return parsed_url.path
