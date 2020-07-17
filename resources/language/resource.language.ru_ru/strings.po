@@ -1397,5 +1397,5 @@ msgid "Server name prefix on combined sections"
 msgstr ""
 
 msgctxt "#30763"
-msgid "Recently Added item count (per server)"
+msgid "Recently Added item count (per server section)"
 msgstr ""
