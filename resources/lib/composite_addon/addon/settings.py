@@ -165,6 +165,7 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
             'online': self._get_setting('show_plex_online_menu'),
             'playlists': self._get_setting('show_playlists_menu'),
             'widgets': self._get_setting('show_widget_menu'),
+            'composite_playlist': self._get_setting('show_composite_playlist_menu'),
         }
 
     def episode_sort_method(self):

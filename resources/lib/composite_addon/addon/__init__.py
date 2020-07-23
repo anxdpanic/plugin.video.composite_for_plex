@@ -9,6 +9,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['cache_control', 'common', 'constants', 'containers', 'data_cache', 'json_store',
-           'items', 'logger', 'monitor', 'playback', 'player', 'processing', 'server_config',
-           'settings', 'skip_intro', 'strings', 'up_next', 'utils', 'wol']
+__all__ = ['cache_control', 'common', 'constants', 'containers', 'data_cache', 'dialogs',
+           'json_store', 'items', 'logger', 'monitor', 'playback', 'player', 'progress_dialog',
+           'processing', 'server_config', 'settings', 'skip_intro', 'strings', 'up_next',
+           'utils', 'wol']

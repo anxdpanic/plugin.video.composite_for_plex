@@ -53,6 +53,9 @@ def run(context, content_filter=None, display_shared=False):
 
     menus = context.settings.show_menus()
 
+    if menus.get('composite_playlist') and context.plex_network.is_myplex_signedin():
+        items += composite_playlist_item(context)
+
     # For each of the servers we have identified
     if menus.get('queue') and context.plex_network.is_myplex_signedin():
         details = {
@@ -72,6 +75,19 @@ def run(context, content_filter=None, display_shared=False):
         xbmcplugin.addDirectoryItems(get_handle(), items, len(items))
 
     xbmcplugin.endOfDirectory(get_handle(), cacheToDisc=context.settings.cache_directory())
+
+
+def composite_playlist_item(context):
+    details = {
+        'title': i18n('Composite Playlist')
+    }
+    extra_data = {
+        'type': 'file'
+    }
+
+    item_url = 'cmd:' + COMMANDS.COMPOSITE_PLAYLIST
+    gui_item = GUIItem(item_url, details, extra_data)
+    return [create_gui_item(context, gui_item)]
 
 
 def all_server_on_deck_menu_items(context):

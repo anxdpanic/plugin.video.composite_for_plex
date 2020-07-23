@@ -674,6 +674,40 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         url = '?'.join(['/library/sections/%s/onDeck' % section, urlencode(arguments)])
         return self.processed_xml(self._update_path(url))
 
+    def get_section_all(self, section=-1, start=0, size=0, item_type=None):
+        if section < 0:
+            return None
+
+        arguments = {}
+
+        if size > 0:
+            arguments.update({
+                'X-Plex-Container-Start': start,
+                'X-Plex-Container-Size': size,
+            })
+
+        if item_type is not None:
+            arguments.update({
+                'type': str(item_type)
+            })
+        url = '?'.join(['/library/sections/%s/all' % section, urlencode(arguments)])
+        return self.processed_xml(self._update_path(url))
+
+    def get_newest(self, section=-1, start=0, size=0):
+        arguments = {}
+
+        if section < 0:
+            return self.processed_xml(self._update_path('/library/newest'))
+
+        if size > 0:
+            arguments.update({
+                'X-Plex-Container-Start': start,
+                'X-Plex-Container-Size': size,
+            })
+
+        url = '?'.join(['/library/sections/%s/newest' % section, urlencode(arguments)])
+        return self.processed_xml(self._update_path(url))
+
     def get_recently_viewed_shows(self, section=-1, start=0, size=0):
         arguments = {}
 
@@ -927,6 +961,9 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def get_children(self, media_id):
         return self.processed_xml(self._update_path('/library/metadata/%s/children' % media_id))
+
+    def get_all_leaves(self, media_id):
+        return self.processed_xml(self._update_path('/library/metadata/%s/allLeaves' % media_id))
 
     def get_lyrics(self, media_id):
         path = '/library/streams/{id}'.format(id=media_id)
