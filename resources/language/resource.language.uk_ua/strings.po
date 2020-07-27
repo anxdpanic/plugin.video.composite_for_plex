@@ -1411,3 +1411,7 @@ msgstr ""
 msgctxt "#30763"
 msgid "Recently Added item count (per server section)"
 msgstr ""
+
+msgctxt "#30764"
+msgid "Recently Added include watched"
+msgstr ""
