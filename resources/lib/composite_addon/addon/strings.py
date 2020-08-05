@@ -126,6 +126,7 @@ STRINGS = {
     'Nearby': 30644,
     'SSL': 30645,
     'Not Secure': 30646,
+    'Certificate Verification': 30647,
     'Message': 30648,
     'blank': 30649,
     'Server Discovery': 30650,

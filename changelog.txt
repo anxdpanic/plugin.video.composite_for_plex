@@ -1,4 +1,5 @@
 [add] settings to included watched content in combined 'Recently Added Episodes/Movies' sections
+[chg] Remove HTTPS from settings and move Certificate Verification from settings to Manage Servers
 
 1.3.0
 [add] menu items 'TV Shows/Movies on Deck' and widgets 'All Servers: TV Shows/Movies on Deck'
