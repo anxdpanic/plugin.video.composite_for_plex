@@ -485,6 +485,9 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                 self.server_configs.access_urls(device.get('clientIdentifier'))
             )
 
+            discovered_server.ssl_certificate_verification = \
+                self.server_configs.ssl_certificate_verification(device.get('clientIdentifier'))
+
             discovered_server.set_best_address()  # Default to external address
 
             temp_servers[discovered_server.get_uuid()] = discovered_server
@@ -513,17 +516,15 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             self.server_list[existing.get_uuid()] = existing
 
     def _request(self, path, method, use_params):
-        verify_cert = self.myplex_server.startswith('https') and self.settings.verify_certificates()
-
         try:
             if use_params:
                 response = getattr(requests, method)('%s%s' % (self.myplex_server, path),
                                                      params=self.plex_identification_header(),
-                                                     verify=verify_cert, timeout=(3, 10))
+                                                     verify=True, timeout=(3, 10))
             else:
                 response = getattr(requests, method)('%s%s' % (self.myplex_server, path),
                                                      headers=self.plex_identification_header(),
-                                                     verify=verify_cert, timeout=(3, 10))
+                                                     verify=True, timeout=(3, 10))
         except AttributeError:
             LOG.error('Unknown HTTP method requested: %s' % method)
             response = None

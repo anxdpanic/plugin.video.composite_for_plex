@@ -155,12 +155,6 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
     def playback_monitor_disabled(self, fresh=False):
         return self._get_setting('monitoroff', fresh=fresh)
 
-    def secure_connection(self):
-        return self._get_setting('secureconn')
-
-    def verify_certificates(self):
-        return self._get_setting('verify_cert')
-
     def secondary_menus(self):
         return self._get_setting('secondary')
 
