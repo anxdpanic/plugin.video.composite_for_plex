@@ -9,4 +9,4 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-__all__ = ['composite_playlist']
+__all__ = ['composite_playlist', 'progress_dialog', 'skip_intro']

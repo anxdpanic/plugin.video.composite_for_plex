@@ -26,8 +26,8 @@ from ...addon.containers import Item
 from ...addon.items.episode import create_episode_item
 from ...addon.items.movie import create_movie_item
 from ...addon.logger import Logger
-from ...addon.progress_dialog import ProgressDialog
 from ...addon.strings import i18n
+from .progress_dialog import ProgressDialog
 
 ACTION_STOP = 13
 

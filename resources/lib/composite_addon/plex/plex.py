@@ -28,6 +28,7 @@ from ..addon import cache_control
 from ..addon.common import get_platform_ip
 from ..addon.common import is_ip
 from ..addon.constants import CONFIG
+from ..addon.dialogs.progress_dialog import ProgressDialog
 from ..addon.logger import Logger
 from ..addon.server_config import ServerConfigStore
 from ..addon.strings import encode_utf8
@@ -377,56 +378,53 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                                           sound=False)
 
     def discover_all_servers(self):
-        progress_dialog = xbmcgui.DialogProgressBG()
-        progress_dialog.create(heading=CONFIG['name'] + ' ' + i18n('Server Discovery'),
-                               message=i18n('Please wait...'))
+        with ProgressDialog(heading=CONFIG['name'] + ' ' + i18n('Server Discovery'),
+                            line1=i18n('Please wait...'), background=True) as progress_dialog:
+            try:
+                percent = 0
+                self.server_list = {}
+                # First discover the servers we should know about from myplex
+                if self.is_myplex_signedin():
+                    LOG.debug('Adding myPlex as a server location')
+                    progress_dialog.update(percent=percent, line1=i18n('myPlex discovery...'))
 
-        try:
-            percent = 0
-            self.server_list = {}
-            # First discover the servers we should know about from myplex
-            if self.is_myplex_signedin():
-                LOG.debug('Adding myPlex as a server location')
-                progress_dialog.update(percent=percent, message=i18n('myPlex discovery...'))
+                    self.server_list = self.get_myplex_servers()
 
-                self.server_list = self.get_myplex_servers()
+                    if self.server_list:
+                        LOG.debug('MyPlex discovery completed successfully')
+                    else:
+                        LOG.debug('MyPlex discovery found no servers')
 
-                if self.server_list:
-                    LOG.debug('MyPlex discovery completed successfully')
-                else:
-                    LOG.debug('MyPlex discovery found no servers')
+                # Now grab any local devices we can find
+                if self.settings.discovery() == '1':
+                    LOG.debug('local GDM discovery setting enabled.')
+                    LOG.debug('Attempting GDM lookup on multicast')
+                    percent += 40
+                    progress_dialog.update(percent=percent, line1=i18n('GDM discovery...'))
+                    self.gdm_discovery()
 
-            # Now grab any local devices we can find
-            if self.settings.discovery() == '1':
-                LOG.debug('local GDM discovery setting enabled.')
-                LOG.debug('Attempting GDM lookup on multicast')
+                # Get any manually configured servers
+                elif self.settings.ip_address():
+                    percent += 40
+                    progress_dialog.update(percent=percent, line1=i18n('User provided...'))
+                    self.user_provided_discovery()
+
                 percent += 40
-                progress_dialog.update(percent=percent, message=i18n('GDM discovery...'))
-                self.gdm_discovery()
+                progress_dialog.update(percent=percent, line1=i18n('Caching results...'))
 
-            # Get any manually configured servers
-            elif self.settings.ip_address():
-                percent += 40
-                progress_dialog.update(percent=percent, message=i18n('User provided...'))
-                self.user_provided_discovery()
+                for server_uuid in list(self.server_list.keys()):
+                    self.server_list[server_uuid].settings = None  # can't pickle xbmcaddon.Addon()
 
-            percent += 40
-            progress_dialog.update(percent=percent, message=i18n('Caching results...'))
+                self.cache.write_cache(self.server_list_cache, self.server_list)
 
-            for server_uuid in list(self.server_list.keys()):
-                self.server_list[server_uuid].settings = None  # can't pickle xbmcaddon.Addon()
+                servers = list(map(lambda x: (self.server_list[x].get_name(), x),
+                                   self.server_list.keys()))
 
-            self.cache.write_cache(self.server_list_cache, self.server_list)
+                server_names = ', '.join(map(lambda x: x[0], servers))
 
-            servers = list(map(lambda x: (self.server_list[x].get_name(), x),
-                               self.server_list.keys()))
-
-            server_names = ', '.join(map(lambda x: x[0], servers))
-
-            LOG.debug('serverList is: %s ' % servers)
-        finally:
-            progress_dialog.update(percent=100, message=i18n('Finished'))
-            progress_dialog.close()
+                LOG.debug('serverList is: %s ' % servers)
+            finally:
+                progress_dialog.update(percent=100, line1=i18n('Finished'))
 
         self._discovery_notification(server_names)
 

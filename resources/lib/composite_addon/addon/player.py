@@ -15,8 +15,8 @@ from kodi_six import xbmc  # pylint: disable=import-error
 
 from .constants import CONFIG
 from .constants import StreamControl
+from .dialogs.skip_intro import SkipIntroDialog
 from .logger import Logger
-from .skip_intro import SkipIntroDialog
 from .strings import encode_utf8
 from .strings import i18n
 from .up_next import UpNext
