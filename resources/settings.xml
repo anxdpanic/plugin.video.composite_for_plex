@@ -71,6 +71,7 @@
         <setting id="prefix_server_sections" type="bool" label="30762" default="false"/>
         <setting id="ra_sections_items_per_server" label="30763" type="slider" option="int" range="5,100" default="10"/>
         <setting id="ra_sections_include_watched" type="bool" label="30764" default="false"/>
+        <setting id="show_composite_playlist_menu" type="bool" label="30788" default="true"/>
         <setting id="show_myplex_queue_menu" type="bool" label="30715" default="true"/>
         <setting id="show_channels_menu" type="bool" label="30716" default="true"/>
         <setting id="show_plex_online_menu" type="bool" label="30717" default="true"/>
@@ -120,7 +121,7 @@
         <setting id="refresh_data" label="30694" type="action" action="RunScript($ID, delete_refresh)" option="close"/>
     </category>
     <category label="30599"> <!-- debug -->
-        <setting id="debug" type="enum" label="30514" lvalues="30599|30600" default="0"/>
+        <setting id="debug" type="enum" label="30514" lvalues="30599|30600|30773" default="0"/>
         <setting type="sep"/>
         <setting id="privacy" type="bool" label="30607" default="true"/>
         <setting type="sep"/>

@@ -43,6 +43,7 @@ COMMANDS = __enum(
     UPDATE='update',
     WATCH='watch',
     TEST_SKIP_INTRO_DIALOG='test_skip_intro_dialog',
+    COMPOSITE_PLAYLIST='composite_playlist',
 )
 
 MODES = __enum(

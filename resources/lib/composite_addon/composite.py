@@ -150,6 +150,11 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         test_skip_intro_dialog.run()
         return _finished(start_time)
 
+    if command == COMMANDS.COMPOSITE_PLAYLIST:
+        from .routes import composite_playlist  # pylint: disable=import-outside-toplevel
+        composite_playlist.run(context)
+        return _finished(start_time)
+
     if mode in [MODES.TXT_OPEN, MODES.TXT_PLAY]:
         from .routes import trakttokodi  # pylint: disable=import-outside-toplevel
         trakttokodi.run(context)
