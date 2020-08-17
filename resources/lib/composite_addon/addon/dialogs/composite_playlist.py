@@ -438,7 +438,7 @@ class PlaylistGenerator:  # pylint: disable=too-many-instance-attributes
 
         item_collection = []
         for content in branches:
-            item = Item(server, server.get_url_location(), tree, content)
+            item = Item(server, server.get_url_location(), tree, content, up_next=False)
             if content.get('type') == 'episode':
                 item_collection.append((server, create_episode_item(self.context, item)))
             elif content.get('type') == 'movie':
