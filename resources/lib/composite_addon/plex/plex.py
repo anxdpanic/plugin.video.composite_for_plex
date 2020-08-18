@@ -358,6 +358,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         server = PlexMediaServer(address=ip_address, port=port, discovery='local')
         server.set_user(self.effective_user)
         server.set_token(self.effective_token)
+        server.set_protocol('https' if self.settings.https() else 'http')
+        server.ssl_certificate_verification = self.settings.certificate_verification()
         server.refresh()
 
         if server.discovered:
