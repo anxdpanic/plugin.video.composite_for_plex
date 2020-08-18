@@ -693,6 +693,24 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
         url = '?'.join(['/library/sections/%s/all' % section, urlencode(arguments)])
         return self.processed_xml(self._update_path(url))
 
+    def get_search(self, query, item_type, section=-1, start=0, size=0):
+        if section < 0:
+            return None
+
+        arguments = {
+            'query': query,
+            'type': str(item_type)
+        }
+
+        if size > 0:
+            arguments.update({
+                'X-Plex-Container-Start': start,
+                'X-Plex-Container-Size': size,
+            })
+
+        url = '?'.join(['/library/sections/%s/search' % section, urlencode(arguments)])
+        return self.processed_xml(self._update_path(url))
+
     def get_newest(self, section=-1, start=0, size=0):
         arguments = {}
 

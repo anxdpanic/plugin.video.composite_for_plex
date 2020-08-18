@@ -36,6 +36,7 @@ from ..addon.strings import i18n
 from .plexcommon import create_plex_identification
 from .plexcommon import get_client_identifier
 from .plexgdm import PlexGDM
+from .plexsection import PlexSection
 from .plexserver import PlexMediaServer
 
 DEFAULT_PORT = '32400'
@@ -809,6 +810,10 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         LOG.debug('Gathered information: %s' % result)
 
         return result
+
+    def all_sections(self):
+        tree = ETree.fromstring(self.get_myplex_sections())
+        return list(map(PlexSection, tree))
 
     @staticmethod
     def _tree_tostring(tree):
