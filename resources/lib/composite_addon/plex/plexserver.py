@@ -43,7 +43,7 @@ LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)
 
 class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
 
-    def __init__(self, server_uuid=None, name=None, address=None, port=32400,  # pylint: disable=too-many-arguments
+    def __init__(self, server_uuid=None, name=None, address=None, port=32400,
                  token=None, discovery=None, class_type='primary'):
 
         self.settings = None

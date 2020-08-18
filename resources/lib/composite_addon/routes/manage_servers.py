@@ -32,7 +32,7 @@ def run(context):
     manager.run()
 
 
-class ServerManager:  # pylint: disable=too-many-instance-attributes, too-few-public-methods
+class ServerManager:
 
     def __init__(self, context):
         self._dialog = xbmcgui.Dialog()

@@ -128,13 +128,13 @@ def get_section_type(context):
 
 
 def get_item_type(context):
-    mode = int(context.params.get('mode', -1))
-
-    '''
+    """
     {'movie': 1, 'show': 2, 'season': 3, 'episode': 4, 'trailer': 5, 'comic': 6, 'person': 7,
      'artist': 8, 'album': 9, 'track': 10, 'picture': 11, 'clip': 12, 'photo': 13, 'photoalbum': 14,
      'playlist': 15, 'playlistFolder': 16, 'collection': 18, 'userPlaylistItem': 1001}
-    '''
+    """
+    mode = int(context.params.get('mode', -1))
+
     if mode == MODES.MOVIES_SEARCH_ALL:
         return 1
 

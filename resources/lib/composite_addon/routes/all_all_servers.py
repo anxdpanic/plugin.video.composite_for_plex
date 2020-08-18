@@ -16,8 +16,8 @@ from ..addon.constants import MODES
 from ..addon.containers import Item
 from ..addon.items.artist import create_artist_item
 from ..addon.items.movie import create_movie_item
-from ..addon.items.show import create_show_item
 from ..addon.items.photo import create_photo_item
+from ..addon.items.show import create_show_item
 from ..addon.logger import Logger
 from ..plex import plex
 

@@ -302,7 +302,7 @@ class CompositePlaylistWindow(pyxbmct.AddonFullWindow):  # pylint: disable=too-m
         self.setFocus(self.movies_radio)
 
 
-class PlaylistGenerator:  # pylint: disable=too-many-instance-attributes
+class PlaylistGenerator:
 
     def __init__(self, context, data):
         self.context = context
@@ -344,7 +344,7 @@ class PlaylistGenerator:  # pylint: disable=too-many-instance-attributes
     def content_types(self):
         return ['tvshows', 'movies'] if self.content == 'mixed' else [self.content]
 
-    def generate(self):  # pylint: disable=too-many-return-statements
+    def generate(self):
         with ProgressDialog(i18n('Generating Playlist'), i18n('This may take a while...')) as \
                 progress_dialog:
 
@@ -619,7 +619,7 @@ class PlaylistGenerator:  # pylint: disable=too-many-instance-attributes
         return upper_limit if value > upper_limit else lower_limit if value < lower_limit else value
 
 
-class RadioButton(pyxbmct.CompareMixin, xbmcgui.ControlRadioButton):  # pylint: disable=too-few-public-methods
+class RadioButton(pyxbmct.CompareMixin, xbmcgui.ControlRadioButton):
 
     def __new__(cls, *args, **kwargs):
         kwargs.update({
