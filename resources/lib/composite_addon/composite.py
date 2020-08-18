@@ -167,7 +167,7 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         return _finished(start_time)
 
     # Run a function based on the mode variable that was passed in the URL
-    if (((isinstance(mode, int) and mode < 0) or (not url and (not server_uuid and not media_id)))  # pylint: disable=too-many-boolean-expressions
+    if (((isinstance(mode, int) and mode < 0) or (not url and (not server_uuid and not media_id)))
             and mode not in [MODES.SEARCHALL]):
         from .routes import display_sections  # pylint: disable=import-outside-toplevel
         display_sections.run(context)
@@ -343,6 +343,11 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         search_all.run(context)
         return _finished(start_time)
 
+    if mode == MODES.COMBINED_SECTIONS:
+        from .routes import display_combined_sections  # pylint: disable=import-outside-toplevel
+        display_combined_sections.run(context)
+        return _finished(start_time)
+
     if mode == MODES.TVSHOWS_ON_DECK:
         from .routes import on_deck_all_servers  # pylint: disable=import-outside-toplevel
         context.params['content_type'] = 'tvshows'
@@ -365,6 +370,16 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         from .routes import recently_added_all_servers  # pylint: disable=import-outside-toplevel
         context.params['content_type'] = 'movies'
         recently_added_all_servers.run(context)
+        return _finished(start_time)
+
+    if MODES.MOVIES_ALL <= mode <= MODES.PHOTOS_ALL:
+        from .routes import all_all_servers  # pylint: disable=import-outside-toplevel
+        all_all_servers.run(context)
+        return _finished(start_time)
+
+    if MODES.MOVIES_SEARCH_ALL <= mode <= MODES.TRACKS_SEARCH_ALL:
+        from .routes import search_all_servers  # pylint: disable=import-outside-toplevel
+        search_all_servers.run(context)
         return _finished(start_time)
 
     return _finished(start_time)

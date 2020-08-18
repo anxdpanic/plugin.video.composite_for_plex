@@ -199,6 +199,12 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
     def port(self):
         return self._get_setting('port')
 
+    def https(self):
+        return self._get_setting('manual_https')
+
+    def certificate_verification(self):
+        return self._get_setting('manual_certificate_verification')
+
     def discovery(self):
         return self._get_setting('discovery')
 

@@ -14,10 +14,10 @@ import time
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 
-class ProgressDialog:  # pylint: disable=too-many-instance-attributes
+class ProgressDialog:
     dialog = None
 
-    def __init__(self, heading, line1='', line2='', line3='',  # pylint: disable=too-many-arguments
+    def __init__(self, heading, line1='', line2='', line3='',
                  background=False, active=True, delay=0):
 
         self._active = active

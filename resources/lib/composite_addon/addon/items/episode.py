@@ -105,6 +105,11 @@ def create_episode_item(context, item, library=False):
         },
     }
 
+    if item.up_next is False:
+        extra_data['parameters'] = {
+            'up_next': str(item.up_next).lower()
+        }
+
     if item.tree.tag == 'MediaContainer':
         extra_data.update({
             'library_section_uuid': item.tree.get('librarySectionUUID')

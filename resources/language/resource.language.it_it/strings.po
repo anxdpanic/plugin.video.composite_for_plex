@@ -1459,3 +1459,11 @@ msgstr ""
 msgctxt "#30789"
 msgid "Server(s)"
 msgstr ""
+
+msgctxt "#30790"
+msgid "Combined Sections"
+msgstr ""
+
+msgctxt "#30791"
+msgid "Search Movies..."
+msgstr ""

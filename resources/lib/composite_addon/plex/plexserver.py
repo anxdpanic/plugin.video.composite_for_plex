@@ -43,7 +43,7 @@ LOG.debug('Using Requests version for HTTP: %s' % requests.__version__)
 
 class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
 
-    def __init__(self, server_uuid=None, name=None, address=None, port=32400,  # pylint: disable=too-many-arguments
+    def __init__(self, server_uuid=None, name=None, address=None, port=32400,
                  token=None, discovery=None, class_type='primary'):
 
         self.settings = None
@@ -691,6 +691,24 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 'type': str(item_type)
             })
         url = '?'.join(['/library/sections/%s/all' % section, urlencode(arguments)])
+        return self.processed_xml(self._update_path(url))
+
+    def get_search(self, query, item_type, section=-1, start=0, size=0):
+        if section < 0:
+            return None
+
+        arguments = {
+            'query': query,
+            'type': str(item_type)
+        }
+
+        if size > 0:
+            arguments.update({
+                'X-Plex-Container-Start': start,
+                'X-Plex-Container-Size': size,
+            })
+
+        url = '?'.join(['/library/sections/%s/search' % section, urlencode(arguments)])
         return self.processed_xml(self._update_path(url))
 
     def get_newest(self, section=-1, start=0, size=0):

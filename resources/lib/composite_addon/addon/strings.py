@@ -214,6 +214,8 @@ STRINGS = {
     'Creating samples...': 30786,
     'Retrieving metadata for %s...': 30787,
     'Server(s)': 30789,
+    'Combined Sections': 30790,
+    'Search Movies...': 30791,
 }
 
 

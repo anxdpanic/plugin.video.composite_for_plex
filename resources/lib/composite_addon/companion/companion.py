@@ -28,7 +28,7 @@ from .listener import ThreadedHTTPServer
 from .subscribers import SubscriptionManager
 
 
-class CompanionReceiverThread(threading.Thread):  # pylint: disable=too-many-instance-attributes
+class CompanionReceiverThread(threading.Thread):
     LOG = Logger('CompanionReceiverThread')
     MONITOR = xbmc.Monitor()
 
