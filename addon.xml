@@ -13,10 +13,35 @@
         <medialibraryscanpath content="tvshows">library/tvshows/</medialibraryscanpath>
     </extension>
     <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
+    <extension point="xbmc.python.script" library="resources/lib/entry_point.py"/>
+    <extension point="kodi.context.item">
+        <menu id="kodi.core.main">
+            <menu>
+                <label>Composite</label>
+                <item library="resources/lib/composite_addon/context_menu_transcoded.py">
+                    <!-- Play Transcoded -->
+                    <label>30086</label>
+                    <visible>[Window.IsActive(10000) | Window.IsActive(10025)] + String.IsEmpty(Container.PluginName) + String.StartsWith(ListItem.FileNameAndPath,plugin://plugin.video.composite_for_plex/) + [String.IsEqual(ListItem.DBTYPE,video) | String.IsEqual(ListItem.DBTYPE,movie) | String.IsEqual(ListItem.DBTYPE,episode)]</visible>
+                </item>
+                <item library="resources/lib/composite_addon/context_menu_watched.py">
+                    <!-- Mark as watched -->
+                    <label>30792</label>
+                    <visible>[Window.IsActive(10000) | Window.IsActive(10025)] + String.IsEmpty(Container.PluginName) + String.StartsWith(ListItem.FileNameAndPath,plugin://plugin.video.composite_for_plex/) + [String.IsEqual(ListItem.DBTYPE,video) | String.IsEqual(ListItem.DBTYPE,movie) | String.IsEqual(ListItem.DBTYPE,episode)]</visible>
+                </item>
+                <item library="resources/lib/composite_addon/context_menu_unwatched.py">
+                    <!-- Mark as unwatched -->
+                    <label>30793</label>
+                    <visible>[Window.IsActive(10000) | Window.IsActive(10025)] + String.IsEmpty(Container.PluginName) + String.StartsWith(ListItem.FileNameAndPath,plugin://plugin.video.composite_for_plex/) + [String.IsEqual(ListItem.DBTYPE,video) | String.IsEqual(ListItem.DBTYPE,movie) | String.IsEqual(ListItem.DBTYPE,episode)]</visible>
+                </item>
+            </menu>
+        </menu>
+    </extension>
     <extension point="xbmc.addon.metadata">
         <news>
 [add] Combined Sections to main menu
 [add] Composite Playlist to main menu, create a playlist based the information you provide
+[add] Composite context menu for library and widgets
+    - adds Play Transcoded, Mark as un/watched
 [add] settings to included watched content in combined 'Recently Added Episodes/Movies' sections
 [chg] Remove HTTPS from settings and move Certificate Verification from settings to Manage Servers
         </news>

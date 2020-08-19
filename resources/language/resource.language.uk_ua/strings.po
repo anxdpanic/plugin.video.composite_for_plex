@@ -1523,3 +1523,11 @@ msgstr ""
 msgctxt "#30791"
 msgid "Search Movies..."
 msgstr ""
+
+msgctxt "#30792"
+msgid "Mark as watched"
+msgstr ""
+
+msgctxt "#30793"
+msgid "Mark as unwatched"
+msgstr ""
