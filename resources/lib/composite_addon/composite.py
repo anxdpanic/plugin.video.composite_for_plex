@@ -156,6 +156,16 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         composite_playlist.run(context)
         return _finished(start_time)
 
+    if command == COMMANDS.SELECT_LIBRARY_SECTIONS:
+        from .routes import configure_library_sections  # pylint: disable=import-outside-toplevel
+        configure_library_sections.run(context, reset=False)
+        return _finished(start_time)
+
+    if command == COMMANDS.RESET_LIBRARY_SECTIONS:
+        from .routes import configure_library_sections  # pylint: disable=import-outside-toplevel
+        configure_library_sections.run(context, reset=True)
+        return _finished(start_time)
+
     if mode in [MODES.TXT_OPEN, MODES.TXT_PLAY]:
         from .routes import trakttokodi  # pylint: disable=import-outside-toplevel
         trakttokodi.run(context)
@@ -375,6 +385,10 @@ def run(start_time):  # pylint: disable=too-many-locals, too-many-statements, to
         from .routes import search_all_servers  # pylint: disable=import-outside-toplevel
         search_all_servers.run(context)
         return _finished(start_time)
+
+    #
+    # default actions below
+    #
 
     if get_handle() == -1:
         CONFIG['addon'].openSettings()

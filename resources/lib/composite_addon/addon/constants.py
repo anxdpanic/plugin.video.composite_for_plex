@@ -44,6 +44,8 @@ COMMANDS = __enum(
     WATCH='watch',
     TEST_SKIP_INTRO_DIALOG='test_skip_intro_dialog',
     COMPOSITE_PLAYLIST='composite_playlist',
+    SELECT_LIBRARY_SECTIONS='select_library_sections',
+    RESET_LIBRARY_SECTIONS='reset_library_sections',
 )
 
 MODES = __enum(
