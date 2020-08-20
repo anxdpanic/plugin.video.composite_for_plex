@@ -1467,3 +1467,35 @@ msgstr ""
 msgctxt "#30791"
 msgid "Search Movies..."
 msgstr ""
+
+msgctxt "#30792"
+msgid "Mark as watched"
+msgstr ""
+
+msgctxt "#30793"
+msgid "Mark as unwatched"
+msgstr ""
+
+msgctxt "#30794"
+msgid "Library - Movie Sections"
+msgstr ""
+
+msgctxt "#30795"
+msgid "Library - TV Show Sections"
+msgstr ""
+
+msgctxt "#30796"
+msgid "Kodi Library"
+msgstr ""
+
+msgctxt "#30797"
+msgid "Select sections to include in library scans"
+msgstr ""
+
+msgctxt "#30798"
+msgid "Reset selected sections"
+msgstr ""
+
+msgctxt "#30799"
+msgid "Configured library sections have been reset"
+msgstr ""

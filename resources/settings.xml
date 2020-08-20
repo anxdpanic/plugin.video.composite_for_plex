@@ -83,6 +83,10 @@
         <setting id="skipcontextmenus" type="bool" label="30552" default="false"/>
         <setting id="showdeletecontextmenu" type="bool" label="30683" default="false" enable="eq(-1,false)"/>
     </category>
+    <category label="30796">
+        <setting id="select_library_sections" label="30797" type="action" action="RunScript($ID,select_library_sections)"/>
+        <setting id="reset_library_sections" label="30798" type="action" action="RunScript($ID,reset_library_sections)"/>
+    </category>
     <category label="30684">
         <setting id="use_up_next" type="bool" label="30685" default="false" enable="System.HasAddon(service.upnext)"/>
         <setting id="up_next_settings" label="30686" type="action" action="Addon.OpenSettings(service.upnext)" option="close" enable="eq(-1,true)"/>

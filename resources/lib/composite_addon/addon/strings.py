@@ -216,6 +216,9 @@ STRINGS = {
     'Server(s)': 30789,
     'Combined Sections': 30790,
     'Search Movies...': 30791,
+    'Library - Movie Sections': 30794,
+    'Library - TV Show Sections': 30795,
+    'Configured library sections have been reset': 30799,
 }
 
 
