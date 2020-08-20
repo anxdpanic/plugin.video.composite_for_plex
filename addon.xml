@@ -12,7 +12,7 @@
         <medialibraryscanpath content="movies">library/movies/</medialibraryscanpath>
         <medialibraryscanpath content="tvshows">library/tvshows/</medialibraryscanpath>
     </extension>
-    <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
+    <extension point="xbmc.service" library="resources/lib/service_entry_point.py"/>
     <extension point="xbmc.python.script" library="resources/lib/entry_point.py"/>
     <extension point="kodi.context.item">
         <menu id="kodi.core.main">
