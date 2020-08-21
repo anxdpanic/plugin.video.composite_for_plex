@@ -46,7 +46,7 @@ class CompositePlaylistWindow(pyxbmct.AddonFullWindow):  # pylint: disable=too-m
         self.title = i18n('Composite Playlist')
         self.description_label = i18n('Generate a playlist from the information below')
 
-        super(CompositePlaylistWindow, self).__init__(self.title)
+        super(CompositePlaylistWindow, self).__init__(self.title)  # pylint: disable=super-with-arguments
 
         self._context = context
         self.window = window

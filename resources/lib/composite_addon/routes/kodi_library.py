@@ -61,8 +61,12 @@ def run(context):
                 selected_sections = []
                 if section.is_movie():
                     selected_sections = section_storage.get_movie_sections(server.get_uuid())
+
                 elif section.is_show():
                     selected_sections = section_storage.get_tvshow_sections(server.get_uuid())
+
+                if not selected_sections:
+                    selected_sections = [] if section_storage.exists() else None
 
                 if (selected_sections == [] or
                         (selected_sections and section.get_uuid() not in selected_sections)):

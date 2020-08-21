@@ -31,7 +31,7 @@ class PlaybackMonitorThread(threading.Thread):
     PLAYER = xbmc.Player()
 
     def __init__(self, settings, monitor_dict, window):
-        super(PlaybackMonitorThread, self).__init__()
+        super(PlaybackMonitorThread, self).__init__()  # pylint: disable=super-with-arguments
         self._stopped = threading.Event()
         self._ended = threading.Event()
 

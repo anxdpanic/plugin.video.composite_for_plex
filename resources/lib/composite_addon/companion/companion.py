@@ -33,7 +33,7 @@ class CompanionReceiverThread(threading.Thread):
     MONITOR = xbmc.Monitor()
 
     def __init__(self, gdm_client, settings):
-        super(CompanionReceiverThread, self).__init__()
+        super(CompanionReceiverThread, self).__init__()  # pylint: disable=super-with-arguments
         self._stopped = threading.Event()
         self._ended = threading.Event()
         self._dialog = xbmcgui.Dialog()
