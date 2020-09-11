@@ -1,3 +1,6 @@
+[fix] Playlist menu listings on main menu
+[upd] use xbmcvfs.translatePath if available, clean up for Kodi 19
+
 1.4.0
 [add] Combined Sections to main menu
 [add] Composite Playlist to main menu, create a playlist based the information you provide
