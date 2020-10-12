@@ -2,7 +2,7 @@
 
 # Composite
 
-![Build Status](https://img.shields.io/travis/anxdpanic/plugin.video.composite_for_plex/master.svg)
+![Build Status](https://img.shields.io/travis/com/anxdpanic/plugin.video.composite_for_plex/master.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-success.svg)
 ![Kodi Version](https://img.shields.io/badge/kodi-jarvis%2B-success.svg)
 ![Contributors](https://img.shields.io/github/contributors/anxdpanic/plugin.video.composite_for_plex.svg)
