@@ -1,5 +1,9 @@
-[fix] Playlist menu listings on main menu
-[upd] use xbmcvfs.translatePath if available, clean up for Kodi 19
+1.4.1
+[fix] xbmc.translatePath -> xbmcvfs.translatePath |Kodi 19|
+[upd] improve resuming playback
+[upd] improve accuracy of library context menus |Kodi 19|
+[chg] group playlist sections on main menu
+[chg] always used cached servers during playback
 
 1.4.0
 [add] Combined Sections to main menu

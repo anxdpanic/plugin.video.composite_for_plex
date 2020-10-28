@@ -38,8 +38,11 @@
     </extension>
     <extension point="xbmc.addon.metadata">
         <news>
-[fix] Playlist menu listings on main menu
-[upd] use xbmcvfs.translatePath if available, clean up for Kodi 19
+[fix] xbmc.translatePath -&gt; xbmcvfs.translatePath |Kodi 19|
+[upd] improve resuming playback
+[upd] improve accuracy of library context menus |Kodi 19|
+[chg] group playlist sections on main menu
+[chg] always used cached servers during playback
         </news>
         <assets>
             <icon>icon.png</icon>
