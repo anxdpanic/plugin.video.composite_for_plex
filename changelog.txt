@@ -1,3 +1,7 @@
+1.4.2
+[fixup] custom access urls
+[chg] only refresh server cache on connection errors
+
 1.4.1
 [fix] xbmc.translatePath -> xbmcvfs.translatePath |Kodi 19|
 [upd] improve resuming playback
