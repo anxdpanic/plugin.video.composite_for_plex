@@ -375,11 +375,13 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
                 http_tags.append('external')
 
         for url in self.custom_access_urls:
+            if not url.startswith('http'):
+                url = '%s://%s/' % ('https', url)
             if url.startswith('https'):
-                https_uris.append('%s://%s/' % ('https', address))
+                https_uris.append(url)
                 https_tags.append('user')
                 continue
-            http_uris.append('%s://%s/' % ('http', address))
+            http_uris.append(url)
             http_tags.append('user')
 
         return (https_uris, https_tags), (http_uris, http_tags)
