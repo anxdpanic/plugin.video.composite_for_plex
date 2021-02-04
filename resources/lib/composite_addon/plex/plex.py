@@ -22,7 +22,6 @@ from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
 
-from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon import cache_control
@@ -42,6 +41,8 @@ from .plexserver import PlexMediaServer
 
 DEFAULT_PORT = '32400'
 LOG = Logger('plex')
+
+WINDOW = xbmcgui.Window(10000)
 
 
 class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attributes
@@ -176,22 +177,13 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
     def load(self):
         LOG.debug('Loading cached server list')
 
-        try:
-            ttl = self.settings.cache_ttl()
-        except ValueError:
-            ttl = 3600
+        data_ok = False
+        self.server_list = None
 
-        if xbmc.Player().isPlaying():
+        if WINDOW.getProperty('plugin.video.composite-refresh.servers') != 'true':
             data_ok, self.server_list = self.cache.read_cache(self.server_list_cache)
 
-            if not data_ok or not self.server_list:
-                LOG.debug('unsuccessful during playback')
-                self.server_list = {}
-
-            LOG.debug('Server list is now: %s' % self.server_list)
-            return
-
-        data_ok, self.server_list = self.cache.check_cache(self.server_list_cache, ttl)
+        WINDOW.clearProperty('plugin.video.composite-refresh.servers')
 
         if data_ok:
             if not self.check_server_version():
