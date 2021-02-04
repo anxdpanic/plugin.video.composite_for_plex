@@ -25,6 +25,7 @@ from ..addon.strings import i18n
 from ..plex import plex
 
 LOG = Logger()
+WINDOW = xbmcgui.Window(10000)
 
 
 def run(context):
@@ -194,6 +195,7 @@ class ServerManager:
         if is_url:
             self.server_configs.add_access_url(self.server.get_uuid(), url, url_index)
             self._refresh(clear_cache=True)
+            WINDOW.setProperty('plugin.video.composite-refresh.servers', 'true')
             return
 
     def _modify_custom_access_url(self, url_index):
@@ -209,6 +211,7 @@ class ServerManager:
         else:
             self.server_configs.delete_access_url(self.server.get_uuid(), url_index)
             self._refresh(clear_cache=True)
+            WINDOW.setProperty('plugin.video.composite-refresh.servers', 'true')
             return
 
     def _show_connection_test(self):
