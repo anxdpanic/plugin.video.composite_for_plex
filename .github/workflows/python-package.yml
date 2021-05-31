@@ -11,13 +11,13 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.9]
 
     steps:
-    - continue-on-error: true
 
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -39,19 +39,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install sync_addon_metadata_translations/
-
-    - name: Change directory
-    - run: |
-        cd project
     
     - name: Delete old PR branch
       run: |
         git branch -d sync_localization_metadata
+      continue-on-error: true
+      working-directory: ./project
 
     - name: Create PR branch
       run: |
         git branch sync_localization_metadata
-    
+        git checkout sync_localization_metadata
+      working-directory: ./project
+
     - name: Sync localization metadata
       run: |
-        sync_addon_metadata_translations
+        sync-addon-metadata-translations
+      working-directory: ./project
