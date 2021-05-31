@@ -25,7 +25,7 @@ jobs:
     - name: Checkout sync_addon_metadata_translations
       uses: actions/checkout@v2
       with:
-        repository: https://github.com/anxdpanic/sync_addon_metadata_translations.git
+        repository: anxdpanic/sync_addon_metadata_translations
         path: sync_addon_metadata_translations
   
     - name: Set up Python ${{ matrix.python-version }}
