@@ -19,11 +19,9 @@ jobs:
 
     steps:
 
-    - name: Configure git credentials
-      run: |
-        /usr/bin/git config --global credential.https://github.com.username ${{ github.actor }}
-        /usr/bin/git config --global user.name ${{ github.actor }}
-        /usr/bin/git config --global user.password ${{ secrets.SYNC_TRANSLATION_TOKEN }}
+    # - name: Configure git credentials
+    #   run: |
+    #     /usr/bin/git config --global credential.https://github.com.username ${{ github.actor }}
 
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -54,9 +52,10 @@ jobs:
     - name: Create PR
       uses: peter-evans/create-pull-request@v3.10.0
       with:
-        token: ${{ secrets.SYNC_TRANSLATION_TOKEN }}
+        # token: ${{ secrets.SYNC_TRANSLATION_TOKEN }}
         commit-message: Sync of translation metadata
         title: Sync of translation metadata
+        body: Sync of translation metadata triggered by ${{ github.sha }}
         branch: sync_localization_metadata
         delete-branch: true
         path: ./project
