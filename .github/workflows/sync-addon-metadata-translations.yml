@@ -19,6 +19,10 @@ jobs:
 
     steps:
 
+    - name: Configure git username
+      run: |
+        /usr/bin/git config --global credential.https://github.com.username ${{ github.actor }}
+
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
@@ -46,7 +50,7 @@ jobs:
       working-directory: ./project
 
     - name: Create PR
-      uses: peter-evans/create-pull-request@v3
+      uses: actions/create-pull-request@v3.10.0
       with:
         token: ${{ secrets.SYNC_TRANSLATION_TOKEN }}
         commit-message: Sync of translation metadata
