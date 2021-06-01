@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master, main ]
     paths:
-      - 'addon.xml'
+      - '**addon.xml'
       - '**resource.language.**'
 
 jobs:
