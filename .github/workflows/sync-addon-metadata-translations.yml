@@ -1,0 +1,69 @@
+name: Sync addon metadata translations
+
+on:
+  push:
+    branches: [ action-test ]
+    # paths:
+    #   - 'addon.xml'
+    #   - '**resource.language.**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.9]
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        path: project
+
+    - name: Checkout sync_addon_metadata_translations
+      uses: actions/checkout@v2
+      with:
+        repository: anxdpanic/sync_addon_metadata_translations
+        path: sync_addon_metadata_translations
+  
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install sync_addon_metadata_translations/
+    
+    # - name: Delete old PR branch (Local)
+    #   run: |
+    #     git branch -d sync_localization_metadata
+    #   continue-on-error: true
+    #   working-directory: ./project
+
+    # - name: Delete old PR branch (Remote)
+    #   uses: dawidd6/action-delete-branch@v3
+    #   with:
+    #     github_token: ${{ secrets.SYNC_TRANSLATION_TOKEN }}
+    #     branches: sync_localization_metadata
+    #   continue-on-error: true
+
+    - name: Sync localization metadata
+      run: |
+        sync-addon-metadata-translations
+      working-directory: ./project
+
+    - name: Create PR
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.SYNC_TRANSLATION_TOKEN }}
+        commit-message: Sync of translation metadata
+        title: Sync of translation metadata
+        branch: sync_localization_metadata
+        delete-branch: true
+        path: ./project
