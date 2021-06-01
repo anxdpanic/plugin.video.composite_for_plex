@@ -8,8 +8,7 @@ on:
       - '**resource.language.**'
 
 jobs:
-  build:
-
+  default:
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,9 +41,16 @@ jobs:
           python -m pip install sync_addon_metadata_translations/
 
       - name: Run sync-addon-metadata-translations
+        if: github.repository != 'xbmc/xbmc'
         run: |
           sync-addon-metadata-translations
         working-directory: ./project
+
+      # - name: Run sync-addon-metadata-translations
+      #   if: github.repository == 'xbmc/xbmc'
+      #   run: |
+      #     sync-addon-metadata-translations
+      #   working-directory: ./project
 
       - name: Create PR for sync-addon-metadata-translations changes
         uses: peter-evans/create-pull-request@v3.10.0
