@@ -50,7 +50,7 @@ jobs:
       working-directory: ./project
 
     - name: Create PR
-      uses: actions/create-pull-request@v3.10.0
+      uses: peter-evans/create-pull-request@v3.10.0
       with:
         token: ${{ secrets.SYNC_TRANSLATION_TOKEN }}
         commit-message: Sync of translation metadata
