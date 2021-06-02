@@ -5,7 +5,7 @@ on:
     branches: [ master, main ]
     paths:
       - '**addon.xml'
-      - '**resource.language.**'
+      - '**resource.language.**strings.po'
 
 jobs:
   default:
@@ -40,17 +40,18 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install sync_addon_metadata_translations/
 
-      - name: Run sync-addon-metadata-translations
+      - name: Run sync-addon-metadata-translations ${{ github.repository }}
         if: github.repository != 'xbmc/xbmc'
         run: |
           sync-addon-metadata-translations
         working-directory: ./project
 
-      # - name: Run sync-addon-metadata-translations
-      #   if: github.repository == 'xbmc/xbmc'
-      #   run: |
-      #     sync-addon-metadata-translations
-      #   working-directory: ./project
+      - name: Run sync-addon-metadata-translations (xbmc/xbmc)
+        if: github.repository == 'xbmc/xbmc'
+        run: |
+          sync-addon-metadata-translations --path ./addons/skin.estuary/
+          sync-addon-metadata-translations --path ./addons/skin.estouchy/
+        working-directory: ./project
 
       - name: Create PR for sync-addon-metadata-translations changes
         uses: peter-evans/create-pull-request@v3.10.0
