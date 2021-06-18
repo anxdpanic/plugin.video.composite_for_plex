@@ -17,12 +17,11 @@ import traceback
 import xml.etree.ElementTree as ETree
 
 import requests
+from kodi_six import xbmcgui  # pylint: disable=import-error
 from six import PY3
 from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
-
-from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon import cache_control
 from ..addon.common import get_platform_ip

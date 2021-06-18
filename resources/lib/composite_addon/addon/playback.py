@@ -10,13 +10,12 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from six.moves import xrange
-from six.moves.urllib_parse import unquote
-
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 from kodi_six import xbmcvfs  # pylint: disable=import-error
+from six.moves import xrange
+from six.moves.urllib_parse import unquote
 
 from .common import get_handle
 from .common import is_resuming_video

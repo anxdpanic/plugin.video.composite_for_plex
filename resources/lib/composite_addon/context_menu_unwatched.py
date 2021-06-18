@@ -13,9 +13,8 @@ import json
 import re
 import sys
 
-from six.moves.urllib_parse import parse_qs
-
 from kodi_six import xbmc  # pylint: disable=import-error
+from six.moves.urllib_parse import parse_qs
 
 try:
     KODI_VERSION = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])

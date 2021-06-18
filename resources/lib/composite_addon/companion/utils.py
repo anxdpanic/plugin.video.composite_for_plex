@@ -14,9 +14,8 @@
 import base64
 import json
 
-from six import PY3
-
 from kodi_six import xbmc  # pylint: disable=import-error
+from six import PY3
 
 from ..addon.common import get_platform
 from ..addon.constants import CONFIG

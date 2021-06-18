@@ -17,6 +17,7 @@ import uuid
 import xml.etree.ElementTree as ETree
 
 import requests
+from kodi_six import xbmcgui  # pylint: disable=import-error
 from six.moves import xrange
 from six.moves.urllib_parse import parse_qsl
 from six.moves.urllib_parse import quote
@@ -24,8 +25,6 @@ from six.moves.urllib_parse import quote_plus
 from six.moves.urllib_parse import urlencode
 from six.moves.urllib_parse import urlparse
 from six.moves.urllib_parse import urlunparse
-
-from kodi_six import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
