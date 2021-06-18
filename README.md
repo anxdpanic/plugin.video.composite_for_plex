@@ -2,7 +2,7 @@
 
 # Composite
 
-![Build Status](https://img.shields.io/travis/com/anxdpanic/plugin.video.composite_for_plex/master.svg)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fanxdpanic%2Fplugin.video.composite_for_plex%2Fbadge&logo=none)](https://actions-badge.atrox.dev/anxdpanic/plugin.video.composite_for_plex/goto)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-success.svg)
 ![Kodi Version](https://img.shields.io/badge/kodi-jarvis%2B-success.svg)
 ![Contributors](https://img.shields.io/github/contributors/anxdpanic/plugin.video.composite_for_plex.svg)
