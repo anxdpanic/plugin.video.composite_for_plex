@@ -9,7 +9,7 @@ on:
 
 jobs:
   default:
-    if: github.repository == 'anxdpanic/plug.video.composite_for_plex'
+    if: github.repository == 'anxdpanic/plugin.video.composite_for_plex'
 
     runs-on: ubuntu-latest
 
