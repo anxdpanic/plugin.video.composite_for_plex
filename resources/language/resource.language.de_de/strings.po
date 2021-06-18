@@ -9,8 +9,8 @@ msgstr ""
 "POT-Creation-Date: 2014-10-26 17:05+0000\n"
 "PO-Revision-Date: 2020-01-18 21:15+0500\n"
 "Last-Translator: Maven85\n"
-"Language-Team: German"
-"Language: de_DE\n"
+"Language-Team: GermanLanguage: de_DE\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -58,7 +58,6 @@ msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
 msgstr "Du bist zurzeit bei myPlex angemeldet. Möchstest du dich wirklich abmelden?"
 
 #  30010
-
 msgctxt "#30011"
 msgid "You are not currently logged into myPlex. Continue to sign in, or cancel to return"
 msgstr "Du bist zurzeit nicht bei myPlex angemeldet. Setze fort, um dich anzumelden, oder brich ab, um zurückzukehren"
@@ -379,8 +378,7 @@ msgctxt "#30090"
 msgid "Unplayed"
 msgstr "Ungespielt"
 
-###### SETTINGS
-
+# ##### SETTINGS
 msgctxt "#30500"
 msgid "Primary Server Address"
 msgstr "Adresse des primären Servers"
@@ -418,8 +416,8 @@ msgid "Transcode format "
 msgstr "Transcoding-Format "
 
 msgctxt "#30509"
-msgid "Recent & On Deck items"
-msgstr "Letzte & aktuelle Titel"
+msgid "Recent & OnDeck items"
+msgstr ""
 
 msgctxt "#30510"
 msgid "Debug log"
@@ -574,7 +572,6 @@ msgid "Use WOL?"
 msgstr "Wake on LAN verwenden?"
 
 # 30548
-
 msgctxt "#30549"
 msgid "Skip Genre/director/writer"
 msgstr "Informationen über Genre/Regisseur/Author überspringen"
@@ -904,15 +901,12 @@ msgid "Exit"
 msgstr "Beenden"
 
 #  30632
-
 #  30633
-
 msgctxt "#30634"
 msgid "Enter your myPlex details below"
 msgstr "Gib unten die myPlex-Daten ein"
 
 #  30635
-
 msgctxt "#30636"
 msgid "Unknown"
 msgstr "Unbekannt"
@@ -1568,3 +1562,7 @@ msgstr ""
 msgctxt "#30799"
 msgid "Configured library sections have been reset"
 msgstr ""
+
+#~ msgctxt "#30509"
+#~ msgid "Recent & On Deck items"
+#~ msgstr "Letzte & aktuelle Titel"
