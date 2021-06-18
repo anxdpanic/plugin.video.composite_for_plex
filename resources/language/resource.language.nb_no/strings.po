@@ -57,7 +57,6 @@ msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
 msgstr ""
 
 #  30010
-
 msgctxt "#30011"
 msgid "You are not currently logged into myPlex. Continue to sign in, or cancel to return"
 msgstr ""
@@ -378,8 +377,7 @@ msgctxt "#30090"
 msgid "Unplayed"
 msgstr ""
 
-###### SETTINGS
-
+# ##### SETTINGS
 msgctxt "#30500"
 msgid "Primary Server Address"
 msgstr ""
@@ -573,7 +571,6 @@ msgid "Use WOL?"
 msgstr ""
 
 # 30548
-
 msgctxt "#30549"
 msgid "Skip Genre/director/writer"
 msgstr ""
@@ -903,15 +900,12 @@ msgid "Exit"
 msgstr ""
 
 #  30632
-
 #  30633
-
 msgctxt "#30634"
 msgid "Enter your myPlex details below"
 msgstr ""
 
 #  30635
-
 msgctxt "#30636"
 msgid "Unknown"
 msgstr ""
