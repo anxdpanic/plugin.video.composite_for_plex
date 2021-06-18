@@ -13,10 +13,9 @@
 import json
 from copy import deepcopy
 
-from six.moves.urllib_parse import urlparse
-
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
+from six.moves.urllib_parse import urlparse
 
 from ..addon.data_cache import DATA_CACHE
 from ..addon.logger import Logger

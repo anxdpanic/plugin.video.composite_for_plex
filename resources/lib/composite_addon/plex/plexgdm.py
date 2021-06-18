@@ -165,8 +165,9 @@ class PlexGDM:  # pylint: disable=too-many-instance-attributes
                 media_port = self.server_list[0]['port']
 
                 LOG.debug('Checking server [%s] on port [%s]' % (media_server, media_port))
-                file_handle = urlopen('http://%s:%s/clients' % (media_server, media_port))
-                client_result = file_handle.read()
+                with urlopen('http://%s:%s/clients' % (media_server, media_port)) as file_handle:
+                    client_result = file_handle.read()
+
                 if self.client_id in client_result:
                     LOG.debug('Client registration successful')
                     LOG.debug('Client data is: %s' % client_result)

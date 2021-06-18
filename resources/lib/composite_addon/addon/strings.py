@@ -9,9 +9,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from six import PY3
-
 from kodi_six import xbmc  # pylint: disable=import-error
+from six import PY3
 
 from .constants import CONFIG
 from .logger import Logger

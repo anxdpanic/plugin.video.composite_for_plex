@@ -14,13 +14,12 @@
 import re
 import traceback
 
+from kodi_six import xbmc  # pylint: disable=import-error
 from six.moves.BaseHTTPServer import BaseHTTPRequestHandler
 from six.moves.BaseHTTPServer import HTTPServer
 from six.moves.socketserver import ThreadingMixIn
 from six.moves.urllib_parse import parse_qs
 from six.moves.urllib_parse import urlparse
-
-from kodi_six import xbmc  # pylint: disable=import-error
 
 from ..addon.common import get_platform
 from ..addon.constants import CONFIG
