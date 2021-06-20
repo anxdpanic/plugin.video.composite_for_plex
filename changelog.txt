@@ -1,5 +1,6 @@
 1.4.2
 [fixup] custom access urls
+[add] Detect Servers to main menu
 [chg] only refresh server cache on connection errors
 
 1.4.1
