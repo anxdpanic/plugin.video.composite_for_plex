@@ -39,6 +39,7 @@
     <extension point="xbmc.addon.metadata">
         <news>
 [fixup] custom access urls
+[add] Detect Servers to main menu
 [chg] only refresh server cache on connection errors
         </news>
         <assets>

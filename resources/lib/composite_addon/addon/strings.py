@@ -219,6 +219,7 @@ STRINGS = {
     'Library - TV Show Sections': 30795,
     'Configured library sections have been reset': 30799,
     'Continue Watching': 30800,
+    'Detect Servers': 30801,
 }
 
 

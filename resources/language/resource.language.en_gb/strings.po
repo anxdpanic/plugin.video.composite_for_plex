@@ -1579,3 +1579,7 @@ msgstr ""
 msgctxt "#30800"
 msgid "Continue Watching"
 msgstr ""
+
+msgctxt "#30801"
+msgid "Detect Servers"
+msgstr ""
