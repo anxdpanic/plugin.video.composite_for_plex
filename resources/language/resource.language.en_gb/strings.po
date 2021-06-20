@@ -1575,3 +1575,7 @@ msgstr ""
 msgctxt "#30799"
 msgid "Configured library sections have been reset"
 msgstr ""
+
+msgctxt "#30800"
+msgid "Continue Watching"
+msgstr ""
