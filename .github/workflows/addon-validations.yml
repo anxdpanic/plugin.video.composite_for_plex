@@ -2,10 +2,10 @@ name: Add-on Validations
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master, main, official_repository, official_repository_matrix ]
 
   pull_request:
-    branches: [ master, main ]
+    branches: [ master, main, official_repository, official_repository_matrix ]
 
 jobs:
 
@@ -49,10 +49,25 @@ jobs:
           cp -t ${HOME} .pylintrc
         working-directory: ${{ github.event.repository.name }}
 
+      - name: Set KODI_BRANCH to jarvis
+        if: endsWith(github.ref, '/master') || github.event.pull_request.base.ref == 'master'
+        run: |
+          echo "KODI_BRANCH=jarvis" >> $GITHUB_ENV
+
+      - name: Set KODI_BRANCH to leia
+        if: endsWith(github.ref, '/official_repository') || github.event.pull_request.base.ref == 'official_repository'
+        run: |
+          echo "KODI_BRANCH=leia" >> $GITHUB_ENV
+
+      - name: Set KODI_BRANCH to matrix
+        if: endsWith(github.ref, '/official_repository_matrix') || github.event.pull_request.base.ref == 'official_repository_matrix'
+        run: |
+          echo "KODI_BRANCH=matrix" >> $GITHUB_ENV
+
       - name: Kodi Add-on Checker
         id: kodi-addon-checker
         run: |
-          kodi-addon-checker ${{ github.event.repository.name }} --branch=jarvis
+          kodi-addon-checker ${{ github.event.repository.name }} --branch=${KODI_BRANCH}
 
       - name: Pylint
         id: pylint
