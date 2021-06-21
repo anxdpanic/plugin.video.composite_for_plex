@@ -2,10 +2,10 @@ name: Add-on Validations
 
 on:
   push:
-    branches: [ master, main, official_repository, official_repository_matrix ]
+    branches: [ master, main ]
 
   pull_request:
-    branches: [ master, main, official_repository, official_repository_matrix ]
+    branches: [ master, main ]
 
 jobs:
 
@@ -42,36 +42,54 @@ jobs:
           python -m pip install pylint
           python -m pip install addon-check/
 
-      - name: Staging
-        run: |
-          rm -rf LICENSES/
-          rm -f .gitattributes
-          cp -t ${HOME} .pylintrc
-        working-directory: ${{ github.event.repository.name }}
-
-      - name: Set KODI_BRANCH to jarvis
-        if: endsWith(github.ref, '/master') || github.event.pull_request.base.ref == 'master'
+      - name: Staging for Jarvis
         run: |
           echo "KODI_BRANCH=jarvis" >> $GITHUB_ENV
 
-      - name: Set KODI_BRANCH to leia
-        if: endsWith(github.ref, '/official_repository') || github.event.pull_request.base.ref == 'official_repository'
-        run: |
-          echo "KODI_BRANCH=leia" >> $GITHUB_ENV
-
-      - name: Set KODI_BRANCH to matrix
-        if: endsWith(github.ref, '/official_repository_matrix') || github.event.pull_request.base.ref == 'official_repository_matrix'
-        run: |
-          echo "KODI_BRANCH=matrix" >> $GITHUB_ENV
-
-      - name: Kodi Add-on Checker
-        id: kodi-addon-checker
+      - name: Kodi Add-on Checker (Jarvis)
+        id: kodi-addon-checker-jarvis
         run: |
           kodi-addon-checker ${{ github.event.repository.name }} --branch=${KODI_BRANCH}
+
+      - name: Staging for Leia
+        run: |
+          echo "KODI_BRANCH=leia" >> $GITHUB_ENV
+          git reset
+          git checkout .
+          git clean -fdx
+          git apply .patches/leia.patch
+        working-directory: ${{ github.event.repository.name }}
+
+      - name: Kodi Add-on Checker (Leia)
+        id: kodi-addon-checker-leia
+        run: |
+          kodi-addon-checker ${{ github.event.repository.name }} --branch=${KODI_BRANCH}
+
+      - name: Staging for Matrix
+        run: |
+          echo "KODI_BRANCH=matrix" >> $GITHUB_ENV
+          git reset
+          git checkout .
+          git clean -fdx
+          git apply .patches/matrix.patch
+        working-directory: ${{ github.event.repository.name }}
+
+      - name: Kodi Add-on Checker (Matrix)
+        id: kodi-addon-checker-matrix
+        run: |
+          kodi-addon-checker ${{ github.event.repository.name }} --branch=${KODI_BRANCH}
+
+      - name: Re-staging Repository
+        run: |
+          git reset
+          git checkout .
+          git clean -fdx
+        working-directory: ${{ github.event.repository.name }}
 
       - name: Pylint
         id: pylint
         run: |
+          cp -t ${HOME} .pylintrc
           pylint resources/lib/
         working-directory: ${{ github.event.repository.name }}
 
