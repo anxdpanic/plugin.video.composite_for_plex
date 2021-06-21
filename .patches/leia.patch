@@ -1,0 +1,57 @@
+From 5d0f9ab716ff6437b7a368aaf65cbb1b4c107580 Mon Sep 17 00:00:00 2001
+From: anxdpanic <anxdpanic@gmail.com>
+Date: Sun, 19 Jan 2020 13:55:42 -0500
+Subject: [PATCH] Kodi 18 Patch
+
+---
+ addon.xml                                |   8 ++++----
+ fanart.jpg => resources/media/fanart.png | Bin
+ icon.png => resources/media/icon.png     | Bin
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+ rename fanart.jpg => resources/media/fanart.png (100%)
+ rename icon.png => resources/media/icon.png (100%)
+
+diff --git a/addon.xml b/addon.xml
+index 5d1ca2a..601e8b2 100644
+--- a/addon.xml
++++ b/addon.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+ <addon id="plugin.video.composite_for_plex" name="Composite" version="1.4.2~alpha2" provider-name="anxdpanic">
+     <requires>
+-        <import addon="xbmc.python" version="2.24.0"/>
++        <import addon="xbmc.python" version="2.26.0"/>
+         <import addon="script.module.kodi-six" version="0.0.2"/>
+         <import addon="script.module.six" version="1.11.0"/>
+         <import addon="script.module.requests" version="2.12.4"/>
+@@ -12,7 +12,7 @@
+         <medialibraryscanpath content="movies">library/movies/</medialibraryscanpath>
+         <medialibraryscanpath content="tvshows">library/tvshows/</medialibraryscanpath>
+     </extension>
+-    <extension point="xbmc.service" library="resources/lib/service_entry_point.py" start="login"/>
++    <extension point="xbmc.service" library="resources/lib/service_entry_point.py"/>
+     <extension point="xbmc.python.script" library="resources/lib/entry_point.py"/>
+     <extension point="kodi.context.item">
+         <menu id="kodi.core.main">
+@@ -43,8 +43,8 @@
+ [chg] only refresh server cache on connection errors
+         </news>
+         <assets>
+-            <icon>icon.png</icon>
+-            <fanart>fanart.jpg</fanart>
++            <icon>resources/media/icon.png</icon>
++            <fanart>resources/media/fanart.png</fanart>
+         </assets>
+         <platform>all</platform>
+         <license>GPL-2.0-or-later</license>
+diff --git a/fanart.jpg b/resources/media/fanart.png
+similarity index 100%
+rename from fanart.jpg
+rename to resources/media/fanart.png
+diff --git a/icon.png b/resources/media/icon.png
+similarity index 100%
+rename from icon.png
+rename to resources/media/icon.png
+-- 
+2.26.2.windows.1
+
