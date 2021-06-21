@@ -18,6 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install libxml2-utils xmlstarlet zip
+          GLOBIGNORE=.git
 
       - name: Get Changelog
         id: changelog
