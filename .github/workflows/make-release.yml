@@ -18,7 +18,6 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install libxml2-utils xmlstarlet zip
-          GLOBIGNORE=.git
 
       - name: Get Changelog
         id: changelog
@@ -33,12 +32,14 @@ jobs:
           git reset
           git checkout .
           git clean -fdx
+          mv .git ..
           rm -rf .??*
           rm *.md
           version=$(xmlstarlet sel -t -v 'string(/addon/@version)' addon.xml)
           filename=${{ github.event.repository.name }}-${version}.zip
           cd ..
           zip -r $filename ${{ github.event.repository.name }}
+          mv .git ${{ github.event.repository.name }}
           echo ::set-output name=filename::$filename
         working-directory: ${{ github.event.repository.name }}
 
@@ -49,12 +50,14 @@ jobs:
           git checkout .
           git clean -fdx
           git apply .patches/leia.patch
+          mv .git ..
           rm -rf .??*
           rm *.md
           version=$(xmlstarlet sel -t -v 'string(/addon/@version)' addon.xml)
           filename=${{ github.event.repository.name }}-leia-${version}.zip
           cd ..
           zip -r $filename ${{ github.event.repository.name }}
+          mv .git ${{ github.event.repository.name }}
           echo ::set-output name=filename::$filename
         working-directory: ${{ github.event.repository.name }}
 
@@ -65,6 +68,7 @@ jobs:
           git checkout .
           git clean -fdx
           git apply .patches/matrix.patch
+          mv .git ..
           rm -rf .??*
           rm *.md
           version=$(xmlstarlet sel -t -v 'string(/addon/@version)' addon.xml)
@@ -73,6 +77,7 @@ jobs:
           filename=${{ github.event.repository.name }}-${version}.zip
           cd ..
           zip -r $filename ${{ github.event.repository.name }}
+          mv .git ${{ github.event.repository.name }}
           echo ::set-output name=filename::$filename
         working-directory: ${{ github.event.repository.name }}
 
