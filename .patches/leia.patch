@@ -15,9 +15,7 @@ diff --git a/addon.xml b/addon.xml
 index 5d1ca2a..601e8b2 100644
 --- a/addon.xml
 +++ b/addon.xml
-@@ -1,7 +1,7 @@
- <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
- <addon id="plugin.video.composite_for_plex" name="Composite" version="1.4.2~alpha2" provider-name="anxdpanic">
+@@ -3,5 +3,5 @@
      <requires>
 -        <import addon="xbmc.python" version="2.24.0"/>
 +        <import addon="xbmc.python" version="2.26.0"/>
@@ -33,8 +31,7 @@ index 5d1ca2a..601e8b2 100644
      <extension point="xbmc.python.script" library="resources/lib/entry_point.py"/>
      <extension point="kodi.context.item">
          <menu id="kodi.core.main">
-@@ -43,8 +43,8 @@
- [chg] only refresh server cache on connection errors
+@@ -44,7 +44,7 @@
          </news>
          <assets>
 -            <icon>icon.png</icon>
