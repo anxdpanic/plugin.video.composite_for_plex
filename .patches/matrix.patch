@@ -1,7 +1,10 @@
-From 93ce4bf57645774218016e6df7dbdbb8fac6542f Mon Sep 17 00:00:00 2001
+From 2a2f8e8222436d358cb67c13a604beac48d3e872 Mon Sep 17 00:00:00 2001
 From: anxdpanic <anxdpanic@gmail.com>
 Date: Sun, 19 Jan 2020 13:55:42 -0500
-Subject: [PATCH] Kodi 19 Patch
+Subject: [PATCH] =?UTF-8?q?=EF=BB=BFKodi=2019=20Patch?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 ---
  addon.xml                                |   8 ++++----
@@ -12,7 +15,7 @@ Subject: [PATCH] Kodi 19 Patch
  rename icon.png => resources/media/icon.png (100%)
 
 diff --git a/addon.xml b/addon.xml
-index 5d1ca2a..a8fff05 100644
+index 6cb1a93..cb96046 100644
 --- a/addon.xml
 +++ b/addon.xml
 @@ -3,5 +3,5 @@
@@ -31,16 +34,16 @@ index 5d1ca2a..a8fff05 100644
      <extension point="xbmc.python.script" library="resources/lib/entry_point.py"/>
      <extension point="kodi.context.item">
          <menu id="kodi.core.main">
-@@ -44,7 +44,7 @@
-         </news>
+@@ -38,7 +38,7 @@
+     </extension>
+     <extension point="xbmc.addon.metadata">
          <assets>
 -            <icon>icon.png</icon>
 -            <fanart>fanart.jpg</fanart>
 +            <icon>resources/media/icon.png</icon>
 +            <fanart>resources/media/fanart.png</fanart>
          </assets>
-         <platform>all</platform>
-         <license>GPL-2.0-or-later</license>
+         <news>
 diff --git a/fanart.jpg b/resources/media/fanart.png
 similarity index 100%
 rename from fanart.jpg
@@ -51,4 +54,3 @@ rename from icon.png
 rename to resources/media/icon.png
 -- 
 2.26.2.windows.1
-

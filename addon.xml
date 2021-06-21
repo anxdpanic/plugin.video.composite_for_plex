@@ -37,15 +37,15 @@
         </menu>
     </extension>
     <extension point="xbmc.addon.metadata">
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
         <news>
 [fixup] custom access urls
 [add] Detect Servers to main menu
 [chg] only refresh server cache on connection errors
         </news>
-        <assets>
-            <icon>icon.png</icon>
-            <fanart>fanart.jpg</fanart>
-        </assets>
         <platform>all</platform>
         <license>GPL-2.0-or-later</license>
         <source>https://github.com/anxdpanic/plugin.video.composite_for_plex</source>
