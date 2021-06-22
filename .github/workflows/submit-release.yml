@@ -42,7 +42,7 @@ jobs:
           rm -rf .??*
           rm *.md
           cd ..
-          submit-addon -r repo-plugins -b leia -s ${{ github.event.repository.name }} --push-branch ${{ github.event.repository.name }}
+          submit-addon -r repo-plugins -b leia -s --push-branch ${{ github.event.repository.name }}
           mv .git ${{ github.event.repository.name }}
         working-directory: ${{ github.event.repository.name }}
         env:
@@ -63,7 +63,7 @@ jobs:
           version=$(xmlstarlet sel -t -v 'string(/addon/@version)' addon.xml)
           xmlstarlet ed -L -u '/addon/@version' -v "${version}+matrix.1" addon.xml
           cd ..
-          submit-addon -r repo-plugins -b matrix -s ${{ github.event.repository.name }} --push-branch ${{ github.event.repository.name }}
+          submit-addon -r repo-plugins -b matrix -s --push-branch ${{ github.event.repository.name }}
           mv .git ${{ github.event.repository.name }}
         working-directory: ${{ github.event.repository.name }}
         env:
