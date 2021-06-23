@@ -35,18 +35,13 @@ jobs:
           python -m pip install pylint
           python -m pip install git+https://github.com/xbmc/addon-check.git
 
-      - name: Staging for Jarvis
-        run: |
-          echo "KODI_BRANCH=jarvis" >> $GITHUB_ENV
-
       - name: Kodi Add-on Checker (Jarvis)
         id: kodi-addon-checker-jarvis
         run: |
-          kodi-addon-checker ${{ github.event.repository.name }} --branch=${KODI_BRANCH}
+          kodi-addon-checker ${{ github.event.repository.name }} --branch=jarvis
 
       - name: Staging for Leia
         run: |
-          echo "KODI_BRANCH=leia" >> $GITHUB_ENV
           git reset
           git checkout .
           git clean -fdx
@@ -56,11 +51,10 @@ jobs:
       - name: Kodi Add-on Checker (Leia)
         id: kodi-addon-checker-leia
         run: |
-          kodi-addon-checker ${{ github.event.repository.name }} --branch=${KODI_BRANCH}
+          kodi-addon-checker ${{ github.event.repository.name }} --branch=leia
 
       - name: Staging for Matrix
         run: |
-          echo "KODI_BRANCH=matrix" >> $GITHUB_ENV
           git reset
           git checkout .
           git clean -fdx
@@ -70,7 +64,7 @@ jobs:
       - name: Kodi Add-on Checker (Matrix)
         id: kodi-addon-checker-matrix
         run: |
-          kodi-addon-checker ${{ github.event.repository.name }} --branch=${KODI_BRANCH}
+          kodi-addon-checker ${{ github.event.repository.name }} --branch=matrix
 
       - name: Re-staging Repository
         run: |
