@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up Python v3.6
+      - name: Set up Python v3.9
         uses: actions/setup-python@v2
         with:
-          python-version: '3.6'
+          python-version: '3.9'
 
       - name: Checkout Add-on
         uses: actions/checkout@v2

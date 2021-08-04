@@ -450,7 +450,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             return {}
 
         server_list = ETree.fromstring(xml)
-        devices = server_list.getiterator('Device')  # pylint: disable=deprecated-method
+        devices = server_list.getiterator('Device')
         for device in devices:
 
             LOG.debug('[%s] Found device' % device.get('name'))
@@ -603,7 +603,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             base64bytes = base64.encodebytes(credentials)
             base64string = base64bytes.decode('utf-8').replace('\n', '')
         else:
-            base64string = base64.encodestring(credentials).replace('\n', '')  # pylint: disable=deprecated-method
+            base64string = base64.encodestring(credentials).replace('\n', '')  # pylint: disable=no-member
 
         token = False
         myplex_headers = {
