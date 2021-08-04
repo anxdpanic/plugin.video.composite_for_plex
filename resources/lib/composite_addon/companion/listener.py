@@ -106,8 +106,8 @@ class PlexCompanionHandler(BaseHTTPRequestHandler):
 
             param_arrays = parse_qs(url.query)
             params = {}
-            for key in param_arrays:
-                params[key] = param_arrays[key][0]
+            for key, value in param_arrays.items():
+                params[key] = value[0]
 
             LOG.debug('request path is: [%s]' % (request_path,))
             LOG.debug('params are: %s' % params)
