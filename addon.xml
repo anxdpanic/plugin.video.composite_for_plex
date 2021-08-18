@@ -54,7 +54,9 @@
         <description lang="de_DE">Durchsuchen und Abspielen von Videos, Musik und Fotos, die vom Plex Media Server verwaltet werden.[CR][CR]Fork von Hippojay's PleXBMC</description>
         <description lang="en_GB">Browse and play video, music and photo media files managed by Plex Media Server.[CR][CR]Fork of PleXBMC by Hippojay</description>
         <description lang="fi_FI">Selaa ja toista video-, musiikki- ja valokuvamediatiedostoja, joita Plex Media Server hallinnoi.[CR][CR]Hippojayn haaroitus PleXBMC:stä</description>
+        <description lang="pl_PL">Przeglądaj i odtwarzaj pliki multimedialne zarządzane przez Plex Media Server.[CR] [CR] Jest to fork PleXBMC stworzonego przez Hippojay'a</description>
         <disclaimer lang="de_DE">Composite ist KEIN offizielles Plex Add-on und wird von Plex weder unterstützt noch gebilligt.</disclaimer>
         <disclaimer lang="en_GB">Composite is NOT an official Plex add-on and is not supported or endorsed by Plex.</disclaimer>
+        <disclaimer lang="pl_PL">Composite NIE jest oficjalnym dodatkiem do programu Plex, nie jest wspierany ani zatwierdzany przez firmę Plex.</disclaimer>
     </extension>
 </addon>
