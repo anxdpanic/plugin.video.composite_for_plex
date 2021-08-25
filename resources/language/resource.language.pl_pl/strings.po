@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Composite\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: 2014-10-26 17:05+0000\n"
-"PO-Revision-Date: 2021-08-18 22:28+0000\n"
+"PO-Revision-Date: 2021-08-25 05:29+0000\n"
 "Last-Translator: eryk918 <erwinek1998@gmail.com>\n"
 "Language-Team: Polish <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-composite_for_plex/pl_pl/>\n"
 "Language: pl_pl\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.7.2\n"
+"X-Generator: Weblate 4.8\n"
 
 msgctxt "Addon Description"
 msgid "Browse and play video, music and photo media files managed by Plex Media Server.[CR][CR]Fork of PleXBMC by Hippojay"
@@ -598,7 +598,7 @@ msgstr "Pomiń menu kontekstowe"
 
 msgctxt "#30553"
 msgid "Off"
-msgstr "Z"
+msgstr "Wyłączone"
 
 msgctxt "#30554"
 msgid "Bonjour"
@@ -798,7 +798,7 @@ msgstr "Ukryj „Wszystkie odcinki” z listy sezonów"
 
 msgctxt "#30604"
 msgid "Enable Kodi view cache"
-msgstr "Włącz buforowanie widoku Kodi"
+msgstr "Włącz buforowanie widoku w Kodi"
 
 msgctxt "#30605"
 msgid "Manage myPlex"
@@ -806,15 +806,15 @@ msgstr "Zarządzaj myPlex"
 
 msgctxt "#30606"
 msgid "Prefer Season artwork"
-msgstr ""
+msgstr "Preferuj okładkę sezonu"
 
 msgctxt "#30607"
 msgid "Hide Unique Information in log"
-msgstr ""
+msgstr "Ukryj unikalne informacje w logu"
 
 msgctxt "#30608"
 msgid "Use Kodi client name?"
-msgstr ""
+msgstr "Używać nazwy klienta Kodi?"
 
 msgctxt "#30609"
 msgid "Switch off playback monitor"
@@ -822,23 +822,23 @@ msgstr ""
 
 msgctxt "#30610"
 msgid "Use HTTPS"
-msgstr ""
+msgstr "Używaj HTTPS"
 
 msgctxt "#30611"
 msgid "Transcode > 1080p"
-msgstr ""
+msgstr "Transkoduj > 1080p"
 
 msgctxt "#30612"
 msgid "Transcode HEVC"
-msgstr ""
+msgstr "Transkoduj HEVC"
 
 msgctxt "#30613"
 msgid "MAC Address"
-msgstr ""
+msgstr "Adres MAC"
 
 msgctxt "#30614"
 msgid "Universal"
-msgstr ""
+msgstr "Uniwersalny"
 
 msgctxt "#30615"
 msgid "Legacy"
@@ -850,35 +850,35 @@ msgstr ""
 
 msgctxt "#30617"
 msgid "Username:"
-msgstr ""
+msgstr "Nazwa użytkownika:"
 
 msgctxt "#30618"
 msgid "Password:"
-msgstr ""
+msgstr "Hasło:"
 
 msgctxt "#30619"
 msgid "Cancel"
-msgstr ""
+msgstr "Anuluj"
 
 msgctxt "#30620"
 msgid "Submit"
-msgstr ""
+msgstr "Zatwierdź"
 
 msgctxt "#30621"
 msgid "Manual"
-msgstr ""
+msgstr "Manualnie"
 
 msgctxt "#30622"
 msgid "Use PIN"
-msgstr ""
+msgstr "Użyj PIN'u"
 
 msgctxt "#30623"
 msgid "Done"
-msgstr ""
+msgstr "Zrobione"
 
 msgctxt "#30624"
 msgid "Unable to sign in"
-msgstr ""
+msgstr "Logowanie nie powiodło się"
 
 msgctxt "#30625"
 msgid "From your computer, go to %s and enter the code below"
@@ -886,7 +886,7 @@ msgstr ""
 
 msgctxt "#30626"
 msgid "Successfully signed in"
-msgstr ""
+msgstr "Pomyślnie zalogowano"
 
 msgctxt "#30627"
 msgid "Sign in not successful"
@@ -894,19 +894,19 @@ msgstr ""
 
 msgctxt "#30628"
 msgid "Email:"
-msgstr ""
+msgstr "E-mail:"
 
 msgctxt "#30629"
 msgid "Plex Pass:"
-msgstr ""
+msgstr "Plex Pass:"
 
 msgctxt "#30630"
 msgid "Joined:"
-msgstr ""
+msgstr "Dołączono:"
 
 msgctxt "#30631"
 msgid "Exit"
-msgstr ""
+msgstr "Wyjście"
 
 #  30632
 #  30633
@@ -917,59 +917,59 @@ msgstr ""
 #  30635
 msgctxt "#30636"
 msgid "Unknown"
-msgstr ""
+msgstr "Nieznany"
 
 msgctxt "#30637"
 msgid "myPlex Login"
-msgstr ""
+msgstr "Login w myPlex"
 
 msgctxt "#30638"
 msgid "Enter search term"
-msgstr ""
+msgstr "Podaj frazę do wyszukania"
 
 msgctxt "#30639"
 msgid "Enter value"
-msgstr ""
+msgstr "Podaj wartość"
 
 msgctxt "#30640"
 msgid "Transcode Profile"
-msgstr ""
+msgstr "Profil transkodowania"
 
 msgctxt "#30641"
 msgid "Transcode Profiles"
-msgstr ""
+msgstr "Profile transkodowania"
 
 msgctxt "#30642"
 msgid "Offline"
-msgstr ""
+msgstr "Offline"
 
 msgctxt "#30643"
 msgid "Remote"
-msgstr ""
+msgstr "Zdalny"
 
 msgctxt "#30644"
 msgid "Nearby"
-msgstr ""
+msgstr "Lokalny"
 
 msgctxt "#30645"
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 msgctxt "#30646"
 msgid "Not Secure"
-msgstr ""
+msgstr "Nie zabezpieczone"
 
 msgctxt "#30647"
 msgid "Certificate Verification"
-msgstr ""
+msgstr "Weryfikacja certyfikatu"
 
 msgctxt "#30648"
 msgid "Message"
-msgstr ""
+msgstr "Wiadomość"
 
 msgctxt "#30649"
 msgid "blank"
-msgstr ""
+msgstr "pusty"
 
 msgctxt "#30650"
 msgid "Server Discovery"
@@ -977,7 +977,7 @@ msgstr ""
 
 msgctxt "#30651"
 msgid "Please wait..."
-msgstr ""
+msgstr "Proszę czekać..."
 
 msgctxt "#30652"
 msgid "myPlex discovery..."
@@ -1001,7 +1001,7 @@ msgstr ""
 
 msgctxt "#30657"
 msgid "Found servers:"
-msgstr ""
+msgstr "Znalezione serwery:"
 
 msgctxt "#30658"
 msgid "No servers found"
@@ -1009,19 +1009,19 @@ msgstr ""
 
 msgctxt "#30659"
 msgid "Transcode > 8-bit"
-msgstr ""
+msgstr "Transkoduj > 8-bit"
 
 msgctxt "#30660"
 msgid "Device Name"
-msgstr ""
+msgstr "Nazwa urządzenia"
 
 msgctxt "#30661"
 msgid "Cache"
-msgstr ""
+msgstr "Pamięć podręczna"
 
 msgctxt "#30662"
 msgid "Server Cache TTL (minutes)"
-msgstr ""
+msgstr "Pamięć podręczna serwera TTL (w minutach)"
 
 msgctxt "#30663"
 msgid "Server detection notification"
@@ -1029,23 +1029,23 @@ msgstr ""
 
 msgctxt "#30664"
 msgid "installed"
-msgstr ""
+msgstr "zainstalowano"
 
 msgctxt "#30665"
 msgid "Movies"
-msgstr ""
+msgstr "Filmy"
 
 msgctxt "#30666"
 msgid "Music"
-msgstr ""
+msgstr "Muzyka"
 
 msgctxt "#30667"
 msgid "TV Shows"
-msgstr ""
+msgstr "Programy telewizyjne"
 
 msgctxt "#30668"
 msgid "Photos"
-msgstr ""
+msgstr "Zdjecia"
 
 msgctxt "#30669"
 msgid "Server name prefix on the main menu"
@@ -1053,15 +1053,15 @@ msgstr ""
 
 msgctxt "#30670"
 msgid "Always"
-msgstr ""
+msgstr "Zawsze"
 
 msgctxt "#30671"
 msgid "Default"
-msgstr ""
+msgstr "Domyślnie"
 
 msgctxt "#30672"
 msgid "Go to %s"
-msgstr ""
+msgstr "Idź do %s"
 
 msgctxt "#30673"
 msgid "Delete %s from the %s playlist?"
@@ -1069,15 +1069,15 @@ msgstr ""
 
 msgctxt "#30674"
 msgid "Confirm playlist item delete?"
-msgstr ""
+msgstr "Czy na pewno chcesz usunąć ten element?"
 
 msgctxt "#30675"
 msgid "Delete from playlist"
-msgstr ""
+msgstr "Usuń z listy odtwarzania"
 
 msgctxt "#30676"
 msgid "Select playlist"
-msgstr ""
+msgstr "Wybierz listę odtwarzania"
 
 msgctxt "#30677"
 msgid "Add to playlist"
@@ -1121,7 +1121,7 @@ msgstr ""
 
 msgctxt "#30687"
 msgid "Install Up Next"
-msgstr ""
+msgstr "Zainstaluj 'Up Next'"
 
 msgctxt "#30688"
 msgid "Up Next is enabled in the settings, however Up Next appears to be disabled. Would you like to enable Up Next now?"
@@ -1129,7 +1129,7 @@ msgstr ""
 
 msgctxt "#30689"
 msgid "Up Next requires Kodi 18 or higher"
-msgstr ""
+msgstr "Dodatek 'Up Next' wymaga Kodi 18 i wyżej"
 
 msgctxt "#30690"
 msgid "From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]"
@@ -1137,11 +1137,11 @@ msgstr ""
 
 msgctxt "#30691"
 msgid "Use episode thumbnails"
-msgstr ""
+msgstr "Używaj miniatur odcinków"
 
 msgctxt "#30692"
 msgid "Widgets"
-msgstr ""
+msgstr "Widżety"
 
 msgctxt "#30693"
 msgid "Show [B]Widgets[/B] menu"
@@ -1173,7 +1173,7 @@ msgstr ""
 
 msgctxt "#30700"
 msgid "Recently Aired TV Shows"
-msgstr ""
+msgstr "Ostatnio emitowane programy telewizyjne"
 
 msgctxt "#30701"
 msgid "Recently Added Movies"
