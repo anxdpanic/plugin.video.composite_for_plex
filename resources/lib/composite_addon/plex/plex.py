@@ -60,7 +60,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         self.server_list_cache = 'discovered_plex_servers.cache'
         self.plexhome_cache = 'plexhome_user.pcache'
         self.client_id = None
-        self.user_list = dict()
+        self.user_list = {}
         self.plexhome_settings = {
             'myplex_signedin': False,
             'plexhome_enabled': False,
@@ -443,7 +443,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         return xml
 
     def get_myplex_servers(self):
-        temp_servers = dict()
+        temp_servers = {}
         xml = self.talk_to_myplex('/api/resources?includeHttps=1')
 
         if xml is False:
@@ -718,7 +718,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
     def set_plex_home_users(self):
         data = ETree.fromstring(self.talk_to_myplex('/api/home/users'))
-        self.user_list = dict()
+        self.user_list = {}
         for users in data:
             add = {
                 'id': users.get('id'),
@@ -734,7 +734,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
 
     def get_plex_home_users(self):
         data = ETree.fromstring(self.talk_to_myplex('/api/home/users'))
-        self.user_list = dict()
+        self.user_list = {}
         for users in data:
             add = {
                 'id': users.get('id'),
@@ -794,10 +794,11 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         data = self.talk_to_myplex('/users/account')
         xml = ETree.fromstring(data)
 
-        result = dict()
-        result['username'] = xml.get('username', 'unknown')
-        result['email'] = xml.get('email', 'unknown')
-        result['thumb'] = xml.get('thumb')
+        result = {
+            'username': xml.get('username', 'unknown'),
+            'email': xml.get('email', 'unknown'),
+            'thumb': xml.get('thumb')
+        }
 
         subscription = xml.find('subscription')
         if subscription is not None:
