@@ -18,8 +18,8 @@ from itertools import groupby
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
-from six.moves import zip_longest
 from six import PY3
+from six.moves import zip_longest
 
 from ...addon.constants import CONFIG
 from ...addon.containers import Item
