@@ -89,7 +89,7 @@ def mark_tvshow_watched(tvshow_id):
 
 
 if __name__ == '__main__':
-    info_tag = sys.listitem.getVideoInfoTag()  # pylint: disable=no-member
+    info_tag = sys.listitem.getVideoInfoTag()
 
     try:
         plugin_url = info_tag.getFilenameAndPath()

@@ -808,7 +808,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
 
     def is_owned(self):
 
-        if self.owned == 1 or self.owned == '1':
+        if self.owned in (1, '1'):
             return True
         return False
 
