@@ -7,23 +7,23 @@ msgstr ""
 "Project-Id-Version: Composite\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: 2014-10-26 17:05+0000\n"
-"PO-Revision-Date: 2022-03-27 01:19+0000\n"
-"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"PO-Revision-Date: 2022-09-23 03:14+0000\n"
+"Last-Translator: Massimo Pissarello <mapi68@gmail.com>\n"
 "Language-Team: Italian <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-composite_for_plex/it_it/>\n"
 "Language: it_it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11.2\n"
+"X-Generator: Weblate 4.14.1\n"
 
 msgctxt "Addon Description"
 msgid "Browse and play video, music and photo media files managed by Plex Media Server.[CR][CR]Fork of PleXBMC by Hippojay"
-msgstr ""
+msgstr "Sfoglia e riproduci file multimediali di video, musica e foto gestiti da Plex Media Server.[CR][CR]Fork di PleXBMC di Hippojay"
 
 msgctxt "Addon Disclaimer"
 msgid "Composite is NOT an official Plex add-on and is not supported or endorsed by Plex."
-msgstr ""
+msgstr "Composite NON è un componente aggiuntivo Plex ufficiale e non è supportato o approvato da Plex."
 
 msgctxt "#30000"
 msgid "Confirm file delete?"
@@ -59,7 +59,7 @@ msgstr "Per uscire devi essere loggato come utente amministrativo. Per favore ca
 
 msgctxt "#30008"
 msgid "myPlex"
-msgstr "myples"
+msgstr "myPlex"
 
 msgctxt "#30009"
 msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
@@ -172,7 +172,7 @@ msgstr "Cerca Album..."
 
 msgctxt "#30037"
 msgid "Search Tracks..."
-msgstr "Cerca Tracce"
+msgstr "Cerca Tracce..."
 
 msgctxt "#30038"
 msgid "All"
@@ -409,11 +409,11 @@ msgstr "Ricerca Server"
 
 msgctxt "#30505"
 msgid "PMS Username: "
-msgstr "Nome Utente PMS"
+msgstr "Nome utente PMS: "
 
 msgctxt "#30506"
 msgid "PMS Password: "
-msgstr "Password PMS"
+msgstr "Password PMS: "
 
 msgctxt "#30507"
 msgid "Always Transcode"
@@ -493,7 +493,7 @@ msgstr "Password myPlex"
 
 msgctxt "#30526"
 msgid "Select master server..."
-msgstr "Seleziona il server master"
+msgstr "Seleziona il server master..."
 
 msgctxt "#30527"
 msgid "Authentication required?"
@@ -814,7 +814,7 @@ msgstr "Nascondi le informazioni uniche nel log"
 
 msgctxt "#30608"
 msgid "Use Kodi client name?"
-msgstr "Utilizza il nome del client Kodi"
+msgstr "Uso il nome del client Kodi?"
 
 msgctxt "#30609"
 msgid "Switch off playback monitor"
