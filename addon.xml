@@ -42,6 +42,7 @@
             <fanart>fanart.jpg</fanart>
         </assets>
         <news>
+[fix] fix TV series not showing with library integration |contrib: mash2k3|
 [lang] update translations from Weblate
         </news>
         <platform>all</platform>
