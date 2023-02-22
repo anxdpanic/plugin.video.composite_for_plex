@@ -178,7 +178,7 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
             return 'kodi'
         if method == '1':
             return 'plex'
-        raise Exception('Unknown sort method')
+        raise Exception('Unknown sort method')  # pylint: disable=broad-exception-raised
 
     def mixed_content_type(self):
         method = self._get_setting('mixed_content_type')
@@ -186,7 +186,7 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
             return 'default'
         if method == '1':
             return 'majority'
-        raise Exception('Unknown mixed content type method')
+        raise Exception('Unknown mixed content type method')  # pylint: disable=broad-exception-raised
 
     def device_name(self):
         return self._get_setting('devicename')

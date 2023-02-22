@@ -550,7 +550,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         use_params = method == 'get'
         method = method.replace('get2', 'get')
 
-        try:
+        try:  # pylint: disable=no-else-return
             response = self._request(path, method, use_params=use_params)
 
         except requests.exceptions.ConnectionError as error:
