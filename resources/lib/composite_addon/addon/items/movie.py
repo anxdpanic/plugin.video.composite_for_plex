@@ -53,13 +53,13 @@ def create_movie_item(context, item, library=False):
         'date': item.data.get('originallyAvailableAt', '1970-01-01'),
         'premiered': item.data.get('originallyAvailableAt', '1970-01-01'),
         'tagline': item.data.get('tagline', ''),
-        'dateAdded': date_added,
+        'dateadded': date_added,
         'mediatype': 'movie',
         'playcount': int(int(item.data.get('viewCount', 0)) > 0),
         'cast': metadata['cast'],
         'director': metadata['director'],
         'genre': metadata['genre'],
-        'set': metadata['collections'],
+        'set': ' / '.join(metadata['collections']),
         'writer': metadata['writer'],
     }
 

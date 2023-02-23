@@ -36,7 +36,7 @@ def create_show_item(context, item, library=False):
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
         'sorttitle': encode_utf8(item.data.get('titleSort',
                                                item.data.get('title', i18n('Unknown')))),
-        'TVShowTitle': encode_utf8(item.data.get('title', i18n('Unknown'))),
+        'tvshowtitle': encode_utf8(item.data.get('title', i18n('Unknown'))),
         'studio': [encode_utf8(item.data.get('studio', ''))],
         'plot': encode_utf8(item.data.get('summary', '')),
         'season': 0,
