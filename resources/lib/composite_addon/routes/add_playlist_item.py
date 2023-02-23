@@ -106,26 +106,22 @@ def playlist_user_select(server):
             'summary': playlist.get('summary'),
         })
 
-    if CONFIG['kodi_version'] > 16:
-        item_constructor = xbmcgui.ListItem
-        select_items = []
-        append_item = select_items.append
+    item_constructor = xbmcgui.ListItem
+    select_items = []
+    append_item = select_items.append
 
-        for playlist in playlists:
-            list_item = item_constructor(label=playlist.get('title'),
-                                         label2=playlist.get('summary'))
-            list_item.setArt({
-                'icon': playlist.get('image'),
-                'thumb': playlist.get('image'),
-                'poster': playlist.get('image'),
-            })
-            append_item(list_item)
+    for playlist in playlists:
+        list_item = item_constructor(label=playlist.get('title'),
+                                     label2=playlist.get('summary'))
+        list_item.setArt({
+            'icon': playlist.get('image'),
+            'thumb': playlist.get('image'),
+            'poster': playlist.get('image'),
+        })
+        append_item(list_item)
 
-        return_value = DIALOG.select(i18n('Select playlist'), select_items,
-                                     useDetails=True)
-    else:
-        select_items = list(map(lambda x: x.get('title'), playlists))
-        return_value = DIALOG.select(i18n('Select playlist'), select_items)
+    return_value = DIALOG.select(i18n('Select playlist'), select_items,
+                                 useDetails=True)
 
     if return_value == -1:
         LOG.debug('Dialog cancelled')

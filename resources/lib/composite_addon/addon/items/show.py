@@ -36,8 +36,8 @@ def create_show_item(context, item, library=False):
         'title': encode_utf8(item.data.get('title', i18n('Unknown'))),
         'sorttitle': encode_utf8(item.data.get('titleSort',
                                                item.data.get('title', i18n('Unknown')))),
-        'TVShowTitle': encode_utf8(item.data.get('title', i18n('Unknown'))),
-        'studio': encode_utf8(item.data.get('studio', '')),
+        'tvshowtitle': encode_utf8(item.data.get('title', i18n('Unknown'))),
+        'studio': [encode_utf8(item.data.get('studio', ''))],
         'plot': encode_utf8(item.data.get('summary', '')),
         'season': 0,
         'episode': int(item.data.get('leafCount', 0)),
@@ -45,7 +45,7 @@ def create_show_item(context, item, library=False):
         'rating': float(item.data.get('rating', 0)),
         'aired': item.data.get('originallyAvailableAt', ''),
         'cast': metadata['cast'],
-        'genre': ' / '.join(metadata['genre']),
+        'genre': metadata['genre'],
         'mediatype': 'tvshow'
     }
 

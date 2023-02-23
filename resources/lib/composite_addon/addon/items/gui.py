@@ -13,6 +13,7 @@
 import copy
 import json
 
+from infotagger.listitem import ListItemInfoTag  # pylint: disable=import-error
 from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import urlparse
 
@@ -39,21 +40,21 @@ def create_gui_item(context, item):
     title = item_translate(item.info_labels.get('title', i18n('Unknown')),
                            item.extra.get('source'), item.is_folder)
 
-    if CONFIG['kodi_version'] >= 18:
-        list_item = item.CONSTRUCTOR(title, offscreen=True)
-    else:
-        list_item = item.CONSTRUCTOR(title)
+    list_item = item.CONSTRUCTOR(title, offscreen=True)
 
     # Set the properties of the item, such as summary, name, season, etc
     info_type, info_labels = _get_info(item)
-    list_item.setInfo(type=info_type, infoLabels=info_labels)
 
+    is_folder = item.extra.get('type', 'video').lower() in ('file', 'folder')
+    info_tag = ListItemInfoTag(list_item)
+    if not is_folder:
+        info_tag.set_info(info_labels)
     if (not context.settings.skip_flags() and
             not item.is_folder and
             item.extra.get('type', 'video').lower() == 'video'):
         stream_info = item.extra.get('stream_info', {})
-        list_item.addStreamInfo('video', stream_info.get('video', {}))
-        list_item.addStreamInfo('audio', stream_info.get('audio', {}))
+        info_tag.add_stream_info('video', stream_info.get('video', {}))
+        info_tag.add_stream_info('audio', stream_info.get('audio', {}))
 
     list_item.setArt(_get_art(item))
 
@@ -67,13 +68,9 @@ def create_gui_item(context, item):
         list_item.addContextMenuItems(item.context_menu)
 
     item_properties = _get_properties(context, item)
-    if CONFIG['kodi_version'] >= 18:
-        list_item.setProperties(item_properties)
-    else:
-        set_property = list_item.setProperty
-        _item_properties = item_properties.items()
-        for key, value in _item_properties:
-            set_property(key, value)
+    item_properties = info_tag.set_resume_point(item_properties)
+
+    list_item.setProperties(item_properties)
 
     if item.url.startswith('cmd:'):
         item.is_folder = False
@@ -158,8 +155,8 @@ def _get_properties(context, item):
         item_properties['IsPlayable'] = 'true'
 
         if item.extra.get('type', 'video').lower() == 'video':
-            item_properties['TotalTime'] = str(item.extra.get('duration'))
-            item_properties['ResumeTime'] = str(item.extra.get('resume'))
+            item_properties['TotalTime'] = int(item.extra.get('duration'))
+            item_properties['ResumeTime'] = int(item.extra.get('resume'))
 
             if not context.settings.skip_flags():
                 LOG.debug('Setting VrR as : %s' % item.extra.get('VideoResolution', ''))
@@ -177,8 +174,8 @@ def _get_properties(context, item):
 
         # Hack to show partial flag for TV shows and seasons
         if item.extra.get('partialTV') == 1:
-            item_properties['TotalTime'] = '100'
-            item_properties['ResumeTime'] = '50'
+            item_properties['TotalTime'] = 100
+            item_properties['ResumeTime'] = 50
 
     if item.extra.get('season_thumb', ''):
         item_properties['seasonThumb'] = item.extra.get('season_thumb', '')

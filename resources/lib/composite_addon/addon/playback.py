@@ -10,6 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from infotagger.listitem import ListItemInfoTag  # pylint: disable=import-error
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
@@ -122,10 +123,7 @@ def play_library_media(context, data):
         else:
             details['resume'] = data['force']
 
-    if CONFIG['kodi_version'] >= 18:
-        details['resuming'] = is_resuming_video()
-    else:
-        details['resuming'] = int(details.get('resume', 0)) > 0
+    details['resuming'] = is_resuming_video()
 
     LOG.debug('Resume has been set to %s' % details['resume'])
 
@@ -158,10 +156,7 @@ def create_playback_item(url, streams, data, details):
 
     stream_art = streams.get('art', {})
 
-    if CONFIG['kodi_version'] >= 18:
-        list_item = xbmcgui.ListItem(path=url, offscreen=True)
-    else:
-        list_item = xbmcgui.ListItem(path=url)
+    list_item = xbmcgui.ListItem(path=url, offscreen=True)
 
     if data:
         fanart = stream_art.get('fanart', '')
@@ -190,14 +185,18 @@ def create_playback_item(url, streams, data, details):
             'banner': stream_art.get('banner')
         })
 
-    list_item.setProperty('TotalTime', '%.1f' % details['duration'])
+    info_tag = ListItemInfoTag(list_item, streams['type'])
+    info_tag.set_info(data)
+    time_dict = {
+        'TotalTime': int(details['duration']),
+    }
     if details.get('resuming') and details.get('resume'):
-        list_item.setProperty('ResumeTime', '%.1f' % details['resume'])
+        time_dict['ResumeTime'] = int(details['resume'])
         data['playcount'] = '0'
 
         LOG.debug('Playback from resume point: %s' % details['resume'])
 
-    list_item.setInfo(type=streams['type'], infoLabels=data)
+    info_tag.set_resume_point(time_dict)
 
     if streams['type'] == 'music':
         list_item.setProperty('culrc.source', i18n('Plex powered by LyricFind'))
@@ -344,7 +343,7 @@ class StreamData:
                 self._content.get('titleSort', self._content.get('title', i18n('Unknown')))
             ),
             'rating': float(self._content.get('rating', 0)),
-            'studio': encode_utf8(self._content.get('studio', '')),
+            'studio': [encode_utf8(self._content.get('studio', ''))],
             'mpaa': encode_utf8(self._content.get('contentRating', '')),
             'year': int(self._content.get('year', 0)),
             'tagline': self._content.get('tagline', ''),
@@ -793,10 +792,7 @@ def play_playlist(context, server, data):
         track = create_track_item(context, item, listing=False)
         url = track[0]
         details = track[1]
-        if CONFIG['kodi_version'] >= 18:
-            list_item = item_constructor(details.get('title', i18n('Unknown')), offscreen=True)
-        else:
-            list_item = item_constructor(details.get('title', i18n('Unknown')))
+        list_item = item_constructor(details.get('title', i18n('Unknown')), offscreen=True)
 
         thumb = data['full_data'].get('thumbnail', CONFIG['icon'])
         if 'thumbnail' in data['full_data']:
@@ -806,7 +802,8 @@ def play_playlist(context, server, data):
             'icon': thumb,
             'thumb': thumb
         })
-        list_item.setInfo(type='music', infoLabels=details)
+        info_tag = ListItemInfoTag(list_item, 'music')
+        info_tag.set_info(details)
         add_to_playlist(url, list_item)
 
     index = int(data['extra'].get('index', 0)) - 1

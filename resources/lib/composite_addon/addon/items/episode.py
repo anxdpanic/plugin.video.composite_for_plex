@@ -40,7 +40,7 @@ def create_episode_item(context, item, library=False):
         'sorttitle': encode_utf8(item.data.get('titleSort',
                                                item.data.get('title', i18n('Unknown')))),
         'rating': float(item.data.get('rating', 0)),
-        'studio': encode_utf8(item.data.get('studio', item.tree.get('studio', ''))),
+        'studio': [encode_utf8(item.data.get('studio', item.tree.get('studio', '')))],
         'mpaa': item.data.get('contentRating', item.tree.get('grandparentContentRating', '')),
         'year': int(item.data.get('year', 0)),
         'tagline': encode_utf8(item.data.get('tagline', '')),
@@ -52,9 +52,9 @@ def create_episode_item(context, item, library=False):
         'mediatype': 'episode',
         'playcount': int(int(item.data.get('viewCount', 0)) > 0),
         'cast': metadata['cast'],
-        'director': ' / '.join(metadata['director']),
-        'genre': ' / '.join(metadata['genre']),
-        'writer': ' / '.join(metadata['writer']),
+        'director': metadata['director'],
+        'genre': metadata['genre'],
+        'writer': metadata['writer'],
     }
 
     if item.data.get('sorttitle'):

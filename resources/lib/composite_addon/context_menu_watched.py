@@ -16,11 +16,6 @@ import sys
 from kodi_six import xbmc  # pylint: disable=import-error
 from six.moves.urllib_parse import parse_qs
 
-try:
-    KODI_VERSION = int(xbmc.getInfoLabel('System.BuildVersion').split()[0].split('.')[0])
-except:  # pylint: disable=bare-except
-    KODI_VERSION = 0
-
 
 def jsonrpc_request(query):
     response = xbmc.executeJSONRPC(json.dumps(query))
@@ -42,9 +37,6 @@ def mark_movie_watched(movie_id):
         }
     }
 
-    if KODI_VERSION < 18:
-        del query['params']['resume']
-
     return jsonrpc_request(query)
 
 
@@ -62,9 +54,6 @@ def mark_episode_watched(episode_id):
         }
     }
 
-    if KODI_VERSION < 18:
-        del query['params']['resume']
-
     return jsonrpc_request(query)
 
 
@@ -81,9 +70,6 @@ def mark_tvshow_watched(tvshow_id):
             }
         }
     }
-
-    if KODI_VERSION < 18:
-        del query['params']['resume']
 
     return jsonrpc_request(query)
 

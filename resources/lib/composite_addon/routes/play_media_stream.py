@@ -14,7 +14,6 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
-from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
 from ..addon.logger import Logger
 from ..plex import plex
@@ -38,10 +37,7 @@ def run(context, url):
     else:
         playback_url = url
 
-    if CONFIG['kodi_version'] >= 18:
-        list_item = xbmcgui.ListItem(path=playback_url, offscreen=True)
-    else:
-        list_item = xbmcgui.ListItem(path=playback_url)
+    list_item = xbmcgui.ListItem(path=playback_url, offscreen=True)
 
     xbmcplugin.setResolvedUrl(get_handle(), playback_url != '', list_item)
     DATA_CACHE.delete_cache(True)

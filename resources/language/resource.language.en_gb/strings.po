@@ -1132,10 +1132,6 @@ msgctxt "#30688"
 msgid "Up Next is enabled in the settings, however Up Next appears to be disabled. Would you like to enable Up Next now?"
 msgstr ""
 
-msgctxt "#30689"
-msgid "Up Next requires Kodi 18 or higher"
-msgstr ""
-
 msgctxt "#30690"
 msgid "From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]"
 msgstr ""
