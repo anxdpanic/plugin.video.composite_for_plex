@@ -10,6 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from infotagger.listitem import ListItemInfoTag  # pylint: disable=import-error
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
@@ -197,7 +198,8 @@ def create_playback_item(url, streams, data, details):
 
         LOG.debug('Playback from resume point: %s' % details['resume'])
 
-    list_item.setInfo(type=streams['type'], infoLabels=data)
+    info_tag = ListItemInfoTag(list_item, streams['type'])
+    info_tag.set_info(data)
 
     if streams['type'] == 'music':
         list_item.setProperty('culrc.source', i18n('Plex powered by LyricFind'))
@@ -806,7 +808,8 @@ def play_playlist(context, server, data):
             'icon': thumb,
             'thumb': thumb
         })
-        list_item.setInfo(type='music', infoLabels=details)
+        info_tag = ListItemInfoTag(list_item, 'music')
+        info_tag.set_info(details)
         add_to_playlist(url, list_item)
 
     index = int(data['extra'].get('index', 0)) - 1

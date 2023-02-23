@@ -13,6 +13,7 @@
 import copy
 import json
 
+from infotagger.listitem import ListItemInfoTag  # pylint: disable=import-error
 from six.moves.urllib_parse import quote
 from six.moves.urllib_parse import urlparse
 
@@ -46,14 +47,17 @@ def create_gui_item(context, item):
 
     # Set the properties of the item, such as summary, name, season, etc
     info_type, info_labels = _get_info(item)
-    list_item.setInfo(type=info_type, infoLabels=info_labels)
 
+    is_folder = item.extra.get('type', 'video').lower() in ('file', 'folder')
+    info_tag = ListItemInfoTag(list_item)
+    if not is_folder:
+        info_tag.set_info(info_labels)
     if (not context.settings.skip_flags() and
             not item.is_folder and
             item.extra.get('type', 'video').lower() == 'video'):
         stream_info = item.extra.get('stream_info', {})
-        list_item.addStreamInfo('video', stream_info.get('video', {}))
-        list_item.addStreamInfo('audio', stream_info.get('audio', {}))
+        info_tag.add_stream_info('video', stream_info.get('video', {}))
+        info_tag.add_stream_info('audio', stream_info.get('audio', {}))
 
     list_item.setArt(_get_art(item))
 

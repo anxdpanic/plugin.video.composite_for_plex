@@ -6,6 +6,7 @@
         <import addon="script.module.six" version="1.11.0"/>
         <import addon="script.module.requests" version="2.12.4"/>
         <import addon="script.module.pyxbmct" version="1.2.0"/>
+        <import addon="script.module.infotagger" version="0.0.5"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="resources/lib/entry_point.py">
         <provides>video audio image</provides>
