@@ -185,15 +185,18 @@ def create_playback_item(url, streams, data, details):
             'banner': stream_art.get('banner')
         })
 
-    list_item.setProperty('TotalTime', '%.1f' % details['duration'])
+    info_tag = ListItemInfoTag(list_item, streams['type'])
+    info_tag.set_info(data)
+    time_dict = {
+        'TotalTime': int(details['duration']),
+    }
     if details.get('resuming') and details.get('resume'):
-        list_item.setProperty('ResumeTime', '%.1f' % details['resume'])
+        time_dict['ResumeTime'] = int(details['resume'])
         data['playcount'] = '0'
 
         LOG.debug('Playback from resume point: %s' % details['resume'])
 
-    info_tag = ListItemInfoTag(list_item, streams['type'])
-    info_tag.set_info(data)
+    info_tag.set_resume_point(time_dict)
 
     if streams['type'] == 'music':
         list_item.setProperty('culrc.source', i18n('Plex powered by LyricFind'))

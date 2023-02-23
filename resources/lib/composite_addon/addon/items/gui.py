@@ -68,6 +68,7 @@ def create_gui_item(context, item):
         list_item.addContextMenuItems(item.context_menu)
 
     item_properties = _get_properties(context, item)
+    item_properties = info_tag.set_resume_point(item_properties)
 
     list_item.setProperties(item_properties)
 
@@ -154,8 +155,8 @@ def _get_properties(context, item):
         item_properties['IsPlayable'] = 'true'
 
         if item.extra.get('type', 'video').lower() == 'video':
-            item_properties['TotalTime'] = str(item.extra.get('duration'))
-            item_properties['ResumeTime'] = str(item.extra.get('resume'))
+            item_properties['TotalTime'] = int(item.extra.get('duration'))
+            item_properties['ResumeTime'] = int(item.extra.get('resume'))
 
             if not context.settings.skip_flags():
                 LOG.debug('Setting VrR as : %s' % item.extra.get('VideoResolution', ''))
@@ -173,8 +174,8 @@ def _get_properties(context, item):
 
         # Hack to show partial flag for TV shows and seasons
         if item.extra.get('partialTV') == 1:
-            item_properties['TotalTime'] = '100'
-            item_properties['ResumeTime'] = '50'
+            item_properties['TotalTime'] = 100
+            item_properties['ResumeTime'] = 50
 
     if item.extra.get('season_thumb', ''):
         item_properties['seasonThumb'] = item.extra.get('season_thumb', '')
