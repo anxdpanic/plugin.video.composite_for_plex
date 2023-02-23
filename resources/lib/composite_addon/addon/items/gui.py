@@ -40,10 +40,7 @@ def create_gui_item(context, item):
     title = item_translate(item.info_labels.get('title', i18n('Unknown')),
                            item.extra.get('source'), item.is_folder)
 
-    if CONFIG['kodi_version'] >= 18:
-        list_item = item.CONSTRUCTOR(title, offscreen=True)
-    else:
-        list_item = item.CONSTRUCTOR(title)
+    list_item = item.CONSTRUCTOR(title, offscreen=True)
 
     # Set the properties of the item, such as summary, name, season, etc
     info_type, info_labels = _get_info(item)
@@ -71,13 +68,8 @@ def create_gui_item(context, item):
         list_item.addContextMenuItems(item.context_menu)
 
     item_properties = _get_properties(context, item)
-    if CONFIG['kodi_version'] >= 18:
-        list_item.setProperties(item_properties)
-    else:
-        set_property = list_item.setProperty
-        _item_properties = item_properties.items()
-        for key, value in _item_properties:
-            set_property(key, value)
+
+    list_item.setProperties(item_properties)
 
     if item.url.startswith('cmd:'):
         item.is_folder = False

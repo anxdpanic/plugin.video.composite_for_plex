@@ -89,22 +89,16 @@ class PlexSignin(pyxbmct.AddonFullWindow):  # pylint: disable=too-many-instance-
         # username entry box
         self.name_field = pyxbmct.Edit('')
         self.placeControl(self.name_field, 3, 7, columnspan=10)
-        if CONFIG['kodi_version'] > 17:
-            self.name_field.setType(xbmcgui.INPUT_TYPE_TEXT, i18n('Username:'))
+        self.name_field.setType(xbmcgui.INPUT_TYPE_TEXT, i18n('Username:'))
 
         # Password Label
         self.password_label = pyxbmct.Label(i18n('Password:'), alignment=1)
         self.placeControl(self.password_label, 4, 3, columnspan=4)
         # Password entry box
-        if CONFIG['kodi_version'] < 18:
-            self.password_field = pyxbmct.Edit('', isPassword=True)
-        else:
-            self.password_field = pyxbmct.Edit('')
+        self.password_field = pyxbmct.Edit('')
 
         self.placeControl(self.password_field, 4, 7, columnspan=10)
-        if CONFIG['kodi_version'] > 17:
-            # must be done after control is placed
-            self.password_field.setType(xbmcgui.INPUT_TYPE_PASSWORD, i18n('Password:'))
+        self.password_field.setType(xbmcgui.INPUT_TYPE_PASSWORD, i18n('Password:'))
 
         # Cancel button
         self.cancel_button = pyxbmct.Button(i18n('Cancel'))

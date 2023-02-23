@@ -639,9 +639,8 @@ class RadioButton(pyxbmct.CompareMixin, xbmcgui.ControlRadioButton):
         return super(RadioButton, cls).__new__(cls, -10, -10, 1, 1, *args, **kwargs)  # pylint: disable=too-many-function-args
 
 
-if CONFIG['kodi_version'] >= 19:
-    # currently required until pyxbmct is updated to remove deprecated textures
-    pyxbmct.RadioButton = RadioButton
+# currently required until pyxbmct is updated to remove deprecated textures
+pyxbmct.RadioButton = RadioButton
 
 
 def composite_playlist(context):

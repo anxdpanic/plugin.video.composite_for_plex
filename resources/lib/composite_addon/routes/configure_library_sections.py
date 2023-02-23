@@ -29,7 +29,7 @@ def run(context, reset=False):
         return
 
     dialog = xbmcgui.Dialog()
-    use_details = CONFIG['kodi_version'] > 16
+    use_details = True
 
     all_sections = context.plex_network.all_sections()
 
@@ -97,10 +97,7 @@ def get_sections(context, sections, details):
         list_item = None
         section_title = section.get_title()
         if details:
-            if CONFIG['kodi_version'] > 17:
-                list_item = xbmcgui.ListItem(offscreen=True)
-            else:
-                list_item = xbmcgui.ListItem()
+            list_item = xbmcgui.ListItem(offscreen=True)
 
             list_item.setArt({
                 'icon': CONFIG['icon'],

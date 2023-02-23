@@ -14,7 +14,6 @@ from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
-from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
 from ..addon.logger import Logger
 from ..addon.playback import monitor_channel_transcode_playback
@@ -79,9 +78,7 @@ def run(context, url, prefix=None, indirect=None, transcode=False):
 
 
 def _list_item(url):
-    if CONFIG['kodi_version'] >= 18:
-        return xbmcgui.ListItem(path=url, offscreen=True)
-    return xbmcgui.ListItem(path=url)
+    return xbmcgui.ListItem(path=url, offscreen=True)
 
 
 def _monitor_transcode(context, server, session, transcode):
