@@ -28,7 +28,7 @@ def create_season_item(context, item, library=False):
         'TVShowTitle': encode_utf8(item.data.get('parentTitle', i18n('Unknown'))),
         'sorttitle': encode_utf8(item.data.get('titleSort',
                                                item.data.get('title', i18n('Unknown')))),
-        'studio': encode_utf8(item.data.get('studio', '')),
+        'studio': [encode_utf8(item.data.get('studio', ''))],
         'plot': encode_utf8(item.tree.get('summary', '')),
         'season': item.data.get('index', 0),
         'episode': int(item.data.get('leafCount', 0)),

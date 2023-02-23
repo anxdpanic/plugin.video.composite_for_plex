@@ -346,7 +346,7 @@ class StreamData:
                 self._content.get('titleSort', self._content.get('title', i18n('Unknown')))
             ),
             'rating': float(self._content.get('rating', 0)),
-            'studio': encode_utf8(self._content.get('studio', '')),
+            'studio': [encode_utf8(self._content.get('studio', ''))],
             'mpaa': encode_utf8(self._content.get('contentRating', '')),
             'year': int(self._content.get('year', 0)),
             'tagline': self._content.get('tagline', ''),

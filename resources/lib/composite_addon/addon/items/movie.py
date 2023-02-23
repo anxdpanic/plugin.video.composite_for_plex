@@ -47,7 +47,7 @@ def create_movie_item(context, item, library=False):
         'sorttitle': encode_utf8(item.data.get('titleSort',
                                                item.data.get('title', i18n('Unknown')))),
         'rating': float(item.data.get('rating', 0)),
-        'studio': encode_utf8(item.data.get('studio', '')),
+        'studio': [encode_utf8(item.data.get('studio', ''))],
         'mpaa': encode_utf8(item.data.get('contentRating', '')),
         'year': int(item.data.get('year', 0)),
         'date': item.data.get('originallyAvailableAt', '1970-01-01'),
@@ -57,10 +57,10 @@ def create_movie_item(context, item, library=False):
         'mediatype': 'movie',
         'playcount': int(int(item.data.get('viewCount', 0)) > 0),
         'cast': metadata['cast'],
-        'director': ' / '.join(metadata['director']),
-        'genre': ' / '.join(metadata['genre']),
-        'set': ' / '.join(metadata['collections']),
-        'writer': ' / '.join(metadata['writer']),
+        'director': metadata['director'],
+        'genre': metadata['genre'],
+        'set': metadata['collections'],
+        'writer': metadata['writer'],
     }
 
     prefix_server = (context.params.get('mode') in COMBINED_SECTIONS and
