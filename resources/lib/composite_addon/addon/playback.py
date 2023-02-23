@@ -123,10 +123,7 @@ def play_library_media(context, data):
         else:
             details['resume'] = data['force']
 
-    if CONFIG['kodi_version'] >= 18:
-        details['resuming'] = is_resuming_video()
-    else:
-        details['resuming'] = int(details.get('resume', 0)) > 0
+    details['resuming'] = is_resuming_video()
 
     LOG.debug('Resume has been set to %s' % details['resume'])
 
@@ -159,10 +156,7 @@ def create_playback_item(url, streams, data, details):
 
     stream_art = streams.get('art', {})
 
-    if CONFIG['kodi_version'] >= 18:
-        list_item = xbmcgui.ListItem(path=url, offscreen=True)
-    else:
-        list_item = xbmcgui.ListItem(path=url)
+    list_item = xbmcgui.ListItem(path=url, offscreen=True)
 
     if data:
         fanart = stream_art.get('fanart', '')
@@ -795,10 +789,7 @@ def play_playlist(context, server, data):
         track = create_track_item(context, item, listing=False)
         url = track[0]
         details = track[1]
-        if CONFIG['kodi_version'] >= 18:
-            list_item = item_constructor(details.get('title', i18n('Unknown')), offscreen=True)
-        else:
-            list_item = item_constructor(details.get('title', i18n('Unknown')))
+        list_item = item_constructor(details.get('title', i18n('Unknown')), offscreen=True)
 
         thumb = data['full_data'].get('thumbnail', CONFIG['icon'])
         if 'thumbnail' in data['full_data']:
