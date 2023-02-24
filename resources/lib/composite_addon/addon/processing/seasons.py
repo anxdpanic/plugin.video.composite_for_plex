@@ -11,7 +11,6 @@
 """
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
 
 from ..common import get_handle
 from ..containers import Item
@@ -50,10 +49,7 @@ def process_seasons(context, url, rating_key=None, library=False):
     items = []
     append_item = items.append
     # For all the directory tags
-    if PY3:
-        seasons = tree.iter('Directory')
-    else:
-        seasons = tree.getiterator('Directory')
+    seasons = tree.iter('Directory')
 
     for season in seasons:
 

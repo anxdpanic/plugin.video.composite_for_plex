@@ -15,7 +15,6 @@ from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
 from kodi_six import xbmcvfs  # pylint: disable=import-error
-from six import PY3
 from six.moves import xrange
 from six.moves.urllib_parse import unquote
 
@@ -536,10 +535,7 @@ class StreamData:
         self.data['audio_count'] = 0
         self.data['sub_count'] = 0
 
-        if PY3:
-            tags = self.tree.iter('Stream')
-        else:
-            tags = self.tree.getiterator('Stream')
+        tags = self.tree.iter('Stream')
 
         forced_subtitle = False
         for bits in tags:

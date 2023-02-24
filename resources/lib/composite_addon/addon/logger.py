@@ -15,7 +15,6 @@ import re
 import traceback
 
 from kodi_six import xbmc  # pylint: disable=import-error
-from six import PY2
 from six import string_types
 
 from .constants import CONFIG
@@ -88,19 +87,12 @@ class Logger:
                 level = self.LOG_ERROR
                 msg = 'Logging failed to coerce \'%s\' message' % type(msg)
 
+        tag = ''
         try:
-            tag = ''
-            if PY2:
-                msg = msg.encode('utf-8')
-        except UnicodeDecodeError:
-            try:
-                msg = msg.decode('utf-8')
-            except AttributeError:
-                pass
-            msg = msg.encode('ascii', 'ignore')
-            tag = ' [ASCII]'
-        except:  # pylint: disable=bare-except
-            tag = ' [NONUTF8]'
+            msg = msg.decode('utf-8')
+        except AttributeError:
+            pass
+        msg = msg.encode('ascii', 'ignore')
 
         if self.privacy and not no_privacy:
             try:

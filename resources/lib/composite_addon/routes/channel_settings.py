@@ -12,7 +12,6 @@
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
-from six import PY3
 from six.moves.urllib_parse import urlencode
 
 from ..addon.logger import Logger
@@ -46,10 +45,8 @@ def run(context, url, setting_id):
 
     set_url = '%s/set?' % url
     set_params = {}
-    if PY3:
-        plugins = tree.iter()
-    else:
-        plugins = tree.getiterator()
+
+    plugins = tree.iter()
 
     for plugin in plugins:
 

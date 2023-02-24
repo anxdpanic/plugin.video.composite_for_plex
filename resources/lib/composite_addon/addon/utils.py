@@ -16,7 +16,6 @@ import time
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
-from six import PY3
 from six.moves import cPickle as pickle
 from six.moves import xrange
 
@@ -130,16 +129,13 @@ def notify_all(encoding, method, data):
     if encoding == 'base64':
         from base64 import b64encode  # pylint: disable=import-outside-toplevel
         data = b64encode(next_data)
-        if PY3:
-            data = data.decode('ascii')
+        data = data.decode('ascii')
     elif encoding == 'hex':
         from binascii import hexlify  # pylint: disable=import-outside-toplevel
-        if PY3:
-            if not isinstance(next_data, bytes):
-                next_data = next_data.encode('utf-8')
-            data = hexlify(next_data).decode('utf-8')
-        else:
-            data = hexlify(next_data)
+        if not isinstance(next_data, bytes):
+            next_data = next_data.encode('utf-8')
+        data = hexlify(next_data).decode('utf-8')
+
 
     jsonrpc_request = {
         "jsonrpc": "2.0",

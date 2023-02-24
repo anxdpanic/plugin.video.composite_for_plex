@@ -15,7 +15,6 @@ import base64
 import json
 
 from kodi_six import xbmc  # pylint: disable=import-error
-from six import PY3
 
 from ..addon.common import get_platform
 from ..addon.constants import CONFIG
@@ -125,12 +124,9 @@ def jsonrpc(action, arguments=None):
             # xbmc.executeJSONRPC appears to fail on the login screen, but going
             # through the network stack works, so let's try the request again
             credentials = '%s:%s' % (web_server['name'], web_server['password'])
-            if PY3:
-                credentials = credentials.encode('utf-8')
-                base64bytes = base64.encodebytes(credentials)
-                base64string = base64bytes.decode('utf-8').replace('\n', '')
-            else:
-                base64string = base64.encodestring(credentials).replace('\n', '')  # pylint: disable=no-member
+            credentials = credentials.encode('utf-8')
+            base64bytes = base64.encodebytes(credentials)
+            base64string = base64bytes.decode('utf-8').replace('\n', '')
             headers = {
                 'Content-Type': 'application/json',
                 'Authorization': 'Basic ' + base64string,

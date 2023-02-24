@@ -14,7 +14,6 @@ import xml.etree.ElementTree as ETree
 
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
 from six.moves.urllib_parse import unquote
 
 from ..addon.common import get_handle
@@ -218,10 +217,8 @@ def _compare_titles(plex_title, trakt_title):
         _string = _string.lower()
         _string = _string.replace('  ', ' ')
         _string = _string.strip()
-        if PY3:
-            _string = _string.translate(str.maketrans('', '', string.punctuation))
-        else:
-            _string = _string.translate(None, string.punctuation)
+        _string = _string.translate(str.maketrans('', '', string.punctuation))
+
         return _string
 
     plex_title = _translate(plex_title)

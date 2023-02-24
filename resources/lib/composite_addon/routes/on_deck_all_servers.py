@@ -10,7 +10,6 @@
 """
 
 from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
 
 from ..addon.common import get_handle
 from ..addon.containers import Item
@@ -47,10 +46,7 @@ def _list_content(context, server, section):
     if tree is None:
         return []
 
-    if PY3:
-        branches = tree.iter('Video')
-    else:
-        branches = tree.getiterator('Video')
+    branches = tree.iter('Video')
 
     if not branches:
         return []

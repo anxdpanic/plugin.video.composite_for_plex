@@ -18,7 +18,6 @@ import xml.etree.ElementTree as ETree
 
 import requests
 from kodi_six import xbmcgui  # pylint: disable=import-error
-from six import PY3
 from six import iteritems
 from six import string_types
 from six.moves.urllib_parse import urlparse
@@ -451,10 +450,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             return {}
 
         server_list = ETree.fromstring(xml)
-        if PY3:
-            devices = server_list.iter('Device')
-        else:
-            devices = server_list.getiterator('Device')
+        devices = server_list.iter('Device')
 
         for device in devices:
 
@@ -471,10 +467,8 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             discovered_server.set_owned(device.get('owned'))
             discovered_server.set_token(device.get('accessToken'))
             discovered_server.set_user(self.effective_user)
-            if PY3:
-                connections = device.iter('Connection')
-            else:
-                connections = device.getiterator('Connection')
+            connections = device.iter('Connection')
+
             for connection in connections:
                 LOG.debug('[%s] Found server connection' % device.get('name'))
 
@@ -605,12 +599,9 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
             return None
 
         credentials = '%s:%s' % (username, password)
-        if PY3:
-            credentials = credentials.encode('utf-8')
-            base64bytes = base64.encodebytes(credentials)
-            base64string = base64bytes.decode('utf-8').replace('\n', '')
-        else:
-            base64string = base64.encodestring(credentials).replace('\n', '')  # pylint: disable=no-member
+        credentials = credentials.encode('utf-8')
+        base64bytes = base64.encodebytes(credentials)
+        base64string = base64bytes.decode('utf-8').replace('\n', '')
 
         token = False
         myplex_headers = {

@@ -18,7 +18,6 @@ from itertools import groupby
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 from kodi_six import xbmc  # pylint: disable=import-error
 from kodi_six import xbmcgui  # pylint: disable=import-error
-from six import PY3
 from six.moves import zip_longest
 
 from ...addon.constants import CONFIG
@@ -429,10 +428,7 @@ class PlaylistGenerator:
         return server_sections
 
     def _get_item_collection(self, server, tree):
-        if PY3:
-            branches = tree.iter('Video')
-        else:
-            branches = tree.getiterator('Video')
+        branches = tree.iter('Video')
 
         if branches is None:
             return []
