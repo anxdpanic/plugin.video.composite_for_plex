@@ -17,7 +17,7 @@ import uuid
 import xml.etree.ElementTree as ETree
 
 import requests
-from kodi_six import xbmcgui  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 from six.moves import xrange
 from six.moves.urllib_parse import parse_qsl
 from six.moves.urllib_parse import quote

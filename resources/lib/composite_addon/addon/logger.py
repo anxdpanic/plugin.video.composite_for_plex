@@ -14,7 +14,7 @@ import inspect
 import re
 import traceback
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 from six import string_types
 
 from .constants import CONFIG

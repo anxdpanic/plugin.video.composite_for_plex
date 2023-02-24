@@ -13,7 +13,7 @@
 
 import re
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.logger import Logger
 from .utils import get_audio_player_id

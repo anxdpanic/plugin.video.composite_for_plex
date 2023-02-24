@@ -11,8 +11,8 @@
 
 import xml.etree.ElementTree as ETree
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcplugin  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
+import xbmcplugin  # pylint: disable=import-error
 from six.moves.urllib_parse import quote
 
 from ..addon.common import get_handle

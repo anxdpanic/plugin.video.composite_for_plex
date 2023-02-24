@@ -14,7 +14,7 @@
 import base64
 import json
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 
 from ..addon.common import get_platform
 from ..addon.constants import CONFIG

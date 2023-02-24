@@ -13,7 +13,7 @@
 import socket
 import sys
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 from six.moves import xrange
 from six.moves.urllib_parse import unquote
 from six.moves.urllib_parse import urlencode

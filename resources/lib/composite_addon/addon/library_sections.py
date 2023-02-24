@@ -11,7 +11,7 @@
 
 from copy import deepcopy
 
-from kodi_six import xbmcvfs  # pylint: disable=import-error
+import xbmcvfs  # pylint: disable=import-error
 
 from .json_store import JSONStore
 

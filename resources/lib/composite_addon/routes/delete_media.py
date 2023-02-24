@@ -10,8 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcgui  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import get_argv
 from ..addon.logger import Logger

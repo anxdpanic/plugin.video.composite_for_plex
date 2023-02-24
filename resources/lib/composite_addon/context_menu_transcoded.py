@@ -11,7 +11,7 @@
 
 import sys
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 
 
 def strip_transcode(url):

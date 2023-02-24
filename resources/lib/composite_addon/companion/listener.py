@@ -14,7 +14,7 @@
 import re
 import traceback
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 from six.moves.BaseHTTPServer import BaseHTTPRequestHandler
 from six.moves.BaseHTTPServer import HTTPServer
 from six.moves.socketserver import ThreadingMixIn

@@ -9,7 +9,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 
 from .constants import CONFIG
 from .logger import Logger

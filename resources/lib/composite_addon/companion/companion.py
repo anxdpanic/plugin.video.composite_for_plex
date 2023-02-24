@@ -16,8 +16,8 @@ import threading
 import traceback
 from functools import partial
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcgui  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger

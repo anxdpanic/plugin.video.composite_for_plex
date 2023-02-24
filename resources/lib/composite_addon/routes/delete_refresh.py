@@ -10,7 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 
 from ..addon.data_cache import DATA_CACHE
 from ..plex import plex

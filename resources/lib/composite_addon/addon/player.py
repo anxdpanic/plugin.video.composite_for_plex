@@ -11,7 +11,7 @@
 
 import threading
 
-from kodi_six import xbmc  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
 
 from .constants import CONFIG
 from .constants import StreamControl

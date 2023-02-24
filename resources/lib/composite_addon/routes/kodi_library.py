@@ -9,8 +9,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
-from kodi_six import xbmcplugin  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
+import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.containers import Item

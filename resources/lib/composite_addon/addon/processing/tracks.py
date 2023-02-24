@@ -10,8 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcplugin  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
+import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
 from ..containers import Item
