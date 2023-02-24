@@ -13,10 +13,10 @@
 import socket
 import sys
 
+from urllib.parse import unquote
+from urllib.parse import urlencode
+
 import xbmc  # pylint: disable=import-error
-from six.moves import xrange
-from six.moves.urllib_parse import unquote
-from six.moves.urllib_parse import urlencode
 
 from .constants import COMMANDS
 from .constants import CONFIG
@@ -48,7 +48,7 @@ def get_params():
 
         pairs_of_params = _params.lstrip('?').split('&')
         number_of_pairs = len(pairs_of_params)
-        for idx in xrange(number_of_pairs):
+        for idx in range(number_of_pairs):
             split_params = pairs_of_params[idx].split('=')
 
             if (len(split_params)) == 2:

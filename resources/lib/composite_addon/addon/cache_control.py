@@ -22,9 +22,8 @@ import time
 # don't use kodi_six xbmcvfs
 import xbmcvfs  # pylint: disable=import-error
 import xbmc  # pylint: disable=import-error
-from six import text_type
-# noinspection PyPep8Naming
-from six.moves import cPickle as pickle
+
+import pickle
 
 from .constants import CONFIG
 from .logger import Logger
@@ -86,7 +85,7 @@ class CacheControl:
             cache.close()
 
         if cache_data:
-            if isinstance(cache_data, text_type):
+            if isinstance(cache_data, str):
                 cache_data = cache_data.encode('utf-8')
             LOG.debug('CACHE [%s]: read' % cache_name)
             try:

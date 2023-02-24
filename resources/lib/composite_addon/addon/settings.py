@@ -17,7 +17,6 @@ import xbmc  # pylint: disable=import-error
 import xbmcaddon  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
 import xbmcvfs  # pylint: disable=import-error
-from six.moves import xrange
 
 from .constants import CONFIG
 
@@ -119,7 +118,7 @@ class AddonSettings:  # pylint: disable=too-many-public-methods
 
     def get_wakeservers(self):
         get_setting = self._get_setting
-        return list(map(lambda x: get_setting('wol%s' % x), xrange(1, 12)))
+        return list(map(lambda x: get_setting('wol%s' % x), range(1, 12)))
 
     def get_stream(self):
         return self.stream

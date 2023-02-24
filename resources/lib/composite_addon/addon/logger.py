@@ -15,7 +15,6 @@ import re
 import traceback
 
 import xbmc  # pylint: disable=import-error
-from six import string_types
 
 from .constants import CONFIG
 from .settings import AddonSettings
@@ -80,7 +79,7 @@ class Logger:
         if self.level == 2:
             return
 
-        if not isinstance(msg, string_types):
+        if not isinstance(msg, str):
             try:
                 msg = str(msg)
             except:  # pylint: disable=bare-except

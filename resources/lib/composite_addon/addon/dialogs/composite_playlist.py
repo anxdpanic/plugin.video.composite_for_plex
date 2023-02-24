@@ -14,11 +14,11 @@ import os
 import random
 from itertools import chain
 from itertools import groupby
+from itertools import zip_longest
 
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
 import xbmc  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
-from six.moves import zip_longest
 
 from ...addon.constants import CONFIG
 from ...addon.containers import Item

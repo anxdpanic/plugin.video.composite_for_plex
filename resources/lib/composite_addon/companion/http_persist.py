@@ -14,7 +14,7 @@
 import socket
 import traceback
 
-from six.moves import http_client
+from http import client as http_client
 
 from ..addon.logger import Logger
 

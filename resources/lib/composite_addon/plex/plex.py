@@ -16,11 +16,10 @@ import socket
 import traceback
 import xml.etree.ElementTree as ETree
 
+from urllib.parse import urlparse
+
 import requests
 import xbmcgui  # pylint: disable=import-error
-from six import iteritems
-from six import string_types
-from six.moves.urllib_parse import urlparse
 
 from ..addon import cache_control
 from ..addon.common import get_platform_ip
@@ -248,11 +247,11 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
                     raise TypeError
                 if not isinstance(token_cache['plexhome_enabled'], int):
                     raise TypeError
-                if not isinstance(token_cache['myplex_user_cache'], string_types):
+                if not isinstance(token_cache['myplex_user_cache'], str):
                     raise TypeError
-                if not isinstance(token_cache['plexhome_user_cache'], string_types):
+                if not isinstance(token_cache['plexhome_user_cache'], str):
                     raise TypeError
-                if not isinstance(token_cache['plexhome_user_avatar'], string_types):
+                if not isinstance(token_cache['plexhome_user_avatar'], str):
                     raise TypeError
 
                 self.plexhome_settings = token_cache
@@ -266,7 +265,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         self.cache.write_cache(self.plexhome_cache, self.plexhome_settings)
 
     def check_server_version(self):
-        for _uuid, servers in iteritems(self.server_list):
+        for _uuid, servers in self.server_list.items():
             try:
                 if not servers.get_revision() == CONFIG['required_revision']:
                     LOG.debug('Old object revision found')
@@ -281,7 +280,7 @@ class Plex:  # pylint: disable=too-many-public-methods, too-many-instance-attrib
         if self.effective_user is None:
             return True
 
-        for _uuid, servers in iteritems(self.server_list):
+        for _uuid, servers in self.server_list.items():
             if not servers.get_user() == self.effective_user:
                 LOG.debug('authorized user mismatch')
                 return False

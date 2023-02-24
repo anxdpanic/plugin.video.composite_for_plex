@@ -10,9 +10,10 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
+from urllib.parse import unquote_plus
+
 import xbmc  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
-from six.moves.urllib_parse import unquote_plus
 
 from ..addon.logger import Logger
 from ..addon.strings import i18n

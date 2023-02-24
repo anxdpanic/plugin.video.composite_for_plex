@@ -14,12 +14,13 @@
 import re
 import traceback
 
+from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
+from socketserver import ThreadingMixIn
+from urllib.parse import parse_qs
+from urllib.parse import urlparse
+
 import xbmc  # pylint: disable=import-error
-from six.moves.BaseHTTPServer import BaseHTTPRequestHandler
-from six.moves.BaseHTTPServer import HTTPServer
-from six.moves.socketserver import ThreadingMixIn
-from six.moves.urllib_parse import parse_qs
-from six.moves.urllib_parse import urlparse
 
 from ..addon.common import get_platform
 from ..addon.constants import CONFIG

@@ -12,12 +12,11 @@
 
 import json
 import os
+import pickle
 import time
 
 import xbmc  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
-from six.moves import cPickle as pickle
-from six.moves import xrange
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger
@@ -74,7 +73,7 @@ def get_transcode_profile(context):
     profile_labels = []
     append_label = profile_labels.append
 
-    for idx in xrange(profile_count):
+    for idx in range(profile_count):
         profile = context.settings.transcode_profile(idx)
         if profile.get('enabled'):
             resolution, bitrate = profile.get('quality').split(',')

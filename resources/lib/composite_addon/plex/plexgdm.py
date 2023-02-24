@@ -19,8 +19,7 @@ import struct
 import threading
 import time
 from contextlib import closing
-
-from six.moves.urllib_request import urlopen
+from urllib.request import urlopen
 
 from ..addon.logger import Logger
 from ..addon.strings import decode_utf8

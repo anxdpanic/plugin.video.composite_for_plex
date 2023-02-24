@@ -10,10 +10,10 @@
 """
 
 import xml.etree.ElementTree as ETree
+from urllib.parse import quote
 
 import xbmc  # pylint: disable=import-error
 import xbmcplugin  # pylint: disable=import-error
-from six.moves.urllib_parse import quote
 
 from ..addon.common import get_handle
 from ..addon.containers import Item

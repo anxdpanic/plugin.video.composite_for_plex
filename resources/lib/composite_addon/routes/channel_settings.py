@@ -12,7 +12,7 @@
 
 import xbmc  # pylint: disable=import-error
 import xbmcgui  # pylint: disable=import-error
-from six.moves.urllib_parse import urlencode
+from urllib.parse import urlencode
 
 from ..addon.logger import Logger
 from ..addon.strings import i18n
