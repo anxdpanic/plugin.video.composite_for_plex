@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/anxdpanic/plugin.video.composite_for_plex/master/icon.png" width="256" height="256" alt="Composite">
+<img src="https://github.com/anxdpanic/plugin.video.composite_for_plex/raw/master/resources/media/icon.png" width="256" height="256" alt="Composite">
 
 # Composite
 
