@@ -510,18 +510,18 @@
                     <default>1280x720, 4Mbps</default>
                     <constraints>
                         <options>
-                            <option label="420x420, 320Kbps">420x420, 320Kbps</option>
-                            <option label="576x320, 720Kbps">576x320, 720Kbps</option>
-                            <option label="720x480, 1.5Mbps">720x480, 1.5Mbps</option>
-                            <option label="1024x768, 2Mbps">1024x768, 2Mbps</option>
-                            <option label="1280x720, 3Mbps">1280x720, 3Mbps</option>
-                            <option label="1280x720, 4Mbps">1280x720, 4Mbps</option>
-                            <option label="1920x1080, 8Mbps">1920x1080, 8Mbps</option>
-                            <option label="1920x1080, 10Mbps">1920x1080, 10Mbps</option>
-                            <option label="1920x1080, 12Mbps">1920x1080, 12Mbps</option>
-                            <option label="1920x1080, 20Mbps">1920x1080, 20Mbps</option>
-                            <option label="1920x1080, 40Mbps">1920x1080, 40Mbps</option>
-                            <option label="1920x1080, unlimited">1920x1080, unlimited</option>
+                            <option label="30802">420x420, 320Kbps</option>
+                            <option label="30803">576x320, 720Kbps</option>
+                            <option label="30804">720x480, 1.5Mbps</option>
+                            <option label="30805">1024x768, 2Mbps</option>
+                            <option label="30806">1280x720, 3Mbps</option>
+                            <option label="30807">1280x720, 4Mbps</option>
+                            <option label="30808">1920x1080, 8Mbps</option>
+                            <option label="30809">1920x1080, 10Mbps</option>
+                            <option label="30810">1920x1080, 12Mbps</option>
+                            <option label="30811">1920x1080, 20Mbps</option>
+                            <option label="30812">1920x1080, 40Mbps</option>
+                            <option label="30813">1920x1080, unlimited</option>
                         </options>
                     </constraints>
                     <control type="spinner" format="string"/>
@@ -558,18 +558,18 @@
                     <default>1280x720, 4Mbps</default>
                     <constraints>
                         <options>
-                            <option label="420x420, 320Kbps">420x420, 320Kbps</option>
-                            <option label="576x320, 720Kbps">576x320, 720Kbps</option>
-                            <option label="720x480, 1.5Mbps">720x480, 1.5Mbps</option>
-                            <option label="1024x768, 2Mbps">1024x768, 2Mbps</option>
-                            <option label="1280x720, 3Mbps">1280x720, 3Mbps</option>
-                            <option label="1280x720, 4Mbps">1280x720, 4Mbps</option>
-                            <option label="1920x1080, 8Mbps">1920x1080, 8Mbps</option>
-                            <option label="1920x1080, 10Mbps">1920x1080, 10Mbps</option>
-                            <option label="1920x1080, 12Mbps">1920x1080, 12Mbps</option>
-                            <option label="1920x1080, 20Mbps">1920x1080, 20Mbps</option>
-                            <option label="1920x1080, 40Mbps">1920x1080, 40Mbps</option>
-                            <option label="1920x1080, unlimited">1920x1080, unlimited</option>
+                            <option label="30802">420x420, 320Kbps</option>
+                            <option label="30803">576x320, 720Kbps</option>
+                            <option label="30804">720x480, 1.5Mbps</option>
+                            <option label="30805">1024x768, 2Mbps</option>
+                            <option label="30806">1280x720, 3Mbps</option>
+                            <option label="30807">1280x720, 4Mbps</option>
+                            <option label="30808">1920x1080, 8Mbps</option>
+                            <option label="30809">1920x1080, 10Mbps</option>
+                            <option label="30810">1920x1080, 12Mbps</option>
+                            <option label="30811">1920x1080, 20Mbps</option>
+                            <option label="30812">1920x1080, 40Mbps</option>
+                            <option label="30813">1920x1080, unlimited</option>
                         </options>
                     </constraints>
                     <dependencies>
@@ -621,18 +621,18 @@
                     <default>1280x720, 4Mbps</default>
                     <constraints>
                         <options>
-                            <option label="420x420, 320Kbps">420x420, 320Kbps</option>
-                            <option label="576x320, 720Kbps">576x320, 720Kbps</option>
-                            <option label="720x480, 1.5Mbps">720x480, 1.5Mbps</option>
-                            <option label="1024x768, 2Mbps">1024x768, 2Mbps</option>
-                            <option label="1280x720, 3Mbps">1280x720, 3Mbps</option>
-                            <option label="1280x720, 4Mbps">1280x720, 4Mbps</option>
-                            <option label="1920x1080, 8Mbps">1920x1080, 8Mbps</option>
-                            <option label="1920x1080, 10Mbps">1920x1080, 10Mbps</option>
-                            <option label="1920x1080, 12Mbps">1920x1080, 12Mbps</option>
-                            <option label="1920x1080, 20Mbps">1920x1080, 20Mbps</option>
-                            <option label="1920x1080, 40Mbps">1920x1080, 40Mbps</option>
-                            <option label="1920x1080, unlimited">1920x1080, unlimited</option>
+                            <option label="30802">420x420, 320Kbps</option>
+                            <option label="30803">576x320, 720Kbps</option>
+                            <option label="30804">720x480, 1.5Mbps</option>
+                            <option label="30805">1024x768, 2Mbps</option>
+                            <option label="30806">1280x720, 3Mbps</option>
+                            <option label="30807">1280x720, 4Mbps</option>
+                            <option label="30808">1920x1080, 8Mbps</option>
+                            <option label="30809">1920x1080, 10Mbps</option>
+                            <option label="30810">1920x1080, 12Mbps</option>
+                            <option label="30811">1920x1080, 20Mbps</option>
+                            <option label="30812">1920x1080, 40Mbps</option>
+                            <option label="30813">1920x1080, unlimited</option>
                         </options>
                     </constraints>
                     <dependencies>
