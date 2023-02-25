@@ -16,14 +16,13 @@
 
 import hashlib
 import os
+import pickle
 import shutil
 import time
 
 # don't use kodi_six xbmcvfs
 import xbmcvfs  # pylint: disable=import-error
 import xbmc  # pylint: disable=import-error
-
-import pickle
 
 from .constants import CONFIG
 from .logger import Logger
