@@ -41,12 +41,8 @@
             <fanart>resources/media/fanart.png</fanart>
         </assets>
         <news>
-[add] Kodi Nexus v20 support
-[chg] changed settings format to the latest format
-[rem] removed support for all version of Kodi pre-Nexus v20
-[rem] removed Python 2 support
-[rem] removed dependency on kodi-six
-[rem] removed dependency on six
+[fix] encoding error in logging
+[upd] linting
 [lang] update translations from Weblate
         </news>
         <platform>all</platform>
