@@ -4,7 +4,7 @@
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fanxdpanic%2Fplugin.video.composite_for_plex%2Fbadge&logo=none)](https://actions-badge.atrox.dev/anxdpanic/plugin.video.composite_for_plex/goto)
 ![License](https://img.shields.io/badge/license-GPL--2.0--or--later-success.svg)
-![Kodi Version](https://img.shields.io/badge/kodi-jarvis%2B-success.svg)
+![Kodi Version](https://img.shields.io/badge/kodi-nexus%2B-success.svg)
 ![Contributors](https://img.shields.io/github/contributors/anxdpanic/plugin.video.composite_for_plex.svg)
 
 Composite allows media and metadata stored in the Plex Media Server (PMS) to be viewed and played using the Kodi 16+ interface.
@@ -16,11 +16,9 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
     
     ---
     
-    ##### Kodi 16+
-    * Kodi 17+: Enable - `Settings -> System -> Add-ons -> Unknown Sources`
+    * Kodi 20+: Enable - `Settings -> System -> Add-ons -> Unknown Sources`
     1. Download repository 
-        - Kodi 16-18: [repository.anxdpanic-x.x.x.zip](https://panicked.xyz/repositories/repository.anxdpanic-2.0.0.zip)
-        - Kodi 19: [repository.anxdpanic-x.x.x+matrix.1.zip](https://panicked.xyz/repositories/matrix/repository.anxdpanic-2.0.0+matrix.1.zip)
+        - Kodi 20: [repository.anxdpanic-x.x.x+matrix.1.zip](https://panicked.xyz/repositories/matrix/repository.anxdpanic-2.0.0+matrix.1.zip)
     2. [Install from zip file](http://kodi.wiki/view/Add-on_manager#How_to_install_from_a_ZIP_file) (repository.anxdpanic-x.x.x.zip)
     3. [Install from repository](http://kodi.wiki/view/add-on_manager#How_to_install_add-ons_from_a_repository) (anxdpanic Add-on Repository)
 
@@ -33,7 +31,7 @@ Composite allows media and metadata stored in the Plex Media Server (PMS) to be 
     If you are watching remotely, or on a bandwidth limited network, switch on Transcoding to reduce the media quality
     to one that works best for you.
 
-- Kodi 18+ Library
+- Kodi 20+ Library
     -
     
     To add Composite (Plex) media to your library, add a video source for movies/tv shows.
