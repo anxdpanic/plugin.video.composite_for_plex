@@ -13,9 +13,9 @@
 import json
 import os
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcaddon  # pylint: disable=import-error
-from kodi_six import xbmcvfs  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
+import xbmcaddon  # pylint: disable=import-error
+import xbmcvfs  # pylint: disable=import-error
 
 try:
     xbmc.translatePath = xbmcvfs.translatePath

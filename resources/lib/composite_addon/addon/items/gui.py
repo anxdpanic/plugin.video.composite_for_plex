@@ -13,9 +13,10 @@
 import copy
 import json
 
+from urllib.parse import quote
+from urllib.parse import urlparse
+
 from infotagger.listitem import ListItemInfoTag  # pylint: disable=import-error
-from six.moves.urllib_parse import quote
-from six.moves.urllib_parse import urlparse
 
 from ..common import get_argv
 from ..constants import CONFIG

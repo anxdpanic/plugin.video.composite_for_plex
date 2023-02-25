@@ -10,8 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
+import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
 from ..containers import Item
@@ -44,10 +43,7 @@ def process_plex_plugins(context, url, tree=None):
 
     items = []
     append_item = items.append
-    if PY3:
-        plugins = tree.iter()
-    else:
-        plugins = tree.getiterator()
+    plugins = tree.iter()
 
     for plugin in plugins:
         item = Item(server, tree, url, plugin)

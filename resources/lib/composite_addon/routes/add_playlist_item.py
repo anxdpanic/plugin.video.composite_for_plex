@@ -10,9 +10,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcgui  # pylint: disable=import-error
-from six import PY3
+import xbmc  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import get_argv
 from ..addon.constants import CONFIG
@@ -89,10 +88,7 @@ def playlist_user_select(server):
     get_formatted_url = server.get_formatted_url
     tree = server.get_playlists()
 
-    if PY3:
-        playlist_iter = tree.iter('Playlist')
-    else:
-        playlist_iter = tree.getiterator('Playlist')
+    playlist_iter = tree.iter('Playlist')
 
     for playlist in playlist_iter:
         image = ''

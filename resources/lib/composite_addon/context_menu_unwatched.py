@@ -12,9 +12,9 @@
 import json
 import re
 import sys
+from urllib.parse import parse_qs
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from six.moves.urllib_parse import parse_qs
+import xbmc  # pylint: disable=import-error
 
 
 def jsonrpc_request(query):

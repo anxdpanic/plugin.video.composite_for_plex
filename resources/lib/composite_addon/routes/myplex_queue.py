@@ -10,7 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.processing.plex_plugins import process_plex_plugins

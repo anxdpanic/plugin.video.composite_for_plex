@@ -10,8 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
+import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
 from ..containers import Item
@@ -37,10 +36,7 @@ def process_photos(context, url, tree=None):
     items = []
     append_item = items.append
 
-    if PY3:
-        branches = tree.iter()
-    else:
-        branches = tree.getiterator()
+    branches = tree.iter()
 
     for branch in branches:
         item = Item(server, url, tree, branch)

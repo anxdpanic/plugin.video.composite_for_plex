@@ -16,15 +16,15 @@ import time
 import uuid
 import xml.etree.ElementTree as ETree
 
+from urllib.parse import parse_qsl
+from urllib.parse import quote
+from urllib.parse import quote_plus
+from urllib.parse import urlencode
+from urllib.parse import urlparse
+from urllib.parse import urlunparse
+
 import requests
-from kodi_six import xbmcgui  # pylint: disable=import-error
-from six.moves import xrange
-from six.moves.urllib_parse import parse_qsl
-from six.moves.urllib_parse import quote
-from six.moves.urllib_parse import quote_plus
-from six.moves.urllib_parse import urlencode
-from six.moves.urllib_parse import urlparse
-from six.moves.urllib_parse import urlunparse
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.data_cache import DATA_CACHE
@@ -512,7 +512,7 @@ class PlexMediaServer:  # pylint: disable=too-many-public-methods, too-many-inst
             threads = []
             number_of_uris = len(uris)
             thread = threading.Thread
-            for uri_idx in xrange(number_of_uris):
+            for uri_idx in range(number_of_uris):
                 uri = uris[uri_idx]
                 if uri in tested:
                     continue

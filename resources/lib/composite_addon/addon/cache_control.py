@@ -21,11 +21,9 @@ import time
 
 # don't use kodi_six xbmcvfs
 import xbmcvfs  # pylint: disable=import-error
-from kodi_six import xbmc  # pylint: disable=import-error
-from six import PY3
-from six import text_type
-# noinspection PyPep8Naming
-from six.moves import cPickle as pickle
+import xbmc  # pylint: disable=import-error
+
+import pickle
 
 from .constants import CONFIG
 from .logger import Logger
@@ -79,10 +77,7 @@ class CacheControl:
         LOG.debug('CACHE [%s]: attempting to read' % cache_name)
         cache = xbmcvfs.File(self.cache_location + cache_name)
         try:
-            if PY3:
-                cache_data = cache.readBytes()
-            else:
-                cache_data = cache.read()
+            cache_data = cache.readBytes()
         except Exception as error:  # pylint: disable=broad-except
             LOG.debug('CACHE [%s]: read error [%s]' % (cache_name, error))
             cache_data = False
@@ -90,7 +85,7 @@ class CacheControl:
             cache.close()
 
         if cache_data:
-            if isinstance(cache_data, text_type):
+            if isinstance(cache_data, str):
                 cache_data = cache_data.encode('utf-8')
             LOG.debug('CACHE [%s]: read' % cache_name)
             try:
@@ -110,10 +105,7 @@ class CacheControl:
         LOG.debug('CACHE [%s]: Writing file' % cache_name)
         cache = xbmcvfs.File(self.cache_location + cache_name, 'w')
         try:
-            if PY3:
-                cache.write(bytearray(pickle.dumps(obj)))
-            else:
-                cache.write(pickle.dumps(obj))
+            cache.write(bytearray(pickle.dumps(obj)))
         except Exception as error:  # pylint: disable=broad-except
             LOG.debug('CACHE [%s]: Writing error [%s]' %
                       (self.cache_location + cache_name, error))
@@ -222,13 +214,12 @@ class CacheControl:
 
     @staticmethod
     def sha512_cache_name(name, unique_id, data):
-        if PY3:
-            if not isinstance(name, bytes):
-                name = name.encode('utf-8')
-            if not isinstance(unique_id, bytes):
-                unique_id = unique_id.encode('utf-8')
-            if not isinstance(data, bytes):
-                data = data.encode('utf-8')
+        if not isinstance(name, bytes):
+            name = name.encode('utf-8')
+        if not isinstance(unique_id, bytes):
+            unique_id = unique_id.encode('utf-8')
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
 
         name_hash = hashlib.sha512()
         name_hash.update(name + unique_id + data)

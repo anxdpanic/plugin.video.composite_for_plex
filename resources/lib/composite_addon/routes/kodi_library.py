@@ -9,9 +9,8 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
-from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
+import xbmcgui  # pylint: disable=import-error
+import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.containers import Item
@@ -108,10 +107,7 @@ def _list_content(context, server, url, content_type):
     if 'tvshows' in content_type:
         content_iter = 'Directory'
 
-    if PY3:
-        branches = tree.iter(content_iter)
-    else:
-        branches = tree.getiterator(content_iter)
+    branches = tree.iter(content_iter)
 
     for content in branches:
         item = Item(server, url, tree, content)

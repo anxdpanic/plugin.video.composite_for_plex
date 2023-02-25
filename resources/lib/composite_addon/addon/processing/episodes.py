@@ -10,8 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
+import xbmcplugin  # pylint: disable=import-error
 
 from ..common import get_handle
 from ..containers import Item
@@ -53,10 +52,7 @@ def process_episodes(context, url, tree=None, rating_key=None, library=False):
 
     items = []
     append_item = items.append
-    if PY3:
-        episodes = tree.iter('Video')
-    else:
-        episodes = tree.getiterator('Video')
+    episodes = tree.iter('Video')
 
     for episode in episodes:
         item = Item(server, url, tree, episode)

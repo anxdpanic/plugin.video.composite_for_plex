@@ -11,9 +11,9 @@
 """
 
 import pyxbmct.addonwindow as pyxbmct  # pylint: disable=import-error
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcgui  # pylint: disable=import-error
-from kodi_six import xbmcvfs  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
+import xbmcvfs  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.logger import Logger

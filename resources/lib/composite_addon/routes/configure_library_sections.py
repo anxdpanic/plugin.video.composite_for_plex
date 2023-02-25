@@ -9,7 +9,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.constants import CONFIG
 from ..addon.library_sections import LibrarySectionsStore

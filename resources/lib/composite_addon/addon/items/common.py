@@ -10,7 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from six.moves.urllib_parse import quote_plus
+from urllib.parse import quote_plus
 
 from ..constants import CONFIG
 from ..logger import Logger

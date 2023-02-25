@@ -14,8 +14,8 @@ import sys
 import uuid
 from contextlib import closing
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from kodi_six import xbmcvfs  # pylint: disable=import-error
+import xbmc  # pylint: disable=import-error
+import xbmcvfs  # pylint: disable=import-error
 
 from ..addon.common import get_platform
 from ..addon.constants import CONFIG

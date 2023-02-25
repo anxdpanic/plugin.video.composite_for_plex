@@ -11,7 +11,7 @@
 
 import time
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
+import xbmcgui  # pylint: disable=import-error
 
 
 class ProgressDialog:

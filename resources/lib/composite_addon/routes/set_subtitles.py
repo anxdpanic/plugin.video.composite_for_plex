@@ -10,8 +10,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcgui  # pylint: disable=import-error
-from six import PY3
+import xbmcgui  # pylint: disable=import-error
 
 from ..addon.common import get_argv
 from ..addon.logger import Logger
@@ -43,10 +42,7 @@ def run(context):
     fl_select = False
     part_id = ''
 
-    if PY3:
-        subtitle_parts = tree.iter('Part')
-    else:
-        subtitle_parts = tree.getiterator('Part')
+    subtitle_parts = tree.iter('Part')
 
     for parts in subtitle_parts:
 

@@ -9,8 +9,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmc  # pylint: disable=import-error
-from six import PY3
+import xbmc  # pylint: disable=import-error
 
 from .constants import CONFIG
 from .logger import Logger
@@ -231,7 +230,7 @@ def decode_utf8(string):
 
 
 def encode_utf8(string, py2_only=True):
-    if py2_only and PY3:
+    if py2_only:
         return string
     return string.encode('utf-8')
 

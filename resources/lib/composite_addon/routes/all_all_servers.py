@@ -9,8 +9,7 @@
     See LICENSES/GPL-2.0-or-later.txt for more information.
 """
 
-from kodi_six import xbmcplugin  # pylint: disable=import-error
-from six import PY3
+import xbmcplugin  # pylint: disable=import-error
 
 from ..addon.common import get_handle
 from ..addon.constants import MODES
@@ -128,10 +127,7 @@ def _list_content(context, server, section):
         return []
 
     iter_type = 'Video' if get_section_type(context) == 'movie' else 'Directory'
-    if PY3:
-        branches = tree.iter(iter_type)
-    else:
-        branches = tree.getiterator(iter_type)
+    branches = tree.iter(iter_type)
 
     if not branches:
         return []
