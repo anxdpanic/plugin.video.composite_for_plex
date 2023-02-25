@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.composite_for_plex" name="Composite" version="1.4.4" provider-name="anxdpanic">
+<addon id="plugin.video.composite_for_plex" name="Composite" version="2.0.0" provider-name="anxdpanic">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.12.4"/>
@@ -41,7 +41,12 @@
             <fanart>resources/media/fanart.png</fanart>
         </assets>
         <news>
-[fix] fix TV series not showing with library integration |contrib: mash2k3|
+[add] Kodi Nexus v20 support
+[chg] changed settings format to the latest format
+[rem] removed support for all version of Kodi pre-Nexus v20
+[rem] removed Python 2 support
+[rem] removed dependency on kodi-six
+[rem] removed dependency on six
 [lang] update translations from Weblate
         </news>
         <platform>all</platform>
