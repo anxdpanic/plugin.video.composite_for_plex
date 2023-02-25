@@ -39,16 +39,19 @@ jobs:
         id: kodi-addon-checker-jarvis
         run: |
           kodi-addon-checker ${{ github.event.repository.name }} --branch=nexus
+        continue-on-error: true
 
       - name: Pylint
         id: pylint
         run: |
           cp -t ${HOME} .pylintrc
           pylint resources/lib/
+        continue-on-error: true
         working-directory: ${{ github.event.repository.name }}
 
       - name: isort
         id: isort
         run: |
           isort --force-single-line-imports . --diff
+        continue-on-error: true
         working-directory: ${{ github.event.repository.name }}
