@@ -12,7 +12,6 @@
 
 import copy
 import json
-
 from urllib.parse import quote
 from urllib.parse import urlparse
 

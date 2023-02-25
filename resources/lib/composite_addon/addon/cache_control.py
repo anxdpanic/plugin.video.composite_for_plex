@@ -20,9 +20,8 @@ import pickle
 import shutil
 import time
 
-# don't use kodi_six xbmcvfs
-import xbmcvfs  # pylint: disable=import-error
 import xbmc  # pylint: disable=import-error
+import xbmcvfs  # pylint: disable=import-error
 
 from .constants import CONFIG
 from .logger import Logger
