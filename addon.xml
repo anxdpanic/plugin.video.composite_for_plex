@@ -41,8 +41,7 @@
             <fanart>resources/media/fanart.png</fanart>
         </assets>
         <news>
-[fix] encoding error in logging
-[upd] linting
+[fix] leftover kodi-six imports
 [lang] update translations from Weblate
         </news>
         <platform>all</platform>
