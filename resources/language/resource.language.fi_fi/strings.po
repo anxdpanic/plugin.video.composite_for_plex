@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: Composite\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: 2014-10-26 17:05+0000\n"
-"PO-Revision-Date: 2023-10-05 00:11+0000\n"
-"Last-Translator: Oskari Lavinto <olavinto@protonmail.com>\n"
+"PO-Revision-Date: 2024-03-06 21:47+0000\n"
+"Last-Translator: Tommi Raulahti <traulahti@gmail.com>\n"
 "Language-Team: Finnish <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-composite_for_plex/fi_fi/>\n"
 "Language: fi_fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.0.2\n"
+"X-Generator: Weblate 5.4\n"
 
 msgctxt "Addon Description"
 msgid "Browse and play video, music and photo media files managed by Plex Media Server.[CR][CR]Fork of PleXBMC by Hippojay"
@@ -39,7 +39,7 @@ msgstr "Plex Online"
 
 msgctxt "#30003"
 msgid "About to install"
-msgstr ""
+msgstr "Asennusta aloitellaan"
 
 msgctxt "#30004"
 msgid "This plugin is already installed"
@@ -63,12 +63,12 @@ msgstr ""
 
 msgctxt "#30009"
 msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
-msgstr ""
+msgstr "Olet tällä hetkellä kirjautunut myPlexiin. Haluatko varmasti kirjautua ulos?"
 
 #  30010
 msgctxt "#30011"
 msgid "You are not currently logged into myPlex. Continue to sign in, or cancel to return"
-msgstr ""
+msgstr "Et ole tällä hetkellä kirjautunut myPlexiin. Jatka sisäänkirjautumista tai peruuta palataksesi"
 
 msgctxt "#30012"
 msgid "To access these screens you must be logged in as an admin user. Switch user and try again"
@@ -84,19 +84,19 @@ msgstr "Katsomattomat"
 
 msgctxt "#30015"
 msgid "Recently Aired"
-msgstr ""
+msgstr "Äskettäin lähetetty"
 
 msgctxt "#30016"
 msgid "Recently Added"
-msgstr ""
+msgstr "Äskettäin lisätty"
 
 msgctxt "#30017"
 msgid "Recently Viewed Episodes"
-msgstr ""
+msgstr "Äskettäin katsotut jaksot"
 
 msgctxt "#30018"
 msgid "Recently Viewed Shows"
-msgstr ""
+msgstr "Äskettäin katsotut sarjat"
 
 msgctxt "#30019"
 msgid "On Deck"
@@ -128,11 +128,11 @@ msgstr "Kansion mukaan"
 
 msgctxt "#30026"
 msgid "Search Shows..."
-msgstr ""
+msgstr "Etsi sarjoja..."
 
 msgctxt "#30027"
 msgid "Search Episodes..."
-msgstr ""
+msgstr "Etsi jaksoja..."
 
 msgctxt "#30028"
 msgid "All"
@@ -144,19 +144,19 @@ msgstr "Albumin mukaan"
 
 msgctxt "#30030"
 msgid "By Genre"
-msgstr ""
+msgstr "Tyylilajin mukaan"
 
 msgctxt "#30031"
 msgid "By Year"
-msgstr ""
+msgstr "Vuoden mukaan"
 
 msgctxt "#30032"
 msgid "By Collection"
-msgstr ""
+msgstr "Kokoelman mukaan"
 
 msgctxt "#30033"
 msgid "Recently Added"
-msgstr ""
+msgstr "Äskettäin lisätty"
 
 msgctxt "#30034"
 msgid "By Folder"
@@ -172,7 +172,7 @@ msgstr "Etsi albumeita..."
 
 msgctxt "#30037"
 msgid "Search Tracks..."
-msgstr ""
+msgstr "Etsi raitoja..."
 
 msgctxt "#30038"
 msgid "All"
@@ -184,7 +184,7 @@ msgstr "Katsomattomat"
 
 msgctxt "#30040"
 msgid "Recently Released"
-msgstr ""
+msgstr "Äskettäin julkaistut"
 
 msgctxt "#30041"
 msgid "Recently Added"
@@ -200,19 +200,19 @@ msgstr ""
 
 msgctxt "#30044"
 msgid "By Collection"
-msgstr ""
+msgstr "Kokoelman mukaan"
 
 msgctxt "#30045"
 msgid "By Genre"
-msgstr ""
+msgstr "Tyylilajin mukaan"
 
 msgctxt "#30046"
 msgid "By Year"
-msgstr ""
+msgstr "Vuoden mukaan"
 
 msgctxt "#30047"
 msgid "By Decade"
-msgstr ""
+msgstr "Vuosikymmenen mukaan"
 
 msgctxt "#30048"
 msgid "By Director"
@@ -1529,7 +1529,7 @@ msgstr "Palvelimet"
 
 msgctxt "#30790"
 msgid "Combined Sections"
-msgstr ""
+msgstr "Yhdistetyt osiot"
 
 msgctxt "#30791"
 msgid "Search Movies..."
@@ -1545,11 +1545,11 @@ msgstr "Merkitse katsomattomaksi"
 
 msgctxt "#30794"
 msgid "Library - Movie Sections"
-msgstr ""
+msgstr "Kirjasto - Elokuvaosat"
 
 msgctxt "#30795"
 msgid "Library - TV Show Sections"
-msgstr ""
+msgstr "Kirjasto - TV sarja osat"
 
 msgctxt "#30796"
 msgid "Kodi Library"
@@ -1557,15 +1557,15 @@ msgstr "Kodi-kirjasto"
 
 msgctxt "#30797"
 msgid "Select sections to include in library scans"
-msgstr ""
+msgstr "Valitse kirjaston skannauksiin sisällytettävät osat"
 
 msgctxt "#30798"
 msgid "Reset selected sections"
-msgstr ""
+msgstr "Nollaa valitut osat"
 
 msgctxt "#30799"
 msgid "Configured library sections have been reset"
-msgstr ""
+msgstr "Määritetyt kirjasto-osiot on nollattu"
 
 msgctxt "#30800"
 msgid "Continue Watching"
