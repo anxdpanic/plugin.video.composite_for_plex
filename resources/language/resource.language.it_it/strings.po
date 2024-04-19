@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Composite\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: 2014-10-26 17:05+0000\n"
-"PO-Revision-Date: 2023-05-09 06:27+0000\n"
+"PO-Revision-Date: 2023-11-12 06:11+0000\n"
 "Last-Translator: Massimo Pissarello <mapi68@gmail.com>\n"
 "Language-Team: Italian <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-composite_for_plex/it_it/>\n"
 "Language: it_it\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.2\n"
+"X-Generator: Weblate 5.1\n"
 
 msgctxt "Addon Description"
 msgid "Browse and play video, music and photo media files managed by Plex Media Server.[CR][CR]Fork of PleXBMC by Hippojay"
@@ -35,11 +35,11 @@ msgstr "Eliminare questo elemento? Questa azione eliminerà i file multimediali 
 
 msgctxt "#30002"
 msgid "Plex Online"
-msgstr "Plex in linea"
+msgstr "Plex online"
 
 msgctxt "#30003"
 msgid "About to install"
-msgstr "In procinto di installare"
+msgstr "In fase di installazione"
 
 msgctxt "#30004"
 msgid "This plugin is already installed"
@@ -55,7 +55,7 @@ msgstr "Disconnessione"
 
 msgctxt "#30007"
 msgid "To sign out you must be logged in as an admin user. Switch user and try again"
-msgstr "Per uscire devi essere loggato come utente amministratore. Cambia utente e riprova"
+msgstr "Per uscire è necessario aver effettuato l'accesso come utente amministratore. Cambia utente e riprova"
 
 msgctxt "#30008"
 msgid "myPlex"
@@ -63,16 +63,16 @@ msgstr "myPlex"
 
 msgctxt "#30009"
 msgid "You are currently signed into myPlex. Are you sure you want to sign out?"
-msgstr "Sei attualmente connesso a myPlex. Sei sicuro di voler uscire?"
+msgstr "Attualmente hai effettuato l'accesso a myPlex. Sei sicuro di voler uscire?"
 
 #  30010
 msgctxt "#30011"
 msgid "You are not currently logged into myPlex. Continue to sign in, or cancel to return"
-msgstr "Non sei attualmente connesso a myPlex. Continua per accedere o annulla per tornare indietro"
+msgstr "Al momento non hai effettuato l'accesso a myPlex. Continua per accedere o annulla per tornare indietro"
 
 msgctxt "#30012"
 msgid "To access these screens you must be logged in as an admin user. Switch user and try again"
-msgstr "Per accedere a queste schermate devi essere loggato come utente amministratore. Cambia utente e riprova"
+msgstr "Per accedere a queste schermate è necessario aver effettuato l'accesso come utente amministratore. Cambia utente e riprova"
 
 msgctxt "#30013"
 msgid "All"
@@ -84,7 +84,7 @@ msgstr "Non visti"
 
 msgctxt "#30015"
 msgid "Recently Aired"
-msgstr "In onda recentemente"
+msgstr "Trasmessi recentemente"
 
 msgctxt "#30016"
 msgid "Recently Added"
@@ -96,7 +96,7 @@ msgstr "Episodi visti recentemente"
 
 msgctxt "#30018"
 msgid "Recently Viewed Shows"
-msgstr "Programmi visti recentemente"
+msgstr "Serie viste recentemente"
 
 msgctxt "#30019"
 msgid "On Deck"
@@ -128,7 +128,7 @@ msgstr "Per cartella"
 
 msgctxt "#30026"
 msgid "Search Shows..."
-msgstr "Cerca programmi..."
+msgstr "Cerca serie..."
 
 msgctxt "#30027"
 msgid "Search Episodes..."
@@ -184,7 +184,7 @@ msgstr "Non visti"
 
 msgctxt "#30040"
 msgid "Recently Released"
-msgstr "Rilasciati recentemente"
+msgstr "Pubblicati recentemente"
 
 msgctxt "#30041"
 msgid "Recently Added"
@@ -288,7 +288,7 @@ msgstr "Lenti"
 
 msgctxt "#30066"
 msgid "Unable to see any media servers"
-msgstr "Impossibile vedere alcun server multimediale"
+msgstr "Impossibile trovare server multimediali"
 
 msgctxt "#30067"
 msgid "Unable to contact server:"
@@ -296,11 +296,11 @@ msgstr "Non riesco a contattare il server:"
 
 msgctxt "#30068"
 msgid "Library refresh started"
-msgstr "L'aggiornamento della libreria è iniziato"
+msgstr "È iniziato l'aggiornamento della libreria"
 
 msgctxt "#30069"
 msgid "myPlex not configured"
-msgstr "myPlex non configurato"
+msgstr "myPlex non è configurato"
 
 msgctxt "#30070"
 msgid "Resume"
@@ -320,7 +320,7 @@ msgstr "Seleziona audio"
 
 msgctxt "#30074"
 msgid "Select master server"
-msgstr "Seleziona server master"
+msgstr "Seleziona server Master"
 
 msgctxt "#30075"
 msgid "Known server list"
@@ -405,7 +405,7 @@ msgstr "Abilita filtri aggiuntivi nei menu"
 
 msgctxt "#30504"
 msgid "Server Discovery"
-msgstr "Ricerca server"
+msgstr "Rilevamento server"
 
 msgctxt "#30505"
 msgid "PMS Username: "
@@ -421,7 +421,7 @@ msgstr "Transcodifica sempre"
 
 msgctxt "#30508"
 msgid "Transcode format "
-msgstr "Formato di transcodifica "
+msgstr "Formato transcodifica "
 
 msgctxt "#30509"
 msgid "Recent & OnDeck items"
@@ -429,7 +429,7 @@ msgstr "Elementi recenti e in primo piano"
 
 msgctxt "#30510"
 msgid "Debug log"
-msgstr "Registro di debug"
+msgstr "Registro debug"
 
 msgctxt "#30511"
 msgid "Auto"
@@ -449,7 +449,7 @@ msgstr "Livello di debug"
 
 msgctxt "#30515"
 msgid "Use transcoding proxy"
-msgstr "Utilizza proxy per la transcodifica"
+msgstr "Usa proxy per la transcodifica"
 
 msgctxt "#30516"
 msgid "Server"
@@ -473,7 +473,7 @@ msgstr "Aspetto"
 
 msgctxt "#30521"
 msgid "Skin Home Shelf"
-msgstr "Skin scaffale domestico"
+msgstr "Skin scaffale principale"
 
 msgctxt "#30522"
 msgid "Advanced"
@@ -481,7 +481,7 @@ msgstr "Avanzate"
 
 msgctxt "#30523"
 msgid "Use Wake On LAN"
-msgstr "Utilizza Wake On LAN"
+msgstr "Usa Wake On LAN"
 
 msgctxt "#30524"
 msgid "myPlex user"
@@ -493,7 +493,7 @@ msgstr "Password myPlex"
 
 msgctxt "#30526"
 msgid "Select master server..."
-msgstr "Seleziona il server master..."
+msgstr "Seleziona server Master..."
 
 msgctxt "#30527"
 msgid "Authentication required?"
@@ -513,7 +513,7 @@ msgstr "Numero porta"
 
 msgctxt "#30531"
 msgid "Use PMS localisation settings"
-msgstr "Utilizza le impostazioni di localizzazione PMS"
+msgstr "Usa impostazioni di localizzazione PMS"
 
 msgctxt "#30532"
 msgid "Manual"
@@ -525,11 +525,11 @@ msgstr "Sempre"
 
 msgctxt "#30534"
 msgid "Audio stream selection"
-msgstr "Selezione del flusso audio"
+msgstr "Selezione traccia audio"
 
 msgctxt "#30535"
 msgid "Subtitle stream selection"
-msgstr "Selezione del flusso sottotitoli"
+msgstr "Selezione traccia sottotitoli"
 
 msgctxt "#30536"
 msgid "Kodi Control"
@@ -541,11 +541,11 @@ msgstr "Esterno"
 
 msgctxt "#30538"
 msgid "Audio and subtitle selector"
-msgstr "Selezione audio e sottotitoli"
+msgstr "Selettore audio e sottotitoli"
 
 msgctxt "#30539"
 msgid "Never show subtitles"
-msgstr "Non visualizzare mai i sottotitoli"
+msgstr "Non mostrare mai i sottotitoli"
 
 msgctxt "#30540"
 msgid "Quality"
@@ -557,11 +557,11 @@ msgstr "Porta proxy"
 
 msgctxt "#30542"
 msgid "Plex Channel View"
-msgstr "Vista Canale Plex"
+msgstr "Vista canale Plex"
 
 msgctxt "#30543"
 msgid "Flatten TV Shows"
-msgstr "Spiana i Serie TV"
+msgstr "Mostra serie TV in un unico elenco"
 
 msgctxt "#30544"
 msgid "Server MAC address"
@@ -569,7 +569,7 @@ msgstr "Indirizzo MAC del server"
 
 msgctxt "#30545"
 msgid "Plex Style Watched flags"
-msgstr "Flag già visto in stile Plex"
+msgstr "Indicatori di visione in stile Plex"
 
 msgctxt "#30546"
 msgid "Windows Media Server?"
@@ -577,7 +577,7 @@ msgstr "Windows Media Server?"
 
 msgctxt "#30547"
 msgid "Use WOL?"
-msgstr "Utilizzare WOL?"
+msgstr "Usare WOL?"
 
 # 30548
 msgctxt "#30549"
@@ -590,7 +590,7 @@ msgstr "Salta immagini (miniature, fanart)"
 
 msgctxt "#30551"
 msgid "Skip Media Flags"
-msgstr "Salta flag multimediali"
+msgstr "Salta indicatori multimediali"
 
 msgctxt "#30552"
 msgid "Skip Context Menus"
@@ -606,7 +606,7 @@ msgstr "Bonjour"
 
 msgctxt "#30556"
 msgid "Play TV Theme Music"
-msgstr "Riproduci musica a tema TV"
+msgstr "Riproduci temi musicali della TV"
 
 msgctxt "#30557"
 msgid "Select audio output"
@@ -614,7 +614,7 @@ msgstr "Seleziona uscita audio"
 
 msgctxt "#30558"
 msgid "If only one season"
-msgstr "Se solo una stagione"
+msgstr "Anche se solo una stagione"
 
 msgctxt "#30559"
 msgid "All seasons"
@@ -666,11 +666,11 @@ msgstr "Auto (GDM)"
 
 msgctxt "#30571"
 msgid "Current Master Server"
-msgstr "Server principale attuale"
+msgstr "Server Master attuale"
 
 msgctxt "#30572"
 msgid "Current Master Server"
-msgstr "Server principale attuale"
+msgstr "Server Master attuale"
 
 msgctxt "#30573"
 msgid "Recently Added"
@@ -690,7 +690,7 @@ msgstr "Nome skin"
 
 msgctxt "#30577"
 msgid "Movie View"
-msgstr "Vista Film"
+msgstr "Vista film"
 
 msgctxt "#30578"
 msgid "TV View"
@@ -698,19 +698,19 @@ msgstr "Vista TV"
 
 msgctxt "#30579"
 msgid "Season View"
-msgstr "Vista Stagioni"
+msgstr "Vista stagioni"
 
 msgctxt "#30580"
 msgid "Episode View"
-msgstr "Vista Episodi"
+msgstr "Vista episodi"
 
 msgctxt "#30581"
 msgid "Music View"
-msgstr "Vista Musica"
+msgstr "Vista musica"
 
 msgctxt "#30582"
 msgid "Enable Movie Shelf"
-msgstr "Abilita scaffale per i Film"
+msgstr "Abilita scaffale per i film"
 
 msgctxt "#30583"
 msgid "Enable TV Shelf"
@@ -718,11 +718,11 @@ msgstr "Abilita scaffale per la TV"
 
 msgctxt "#30584"
 msgid "Enable Music Shelf"
-msgstr "Abilita scaffale per la Musica"
+msgstr "Abilita scaffale per la musica"
 
 msgctxt "#30585"
 msgid "Enable Channel Shelf"
-msgstr "Abilita scaffale per i Canali"
+msgstr "Abilita scaffale per i canali"
 
 msgctxt "#30586"
 msgid "Content filter"
@@ -750,7 +750,7 @@ msgstr "Adulti"
 
 msgctxt "#30592"
 msgid "Use menu for shared sections"
-msgstr "Utilizza il menù per le sezioni condivise"
+msgstr "Usa menu per le sezioni condivise"
 
 msgctxt "#30593"
 msgid "Cache Data"
@@ -762,15 +762,15 @@ msgstr "Manuale"
 
 msgctxt "#30595"
 msgid "Use full resolution thumbs"
-msgstr "Utilizza le miniature a piena risoluzione"
+msgstr "Usa miniature a piena risoluzione"
 
 msgctxt "#30596"
 msgid "Use full resolution fanart"
-msgstr "Utilizza le fanart a piena risoluzione"
+msgstr "Usa fanart a piena risoluzione"
 
 msgctxt "#30597"
 msgid "Hide watched recently added items"
-msgstr "Nascondi gli elementi già visti e aggiunti di recente"
+msgstr "Nascondi elementi già visti aggiunti di recente"
 
 msgctxt "#30598"
 msgid "Info"
@@ -806,55 +806,55 @@ msgstr "Gestisci myPlex"
 
 msgctxt "#30606"
 msgid "Prefer Season artwork"
-msgstr "Preferisci la grafica delle Stagioni"
+msgstr "Preferisci grafica della stagione"
 
 msgctxt "#30607"
 msgid "Hide Unique Information in log"
-msgstr "Nascondi informazioni univoche nel log"
+msgstr "Nascondi informazioni univoche nel registro"
 
 msgctxt "#30608"
 msgid "Use Kodi client name?"
-msgstr "Utilizzo il nome del client Kodi?"
+msgstr "Usare il nome del client Kodi?"
 
 msgctxt "#30609"
 msgid "Switch off playback monitor"
-msgstr "Spegnere il monitor di riproduzione"
+msgstr "Spegni il monitor di riproduzione"
 
 msgctxt "#30610"
 msgid "Use HTTPS"
-msgstr ""
+msgstr "Usa HTTPS"
 
 msgctxt "#30611"
 msgid "Transcode > 1080p"
-msgstr ""
+msgstr "Transcodifica > 1080p"
 
 msgctxt "#30612"
 msgid "Transcode HEVC"
-msgstr ""
+msgstr "Transcodifica HEVC"
 
 msgctxt "#30613"
 msgid "MAC Address"
-msgstr ""
+msgstr "Indirizzo MAC"
 
 msgctxt "#30614"
 msgid "Universal"
-msgstr ""
+msgstr "Universale"
 
 msgctxt "#30615"
 msgid "Legacy"
-msgstr ""
+msgstr "Obsoleto"
 
 msgctxt "#30616"
 msgid "Refresh library section"
-msgstr ""
+msgstr "Aggiorna sezione della libreria"
 
 msgctxt "#30617"
 msgid "Username:"
-msgstr ""
+msgstr "Nome utente:"
 
 msgctxt "#30618"
 msgid "Password:"
-msgstr ""
+msgstr "Password:"
 
 msgctxt "#30619"
 msgid "Cancel"
@@ -862,66 +862,66 @@ msgstr "Annulla"
 
 msgctxt "#30620"
 msgid "Submit"
-msgstr ""
+msgstr "Invia"
 
 msgctxt "#30621"
 msgid "Manual"
-msgstr ""
+msgstr "Manuale"
 
 msgctxt "#30622"
 msgid "Use PIN"
-msgstr ""
+msgstr "Usa PIN"
 
 msgctxt "#30623"
 msgid "Done"
-msgstr ""
+msgstr "Fatto"
 
 msgctxt "#30624"
 msgid "Unable to sign in"
-msgstr ""
+msgstr "Impossibile accedere"
 
 msgctxt "#30625"
 msgid "From your computer, go to %s and enter the code below"
-msgstr ""
+msgstr "Dal tuo computer, vai su %s e inserisci il codice che si trova qui sotto"
 
 msgctxt "#30626"
 msgid "Successfully signed in"
-msgstr ""
+msgstr "Accesso effettuato correttamente"
 
 msgctxt "#30627"
 msgid "Sign in not successful"
-msgstr ""
+msgstr "Accesso non riuscito"
 
 msgctxt "#30628"
 msgid "Email:"
-msgstr ""
+msgstr "Email:"
 
 msgctxt "#30629"
 msgid "Plex Pass:"
-msgstr ""
+msgstr "Pass di Plex:"
 
 msgctxt "#30630"
 msgid "Joined:"
-msgstr ""
+msgstr "Aggiunto:"
 
 msgctxt "#30631"
 msgid "Exit"
-msgstr ""
+msgstr "Uscita"
 
 #  30632
 #  30633
 msgctxt "#30634"
 msgid "Enter your myPlex details below"
-msgstr ""
+msgstr "Inserisci qui sotto i tuoi dati myPlex"
 
 #  30635
 msgctxt "#30636"
 msgid "Unknown"
-msgstr ""
+msgstr "Sconosciuto"
 
 msgctxt "#30637"
 msgid "myPlex Login"
-msgstr ""
+msgstr "Accesso a myPlex"
 
 msgctxt "#30638"
 msgid "Enter search term"
@@ -929,91 +929,91 @@ msgstr "Inserisci il termine di ricerca"
 
 msgctxt "#30639"
 msgid "Enter value"
-msgstr ""
+msgstr "Inserisci valore"
 
 msgctxt "#30640"
 msgid "Transcode Profile"
-msgstr ""
+msgstr "Profilo di transcodifica"
 
 msgctxt "#30641"
 msgid "Transcode Profiles"
-msgstr ""
+msgstr "Profili di transcodifica"
 
 msgctxt "#30642"
 msgid "Offline"
-msgstr ""
+msgstr "Offline"
 
 msgctxt "#30643"
 msgid "Remote"
-msgstr ""
+msgstr "Remoto"
 
 msgctxt "#30644"
 msgid "Nearby"
-msgstr ""
+msgstr "Nelle vicinanze"
 
 msgctxt "#30645"
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 msgctxt "#30646"
 msgid "Not Secure"
-msgstr ""
+msgstr "Non sicuro"
 
 msgctxt "#30647"
 msgid "Certificate Verification"
-msgstr ""
+msgstr "Verifica del certificato"
 
 msgctxt "#30648"
 msgid "Message"
-msgstr ""
+msgstr "Messaggio"
 
 msgctxt "#30649"
 msgid "blank"
-msgstr ""
+msgstr "vuoto"
 
 msgctxt "#30650"
 msgid "Server Discovery"
-msgstr ""
+msgstr "Rilevamento server"
 
 msgctxt "#30651"
 msgid "Please wait..."
-msgstr "Attendi..."
+msgstr "Attendere prego..."
 
 msgctxt "#30652"
 msgid "myPlex discovery..."
-msgstr ""
+msgstr "Rilevamento myPlex..."
 
 msgctxt "#30653"
 msgid "GDM discovery..."
-msgstr ""
+msgstr "Rilevamento GDM..."
 
 msgctxt "#30654"
 msgid "User provided..."
-msgstr ""
+msgstr "Fornito dall'utente..."
 
 msgctxt "#30655"
 msgid "Caching results..."
-msgstr ""
+msgstr "Memorizzazione dei risultati nella cache..."
 
 msgctxt "#30656"
 msgid "Finished"
-msgstr ""
+msgstr "Finito"
 
 msgctxt "#30657"
 msgid "Found servers:"
-msgstr ""
+msgstr "Server trovati:"
 
 msgctxt "#30658"
 msgid "No servers found"
-msgstr ""
+msgstr "Nessun server trovato"
 
 msgctxt "#30659"
 msgid "Transcode > 8-bit"
-msgstr ""
+msgstr "Transcodifica > 8 bit"
 
 msgctxt "#30660"
 msgid "Device Name"
-msgstr ""
+msgstr "Nome dispositivo"
 
 msgctxt "#30661"
 msgid "Cache"
@@ -1025,35 +1025,35 @@ msgstr "Server Cache TTL (minuti)"
 
 msgctxt "#30663"
 msgid "Server detection notification"
-msgstr ""
+msgstr "Notifica di rilevamento del server"
 
 msgctxt "#30664"
 msgid "installed"
-msgstr ""
+msgstr "installato"
 
 msgctxt "#30665"
 msgid "Movies"
-msgstr ""
+msgstr "Film"
 
 msgctxt "#30666"
 msgid "Music"
-msgstr ""
+msgstr "Musica"
 
 msgctxt "#30667"
 msgid "TV Shows"
-msgstr ""
+msgstr "Serie TV"
 
 msgctxt "#30668"
 msgid "Photos"
-msgstr ""
+msgstr "Fotografie"
 
 msgctxt "#30669"
 msgid "Server name prefix on the main menu"
-msgstr ""
+msgstr "Prefisso del nome del server nel menu principale"
 
 msgctxt "#30670"
 msgid "Always"
-msgstr ""
+msgstr "Sempre"
 
 msgctxt "#30671"
 msgid "Default"
@@ -1065,15 +1065,15 @@ msgstr "Vai a %s"
 
 msgctxt "#30673"
 msgid "Delete %s from the %s playlist?"
-msgstr ""
+msgstr "Eliminare %s dalla playlist %s?"
 
 msgctxt "#30674"
 msgid "Confirm playlist item delete?"
-msgstr ""
+msgstr "Confermare l'eliminazione dell'elemento della playlist?"
 
 msgctxt "#30675"
 msgid "Delete from playlist"
-msgstr ""
+msgstr "Elimina dalla playlist"
 
 msgctxt "#30676"
 msgid "Select playlist"
@@ -1085,63 +1085,63 @@ msgstr "Aggiungi alla playlist"
 
 msgctxt "#30678"
 msgid "Added %s to the %s playlist"
-msgstr ""
+msgstr "Aggiunto %s alla playlist %s"
 
 msgctxt "#30679"
 msgid "Failed to add %s to the %s playlist"
-msgstr ""
+msgstr "Impossibile aggiungere %s alla playlist %s"
 
 msgctxt "#30680"
 msgid "%s is already in the %s playlist"
-msgstr ""
+msgstr "%s è già nella playlist %s"
 
 msgctxt "#30681"
 msgid "%s has been removed the %s playlist"
-msgstr ""
+msgstr "%s è stato rimosso dalla playlist %s"
 
 msgctxt "#30682"
 msgid "Unable to remove %s from the %s playlist"
-msgstr ""
+msgstr "Impossibile rimuovere %s dalla playlist %s"
 
 msgctxt "#30683"
 msgid "Show the 'Delete' context menu"
-msgstr ""
+msgstr "Mostra menu contestuale 'Elimina'"
 
 msgctxt "#30684"
 msgid "Up Next"
-msgstr "Avanti il prossimo"
+msgstr "Up Next"
 
 msgctxt "#30685"
 msgid "Enable Up Next"
-msgstr ""
+msgstr "Abilita Up Next"
 
 msgctxt "#30686"
 msgid "Open Up Next settings"
-msgstr ""
+msgstr "Apri impostazioni di Up Next"
 
 msgctxt "#30687"
 msgid "Install Up Next"
-msgstr ""
+msgstr "Installa Up Next"
 
 msgctxt "#30688"
 msgid "Up Next is enabled in the settings, however Up Next appears to be disabled. Would you like to enable Up Next now?"
-msgstr ""
+msgstr "Up Next è abilitato nelle impostazioni, tuttavia Up Next sembra essere disabilitato. Vuoi abilitare Up Next adesso?"
 
 msgctxt "#30690"
 msgid "From your computer, go to [B]%s[/B] and enter the following code: [B]%s[/B]"
-msgstr ""
+msgstr "Dal tuo computer, vai su [B]%s[/B] e inserisci il seguente codice: [B]%s[/B]"
 
 msgctxt "#30691"
 msgid "Use episode thumbnails"
-msgstr ""
+msgstr "Usa miniature degli episodi"
 
 msgctxt "#30692"
 msgid "Widgets"
-msgstr ""
+msgstr "Widget"
 
 msgctxt "#30693"
 msgid "Show [B]Widgets[/B] menu"
-msgstr ""
+msgstr "Mostra menu [B]Widget[/B]"
 
 msgctxt "#30694"
 msgid "Clear Caches"
@@ -1153,31 +1153,31 @@ msgstr "Cache dati TTL (minuti)"
 
 msgctxt "#30696"
 msgid "Clear data cache on refresh"
-msgstr ""
+msgstr "Cancella la cache dei dati quando aggiorni"
 
 msgctxt "#30697"
 msgid "Movies on Deck"
-msgstr ""
+msgstr "Film in primo piano"
 
 msgctxt "#30698"
 msgid "TV Shows on Deck"
-msgstr ""
+msgstr "Serie TV in primo piano"
 
 msgctxt "#30699"
 msgid "Recently Released Movies"
-msgstr ""
+msgstr "Film usciti di recente"
 
 msgctxt "#30700"
 msgid "Recently Aired TV Shows"
-msgstr ""
+msgstr "Serie TV trasmesse di recente"
 
 msgctxt "#30701"
 msgid "Recently Added Movies"
-msgstr ""
+msgstr "Film aggiunti di recente"
 
 msgctxt "#30702"
 msgid "Recently Added TV Shows"
-msgstr ""
+msgstr "Serie TV aggiunte di recente"
 
 msgctxt "#30703"
 msgid "Data Cache"
@@ -1185,23 +1185,23 @@ msgstr "Cache dati"
 
 msgctxt "#30704"
 msgid "Companion receiver is unable to start due to a port conflict"
-msgstr ""
+msgstr "Il ricevitore associato non è in grado di avviarsi a causa di un conflitto di porte"
 
 msgctxt "#30705"
 msgid "Companion receiver has started"
-msgstr ""
+msgstr "Il ricevitore associato è stato avviato"
 
 msgctxt "#30706"
 msgid "Companion receiver has been stopped"
-msgstr ""
+msgstr "Il ricevitore associato è stato fermato"
 
 msgctxt "#30707"
 msgid "Companion Receiver"
-msgstr ""
+msgstr "Ricevitore associato"
 
 msgctxt "#30708"
 msgid "Enabled"
-msgstr ""
+msgstr "Abilitato"
 
 msgctxt "#30709"
 msgid "Port"
@@ -1209,11 +1209,11 @@ msgstr "Porta"
 
 msgctxt "#30710"
 msgid "Kodi's Web Server Settings"
-msgstr ""
+msgstr "Impostazioni server Web di Kodi"
 
 msgctxt "#30711"
 msgid "[COLOR=red]EXPERIMENTAL[/COLOR] - This feature is experimental[CR]Any changes to these settings will require a restart to take effect"
-msgstr ""
+msgstr "[COLOR=red]SPERIMENTALE[/COLOR] - Questa funzionalità è sperimentale[CR]Qualsiasi modifica a queste impostazioni richiederà un riavvio per avere effetto"
 
 msgctxt "#30712"
 msgid "Username"
@@ -1229,39 +1229,39 @@ msgstr "Menu principale"
 
 msgctxt "#30715"
 msgid "Show [B]myPlex Queue[/B] menu"
-msgstr ""
+msgstr "Mostra menu [B]Coda myPlex[/B]"
 
 msgctxt "#30716"
 msgid "Show [B]Channels[/B] menu"
-msgstr ""
+msgstr "Mostra menu [B]Canali[/B]"
 
 msgctxt "#30717"
 msgid "Show [B]Plex Online[/B] menu"
-msgstr ""
+msgstr "Mostra menu [B]Plex Online[/B]"
 
 msgctxt "#30718"
 msgid "Show [B]Playlists[/B] menu"
-msgstr ""
+msgstr "Mostra menu [B]Playlist[/B]"
 
 msgctxt "#30719"
 msgid "Context Menu"
-msgstr ""
+msgstr "Menu contestuale"
 
 msgctxt "#30720"
 msgid "Metadata"
-msgstr ""
+msgstr "Metadati"
 
 msgctxt "#30721"
 msgid "Transcoding"
-msgstr ""
+msgstr "Transcodifica"
 
 msgctxt "#30722"
 msgid "Create a playlist"
-msgstr ""
+msgstr "Crea una playlist"
 
 msgctxt "#30723"
 msgid "Enter a playlist title"
-msgstr ""
+msgstr "Inserisci il titolo della playlist"
 
 msgctxt "#30724"
 msgid "Delete playlist"
@@ -1269,19 +1269,19 @@ msgstr "Elimina playlist"
 
 msgctxt "#30725"
 msgid "Confirm playlist delete?"
-msgstr ""
+msgstr "Confermare l'eliminazione della playlist?"
 
 msgctxt "#30726"
 msgid "Are you sure you want to delete this playlist?"
-msgstr ""
+msgstr "Sei sicuro di voler eliminare questa playlist?"
 
 msgctxt "#30727"
 msgid "Notification encoding"
-msgstr ""
+msgstr "Codifica delle notifiche"
 
 msgctxt "#30728"
 msgid "Episode sort method"
-msgstr ""
+msgstr "Metodo di ordinamento degli episodi"
 
 msgctxt "#30729"
 msgid "Plex"
@@ -1293,23 +1293,23 @@ msgstr "Kodi"
 
 msgctxt "#30731"
 msgid "Manage Servers"
-msgstr ""
+msgstr "Gestisci server"
 
 msgctxt "#30732"
 msgid "Set as Master"
-msgstr ""
+msgstr "Imposta come Master"
 
 msgctxt "#30733"
 msgid "Connection Test Results"
-msgstr ""
+msgstr "Risultati del test di connessione"
 
 msgctxt "#30734"
 msgid "Default to forced subtitles"
-msgstr ""
+msgstr "Impostazione predefinita per i sottotitoli forzati"
 
 msgctxt "#30735"
 msgid "Mixed content type"
-msgstr ""
+msgstr "Tipo di contenuto misto"
 
 msgctxt "#30736"
 msgid "Default"
@@ -1317,127 +1317,127 @@ msgstr "Predefinito"
 
 msgctxt "#30737"
 msgid "Majority"
-msgstr ""
+msgstr "Maggioranza"
 
 msgctxt "#30738"
 msgid "Add custom access url"
-msgstr ""
+msgstr "Aggiungi URL di accesso personalizzato"
 
 msgctxt "#30739"
 msgid "Custom access urls"
-msgstr ""
+msgstr "URL di accesso personalizzate"
 
 msgctxt "#30740"
 msgid "Edit"
-msgstr ""
+msgstr "Modifica"
 
 msgctxt "#30741"
 msgid "Edit custom access url"
-msgstr ""
+msgstr "Modifica URL di accesso personalizzato"
 
 msgctxt "#30742"
 msgid "Custom"
-msgstr ""
+msgstr "Personalizzato"
 
 msgctxt "#30743"
 msgid "All Artists"
-msgstr ""
+msgstr "Tutti gli artisti"
 
 msgctxt "#30744"
 msgid "All Photos"
-msgstr ""
+msgstr "Tutte le foto"
 
 msgctxt "#30745"
 msgid "All Shows"
-msgstr ""
+msgstr "Tutte le serie"
 
 msgctxt "#30746"
 msgid "All Movies"
-msgstr ""
+msgstr "Tutti i film"
 
 msgctxt "#30747"
 msgid "Preferred lyrics format"
-msgstr ""
+msgstr "Formato preferito per i testi"
 
 msgctxt "#30748"
 msgid "Lyrics"
-msgstr ""
+msgstr "Testi"
 
 msgctxt "#30749"
 msgid "lrc"
-msgstr ""
+msgstr "lrc"
 
 msgctxt "#30750"
 msgid "txt"
-msgstr ""
+msgstr "txt"
 
 msgctxt "#30751"
 msgid "Skip intro"
-msgstr ""
+msgstr "Salta introduzione"
 
 msgctxt "#30752"
 msgid "Intro skipping"
-msgstr ""
+msgstr "Salto dell'introduzione"
 
 msgctxt "#30753"
 msgid "Plex Pass Required"
-msgstr ""
+msgstr "Plex Pass richiesto"
 
 msgctxt "#30754"
 msgid "Plex powered by LyricFind"
-msgstr ""
+msgstr "Plex gestito da LyricFind"
 
 msgctxt "#30755"
 msgid "Show skip intro dialog"
-msgstr ""
+msgstr "Mostra finestra di dialogo Salta introduzione"
 
 msgctxt "#30756"
 msgid "All %s"
-msgstr ""
+msgstr "Tutti %s"
 
 msgctxt "#30757"
 msgid "All Servers: TV Shows On Deck"
-msgstr ""
+msgstr "Tutti i server: serie TV in primo piano"
 
 msgctxt "#30758"
 msgid "All Servers: Movies On Deck"
-msgstr ""
+msgstr "Tutti i server: film in primo piano"
 
 msgctxt "#30759"
 msgid "Recently Added Episodes"
-msgstr ""
+msgstr "Episodi aggiunti di recente"
 
 msgctxt "#30760"
 msgid "All Servers: Recently Added Episodes"
-msgstr ""
+msgstr "Tutti i server: episodi aggiunti di recente"
 
 msgctxt "#30761"
 msgid "All Servers: Recently Added Movies"
-msgstr ""
+msgstr "Tutti i server: film aggiunti di recente"
 
 msgctxt "#30762"
 msgid "Server name prefix on combined sections"
-msgstr ""
+msgstr "Prefisso del nome server sulle sezioni combinate"
 
 msgctxt "#30763"
 msgid "Recently Added item count (per server section)"
-msgstr ""
+msgstr "Conteggio degli elementi aggiunti di recente (per sezione del server)"
 
 msgctxt "#30764"
 msgid "Recently Added include watched"
-msgstr ""
+msgstr "Aggiunti di recente includono già visti"
 
 msgctxt "#30765"
 msgid "Composite Playlist"
-msgstr ""
+msgstr "Playlist composita"
 
 msgctxt "#30766"
 msgid "Generate a playlist from the information below"
-msgstr ""
+msgstr "Genera una playlist dalle informazioni seguenti"
 
 msgctxt "#30767"
 msgid "Mixed"
-msgstr ""
+msgstr "Misto"
 
 msgctxt "#30768"
 msgid "Play"
@@ -1445,11 +1445,11 @@ msgstr "Riproduci"
 
 msgctxt "#30769"
 msgid "Item Count"
-msgstr ""
+msgstr "Conteggio elementi"
 
 msgctxt "#30770"
 msgid "All Servers"
-msgstr ""
+msgstr "Tutti i server"
 
 msgctxt "#30771"
 msgid "Shuffle"
@@ -1457,7 +1457,7 @@ msgstr "Mescola"
 
 msgctxt "#30772"
 msgid "Source"
-msgstr ""
+msgstr "Sorgente"
 
 msgctxt "#30773"
 msgid "None"
@@ -1465,111 +1465,111 @@ msgstr "Nessuno"
 
 msgctxt "#30774"
 msgid "Generating Playlist"
-msgstr ""
+msgstr "Generazione della playlist"
 
 msgctxt "#30775"
 msgid "This may take a while..."
-msgstr ""
+msgstr "L'operazione potrebbe richiedere del tempo..."
 
 msgctxt "#30776"
 msgid "Retrieving server list..."
-msgstr ""
+msgstr "Recupero elenco server..."
 
 msgctxt "#30777"
 msgid "Retrieving server sections..."
-msgstr ""
+msgstr "Recupero delle sezioni del server..."
 
 msgctxt "#30778"
 msgid "Retrieving content metadata..."
-msgstr ""
+msgstr "Recupero dei metadati del contenuto..."
 
 msgctxt "#30779"
 msgid "Retrieving final sample..."
-msgstr ""
+msgstr "Recupero del campione finale..."
 
 msgctxt "#30780"
 msgid "Adding items to playlist..."
-msgstr ""
+msgstr "Aggiunta di elementi alla playlist..."
 
 msgctxt "#30781"
 msgid "Adding %s to playlist..."
-msgstr ""
+msgstr "Aggiunta di %s alla playlist..."
 
 msgctxt "#30782"
 msgid "Completed."
-msgstr ""
+msgstr "Completato."
 
 msgctxt "#30783"
 msgid "Checking section %s on %s..."
-msgstr ""
+msgstr "Controllo della sezione %s su %s..."
 
 msgctxt "#30784"
 msgid "Retrieving %s from %s for sample..."
-msgstr ""
+msgstr "Recupero di %s da %s per campione..."
 
 msgctxt "#30785"
 msgid "Retrieving %s episodes for sample..."
-msgstr ""
+msgstr "Recupero di %s episodi per campione..."
 
 msgctxt "#30786"
 msgid "Creating samples..."
-msgstr ""
+msgstr "Creazione di campioni..."
 
 msgctxt "#30787"
 msgid "Retrieving metadata for %s..."
-msgstr ""
+msgstr "Recupero dei metadati per %s..."
 
 msgctxt "#30788"
 msgid "Show [B]Composite Playlist[/B] menu"
-msgstr ""
+msgstr "Mostra menu [B]Playlist composita[/B]"
 
 msgctxt "#30789"
 msgid "Server(s)"
-msgstr ""
+msgstr "Server"
 
 msgctxt "#30790"
 msgid "Combined Sections"
-msgstr ""
+msgstr "Sezioni combinate"
 
 msgctxt "#30791"
 msgid "Search Movies..."
-msgstr ""
+msgstr "Cerca film..."
 
 msgctxt "#30792"
 msgid "Mark as watched"
-msgstr ""
+msgstr "Segna come visto"
 
 msgctxt "#30793"
 msgid "Mark as unwatched"
-msgstr ""
+msgstr "Segna come non visto"
 
 msgctxt "#30794"
 msgid "Library - Movie Sections"
-msgstr ""
+msgstr "Libreria - Sezioni di film"
 
 msgctxt "#30795"
 msgid "Library - TV Show Sections"
-msgstr ""
+msgstr "Libreria - Sezioni di serie TV"
 
 msgctxt "#30796"
 msgid "Kodi Library"
-msgstr ""
+msgstr "Libreria di Kodi"
 
 msgctxt "#30797"
 msgid "Select sections to include in library scans"
-msgstr ""
+msgstr "Seleziona sezioni da includere nelle scansioni della libreria"
 
 msgctxt "#30798"
 msgid "Reset selected sections"
-msgstr ""
+msgstr "Reimposta sezioni selezionate"
 
 msgctxt "#30799"
 msgid "Configured library sections have been reset"
-msgstr ""
+msgstr "Le sezioni configurate della libreria sono state reimpostate"
 
 msgctxt "#30800"
 msgid "Continue Watching"
-msgstr ""
+msgstr "Continua a guardare"
 
 msgctxt "#30801"
 msgid "Detect Servers"
@@ -1577,51 +1577,51 @@ msgstr "Rileva server"
 
 msgctxt "#30802"
 msgid "420x420, 320Kbps"
-msgstr ""
+msgstr "420x420, 320Kbps"
 
 msgctxt "#30803"
 msgid "576x320, 720Kbps"
-msgstr ""
+msgstr "576x320, 720Kbps"
 
 msgctxt "#30804"
 msgid "720x480, 1.5Mbps"
-msgstr ""
+msgstr "720x480, 1.5Mbps"
 
 msgctxt "#30805"
 msgid "1024x768, 2Mbps"
-msgstr ""
+msgstr "1024x768, 2Mbps"
 
 msgctxt "#30806"
 msgid "1280x720, 3Mbps"
-msgstr ""
+msgstr "1280x720, 3Mbps"
 
 msgctxt "#30807"
 msgid "1280x720, 4Mbps"
-msgstr ""
+msgstr "1280x720, 4Mbps"
 
 msgctxt "#30808"
 msgid "1920x1080, 8Mbps"
-msgstr ""
+msgstr "1920x1080, 8Mbps"
 
 msgctxt "#30809"
 msgid "1920x1080, 10Mbps"
-msgstr ""
+msgstr "1920x1080, 10Mbps"
 
 msgctxt "#30810"
 msgid "1920x1080, 12Mbps"
-msgstr ""
+msgstr "1920x1080, 12Mbps"
 
 msgctxt "#30811"
 msgid "1920x1080, 20Mbps"
-msgstr ""
+msgstr "1920x1080, 20Mbps"
 
 msgctxt "#30812"
 msgid "1920x1080, 40Mbps"
-msgstr ""
+msgstr "1920x1080, 40Mbps"
 
 msgctxt "#30813"
 msgid "1920x1080, unlimited"
-msgstr ""
+msgstr "1920x1080, illimitato"
 
 #~ msgctxt "#30572"
 #~ msgid "Shelf Items"
